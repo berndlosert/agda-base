@@ -14,9 +14,9 @@ Export function composition (and it variants) and ``id`` from the category ``Set
   open import Control.Category public
     using (_∘_; _>>>_; _<<<_; id; Sets) 
 
-The flip function is proof that ``X → Y → Z`` and ``Y → X → Z`` are isomorphic
-types. If we think of ``→`` as exponentiation, then flip is proof that
-exponents in the cateogry Sets commute (modulo isomorphism)::
+The flip function is proof that ``X → Y → Z`` and ``Y → X → Z`` are isomorphic.
+If we think of ``→`` as exponentiation, then ``flip`` is proof that exponents
+in the cateogry ``Sets`` commute (modulo isomorphism)::
 
   private variable X Y Z : Set
 
@@ -51,7 +51,7 @@ in a more natural way::
 
   case_of_ = _&_
 
-The ``const`` function is used for producing constant functions. It is proof that every nonempty set is weakly terminal in the category ``Sets``::
+The ``const`` operation is used for producing constant functions. It is proof that every nonempty set is weakly terminal in the category ``Sets``::
 
   const : X → Y → X
   const x _ = x
