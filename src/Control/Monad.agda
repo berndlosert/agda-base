@@ -44,7 +44,7 @@ Kleisli {C} F = let instance _ = C in
   record {
     ob = ob C;
     hom = \ X Y -> hom C X (F Y);
-    _>>>_ = \ f g -> f >>> bind g;
+    _∘_ = \ g f -> bind g ∘ f;
     id = return
   }
 

@@ -53,7 +53,7 @@ Categories : Category
 Categories = record {
     ob = Category;
     hom = _=>_;
-    _>>>_ = _>>>_;
+    _∘_ = _∘_;
     id = id
   }
 
@@ -75,7 +75,7 @@ C :=> D = let instance _ = D; instance _ = Trans: C D in
   record {
     ob = C => D;
     hom = _~>_;
-    _>>>_ = \ alpha beta -> alpha >>> beta;
+    _∘_ = \ beta alpha -> beta ∘ alpha;
     id = \ {F} {X} -> id {F X}
   }
 
