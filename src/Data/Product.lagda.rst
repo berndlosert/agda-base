@@ -3,12 +3,12 @@ Data.Product
 ************
 ::
 
-  {-# OPTIONS --type-in-type #-}
+  {-# OPTIONS --set-in-set #-}
 
   module Data.Product where
 
-``Sigma`` is used to construct dependent pairs. It is a record type with
-constructor ``_,_`` and fields ``fst`` and ``snd``::
+``Σ`` (or ``Sigma``) is used to construct dependent pairs. It is a record set
+with constructor ``_,_`` and fields ``fst`` and ``snd``::
 
   open import Agda.Builtin.Sigma public
 
@@ -30,7 +30,7 @@ This instance allows use to use ``×`` for the Cartesian product::
     Mul:Set : Mul Set
     Mul:Set = Mul: (λ X Y → Σ X (λ _ → Y))
 
-Categorically speaking, for any two types ``X`` and ``Y``, both ``X × Y`` and
+Categorically speaking, for any two sets ``X`` and ``Y``, both ``X × Y`` and
 ``Y × X`` are products of ``X`` and ``Y``. The function swap serves as proof
 that they are isomorphic::
 
@@ -48,7 +48,7 @@ for ``×`` ::
   pair : (X → Y) → (X → Z) → X → Y × Z
   pair f g x = (f x , g x)
 
-The uncurried version of ``×`` is a bifunctor of type ``Sets × Sets => Sets``.
+The uncurried version of ``×`` is a bifunctor of set ``Sets × Sets => Sets``.
 The uncurried map operation of this bifunctor is denoted by cross::
 
   private variable X' Y' : Set
