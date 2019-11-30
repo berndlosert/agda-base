@@ -13,7 +13,6 @@ An empty set is a set with no constructors. We call the "official" one
 
   data Void : Set where
 
-  ⊥ : Set
   ⊥ = Void
 
 The absurd function is evidence that ``Void`` satisfies the universal property

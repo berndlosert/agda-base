@@ -13,7 +13,6 @@ true). It is the terminal object (up to isomorphism) in the category ``Sets``::
 
   open import Agda.Builtin.Unit public
 
-  Unit : Set
   Unit = ⊤
 
 The trivial function is evidence that ``Unit`` satisfies the universal property
