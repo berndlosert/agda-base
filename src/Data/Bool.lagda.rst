@@ -7,7 +7,7 @@ Data.Bool
 
   module Data.Bool where
   
-The type Bool has two constructors: ``false`` and ``true``::
+The type ``Bool`` has two constructors: ``false`` and ``true``::
 
   open import Agda.Builtin.Bool public
 
@@ -22,7 +22,7 @@ The equivalents of ``false`` and ``true`` at the type-level are ``Void`` and ``U
     BoolToSet .cast true = Unit
     BoolToSet .cast false = Void
 
-You can also think of ``bool`` as the fold operation for ``Bool``::
+``bool`` is the fold operation for ``Bool``::
 
   bool : {X : Set} → X → X → Bool → X
   bool x y false = x
