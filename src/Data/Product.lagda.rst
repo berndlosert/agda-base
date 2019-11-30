@@ -40,16 +40,15 @@ that they are isomorphic::
   swap (x , y) = (y , x)
 
 The pair function is evidence that ``×`` satisfies the universal property of
-products in the category Sets. You can also think of it as the unfold operation
-for ``×`` ::
+products in the category ``Sets``. You can also think of it as the unfold
+operation for ``×``::
 
   private variable Z : Set
 
   pair : (X → Y) → (X → Z) → X → Y × Z
   pair f g x = (f x , g x)
 
-The uncurried version of ``×`` is a bifunctor of set ``Sets × Sets => Sets``.
-The uncurried map operation of this bifunctor is denoted by cross::
+The uncurried version of ``×`` forms a bifunctor. The map operation of this bifunctor in uncurried form is cross::
 
   private variable X' Y' : Set
 
@@ -61,14 +60,14 @@ The function ``uncurry`` can be thought of as the fold operation for ``×``::
   uncurry : (X → Y → Z) → X × Y → Z
   uncurry f (x , y) = f x y
 
-The inverse of ``uncurry`` is ``curry``. These two functions witness an isomorphism
-between ``X × Y → Z`` and ``X → Y → Z``. They also serve as the left and right
-adjuncts of the adjunction ``Writer Y ⊣ Reader Y``::
+The inverse of ``uncurry`` is ``curry``. These two functions witness an
+isomorphism between ``X × Y → Z`` and ``X → Y → Z``. They also serve as the
+left and right adjuncts of the adjunction ``Writer Y ⊣ Reader Y``::
 
   curry : (X × Y → Z) → X → Y → Z
   curry f x y = f (x , y)
 
-The function curry is also evidence that ``Y → Z`` satisfies the universal
+The function ``curry`` is also evidence that ``Y → Z`` satisfies the universal
 property of being an exponential object in the category ``Sets``. Recall that
 that exponential objects come with a function ``apply : (Y → Z) × Y → Z`` such
 that ``apply (curry f x , y) = f (x , y)`` for any ``f : X × Y → Z``::
