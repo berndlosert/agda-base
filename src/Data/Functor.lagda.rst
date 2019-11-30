@@ -63,12 +63,13 @@ The category of categories is called ``Categories``::
       id = id
     }
 
-This allows us to ``F ~> G`` for (natural) transformations::
+This allows us to ``F ⇒ G`` for (natural) transformations::
 
   record Trans (C D : Category) : Set where
-    infixr 2 _~>_
-    _~>_ : (F G : ob C → ob D) → Set
-    F ~> G  = ∀ {X} → hom D (F X) (G X)
+    infixr 2 _⇒_ _=>_
+    _⇒_ : (F G : ob C → ob D) → Set
+    F ⇒ G  = ∀ {X} → hom D (F X) (G X)
+    _=>_ = _⇒_
 
   Trans: : (C D : Category) → Trans C D
   Trans: C D = record {}
@@ -82,7 +83,7 @@ transformatiosn between them::
   C :⇒ D = let instance _ = D; instance _ = Trans: C D in
     record {
       ob = ob C → ob D;
-      hom = _~>_;
+      hom = _⇒_;
       _∘_ = λ beta alpha → beta ∘ alpha;
       id = λ {F} {X} → id {F X}
     }
@@ -136,7 +137,7 @@ The coproduct of two endofunctors is a functor::
     Endofunctor:Coproduct .map f (left x) = left (map f x)
     Endofunctor:Coproduct .map f (right x) = right (map f x)
 
-And this allows use to use ``~>`` for natural transformations for endofunctors on ``Sets``::
+And this allows use to use ``⇒`` for natural transformations for endofunctors on ``Sets``::
 
   instance
     Trans:SetsSets = Trans: Sets Sets

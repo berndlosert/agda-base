@@ -4,9 +4,9 @@ module Control.Monad.Free where
 
 -- Let C be a category and let F : ob C → ob C be a functor. A free monad on F 
 -- is a monad Free F : ob C → ob C equipped with a natural transformation 
--- liftFree : F ~> Free F satisfying the following universal property: for any
--- monad M : ob C → ob C and natural transformation alpha : F ~> M, there is a 
--- unique monad morphism interpretFree alpha : Free F ~> M with the property 
+-- liftFree : F ⇒ Free F satisfying the following universal property: for any
+-- monad M : ob C → ob C and natural transformation alpha : F ⇒ M, there is a 
+-- unique monad morphism interpretFree alpha : Free F ⇒ M with the property 
 -- that l = liftFree >>> interpretFree. When C = Sets, we define Free F, 
 -- liftFree and interpretFree as follows:
 
@@ -18,17 +18,17 @@ open import Data.Functor
 -- problems either with the positivity checker or with the termination checker
 -- when defining foldFree.
 Free : (Set -> Set) -> Set -> Set
-Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+Free F X = forall {M} {{_ : Monad Sets M}} -> (F ⇒ M) -> M X
 
-liftFree : forall {F} -> F ~> Free F
+liftFree : forall {F} -> F ⇒ Free F
 liftFree x alpha = alpha x
 
 interpretFree : forall {F M} {{_ : Monad Sets M}}
-  -> (F ~> M) -> Free F ~> M 
+  -> (F ⇒ M) -> Free F ⇒ M 
 interpretFree alpha free = free alpha
 
 -- This is the left inverse of liftFree.
-retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ⇒ M
 retractFree = interpretFree id 
 
 instance 
@@ -48,7 +48,7 @@ Monad:Free .return x _ = return x
 -- would-be forgetful functor U that forgets the monad structure of a functor.
 -- The right adjunct of this adjunction is basically interpretFree. The left
 -- adjunct is given below. 
-uninterpretFree : forall {F M} -> (Free F ~> M) -> (F ~> M)
+uninterpretFree : forall {F M} -> (Free F ⇒ M) -> (F ⇒ M)
 uninterpretFree alpha x = alpha (liftFree x)
 
 -- When F is a functor, (Free F X , algFree) is an F-algebra.

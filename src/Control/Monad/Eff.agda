@@ -20,17 +20,17 @@ open import Data.List
 
 Eff : List (Set -> Set) -> Set -> Set
 Eff Fs X = Free (Union Fs) X
-      -- = (Union Fs ~> M) -> M X
+      -- = (Union Fs ⇒ M) -> M X
 
-run : Eff [] ~> id 
+run : Eff [] ⇒ id 
 run eff = eff {{Monad:id Sets}} absurd
 
 record Member (F : Set -> Set) (Fs : List (Set -> Set)) : Set where
   field
-    inj : F ~> Union Fs
-    prj : Union Fs ~> (F >>> Maybe) 
+    inj : F ⇒ Union Fs
+    prj : Union Fs ⇒ (F >>> Maybe) 
 
-  liftEff : F ~> Eff Fs
+  liftEff : F ⇒ Eff Fs
   liftEff = inj >>> liftFree
 
 open Member {{...}}
@@ -42,7 +42,7 @@ instance
   Member:Cons .prj (right u) = nothing
 
 foldEff : forall {Fs M} {{_ : Monad Sets M}}
-  -> (Union Fs ~> M) -> Eff Fs ~> M 
+  -> (Union Fs ⇒ M) -> Eff Fs ⇒ M 
 foldEff interpreter = foldFree interpreter
 
 -- Typically, an operation on a set can be nullary, unary, binary, etc. In
@@ -105,7 +105,7 @@ addGet {Fs} x = let _>>=_ = _>>=_ {Eff Fs} in
     i <- ask
     return (i + x)
 
-runReader : forall {R Fs} -> R -> Eff (Reader R :: Fs) ~> Eff Fs
+runReader : forall {R Fs} -> R -> Eff (Reader R :: Fs) ⇒ Eff Fs
 runReader r eff t = eff \ where
   (left (Ask k)) -> return (k r)
   (right u) -> t u
