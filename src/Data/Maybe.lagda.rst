@@ -46,7 +46,8 @@ We derive the ``Applicative`` instance of ``Maybe`` from the ``Monad`` instance:
     Applicative:Maybe : Applicative Maybe
     Applicative:Maybe = Idiom: ap return
 
-This is the left-biased semigroup instance of ``Maybe X``. This is useful when you have a list of ``Maybe X`` values and you want to pick the first one that
+This is the left-biased semigroup instance of ``Maybe X``. This is useful when
+you have a list of ``Maybe X`` values and you want to pick the first one that
 is not ``nothing``::
 
   open import Data.Semigroup
