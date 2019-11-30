@@ -20,12 +20,14 @@ dual to ``forall``::
   exists : ∀ {X} (P : X → Set) → Set
   exists {X} P = Σ X P
 
+  syntax exists P = ∃ P
+
 Defines * for the Cartesian product::
 
   open import Notation.Mul public 
   instance
     Mul:Set : Mul Set
-    Mul:Set = Mul: (λ X Y → exists {X} (λ _ → Y))
+    Mul:Set = Mul: (λ X Y → Σ X (λ _ → Y))
 
 Categorically speaking, for any two types X and Y, both X * Y and Y * X
 are products of X and Y. The function swap serves as proof that they are
