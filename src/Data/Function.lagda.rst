@@ -9,7 +9,7 @@ Data.Function
 
   open import Agda.Builtin.Strict
 
-Export function composition (and it variants) and id from the category Sets::
+Export function composition (and it variants) and ``id`` from the category ``Sets``::
 
   open import Control.Category public
     using (_∘_; _>>>_; _<<<_; id; Sets) 
