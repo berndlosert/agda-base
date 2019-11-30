@@ -2,6 +2,7 @@
 Data.Function
 *************
 ::
+
   {-# OPTIONS --type-in-type #-}
 
   module Data.Function where
