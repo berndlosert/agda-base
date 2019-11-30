@@ -8,7 +8,7 @@ Data.Functor
   module Data.Functor where
 
 
-A function ``F : C ⇒ D`` is a functor when it has a corresponding ``map`` operation satisfying the functor laws::
+A function ``F : ob C → ob D`` is a functor when it has a corresponding ``map`` operation satisfying the functor laws::
 
   open import Control.Category
 
