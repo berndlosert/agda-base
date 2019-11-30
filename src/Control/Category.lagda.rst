@@ -27,8 +27,10 @@ In other words::
       _∘_ : {X Y Z : ob} → hom Y Z → hom X Y → hom X Z
       id : {X : ob} → hom X X
 
+    -- ASCII-friendly version of composition.
     _<<<_ = _∘_
 
+    -- Flipped version of <<<.
     _>>>_ : {X Y Z : ob} → hom X Y → hom Y Z → hom X Z
     f >>> g = g ∘ f
 
@@ -48,7 +50,7 @@ The category of sets and total functions is called ``Sets``::
         id = λ x → x
       }
 
-For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``∘`` are flipped.
+For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``∘`` are flipped::
 
   Op : Category → Category
   Op C = let instance _ = C in record {
