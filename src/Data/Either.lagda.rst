@@ -7,8 +7,6 @@ Data.Either
 
   module Data.Either where
 
-  open import Notation.Add public
-
 ``Either`` is used to form coproducts (disjoint unions) in the category ``Sets``::
 
   data Either (X Y : Set) : Set where
@@ -16,6 +14,8 @@ Data.Either
     right : Y → Either X Y
 
 This makes it possible to write ``X + Y`` for ``Either X Y``::
+
+  open import Notation.Add public
 
   instance
     Add:Set : Add Set
