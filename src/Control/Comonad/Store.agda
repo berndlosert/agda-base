@@ -9,8 +9,8 @@ open import Data.Functor
 open import Data.Product
 
 -- Store S is the dual of State S.
-Store : Set -> Set -> Set
-Store S X = (S -> X) * S
+Store : Set → Set → Set
+Store S X = (S → X) * S
 
 private variable S : Set
 

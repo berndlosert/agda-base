@@ -9,6 +9,6 @@ open import Agda.Builtin.FromNeg public
 -- And this allows us to define negation as an operation.
 record Negation (X Y : Set) : Set where
   constructor Negation:
-  field -_ : X -> Y
+  field -_ : X → Y
 
 open Negation {{...}} public

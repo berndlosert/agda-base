@@ -20,26 +20,26 @@ instance
 
 -- Endofunctions form a monoid.
 open import Control.Category
-Monoid:<<< : {X : Set} -> Monoid (X -> X)
+Monoid:<<< : {X : Set} → Monoid (X → X)
 Monoid:<<< = record {
     instance:Semigroup = Semigroup:<<<;
     mempty = id
   }
 
--- Functions of the form X -> Y where Y is a monoid form a monoid.
-Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
+-- Functions of the form X → Y where Y is a monoid form a monoid.
+Monoid:Function : {X Y : Set} {{_ : Monoid Y}} → Monoid (X → Y)
 Monoid:Function = record {
     instance:Semigroup = Semigroup:Function;
-    mempty = \ x -> mempty
+    mempty = \ x → mempty
   }
 
 -- Every Monoid can be viewed as a category having one object, viz. Unit,
 -- and one homset, viz. hom tt tt = X. Composition in this Category is done
 -- using _<>_ and mempty is the sole identity morphism.
-MonoidToCategory : (X : Set) {{_ : Monoid X}} -> Category
+MonoidToCategory : (X : Set) {{_ : Monoid X}} → Category
 MonoidToCategory X = record {
     ob = Unit;
-    hom = \ _ _ -> X;
+    hom = \ _ _ → X;
     _∘_ = _<>_;
     id = mempty
   }
@@ -49,7 +49,7 @@ open import Data.Product
 Monoids : Category
 Monoids = record {
     ob = exists Monoid; 
-    hom =  \ { (X , _) (Y , _) -> X -> Y };
+    hom =  \ { (X , _) (Y , _) → X → Y };
     _∘_ = _∘_;
     id = id
   }
@@ -57,7 +57,7 @@ Monoids = record {
 -- A monoidal category C is one where ob C is a monoid with the proviso that
 -- the associativity of _<>_ and the identityness of mempty hold up to 
 -- isomorphism.
-Monoidal : Category -> Set
+Monoidal : Category → Set
 Monoidal C = Monoid (ob C)
 
 -- The category Sets is monoidal.
@@ -80,5 +80,5 @@ record MonoidOb
 open MonoidOb {{...}} public
 
 -- Every monoid is a monoid object in Sets.
-MonoidIsMonoibOb : (X : Set) {{_ : Monoid X}} -> MonoidOb Sets X
-MonoidIsMonoibOb X = MonoidOb: (uncurry _<>_) (\ _ -> mempty)
+MonoidIsMonoibOb : (X : Set) {{_ : Monoid X}} → MonoidOb Sets X
+MonoidIsMonoibOb X = MonoidOb: (uncurry _<>_) (\ _ → mempty)

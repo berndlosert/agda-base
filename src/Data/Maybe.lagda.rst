@@ -12,7 +12,7 @@ Data.Maybe
 
   data Maybe (X : Set) : Set where
     nothing : Maybe X
-    just : X -> Maybe X
+    just : X → Maybe X
 
 This tells the Agda compiler to compile ``Maybe`` above to Haskell's ``Maybe``::
 
@@ -53,7 +53,7 @@ that is not ``nothing``::
   open import Data.Semigroup
 
   instance
-    Semigroup:First : {X : Set} -> Semigroup (Maybe X)
-    Semigroup:First = Semigroup: \ where
-      nothing _ -> nothing
-      (just x) _ -> just x
+    Semigroup:First : {X : Set} → Semigroup (Maybe X)
+    Semigroup:First = Semigroup: λ where
+      nothing _ → nothing
+      (just x) _ → just x

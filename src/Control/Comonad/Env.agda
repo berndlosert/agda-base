@@ -4,7 +4,7 @@ module Control.Comonad.Env where
 
 -- The enivornment comonad. This is the dual of the Reader monad.
 open import Data.Product
-Env : Set -> Set -> Set
+Env : Set → Set → Set
 Env E Y = E * Y
 
 private variable E : Set

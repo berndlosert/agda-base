@@ -30,9 +30,9 @@ liftFreer = liftCoyoneda {Sets} >>> liftFree
 foldFreer : {F M : Set -> Set} 
   -> {{_ : Endofunctor Sets F}} 
   -> {{_ : Monad Sets M}}
-  -> (F ~> M) -> Freer F ~> M 
+  -> (F ⇒ M) -> Freer F ⇒ M 
 foldFreer = foldCoyoneda >>> foldFree
 
 -- The Freer analog of ladjunctFree.
-ladjunctFreer : {F M : Set -> Set} -> (Freer F ~> M) -> F ~> M
+ladjunctFreer : {F M : Set -> Set} -> (Freer F ⇒ M) -> F ⇒ M
 ladjunctFreer alpha x = alpha (liftFreer x)

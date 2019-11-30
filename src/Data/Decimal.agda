@@ -13,7 +13,7 @@ private
   -- Add two decimal numbers and a carry digit following the school-taught
   -- algorithm.
   open import Data.Product
-  add : Decimal -> Decimal -> Digit -> Decimal
+  add : Decimal → Decimal → Digit → Decimal
   add [] [] 0d = [] -- prevents adding leading zeros
   add [] [] carry = [ carry ]
   add [] (n :: ns) carry =
@@ -30,7 +30,7 @@ instance
   -- This allows us to use _+_ for adding decimals.
   open import Notation.Add
   Add:Decimal : Add Decimal
-  Add:Decimal = Add: (\ m n -> add m n 0d) 
+  Add:Decimal = Add: (\ m n → add m n 0d) 
 
   -- This converts a unary natural number to a decimal number.
   open import Data.Cast
@@ -49,8 +49,8 @@ instance
   open import Notation.Number public
   Number:Decimal : Number Decimal
   Number:Decimal = record {
-      Constraint = \ _ -> Unit;
-      fromNat = \ n -> cast n 
+      Constraint = \ _ → Unit;
+      fromNat = \ n → cast n 
     }
 
   -- Convert a list of digit characters to a decimal number.

@@ -30,12 +30,12 @@ This function will convert a char digit into its corresponding natural number::
   open import Data.Bool
   open import Data.Nat.Base
 
-  digitToNat : (c : Char) -> {_ : Constraint (isDigit c)} -> Nat
+  digitToNat : (c : Char) → {_ : Constraint (isDigit c)} → Nat
   digitToNat c = ord c - ord '0'
 
 This is the ``Maybe`` version of the above operation::
 
   open import Data.Maybe
 
-  digitToNat? : (c : Char) -> Maybe Nat
+  digitToNat? : (c : Char) → Maybe Nat
   digitToNat? c = if isDigit c then just (ord c - ord '0') else nothing

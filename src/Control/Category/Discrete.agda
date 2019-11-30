@@ -11,11 +11,11 @@ open import Data.Void
 
 -- A discrete category is one having only identity morphisms. Any type X can be
 -- viewed as a discrete category Discrete X.
-Discrete : Set -> Category
+Discrete : Set → Category
 Discrete X = record {
     ob = X;
     hom = _===_;
-    _>>>_ = \ { refl refl -> refl };
+    _>>>_ = \ { refl refl → refl };
     id = refl
   }
 

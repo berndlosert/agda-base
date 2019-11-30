@@ -6,6 +6,6 @@ module Notation.Add where
 record Add (X : Set) : Set where
   constructor Add:
   infixr 24 _+_
-  field _+_ : X -> X -> X
+  field _+_ : X → X → X
 
 open Add {{...}} public

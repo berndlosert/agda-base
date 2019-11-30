@@ -2,8 +2,8 @@
 
 module Data.Int where
 
--- The type Int of integers has two constructors: pos : Nat -> Int and
--- negsuc : Nat -> Int. The value pos n represents the positive integer n.
+-- The type Int of integers has two constructors: pos : Nat → Int and
+-- negsuc : Nat → Int. The value pos n represents the positive integer n.
 -- The value negsuc n represents the negative integer -n - 1.
 open import Agda.Builtin.Int public
   using (Int; pos; negsuc)
@@ -14,12 +14,12 @@ open import Data.Unit public
 open import Notation.Number public
 Number:Int : Number Int
 Number:Int = record {
-    Constraint = \ _ -> Unit;
-    fromNat = \ n -> pos n
+    Constraint = \ _ → Unit;
+    fromNat = \ n → pos n
   }
 
 -- Used for telling Agda that a number literal is an Int.
-Int: : Int -> Int
+Int: : Int → Int
 Int: x = x
 
 -- Cast Nat to Int.
@@ -31,49 +31,49 @@ NatToInt = Cast: pos
 -- Cast an Int to a Nat (basically the absolute value).
 instance IntToNat : Cast Int Nat
 IntToNat = Cast: \ where
-  (pos n) -> n
-  (negsuc n) -> suc n
+  (pos n) → n
+  (negsuc n) → suc n
 
 -- Allows us to write -n for negative integers.
 open import Notation.Negative
 instance Negative:Int : Negative Int
 Negative:Int = record {
-    Constraint = \ _ -> Unit;
+    Constraint = \ _ → Unit;
     fromNeg = \ where
-      0 -> pos zero
-      (suc n) -> negsuc n
+      0 → pos zero
+      (suc n) → negsuc n
   }
 
 -- Negation of natural numbers.
-instance Negation:Nat->Int : Negation Nat Int
-Negation:Nat->Int = Negation: \ where
-  0 -> pos zero
-  (suc n) -> negsuc n
+instance Negation:Nat→Int : Negation Nat Int
+Negation:Nat→Int = Negation: \ where
+  0 → pos zero
+  (suc n) → negsuc n
 
 -- Negation of integers.
-instance Negation:Int->Int : Negation Int Int
-Negation:Int->Int = Negation: \ where
-  (pos zero) -> pos zero
-  (pos (suc n)) -> negsuc n
-  (negsuc n) -> pos (suc n)
+instance Negation:Int→Int : Negation Int Int
+Negation:Int→Int = Negation: \ where
+  (pos zero) → pos zero
+  (pos (suc n)) → negsuc n
+  (negsuc n) → pos (suc n)
 
 -- Int equality.
 open import Data.Bool
 open import Data.Eq
 instance Eq:Int : Eq Int
 Eq:Int = Eq: \ where
-  (pos n) (pos m) -> n == m
-  (negsuc n) (negsuc m) -> n == m
-  _ _ -> false
+  (pos n) (pos m) → n == m
+  (negsuc n) (negsuc m) → n == m
+  _ _ → false
 
 -- Comparing Int values.
 open import Data.Ord
 instance Ord:Int : Ord Int
 Ord:Int = Ord: \ where
-  (pos n) (pos m) -> n < m
-  (pos n) (negsuc m) -> false
-  (negsuc n) (pos m) -> true
-  (negsuc n) (negsuc m) -> n < m
+  (pos n) (pos m) → n < m
+  (pos n) (negsuc m) → false
+  (negsuc n) (pos m) → true
+  (negsuc n) (negsuc m) → n < m
 
 -- Int addition.
 open import Notation.Add public
@@ -82,12 +82,12 @@ instance Add:Int : Add Int
 Add:Int = Add: add
   where
     -- Subtracting two naturals to an integer result.
-    sub : Nat -> Nat -> Int
+    sub : Nat → Nat → Int
     sub m 0 = pos m
     sub 0 (suc n) = negsuc n
     sub (suc m) (suc n) = sub m n
 
-    add : Int -> Int -> Int
+    add : Int → Int → Int
     add (negsuc m) (negsuc n) = negsuc (suc (m + n))
     add (negsuc m) (pos n) = sub n (suc m)
     add (pos m) (negsuc n) = sub m (suc n)
@@ -97,20 +97,20 @@ Add:Int = Add: add
 open import Notation.Mul public
 instance Mul:Int : Mul Int
 Mul:Int = Mul: \ where
-  (pos n) (pos m) -> pos (n * m)
-  (negsuc n) (negsuc m) -> pos (suc n * suc m)
-  (pos n) (negsuc m) -> - (n * suc m)
-  (negsuc n) (pos m) -> - (suc n * m)
+  (pos n) (pos m) → pos (n * m)
+  (negsuc n) (negsuc m) → pos (suc n * suc m)
+  (pos n) (negsuc m) → - (n * suc m)
+  (negsuc n) (pos m) → - (suc n * m)
 
 -- Int subtraction.
 instance Sub:Int : Sub Int
-Sub:Int = Sub: \ n m -> n + (- m)
+Sub:Int = Sub: \ n m → n + (- m)
 
 -- Useful functions for producing ranges of integers.
 open import Data.List.Base
 {-# TERMINATING #-}
-from_to_count : Int -> Int -> List Int
+from_to_count : Int → Int → List Int
 from m to n count = case (compare m n) of \ where
-  EQ -> [ m ]
-  LT -> m :: from (m + pos (suc zero)) to n count
-  GT -> n :: from m to (n - pos (suc zero)) count
+  EQ → [ m ]
+  LT → m :: from (m + pos (suc zero)) to n count
+  GT → n :: from m to (n - pos (suc zero)) count
