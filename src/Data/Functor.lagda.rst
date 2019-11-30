@@ -63,7 +63,7 @@ The category of categories is called ``Categories``::
       id = id
     }
 
-This allows us to ``F ⇒ G`` for (natural) transformations::
+This allows us to write ``F ⇒ G`` for (natural) transformations::
 
   record Trans (C D : Category) : Set where
     infixr 2 _⇒_ _=>_
@@ -76,19 +76,17 @@ This allows us to ``F ⇒ G`` for (natural) transformations::
 
   open Trans ⦃ ... ⦄ public
 
-``C :⇒ D`` is the functor category of functors from ``C to D`` and natural
+``D ^ C`` is the functor category of functors from ``C to D`` and natural
 transformatiosn between them::
 
-  _:⇒_ : Category → Category → Category
-  C :⇒ D = let instance _ = D; instance _ = Trans: C D in
+  _^_ : Category → Category → Category
+  D ^ C = let instance _ = D; instance _ = Trans: C D in
     record {
       ob = ob C → ob D;
       hom = _⇒_;
-      _∘_ = λ beta alpha → beta ∘ alpha;
+      _∘_ = λ β α → β ∘ α;
       id = λ {F} {X} → id {F X}
     }
-
-  _:=> = _:⇒_
 
 A few special endofunctor instances::
 

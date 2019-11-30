@@ -26,16 +26,16 @@ Triple: : (C : Category) {F : ob C → ob C} {{_ : Functor C C F}}
 Triple: C bind return = Monad: (bind id) return
   where instance _ = C
 
--- For every category C, C :=> C is a monoidal category where the tensor is
+-- For every category C, C ^ C is a monoidal category where the tensor is
 -- functor composition and the identity is the identity functor.
 open import Data.Semigroup
 open import Data.Monoid
-Monadic : (C : Category) -> Monoidal (C :⇒ C)
+Monadic : (C : Category) -> Monoidal (C ^ C)
 Monadic C = Monoid: {{Semigroup: _>>>_}} id
 
 -- Monads are monoids in the category of endofunctors. What's the problem?
 MonadIsMonoidOb : {C : Category} (F : ob C → ob C) {{_ : Monad C F}}
-  -> MonoidOb (C :⇒ C) {{Monadic C}} F
+  -> MonoidOb (C ^ C) {{Monadic C}} F
 MonadIsMonoidOb F = MonoidOb: join return
 
 -- Kleisli F is the Kleisli category of a monad F.

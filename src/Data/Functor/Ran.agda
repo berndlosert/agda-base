@@ -6,7 +6,7 @@ open import Control.Category
 open import Data.Functor
 
 -- Ran F G is a generalization of Yoneda C F X. It an exponential object (with
--- exponent F and base G) in the Monadic monoidal category Sets :=> Sets. It 
+-- exponent F and base G) in the Monadic monoidal category Sets ^ Sets. It 
 -- is also the right Kan extension of G along F. More generally, we have
 -- the adjunction F >>>_ -| Ran F.
 Ran : {C : Category} (F : ob C → ob C) {{_ : Functor C C F}}
