@@ -2,9 +2,9 @@
 
 module Control.Applicative where
 
--- Applicative functors are lax monoidal functors of type Sets => Sets that
+-- Applicative functors are lax monoidal functors of type Set → Set that
 -- preserve the Cartesian monoidal structure. In other words, a functor
--- F : Sets => Sets is applicative when F X * F Y -> F (X * Y) and
+-- F : Set → Set is applicative when F X * F Y -> F (X * Y) and
 -- Unit -> F Unit.
 
 open import Control.Category
@@ -67,7 +67,7 @@ Idiom: _<*>_ pure = record {
     unit = pure {Unit}
   }
 
--- Every monad of type Sets => Sets is an applicative with unit = return
+-- Every monad of type Set → Set is an applicative with unit = return
 -- and _<*>_ = ap, where ap defined as follows:
 open import Control.Monad
 ap : {F : Set -> Set} {{_ : Monad Sets F}} {X Y : Set}

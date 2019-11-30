@@ -9,7 +9,7 @@ open import Data.Functor
 
 -- Reader R X models computations of type X that depend on a config. value of
 -- type R. Such computations are called Reader computations.
-Reader : Set -> Sets => Sets
+Reader : Set -> Set → Set
 Reader R X = R -> X
 
 -- Run a Reader computation with a given config. value to get an actual value.

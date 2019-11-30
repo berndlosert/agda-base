@@ -8,34 +8,27 @@ Data.Functor
   module Data.Functor where
 
 
-This notation helps us avoid having to write ``ob`` all the time::
+A function ``F : C ⇒ D`` is a functor when it has a corresponding ``map`` operation satisfying the functor laws::
 
   open import Control.Category
 
-  _⇒_ : Category → Category → Set
-  C ⇒ D = ob C → ob D
-
-  _=>_ = _⇒_
-
-A function ``F : C ⇒ D`` is a functor when it has a corresponding ``map`` operation satisfying the functor laws::
-
-  record Functor (C D : Category) (F : C ⇒ D) : Set where
+  record Functor (C D : Category) (F : ob C → ob D) : Set where
     constructor Functor:
     field
-      map : {X Y : ob C} → hom C X Y → hom D (F X) (F Y)
+      map : ∀ {X Y} → hom C X Y → hom D (F X) (F Y)
 
   open Functor ⦃ ... ⦄ public
 
 A convenient shorthand for defining endofunctors::
 
-  Endofunctor : (C : Category) → (C ⇒ C) → Set
+  Endofunctor : (C : Category) → (ob C → ob C) → Set
   Endofunctor C = Functor C C
 
 A convenient shorthand for defining profunctors::
 
   open import Data.Product
 
-  Profunctor : (C D : Category) → (C × D ⇒ Sets) → Set
+  Profunctor : (C D : Category) → (ob (C × D) → Set) → Set
   Profunctor C D = Functor (C × D) Sets
 
 The composition of two functors forms a functor::
@@ -52,11 +45,11 @@ The identity function forms a functor::
   Functor:id C .map = id
 
 For any two categories ``B``, ``C`` and for every object ``X : ob C``, ``const
-X : B ⇒ C`` is a functor::
+X : ob B → ob C`` is a functor::
 
   open import Data.Function
 
-  Functor:const : (X : ob C) → Functor B C (const X)
+  Functor:const : ∀ X → Functor B C (const X)
   Functor:const {C = C} X .map = const (id {X})
     where instance _ = C
 
@@ -65,7 +58,7 @@ The category of categories is called ``Categories``::
   Categories : Category
   Categories = record {
       ob = Category;
-      hom = _⇒_;
+      hom = λ C D → ob C → ob D;
       _∘_ = _∘_;
       id = id
     }
@@ -74,8 +67,8 @@ This allows us to ``F ~> G`` for (natural) transformations::
 
   record Trans (C D : Category) : Set where
     infixr 2 _~>_
-    _~>_ : (F G : C ⇒ D) → Set
-    F ~> G  = {X : ob C} → hom D (F X) (G X)
+    _~>_ : (F G : ob C → ob D) → Set
+    F ~> G  = ∀ {X} → hom D (F X) (G X)
 
   Trans: : (C D : Category) → Trans C D
   Trans: C D = record {}
@@ -88,7 +81,7 @@ transformatiosn between them::
   _:⇒_ : Category → Category → Category
   C :⇒ D = let instance _ = D; instance _ = Trans: C D in
     record {
-      ob = C ⇒ D;
+      ob = ob C → ob D;
       hom = _~>_;
       _∘_ = λ beta alpha → beta ∘ alpha;
       id = λ {F} {X} → id {F X}

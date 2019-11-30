@@ -2,13 +2,13 @@
 
 module Control.Monad.Free where
 
--- Let C be a category and let F : C => C be a functor. A free monad on F is
--- a monad Free F : C => C equipped with a natural transformation liftFree :
--- F ~> Free F satisfying the following universal property: for any monad
--- M : C => C and natural transformation alpha : F ~> M, there is a unique
--- monad morphism interpretFree alpha : Free F ~> M with the property that l =
--- liftFree >>> interpretFree. When C = Sets, we define Free F, liftFree and
--- interpretFree as follows:
+-- Let C be a category and let F : ob C → ob C be a functor. A free monad on F 
+-- is a monad Free F : ob C → ob C equipped with a natural transformation 
+-- liftFree : F ~> Free F satisfying the following universal property: for any
+-- monad M : ob C → ob C and natural transformation alpha : F ~> M, there is a 
+-- unique monad morphism interpretFree alpha : Free F ~> M with the property 
+-- that l = liftFree >>> interpretFree. When C = Sets, we define Free F, 
+-- liftFree and interpretFree as follows:
 
 open import Control.Category
 open import Control.Monad

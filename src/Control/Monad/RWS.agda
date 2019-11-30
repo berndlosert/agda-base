@@ -7,7 +7,7 @@ open import Data.Functor
 open import Data.Product
 
 -- RWS combines Reader, Writer and State.
-RWS : Set -> Set -> Set -> Sets => Sets
+RWS : Set -> Set -> Set -> Set → Set
 RWS R W S X = R -> S -> W -> X * S * W
 
 instance

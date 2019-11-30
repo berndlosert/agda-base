@@ -2,11 +2,11 @@
 
 module Control.Comonad where
 
--- A functor F : C => C is a comonad when it comes with two natural transfor-
--- mations extract and duplicate obeying the comonad laws. 
+-- A functor F : ob C → ob C is a comonad when it comes with two natural
+-- transformations extract and duplicate obeying the comonad laws. 
 open import Control.Category
 open import Data.Functor
-record Comonad (C : Category) (F : C => C) : Set where
+record Comonad (C : Category) (F : ob C → ob C) : Set where
   constructor Comonad:
   field
     {{instance:Functor}} : Functor C C F
@@ -18,7 +18,7 @@ record Comonad (C : Category) (F : C => C) : Set where
 open Comonad {{...}} hiding (instance:Functor) public
 
 -- Cokleisli F is the coKleisli category of a comonad F. 
-Cokleisli : {C : Category} (F : C => C) {{_ : Comonad C F}} -> Category
+Cokleisli : {C : Category} (F : ob C → ob C) {{_ : Comonad C F}} -> Category
 Cokleisli {C} F = let instance _ = C in
   record {
     ob = ob C;

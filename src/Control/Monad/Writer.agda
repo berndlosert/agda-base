@@ -12,7 +12,7 @@ open import Data.Unit
 
 -- Writer W X models computations of type X that store a value of type W.
 -- We call such computations Writer computations.
-Writer : Set -> Sets => Sets
+Writer : Set -> Set -> Set
 Writer W X = X * W
 
 -- We use execWriter to get output of a Writer computation.

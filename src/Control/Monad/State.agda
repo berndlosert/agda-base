@@ -9,7 +9,7 @@ open import Data.Product
 
 -- State S X models state transitions where the states are of type S and the
 -- transitions produce an output of type X.
-State : Set -> Sets => Sets
+State : Set -> Set → Set
 State S X = S -> X * S
 
 -- The runState function carries out a state transition using the given
