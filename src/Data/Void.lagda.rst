@@ -13,9 +13,12 @@ An empty set is a set with no constructors. We call the "official" one
 
   data Void : Set where
 
+  ⊥ : Set
+  ⊥ = Void
+
 The absurd function is evidence that ``Void`` satisfies the universal property
 of initial objects in the categry ``Sets``. You can also think of it as the
 fold operation for ``Void``::
 
-  absurd : {X : Set} -> Void -> X
+  absurd : {X : Set} → Void → X
   absurd ()
