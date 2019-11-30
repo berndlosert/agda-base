@@ -3,12 +3,12 @@ Data.Product
 ************
 ::
 
-  {-# OPTIONS --set-in-set #-}
+  {-# OPTIONS --type-in-type #-}
 
   module Data.Product where
 
-``Σ`` (or ``Sigma``) is used to construct dependent pairs. It is a record set
-with constructor ``_,_`` and fields ``fst`` and ``snd``::
+``Σ`` (or ``Sigma``) is used to construct dependent pairs. It is a record with
+constructor ``_,_`` and fields ``fst`` and ``snd``::
 
   open import Agda.Builtin.Sigma public
 
