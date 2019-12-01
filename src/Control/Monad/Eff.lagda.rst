@@ -51,13 +51,13 @@ Now what does all this have to do with "effects"? Consider the following effects
 
 +--------------+----------------------+
 | Effect       | Operations           |
-+==============+=============+========+
++==============+======================+
 | ``Reader R`` | ``ask : R``          |
 +--------------+----------------------+
-| ``Writer W`` | ``tell : W → Unit`` |
+| ``Writer W`` | ``tell : W -> Unit`` |
 +--------------+----------------------+
 | ``State S``  | ``get : S``          |
-|              | ``put : S → Unit``  |
+|              | ``put : S -> Unit``  |
 +--------------+----------------------+
 
 For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
