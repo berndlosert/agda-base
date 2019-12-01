@@ -11,13 +11,13 @@ Let ``C`` be a category and let ``F : ob C → ob C`` be a functor. A free monad
 on ``F`` is a monad ``Free F : ob C → ob C`` equipped with a natural
 transformation ``liftFree : F ⇒ Free F`` satisfying the following universal
 property: for any monad ``M : ob C → ob C`` and natural transformation ``α
-: F ⇒ M``, there is a unique monad morphism interpretFree ``α : Free F ⇒
-M`` with the property that ``l = interpretFree ∘ liftFree``. When ``C =
+: F ⇒ M``, there is a unique monad morphism ``interpretFree α : Free F ⇒
+M`` with the property that ``α = interpretFree α ∘ liftFree``. When ``C =
 Sets``, we define ``Free F``, ``liftFree`` and ``interpretFree`` as follows:
 
 (N.B. This is the final encoding of ``Free``. The other encodings of ``Free``
 cause problems either with the positivity checker or with the termination
-checker when defining ``foldFree``)::
+checker when defining ``interpretFree``)::
 
   private variable F M : Set → Set
 
@@ -70,7 +70,7 @@ When ``F`` is a functor, ``(Free F X , algFree)`` is an ``F``-algebra::
 
 A different version of interpretFree that takes a generator ``gen : X → Y`` and
 and ``M``-algebra ``alg : M Y → Y`` and produces a fold of type ``Free M X →
-Y``. This fold is based on the Church encoding of ``Free``.
+Y``. This fold is based on the Church encoding of ``Free``::
 
   private variable X Y : Set
 
