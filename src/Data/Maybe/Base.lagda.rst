@@ -7,8 +7,8 @@ Data.Maybe.Base
 
   module Data.Maybe.Base where
 
-``Maybe X`` is used for representing optional values of ``X``. It adds an extra
-``nothing`` value to any set::
+``Maybe X`` is used for representing optional values of ``X`` by adding an extra
+``nothing`` value to ``X``::
 
   data Maybe (X : Set) : Set where
     nothing : Maybe X

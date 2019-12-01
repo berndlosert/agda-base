@@ -7,7 +7,7 @@ Data.Functor.Union
 
   module Data.Functor.Union where
 
-``Union [ F₁ # F₂ # … # Fₙ ] X`` is the disjoint union ``F₁ X + F₂ X + ⋯ + Fₙ X``::
+``Union`` is a higher-order generalization of ``Either``. To be precise, ``Union [ F₁ # F₂ # … # Fₙ ] X`` is the disjoint union ``F₁ X + F₂ X + ⋯ + Fₙ X``::
 
   open import Data.List public
   open import Data.Either public
@@ -17,23 +17,11 @@ Data.Functor.Union
   Union [] X = Void
   Union (F :: Fs) X = F X + Union Fs X
 
-If ``Fs`` is a list of endofunctors on ``Sets``, then ``Union Fs`` is also a endofunctor on ``Sets``::
+We need generalizations of the injections ``left`` and ``right`` and projections ``leftToMaybe`` and ``rightToMaybe`` for ``Union``. These generalizations are provided by the following ``Member`` type class::
 
   open import Control.Category
   open import Data.Functor
-
-  Functor:EmptyUnion : Endofunctor Sets (Union [])
-  Functor:EmptyUnion .map f ()
-
-  Functor:NonemptyUnion : ∀ {F Fs} 
-    → {{_ : Endofunctor Sets F}}
-    → {{_ : Endofunctor Sets (Union Fs)}}
-    → Endofunctor Sets (Union (F :: Fs))
-  Functor:NonemptyUnion .map f (left x) = left (map f x)
-  Functor:NonemptyUnion .map f (right u) = right (map f u)
-
-If an ``F : Set → Set`` forms part of the list ``Fs : List (Set → Set)``, then
-we can 
+  open import Data.Maybe.Base
 
   record Member (F : Set → Set) (Fs : List (Set → Set)) : Set where
     field
@@ -42,8 +30,25 @@ we can
 
   open Member ⦃ ... ⦄
 
-    instance
-    Member:Cons : forall {F Fs} → Member F (F :: Fs)
+  private
+    variable
+      F : Set → Set
+      Fs : List (Set → Set)
+
+  instance
+    Member:Cons : ∀ {F Fs} → Member F (F :: Fs)
     Member:Cons .inj = left
     Member:Cons .prj (left x) = just x
     Member:Cons .prj (right u) = nothing
+
+If the ``Fs`` are functors, then so is ``Union Fs``::
+
+  Functor:EmptyUnion : Endofunctor Sets (Union [])
+  Functor:EmptyUnion .map f ()
+
+  Functor:NonemptyUnion : ∀ {F Fs} 
+    → ⦃ _ : Endofunctor Sets F ⦄
+    → ⦃ _ : Endofunctor Sets (Union Fs) ⦄
+    → Endofunctor Sets (Union (F :: Fs))
+  Functor:NonemptyUnion .map f (left x) = left (map f x)
+  Functor:NonemptyUnion .map f (right u) = right (map f u)
