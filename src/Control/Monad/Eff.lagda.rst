@@ -54,7 +54,7 @@ Now what does all this have to do with "effects"? Consider the following effects
 +==============+======================+
 | ``Reader R`` | ``ask : R``          |
 +--------------+----------------------+
-| ``Writer W`` | ``tell : W -> Unit`` |
+| ``Writer W`` | ``tell : W → Unit`` |
 +--------------+----------------------+
 | ``State S``  | ``get : S``          |
 |              | ``put : S -> Unit``  |
