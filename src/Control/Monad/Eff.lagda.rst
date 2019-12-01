@@ -7,22 +7,9 @@ Control.Monad.Eff
 
   module Control.Monad.Eff where
 
-  open import Control.Category
-  open import Control.Monad
-  open import Control.Monad.Free
-  open import Data.Monoid
-  open import Data.Either
-  open import Data.Function
-  open import Data.Functor
-
-  open import Data.Int
-  open import Data.Maybe
-  open import Data.Product
-  open import Data.String
-  open import Data.Void
-
 ``Eff Fs`` is just the free monad obtained from a disjoint union of ``Fs``::
 
+  open import Control.Monad.Free
   open import Data.Functor.Union
   open import Data.List
 
@@ -32,6 +19,10 @@ Control.Monad.Eff
 
 These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
 
+  open import Control.Category
+  open import Control.Monad
+  open import Data.Functor
+
   private
     variable 
       F M : Set → Set
@@ -40,18 +31,17 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
   liftEff : ⦃ _ : Member F Fs ⦄ → F ⇒ Eff Fs
   liftEff = liftFree ∘ inj
 
-  interpretEff : forall {Fs M} ⦃ _ : Monad Sets M ⦄
-    → (Union Fs ⇒ M) → Eff Fs ⇒ M 
+  interpretEff : ⦃ _ : Monad Sets M ⦄ → (Union Fs ⇒ M) → Eff Fs ⇒ M 
   interpretEff α = interpretFree α
 
 Some theory
 ============
 
 Typically, an operation on a set can be nullary, unary, binary, etc. In other
-words, an operation on a set ``X`` has the form ``Xⁿ → X ``for some natural
-number ``n`` (called the arity of the operation). We can generalize arities to
-arbitrary sets, so an operation on ``X`` should be of the form ``(A → X) → X``.
-Now, some operations have "parameters" (e.g. ``padRight : Int → String →
+words, an operation on a set ``X`` has the form ``Xⁿ → X`` for some natural
+number ``n`` (called the *arity* of the operation). We can generalize arities
+to arbitrary sets, so an operation on ``X`` should be of the form ``(A → X) →
+X``. Now, some operations have *parameters* (e.g. ``padRight : Int → String →
 String`` takes an ``Int`` parameter). To account for these kinds of operations,
 the general type of an operation on a set ``X`` has the form ``P → (A → X) →
 X``.
@@ -64,7 +54,7 @@ An *algebra* for the ``Reader R`` signature consists of a set ``X`` together wit
 
   ask : R → (Void → X) → X
   
-Note that ``(Void → X) → X`` is isomorphic to ``Unit → X``, which is turn is isomorphic to ``X``. Thus, the implementation of ``ask`` can have the type::
+Note that ``(Void → X) → X`` is isomorphic to ``Unit → X``, which is turn is isomorphic to ``X``. Thus, the implementation of ``ask`` can have the type:
 
 .. code-block:: agda
 

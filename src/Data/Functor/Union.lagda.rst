@@ -28,7 +28,7 @@ We need generalizations of the injections ``left`` and ``right`` and projections
       inj : F ⇒ Union Fs
       prj : Union Fs ⇒ Maybe ∘ F
 
-  open Member ⦃ ... ⦄
+  open Member ⦃ ... ⦄ public
 
   instance
     Member:Cons : ∀ {F Fs} → Member F (F :: Fs)
@@ -36,11 +36,13 @@ We need generalizations of the injections ``left`` and ``right`` and projections
     Member:Cons .prj (left x) = just x
     Member:Cons .prj (right u) = nothing
 
-If the ``Fs`` are functors, then so is ``Union Fs``::
+If the ``Fs`` are functors, then so is ``Union Fs``. The proof is by induction on ``Fs``::
 
+  -- Base case
   Functor:EmptyUnion : Endofunctor Sets (Union [])
   Functor:EmptyUnion .map f ()
 
+  -- Inductive case
   Functor:NonemptyUnion : ∀ {F Fs} 
     → ⦃ _ : Endofunctor Sets F ⦄
     → ⦃ _ : Endofunctor Sets (Union Fs) ⦄
