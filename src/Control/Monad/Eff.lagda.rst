@@ -48,7 +48,7 @@ X``.
 
 A *signature* specifies a collection of operation symbols together with their parameters and arities. For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
 
-An *algebra* for the ``Reader R`` signature consists of a set ``X`` together with an "implementation" of ``ask``:
+An *algebra* with the ``Reader R`` signature consists of a set ``X`` together with an "implementation" of ``ask``, i.e. a function:
 
 .. code-block:: agda
 
@@ -60,11 +60,17 @@ Note that ``(Void → X) → X`` is isomorphic to ``Unit → X``, which is turn 
 
   ask : R → X
 
-We can represent the ``Reader R`` signature as a type class::
+We can represent the ``Reader R`` signature using the record type::
+
+.. code-block:: agda
 
   record Reader (R X : Set) : Set where
     field
       ask : R → X
+
+An obvious algebra for ``Reader R`` is ``R`` itself with ``ask = id``.
+
+Note that we can simplify the record type above to just ``Reader R X = R → X`` (a record type with one field of type ``T`` is isomorphic to ``T``). This is in fact how ``Reader`` is traditionally defined. The traditional definition of the ``ask`` operation is the one obtained from the obvious algebra we mentioned above.
 
 Hmm...
 
