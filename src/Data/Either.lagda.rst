@@ -42,3 +42,15 @@ Shorthand for ``either id id``::
   mirror : X + Y → Y + X
   mirror (left x) = right x
   mirror (right y) = left y
+
+The injections ``left`` and ``right`` have two pseudoduals called ``leftToMaybe`` and ``rightToMaybe``::
+
+  open import Data.Maybe.Base
+
+  leftToMaybe : X + Y → Maybe X
+  leftToMaybe (left x) = just x
+  leftToMaybe _ = nothing
+
+  rightToMaybe : X + Y → Maybe Y
+  rightToMaybe (right y) = just y
+  rightToMaybe _ = nothing
