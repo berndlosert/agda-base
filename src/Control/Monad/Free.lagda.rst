@@ -31,8 +31,7 @@ checker when defining ``interpretFree``)::
   liftFree : F ⇒ Free F
   liftFree x α = α x
 
-  interpretFree : ⦃ _ : Monad Sets M ⦄
-    → (F ⇒ M) → Free F ⇒ M 
+  interpretFree : ⦃ _ : Monad Sets M ⦄ → (F ⇒ M) → Free F ⇒ M 
   interpretFree α free = free α
 
   -- This is the left inverse of liftFree.
@@ -74,6 +73,5 @@ Y``. This fold is based on the Church encoding of ``Free``::
 
   private variable X Y : Set
 
-  foldFree : ⦃ _ : Monad Sets M ⦄
-    → (X → Y) → (M Y → Y) → Free M X → Y
+  foldFree : ⦃ _ : Monad Sets M ⦄ → (X → Y) → (M Y → Y) → Free M X → Y
   foldFree gen alg free = alg (map gen (retractFree free))
