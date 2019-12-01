@@ -37,16 +37,30 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
 Some theory
 ============
 
+A set equipped with one or more *operations* on it is called an *algebra*.
 Typically, an operation on a set can be nullary, unary, binary, etc. In other
-words, an operation on a set ``X`` has the form ``Xⁿ → X`` for some natural
-number ``n`` (called the *arity* of the operation). We can generalize arities
-to arbitrary sets, so an operation on ``X`` should be of the form ``(A → X) →
-X``. Now, some operations have *parameters* (e.g. ``padRight : Int → String →
-String`` takes an ``Int`` parameter). To account for these kinds of operations,
-the general type of an operation on a set ``X`` has the form ``P → (A → X) →
-X``.
+words, an operation on a set ``X`` has type ``Xⁿ → X`` for some natural number
+``n`` (called the *arity* of the operation). Observe that ``Xⁿ`` is isomorphic
+to ``Fin n → X``. We can generalize ``Fin n`` arities to arbitrary sets, so an
+operation on ``X`` should have the more general type ``(A → X) → X``. Now, some
+operations have *parameters* (e.g. ``padRight : Int → String → String`` takes
+an ``Int`` parameter). To account for these kinds of operations, we generalize
+the type of an operation even further to ``P → (A → X) → X``.
 
-A *signature* specifies a collection of operation symbols together with their parameters and arities. For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
+Now what does all this have to do with "effects"? Consider the following effects and their defining operations:
+
++--------------+----------------------+
+| Effect       | Operations           |
++==============+=============+========+
+| ``Reader R`` | ``ask : R``          |
++--------------+----------------------+
+| ``Writer W`` | ``tell : W → Unit`` |
++--------------+----------------------+
+| ``State S``  | ``get : S``          |
+|              | ``put : S → Unit``  |
++--------------+----------------------+
+
+For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
 
 An *algebra* with the ``Reader R`` signature consists of a set ``X`` together with an "implementation" of ``ask``, i.e. a function:
 
