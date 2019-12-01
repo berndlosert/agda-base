@@ -66,8 +66,8 @@ Now what does all this have to do with effects? Consider the following notions o
     choose : Bool
 
   Error E
-    throw : ∀ {X} → E → X
-    catch : ∀ {X} → X → (E → X) → X
+    throwError : ∀ {X} → E → X
+    catchError : ∀ {X} → X → (E → X) → X
 
 For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
 
