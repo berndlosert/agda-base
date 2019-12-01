@@ -54,13 +54,13 @@ An *algebra* with the ``Reader R`` signature consists of a set ``X`` together wi
 
   ask : R → (Void → X) → X
   
-Note that ``(Void → X) → X`` is isomorphic to ``Unit → X``, which is turn is isomorphic to ``X``. Thus, the implementation of ``ask`` can have the type:
+Note that ``(Void → X) → X`` is isomorphic to ``Unit → X``, which is turn is isomorphic to ``X``. Thus, the implementation of ``ask`` has the (much simpler) type:
 
 .. code-block:: agda
 
   ask : R → X
 
-We can represent the ``Reader R`` signature using the record type::
+We can represent the ``Reader R`` signature using a record type:
 
 .. code-block:: agda
 
@@ -70,9 +70,11 @@ We can represent the ``Reader R`` signature using the record type::
 
 An obvious algebra for ``Reader R`` is ``R`` itself with ``ask = id``.
 
-Note that we can simplify the record type above to just ``Reader R X = R → X`` (a record type with one field of type ``T`` is isomorphic to ``T``). This is in fact how ``Reader`` is traditionally defined. The traditional definition of the ``ask`` operation is the one obtained from the obvious algebra we mentioned above.
+Note that we can simplify the record type above to just ``Reader R X = R → X`` (a record type with one field of type ``T`` is isomorphic to ``T``). This is in fact how ``Reader`` is traditionally defined. The traditional definition of the ``ask`` operation is the one obtained from the algebra where ``ask = id``.
 
-Hmm...
+Another example: the ``Writer W`` signature consists of one operation symbol ``tell`` with parameter ``W`` and arity ``Unit``.
+
+WIP:
 
 .. code-block:: agda
 
