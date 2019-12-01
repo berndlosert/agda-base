@@ -30,11 +30,6 @@ We need generalizations of the injections ``left`` and ``right`` and projections
 
   open Member ⦃ ... ⦄
 
-  private
-    variable
-      F : Set → Set
-      Fs : List (Set → Set)
-
   instance
     Member:Cons : ∀ {F Fs} → Member F (F :: Fs)
     Member:Cons .inj = left
