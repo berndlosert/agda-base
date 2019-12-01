@@ -7,7 +7,7 @@ Data.Eq
 
   module Data.Eq where
 
-The type constructor ``≡`` (also ``===``) is called propositional equality. It is used for comparing the elements of a set.
+The type constructor ``≡`` (also ``===``) is called propositional equality. It is used for comparing the elements of a set::
 
   open import Agda.Builtin.Equality public
 
