@@ -49,16 +49,17 @@ the type of an operation even further to ``P → (A → X) → X``.
 
 Now what does all this have to do with "effects"? Consider the following effects and their defining operations:
 
-+--------------+----------------------+
-| Effect       | Operations           |
-+==============+======================+
-| ``Reader R`` | ``ask : R``          |
-+--------------+----------------------+
-| ``Writer W`` | ``tell : W → Unit`` |
-+--------------+----------------------+
-| ``State S``  | ``get : S``          |
-|              | ``put : S -> Unit``  |
-+--------------+----------------------+
+.. code-block:: agda
+
+  Reader R
+    ask : R
+
+  Writer W
+    tell : W → Unit
+
+  State S
+    get : S
+    put : S → Unit
 
 For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
 
