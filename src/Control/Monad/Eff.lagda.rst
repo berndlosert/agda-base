@@ -47,7 +47,7 @@ operations have *parameters* (e.g. ``padRight : Int → String → String`` take
 an ``Int`` parameter). To account for these kinds of operations, we generalize
 the type of an operation even further to ``P → (A → X) → X``.
 
-Now what does all this have to do with "effects"? Consider the following effects and their defining operations:
+Now what does all this have to do with effects? Consider the following notions of computation and their defining operations:
 
 .. code-block:: agda
 
@@ -60,6 +60,14 @@ Now what does all this have to do with "effects"? Consider the following effects
   State S
     get : S
     put : S → Unit
+
+  Nondet
+    empty : Unit
+    choose : Bool
+
+  Error E
+    throw : ∀ {X} → E → X
+    catch : ∀ {X} → X → (E → X) → X
 
 For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
 
