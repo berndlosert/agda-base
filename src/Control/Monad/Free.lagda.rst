@@ -69,7 +69,7 @@ set ``X``::
     where instance _ = Monad:Free
 
 A different version of interpretFree that takes a generator ``gen : X → Y`` and
-and ``M``-algebra ``alg : M Y → Y`` and produces a fold of type ``Free M X →
+an ``M``-algebra ``alg : M Y → Y`` and produces a fold of type ``Free M X →
 Y``. This fold is based on the Church encoding of ``Free``::
 
   private variable X Y : Set
