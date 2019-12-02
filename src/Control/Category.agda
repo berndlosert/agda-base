@@ -24,7 +24,7 @@ record Category : Set where
 open Category hiding (_<<<_; _>>>_; id) public
 open Category {{...}} hiding (ob; hom) public
 
--- The category Sets of sets and total functions.
+-- The category Sets of types and total functions.
 
 instance
   Sets : Category

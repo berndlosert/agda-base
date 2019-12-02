@@ -54,7 +54,7 @@ Monad:Free .return x _ = return x
 uninterpretFree : forall {F M} -> (Free F ~> M) -> (F ~> M)
 uninterpretFree alpha x = alpha (liftFree x)
 
--- When F is a functor, (Free F X , algFree) is an F-algebra for any set X.
+-- When F is a functor, (Free F X , algFree) is an F-algebra for any type X.
 
 algFree : forall {F} {{_ : Endofunctor Sets F}} -> F <<< Free F ~> Free F
 algFree = join <<< liftFree

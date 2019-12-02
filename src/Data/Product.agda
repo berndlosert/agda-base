@@ -21,8 +21,8 @@ instance
   Mul:Set : Mul Set
   Mul:Set = Mul: (\ X Y -> Sigma X (\ _ -> Y))
 
--- Categorically speaking, for any two sets X and Y, both X * Y and Y * X are
--- products of X and Y. The function swap serves as proof that they are
+-- Categorically speaking, for any two types X and Y, both X * Y and Y * X
+-- are products of X and Y. The function swap serves as proof that they are
 -- isomorphic.
 
 swap : forall {X Y} -> X * Y -> Y * X

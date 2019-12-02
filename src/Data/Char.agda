@@ -2,7 +2,7 @@
 
 module Data.Char where
 
--- Char is the set of characters that you can type into your computer.
+-- The type Char of characters that you can type into your computer.
 
 open import Agda.Builtin.Char public
   renaming (

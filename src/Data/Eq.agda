@@ -2,8 +2,7 @@
 
 module Data.Eq where
 
--- The type constructor ≡ (also ===) is called propositional equality. It is
--- used for comparing the elements of a set.
+-- The type constructor ≡ (also ===) is called propositional equality.
 
 open import Agda.Builtin.Equality public
   renaming (_≡_ to  _===_) 
@@ -20,7 +19,7 @@ Constraint x = x === true
 open import Agda.Builtin.TrustMe
   renaming (primTrustMe to trustMe)
 
--- Boolean equality for a set X is specified using an Eq X instance.
+-- Boolean equality for a type X is specified using an Eq X instance.
 
 record Eq (X : Set) : Set where
   constructor Eq:

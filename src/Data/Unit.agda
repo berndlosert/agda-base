@@ -18,7 +18,7 @@ trivial _ = tt
 
 -- A thunk is a value wrapped inside a function that takes "no arguments".
 -- Another way to think about thunk is as the fold operation for Unit
--- (considered as a set with one constructor).
+-- (considered as a type with one constructor).
 
 thunk : {X : Set} -> X -> Unit -> X
 thunk x tt = x
