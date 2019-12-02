@@ -20,12 +20,12 @@ Functor:Coyoneda C F .map f (_ , x , g) = (_ , x , f <<< g)
 -- is witnessed by lowerCoyoneda and liftCoyoneda.
 lowerCoyoneda : {C : Category} {F : ob C -> Set} {{_ : Functor C Sets F}} ->
   let instance _ = Trans: C Sets in
-  Coyoneda C F ⇒ F
+  Coyoneda C F ~> F
 lowerCoyoneda (_ , x , f) = map f x
 
 liftCoyoneda : {C : Category} {F : ob C -> Set} ->
   let instance _ = Trans: C Sets in
-  F ⇒ Coyoneda C F
+  F ~> Coyoneda C F
 liftCoyoneda {C} y = (_ , y , id)
   where instance _ = C
 
@@ -34,11 +34,11 @@ liftCoyoneda {C} y = (_ , y , id)
 -- free/forgetful adjunction.
 foldCoyoneda : {C : Category} {F G : ob C -> Set} {{_ : Functor C Sets G}} ->
   let instance _ = Trans: C Sets in
-  (F ⇒ G) -> Coyoneda C F ⇒ G
+  (F ~> G) -> Coyoneda C F ~> G
 foldCoyoneda alpha (_ , x , f) = map f (alpha x)
 
 -- This is the left adjunct.
 ladjunctCoyoneda : {C : Category} {F G : ob C -> Set} {{_ : Functor C Sets G}} ->
   let instance _ = Trans: C Sets in
-  (Coyoneda C F ⇒ G) -> (F ⇒ G) 
+  (Coyoneda C F ~> G) -> (F ~> G) 
 ladjunctCoyoneda {C} alpha x = alpha (liftCoyoneda {C} x)

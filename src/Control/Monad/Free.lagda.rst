@@ -9,9 +9,9 @@ Control.Monad.Free
 
 Let ``C`` be a category and let ``F`` be an endofunctor on ``C``. A free monad
 on ``F`` is a monad ``Free F`` on ``C`` equipped with a natural transformation
-``liftFree : F ⇒ Free F`` satisfying the following universal property: for any
-monad ``M`` on ``C`` and natural transformation ``α : F ⇒ M``, there is a
-unique monad morphism ``interpretFree α : Free F ⇒ M`` with the property that
+``liftFree : F ~> Free F`` satisfying the following universal property: for any
+monad ``M`` on ``C`` and natural transformation ``α : F ~> M``, there is a
+unique monad morphism ``interpretFree α : Free F ~> M`` with the property that
 ``α = interpretFree α ∘ liftFree``. When ``C = Sets``, we define ``Free F``,
 ``liftFree`` and ``interpretFree`` as follows:
 
@@ -26,16 +26,16 @@ checker when defining ``interpretFree``)::
   open import Data.Functor
 
   Free : (Set -> Set) -> Set -> Set
-  Free F X = ∀ {M} ⦃ _ : Monad Sets M ⦄ -> (F ⇒ M) -> M X
+  Free F X = ∀ {M} ⦃ _ : Monad Sets M ⦄ -> (F ~> M) -> M X
 
-  liftFree : F ⇒ Free F
+  liftFree : F ~> Free F
   liftFree x α = α x
 
-  interpretFree : ⦃ _ : Monad Sets M ⦄ -> (F ⇒ M) -> Free F ⇒ M 
+  interpretFree : ⦃ _ : Monad Sets M ⦄ -> (F ~> M) -> Free F ~> M 
   interpretFree α free = free α
 
   -- This is the left inverse of liftFree.
-  retractFree : ⦃ _ : Monad Sets M ⦄ -> Free M ⇒ M
+  retractFree : ⦃ _ : Monad Sets M ⦄ -> Free M ~> M
   retractFree = interpretFree id 
 
 Here is proof that ``Free F`` is a functor. Note that this doesn't require
@@ -58,13 +58,13 @@ would-be forgetful functor ``U`` that forgets the monad structure of a functor.
 The right adjunct of this adjunction is basically ``interpretFree``. The left
 adjunct is given below::
 
-  uninterpretFree : (Free F ⇒ M) -> (F ⇒ M)
+  uninterpretFree : (Free F ~> M) -> (F ~> M)
   uninterpretFree α x = α (liftFree x)
 
 When ``F`` is a functor, ``(Free F X , algFree)`` is an ``F``-algebra for any
 set ``X``::
 
-  algFree : ⦃ _ : Endofunctor Sets F ⦄ -> F ∘ Free F ⇒ Free F 
+  algFree : ⦃ _ : Endofunctor Sets F ⦄ -> F ∘ Free F ~> Free F 
   algFree = join ∘ liftFree
     where instance _ = Monad:Free
 

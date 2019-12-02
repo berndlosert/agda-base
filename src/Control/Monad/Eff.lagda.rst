@@ -15,7 +15,7 @@ Control.Monad.Eff
 
   Eff : List (Set -> Set) -> Set -> Set
   Eff Fs X = Free (Union Fs) X
-        -- = (Union Fs ⇒ M) -> M X
+        -- = (Union Fs ~> M) -> M X
 
 These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
 
@@ -28,10 +28,10 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
       F M : Set -> Set
       Fs : List (Set -> Set)
 
-  liftEff : ⦃ _ : Member F Fs ⦄ -> F ⇒ Eff Fs
+  liftEff : ⦃ _ : Member F Fs ⦄ -> F ~> Eff Fs
   liftEff = liftFree ∘ inj
 
-  interpretEff : ⦃ _ : Monad Sets M ⦄ -> (Union Fs ⇒ M) -> Eff Fs ⇒ M 
+  interpretEff : ⦃ _ : Monad Sets M ⦄ -> (Union Fs ~> M) -> Eff Fs ~> M 
   interpretEff α = interpretFree α
 
 Some theory
@@ -146,7 +146,7 @@ WIP:
       i <- ask
       return (i + x)
 
-  runReader : forall {R Fs} -> R -> Eff (Reader R :: Fs) ⇒ Eff Fs
+  runReader : forall {R Fs} -> R -> Eff (Reader R :: Fs) ~> Eff Fs
   runReader r eff t = eff \ where
     (left (Ask k)) -> return (k r)
     (right u) -> t u

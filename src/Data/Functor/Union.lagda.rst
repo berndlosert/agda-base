@@ -25,8 +25,8 @@ We need generalizations of the injections ``left`` and ``right`` and projections
 
   record Member (F : Set -> Set) (Fs : List (Set -> Set)) : Set where
     field
-      inj : F ⇒ Union Fs
-      prj : Union Fs ⇒ Maybe ∘ F
+      inj : F ~> Union Fs
+      prj : Union Fs ~> Maybe ∘ F
 
   open Member ⦃ ... ⦄ public
 
