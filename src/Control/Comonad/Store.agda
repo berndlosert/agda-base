@@ -2,22 +2,31 @@
 
 module Control.Comonad.Store where
 
-open import Control.Category
-open import Control.Comonad
-open import Data.Function
-open import Data.Functor
+-- Store S is the dual of State S.
+
 open import Data.Product
 
--- Store S is the dual of State S.
 Store : Set -> Set -> Set
 Store S X = (S -> X) * S
 
-private variable S : Set
+-- Store S is a functor.
+
+open import Control.Category
+open import Data.Functor
 
 instance
-  Functor:Store : Endofunctor Sets (Store S)
+  Functor:Store : forall {S} -> Endofunctor Sets (Store S)
   Functor:Store .map f (g , s) = (g >>> f , s)
 
-  Comonad:Store : Comonad Sets (Store S)
-  Comonad:Store .duplicate (g , s) = (const (g , s) , s)
-  Comonad:Store .extract = apply
+-- Store S is a comonad.
+
+open import Control.Comonad
+open import Data.Function
+
+instance
+  Comonad:Store : forall {S} -> Comonad Sets (Store S)
+  Comonad:Store = record {
+      instance:Functor = Functor:Store;
+      duplicate = \ { (g , s) -> (const (g , s) , s) };
+      extract = apply
+    }
