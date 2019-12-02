@@ -61,10 +61,9 @@ freeAlg : forall {F X} {{_ : Endofunctor Sets F}}
 freeAlg = join <<< lift
   where instance _ = Monad:Free
 
--- A different version of foldMap that takes a generator gen : X -> Y and
--- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y.  This
--- fold is based on the Church encoding of standard Haskell encoding of Free.
+-- This fold is based on the Church encoding of the Monad record type. It is
+-- the analog of foldr for lists. 
 
-foldFree : forall {M X Y} {{_ : Monad Sets M}}
-  -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
-foldFree gen alg free = alg (map gen (fold free))
+foldr : forall {M X Y} {{_ : Monad Sets M}}
+  -> (M Y -> Y) -> (X -> Y) -> Free M X -> Y
+foldr alg gen free = alg (map gen (fold free))
