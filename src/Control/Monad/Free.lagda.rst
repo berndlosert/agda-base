@@ -26,16 +26,16 @@ checker when defining ``interpretFree``)::
   open import Data.Functor
 
   Free : (Set -> Set) -> Set -> Set
-  Free F X = ∀ {M} ⦃ _ : Monad Sets M ⦄ -> (F ~> M) -> M X
+  Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
 
   liftFree : F ~> Free F
   liftFree x α = α x
 
-  interpretFree : ⦃ _ : Monad Sets M ⦄ -> (F ~> M) -> Free F ~> M 
+  interpretFree : {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M 
   interpretFree α free = free α
 
   -- This is the left inverse of liftFree.
-  retractFree : ⦃ _ : Monad Sets M ⦄ -> Free M ~> M
+  retractFree : {{_ : Monad Sets M}} -> Free M ~> M
   retractFree = interpretFree id 
 
 Here is proof that ``Free F`` is a functor. Note that this doesn't require
@@ -49,7 +49,7 @@ Here is proof that ``Free F`` is a functor. Note that this doesn't require
 instance because Agda get's confused sometimes when it tries to figure out the
 instance to use for ``Endofunctor Sets F``::
 
-  Monad:Free : ⦃ _ : Endofunctor Sets F ⦄ -> Monad Sets (Free F)
+  Monad:Free : {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
   Monad:Free .join free α = join (map (λ f -> f α) (free α))
   Monad:Free .return x _ = return x
 
@@ -64,7 +64,7 @@ adjunct is given below::
 When ``F`` is a functor, ``(Free F X , algFree)`` is an ``F``-algebra for any
 set ``X``::
 
-  algFree : ⦃ _ : Endofunctor Sets F ⦄ -> F ∘ Free F ~> Free F 
+  algFree : {{_ : Endofunctor Sets F}} -> F ∘ Free F ~> Free F 
   algFree = join ∘ liftFree
     where instance _ = Monad:Free
 
@@ -74,5 +74,5 @@ Y``. This fold is based on the Church encoding of ``Free``::
 
   private variable X Y : Set
 
-  foldFree : ⦃ _ : Monad Sets M ⦄ -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
+  foldFree : {{_ : Monad Sets M}} -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
   foldFree gen alg free = alg (map gen (retractFree free))

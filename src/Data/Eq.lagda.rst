@@ -38,4 +38,4 @@ Boolean equality for a set ``X`` is specified using an ``Eq X`` instance::
     infix 4 _==_
     infix 4 _/=_
 
-  open Eq ⦃ ... ⦄ public
+  open Eq {{...}} public

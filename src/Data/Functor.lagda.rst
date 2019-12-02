@@ -15,9 +15,9 @@ A function ``F : ob C -> ob D`` is a functor when it has a corresponding ``map``
   record Functor (C D : Category) (F : ob C -> ob D) : Set where
     constructor Functor:
     field
-      map : ∀ {X Y} -> hom C X Y -> hom D (F X) (F Y)
+      map : forall {X Y} -> hom C X Y -> hom D (F X) (F Y)
 
-  open Functor ⦃ ... ⦄ public
+  open Functor {{...}} public
 
 A convenient shorthand for defining endofunctors::
 
@@ -35,7 +35,7 @@ The composition of two functors forms a functor::
 
   private variable B C D : Category
 
-  Functor:∘ : ∀ G F ⦃ _ : Functor C D G ⦄ ⦃ _ : Functor B C F ⦄
+  Functor:∘ : forall G F {{_ : Functor C D G}} {{_ : Functor B C F}}
     -> Functor B D (G ∘ F)
   Functor:∘ G F .map f = map (map f)
 
@@ -49,7 +49,7 @@ X : ob B -> ob C`` is a functor::
 
   open import Data.Function
 
-  Functor:const : ∀ X -> Functor B C (const X)
+  Functor:const : forall X -> Functor B C (const X)
   Functor:const {C = C} X .map = const (id {X})
     where instance _ = C
 
@@ -68,13 +68,13 @@ This allows us to write ``F ~> G`` for (natural) transformations::
   record Trans (C D : Category) : Set where
     infixr 2 _~>_ _=>_
     _~>_ : (F G : ob C -> ob D) -> Set
-    F ~> G  = ∀ {X} -> hom D (F X) (G X)
+    F ~> G  = forall {X} -> hom D (F X) (G X)
     _=>_ = _~>_
 
   Trans: : (C D : Category) -> Trans C D
   Trans: C D = record {}
 
-  open Trans ⦃ ... ⦄ public
+  open Trans {{...}} public
 
 ``D ^ C`` is the functor category of functors from ``C to D`` and natural
 transformatiosn between them::
@@ -115,7 +115,7 @@ The product of two endofunctors is a functor::
   private variable F G : Set -> Set
 
   instance
-    Endofunctor:Product : ⦃ _ : Endofunctor Sets F ⦄ ⦃ _ : Endofunctor Sets G ⦄
+    Endofunctor:Product : {{_ : Endofunctor Sets F}} {{_ : Endofunctor Sets G}}
       -> Endofunctor Sets (F × G)
     Endofunctor:Product .map f (x , y) = (map f x , map f y)
 
@@ -130,8 +130,8 @@ With this, we can write ``F + G`` for coproduct of two endofunctors on ``Sets``:
 The coproduct of two endofunctors is a functor::
 
   instance
-    Endofunctor:Coproduct : ⦃ _ : Endofunctor Sets F ⦄ 
-      -> ⦃ _ : Endofunctor Sets G ⦄ -> Endofunctor Sets (F + G)
+    Endofunctor:Coproduct : {{_ : Endofunctor Sets F}} 
+      -> {{_ : Endofunctor Sets G}} -> Endofunctor Sets (F + G)
     Endofunctor:Coproduct .map f (left x) = left (map f x)
     Endofunctor:Coproduct .map f (right x) = right (map f x)
 

@@ -17,7 +17,7 @@ constructor ``_,_`` and fields ``fst`` and ``snd``::
 The ``exists`` function should be thought of as the existensial quantifier,
 dual to ``forall``::
 
-  exists : ∀ {X} (P : X -> Set) -> Set
+  exists : forall {X} (P : X -> Set) -> Set
   exists {X} P = Σ X P
 
   syntax exists P = ∃ P

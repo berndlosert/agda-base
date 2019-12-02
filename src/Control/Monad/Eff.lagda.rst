@@ -28,10 +28,10 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
       F M : Set -> Set
       Fs : List (Set -> Set)
 
-  liftEff : ⦃ _ : Member F Fs ⦄ -> F ~> Eff Fs
+  liftEff : {{_ : Member F Fs}} -> F ~> Eff Fs
   liftEff = liftFree ∘ inj
 
-  interpretEff : ⦃ _ : Monad Sets M ⦄ -> (Union Fs ~> M) -> Eff Fs ~> M 
+  interpretEff : {{_ : Monad Sets M}} -> (Union Fs ~> M) -> Eff Fs ~> M 
   interpretEff α = interpretFree α
 
 Some theory
@@ -66,8 +66,8 @@ Now what does all this have to do with effects? Consider the following notions o
     choose : Bool
 
   Error E
-    throwError : ∀ {X} -> E -> X
-    catchError : ∀ {X} -> X -> (E -> X) -> X
+    throwError : forall {X} -> E -> X
+    catchError : forall {X} -> X -> (E -> X) -> X
 
 Let us deal with ``Reader R`` first. If ``Reader R X`` is an algebra, then
 certainly ``ask`` cannot be one of its operations since it doesn't have the
@@ -107,7 +107,7 @@ WIP:
     Functor:Reader : {R : Set} -> Endofunctor Sets (Reader R)
     Functor:Reader .map f (Ask k) = Ask (k >>> f)
 
-  ask : forall {R Fs} ⦃ _ : Member (Reader R) Fs ⦄ -> Eff Fs R
+  ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
   ask = liftEff (Ask id)
 
   {-
@@ -139,8 +139,8 @@ WIP:
                 : Union (F :: Fs) (Eff Fs X1) -> Eff Fs X1
   -}
 
-  addGet : forall {Fs} ⦃ _ : Endofunctor Sets (Union Fs)  ⦄
-    -> ⦃ _ : Member (Reader Int) Fs ⦄ -> Int -> Eff Fs Int
+  addGet : forall {Fs} {{_ : Endofunctor Sets (Union Fs) }}
+    -> {{_ : Member (Reader Int) Fs}} -> Int -> Eff Fs Int
   addGet {Fs} x = let _>>=_ = _>>=_ {Eff Fs} in
     do
       i <- ask
@@ -161,21 +161,21 @@ WIP:
     Functor:Writer : {W : Set} -> Endofunctor Sets (Writer W)
     Functor:Writer .map f (put w k) = put w (f k)
 
-  tell : forall {W Fs} ⦃ _ : Member (Writer W) Fs ⦄
+  tell : forall {W Fs} {{_ : Member (Writer W) Fs}}
     -> W -> Eff Fs Unit
   tell w = liftEff (put w tt)
 
   runWriter : forall {W X Fs}
-    -> ⦃ _ : Monoid W ⦄
-    -> ⦃ _ : Endofunctor Sets (Union Fs) ⦄
+    -> {{_ : Monoid W}}
+    -> {{_ : Endofunctor Sets (Union Fs)}}
     -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
   runWriter = handle (_, mempty) (\ eff alpha -> eff \ where
       (left (put w y)) -> return y
       (right u) -> alpha u
     )
 
-  writerProg : forall {Fs} ⦃ _ : Endofunctor Sets (Union Fs) ⦄
-    -> ⦃ _ : Member (Writer String) Fs ⦄ -> Eff Fs Int
+  writerProg : forall {Fs} {{_ : Endofunctor Sets (Union Fs)}}
+    -> {{_ : Member (Writer String) Fs}} -> Eff Fs Int
   writerProg {Fs} = let _>>=_ = _>>=_ {Eff Fs} in
     do
       _ <- tell "hi "
@@ -193,4 +193,4 @@ A term of type ``Eff [] X`` cannot produce a computational effect. This is evide
   private variable X : Set
 
   run : Eff [] X -> X
-  run eff = eff ⦃ Monad:id Sets ⦄ absurd
+  run eff = eff {{Monad:id Sets}} absurd
