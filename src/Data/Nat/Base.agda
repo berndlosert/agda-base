@@ -12,7 +12,6 @@ open import Agda.Builtin.Nat public
     div-helper; 
     mod-helper
   )
-open import Agda.Builtin.Nat
   renaming (
     _+_ to addNat; 
     _-_ to subNat;
