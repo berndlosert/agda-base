@@ -33,12 +33,12 @@ record Applicative (F : Set -> Set) : Set where
   _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
   f <*> x = map apply (zip (f , x))
 
-  -- Lift a value. 
+  -- Lift a value.
 
   pure : forall {X} -> X -> F X
   pure x = map (const x) (unit tt)
 
-  -- liftA is just a weird name for map. 
+  -- liftA is just a weird name for map.
 
   liftA : forall {X Y} -> (X -> Y) -> F X -> F Y
   liftA = map
@@ -72,7 +72,7 @@ Idiom: : forall {F} {{_ : Endofunctor Sets F}}
  -> (forall {X Y} -> F (X -> Y) -> F X -> F Y)
  -> (forall {X} -> X -> F X)
  -> Applicative F
-Idiom: _<*>_ pure = \ where 
+Idiom: _<*>_ pure = \ where
   .zip -> \ { (x , y) -> (pure _,_ <*> x) <*> y }
   .unit -> pure {Unit}
 

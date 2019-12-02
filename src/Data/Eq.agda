@@ -5,7 +5,7 @@ module Data.Eq where
 -- The type constructor ≡ (also ===) is called propositional equality.
 
 open import Agda.Builtin.Equality public
-  renaming (_≡_ to  _===_) 
+  renaming (_≡_ to  _===_)
 
 -- Contraint is used for specifying contraints on the arguments of functions.
 

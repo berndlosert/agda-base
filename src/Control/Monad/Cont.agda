@@ -37,7 +37,7 @@ instance
 callCC : ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
 callCC h k = h (\ x -> const (k x)) k
 
--- Operators for delimited continuations. 
+-- Operators for delimited continuations.
 
 reset : Cont X X -> Cont Y X
 reset h k = k (h id)
