@@ -12,7 +12,7 @@ Data.Maybe.Base
 
   data Maybe (X : Set) : Set where
     nothing : Maybe X
-    just : X → Maybe X
+    just : X -> Maybe X
 
 This tells the Agda compiler to compile ``Maybe`` above to Haskell's ``Maybe``::
 

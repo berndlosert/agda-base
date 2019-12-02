@@ -6,9 +6,9 @@ module Data.Cast where
 record Cast (From To : Set) : Set where
   constructor Cast:
   field
-    cast : From → To
+    cast : From -> To
 
 open Cast {{...}} public
 
-castTo : {To From : Set} {{_ : Cast From To}} → From → To
+castTo : {To From : Set} {{_ : Cast From To}} -> From -> To
 castTo = cast

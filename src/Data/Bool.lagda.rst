@@ -24,27 +24,27 @@ The equivalents of ``false`` and ``true`` at the type-level are ``Void`` and ``U
 
 ``bool`` is the fold operation for ``Bool``::
 
-  bool : {X : Set} → X → X → Bool → X
+  bool : {X : Set} -> X -> X -> Bool -> X
   bool x y false = x
   bool x y true = y
 
 The if/then/else idiom is just ``bool`` in disguise::
 
-  if_then_else_ : {X : Set} → Bool → X → X → X
+  if_then_else_ : {X : Set} -> Bool -> X -> X -> X
   if b then x else y = bool y x b
 
   infix 0 if_then_else_
 
 Apart from the identity function, there is one other function of type
-``Bool → Bool``, namely ``not``::
+``Bool -> Bool``, namely ``not``::
 
-  not : Bool → Bool
+  not : Bool -> Bool
   not true  = false
   not false = true
 
 The Boolean "and" operation::
 
-  _&&_ : Bool → Bool → Bool
+  _&&_ : Bool -> Bool -> Bool
   true && b = b
   false && b = false
 
@@ -52,7 +52,7 @@ The Boolean "and" operation::
 
 The Boolean "or" operation::
 
-  _||_ : Bool → Bool → Bool
+  _||_ : Bool -> Bool -> Bool
   true || b = true
   false || b = b
 

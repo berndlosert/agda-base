@@ -7,8 +7,8 @@ open import Data.Bool
 open import Data.Functor
 
 -- A Predicate X is a Bool-valued predicate on X.
-Predicate : Set → Set
-Predicate X = X → Bool
+Predicate : Set -> Set
+Predicate X = X -> Bool
 
 -- Predicate is a functor.
 instance

@@ -23,15 +23,15 @@ In other words::
     constructor Category:
     field
       ob : Set
-      hom : ob → ob → Set
-      _∘_ : {X Y Z : ob} → hom Y Z → hom X Y → hom X Z
-      id : {X : ob} → hom X X
+      hom : ob -> ob -> Set
+      _∘_ : {X Y Z : ob} -> hom Y Z -> hom X Y -> hom X Z
+      id : {X : ob} -> hom X X
 
     -- ASCII-friendly version of composition.
     _<<<_ = _∘_
 
     -- Flipped version of <<<.
-    _>>>_ : {X Y Z : ob} → hom X Y → hom Y Z → hom X Z
+    _>>>_ : {X Y Z : ob} -> hom X Y -> hom Y Z -> hom X Z
     f >>> g = g ∘ f
 
     infixr 5 _∘_ _<<<_ _>>>_
@@ -45,17 +45,17 @@ The category of sets and total functions is called ``Sets``::
     Sets : Category
     Sets = record {
         ob = Set;
-        hom = λ X Y → X → Y;
-        _∘_ = λ g f x → g (f x);
-        id = λ x → x
+        hom = λ X Y -> X -> Y;
+        _∘_ = λ g f x -> g (f x);
+        id = λ x -> x
       }
 
 For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``∘`` are flipped::
 
-  Op : Category → Category
+  Op : Category -> Category
   Op C = let instance _ = C in record {
       ob = ob C;
-      hom = λ X Y → hom C Y X;
+      hom = λ X Y -> hom C Y X;
       _∘_ = _>>>_;
       id = id
     }
@@ -64,13 +64,13 @@ The product of two categories ``C`` and ``D`` has as objects all pairs ``(X ,
 Y)`` where ``X : ob C`` and ``Y : ob D``; the morphisms are also pairs ``(f ,
 g)`` where ``f`` is a morphism from ``C`` and ``g`` is a morphism from ``D``::
 
-  CategoricalProduct : Category → Category → Category
+  CategoricalProduct : Category -> Category -> Category
   CategoricalProduct C D =
     let instance _ = C; instance _ = D in
     record {
       ob = ob C × ob D;
-      hom = λ { (X , W) (Y , Z) → hom C X Y × hom D W Z };
-      _∘_ = λ { (g , k) (f , h) → (g ∘ f , k ∘ h) };
+      hom = λ { (X , W) (Y , Z) -> hom C X Y × hom D W Z };
+      _∘_ = λ { (g , k) (f , h) -> (g ∘ f , k ∘ h) };
       id = (id , id)
     }
 

@@ -13,7 +13,7 @@ open import Notation.Append public
 instance Append:List : Append (List X)
 Append:List = Append: append
   where
-    append : List X → List X → List X
+    append : List X -> List X -> List X
     append [] ys = ys
     append (x :: xs) ys = x :: append xs ys
 
@@ -30,10 +30,10 @@ pattern [_#_#_#_#_#_] u v w x y z = u :: v :: w :: x :: y :: z :: []
 instance
   -- List X is a semigroup for any X.
   open import Data.Semigroup
-  Semigroup:List : {X : Set} → Semigroup (List X)
+  Semigroup:List : {X : Set} -> Semigroup (List X)
   Semigroup:List = Semigroup: _++_
 
   -- List X is a monoid for any X.
   open import Data.Monoid
-  Monoid:List : {X : Set} → Monoid (List X)
+  Monoid:List : {X : Set} -> Monoid (List X)
   Monoid:List = Monoid: []

@@ -7,7 +7,7 @@ record Div (X : Set) : Set where
   constructor Div:
   infixr 25 _/_
   field
-    Constraint : X → Set
-    _/_ : (x y : X) → {_ : Constraint y} → X
+    Constraint : X -> Set
+    _/_ : (x y : X) -> {_ : Constraint y} -> X
 
 open Div {{...}} hiding (Constraint) public

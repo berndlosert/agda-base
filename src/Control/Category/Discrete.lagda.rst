@@ -13,11 +13,11 @@ viewed as a discrete category ``Discrete X``::
   open import Control.Category
   open import Data.Eq
 
-  Discrete : Set → Category
+  Discrete : Set -> Category
   Discrete X = record {
       ob = X;
       hom = _≡_;
-      _∘_ = λ { refl refl → refl };
+      _∘_ = λ { refl refl -> refl };
       id = refl
     }
 

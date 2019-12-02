@@ -19,19 +19,19 @@ The trivial function is evidence that ``Unit`` satisfies the universal property
 of terminal objects in the category ``Sets``. You can also think of it as the
 unfold operation for ``Unit``::
 
-  trivial : {X : Set} → X → Unit
+  trivial : {X : Set} -> X -> Unit
   trivial _ = tt 
 
 A thunk is a value wrapped inside a function that takes "no arguments". Another
 way to think about ``thunk`` is as the fold operation for ``Unit`` (considered
 as a set with one constructor)::
 
-  thunk : {X : Set} → X → Unit → X
+  thunk : {X : Set} -> X -> Unit -> X
   thunk x tt = x
 
 The inverse of ``thunk`` is ``unthunk``. Together, these two functions witness
-an isomorphism between ``Unit`` → X and X. They also prove that the identity
+an isomorphism between ``Unit`` -> X and X. They also prove that the identity
 functor ``id {{Sets}}`` is representable by ``Unit``::
 
-  unthunk : {X : Set} → (Unit → X) → X
+  unthunk : {X : Set} -> (Unit -> X) -> X
   unthunk x = x tt

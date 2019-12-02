@@ -44,7 +44,7 @@ that is not ``nothing``::
   open import Data.Semigroup
 
   instance
-    Semigroup:First : {X : Set} → Semigroup (Maybe X)
+    Semigroup:First : {X : Set} -> Semigroup (Maybe X)
     Semigroup:First = Semigroup: λ where
-      nothing _ → nothing
-      (just x) _ → just x
+      nothing _ -> nothing
+      (just x) _ -> just x
