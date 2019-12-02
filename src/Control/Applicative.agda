@@ -24,7 +24,7 @@ record Applicative (F : Set -> Set) : Set where
   unzip : forall {X Y} -> F (X * Y) -> F X * F Y
   unzip = pair (map fst) (map snd)
 
-  -- Defining _<*>_ and pure allows use to use idiom brackets (| |) when
+  -- Defining _<*>_ and pure allows use to use idiom brackets (|_|) when
   -- writing applicative code.
   infixl 24 _<*>_
   _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
