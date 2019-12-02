@@ -39,7 +39,7 @@ instance
       cons x xs = (| _::_ x xs |)
 
 -- Concatenating lists of lists is a natural transformation.
-concat : List ∘ List ~> List
+concat : List <<< List ~> List
 concat = foldr _++_ []
 
 -- Reversing a list is a natural transformation.

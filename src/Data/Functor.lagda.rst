@@ -35,9 +35,9 @@ The composition of two functors forms a functor::
 
   private variable B C D : Category
 
-  Functor:∘ : forall G F {{_ : Functor C D G}} {{_ : Functor B C F}}
-    -> Functor B D (G ∘ F)
-  Functor:∘ G F .map f = map (map f)
+  Functor:<<< : forall G F {{_ : Functor C D G}} {{_ : Functor B C F}}
+    -> Functor B D (G <<< F)
+  Functor:<<< G F .map f = map (map f)
 
 The identity function forms a functor::
 
@@ -59,7 +59,7 @@ The category of categories is called ``Categories``::
   Categories = record {
       ob = Category;
       hom = \ C D -> ob C -> ob D;
-      _∘_ = _∘_;
+      _<<<_ = _<<<_;
       id = id
     }
 
@@ -84,7 +84,7 @@ transformatiosn between them::
     record {
       ob = ob C -> ob D;
       hom = _~>_;
-      _∘_ = \ β α -> β ∘ α;
+      _<<<_ = \ β α -> β <<< α;
       id = \ {F} {X} -> id {F X}
     }
 

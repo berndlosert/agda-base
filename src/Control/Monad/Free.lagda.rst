@@ -12,7 +12,7 @@ on ``F`` is a monad ``Free F`` on ``C`` equipped with a natural transformation
 ``liftFree : F ~> Free F`` satisfying the following universal property: for any
 monad ``M`` on ``C`` and natural transformation ``α : F ~> M``, there is a
 unique monad morphism ``interpretFree α : Free F ~> M`` with the property that
-``α = interpretFree α ∘ liftFree``. When ``C = Sets``, we define ``Free F``,
+``α = interpretFree α <<< liftFree``. When ``C = Sets``, we define ``Free F``,
 ``liftFree`` and ``interpretFree`` as follows:
 
 (N.B. This is the final encoding of ``Free``. The other encodings of ``Free``
@@ -64,8 +64,8 @@ adjunct is given below::
 When ``F`` is a functor, ``(Free F X , algFree)`` is an ``F``-algebra for any
 set ``X``::
 
-  algFree : {{_ : Endofunctor Sets F}} -> F ∘ Free F ~> Free F 
-  algFree = join ∘ liftFree
+  algFree : {{_ : Endofunctor Sets F}} -> F <<< Free F ~> Free F 
+  algFree = join <<< liftFree
     where instance _ = Monad:Free
 
 A different version of interpretFree that takes a generator ``gen : X -> Y`` and

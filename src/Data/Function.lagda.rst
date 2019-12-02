@@ -12,7 +12,7 @@ Data.Function
 Export function composition (and it variants) and ``id`` from the category ``Sets``::
 
   open import Control.Category public
-    using (_∘_; _>>>_; _<<<_; id; Sets) 
+    using (_<<<_; _>>>_; id; Sets) 
 
 The flip function is proof that ``X -> Y -> Z`` and ``Y -> X -> Z`` are isomorphic.
 If we think of ``->`` as exponentiation, then ``flip`` is proof that exponents

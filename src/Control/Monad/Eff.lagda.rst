@@ -29,7 +29,7 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
       Fs : List (Set -> Set)
 
   liftEff : {{_ : Member F Fs}} -> F ~> Eff Fs
-  liftEff = liftFree ∘ inj
+  liftEff = liftFree <<< inj
 
   interpretEff : {{_ : Monad Sets M}} -> (Union Fs ~> M) -> Eff Fs ~> M 
   interpretEff α = interpretFree α

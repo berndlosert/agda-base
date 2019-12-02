@@ -14,7 +14,7 @@ A category consists of:
 - a set ob ``C`` of objects; 
 - for any two object ``X``, ``Y``, a set ``hom X Y`` (called a homset) of   
   morphisms with domain ``X`` and codomain ``Y``; 
-- a composition operator ``∘`` for composing morphisms;
+- a composition operator ``<<<`` for composing morphisms;
 - an identity operator ``id`` used for producing identity morphisms;
 
 In other words::
@@ -24,19 +24,16 @@ In other words::
     field
       ob : Set
       hom : ob -> ob -> Set
-      _∘_ : {X Y Z : ob} -> hom Y Z -> hom X Y -> hom X Z
+      _<<<_ : {X Y Z : ob} -> hom Y Z -> hom X Y -> hom X Z
       id : {X : ob} -> hom X X
-
-    -- ASCII-friendly version of composition.
-    _<<<_ = _∘_
 
     -- Flipped version of <<<.
     _>>>_ : {X Y Z : ob} -> hom X Y -> hom Y Z -> hom X Z
-    f >>> g = g ∘ f
+    f >>> g = g <<< f
 
-    infixr 5 _∘_ _<<<_ _>>>_
+    infixr 5 _<<<_ _>>>_
 
-  open Category hiding (_∘_; _>>>_; _<<<_; id) public
+  open Category hiding (_<<<_; _>>>_; id) public
   open Category {{...}} hiding (ob; hom) public
 
 The category of sets and total functions is called ``Sets``::
@@ -46,17 +43,17 @@ The category of sets and total functions is called ``Sets``::
     Sets = record {
         ob = Set;
         hom = \ X Y -> X -> Y;
-        _∘_ = \ g f x -> g (f x);
+        _<<<_ = \ g f x -> g (f x);
         id = \ x -> x
       }
 
-For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``∘`` are flipped::
+For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``<<<`` are flipped::
 
   Op : Category -> Category
   Op C = let instance _ = C in record {
       ob = ob C;
       hom = \ X Y -> hom C Y X;
-      _∘_ = _>>>_;
+      _<<<_ = _>>>_;
       id = id
     }
 
@@ -70,7 +67,7 @@ g)`` where ``f`` is a morphism from ``C`` and ``g`` is a morphism from ``D``::
     record {
       ob = ob C × ob D;
       hom = \ { (X , W) (Y , Z) -> hom C X Y × hom D W Z };
-      _∘_ = \ { (g , k) (f , h) -> (g ∘ f , k ∘ h) };
+      _<<<_ = \ { (g , k) (f , h) -> (g <<< f , k <<< h) };
       id = (id , id)
     }
 

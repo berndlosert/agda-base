@@ -40,7 +40,7 @@ MonoidToCategory : (X : Set) {{_ : Monoid X}} -> Category
 MonoidToCategory X = record {
     ob = Unit;
     hom = \ _ _ -> X;
-    _∘_ = _<>_;
+    _<<<_ = _<>_;
     id = mempty
   }
 
@@ -50,7 +50,7 @@ Monoids : Category
 Monoids = record {
     ob = exists Monoid; 
     hom =  \ { (X , _) (Y , _) -> X -> Y };
-    _∘_ = _∘_;
+    _<<<_ = _<<<_;
     id = id
   }
 

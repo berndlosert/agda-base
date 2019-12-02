@@ -17,7 +17,7 @@ viewed as a discrete category ``Discrete X``::
   Discrete X = record {
       ob = X;
       hom = _≡_;
-      _∘_ = \ { refl refl -> refl };
+      _<<<_ = \ { refl refl -> refl };
       id = refl
     }
 
