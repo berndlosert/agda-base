@@ -3,16 +3,15 @@
 module Control.Monad.Free where
 
 -- Let C be a category and let F be an endofunctor on C. A free monad on F is a
--- monad Free F on C equipped with a natural transformation liftFree : F ~>
--- Free F satisfying the following universal property: for any monad M on C and
--- natural transformation alpha : F ~> M, there is a unique monad morphism
--- interpretFree alpha : Free F ~> M with the property that alpha =
--- interpretFree alpha <<< liftFree. When C = Sets, we define Free F, liftFree
--- and interpretFree as follows:
+-- monad Free F on C equipped with a natural transformation lift : F ~> Free F
+-- satisfying the following universal property: for any monad M on C and
+-- natural transformation t : F ~> M, there is a unique monad morphism foldMap
+-- t : Free F ~> M with the property that t = foldMap t <<< lift. When C =
+-- Sets, we define Free F, lift and foldMap as follows:
 
 -- (N.B. We give the final encoding of Free. The other encodings of Free
 -- cause problems either with the positivity checker or with the termination
--- checker when defining interpretFree.)
+-- checker when defining foldMap.)
 
 open import Control.Category
 open import Control.Monad
@@ -21,50 +20,51 @@ open import Data.Functor
 Free : (Set -> Set) -> Set -> Set
 Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
 
-liftFree : forall {F} -> F ~> Free F
-liftFree x alpha = alpha x
+lift : forall {F} -> F ~> Free F
+lift x t = t x
 
-interpretFree : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
-interpretFree alpha free = free alpha
+foldMap : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
+foldMap t free = free t
 
--- This is the left inverse of liftFree.
+-- This is the left inverse (retract) of lift.
 
-lowerFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
-lowerFree = interpretFree id
+fold : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+fold = foldMap id
 
 -- Here is proof that Free F is a functor. Note that this doesn't require F to
 -- be a functor. However, this is not a free construction.
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free alpha = map f (free alpha)
+  Functor:Free .map f free t = map f (free t)
 
 -- Free F is a monad whenever F is a functor. We don't make this an instance
 -- because Agda gets confused sometimes when it tries to figure out the
 -- instance to use for Endofunctor Sets F.
 
 Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
-Monad:Free .join free alpha = join (map (\ f -> f alpha) (free alpha))
+Monad:Free .join free t = join (map (\ f -> f t) (free t))
 Monad:Free .return x _ = return x
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
--- The right adjunct of this adjunction is basically interpretFree. The left
+-- The right adjunct of this adjunction is basically foldMap. The left
 -- adjunct is given below.
 
-uninterpretFree : forall {F M} -> (Free F ~> M) -> (F ~> M)
-uninterpretFree alpha x = alpha (liftFree x)
+leftAdjunct : forall {F M} -> (Free F ~> M) -> F ~> M
+leftAdjunct t x = t (lift x)
 
--- When F is a functor, (Free F X , algFree) is an F-algebra for any type X.
+-- When F is a functor, (Free F X , freeAlg) is an F-algebra for any type X.
 
-algFree : forall {F} {{_ : Endofunctor Sets F}} -> F <<< Free F ~> Free F
-algFree = join <<< liftFree
+freeAlg : forall {F X} {{_ : Endofunctor Sets F}}
+  -> F (Free F X) -> Free F X
+freeAlg = join <<< lift
   where instance _ = Monad:Free
 
--- A different version of interpretFree that takes a generator gen : X -> Y and
+-- A different version of foldMap that takes a generator gen : X -> Y and
 -- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y.  This
 -- fold is based on the Church encoding of Free.
 
 foldFree : forall {M X Y} {{_ : Monad Sets M}}
   -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
-foldFree gen alg free = alg (map gen (lowerFree free))
+foldFree gen alg free = alg (map gen (fold free))

@@ -3,9 +3,9 @@
 module Data.Foldable where
 
 -- A free monoid on a type X consists of a monoid F X together with a function
--- singleton : X -> F X such that for any monoid M and any function f : X -> M,
+-- lift : X -> F X such that for any monoid M and any function f : X -> M,
 -- there is a unique monoid homomorphism foldMap f : F X -> M satisfying
--- singleton >>> foldMap f = f. If F X is a free monoid on X for all X, then
+-- lift >>> foldMap f = f. If F X is a free monoid on X for all X, then
 -- the construction F is called a free-monoid constructor. A foldable F is
 -- a free monoid constructor without the monoid requirement on F X and the
 -- unique-monoid-homomorphism requirement on foldMap f.
@@ -21,7 +21,7 @@ open import Data.Nat
 record Foldable (F : Set -> Set) : Set where
   constructor Foldable:
   field
-    singleton : forall {X} -> X -> F X
+    lift : forall {X} -> X -> F X
     foldMap : forall {X M} {{_ : Monoid M}}
       -> (X -> M) -> F X -> M
 
