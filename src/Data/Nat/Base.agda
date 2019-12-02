@@ -15,27 +15,32 @@ open import Agda.Builtin.Nat
     _<_ to ltNat
   )
 
--- Defines + as addition.
+-- Defines _+_ as addition.
 open import Notation.Add public
-instance Add:Nat : Add Nat
-Add:Nat = Add: addNat
+instance
+  Add:Nat : Add Nat
+  Add:Nat = Add: addNat
 
--- Defines - as subtraction.
+-- Defines _-_ as subtraction.
 open import Notation.Sub public
-instance Sub:Nat : Sub Nat
-Sub:Nat = Sub: subNat
+instance
+  Sub:Nat : Sub Nat
+  Sub:Nat = Sub: subNat
 
--- Defines * as multiplication.
+-- Defines _*_ as multiplication.
 open import Notation.Mul public
-instance Mul:Nat : Mul Nat
-Mul:Nat = Mul: mulNat
+instance
+  Mul:Nat : Mul Nat
+  Mul:Nat = Mul: mulNat
 
 -- Defines _==_ for equality.
 open import Data.Eq public
-instance Eq:Nat : Eq Nat
-Eq:Nat = Eq: eqNat
+instance
+  Eq:Nat : Eq Nat
+  Eq:Nat = Eq: eqNat
 
 -- Defines _<_ and related comparison operations.
 open import Data.Ord public
-instance Ord:Nat : Ord Nat
-Ord:Nat = Ord: ltNat 
+instance
+  Ord:Nat : Ord Nat
+  Ord:Nat = Ord: ltNat 
