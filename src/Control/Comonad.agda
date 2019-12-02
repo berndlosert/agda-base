@@ -22,8 +22,8 @@ Cokleisli : {C : Category} (F : ob C -> ob C) {{_ : Comonad C F}} -> Category
 Cokleisli {C} F = let instance _ = C in
   record {
     ob = ob C;
-    hom = λ X Y -> hom C (F X) Y;
-    _>>>_ = λ f g -> extend f >>> g;
+    hom = \ X Y -> hom C (F X) Y;
+    _>>>_ = \ f g -> extend f >>> g;
     id = extract 
   }
 

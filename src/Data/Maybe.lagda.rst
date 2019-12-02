@@ -45,6 +45,6 @@ that is not ``nothing``::
 
   instance
     Semigroup:First : {X : Set} -> Semigroup (Maybe X)
-    Semigroup:First = Semigroup: λ where
+    Semigroup:First = Semigroup: \ where
       nothing _ -> nothing
       (just x) _ -> just x

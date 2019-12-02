@@ -30,7 +30,7 @@ Monoid:<<< = record {
 Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
 Monoid:Function = record {
     instance:Semigroup = Semigroup:Function;
-    mempty = λ x -> mempty
+    mempty = \ x -> mempty
   }
 
 -- Every Monoid can be viewed as a category having one object, viz. Unit,
@@ -39,7 +39,7 @@ Monoid:Function = record {
 MonoidToCategory : (X : Set) {{_ : Monoid X}} -> Category
 MonoidToCategory X = record {
     ob = Unit;
-    hom = λ _ _ -> X;
+    hom = \ _ _ -> X;
     _∘_ = _<>_;
     id = mempty
   }
@@ -49,7 +49,7 @@ open import Data.Product
 Monoids : Category
 Monoids = record {
     ob = exists Monoid; 
-    hom =  λ { (X , _) (Y , _) -> X -> Y };
+    hom =  \ { (X , _) (Y , _) -> X -> Y };
     _∘_ = _∘_;
     id = id
   }
@@ -81,4 +81,4 @@ open MonoidOb {{...}} public
 
 -- Every monoid is a monoid object in Sets.
 MonoidIsMonoibOb : (X : Set) {{_ : Monoid X}} -> MonoidOb Sets X
-MonoidIsMonoibOb X = MonoidOb: (uncurry _<>_) (λ _ -> mempty)
+MonoidIsMonoibOb X = MonoidOb: (uncurry _<>_) (\ _ -> mempty)

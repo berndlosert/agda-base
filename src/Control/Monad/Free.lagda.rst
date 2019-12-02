@@ -50,7 +50,7 @@ instance because Agda get's confused sometimes when it tries to figure out the
 instance to use for ``Endofunctor Sets F``::
 
   Monad:Free : {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
-  Monad:Free .join free α = join (map (λ f -> f α) (free α))
+  Monad:Free .join free α = join (map (\ f -> f α) (free α))
   Monad:Free .return x _ = return x
 
 ``Free`` is a free construction. It is basically the left-adjoint of the

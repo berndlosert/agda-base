@@ -14,8 +14,8 @@ open import Data.Unit public
 open import Notation.Number public
 Number:Int : Number Int
 Number:Int = record {
-    Constraint = λ _ -> Unit;
-    fromNat = λ n -> pos n
+    Constraint = \ _ -> Unit;
+    fromNat = \ n -> pos n
   }
 
 -- Used for telling Agda that a number literal is an Int.
@@ -30,7 +30,7 @@ NatToInt = Cast: pos
 
 -- Cast an Int to a Nat (basically the absolute value).
 instance IntToNat : Cast Int Nat
-IntToNat = Cast: λ where
+IntToNat = Cast: \ where
   (pos n) -> n
   (negsuc n) -> suc n
 
@@ -38,21 +38,21 @@ IntToNat = Cast: λ where
 open import Notation.Negative
 instance Negative:Int : Negative Int
 Negative:Int = record {
-    Constraint = λ _ -> Unit;
-    fromNeg = λ where
+    Constraint = \ _ -> Unit;
+    fromNeg = \ where
       0 -> pos zero
       (suc n) -> negsuc n
   }
 
 -- Negation of natural numbers.
 instance Negation:Nat->Int : Negation Nat Int
-Negation:Nat->Int = Negation: λ where
+Negation:Nat->Int = Negation: \ where
   0 -> pos zero
   (suc n) -> negsuc n
 
 -- Negation of integers.
 instance Negation:Int->Int : Negation Int Int
-Negation:Int->Int = Negation: λ where
+Negation:Int->Int = Negation: \ where
   (pos zero) -> pos zero
   (pos (suc n)) -> negsuc n
   (negsuc n) -> pos (suc n)
@@ -61,7 +61,7 @@ Negation:Int->Int = Negation: λ where
 open import Data.Bool
 open import Data.Eq
 instance Eq:Int : Eq Int
-Eq:Int = Eq: λ where
+Eq:Int = Eq: \ where
   (pos n) (pos m) -> n == m
   (negsuc n) (negsuc m) -> n == m
   _ _ -> false
@@ -69,7 +69,7 @@ Eq:Int = Eq: λ where
 -- Comparing Int values.
 open import Data.Ord
 instance Ord:Int : Ord Int
-Ord:Int = Ord: λ where
+Ord:Int = Ord: \ where
   (pos n) (pos m) -> n < m
   (pos n) (negsuc m) -> false
   (negsuc n) (pos m) -> true
@@ -96,7 +96,7 @@ Add:Int = Add: add
 -- Int multiplication.
 open import Notation.Mul public
 instance Mul:Int : Mul Int
-Mul:Int = Mul: λ where
+Mul:Int = Mul: \ where
   (pos n) (pos m) -> pos (n * m)
   (negsuc n) (negsuc m) -> pos (suc n * suc m)
   (pos n) (negsuc m) -> - (n * suc m)
@@ -104,13 +104,13 @@ Mul:Int = Mul: λ where
 
 -- Int subtraction.
 instance Sub:Int : Sub Int
-Sub:Int = Sub: λ n m -> n + (- m)
+Sub:Int = Sub: \ n m -> n + (- m)
 
 -- Useful functions for producing ranges of integers.
 open import Data.List.Base
 {-# TERMINATING #-}
 from_to_count : Int -> Int -> List Int
-from m to n count = case (compare m n) of λ where
+from m to n count = case (compare m n) of \ where
   EQ -> [ m ]
   LT -> m :: from (m + pos (suc zero)) to n count
   GT -> n :: from m to (n - pos (suc zero)) count

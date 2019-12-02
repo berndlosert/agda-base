@@ -16,7 +16,7 @@ open import Data.Function
 
 -- Since Delay is a final coalgebra, it has an unfold operation. 
 unfold : ∀ {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
-unfold f y = either now (λ x -> later λ where .force -> unfold f x) $ f y
+unfold f y = either now (\ x -> later \ where .force -> unfold f x) $ f y
 
 open import Data.Maybe
 open import Data.Nat
@@ -44,7 +44,7 @@ open import Data.Bool
 -- This is just like tryMore, except that now we have a stream of Bool values,
 -- modelled using a function of type Nat -> Bool.
 minimize : (Nat -> Bool) -> Delay _ Nat
-minimize test = tryMore (λ n -> if test n then just n else nothing)
+minimize test = tryMore (\ n -> if test n then just n else nothing)
 
 open import Control.Category
 open import Control.Monad
@@ -54,7 +54,7 @@ instance
   Functor:Delay : {i : Size} -> Endofunctor Sets (Delay i)
   Functor:Delay .map f (now x) = now (f x)
   Functor:Delay .map f (later thunk) =
-    later λ where .force -> map f (force thunk)
+    later \ where .force -> map f (force thunk)
 
   Monad:Delay : {i : Size} -> Monad Sets (Delay i)
   Monad:Delay = Triple: Sets bindDelay now 
@@ -63,4 +63,4 @@ instance
         -> (X -> Delay i Y) -> Delay i X -> Delay i Y
       bindDelay f (now x) = f x
       bindDelay f (later thunk) = 
-        later λ where .force -> bindDelay f (force thunk)
+        later \ where .force -> bindDelay f (force thunk)

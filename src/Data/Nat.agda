@@ -11,8 +11,8 @@ open import Data.Unit public
 open import Notation.Number public
 Number:Nat : Number Nat
 Number:Nat = record {
-     Constraint = λ _ -> Unit;
-     fromNat = λ n -> n
+     Constraint = \ _ -> Unit;
+     fromNat = \ n -> n
    }
 
 -- Used for telling Agda that a number literal is a Nat.
@@ -24,16 +24,16 @@ open import Notation.Div public
 open import Data.Void
 instance Div:Nat : Div Nat
 Div:Nat = record {
-    Constraint = λ { zero -> Void; (suc n) -> Unit };
-    _/_ = λ { m (suc n) -> div-helper zero n m n }
+    Constraint = \ { zero -> Void; (suc n) -> Unit };
+    _/_ = \ { m (suc n) -> div-helper zero n m n }
   }
 
 -- The mod operation for natural numbers.
 open import Notation.Mod public
 instance Mod:Nat : Mod Nat
 Mod:Nat = record {
-    Constraint = λ { zero -> Void; (suc n) -> Unit };
-    _%_ = λ { m (suc n) -> mod-helper zero n m n }
+    Constraint = \ { zero -> Void; (suc n) -> Unit };
+    _%_ = \ { m (suc n) -> mod-helper zero n m n }
   }
 
 instance

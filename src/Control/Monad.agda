@@ -43,8 +43,8 @@ Kleisli : {C : Category} (F : ob C -> ob C) {{_ : Monad C F}} -> Category
 Kleisli {C} F = let instance _ = C in
   record {
     ob = ob C;
-    hom = λ X Y -> hom C X (F Y);
-    _∘_ = λ g f -> bind g ∘ f;
+    hom = \ X Y -> hom C X (F Y);
+    _∘_ = \ g f -> bind g ∘ f;
     id = return
   }
 
@@ -68,7 +68,7 @@ module _ {F : Set -> Set} {{_ : Monad Sets F}} where
 
   infixl 1 _>>_
   _>>_ : F X -> F Y -> F Y
-  x >> y = x >>= (λ _ -> y)
+  x >> y = x >>= (\ _ -> y)
 
   -- Kleisli composition for monads of type Set -> Set.
   infixl 1 _>=>_

@@ -15,7 +15,7 @@ data Digit : Set where
 instance
   -- This is how we compare digits for equality. 
   Eq:Digit : Eq Digit
-  Eq:Digit = Eq: λ where
+  Eq:Digit = Eq: \ where
     0d 0d -> true
     1d 1d -> true
     2d 2d -> true
@@ -30,7 +30,7 @@ instance
 
   -- This is how we compare digits in general. 
   Ord:Digit : Ord Digit
-  Ord:Digit = Ord: λ where
+  Ord:Digit = Ord: \ where
 
     0d 0d -> false
     0d _ -> true
@@ -205,7 +205,7 @@ instance
   open import Data.Cast
   open import Data.Char
   DigitToChar : Cast Digit Char
-  DigitToChar = Cast: λ where
+  DigitToChar = Cast: \ where
     0d -> '0'
     1d -> '1'
     2d -> '2'
@@ -220,7 +220,7 @@ instance
   -- Cast Char to Maybe Digit
   open import Data.Maybe
   CharToDigit : Cast Char (Maybe Digit)
-  CharToDigit = Cast: λ where
+  CharToDigit = Cast: \ where
     '0' -> just 0d
     '1' -> just 1d
     '2' -> just 2d
@@ -236,7 +236,7 @@ instance
   -- Cast Digit to Nat.
   open import Data.Nat.Base
   DigitToNat : Cast Digit Nat
-  DigitToNat = Cast: λ where
+  DigitToNat = Cast: \ where
     0d -> 0
     1d -> 1
     2d -> 2

@@ -28,7 +28,7 @@ This instance allows use to use ``×`` for the Cartesian product::
 
   instance
     Mul:Set : Mul Set
-    Mul:Set = Mul: (λ X Y -> Σ X (λ _ -> Y))
+    Mul:Set = Mul: (\ X Y -> Σ X (\ _ -> Y))
 
 Categorically speaking, for any two sets ``X`` and ``Y``, both ``X × Y`` and
 ``Y × X`` are products of ``X`` and ``Y``. The function swap serves as proof

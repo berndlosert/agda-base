@@ -8,7 +8,7 @@ open import Data.Product
 -- value representing a request and callback is a function that is used to
 -- handle the response. Note that the type of the response depends on req.
 Interact : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
-Interact Req Resp X = Sigma Req (λ req -> Resp req -> X)
+Interact Req Resp X = Sigma Req (\ req -> Resp req -> X)
 
 open import Control.Category
 open import Data.Functor
@@ -31,7 +31,7 @@ instance
   Monad:General = Monad:Free {{Functor:Interact}}
 
 call : ∀ {Req Resp} (req : Req) -> General Req Resp (Resp req)
-call req = λ alpha -> alpha (req , id) 
+call req = \ alpha -> alpha (req , id) 
 
 -- Dependent function type of general recursive functions.
 Pi : (Req : Set) (Resp : Req -> Set) -> Set

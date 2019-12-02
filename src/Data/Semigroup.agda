@@ -14,12 +14,12 @@ instance
   -- Void forms the empty semigroup.
   open import Data.Void
   Semigroup:Void : Semigroup Void
-  Semigroup:Void = Semigroup: λ () 
+  Semigroup:Void = Semigroup: \ () 
 
   -- Unit forms a one-element semigroup.
   open import Data.Unit
   Semigroup:Unit : Semigroup Unit
-  Semigroup:Unit = Semigroup: λ _ _ -> tt
+  Semigroup:Unit = Semigroup: \ _ _ -> tt
 
 -- Endofunctions form a semigroup with respect to _<<<_, but also with
 -- respect to _>>>_. We use _<<<_ since this is traditionally what we
@@ -31,4 +31,4 @@ Semigroup:<<< = Semigroup: _<<<_
 -- Functions of the form X -> Y, where Y forms a semigroup are also
 -- a semigroup.
 Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y) 
-Semigroup:Function = Semigroup: λ f g x -> f x <> g x 
+Semigroup:Function = Semigroup: \ f g x -> f x <> g x 

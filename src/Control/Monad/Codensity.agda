@@ -16,5 +16,5 @@ instance
 
   Monad:Codensity : {F : Set -> Set} {{_ : Endofunctor Sets F}}
     -> Monad Sets (Codensity F)
-  Monad:Codensity .join k g = k (λ k' -> k' g)
+  Monad:Codensity .join k g = k (\ k' -> k' g)
   Monad:Codensity .return x f = f x

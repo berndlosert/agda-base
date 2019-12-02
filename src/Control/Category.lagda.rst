@@ -45,9 +45,9 @@ The category of sets and total functions is called ``Sets``::
     Sets : Category
     Sets = record {
         ob = Set;
-        hom = λ X Y -> X -> Y;
-        _∘_ = λ g f x -> g (f x);
-        id = λ x -> x
+        hom = \ X Y -> X -> Y;
+        _∘_ = \ g f x -> g (f x);
+        id = \ x -> x
       }
 
 For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``∘`` are flipped::
@@ -55,7 +55,7 @@ For every category ``C`` there is an oppossite category ``Op C`` that is just li
   Op : Category -> Category
   Op C = let instance _ = C in record {
       ob = ob C;
-      hom = λ X Y -> hom C Y X;
+      hom = \ X Y -> hom C Y X;
       _∘_ = _>>>_;
       id = id
     }
@@ -69,8 +69,8 @@ g)`` where ``f`` is a morphism from ``C`` and ``g`` is a morphism from ``D``::
     let instance _ = C; instance _ = D in
     record {
       ob = ob C × ob D;
-      hom = λ { (X , W) (Y , Z) -> hom C X Y × hom D W Z };
-      _∘_ = λ { (g , k) (f , h) -> (g ∘ f , k ∘ h) };
+      hom = \ { (X , W) (Y , Z) -> hom C X Y × hom D W Z };
+      _∘_ = \ { (g , k) (f , h) -> (g ∘ f , k ∘ h) };
       id = (id , id)
     }
 

@@ -58,7 +58,7 @@ The category of categories is called ``Categories``::
   Categories : Category
   Categories = record {
       ob = Category;
-      hom = λ C D -> ob C -> ob D;
+      hom = \ C D -> ob C -> ob D;
       _∘_ = _∘_;
       id = id
     }
@@ -84,8 +84,8 @@ transformatiosn between them::
     record {
       ob = ob C -> ob D;
       hom = _~>_;
-      _∘_ = λ β α -> β ∘ α;
-      id = λ {F} {X} -> id {F X}
+      _∘_ = \ β α -> β ∘ α;
+      id = \ {F} {X} -> id {F X}
     }
 
 A few special endofunctor instances::
@@ -108,7 +108,7 @@ With this, we can write ``F × G`` for coproduct of two endofunctors on ``Sets``
 
   instance
     Mul:Functor : Mul (Set -> Set)
-    Mul:Functor = Mul: λ F G X -> F X × G X
+    Mul:Functor = Mul: \ F G X -> F X × G X
 
 The product of two endofunctors is a functor::
 
@@ -125,7 +125,7 @@ With this, we can write ``F + G`` for coproduct of two endofunctors on ``Sets``:
 
   instance
     Add:Functor : Add (Set -> Set)
-    Add:Functor = Add: λ F G X -> F X + G X
+    Add:Functor = Add: \ F G X -> F X + G X
 
 The coproduct of two endofunctors is a functor::
 
