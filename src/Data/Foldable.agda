@@ -21,8 +21,8 @@ open import Data.Nat
 record Foldable (F : Set -> Set) : Set where
   constructor Foldable:
   field
-    singleton : {X : Set} -> X -> F X
-    foldMap : {M : Set} {{_ : Monoid M}} {X : Set}
+    singleton : forall {X} -> X -> F X
+    foldMap : forall {X M} {{_ : Monoid M}}
       -> (X -> M) -> F X -> M
 
   fold : forall {X} {{_ : Monoid X}} -> F X -> X
