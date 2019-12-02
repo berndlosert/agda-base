@@ -1,15 +1,10 @@
-**********
-Data.Maybe
-**********
-.
+{-# OPTIONS --type-in-type #-}
 
-  {-# OPTIONS --type-in-type #-}
+module Data.Maybe where
 
-  module Data.Maybe where
+open import Data.Maybe.Base public
 
-  open import Data.Maybe.Base public
-
-Maybe forms a functor.
+-- Maybe forms a functor.
 
   open import Control.Category
   open import Data.Functor
@@ -19,7 +14,8 @@ Maybe forms a functor.
     Functor:Maybe .map f nothing = nothing
     Functor:Maybe .map f (just x) = just (f x)
 
-Maybe also forms a monad, which we can use to model computations that can fail.
+-- Maybe also forms a monad, which we can use to model computations that can
+-- fail.
 
   open import Control.Monad
 
@@ -29,7 +25,7 @@ Maybe also forms a monad, which we can use to model computations that can fail.
     Monad:Maybe .join (just x) = x
     Monad:Maybe .return = just
 
-We derive the Applicative instance of Maybe from the Monad instance.
+-- We derive the Applicative instance of Maybe from the Monad instance.
 
   open import Control.Applicative
 
@@ -37,9 +33,9 @@ We derive the Applicative instance of Maybe from the Monad instance.
     Applicative:Maybe : Applicative Maybe
     Applicative:Maybe = Idiom: ap return
 
-This is the left-biased Semigroup instance of Maybe X. This is useful
-when you have a list of Maybe X values and you want to pick the first one
-that is not nothing.
+-- This is the left-biased Semigroup instance of Maybe X. This is useful when
+-- you have a list of Maybe X values and you want to pick the first one that is
+-- not nothing.
 
   open import Data.Semigroup
 
