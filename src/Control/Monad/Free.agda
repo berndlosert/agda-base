@@ -29,8 +29,8 @@ interpretFree alpha free = free alpha
 
 -- This is the left inverse of liftFree.
 
-retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
-retractFree = interpretFree id
+lowerFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+lowerFree = interpretFree id
 
 -- Here is proof that Free F is a functor. Note that this doesn't require F to
 -- be a functor. However, this is not a free construction.
@@ -40,7 +40,7 @@ instance
   Functor:Free .map f free alpha = map f (free alpha)
 
 -- Free F is a monad whenever F is a functor. We don't make this an instance
--- because Agda get's confused sometimes when it tries to figure out the
+-- because Agda gets confused sometimes when it tries to figure out the
 -- instance to use for Endofunctor Sets F.
 
 Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
@@ -67,4 +67,4 @@ algFree = join <<< liftFree
 
 foldFree : forall {M X Y} {{_ : Monad Sets M}}
   -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
-foldFree gen alg free = alg (map gen (retractFree free))
+foldFree gen alg free = alg (map gen (lowerFree free))
