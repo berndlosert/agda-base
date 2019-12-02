@@ -5,7 +5,13 @@ module Data.Nat.Base where
 -- The type Nat of unary natural numbers has two constructors: zero
 -- (for 0) and suc (for successor).
 open import Agda.Builtin.Nat public
-  using (Nat; zero; suc; div-helper; mod-helper)
+  using (
+    Nat; 
+    zero; 
+    suc; 
+    div-helper; 
+    mod-helper
+  )
 open import Agda.Builtin.Nat
   renaming (
     _+_ to addNat; 
