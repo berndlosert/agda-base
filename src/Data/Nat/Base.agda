@@ -6,14 +6,14 @@ module Data.Nat.Base where
 -- (for 0) and suc (for successor).
 open import Agda.Builtin.Nat public
   using (
-    Nat; 
-    zero; 
-    suc; 
-    div-helper; 
+    Nat;
+    zero;
+    suc;
+    div-helper;
     mod-helper
   )
   renaming (
-    _+_ to addNat; 
+    _+_ to addNat;
     _-_ to subNat;
     _*_ to mulNat;
     _==_ to eqNat;
@@ -48,4 +48,4 @@ instance
 open import Data.Ord public
 instance
   Ord:Nat : Ord Nat
-  Ord:Nat = Ord: ltNat 
+  Ord:Nat = Ord: ltNat

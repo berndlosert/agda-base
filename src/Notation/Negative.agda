@@ -2,7 +2,7 @@
 
 module Notation.Negative where
 
--- This allows us to define what the syntax -n means when n 
+-- This allows us to define what the syntax -n means when n
 -- is a number literal.
 open import Agda.Builtin.FromNeg public
 

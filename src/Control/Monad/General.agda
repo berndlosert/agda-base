@@ -16,7 +16,7 @@ open import Data.Functor
 instance
   Functor:Interact : {Req : Set} {Resp : Req -> Set}
     -> Endofunctor Sets (Interact Req Resp)
-  Functor:Interact .map f (req , callback) = (req , callback >>> f) 
+  Functor:Interact .map f (req , callback) = (req , callback >>> f)
 
 open import Control.Monad.Free
 
@@ -27,11 +27,11 @@ General Req Resp = Free (Interact Req Resp)
 open import Control.Monad
 
 instance
-  Monad:General : forall {Req Resp} -> Monad Sets (General Req Resp) 
+  Monad:General : forall {Req Resp} -> Monad Sets (General Req Resp)
   Monad:General = Monad:Free {{Functor:Interact}}
 
 call : forall {Req Resp} (req : Req) -> General Req Resp (Resp req)
-call req = \ alpha -> alpha (req , id) 
+call req = \ alpha -> alpha (req , id)
 
 -- Dependent function type of general recursive functions.
 Pi : (Req : Set) (Resp : Req -> Set) -> Set

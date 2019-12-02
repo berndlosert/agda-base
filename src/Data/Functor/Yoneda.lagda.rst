@@ -11,8 +11,8 @@ Data.Functor.Yoneda
   open import Control.Monad
   open import Data.Functor
 
-The type ``Yoneda C F X`` can be viewed as the partial application of map to
-its second argument (assuming ``F`` is a functor)::
+The type Yoneda C F X can be viewed as the partial application of map to
+its second argument (assuming F is a functor)::
 
   Yoneda : (C : Category) -> (ob C -> Set) -> ob C -> Set
   Yoneda C F X = forall {Y} -> hom C X Y -> F Y
@@ -25,7 +25,7 @@ Functor:Yoneda C F .map f alpha g = alpha (f >>> g)
   where instance _ = C
 
 -- The Yoneda lemma states that F X ~= Yoneda C F X. The -> direction
--- of this isomorphism is called toYoneda. 
+-- of this isomorphism is called toYoneda.
 toYoneda : {C : Category} {F : ob C -> Set} {{_ : Functor C Sets F}}
   -> {X : ob C} -> F X -> Yoneda C F X
 toYoneda y f = map f y

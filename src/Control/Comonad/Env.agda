@@ -15,6 +15,6 @@ instance Functor:Env : Endofunctor Sets (Env E)
 Functor:Env .map f (e , x) = (e , f x)
 
 open import Control.Comonad
-instance Comonad:Env : Comonad Sets (Env E) 
+instance Comonad:Env : Comonad Sets (Env E)
 Comonad:Env .duplicate (e , x) = (e , (e , x))
 Comonad:Env .extract (e , x) = x

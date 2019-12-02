@@ -40,5 +40,5 @@ foldCoyoneda alpha (_ , x , f) = map f (alpha x)
 -- This is the left adjunct.
 ladjunctCoyoneda : {C : Category} {F G : ob C -> Set} {{_ : Functor C Sets G}} ->
   let instance _ = Trans: C Sets in
-  (Coyoneda C F ~> G) -> (F ~> G) 
+  (Coyoneda C F ~> G) -> (F ~> G)
 ladjunctCoyoneda {C} alpha x = alpha (liftCoyoneda {C} x)

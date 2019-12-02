@@ -17,13 +17,13 @@ Writer W X = X * W
 
 -- We use execWriter to get output of a Writer computation.
 execWriter : {W X : Set} -> Writer W X -> X
-execWriter = fst 
+execWriter = fst
 
 instance
   -- Writer W is a functor.
   Functor:Writer : {W : Set} -> Endofunctor Sets (Writer W)
   Functor:Writer .map f (x , w) = (f x , w)
-  
+
   -- If W is a monoid, then Writer W is a monad. The return function in this case
   -- produces a Writer computation that stores mempty. The bind operation
   -- essentially does function application while combining the stored values

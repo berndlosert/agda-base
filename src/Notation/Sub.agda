@@ -6,6 +6,6 @@ module Notation.Sub where
 record Sub (X : Set) : Set where
   constructor Sub:
   infixr 24 _-_
-  field _-_ : X -> X -> X 
+  field _-_ : X -> X -> X
 
 open Sub {{...}} public

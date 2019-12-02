@@ -25,7 +25,7 @@ instance
   -- Reader R is a functor whose map is just function composition.
   Functor:Reader : {R : Set} -> Endofunctor Sets (Reader R)
   Functor:Reader .map = _<<<_
-  
+
   -- Reader R is a monad. The return operation creates Reader computations that
   -- do not depend on config. values. The bind operation essentially passes
   -- along config. values during function application.

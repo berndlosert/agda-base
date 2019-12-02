@@ -107,7 +107,7 @@ recons (just (x , xs)) = x :: xs
 
 -- This proves that (List X , uncons) is an initial algebra. This is basically
 -- foldr in disguise.
-cata : (Maybe (X * Y) -> Y) -> List X -> Y 
+cata : (Maybe (X * Y) -> Y) -> List X -> Y
 cata f [] = f nothing
 cata f (x :: xs) = f (just (x , cata f xs))
 

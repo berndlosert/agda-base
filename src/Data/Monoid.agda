@@ -2,12 +2,12 @@
 
 module Data.Monoid where
 
--- A semigroup is a monoid when its binary operation has an identity. 
+-- A semigroup is a monoid when its binary operation has an identity.
 open import Data.Semigroup public
 record Monoid (X : Set) : Set where
   constructor Monoid:
   field
-    {{instance:Semigroup}} : Semigroup X 
+    {{instance:Semigroup}} : Semigroup X
     mempty : X
 
 open Monoid {{...}} public
@@ -48,14 +48,14 @@ MonoidToCategory X = record {
 open import Data.Product
 Monoids : Category
 Monoids = record {
-    ob = exists Monoid; 
+    ob = exists Monoid;
     hom =  \ { (X , _) (Y , _) -> X -> Y };
     _<<<_ = _<<<_;
     id = id
   }
 
 -- A monoidal category C is one where ob C is a monoid with the proviso that
--- the associativity of _<>_ and the identityness of mempty hold up to 
+-- the associativity of _<>_ and the identityness of mempty hold up to
 -- isomorphism.
 Monoidal : Category -> Set
 Monoidal C = Monoid (ob C)

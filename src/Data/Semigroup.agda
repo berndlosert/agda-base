@@ -8,13 +8,13 @@ record Semigroup (X : Set) : Set where
   infixr 6 _<>_
   field _<>_ : X -> X -> X
 
-open Semigroup {{...}} public 
+open Semigroup {{...}} public
 
 instance
   -- Void forms the empty semigroup.
   open import Data.Void
   Semigroup:Void : Semigroup Void
-  Semigroup:Void = Semigroup: \ () 
+  Semigroup:Void = Semigroup: \ ()
 
   -- Unit forms a one-element semigroup.
   open import Data.Unit
@@ -30,5 +30,5 @@ Semigroup:<<< = Semigroup: _<<<_
 
 -- Functions of the form X -> Y, where Y forms a semigroup are also
 -- a semigroup.
-Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y) 
-Semigroup:Function = Semigroup: \ f g x -> f x <> g x 
+Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
+Semigroup:Function = Semigroup: \ f g x -> f x <> g x

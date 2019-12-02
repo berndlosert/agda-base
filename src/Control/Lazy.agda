@@ -3,7 +3,7 @@
 module Control.Lazy where
 
 open import Control.Category
-open import Data.Functor 
+open import Data.Functor
 
 open import Agda.Builtin.Coinduction public
   renaming (

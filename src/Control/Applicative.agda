@@ -24,7 +24,7 @@ record Applicative (F : Set -> Set) : Set where
 
   -- The inverse of zip, proving that F X * F Y ~= F (X * Y).
   unzip : F (X * Y) -> F X * F Y
-  unzip = pair (map fst) (map snd) 
+  unzip = pair (map fst) (map snd)
 
   -- Defining _<*>_ and pure allows use to use idiom brackets (| |) when
   -- writing applicative code.
@@ -35,7 +35,7 @@ record Applicative (F : Set -> Set) : Set where
   pure : X -> F X
   pure x = map (const x) (unit tt)
 
-  -- For applicative functors, the mapping function map (called liftA) can be 
+  -- For applicative functors, the mapping function map (called liftA) can be
   -- generalized to any number of arguments.
   liftA : (X -> Y) -> F X -> F Y
   liftA = map
@@ -44,15 +44,15 @@ record Applicative (F : Set -> Set) : Set where
   liftA2 : (X -> Y -> Z) -> F X -> F Y -> F Z
   liftA2 f x = map f x <*>_
 
-  -- Generalization of flip const. 
+  -- Generalization of flip const.
   infixl 24 _*>_
   _*>_ : F X -> F Y -> F Y
-  _*>_ = liftA2 (flip const) 
+  _*>_ = liftA2 (flip const)
 
   -- Generalization of const.
   infixl 24 _<*_
   _<*_ : F X -> F Y -> F X
-  _<*_ = liftA2 const 
+  _<*_ = liftA2 const
 
 open Applicative {{...}} public
 

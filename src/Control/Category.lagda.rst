@@ -9,13 +9,13 @@ Control.Category
 
   open import Data.Product
 
-A category consists of: 
+A category consists of:
 
-- a set ob ``C`` of objects; 
-- for any two object ``X``, ``Y``, a set ``hom X Y`` (called a homset) of   
-  morphisms with domain ``X`` and codomain ``Y``; 
-- a composition operator ``<<<`` for composing morphisms;
-- an identity operator ``id`` used for producing identity morphisms;
+- a set ob C of objects;
+- for any two object X, Y, a set hom X Y (called a homset) of
+  morphisms with domain X and codomain Y;
+- a composition operator <<< for composing morphisms;
+- an identity operator id used for producing identity morphisms;
 
 In other words::
 
@@ -36,7 +36,7 @@ In other words::
   open Category hiding (_<<<_; _>>>_; id) public
   open Category {{...}} hiding (ob; hom) public
 
-The category of sets and total functions is called ``Sets``::
+The category of sets and total functions is called Sets::
 
   instance
     Sets : Category
@@ -47,7 +47,7 @@ The category of sets and total functions is called ``Sets``::
         id = \ x -> x
       }
 
-For every category ``C`` there is an oppossite category ``Op C`` that is just like ``C`` expect that ``hom`` and ``<<<`` are flipped::
+For every category C there is an oppossite category Op C that is just like C expect that hom and <<< are flipped::
 
   Op : Category -> Category
   Op C = let instance _ = C in record {
@@ -57,9 +57,9 @@ For every category ``C`` there is an oppossite category ``Op C`` that is just li
       id = id
     }
 
-The product of two categories ``C`` and ``D`` has as objects all pairs ``(X ,
-Y)`` where ``X : ob C`` and ``Y : ob D``; the morphisms are also pairs ``(f ,
-g)`` where ``f`` is a morphism from ``C`` and ``g`` is a morphism from ``D``::
+The product of two categories C and D has as objects all pairs (X ,
+Y) where X : ob C and Y : ob D; the morphisms are also pairs (f ,
+g) where f is a morphism from C and g is a morphism from D::
 
   CategoricalProduct : Category -> Category -> Category
   CategoricalProduct C D =
@@ -71,7 +71,7 @@ g)`` where ``f`` is a morphism from ``C`` and ``g`` is a morphism from ``D``::
       id = (id , id)
     }
 
-This allows us to use ``×`` (or ``*``) for creating product categories::
+This allows us to use × (or *) for creating product categories::
 
-  instance 
+  instance
     Mul:Category = Mul: CategoricalProduct

@@ -7,7 +7,7 @@ Data.Functor.Union
 
   module Data.Functor.Union where
 
-``Union`` is a higher-order generalization of ``Either``. To be precise, ``Union [ F₁ # F₂ # … # Fₙ ] X`` is the disjoint union ``F₁ X + F₂ X + ⋯ + Fₙ X``::
+Union is a higher-order generalization of Either. To be precise, Union [ F₁ # F₂ # … # Fₙ ] X is the disjoint union F₁ X + F₂ X + ⋯ + Fₙ X::
 
   open import Data.List public
   open import Data.Either public
@@ -17,7 +17,7 @@ Data.Functor.Union
   Union [] X = Void
   Union (F :: Fs) X = F X + Union Fs X
 
-We need generalizations of the injections ``left`` and ``right`` and projections ``leftToMaybe`` and ``rightToMaybe`` for ``Union``. These generalizations are provided by the following ``Member`` type class::
+We need generalizations of the injections left and right and projections leftToMaybe and rightToMaybe for Union. These generalizations are provided by the following Member type class::
 
   open import Control.Category
   open import Data.Functor
@@ -36,14 +36,14 @@ We need generalizations of the injections ``left`` and ``right`` and projections
     Member:Cons .prj (left x) = just x
     Member:Cons .prj (right u) = nothing
 
-If the ``Fs`` are functors, then so is ``Union Fs``. The proof is by induction on ``Fs``::
+If the Fs are functors, then so is Union Fs. The proof is by induction on Fs::
 
   -- Base case
   Functor:EmptyUnion : Endofunctor Sets (Union [])
   Functor:EmptyUnion .map f ()
 
   -- Inductive case
-  Functor:NonemptyUnion : forall {F Fs} 
+  Functor:NonemptyUnion : forall {F Fs}
     -> {{_ : Endofunctor Sets F}}
     -> {{_ : Endofunctor Sets (Union Fs)}}
     -> Endofunctor Sets (Union (F :: Fs))

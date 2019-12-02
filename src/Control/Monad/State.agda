@@ -18,18 +18,18 @@ runState : {S X : Set} -> State S X -> S -> (X * S)
 runState trans s = trans s
 
 -- The evalState function runs a state transition and returns the output.
-evalState : {S X : Set} -> State S X -> S -> X 
+evalState : {S X : Set} -> State S X -> S -> X
 evalState trans = runState trans >>> fst
 
 -- The execState function runs a state transition and returns the new state.
-execState : {S X : Set} -> State S X -> S -> S 
-execState trans = runState trans >>> snd 
+execState : {S X : Set} -> State S X -> S -> S
+execState trans = runState trans >>> snd
 
 instance
   -- State S is a functor.
   Functor:State : {S : Set} -> Endofunctor Sets (State S)
   Functor:State .map f t s = let (x , s') = t s in (f x , s')
-  
+
   -- State S is also a monad. The return operation takes a value x and returns
   -- a transition that outputs x while staying in the same state. The bind
   -- operation does function application to the output all the while

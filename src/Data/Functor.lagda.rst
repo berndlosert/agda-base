@@ -8,7 +8,7 @@ Data.Functor
   module Data.Functor where
 
 
-A function ``F : ob C -> ob D`` is a functor when it has a corresponding ``map`` operation satisfying the functor laws::
+A function F : ob C -> ob D is a functor when it has a corresponding map operation satisfying the functor laws::
 
   open import Control.Category
 
@@ -44,8 +44,8 @@ The identity function forms a functor::
   Functor:id : (C : Category) -> Functor C C id
   Functor:id C .map = id
 
-For any two categories ``B``, ``C`` and for every object ``X : ob C``, ``const
-X : ob B -> ob C`` is a functor::
+For any two categories B, C and for every object X : ob C, const
+X : ob B -> ob C is a functor::
 
   open import Data.Function
 
@@ -53,7 +53,7 @@ X : ob B -> ob C`` is a functor::
   Functor:const {C = C} X .map = const (id {X})
     where instance _ = C
 
-The category of categories is called ``Categories``::
+The category of categories is called Categories::
 
   Categories : Category
   Categories = record {
@@ -63,7 +63,7 @@ The category of categories is called ``Categories``::
       id = id
     }
 
-This allows us to write ``F ~> G`` for (natural) transformations::
+This allows us to write F ~> G for (natural) transformations::
 
   record Trans (C D : Category) : Set where
     infixr 2 _~>_ _=>_
@@ -76,7 +76,7 @@ This allows us to write ``F ~> G`` for (natural) transformations::
 
   open Trans {{...}} public
 
-``D ^ C`` is the functor category of functors from ``C to D`` and natural
+D ^ C is the functor category of functors from C to D and natural
 transformatiosn between them::
 
   _^_ : Category -> Category -> Category
@@ -104,7 +104,7 @@ A few special endofunctor instances::
     Functor:const[Unit] : Endofunctor Sets (const Unit)
     Functor:const[Unit] = Functor:const {Sets} {Sets} Unit
 
-With this, we can write ``F × G`` for coproduct of two endofunctors on ``Sets``::
+With this, we can write F × G for coproduct of two endofunctors on Sets::
 
   instance
     Mul:Functor : Mul (Set -> Set)
@@ -119,7 +119,7 @@ The product of two endofunctors is a functor::
       -> Endofunctor Sets (F × G)
     Endofunctor:Product .map f (x , y) = (map f x , map f y)
 
-With this, we can write ``F + G`` for coproduct of two endofunctors on ``Sets``::
+With this, we can write F + G for coproduct of two endofunctors on Sets::
 
   open import Data.Either
 
@@ -130,12 +130,12 @@ With this, we can write ``F + G`` for coproduct of two endofunctors on ``Sets``:
 The coproduct of two endofunctors is a functor::
 
   instance
-    Endofunctor:Coproduct : {{_ : Endofunctor Sets F}} 
+    Endofunctor:Coproduct : {{_ : Endofunctor Sets F}}
       -> {{_ : Endofunctor Sets G}} -> Endofunctor Sets (F + G)
     Endofunctor:Coproduct .map f (left x) = left (map f x)
     Endofunctor:Coproduct .map f (right x) = right (map f x)
 
-And this allows use to use ``~>`` for natural transformations for endofunctors on ``Sets``::
+And this allows use to use ~> for natural transformations for endofunctors on Sets::
 
   instance
     Trans:SetsSets = Trans: Sets Sets

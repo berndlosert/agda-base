@@ -2,7 +2,7 @@
 
 module Control.Monad where
 
--- A functor F : ob C -> ob C is a monad when it comes with two natural 
+-- A functor F : ob C -> ob C is a monad when it comes with two natural
 -- transformations join and return obeying the monad laws.
 open import Control.Category
 open import Data.Functor

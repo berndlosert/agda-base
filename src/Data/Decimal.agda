@@ -7,7 +7,7 @@ module Data.Decimal where
 open import Data.Digit
 open import Data.List.Base
 Decimal : Set
-Decimal = List Digit 
+Decimal = List Digit
 
 private
   -- Add two decimal numbers and a carry digit following the school-taught
@@ -19,10 +19,10 @@ private
   add [] (n :: ns) carry =
     let (sum , carry') = halfAdd n carry
     in sum :: add [] ns carry'
-  add (m :: ms) [] carry = 
+  add (m :: ms) [] carry =
     let (sum , carry') = halfAdd m carry
     in sum :: add ms [] carry'
-  add (m :: ms) (n :: ns) carry = 
+  add (m :: ms) (n :: ns) carry =
     let (sum , carry') = fullAdd m n carry
     in sum :: add ms ns carry'
 
@@ -30,7 +30,7 @@ instance
   -- This allows us to use _+_ for adding decimals.
   open import Notation.Add
   Add:Decimal : Add Decimal
-  Add:Decimal = Add: (\ m n -> add m n 0d) 
+  Add:Decimal = Add: (\ m n -> add m n 0d)
 
   -- This converts a unary natural number to a decimal number.
   open import Data.Cast
@@ -43,14 +43,14 @@ instance
   DecimalToNat : Cast Decimal Nat
   DecimalToNat .cast [] = 0
   DecimalToNat .cast (d :: ds) = cast d + 10 * cast ds
-  
+
   -- This allows us to use natural number literals to write decimals.
   open import Data.Unit public
   open import Notation.Number public
   Number:Decimal : Number Decimal
   Number:Decimal = record {
       Constraint = \ _ -> Unit;
-      fromNat = \ n -> cast n 
+      fromNat = \ n -> cast n
     }
 
   -- Convert a list of digit characters to a decimal number.

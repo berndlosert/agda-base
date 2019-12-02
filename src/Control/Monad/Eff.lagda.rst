@@ -7,7 +7,7 @@ Control.Monad.Eff
 
   module Control.Monad.Eff where
 
-``Eff Fs`` is just the free monad obtained from a disjoint union of ``Fs``::
+Eff Fs is just the free monad obtained from a disjoint union of Fs::
 
   open import Control.Monad.Free
   open import Data.Functor.Union
@@ -17,21 +17,21 @@ Control.Monad.Eff
   Eff Fs X = Free (Union Fs) X
         -- = (Union Fs ~> M) -> M X
 
-These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
+These are the analogs of liftFree and interpretFree for Eff::
 
   open import Control.Category
   open import Control.Monad
   open import Data.Functor
 
   private
-    variable 
+    variable
       F M : Set -> Set
       Fs : List (Set -> Set)
 
   liftEff : {{_ : Member F Fs}} -> F ~> Eff Fs
   liftEff = liftFree <<< inj
 
-  interpretEff : {{_ : Monad Sets M}} -> (Union Fs ~> M) -> Eff Fs ~> M 
+  interpretEff : {{_ : Monad Sets M}} -> (Union Fs ~> M) -> Eff Fs ~> M
   interpretEff alpha = interpretFree alpha
 
 Some theory
@@ -39,13 +39,13 @@ Some theory
 
 A set equipped with one or more *operations* on it is called an *algebra*.
 Typically, an operation on a set can be nullary, unary, binary, etc. In other
-words, an operation on a set ``X`` has type ``Xⁿ -> X`` for some natural number
-``n`` (called the *arity* of the operation). Observe that ``Xⁿ`` is isomorphic
-to ``Fin n -> X``. We can generalize ``Fin n`` arities to arbitrary sets, so an
-operation on ``X`` should have the more general type ``(A -> X) -> X``. Now, some
-operations have *parameters* (e.g. ``padRight : Int -> String -> String`` takes
-an ``Int`` parameter). To account for these kinds of operations, we generalize
-the type of an operation even further to ``P -> (A -> X) -> X``.
+words, an operation on a set X has type Xⁿ -> X for some natural number
+n (called the *arity* of the operation). Observe that Xⁿ is isomorphic
+to Fin n -> X. We can generalize Fin n arities to arbitrary sets, so an
+operation on X should have the more general type (A -> X) -> X. Now, some
+operations have *parameters* (e.g. padRight : Int -> String -> String takes
+an Int parameter). To account for these kinds of operations, we generalize
+the type of an operation even further to P -> (A -> X) -> X.
 
 Now what does all this have to do with effects? Consider the following notions of computation and their defining operations:
 
@@ -69,23 +69,23 @@ Now what does all this have to do with effects? Consider the following notions o
     throwError : forall {X} -> E -> X
     catchError : forall {X} -> X -> (E -> X) -> X
 
-Let us deal with ``Reader R`` first. If ``Reader R X`` is an algebra, then
-certainly ``ask`` cannot be one of its operations since it doesn't have the
+Let us deal with Reader R first. If Reader R X is an algebra, then
+certainly ask cannot be one of its operations since it doesn't have the
 right type.
 
-An *algebra* with the ``Reader R`` signature consists of a set ``X`` together with an "implementation" of ``ask``, i.e. a function:
+An *algebra* with the Reader R signature consists of a set X together with an "implementation" of ask, i.e. a function:
 
 .. code-block:: agda
 
   ask : R -> (Void -> X) -> X
-  
-Note that ``(Void -> X) -> X`` is isomorphic to ``Unit -> X``, which is turn is isomorphic to ``X``. Thus, the implementation of ``ask`` has the (much simpler) type:
+
+Note that (Void -> X) -> X is isomorphic to Unit -> X, which is turn is isomorphic to X. Thus, the implementation of ask has the (much simpler) type:
 
 .. code-block:: agda
 
   ask : R -> X
 
-We can represent the ``Reader R`` signature using a record type:
+We can represent the Reader R signature using a record type:
 
 .. code-block:: agda
 
@@ -93,11 +93,11 @@ We can represent the ``Reader R`` signature using a record type:
     field
       ask : R -> X
 
-An obvious algebra for ``Reader R`` is ``R`` itself with ``ask = id``.
+An obvious algebra for Reader R is R itself with ask = id.
 
-Note that we can simplify the record type above to just ``Reader R X = R -> X`` (a record type with one field of type ``T`` is isomorphic to ``T``). This is in fact how ``Reader`` is traditionally defined. The traditional definition of the ``ask`` operation is the one obtained from the algebra where ``ask = id``.
+Note that we can simplify the record type above to just Reader R X = R -> X (a record type with one field of type T is isomorphic to T). This is in fact how Reader is traditionally defined. The traditional definition of the ask operation is the one obtained from the algebra where ask = id.
 
-Another example: the ``Writer W`` signature consists of one operation symbol ``tell`` with parameter ``W`` and arity ``Unit``.
+Another example: the Writer W signature consists of one operation symbol tell with parameter W and arity Unit.
 
 WIP:
 
@@ -112,7 +112,7 @@ WIP:
 
   {-
 
-  Consider a computation of type 
+  Consider a computation of type
 
     Eff (F :: Fs) X
 
@@ -131,11 +131,11 @@ WIP:
 
   This is all combined into the handle function
 
-    handle : Eff (F :: Fs) X -> Eff Fs X1 
+    handle : Eff (F :: Fs) X -> Eff Fs X1
     handle = foldFree' gen (alg V fwd)
 
     where
-      alg V fwd : F (Eff Fs X1) + Union Fs (Eff Fs X1) -> Eff Fs X1 
+      alg V fwd : F (Eff Fs X1) + Union Fs (Eff Fs X1) -> Eff Fs X1
                 : Union (F :: Fs) (Eff Fs X1) -> Eff Fs X1
   -}
 
@@ -188,7 +188,7 @@ WIP:
   --test3 : test2 === (10 , "hi there ")
   --test3 = refl
 
-A term of type ``Eff [] X`` cannot produce a computational effect. This is evidenced by the operation ``run`` below::
+A term of type Eff [] X cannot produce a computational effect. This is evidenced by the operation run below::
 
   private variable X : Set
 

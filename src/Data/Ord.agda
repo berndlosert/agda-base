@@ -30,10 +30,10 @@ record Ord (X : Set) : Set where
     _<_ : X -> X -> Bool
 
   compare : X -> X -> Ordering
-  compare x y = 
+  compare x y =
     if x == y then EQ else
     if x < y then LT else GT
-  
+
   _<=_ : X -> X -> Bool
   x <= y = (x == y) || (x < y)
 
@@ -43,10 +43,10 @@ record Ord (X : Set) : Set where
   _>=_ : X -> X -> Bool
   x >= y = (x == y) || (x > y)
 
-  min : X -> X -> X 
+  min : X -> X -> X
   min x y = if x < y then x else y
 
-  max : X -> X -> X 
+  max : X -> X -> X
   max x y = if x > y then x else y
 
 open Ord {{...}} public

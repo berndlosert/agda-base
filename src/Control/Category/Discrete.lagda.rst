@@ -7,8 +7,8 @@ Control.Category.Discrete
 
   module Control.Category.Discrete where
 
-A discrete category is one having only identity morphisms. Any type ``X`` can be
-viewed as a discrete category ``Discrete X``::
+A discrete category is one having only identity morphisms. Any type X can be
+viewed as a discrete category Discrete X::
 
   open import Control.Category
   open import Data.Eq

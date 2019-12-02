@@ -49,7 +49,7 @@ instance
   Show:Decimal .show (0d :: []) = "0"
   Show:Decimal .show (x :: xs) = show xs ++ show x
 
-  -- Pretty-print Nat values. 
+  -- Pretty-print Nat values.
   Show:Nat : Show Nat
   Show:Nat = Show: \ n -> show (cast {Nat} {Decimal} n)
 

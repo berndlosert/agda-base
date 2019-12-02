@@ -15,7 +15,7 @@ open import Control.Category
 open import Data.Functor
 
 instance
-  -- Stream is a functor. 
+  -- Stream is a functor.
   Functor:Stream : Endofunctor Sets Stream
   Functor:Stream .map f xs .head = f (head xs)
   Functor:Stream .map f xs .tail = map f (tail xs)
@@ -23,7 +23,7 @@ instance
 private variable X : Set
 
 -- iterate f x creates the stream [ x # f x # f (f x) # ... ].
-iterate : (X -> X) -> X -> Stream X 
+iterate : (X -> X) -> X -> Stream X
 iterate f x .head = x
 iterate f x .tail = iterate f (f x)
 
@@ -37,7 +37,7 @@ open import Data.List using (List; _::_; [])
 -- Preprend a list to a stream.
 prepend : List X -> Stream X -> Stream X
 prepend [] ys = ys
-prepend (x :: xs) ys .head = x 
+prepend (x :: xs) ys .head = x
 prepend (x :: xs) ys .tail = prepend xs ys
 
 open import Data.Nat

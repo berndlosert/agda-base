@@ -33,5 +33,5 @@ instance
   Number:Fin : forall {n} -> Number (Fin (suc n))
   Number:Fin {n} = record {
       Constraint = \ m -> cast (m <= n);
-      fromNat = \ m {{p}} -> fromN m n p 
+      fromNat = \ m {{p}} -> fromN m n p
     }

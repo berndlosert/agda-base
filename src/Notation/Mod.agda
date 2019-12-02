@@ -6,7 +6,7 @@ module Notation.Mod where
 record Mod (X : Set) : Set where
   constructor Mod:
   infixr 25 _%_
-  field 
+  field
     Constraint : X -> Set
     _%_ : (x y : X) -> {_ : Constraint y} -> X
 

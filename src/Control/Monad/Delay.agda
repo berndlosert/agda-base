@@ -14,7 +14,7 @@ data Delay (i : Size) (X : Set) : Set where
 open import Data.Either
 open import Data.Function
 
--- Since Delay is a final coalgebra, it has an unfold operation. 
+-- Since Delay is a final coalgebra, it has an unfold operation.
 unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
 unfold f y = either now (\ x -> later \ where .force -> unfold f x) $ f y
 
@@ -57,10 +57,10 @@ instance
     later \ where .force -> map f (force thunk)
 
   Monad:Delay : {i : Size} -> Monad Sets (Delay i)
-  Monad:Delay = Triple: Sets bindDelay now 
+  Monad:Delay = Triple: Sets bindDelay now
     where
       bindDelay : forall {i X Y}
         -> (X -> Delay i Y) -> Delay i X -> Delay i Y
       bindDelay f (now x) = f x
-      bindDelay f (later thunk) = 
+      bindDelay f (later thunk) =
         later \ where .force -> bindDelay f (force thunk)

@@ -16,8 +16,8 @@ private variable S : Set
 
 instance
   Functor:Store : Endofunctor Sets (Store S)
-  Functor:Store .map f (g , s) = (g >>> f , s) 
+  Functor:Store .map f (g , s) = (g >>> f , s)
 
   Comonad:Store : Comonad Sets (Store S)
   Comonad:Store .duplicate (g , s) = (const (g , s) , s)
-  Comonad:Store .extract = apply 
+  Comonad:Store .extract = apply

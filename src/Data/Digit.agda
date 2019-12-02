@@ -8,12 +8,12 @@ open import Data.Ord
 open import Data.Product
 open import Data.Unit
 
--- Digit is used to represent the decimal digits. 
+-- Digit is used to represent the decimal digits.
 data Digit : Set where
   0d 1d 2d 3d 4d 5d 6d 7d 8d 9d : Digit
 
 instance
-  -- This is how we compare digits for equality. 
+  -- This is how we compare digits for equality.
   Eq:Digit : Eq Digit
   Eq:Digit = Eq: \ where
     0d 0d -> true
@@ -28,7 +28,7 @@ instance
     9d 9d -> true
     _ _ -> false
 
-  -- This is how we compare digits in general. 
+  -- This is how we compare digits in general.
   Ord:Digit : Ord Digit
   Ord:Digit = Ord: \ where
 
@@ -47,37 +47,37 @@ instance
     3d 0d -> false
     3d 1d -> false
     3d 2d -> false
-    3d 3d -> false 
+    3d 3d -> false
     3d _ -> true
 
     4d 5d -> true
     4d 6d -> true
     4d 7d -> true
-    4d 8d -> true 
-    4d 9d -> true 
+    4d 8d -> true
+    4d 9d -> true
     4d _ -> false
 
     5d 6d -> true
     5d 7d -> true
     5d 8d -> true
-    5d 9d -> true 
-    5d _ -> false 
+    5d 9d -> true
+    5d _ -> false
 
     6d 7d -> true
     6d 8d -> true
     6d 9d -> true
-    6d _ -> false 
+    6d _ -> false
 
     7d 8d -> true
     7d 9d -> true
-    7d _ -> false 
+    7d _ -> false
 
     8d 9d -> true
-    8d _ -> false 
+    8d _ -> false
 
-    9d _ -> false 
+    9d _ -> false
 
--- Adding two digits m and n yields a pair of digits (sum , cout). 
+-- Adding two digits m and n yields a pair of digits (sum , cout).
 halfAdd : Digit -> Digit -> Digit * Digit
 
 halfAdd 0d 0d = (0d , 0d)
@@ -192,8 +192,8 @@ halfAdd 9d 9d = (8d , 1d)
 
 -- Adding three digits m, n, cin yields a pair (sum , cout).
 fullAdd : Digit -> Digit -> Digit -> Digit * Digit
-fullAdd m n cin = 
-  let 
+fullAdd m n cin =
+  let
     (sum1 , cout1) = halfAdd m n
     (sum , cout2) = halfAdd sum1 cin
     cout = max cout1 cout2

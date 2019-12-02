@@ -2,7 +2,7 @@
 
 module Notation.Div where
 
--- Allows us to use / for division on number types. 
+-- Allows us to use / for division on number types.
 record Div (X : Set) : Set where
   constructor Div:
   infixr 25 _/_

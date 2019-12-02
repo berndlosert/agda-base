@@ -12,7 +12,7 @@ open import Data.Functor
 -- f : W -> Y whose output is being consumed by functions of type Y -> X, we
 -- can change f into a CPS function f' : W -> Cont X Y that on input w
 -- returns a continuation handler h that on input k : Y -> X (a continuation),
--- returns k (f w). 
+-- returns k (f w).
 Cont : Set -> Set -> Set
 Cont X Y = (Y -> X) -> X
 

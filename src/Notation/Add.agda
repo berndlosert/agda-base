@@ -2,7 +2,7 @@
 
 module Notation.Add where
 
--- Allows us to use + to form various kinds of sums. 
+-- Allows us to use + to form various kinds of sums.
 record Add (X : Set) : Set where
   constructor Add:
   infixr 24 _+_

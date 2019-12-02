@@ -7,7 +7,7 @@ Data.Char
 
   module Data.Char where
 
-``Char`` is the set of characters that you can type into your computer::
+Char is the set of characters that you can type into your computer::
 
   open import Agda.Builtin.Char public
     renaming (
@@ -33,7 +33,7 @@ This function will convert a char digit into its corresponding natural number::
   digitToNat : (c : Char) -> {_ : Constraint (isDigit c)} -> Nat
   digitToNat c = ord c - ord '0'
 
-This is the ``Maybe`` version of the above operation::
+This is the Maybe version of the above operation::
 
   open import Data.Maybe
 

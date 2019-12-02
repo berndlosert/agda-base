@@ -3,7 +3,7 @@
 module Data.Traversable where
 
 -- Traversable functors are characterised as those which distribute over all
--- applicative functors. 
+-- applicative functors.
 
 open import Control.Applicative
 open import Control.Category
@@ -19,11 +19,11 @@ record Traversable (T : Set -> Set) : Set where
 
   private
     variable
-     F : Set -> Set 
+     F : Set -> Set
      X Y : Set
 
   traverse : {{_ : Applicative F}} -> (X -> F Y) -> T X -> F (T Y)
-  traverse f = map f >>> sequence  
+  traverse f = map f >>> sequence
 
   for : {{_ : Applicative F}} -> T X -> (X -> F Y) -> F (T Y)
   for = flip traverse
