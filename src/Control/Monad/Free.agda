@@ -63,7 +63,7 @@ freeAlg = join <<< lift
 
 -- A different version of foldMap that takes a generator gen : X -> Y and
 -- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y.  This
--- fold is based on the Church encoding of Free.
+-- fold is based on the Church encoding of standard Haskell encoding of Free.
 
 foldFree : forall {M X Y} {{_ : Monad Sets M}}
   -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
