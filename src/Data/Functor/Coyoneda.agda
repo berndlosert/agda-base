@@ -41,7 +41,7 @@ interpretCoyoneda : forall {C F G} {{_ : Functor C Sets G}} ->
 interpretCoyoneda alpha (_ , x , f) = map f (alpha x)
 
 -- This is the left adjunct.
-uninterpretCoyoneda : forall {C F G} -> 
+uninterpretCoyoneda : forall {C F G} ->
   let instance _ = Trans: C Sets in
   (Coyoneda C F ~> G) -> (F ~> G)
 uninterpretCoyoneda {C} alpha x = alpha (liftCoyoneda {C} x)

@@ -11,12 +11,16 @@ module Control.Category where
 
 record Category : Set where
   constructor Category:
-  infixr 5 _<<<_ _>>>_
+  infixr 5 _<<<_
   field
     ob : Set
     hom : ob -> ob -> Set
     _<<<_ : {X Y Z : ob} -> hom Y Z -> hom X Y -> hom X Z
     id : {X : ob} -> hom X X
+
+  -- Flipped version of _<<<_.
+
+  infixr 5 _>>>_
 
   _>>>_ : {X Y Z : ob} -> hom X Y -> hom Y Z -> hom X Z
   f >>> g = g <<< f
