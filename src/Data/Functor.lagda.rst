@@ -84,7 +84,7 @@ transformatiosn between them::
     record {
       ob = ob C -> ob D;
       hom = _~>_;
-      _<<<_ = \ β α -> β <<< α;
+      _<<<_ = \ beta alpha -> beta <<< alpha;
       id = \ {F} {X} -> id {F X}
     }
 

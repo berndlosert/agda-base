@@ -32,7 +32,7 @@ These are the analogs of ``liftFree`` and ``interpretFree`` for ``Eff``::
   liftEff = liftFree <<< inj
 
   interpretEff : {{_ : Monad Sets M}} -> (Union Fs ~> M) -> Eff Fs ~> M 
-  interpretEff α = interpretFree α
+  interpretEff alpha = interpretFree alpha
 
 Some theory
 ============
