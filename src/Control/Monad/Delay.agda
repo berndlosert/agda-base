@@ -15,14 +15,14 @@ open import Data.Either
 open import Data.Function
 
 -- Since Delay is a final coalgebra, it has an unfold operation. 
-unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
+unfold : ∀ {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
 unfold f y = either now (\ x -> later \ where .force -> unfold f x) $ f y
 
 open import Data.Maybe
 open import Data.Nat
 
 -- Run a Delay process for at most n steps.
-runFor : Nat -> forall {X} -> Delay _ X -> Maybe X
+runFor : Nat -> ∀ {X} -> Delay _ X -> Maybe X
 runFor _ (now x) = just x
 runFor zero (later _) = nothing
 runFor (suc n) (later thunk) = runFor n (force thunk)
@@ -31,7 +31,7 @@ runFor (suc n) (later thunk) = runFor n (force thunk)
 -- type Nat -> Maybe X. Assuming there is a least n : Nat such that the nth
 -- element of the stream is a (just x) value, tryMore will produce a Delay
 -- value d such that runFor n d = just x.
-tryMore : forall {i X} -> (Nat -> Maybe X) -> Delay i X
+tryMore : ∀ {i X} -> (Nat -> Maybe X) -> Delay i X
 tryMore {_} {X} f = unfold try zero
   where
     try : Nat -> X + Nat
@@ -59,7 +59,7 @@ instance
   Monad:Delay : {i : Size} -> Monad Sets (Delay i)
   Monad:Delay = Triple: Sets bindDelay now 
     where
-      bindDelay : forall {i X Y}
+      bindDelay : ∀ {i X Y}
         -> (X -> Delay i Y) -> Delay i X -> Delay i Y
       bindDelay f (now x) = f x
       bindDelay f (later thunk) = 

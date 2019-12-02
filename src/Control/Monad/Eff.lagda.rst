@@ -66,8 +66,8 @@ Now what does all this have to do with effects? Consider the following notions o
     choose : Bool
 
   Error E
-    throwError : forall {X} -> E -> X
-    catchError : forall {X} -> X -> (E -> X) -> X
+    throwError : ∀ {X} -> E -> X
+    catchError : ∀ {X} -> X -> (E -> X) -> X
 
 Let us deal with ``Reader R`` first. If ``Reader R X`` is an algebra, then
 certainly ``ask`` cannot be one of its operations since it doesn't have the
@@ -107,7 +107,7 @@ WIP:
     Functor:Reader : {R : Set} -> Endofunctor Sets (Reader R)
     Functor:Reader .map f (Ask k) = Ask (k >>> f)
 
-  ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
+  ask : ∀ {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
   ask = liftEff (Ask id)
 
   {-
@@ -139,14 +139,14 @@ WIP:
                 : Union (F :: Fs) (Eff Fs X1) -> Eff Fs X1
   -}
 
-  addGet : forall {Fs} {{_ : Endofunctor Sets (Union Fs) }}
+  addGet : ∀ {Fs} {{_ : Endofunctor Sets (Union Fs) }}
     -> {{_ : Member (Reader Int) Fs}} -> Int -> Eff Fs Int
   addGet {Fs} x = let _>>=_ = _>>=_ {Eff Fs} in
     do
       i <- ask
       return (i + x)
 
-  runReader : forall {R Fs} -> R -> Eff (Reader R :: Fs) ~> Eff Fs
+  runReader : ∀ {R Fs} -> R -> Eff (Reader R :: Fs) ~> Eff Fs
   runReader r eff t = eff \ where
     (left (Ask k)) -> return (k r)
     (right u) -> t u
@@ -161,11 +161,11 @@ WIP:
     Functor:Writer : {W : Set} -> Endofunctor Sets (Writer W)
     Functor:Writer .map f (put w k) = put w (f k)
 
-  tell : forall {W Fs} {{_ : Member (Writer W) Fs}}
+  tell : ∀ {W Fs} {{_ : Member (Writer W) Fs}}
     -> W -> Eff Fs Unit
   tell w = liftEff (put w tt)
 
-  runWriter : forall {W X Fs}
+  runWriter : ∀ {W X Fs}
     -> {{_ : Monoid W}}
     -> {{_ : Endofunctor Sets (Union Fs)}}
     -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
@@ -174,7 +174,7 @@ WIP:
       (right u) -> alpha u
     )
 
-  writerProg : forall {Fs} {{_ : Endofunctor Sets (Union Fs)}}
+  writerProg : ∀ {Fs} {{_ : Endofunctor Sets (Union Fs)}}
     -> {{_ : Member (Writer String) Fs}} -> Eff Fs Int
   writerProg {Fs} = let _>>=_ = _>>=_ {Eff Fs} in
     do

@@ -15,9 +15,9 @@ constructor ``_,_`` and fields ``fst`` and ``snd``::
   Sigma = Σ
 
 The ``exists`` function should be thought of as the existensial quantifier,
-dual to ``forall``::
+dual to ``∀``::
 
-  exists : forall {X} (P : X -> Set) -> Set
+  exists : ∀ {X} (P : X -> Set) -> Set
   exists {X} P = Σ X P
 
   syntax exists P = ∃ P
