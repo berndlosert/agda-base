@@ -73,5 +73,6 @@ open import Data.Maybe
 open import Data.List
 open import Data.Traversable
 
-CharsToDecimal : Cast (List Char) (Maybe Decimal)
-CharsToDecimal .cast ds = traverse cast (reverse ds)
+instance
+  CharsToDecimal : Cast (List Char) (Maybe Decimal)
+  CharsToDecimal .cast ds = traverse cast (reverse ds)

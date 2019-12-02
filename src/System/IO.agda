@@ -2,10 +2,11 @@
 
 module System.IO where
 
+-- Import a bunch of IO functions from Haskell.
+
 open import Agda.Builtin.IO public
 open import Data.String
 open import Data.Unit
-open import Text.Show
 
 postulate
   putStr : String -> IO Unit
@@ -26,37 +27,56 @@ postulate
 {-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC flushStdOut = System.hFlush System.stdout #-}
 
+-- IO is a functor.
+
+open import Control.Category
+open import Data.Functor
+
 instance
-  open import Control.Category
-  open import Data.Functor
   Functor:IO : Endofunctor Sets IO
   Functor:IO .map f io = bindIO io (f >>> returnIO)
 
-  open import Control.Monad
+-- IO is a monad.
+
+open import Control.Monad
+
+instance
   Monad:IO : Monad Sets IO
   Monad:IO .join io = bindIO io id
   Monad:IO .return x = returnIO x
 
-  open import Control.Applicative
+-- IO is an applicative.
+
+open import Control.Applicative
+
+instance
   Applicative:IO = Idiom: ap return
 
-  open import Data.Semigroup
-  Semigroup:IO : {X : Set} {{_ : Semigroup X}} -> Semigroup (IO X)
-  Semigroup:IO = Semigroup: \ x y -> liftA2 _<>_ x y
+-- IO X is a semigroup and a monoid whenever X is, respectively.
 
-  open import Data.Monoid
-  Monoid:IO : {X : Set} {{_ : Monoid X}} -> Monoid (IO X)
+open import Data.Semigroup
+open import Data.Monoid
+
+instance
+  Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
+  Semigroup:IO = Semigroup: \ x y -> map2 _<>_ x y
+
+  Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
   Monoid:IO = Monoid: (return mempty)
 
 -- The print function outputs a value of any Show'able type to the
 -- standard output device.
-print : {X : Set} {{_ : Show X}} -> X -> IO Unit
+
+open import Text.Show
+
+print : forall {X} {{_ : Show X}} -> X -> IO Unit
 print x = putStrLn (show x)
 
 -- The interact function takes a function of type String -> String
 -- as its argument. The entire input from the standard input device is
 -- passed to this function as its argument, and the resulting string is
 -- output on the standard output device.
+
 interact : (String -> String) -> IO Unit
 interact f = do
   s <- getContents
