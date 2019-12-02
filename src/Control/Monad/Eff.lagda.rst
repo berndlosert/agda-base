@@ -69,7 +69,9 @@ Now what does all this have to do with effects? Consider the following notions o
     throwError : ∀ {X} → E → X
     catchError : ∀ {X} → X → (E → X) → X
 
-For example, the ``Reader R`` signature consists of only one operation symbol ``ask`` that has an ``R`` parameter and whose arity is ``Void``.
+Let us deal with ``Reader R`` first. If ``Reader R X`` is an algebra, then
+certainly ``ask`` cannot be one of its operations since it doesn't have the
+right type.
 
 An *algebra* with the ``Reader R`` signature consists of a set ``X`` together with an "implementation" of ``ask``, i.e. a function:
 
