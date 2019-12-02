@@ -10,9 +10,9 @@ module Control.Monad.Free where
 -- interpretFree alpha <<< liftFree. When C = Sets, we define Free F, liftFree
 -- and interpretFree as follows:
 
--- (N.B. This is the final encoding of Free. The other encodings of Free cause
--- problems either with the positivity checker or with the termination checker
--- when defining interpretFree).
+-- (N.B. We give the final encoding of Free. The other encodings of Free
+-- cause problems either with the positivity checker or with the termination
+-- checker when defining interpretFree.)
 
 open import Control.Category
 open import Control.Monad
@@ -28,6 +28,7 @@ interpretFree : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
 interpretFree alpha free = free alpha
 
 -- This is the left inverse of liftFree.
+
 retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
 retractFree = interpretFree id
 
@@ -61,7 +62,7 @@ algFree = join <<< liftFree
   where instance _ = Monad:Free
 
 -- A different version of interpretFree that takes a generator gen : X -> Y and
--- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y. This
+-- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y.  This
 -- fold is based on the Church encoding of Free.
 
 foldFree : forall {M X Y} {{_ : Monad Sets M}}
