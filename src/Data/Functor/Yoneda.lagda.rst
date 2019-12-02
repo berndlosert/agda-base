@@ -1,7 +1,7 @@
 *******************
 Data.Functor.Yoneda
 *******************
-::
+.
 
   {-# OPTIONS --type-in-type #-}
 
@@ -12,12 +12,12 @@ Data.Functor.Yoneda
   open import Data.Functor
 
 The type Yoneda C F X can be viewed as the partial application of map to
-its second argument (assuming F is a functor)::
+its second argument (assuming F is a functor).
 
   Yoneda : (C : Category) -> (ob C -> Set) -> ob C -> Set
   Yoneda C F X = forall {Y} -> hom C X Y -> F Y
 
-Yoneda C F is a functor::
+Yoneda C F is a functor.
 
 Functor:Yoneda : (C : Category) (F : ob C -> Set)
   -> Functor C Sets (Yoneda C F)

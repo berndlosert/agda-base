@@ -1,13 +1,13 @@
 *********
 Data.Char
 *********
-::
+.
 
   {-# OPTIONS --type-in-type #-}
 
   module Data.Char where
 
-Char is the set of characters that you can type into your computer::
+Char is the set of characters that you can type into your computer.
 
   open import Agda.Builtin.Char public
     renaming (
@@ -25,7 +25,7 @@ Char is the set of characters that you can type into your computer::
       primNatToChar to chr
     )
 
-This function will convert a char digit into its corresponding natural number::
+This function will convert a char digit into its corresponding natural number.
 
   open import Data.Bool
   open import Data.Nat.Base
@@ -33,7 +33,7 @@ This function will convert a char digit into its corresponding natural number::
   digitToNat : (c : Char) -> {_ : Constraint (isDigit c)} -> Nat
   digitToNat c = ord c - ord '0'
 
-This is the Maybe version of the above operation::
+This is the Maybe version of the above operation.
 
   open import Data.Maybe
 

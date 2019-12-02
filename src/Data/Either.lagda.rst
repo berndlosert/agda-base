@@ -1,19 +1,19 @@
 ***********
 Data.Either
 ***********
-::
+.
 
   {-# OPTIONS --type-in-type #-}
 
   module Data.Either where
 
-Either is used to form coproducts (disjoint unions) in the category Sets::
+Either is used to form coproducts (disjoint unions) in the category Sets.
 
   data Either (X Y : Set) : Set where
     left : X -> Either X Y
     right : Y -> Either X Y
 
-This makes it possible to write X + Y for Either X Y::
+This makes it possible to write X + Y for Either X Y.
 
   open import Notation.Add public
 
@@ -23,7 +23,7 @@ This makes it possible to write X + Y for Either X Y::
 
 The function either is evidence that Either satisfies the universal
 property of coproducts in the category Sets. You can also think of it as
-the fold operation for Either::
+the fold operation for Either.
 
   private variable X Y Z : Set
 
@@ -31,19 +31,19 @@ the fold operation for Either::
   either f g (left x) = f x
   either f g (right y) = g y
 
-Shorthand for either id id::
+Shorthand for either id id.
 
   untag : X + X -> X
   untag (left x) = x
   untag (right x) = x
 
-X + Y and Y + X are isomorphic and the isomorphism is called mirror::
+X + Y and Y + X are isomorphic and the isomorphism is called mirror.
 
   mirror : X + Y -> Y + X
   mirror (left x) = right x
   mirror (right y) = left y
 
-The injections left and right have two pseudoduals called leftToMaybe and rightToMaybe::
+The injections left and right have two pseudoduals called leftToMaybe and rightToMaybe.
 
   open import Data.Maybe.Base
 

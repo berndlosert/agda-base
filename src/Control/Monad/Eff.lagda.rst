@@ -1,13 +1,13 @@
 *****************
 Control.Monad.Eff
 *****************
-::
+.
 
   {-# OPTIONS --type-in-type #-}
 
   module Control.Monad.Eff where
 
-Eff Fs is just the free monad obtained from a disjoint union of Fs::
+Eff Fs is just the free monad obtained from a disjoint union of Fs.
 
   open import Control.Monad.Free
   open import Data.Functor.Union
@@ -17,7 +17,7 @@ Eff Fs is just the free monad obtained from a disjoint union of Fs::
   Eff Fs X = Free (Union Fs) X
         -- = (Union Fs ~> M) -> M X
 
-These are the analogs of liftFree and interpretFree for Eff::
+These are the analogs of liftFree and interpretFree for Eff.
 
   open import Control.Category
   open import Control.Monad
@@ -188,7 +188,7 @@ WIP:
   --test3 : test2 === (10 , "hi there ")
   --test3 = refl
 
-A term of type Eff [] X cannot produce a computational effect. This is evidenced by the operation run below::
+A term of type Eff [] X cannot produce a computational effect. This is evidenced by the operation run below.
 
   private variable X : Set
 
