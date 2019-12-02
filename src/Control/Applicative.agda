@@ -17,50 +17,48 @@ record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
   field
     {{instance:Functor}} : Endofunctor Sets F
-    zip : {X Y : Set} -> F X * F Y -> F (X * Y)
+    zip : forall {X Y} -> F X * F Y -> F (X * Y)
     unit : Unit -> F Unit
 
-  private variable X Y Z : Set
-
   -- The inverse of zip, proving that F X * F Y ~= F (X * Y).
-  unzip : F (X * Y) -> F X * F Y
+  unzip : forall {X Y} -> F (X * Y) -> F X * F Y
   unzip = pair (map fst) (map snd)
 
   -- Defining _<*>_ and pure allows use to use idiom brackets (| |) when
   -- writing applicative code.
   infixl 24 _<*>_
-  _<*>_ : F (X -> Y) -> F X -> F Y
+  _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
   f <*> x = map apply (zip (f , x))
 
-  pure : X -> F X
+  pure : forall {X} -> X -> F X
   pure x = map (const x) (unit tt)
 
   -- For applicative functors, the mapping function map (called liftA) can be
   -- generalized to any number of arguments.
-  liftA : (X -> Y) -> F X -> F Y
+  liftA : forall {X Y} -> (X -> Y) -> F X -> F Y
   liftA = map
 
   -- This is the two-argument version.
-  liftA2 : (X -> Y -> Z) -> F X -> F Y -> F Z
+  liftA2 : forall {X Y Z} -> (X -> Y -> Z) -> F X -> F Y -> F Z
   liftA2 f x = map f x <*>_
 
   -- Generalization of flip const.
   infixl 24 _*>_
-  _*>_ : F X -> F Y -> F Y
+  _*>_ : forall {X Y} -> F X -> F Y -> F Y
   _*>_ = liftA2 (flip const)
 
   -- Generalization of const.
   infixl 24 _<*_
-  _<*_ : F X -> F Y -> F X
+  _<*_ : forall {X Y} -> F X -> F Y -> F X
   _<*_ = liftA2 const
 
 open Applicative {{...}} public
 
 -- A convenient constructor of applicative instances that defines unit and
 -- zip in terms of pure and <*>.
-Idiom: : {F : Set -> Set} {{_ : Endofunctor Sets F}}
- -> ({X Y : Set} -> F (X -> Y) -> F X -> F Y)
- -> ({X : Set} -> X -> F X)
+Idiom: : forall {F} {{_ : Endofunctor Sets F}}
+ -> (forall {X Y} -> F (X -> Y) -> F X -> F Y)
+ -> (forall {X} -> X -> F X)
  -> Applicative F
 Idiom: _<*>_ pure = record {
     zip = \ { (x , y) -> (pure _,_ <*> x) <*> y };
@@ -70,7 +68,7 @@ Idiom: _<*>_ pure = record {
 -- Every monad of type Set -> Set is an applicative with unit = return
 -- and _<*>_ = ap, where ap defined as follows:
 open import Control.Monad
-ap : {F : Set -> Set} {{_ : Monad Sets F}} {X Y : Set}
+ap : forall {F X Y} {{_ : Monad Sets F}}
   -> F (X -> Y) -> F X -> F Y
 ap fs xs = do
   f <- fs
