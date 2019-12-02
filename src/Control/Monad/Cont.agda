@@ -30,7 +30,7 @@ instance
   Monad:Cont .return x = _$ x
 
 callCC : ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
-callCC h k = h (\ x -> const (k x)) k
+callCC h k = h (λ x -> const (k x)) k
 
 reset : Cont X X -> Cont Y X
 reset h k = k (h id)

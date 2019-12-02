@@ -10,7 +10,7 @@ instance
   -- Ordering is a semigroup.
   open import Data.Semigroup
   Semigroup:Ordering : Semigroup Ordering
-  Semigroup:Ordering = Semigroup: \ where
+  Semigroup:Ordering = Semigroup: λ where
     LT _ -> LT
     EQ y -> y
     GT _ -> GT

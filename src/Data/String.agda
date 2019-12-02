@@ -31,8 +31,8 @@ instance
   -- IsString.
   IsString:String : IsString String
   IsString:String = record {
-      Constraint = \ _ -> Unit;
-      fromString = \ s -> s
+      Constraint = λ _ -> Unit;
+      fromString = λ s -> s
     }
 
   -- String is a semigroup.
@@ -53,7 +53,7 @@ instance
 
   -- Cast Char to String.
   CharToString : Cast Char String
-  CharToString = Cast: \ c -> primStringFromList [ c ]
+  CharToString = Cast: λ c -> primStringFromList [ c ]
 
   -- Parse a natural number string into a natural number.
   StringToNat : Cast String (Maybe Nat)
@@ -64,7 +64,7 @@ instance
         & cast {String} {List Char}
         & cast {List Char} {Maybe Decimal}
     in
-      case decimal? of \ where
+      case decimal? of λ where
         nothing -> nothing
         (just x) -> just (cast {Decimal} {Nat} x)
 

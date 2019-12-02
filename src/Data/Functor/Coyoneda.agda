@@ -8,7 +8,7 @@ open import Data.Product
 
 -- This is the existensial version Yoneda C F X.
 Coyoneda : (C : Category) -> (ob C -> Sets) -> ob C -> Set
-Coyoneda C F Y = exists \ X -> F X * hom C X Y
+Coyoneda C F Y = exists λ X -> F X * hom C X Y
 
 -- Coyoneda C F is a functor.
 Functor:Coyoneda : (C : Category) (F : ob C -> Set)

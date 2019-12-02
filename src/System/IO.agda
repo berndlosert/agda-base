@@ -22,8 +22,8 @@ postulate
 {-# COMPILE GHC putStrLn = Text.putStrLn #-}
 {-# COMPILE GHC getLine = Text.getLine #-}
 {-# COMPILE GHC getContents = Text.getContents #-}
-{-# COMPILE GHC returnIO = \ _ a -> return a #-}
-{-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
+{-# COMPILE GHC returnIO = λ _ a -> return a #-}
+{-# COMPILE GHC bindIO = λ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC flushStdOut = System.hFlush System.stdout #-}
 
 instance
@@ -42,7 +42,7 @@ instance
 
   open import Data.Semigroup
   Semigroup:IO : {X : Set} {{_ : Semigroup X}} -> Semigroup (IO X)
-  Semigroup:IO = Semigroup: \ x y -> liftA2 _<>_ x y
+  Semigroup:IO = Semigroup: λ x y -> liftA2 _<>_ x y
 
   open import Data.Monoid
   Monoid:IO : {X : Set} {{_ : Monoid X}} -> Monoid (IO X)

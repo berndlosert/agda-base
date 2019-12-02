@@ -63,7 +63,7 @@ Idiom: : {F : Set -> Set} {{_ : Endofunctor Sets F}}
  -> ({X : Set} -> X -> F X)
  -> Applicative F
 Idiom: _<*>_ pure = record {
-    zip = \ { (x , y) -> (pure _,_ <*> x) <*> y };
+    zip = λ { (x , y) -> (pure _,_ <*> x) <*> y };
     unit = pure {Unit}
   }
 

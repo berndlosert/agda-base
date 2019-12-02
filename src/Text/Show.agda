@@ -25,13 +25,13 @@ open Show {{...}} public
 instance
   -- Pretty-print Bool values.
   Show:Bool : Show Bool
-  Show:Bool = Show: \ where
+  Show:Bool = Show: λ where
     true -> "true"
     false -> "false"
 
   -- Pretty-print Digit values.
   Show:Digit : Show Digit
-  Show:Digit = Show: \ where
+  Show:Digit = Show: λ where
     0d -> "0"
     1d -> "1"
     2d -> "2"
@@ -51,7 +51,7 @@ instance
 
   -- Pretty-print Nat values. 
   Show:Nat : Show Nat
-  Show:Nat = Show: \ n -> show (cast {Nat} {Decimal} n)
+  Show:Nat = Show: λ n -> show (cast {Nat} {Decimal} n)
 
   -- Pretty-print Int values.
   Show:Int : Show Int
@@ -64,18 +64,18 @@ instance
   -- Pretty-print pairs.
   Show:Product : {X Y : Set} {{_ : Show X}} {{_ : Show Y}}
     -> Show (X * Y)
-  Show:Product = Show: \ where
+  Show:Product = Show: λ where
     (x , y) -> "( " ++ show x ++ " , " ++ show y ++ " )"
 
   -- Pretty-print Maybe values.
   Show:Maybe : {X : Set} {{_ : Show X}} -> Show (Maybe X)
-  Show:Maybe = Show: \ where
+  Show:Maybe = Show: λ where
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 
   -- Pretty-print lists.
   Show:List : {X : Set} {{_ : Show X}} -> Show (List X)
-  Show:List = Show: \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
+  Show:List = Show: λ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
     where
       csv : {X : Set} {{_ : Show X}} -> List X -> String
       csv [] = ""

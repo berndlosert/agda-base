@@ -32,6 +32,6 @@ private
 instance
   Number:Fin : ∀ {n} -> Number (Fin (suc n))
   Number:Fin {n} = record {
-      Constraint = \ m -> cast (m <= n);
-      fromNat = \ m {{p}} -> fromN m n p 
+      Constraint = λ m -> cast (m <= n);
+      fromNat = λ m {{p}} -> fromN m n p 
     }

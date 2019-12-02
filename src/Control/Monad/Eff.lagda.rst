@@ -147,7 +147,7 @@ WIP:
       return (i + x)
 
   runReader : ∀ {R Fs} -> R -> Eff (Reader R :: Fs) ~> Eff Fs
-  runReader r eff t = eff \ where
+  runReader r eff t = eff λ where
     (left (Ask k)) -> return (k r)
     (right u) -> t u
 
@@ -169,7 +169,7 @@ WIP:
     -> {{_ : Monoid W}}
     -> {{_ : Endofunctor Sets (Union Fs)}}
     -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
-  runWriter = handle (_, mempty) (\ eff alpha -> eff \ where
+  runWriter = handle (_, mempty) (λ eff alpha -> eff λ where
       (left (put w y)) -> return y
       (right u) -> alpha u
     )
