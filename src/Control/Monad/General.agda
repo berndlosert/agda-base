@@ -27,10 +27,10 @@ General Req Resp = Free (Interact Req Resp)
 open import Control.Monad
 
 instance
-  Monad:General : ∀ {Req Resp} -> Monad Sets (General Req Resp) 
+  Monad:General : forall {Req Resp} -> Monad Sets (General Req Resp) 
   Monad:General = Monad:Free {{Functor:Interact}}
 
-call : ∀ {Req Resp} (req : Req) -> General Req Resp (Resp req)
+call : forall {Req Resp} (req : Req) -> General Req Resp (Resp req)
 call req = \ alpha -> alpha (req , id) 
 
 -- Dependent function type of general recursive functions.

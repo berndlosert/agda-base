@@ -24,13 +24,13 @@ fin zero  = zero
 fin (suc n) = suc (fin n)
 
 private
-  fromN : ∀ m n -> cast (m <= n) -> Fin (suc n)
+  fromN : forall m n -> cast (m <= n) -> Fin (suc n)
   fromN zero _ _ = zero
   fromN (suc _) zero ()
   fromN (suc m) (suc n) p = suc (fromN m n p)
 
 instance
-  Number:Fin : ∀ {n} -> Number (Fin (suc n))
+  Number:Fin : forall {n} -> Number (Fin (suc n))
   Number:Fin {n} = record {
       Constraint = \ m -> cast (m <= n);
       fromNat = \ m {{p}} -> fromN m n p 

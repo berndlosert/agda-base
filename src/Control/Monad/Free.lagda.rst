@@ -26,7 +26,7 @@ checker when defining ``interpretFree``)::
   open import Data.Functor
 
   Free : (Set -> Set) -> Set -> Set
-  Free F X = ∀ {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+  Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
 
   liftFree : F ~> Free F
   liftFree x α = α x
