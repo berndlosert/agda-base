@@ -3,15 +3,15 @@
 module Data.List.Base where
 
 -- List X is the type of finite lists of values of type X. It has two
--- constructors: the empty list [] and ::, the cons constructor.
+-- constructors: the empty list [] and the cons operator _::_.
+
 open import Agda.Builtin.List public renaming (_∷_ to _::_)
 
-private variable X : Set
+-- Use _++_ for appending lists.
 
--- Use ++ for appending lists.
 open import Notation.Append public
-instance Append:List : Append (List X)
-Append:List = Append: append
+instance Append:List : forall {X} -> Append (List X)
+Append:List {X} = Append: append
   where
     append : List X -> List X -> List X
     append [] ys = ys
@@ -20,6 +20,7 @@ Append:List = Append: append
 -- Notation for constructing/deconstructing lists. Note that we use # instead
 -- of , to separate list items because Agda gets confused when we use , for
 -- the separator.
+
 pattern [_] x = x :: []
 pattern [_#_] x y = x :: y :: []
 pattern [_#_#_] x y z = x :: y :: z :: []

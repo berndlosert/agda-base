@@ -2,15 +2,18 @@
 
 module Data.Fin where
 
-open import Data.Bool
-open import Data.Cast
-open import Data.Nat
-open import Data.Void
+-- The type Fin (suc n) has n + 1 inhabitants, namely 0, 1, ..., n. Note that
+-- Fin 0 is effectively the same as Void. 
 
--- The type Fin n is a type with n elements.
+open import Data.Nat
+
 data Fin : Nat -> Set where
   zero : {n : Nat} -> Fin (suc n)
   suc : {n : Nat} -> Fin n -> Fin (suc n)
+
+-- Cast a Fin n into a Nat.
+
+open import Data.Cast
 
 instance
   FinToNat : {n : Nat} -> Cast (Fin n) Nat
@@ -19,9 +22,15 @@ instance
 
 -- Unfortunately, we cannot use this to define a Cast Nat (Fin (suc n))
 -- instance because cast is nondependent.
+
 fin : (n : Nat) -> Fin (suc n)
 fin zero  = zero
 fin (suc n) = suc (fin n)
+
+-- The Number:Fin instance allows us to write Fin n values using natural
+-- number literals.
+
+open import Data.Bool
 
 private
   fromN : forall m n -> cast (m <= n) -> Fin (suc n)

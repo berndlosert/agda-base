@@ -16,13 +16,7 @@ open import Control.Category public
 -- If we think of -> as exponentiation, then flip is proof that exponents in
 -- the cateogry Sets commute (modulo isomorphism).
 
-private
-  variable
-    X : Set
-    Y : Set
-    Z : Set
-
-flip : (X -> Y -> Z) -> Y -> X -> Z
+flip : {X Y Z : Set} -> (X -> Y -> Z) -> Y -> X -> Z
 flip f y x = f x y
 
 -- This is a binary operator for effecting function application. It is the
@@ -30,7 +24,7 @@ flip f y x = f x y
 
 infixr 0 _$_
 
-_$_ : (X -> Y) -> X -> Y
+_$_ : {X Y : Set} -> (X -> Y) -> X -> Y
 f $ x = f x
 
 -- This is the strict version of _$_ so that f $! x will evaluate x first
@@ -40,14 +34,14 @@ open import Agda.Builtin.Strict
 
 infixr 0 _$!_
 
-_$!_ : (X -> Y) -> X -> Y
+_$!_ : forall {X Y} -> (X -> Y) -> X -> Y
 f $! x = primForce x f
 
 -- This is just the flipped version of _$_.
 
 infixl 1 _&_
 
-_&_ : X -> (X -> Y) -> Y
+_&_ : {X Y : Set} -> X -> (X -> Y) -> Y
 x & f = f x
 
 -- The case "statement" is useful for applying pattern-matching lambdas to
@@ -58,5 +52,5 @@ case_of_ = _&_
 -- The const operation is used for producing constant functions. It is proof
 -- that every nonempty type is weakly terminal in the category Sets.
 
-const : X -> Y -> X
+const : {X Y : Set} -> X -> Y -> X
 const x _ = x

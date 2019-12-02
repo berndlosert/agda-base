@@ -25,45 +25,31 @@ instance
 -- products of X and Y. The function swap serves as proof that they are
 -- isomorphic.
 
-private
-  variable
-    X : Set
-    Y : Set
-
-swap : X * Y -> Y * X
+swap : forall {X Y} -> X * Y -> Y * X
 swap (x , y) = (y , x)
 
 -- The pair function is evidence that _*_ satisfies the universal property of
 -- products in the category Sets. You can also think of it as the unfold
 -- operation for _*_.
 
-private
-  variable
-    Z : Set
-
-pair : (X -> Y) -> (X -> Z) -> X -> Y * Z
+pair : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
 pair f g x = (f x , g x)
 
 -- The uncurried version of _*_ forms a bifunctor. The map operation of this
 -- bifunctor in uncurried form is cross.
 
-private
-  variable
-    X' : Set
-    Y' : Set
-
-cross : (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
+cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
 cross f g (x , y) = (f x , g y)
 
 -- The function uncurry can be thought of as the fold operation for _*_.
-uncurry : (X -> Y -> Z) -> X * Y -> Z
+uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
 uncurry f (x , y) = f x y
 
 -- The inverse of uncurry is curry. These two functions witness an isomorphism
 -- between X * Y -> Z and X -> Y -> Z. They also serve as the left and right
 -- adjuncts of the adjunction between Writer Y and Reader Y.
 
-curry : (X * Y -> Z) -> X -> Y -> Z
+curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
 curry f x y = f (x , y)
 
 -- The function curry is also evidence that Y -> Z satisfies the universal
@@ -71,10 +57,10 @@ curry f x y = f (x , y)
 -- that exponential objects come with a function apply : (Y -> Z) * Y -> Z such
 -- that apply (curry f x , y) = f (x , y) for any f : X * Y -> Z.
 
-apply : (Y -> Z) * Y -> Z
+apply : {Y Z : Set} -> (Y -> Z) * Y -> Z
 apply (g , y) = g y
 
 -- Duplicate an argument.
 
-dupe : X -> X * X
+dupe : forall {X} -> X -> X * X
 dupe x = (x , x)

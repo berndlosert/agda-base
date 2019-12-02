@@ -28,9 +28,9 @@ Profunctor C D = Functor (C * D) Sets
 
 -- The composition of two functors forms a functor.
 
-private variable B C D : Category
-
-Functor:<<< : forall G F {{_ : Functor C D G}} {{_ : Functor B C F}}
+Functor:<<< : forall {B C D} G F
+  -> {{_ : Functor C D G}}
+  -> {{_ : Functor B C F}}
   -> Functor B D (G <<< F)
 Functor:<<< G F .map f = map (map f)
 
@@ -44,7 +44,7 @@ Functor:id C .map = id
 
 open import Data.Function
 
-Functor:const : forall X -> Functor B C (const X)
+Functor:const : forall {B C} X -> Functor B C (const X)
 Functor:const {C = C} X .map = const (id {X})
   where instance _ = C
 
@@ -107,13 +107,10 @@ instance
 
 -- The product of two endofunctors is a functor.
 
-private
-  variable
-    F : Set -> Set
-    G : Set -> Set
-
 instance
-  Endofunctor:Product : {{_ : Endofunctor Sets F}} {{_ : Endofunctor Sets G}}
+  Endofunctor:Product : forall {F G}
+    -> {{_ : Endofunctor Sets F}}
+    -> {{_ : Endofunctor Sets G}}
     -> Endofunctor Sets (F * G)
   Endofunctor:Product .map f (x , y) = (map f x , map f y)
 
@@ -128,8 +125,10 @@ instance
 -- The coproduct of two endofunctors is a functor.
 
 instance
-  Endofunctor:Coproduct : {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets G}} -> Endofunctor Sets (F + G)
+  Endofunctor:Coproduct : forall {F G}
+    -> {{_ : Endofunctor Sets F}}
+    -> {{_ : Endofunctor Sets G}}
+    -> Endofunctor Sets (F + G)
   Endofunctor:Coproduct .map f (left x) = left (map f x)
   Endofunctor:Coproduct .map f (right x) = right (map f x)
 

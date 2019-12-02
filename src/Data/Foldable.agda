@@ -25,40 +25,36 @@ record Foldable (F : Set -> Set) : Set where
     foldMap : {M : Set} {{_ : Monoid M}} {X : Set}
       -> (X -> M) -> F X -> M
 
-  private
-    variable
-      G : Set -> Set
-      X Y : Set
-
-  fold : {{_ : Monoid X}} -> F X -> X
+  fold : forall {X} {{_ : Monoid X}} -> F X -> X
   fold = foldMap id
 
-  foldr : (X -> Y -> Y) -> Y -> F X -> Y
+  foldr : forall {X Y} -> (X -> Y -> Y) -> Y -> F X -> Y
   foldr f y x = foldMap {{Monoid:<<<}} f x y
 
-  foldl : (Y -> X -> Y) -> Y -> F X -> Y
+  foldl : forall {X Y} -> (Y -> X -> Y) -> Y -> F X -> Y
   foldl f = foldr (flip f)
 
-  toList : F X -> List X
+  toList : forall {X} -> F X -> List X
   toList x = foldMap [_] x
 
-  null : F X -> Bool
+  null : forall {X} -> F X -> Bool
   null = foldMap {{Monoid:&&}} (const true)
 
-  size : F X -> Nat
+  size : forall {X} -> F X -> Nat
   size = foldMap $ const $ suc zero
 
-  elem : {{_ : Eq X}} -> X -> F X -> Bool
+  elem : forall {X} {{_ : Eq X}} -> X -> F X -> Bool
   elem x = foldMap {{Monoid:||}} (_== x)
 
-  -- Constraint indicating that an F X is not empty.
-  Nonempty : F X -> Set
+  Nonempty : forall {X} -> F X -> Set
   Nonempty xs = Constraint (not (null xs))
 
-  traverse- : {{_ : Applicative G}} -> (X -> G Y) -> F X -> G Unit
+  traverse- : forall {X Y G} {{_ : Applicative G}}
+    -> (X -> G Y) -> F X -> G Unit
   traverse- f = foldr (f >>> _*>_) (pure tt)
 
-  for- : {{_ : Applicative G}} -> F X -> (X -> G Y) -> G Unit
+  for- : forall {X Y G} {{_ : Applicative G}}
+    -> F X -> (X -> G Y) -> G Unit
   for- = flip traverse-
 
 open Foldable {{...}} public

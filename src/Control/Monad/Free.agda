@@ -14,11 +14,6 @@ module Control.Monad.Free where
 -- problems either with the positivity checker or with the termination checker
 -- when defining interpretFree).
 
-private
-  variable
-    F : Set -> Set
-    M : Set -> Set
-
 open import Control.Category
 open import Control.Monad
 open import Data.Functor
@@ -26,28 +21,28 @@ open import Data.Functor
 Free : (Set -> Set) -> Set -> Set
 Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
 
-liftFree : F ~> Free F
+liftFree : forall {F} -> F ~> Free F
 liftFree x alpha = alpha x
 
-interpretFree : {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
+interpretFree : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
 interpretFree alpha free = free alpha
 
 -- This is the left inverse of liftFree.
-retractFree : {{_ : Monad Sets M}} -> Free M ~> M
+retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
 retractFree = interpretFree id
 
 -- Here is proof that Free F is a functor. Note that this doesn't require F to
 -- be a functor. However, this is not a free construction.
 
 instance
-  Functor:Free : Endofunctor Sets (Free F)
+  Functor:Free : forall {F} -> Endofunctor Sets (Free F)
   Functor:Free .map f free alpha = map f (free alpha)
 
 -- Free F is a monad whenever F is a functor. We don't make this an instance
 -- because Agda get's confused sometimes when it tries to figure out the
 -- instance to use for Endofunctor Sets F.
 
-Monad:Free : {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
+Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
 Monad:Free .join free alpha = join (map (\ f -> f alpha) (free alpha))
 Monad:Free .return x _ = return x
 
@@ -56,12 +51,12 @@ Monad:Free .return x _ = return x
 -- The right adjunct of this adjunction is basically interpretFree. The left
 -- adjunct is given below.
 
-uninterpretFree : (Free F ~> M) -> (F ~> M)
+uninterpretFree : forall {F M} -> (Free F ~> M) -> (F ~> M)
 uninterpretFree alpha x = alpha (liftFree x)
 
 -- When F is a functor, (Free F X , algFree) is an F-algebra for any set X.
 
-algFree : {{_ : Endofunctor Sets F}} -> F <<< Free F ~> Free F
+algFree : forall {F} {{_ : Endofunctor Sets F}} -> F <<< Free F ~> Free F
 algFree = join <<< liftFree
   where instance _ = Monad:Free
 
@@ -69,10 +64,6 @@ algFree = join <<< liftFree
 -- an M-algebra alg : M Y -> Y and produces a fold of type Free M X -> Y. This
 -- fold is based on the Church encoding of Free.
 
-private
-  variable
-    X : Set
-    Y : Set
-
-foldFree : {{_ : Monad Sets M}} -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
+foldFree : forall {M X Y} {{_ : Monad Sets M}}
+  -> (X -> Y) -> (M Y -> Y) -> Free M X -> Y
 foldFree gen alg free = alg (map gen (retractFree free))
