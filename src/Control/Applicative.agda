@@ -38,30 +38,24 @@ record Applicative (F : Set -> Set) : Set where
   pure : forall {X} -> X -> F X
   pure x = map (const x) (unit tt)
 
-  -- liftA is just a weird name for map.
+  -- This is the two-argument version of map.
 
-  liftA : forall {X Y} -> (X -> Y) -> F X -> F Y
-  liftA = map
-
-  -- This is the two-argument version of liftA. It should have been called
-  -- map2.
-
-  liftA2 : forall {X Y Z} -> (X -> Y -> Z) -> F X -> F Y -> F Z
-  liftA2 f x = map f x <*>_
+  map2 : forall {X Y Z} -> (X -> Y -> Z) -> F X -> F Y -> F Z
+  map2 f x = map f x <*>_
 
   -- Generalization of flip const.
 
   infixl 24 _*>_
 
   _*>_ : forall {X Y} -> F X -> F Y -> F Y
-  _*>_ = liftA2 (flip const)
+  _*>_ = map2 (flip const)
 
   -- Generalization of const.
 
   infixl 24 _<*_
 
   _<*_ : forall {X Y} -> F X -> F Y -> F X
-  _<*_ = liftA2 const
+  _<*_ = map2 const
 
 open Applicative {{...}} public
 
