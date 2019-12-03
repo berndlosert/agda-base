@@ -31,6 +31,14 @@ foldMap t free = free t
 fold : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
 fold = foldMap id
 
+-- The foldr analog for Free. Notice the similarity with the version from Foldable. 
+
+open import Control.Monad.Codensity
+foldr : forall {F G} {{_ : Endofunctor Sets F}}
+  -> (F <<< G ~> G) -> (id ~> G) -> Free F ~> G
+foldr {F} {G} jn ret free = 
+  foldMap {{Monad:Codensity {G}}} (\ x k -> jn (map k x)) free ret 
+
 -- Here is proof that Free F is a functor. Note that this doesn't require F to
 -- be a functor. However, this is not a free construction.
 
@@ -60,10 +68,3 @@ freeAlg : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X
 freeAlg = join <<< lift
   where instance _ = Monad:Free
-
--- This fold is based on the Church encoding of the Monad record type. It is
--- the analog of foldr for lists. 
-
-foldr : forall {M X Y} {{_ : Monad Sets M}}
-  -> (M Y -> Y) -> (X -> Y) -> Free M X -> Y
-foldr alg gen free = alg (map gen (fold free))
