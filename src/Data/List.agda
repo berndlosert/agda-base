@@ -11,7 +11,7 @@ open import Data.Monoid
 
 instance
   Foldable:List : Foldable List
-  Foldable:List .singleton = [_]
+  Foldable:List .lift = [_]
   Foldable:List .foldMap f [] = mempty
   Foldable:List .foldMap f (x :: xs) = f x <> foldMap f xs
 
