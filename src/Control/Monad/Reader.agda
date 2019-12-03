@@ -19,25 +19,28 @@ instance
 
 -- The function ask returns the config. value.
 
-ask : {R : Set} -> Reader R R
-ask = id
+open import Control.Monad.Eff using (Eff)
+import Control.Monad.Eff as Eff
+open import Data.Functor.Union
+
+ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R 
+ask = Eff.lift id
 
 -- Run a Reader computation with a given config. value to get an actual value.
 
-runReader : forall {R X} -> Reader R X -> R -> X
-runReader x r = x r
+open import Control.Monad
+open import Data.Either
+open import Data.List.Base
 
--- The withReader function allows us to modify the type of the config. value
--- of Reader computations.
-
-withReader : forall {R R' X} -> (R -> R') -> Reader R' X -> Reader R X
-withReader modify x r = runReader x (modify r)
+runReader : forall {R Fs X} -> Eff (Reader R :: Fs) X -> R -> Eff Fs X
+runReader eff r t = eff \ where 
+  (left reader) -> return (reader r)
+  (right u) -> t u
 
 -- Reader R is a monad. The return operation creates Reader computations that
 -- do not depend on config. values. The bind operation essentially passes
 -- along config. values during function application.
 
-open import Control.Monad
 open import Data.Function
 
 instance
