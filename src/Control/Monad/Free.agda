@@ -34,10 +34,13 @@ fold = foldMap id
 -- The foldr analog for Free. Notice the similarity with the version from Foldable. 
 
 open import Control.Monad.Codensity
+
 foldr : forall {F G} {{_ : Endofunctor Sets F}}
   -> (F <<< G ~> G) -> (id ~> G) -> Free F ~> G
-foldr {F} {G} jn ret free = 
-  foldMap {{Monad:Codensity {G}}} (\ x k -> jn (map k x)) free ret 
+foldr {F} {G} jn ret free = foldMap {{Monad:Codensity {G}}} bnd free ret 
+  where
+    bnd : F ~> Codensity G 
+    bnd x k = jn (map k x)
 
 -- Here is proof that Free F is a functor. Note that this doesn't require F to
 -- be a functor. However, this is not a free construction.
