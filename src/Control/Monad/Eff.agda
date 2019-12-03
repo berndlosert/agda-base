@@ -34,6 +34,8 @@ instance
 open import Data.Either
 open import Data.Function
 
+-- Helper to handle an effect or relay it.
+
 handle-relay : forall {F Fs X Y}
   -> {{_ : Endofunctor Sets (Union Fs)}}
   -> Union (F :: Fs) X
@@ -42,3 +44,9 @@ handle-relay : forall {F Fs X Y}
   -> Eff Fs Y
 handle-relay (left x) loop h = h x
 handle-relay {F} {Fs} (right u) loop h = extend loop (Free.lift u)
+
+-- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
+-- computation.
+
+run : forall {X} -> Eff [] X -> X
+run eff = eff {{Monad:id Sets}} \ ()

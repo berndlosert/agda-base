@@ -34,14 +34,10 @@ instance
   Member:Cons .prj (left x) = just x
   Member:Cons .prj (right u) = nothing
 
--- If the Fs are functors, then so is Union Fs.
+-- If the Fs are functors, then so is Union Fs. We define an instance for the
+-- case Fs = [] below. The nonempty case is already provided by the 
+-- Endofunctor:Coproduct instance.
 
+instance
   Functor:EmptyUnion : Endofunctor Sets (Union [])
   Functor:EmptyUnion .map f ()
-
-  Functor:NonemptyUnion : forall {F Fs}
-    -> {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets (Union Fs)}}
-    -> Endofunctor Sets (Union (F :: Fs))
-  Functor:NonemptyUnion .map f (left x) = left (map f x)
-  Functor:NonemptyUnion .map f (right u) = right (map f u)
