@@ -5,9 +5,9 @@ module Data.Functor.Union where
 -- Union is a higher-order generalization of Either. To be precise,
 -- Union [ F1 # ... # Fn ] X is the disjoint union F1 X + ... + Fn X.
 
-open import Data.List
-open import Data.Either
-open import Data.Void
+open import Data.List.Base public
+open import Data.Either public
+open import Data.Void public
 
 Union : List (Set -> Set) -> Set -> Set
 Union [] X = Void

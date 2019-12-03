@@ -17,14 +17,18 @@ open import Control.Category
 open import Control.Monad
 open import Data.Functor
 
-Free : (Set -> Set) -> Set -> Set
-Free F X = forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+record Free (F : Set -> Set) (X : Set) : Set where
+  constructor Free:
+  field
+    run : forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+
+open Free public
 
 lift : forall {F} -> F ~> Free F
-lift x t = t x
+lift x = Free: \ t -> t x
 
 foldMap : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
-foldMap t free = free t
+foldMap t free = run free t
 
 -- This is the left inverse (retract) of lift.
 
@@ -47,15 +51,14 @@ foldr {F} {G} jn ret free = foldMap {{Monad:Codensity {G}}} bnd free ret
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free t = map f (free t)
+  Functor:Free .map f free = Free: \ t -> map f (run free t)
 
--- Free F is a monad whenever F is a functor. We don't make this an instance
--- because Agda gets confused sometimes when it tries to figure out the
--- instance to use for Endofunctor Sets F.
+-- Free F is a monad whenever F is a functor.
 
-Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
-Monad:Free .join free t = join (map (\ f -> f t) (free t))
-Monad:Free .return x _ = return x
+instance
+  Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
+  Monad:Free .join free = Free: \ t -> join (map (\ f -> run f t) (run free t))
+  Monad:Free .return x = Free: \ _ -> return x
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
@@ -70,4 +73,3 @@ leftAdjunct t x = t (lift x)
 freeAlg : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X
 freeAlg = join <<< lift
-  where instance _ = Monad:Free

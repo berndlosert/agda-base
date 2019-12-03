@@ -23,21 +23,27 @@ instance
 -- given value.
 
 open import Control.Monad.Eff
-open import Data.Either
-open import Data.Functor.Union
-open import Data.List.Base
 open import Data.Unit
 
 tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
 tell w = send (tt , w)
 
+-- Simple handler of Writer W effects.
+
+open import Control.Monad
+open import Control.Monad.Free
+open import Data.Monoid
+
+runWriter : forall {W Fs X} {{_ : Monoid W}}
+  -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
+runWriter eff = Eff: \ t -> map (\ x -> (x , mempty)) (run eff \ where
+  (left (y , w)) -> return y
+  (right u) -> t u)
+
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
 -- essentially does function application while combining the stored values
 -- using the monoid operation.
-
-open import Control.Monad
-open import Data.Monoid
 
 instance
   Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
