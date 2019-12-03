@@ -8,6 +8,20 @@ module Control.Monad.Reader where
 Reader : Set -> Set -> Set
 Reader R X = R -> X
 
+-- Reader R is a functor whose map is just function composition.
+
+open import Control.Category
+open import Data.Functor
+
+instance
+  Functor:Reader : forall {R} -> Endofunctor Sets (Reader R)
+  Functor:Reader .map = _<<<_
+
+-- The function ask returns the config. value.
+
+ask : {R : Set} -> Reader R R
+ask = id
+
 -- Run a Reader computation with a given config. value to get an actual value.
 
 runReader : forall {R X} -> Reader R X -> R -> X
@@ -18,15 +32,6 @@ runReader x r = x r
 
 withReader : forall {R R' X} -> (R -> R') -> Reader R' X -> Reader R X
 withReader modify x r = runReader x (modify r)
-
--- Reader R is a functor whose map is just function composition.
-
-open import Control.Category
-open import Data.Functor
-
-instance
-  Functor:Reader : forall {R} -> Endofunctor Sets (Reader R)
-  Functor:Reader .map = _<<<_
 
 -- Reader R is a monad. The return operation creates Reader computations that
 -- do not depend on config. values. The bind operation essentially passes
@@ -39,8 +44,3 @@ instance
   Monad:Reader : forall {R} -> Monad Sets (Reader R)
   Monad:Reader .join f r = f r r
   Monad:Reader .return x = const x
-
--- The function ask returns the config. value.
-
-ask : {R : Set} -> Reader R R
-ask = id
