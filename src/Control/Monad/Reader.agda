@@ -19,12 +19,11 @@ instance
 
 -- The function ask returns the config. value.
 
-open import Control.Monad.Eff using (Eff)
-import Control.Monad.Eff as Eff
+open import Control.Monad.Eff
 open import Data.Functor.Union
 
 ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R 
-ask = Eff.lift id
+ask = send id
 
 -- Run a Reader computation with a given config. value to get an actual value.
 

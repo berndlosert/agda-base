@@ -29,12 +29,7 @@ open import Data.List.Base
 open import Data.Unit
 
 tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
-tell w t = t (inj (tt , w))
-
--- We use execWriter to get output of a Writer computation.
-
---execWriter : {W X : Set} -> Writer W X -> X
---execWriter = fst
+tell w = send (tt , w)
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
