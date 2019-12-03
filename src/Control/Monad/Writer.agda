@@ -10,11 +10,6 @@ open import Data.Product
 Writer : Set -> Set -> Set
 Writer W X = X * W
 
--- We use execWriter to get output of a Writer computation.
-
-execWriter : {W X : Set} -> Writer W X -> X
-execWriter = fst
-
 -- Writer W is a functor.
 
 open import Control.Category
@@ -23,6 +18,19 @@ open import Data.Functor
 instance
   Functor:Writer : {W : Set} -> Endofunctor Sets (Writer W)
   Functor:Writer .map f (x , w) = (f x , w)
+
+-- The tell function will produce a Writer computation that just stores the
+-- given value.
+
+open import Data.Unit
+
+tell : {W : Set} -> W -> Writer W Unit
+tell w = (tt , w)
+
+-- We use execWriter to get output of a Writer computation.
+
+execWriter : {W X : Set} -> Writer W X -> X
+execWriter = fst
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
@@ -39,11 +47,3 @@ instance
       join = \ { ((x , w) , w') -> (x , w <> w') };
       return = \ x -> (x , mempty)
     }
-
--- The tell function will produce a Writer computation that just stores the
--- given value.
-
-open import Data.Unit
-
-tell : {W : Set} -> W -> Writer W Unit
-tell w = (tt , w)
