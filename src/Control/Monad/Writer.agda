@@ -22,15 +22,19 @@ instance
 -- The tell function will produce a Writer computation that just stores the
 -- given value.
 
+open import Control.Monad.Eff
+open import Data.Either
+open import Data.Functor.Union
+open import Data.List.Base
 open import Data.Unit
 
-tell : {W : Set} -> W -> Writer W Unit
-tell w = (tt , w)
+tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
+tell w t = t (inj (tt , w))
 
 -- We use execWriter to get output of a Writer computation.
 
-execWriter : {W X : Set} -> Writer W X -> X
-execWriter = fst
+--execWriter : {W X : Set} -> Writer W X -> X
+--execWriter = fst
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
