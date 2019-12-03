@@ -3,8 +3,7 @@
 module Control.Monad.Codensity where
 
 -- Codensity F is a monad for any F in the same sense that X -> X is a monoid
--- for any X. And just like any monoid M is a submonoid of X -> X, any monad M
--- is a "submonad" of Codensity M.
+-- for any X.
 
 open import Control.Category
 open import Control.Monad
@@ -15,8 +14,23 @@ Codensity F X = forall {Y} -> (X -> F Y) -> F Y
 
 instance
   Functor:Codensity : forall {F} -> Endofunctor Sets (Codensity F)
-  Functor:Codensity .map f alpha g = alpha (f >>> g)
+  Functor:Codensity .map f t g = t (f >>> g)
 
   Monad:Codensity : forall {F} -> Monad Sets (Codensity F)
   Monad:Codensity .join k g = k (\ k' -> k' g)
   Monad:Codensity .return x f = f x
+
+-- And just like any monoid M is a submonoid of X -> X, any monad M is a
+-- "submonad" of Codensity M. The embedding of X in X -> X assigns to each x :
+-- X the function x <>_ : X -> X; in the monad case, the embedding assings each
+-- x : M X to x >>=_ : Codensity M X.
+
+rep : forall {M} {{_ : Monad Sets M}} -> M ~> Codensity M
+rep x = x >>=_
+
+-- The left-inverse (retract) of rep for the monoid case assigns f : X -> X to
+-- f mempty. The monad version assigns each f : Codensity M X the value
+-- f return.
+
+abs : forall {M} {{_ : Monad Sets M}} -> Codensity M ~> M
+abs f = f return
