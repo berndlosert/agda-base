@@ -78,10 +78,10 @@ instance
   Monad:List .join = concat
   Monad:List .return = [_]
 
--- The bind operation is concatMap.
+-- The extend operation is concatMap.
 
 concatMap : forall {X Y} -> (X -> List Y) -> List X -> List Y
-concatMap = bind
+concatMap = extend
 
 -- There are two known applicative instances of List: the one derived from
 -- the monad instance and the ZipList one.

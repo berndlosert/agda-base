@@ -41,4 +41,4 @@ handle-relay : forall {F Fs X Y}
   -> (F X -> Eff Fs Y)
   -> Eff Fs Y
 handle-relay (left x) loop h = h x
-handle-relay {F} {Fs} (right u) loop h = bind loop (Free.lift u)
+handle-relay {F} {Fs} (right u) loop h = extend loop (Free.lift u)
