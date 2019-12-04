@@ -35,7 +35,8 @@ foldFree t free = runFree free t
 retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
 retractFree = foldFree id
 
--- The foldr analog for Free. Notice the similarity with the version from Foldable.
+-- The foldr analog for Free. Notice the similarity with the version from
+-- Foldable.
 
 open import Control.Monad.Codensity
 
