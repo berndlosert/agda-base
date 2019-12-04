@@ -22,14 +22,14 @@ instance
 open import Control.Monad.Eff
 
 ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R 
-ask = send id
+ask = liftEff id
 
 -- Run a Reader computation with a given config. value to get an actual value.
 
 open import Control.Monad
 
 runReader : forall {R Fs X} -> Eff (Reader R :: Fs) X -> R -> Eff Fs X
-runReader eff r = Eff: \ t -> run eff \ where 
+runReader eff r = Eff: \ t -> runEff eff \ where 
   (left reader) -> return (reader r)
   (right u) -> t u
 
