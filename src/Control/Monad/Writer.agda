@@ -10,14 +10,9 @@ open import Data.Product
 Writer : Set -> Set -> Set
 Writer W X = X * W
 
--- Writer W is a functor.
+-- Writer W is a functor. The proof is provided by Endofunctor:Product.
 
-open import Control.Category
 open import Data.Functor
-
-instance
-  Functor:Writer : {W : Set} -> Endofunctor Sets (Writer W)
-  Functor:Writer .map f (x , w) = (f x , w)
 
 -- The tell function will produce a Writer computation that just stores the
 -- given value.
@@ -45,10 +40,10 @@ runWriter eff = Eff: \ t -> map (\ x -> (x , mempty)) (runEff eff \ where
 -- essentially does function application while combining the stored values
 -- using the monoid operation.
 
-instance
-  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
-  Monad:Writer = record {
-      instance:Functor = Functor:Writer;
-      join = \ { ((x , w) , w') -> (x , w <> w') };
-      return = \ x -> (x , mempty)
-    }
+--instance
+--  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
+--  Monad:Writer = record {
+--      instance:Functor = Functor:Writer;
+--      join = \ { ((x , w) , w') -> (x , w <> w') };
+--      return = \ x -> (x , mempty)
+--    }
