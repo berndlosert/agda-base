@@ -3,15 +3,15 @@
 module Control.Monad.Free where
 
 -- Let C be a category and let F be an endofunctor on C. A free monad on F is a
--- monad Free F on C equipped with a natural transformation lift : F ~> Free F
--- satisfying the following universal property: for any monad M on C and
--- natural transformation t : F ~> M, there is a unique monad morphism foldMap
--- t : Free F ~> M with the property that t = foldMap t <<< lift. When C =
--- Sets, we define Free F, lift and foldMap as follows:
+-- monad Free F on C equipped with a natural transformation liftFree : F ~>
+-- Free F satisfying the following universal property: for any monad M on C and
+-- natural transformation t : F ~> M, there is a unique monad morphism foldFree
+-- t : Free F ~> M with the property that t = foldFree t <<< liftFree. When C =
+-- Sets, we define Free F, liftFree and foldFree as follows:
 
 -- (N.B. We give the final encoding of Free. The other encodings of Free
 -- cause problems either with the positivity checker or with the termination
--- checker when defining foldMap.)
+-- checker when defining foldFree.)
 
 open import Control.Category
 open import Control.Monad
@@ -20,28 +20,28 @@ open import Data.Functor
 record Free (F : Set -> Set) (X : Set) : Set where
   constructor Free:
   field
-    run : forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+    runFree : forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
 
 open Free public
 
-lift : forall {F} -> F ~> Free F
-lift x = Free: \ t -> t x
+liftFree : forall {F} -> F ~> Free F
+liftFree x = Free: \ t -> t x
 
-foldMap : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
-foldMap t free = run free t
+foldFree : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
+foldFree t free = runFree free t
 
--- This is the left inverse (retract) of lift.
+-- This is the left inverse (retract) of liftFree.
 
-fold : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
-fold = foldMap id
+retractFree : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+retractFree = foldFree id
 
 -- The foldr analog for Free. Notice the similarity with the version from Foldable.
 
 open import Control.Monad.Codensity
 
-foldr : forall {F G} {{_ : Endofunctor Sets F}}
+foldrFree : forall {F G} {{_ : Endofunctor Sets F}}
   -> (F <<< G ~> G) -> (id ~> G) -> Free F ~> G
-foldr {F} {G} jn ret free = foldMap {{Monad:Codensity {G}}} bnd free ret
+foldrFree {F} {G} jn ret free = foldFree {{Monad:Codensity {G}}} bnd free ret
   where
     bnd : F ~> Codensity G
     bnd x k = jn (map k x)
@@ -51,25 +51,25 @@ foldr {F} {G} jn ret free = foldMap {{Monad:Codensity {G}}} bnd free ret
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free = Free: \ t -> map f (run free t)
+  Functor:Free .map f free = Free: \ t -> map f (runFree free t)
 
 -- Free F is a monad whenever F is a functor.
 
 instance
   Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
-  Monad:Free .join free = Free: \ t -> join (map (\ f -> run f t) (run free t))
+  Monad:Free .join free = Free: \ t -> join (map (\ f -> runFree f t) (runFree free t))
   Monad:Free .return x = Free: \ _ -> return x
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
--- The right adjunct of this adjunction is basically foldMap. The left
+-- The right adjunct of this adjunction is basically foldFree. The left
 -- adjunct is given below.
 
-leftAdjunct : forall {F M} -> (Free F ~> M) -> F ~> M
-leftAdjunct t x = t (lift x)
+uninterpretFree : forall {F M} -> (Free F ~> M) -> F ~> M
+uninterpretFree t x = t (liftFree x)
 
--- When F is a functor, (Free F X , freeAlg) is an F-algebra for any type X.
+-- When F is a functor, (Free F X , impure) is an F-algebra for any type X.
 
-freeAlg : forall {F X} {{_ : Endofunctor Sets F}}
+impure : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X
-freeAlg = join <<< lift
+impure = join <<< liftFree
