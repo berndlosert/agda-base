@@ -34,10 +34,6 @@ instance
   Member:Cons .prj (left x) = just x
   Member:Cons .prj (right u) = nothing
 
--- If the Fs are functors, then so is Union Fs. We define an instance for the
--- case Fs = [] below. The nonempty case is already provided by the 
+-- If the Fs are functors, then so is Union Fs. The proof for the case Fs = []
+-- is given by Functor:const Void. The proof for the nonempty Fs case is
 -- Endofunctor:Coproduct instance.
-
-instance
-  Functor:EmptyUnion : Endofunctor Sets (Union [])
-  Functor:EmptyUnion .map f ()
