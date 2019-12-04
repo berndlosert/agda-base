@@ -26,7 +26,7 @@ open import Control.Monad.Eff
 open import Data.Unit
 
 tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
-tell w = send (tt , w)
+tell w = liftEff (tt , w)
 
 -- Simple handler of Writer W effects.
 
@@ -36,7 +36,7 @@ open import Data.Monoid
 
 runWriter : forall {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
-runWriter eff = Eff: \ t -> map (\ x -> (x , mempty)) (run eff \ where
+runWriter eff = Eff: \ t -> map (\ x -> (x , mempty)) (runEff eff \ where
   (left (y , w)) -> return y
   (right u) -> t u)
 
