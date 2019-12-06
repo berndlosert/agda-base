@@ -18,7 +18,7 @@ open import Control.Category
 open import Data.Functor
 
 instance
-  Functor:Cont : Endofunctor Sets (Cont X)
+  Functor:Cont : forall {X} -> Endofunctor Sets (Cont X)
   Functor:Cont .map f h k = h (f >>> k)
 
 -- Cont X is also a monad. The Kleisli composition of this monad allows one
@@ -28,19 +28,19 @@ open import Control.Monad
 open import Data.Function
 
 instance
-  Monad:Cont : Monad Sets (Cont X)
+  Monad:Cont : forall {X} -> Monad Sets (Cont X)
   Monad:Cont .join h k = h (_$ k)
   Monad:Cont .return x = _$ x
 
 -- The infamous call-with-current-continuation.
 
-callCC : ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
+callCC : forall {X Y Z} -> ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
 callCC h k = h (\ x -> const (k x)) k
 
 -- Operators for delimited continuations.
 
-reset : Cont X X -> Cont Y X
+reset : forall {X Y} -> Cont X X -> Cont Y X
 reset h k = k (h id)
 
-shift : ((X -> Y) -> Cont Y Y) -> Cont Y X
+shift : forall {X Y} -> ((X -> Y) -> Cont Y Y) -> Cont Y X
 shift f k = (f k) id
