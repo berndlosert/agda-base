@@ -20,15 +20,19 @@ record Monad (C : Category) (F : ob C -> ob C) : Set where
 
 open Monad {{...}} hiding (instance:Functor) public
 
--- A convenient constructor of monad instances that defines join in terms of
--- extend.
+-- A convenient constructor of monad instances that defines join and
+-- instance:Functor in terms of extend.
 
-Triple: : forall C {F} {{_ : Functor C C F}}
+Triple: : forall {C F}
   -> (forall {X Y} -> hom C X (F Y) -> hom C (F X) (F Y))
   -> (forall {X} -> hom C X (F X))
   -> Monad C F
-Triple: C extend return = Monad: (extend id) return
-  where instance _ = C
+Triple: {C} ext ret = let instance _ = C in
+  record {
+    instance:Functor = Functor: \ f -> ext (ret <<< f);
+    join = ext id;
+    return = ret
+  }
 
 -- For every category C, C ^ C is a monoidal category where the tensor is
 -- functor composition and the identity is the identity functor.
