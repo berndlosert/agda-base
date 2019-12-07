@@ -50,7 +50,7 @@ handleRelay : forall {F Fs X Y}
   -> (F X -> Eff Fs Y)
   -> Eff Fs Y
 handleRelay (left x) loop h = h x
-handleRelay {F} {Fs} (right u) loop h = extend loop (liftFree u)
+handleRelay (right u) loop h = extend loop (liftFree u)
 
 -- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
 -- computation.
