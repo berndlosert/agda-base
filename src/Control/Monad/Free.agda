@@ -72,11 +72,11 @@ extendFree t free = runFree free (liftFree <<< t)
 -- The handle function allows us to translate a Free F X computation into a Y,
 -- given a function X -> Y and transformation F ~> id.
 
-handle : forall {X Y : Set} {F}
+handleFree : forall {X Y : Set} {F}
   -> (X -> Y)
   -> (F ~> id) 
   -> Free F X -> Y
-handle f t free = f (runFree (extendFree t free) id)
+handleFree f t free = f (runFree (extendFree t free) id)
   where instance _ = Monad:id Sets
   
 -- Free is a free construction. It is basically the left-adjoint of the
