@@ -70,7 +70,7 @@ extendFree : forall {F G} {{_ : Endofunctor Sets G}}
 extendFree t free = runFree free (liftFree <<< t)
 
 -- The handle function allows us to translate a Free F X computation into a Y,
--- given a function X -> Y and transformation F ~> id.
+-- given a function X -> Y and a transformation F ~> id.
 
 handleFree : forall {X Y : Set} {F}
   -> (X -> Y)
