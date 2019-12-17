@@ -62,23 +62,13 @@ instance
   Monad:Free .return x = Free: \ _ -> return x
 
 -- Free itself is a monad on the functor category Sets ^ Sets. The return
--- operation of this monad is liftFree; the extend operation is given below.
--- This operation is essential in constructing handlers of algebraic effects.
+-- operation of this monad is liftFree; the extend operation is basically
+-- foldFree.
 
 extendFree : forall {F G} {{_ : Endofunctor Sets G}}
-  -> (F ~> G) -> Free F ~> Free G
-extendFree t free = runFree free (liftFree <<< t)
+  -> (F ~> Free G) -> Free F ~> Free G
+extendFree = foldFree 
 
--- The handle function allows us to translate a Free F X computation into a Y,
--- given a function X -> Y and a transformation F ~> id.
-
-handleFree : forall {X Y : Set} {F}
-  -> (X -> Y)
-  -> (F ~> id) 
-  -> Free F X -> Y
-handleFree f t free = f (runFree (extendFree t free) id)
-  where instance _ = Monad:id Sets
-  
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
 -- The right adjunct of this adjunction is basically foldFree. The left
