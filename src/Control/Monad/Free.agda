@@ -81,7 +81,8 @@ extendFree = foldFree
 uninterpretFree : forall {F M} -> (Free F ~> M) -> F ~> M
 uninterpretFree t x = t (liftFree x)
 
--- When F is a functor, (Free F X , impure) is an F-algebra for any type X.
+-- When F is a functor, Free F X is an F-algebra for any type X. The operation
+-- of this algebra is: 
 
 impure : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X
