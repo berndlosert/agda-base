@@ -52,7 +52,7 @@ foldrFree {F} {G} jn ret free = foldFree {{Monad:Codensity {G}}} bnd free ret
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free = Free: \ t -> map f (runFree free t)
+  Functor:Free .map t free = Free: \ t -> map f (runFree free t) 
 
 -- Free F is a monad whenever F is a functor.
 
@@ -61,9 +61,13 @@ instance
   Monad:Free .join free = Free: \ t -> join (map (\ f -> runFree f t) (runFree free t))
   Monad:Free .return x = Free: \ _ -> return x
 
--- Free itself is a monad on the functor category Sets ^ Sets. The return
--- operation of this monad is liftFree; the extend operation is basically
--- foldFree.
+-- Free forms a functor on the category Sets ^ Sets whose map operation is:
+
+hoistFree : forall {F G} -> (F ~> G) -> Free F ~> Free G
+hoistFree t free = runFree free (liftFree <<< t)
+
+-- Free also forms a monad on Sets ^ Sets. The return operation of this monad
+-- is liftFree; the extend operation is defined below: 
 
 extendFree : forall {F G} {{_ : Endofunctor Sets G}}
   -> (F ~> Free G) -> Free F ~> Free G
