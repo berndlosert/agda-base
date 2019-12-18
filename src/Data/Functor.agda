@@ -48,6 +48,16 @@ Functor:const : forall {B C} X -> Functor B C (const X)
 Functor:const {C = C} X .map = const (id {X})
   where instance _ = C
 
+-- Let C be a category and let F be an endofunctor on C. Then the composition
+-- F <<< F <<< ... <<< F, where F appears n times, is also an endofunctor on C.
+
+open import Data.Nat.Base
+
+Functor:nest : forall n {C F} {{_ : Endofunctor C F}}
+  -> Endofunctor C (nest n F)
+Functor:nest zero .map f = f 
+Functor:nest (suc n) {C} {{inst}} .map f = map (map {{Functor:nest n}} f)
+
 -- The category of categories is called Categories.
 
 Categories : Category
