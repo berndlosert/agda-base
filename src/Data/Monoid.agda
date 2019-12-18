@@ -26,10 +26,10 @@ instance
 
 open import Control.Category
 
-Monoid:hom : forall C {X} -> Monoid (hom C X X)
-Monoid:hom C = let instance _ = C in
+Monoid:endo : forall C {X} -> Monoid (hom C X X)
+Monoid:endo C = let instance _ = C in
   record {
-    instance:Semigroup = Semigroup:hom C;
+    instance:Semigroup = Semigroup:endo C;
     mempty = id
   }
 
