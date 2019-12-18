@@ -5,12 +5,7 @@ module Data.Function where
 -- Export function composition (and it variants) and id from the category Sets.
 
 open import Control.Category public
-  using (
-    _<<<_;
-    _>>>_;
-    id;
-    Sets
-  )
+  using (_<<<_; _>>>_; id; Sets)
 
 -- The flip function is proof that X -> Y -> Z and Y -> X -> Z are isomorphic.
 -- If we think of -> as exponentiation, then flip is proof that exponents in
@@ -54,3 +49,11 @@ case_of_ = _&_
 
 const : {X Y : Set} -> X -> Y -> X
 const x _ = x
+
+-- Given a function f : X -> X, nest n f is the n-fold composition of f.
+
+open import Data.Nat.Base
+
+nest : (n : Nat) {X : Set} -> (X -> X) -> X -> X
+nest zero f x = x
+nest (suc n) f x = f (nest n f x)
