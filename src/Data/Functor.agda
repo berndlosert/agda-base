@@ -56,7 +56,7 @@ open import Data.Nat.Base
 Functor:nest : forall n {C F} {{_ : Endofunctor C F}}
   -> Endofunctor C (nest n F)
 Functor:nest zero .map f = f 
-Functor:nest (suc n) {C} {{inst}} .map f = map (map {{Functor:nest n}} f)
+Functor:nest (suc n) .map f = map (map {{Functor:nest n}} f)
 
 -- The category of categories is called Categories.
 
