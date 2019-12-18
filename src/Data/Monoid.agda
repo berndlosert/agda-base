@@ -56,6 +56,7 @@ MonoidToCategory X = record {
 -- Monoids form a category where the morphisms are monoid homomorphisms.
 
 open import Data.Product
+
 Monoids : Category
 Monoids = record {
     ob = exists Monoid;
