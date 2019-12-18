@@ -71,10 +71,9 @@ Categories = record {
 -- This allows us to write F ~> G for (natural) transformations.
 
 record Trans (C D : Category) : Set where
-  infixr 2 _~>_ _=>_
+  infixr 2 _~>_
   _~>_ : (F G : ob C -> ob D) -> Set
   F ~> G  = forall {X} -> hom D (F X) (G X)
-  _=>_ = _~>_
 
 Trans: : (C D : Category) -> Trans C D
 Trans: C D = record {}
