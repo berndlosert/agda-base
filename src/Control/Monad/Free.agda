@@ -52,7 +52,7 @@ foldrFree {F} {G} jn ret free = foldFree {{Monad:Codensity {G}}} bnd free ret
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map t free = Free: \ t -> map f (runFree free t) 
+  Functor:Free .map f free = Free: \ t -> map f (runFree free t)
 
 -- Free F is a monad whenever F is a functor.
 
@@ -63,15 +63,16 @@ instance
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 
-hoistFree : forall {F G} -> (F ~> G) -> Free F ~> Free G
+hoistFree : forall {F G} {{_ : Endofunctor Sets G}}
+  -> (F ~> G) -> Free F ~> Free G
 hoistFree t free = runFree free (liftFree <<< t)
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
--- is liftFree; the extend operation is defined below: 
+-- is liftFree; the extend operation is defined below:
 
 extendFree : forall {F G} {{_ : Endofunctor Sets G}}
   -> (F ~> Free G) -> Free F ~> Free G
-extendFree = foldFree 
+extendFree = foldFree
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
@@ -82,7 +83,7 @@ uninterpretFree : forall {F M} -> (Free F ~> M) -> F ~> M
 uninterpretFree t x = t (liftFree x)
 
 -- When F is a functor, Free F X is an F-algebra for any type X. The operation
--- of this algebra is: 
+-- of this algebra is:
 
 impure : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X

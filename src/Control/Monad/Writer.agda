@@ -34,7 +34,7 @@ runWriter : forall {W Fs X}
   -> {{_ : Monoid W}}
   -> {{_ : Endofunctor Sets (Union Fs)}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
-runWriter {W} {Fs} eff = runEff eff trans 
+runWriter {W} {Fs} eff = runEff eff trans
   where
     ret : forall {Y} -> Y -> Y * W
     ret = (_, mempty)
@@ -48,7 +48,7 @@ runWriter {W} {Fs} eff = runEff eff trans
       _ : Monad Sets (Eff Fs <<< (_* W))
       _ = Triple: ext (return <<< ret)
 
-    trans : forall {Y} -> Union (Writer W :: Fs) Y -> Eff Fs (Y * W) 
+    trans : forall {Y} -> Union (Writer W :: Fs) Y -> Eff Fs (Y * W)
     trans (left (y , w)) = return (y , w)
     trans (right u) = map ret (liftFree u)
 

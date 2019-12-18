@@ -74,7 +74,7 @@ Monoidal C = Monoid (ob C)
 
 -- The category Sets is monoidal.
 
-instance 
+instance
   Cartesian : Monoidal Sets
   Cartesian = Monoid: {{Semigroup: _*_}} Unit
 
