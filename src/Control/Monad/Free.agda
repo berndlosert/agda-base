@@ -52,7 +52,7 @@ foldrFree {F} {G} jn ret free = foldFree {{Monad:Codensity {G}}} bnd free ret
 
 instance
   Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free = Free: \ t -> map f (runFree free t)
+  Functor:Free .map t free = Free: \ t -> map f (runFree free t) 
 
 -- Free F is a monad whenever F is a functor.
 
@@ -61,9 +61,13 @@ instance
   Monad:Free .join free = Free: \ t -> join (map (\ f -> runFree f t) (runFree free t))
   Monad:Free .return x = Free: \ _ -> return x
 
--- Free itself is a monad on the functor category Sets ^ Sets. The return
--- operation of this monad is liftFree; the extend operation is basically
--- foldFree.
+-- Free forms a functor on the category Sets ^ Sets whose map operation is:
+
+hoistFree : forall {F G} -> (F ~> G) -> Free F ~> Free G
+hoistFree t free = runFree free (liftFree <<< t)
+
+-- Free also forms a monad on Sets ^ Sets. The return operation of this monad
+-- is liftFree; the extend operation is defined below: 
 
 extendFree : forall {F G} {{_ : Endofunctor Sets G}}
   -> (F ~> Free G) -> Free F ~> Free G
@@ -77,7 +81,8 @@ extendFree = foldFree
 uninterpretFree : forall {F M} -> (Free F ~> M) -> F ~> M
 uninterpretFree t x = t (liftFree x)
 
--- When F is a functor, (Free F X , impure) is an F-algebra for any type X.
+-- When F is a functor, Free F X is an F-algebra for any type X. The operation
+-- of this algebra is: 
 
 impure : forall {F X} {{_ : Endofunctor Sets F}}
   -> F (Free F X) -> Free F X
