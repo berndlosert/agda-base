@@ -26,10 +26,10 @@ instance
 
 open import Control.Category
 
-Monoid:<<< : forall {C X} -> Monoid (hom C X X)
-Monoid:<<< {C} = let instance _ = C in
+Monoid:hom : forall C {X} -> Monoid (hom C X X)
+Monoid:hom C = let instance _ = C in
   record {
-    instance:Semigroup = Semigroup:<<< {C};
+    instance:Semigroup = Semigroup:hom C;
     mempty = id
   }
 
@@ -74,8 +74,9 @@ Monoidal C = Monoid (ob C)
 
 -- The category Sets is monoidal.
 
-instance Cartesian : Monoidal Sets
-Cartesian = Monoid: {{Semigroup: _*_}} Unit
+instance 
+  Cartesian : Monoidal Sets
+  Cartesian = Monoid: {{Semigroup: _*_}} Unit
 
 -- A monoid object in a monoidal category is an object with two operations
 -- mproduct and munit playing the role of _<>_ and mempty for monoids.

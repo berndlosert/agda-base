@@ -30,8 +30,8 @@ instance
 
 open import Control.Category
 
-Semigroup:<<< : forall {C X} -> Semigroup (hom C X X)
-Semigroup:<<< {C} = Semigroup: _<<<_
+Semigroup:hom : forall C {X} -> Semigroup (hom C X X)
+Semigroup:hom C = Semigroup: _<<<_
   where instance _ = C
 
 -- Functions of the form X -> Y, where Y forms a semigroup, also
