@@ -3,6 +3,7 @@
 module Data.Semigroup where
 
 -- A semigroup is a type equipped with an associative binary operation.
+
 record Semigroup (X : Set) : Set where
   constructor Semigroup:
   infixr 6 _<>_
@@ -10,25 +11,31 @@ record Semigroup (X : Set) : Set where
 
 open Semigroup {{...}} public
 
+-- Void forms the empty semigroup.
+
 instance
-  -- Void forms the empty semigroup.
   open import Data.Void
   Semigroup:Void : Semigroup Void
   Semigroup:Void = Semigroup: \ ()
 
-  -- Unit forms a one-element semigroup.
+-- Unit forms a one-element semigroup.
+
+instance
   open import Data.Unit
   Semigroup:Unit : Semigroup Unit
   Semigroup:Unit = Semigroup: \ _ _ -> tt
 
--- Endofunctions form a semigroup with respect to _<<<_, but also with
--- respect to _>>>_. We use _<<<_ since this is traditionally what we
--- mean by function composition.
-open import Data.Function
-Semigroup:<<< : {X : Set} -> Semigroup (X -> X)
-Semigroup:<<< = Semigroup: _<<<_
+-- For every category C and every object X : ob C, hom C X X is a semigroup
+-- under composition.
 
--- Functions of the form X -> Y, where Y forms a semigroup are also
--- a semigroup.
+open import Control.Category
+
+Semigroup:<<< : forall {C X} -> Semigroup (hom C X X)
+Semigroup:<<< {C} = Semigroup: _<<<_
+  where instance _ = C
+
+-- Functions of the form X -> Y, where Y forms a semigroup, also
+-- form a semigroup.
+
 Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
 Semigroup:Function = Semigroup: \ f g x -> f x <> g x
