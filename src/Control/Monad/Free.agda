@@ -5,9 +5,9 @@ module Control.Monad.Free where
 -- Let C be a category and let F be an endofunctor on C. A free monad on F is a
 -- monad Free F on C equipped with a natural transformation lift : F ~> Free F
 -- satisfying the following universal property: for any monad M on C and
--- natural transformation t : F ~> M, there is a unique monad morphism foldMap
--- t : Free F ~> M with the property that t = foldMap t <<< lift. When C =
--- Sets, we define Free F, lift and foldMap as follows:
+-- natural transformation t : F ~> M, there is a unique monad morphism
+-- foldMap t : Free F ~> M with the property that t = foldMap t <<< lift. When
+-- C = Sets, we define Free F, lift and foldMap as follows:
 
 open import Control.Category
 open import Control.Monad hiding (extend)
