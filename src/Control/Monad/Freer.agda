@@ -2,47 +2,33 @@
 
 module Control.Monad.Freer where
 
--- Freer is the composition of two free constructions: Coyoneda Sets and Free.
--- Thus, Freer F is a free monad for any function F : Set -> Set.
+-- The "Church" encoding of monads on Sets is called Freer. 
+
+record Freer (F : Set -> Set) (X : Set) : Set where
+  constructor Freer:
+  field
+    run : forall {Y} -> (X -> Y) -> (F Y -> Y) -> Y
+
+open Freer
+
+-- Freer F is a functor.
 
 open import Control.Category
-open import Control.Monad.Free
-open import Data.Functor.Coyoneda
-
-Freer : (Set -> Set) -> Set -> Set
-Freer F = Free (Coyoneda Sets F)
-
--- Freer F is a functor in the same way that Free F is.
-
 open import Data.Functor
 
 instance
   Functor:Freer : forall {F} -> Endofunctor Sets (Freer F)
-  Functor:Freer {F} .map f free alpha = map f (free alpha)
+  Functor:Freer .map f free gen alg = runFreer free (gen <<< f) alg
 
--- Freer F is a monad since Coyoneda Sets F is a functor.
+-- Freer F is a monad. Note that it doesn't require F to be a functor.
 
 open import Control.Monad
 
-instance
-  Monad:Freer : forall {F} -> Monad Sets (Freer F)
-  Monad:Freer {F} = Monad:Free {Coyoneda Sets F}
-    where instance _ = Functor:Coyoneda Sets F
+Monad:Freer : forall {F} -> Monad Sets (Freer F)
+Monad:Freer {F} = Triple: ext ret 
+  where
+    ext : forall {X Z} -> (X -> Freer F Z) -> Freer F X -> Freer F Z
+    ext f free gen alg = runFreer free (\ x -> f x gen alg) alg
 
--- The Freer analog of liftFree.
-
-liftFreer : forall {F X} -> F X -> Freer F X
-liftFreer = liftCoyoneda {Sets} >>> liftFree
-
--- The Freer analog of interpretFree.
-
-interpretFreer : forall {F M}
-  -> {{_ : Endofunctor Sets F}}
-  -> {{_ : Monad Sets M}}
-  -> (F ~> M) -> Freer F ~> M
-interpretFreer = foldCoyoneda >>> interpretFree
-
--- The Freer analog of uninterpretFree.
-
-uninterpretFreer : forall {F M} -> (Freer F ~> M) -> F ~> M
-uninterpretFreer alpha x = alpha (liftFreer x)
+    ret : forall {X} -> X -> Freer F X
+    ret x gen alg = gen x
