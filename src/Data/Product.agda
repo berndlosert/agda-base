@@ -42,6 +42,7 @@ cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
 cross f g (x , y) = (f x , g y)
 
 -- The function uncurry can be thought of as the fold operation for _*_.
+
 uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
 uncurry f (x , y) = f x y
 
