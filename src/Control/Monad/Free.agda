@@ -6,8 +6,8 @@ module Control.Monad.Free where
 -- monad Free F on C equipped with a natural transformation lift : F ~> Free F
 -- satisfying the following universal property: for any monad M on C and
 -- natural transformation t : F ~> M, there is a unique monad morphism
--- foldMap t : Free F ~> M with the property that t = foldMap t <<< lift. When
--- C = Sets, we define Free F, lift and foldMap as follows:
+-- interpret t : Free F ~> M with the property that t = interpret t <<< lift.
+-- When C = Sets, we define Free F, lift and interpret as follows:
 
 open import Control.Category
 open import Control.Monad hiding (extend)
@@ -23,13 +23,13 @@ open Free
 lift : forall {F} -> F ~> Free F
 lift x = Free: \ t -> t x
 
-foldMap : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
-foldMap t free = run free t
+interpret : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
+interpret t free = run free t
 
 -- This is the left inverse (retract) of lift.
 
-fold : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
-fold = foldMap id
+lower : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+lower = interpret id
 
 -- The foldr analog for Free. Notice the similarity with the version from
 -- Foldable.
@@ -38,7 +38,7 @@ open import Control.Monad.Codensity
 
 foldr : forall {F G} {{_ : Endofunctor Sets F}}
   -> (F <<< G ~> G) -> (id ~> G) -> Free F ~> G
-foldr {F} {G} jn ret free = foldMap {{Monad:Codensity {G}}} bnd free ret
+foldr {F} {G} jn ret free = interpret {{Monad:Codensity {G}}} bnd free ret
   where
     bnd : F ~> Codensity G
     bnd x k = jn (map k x)
@@ -68,11 +68,11 @@ hoist t free = run free (lift <<< t)
 
 extend : forall {F G} {{_ : Endofunctor Sets G}}
   -> (F ~> Free G) -> Free F ~> Free G
-extend = foldMap
+extend = interpret
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
--- The right adjunct of this adjunction is basically foldMap. The left
+-- The right adjunct of this adjunction is basically interpret. The left
 -- adjunct is given below.
 
 uninterpret : forall {F M} -> (Free F ~> M) -> F ~> M
