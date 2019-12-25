@@ -29,14 +29,21 @@ open import Control.Category
 open import Control.Monad
 open import Data.Functor
 
-lift : forall {F Fs} {{_ : Member F Fs}} -> F ~> Eff Fs
-lift = Free.lift <<< inj
+lift : forall {Fs} -> Union Fs ~> Eff Fs
+lift = Free.lift
 
 interpret : forall {M Fs} {{_ : Monad Sets M}}
   -> (Union Fs ~> M) -> Eff Fs ~> M
 interpret = Free.interpret
 
--- Helper to handle an effect or relay it.
+-- “Sends” an effect, which should be a value defined as part of an effect
+-- algebra, to an effectful computation. This is used to connect the definition
+-- of an effect to the 'Eff' monad so that it can be used and handled.
+
+send : forall {F Fs} {{_ : Member F Fs}} -> F ~> Eff Fs
+send = Free.lift <<< inj
+
+-- A fold operation for Eff. This is handleRelay from freer-simple.y
 
 open import Data.Function
 
@@ -45,7 +52,7 @@ fold : forall {F Fs X Y}
   -> (forall {X} -> (X -> Eff Fs Y) -> F X -> Eff Fs Y)
   -> Eff (F :: Fs) X
   -> Eff Fs Y
-fold {F} {Fs} {_} {Y} ret ext eff = Free.fold ret ext' eff
+fold {F} {Fs} {_} {Y} ret ext = Free.fold ret ext'
   where
     ext' : forall {X} -> (X -> Eff Fs Y) -> Union (F :: Fs) X -> Eff Fs Y
     ext' ret (left x) = ext ret x 
