@@ -16,7 +16,7 @@ Yoneda C F X = forall {Y} -> hom C X Y -> F Y
 
 Functor:Yoneda : (C : Category) (F : ob C -> Set)
   -> Functor C Sets (Yoneda C F)
-Functor:Yoneda C F .map f alpha g = alpha (f >>> g)
+Functor:Yoneda C F .map f t g = t (f >>> g)
   where instance _ = C
 
 -- The Yoneda lemma states that F X ~= Yoneda C F X. The -> direction
