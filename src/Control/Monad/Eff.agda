@@ -5,8 +5,8 @@ module Control.Monad.Eff where
 -- Eff Fs is just the free monad obtained from a disjoint union of Fs.
 
 import Control.Monad.Free as Free
-open Free using (Free; Free:; Monad:Free) public
-open import Data.Functor.Union public
+open Free using (Free; Free:; Monad:Free)
+open import Data.Functor.Union
 
 Eff : List (Set -> Set) -> Set -> Set
 Eff Fs X = Free (Union Fs) X
@@ -23,7 +23,7 @@ Eff: : forall {Fs X}
   -> Eff Fs X
 Eff: eff = Free: eff
 
--- The Eff versions of liftFree, runFree and foldFree.
+-- The Eff versions of lift and interpret.
 
 open import Control.Category
 open import Control.Monad
@@ -40,13 +40,16 @@ interpret = Free.interpret
 
 open import Data.Function
 
-handleRelay : forall {F Fs X Y}
+fold : forall {F Fs X Y}
   -> (X -> Eff Fs Y)
-  -> (F X -> Eff Fs Y)
-  -> Union (F :: Fs) X
+  -> (forall {X} -> (X -> Eff Fs Y) -> F X -> Eff Fs Y)
+  -> Eff (F :: Fs) X
   -> Eff Fs Y
-handleRelay loop h (left x) = h x
-handleRelay loop h (right u) = extend loop (Free.lift u)
+fold {F} {Fs} {_} {Y} ret ext eff = Free.fold ret ext' eff
+  where
+    ext' : forall {X} -> (X -> Eff Fs Y) -> Union (F :: Fs) X -> Eff Fs Y
+    ext' ret (left x) = ext ret x 
+    ext' ret (right u) = extend ret (Free.lift u)
 
 -- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
 -- computation.
@@ -54,3 +57,9 @@ handleRelay loop h (right u) = extend loop (Free.lift u)
 run : forall {X} -> Eff [] X -> X
 run eff = interpret (\ ()) eff
   where instance _ = Monad:id Sets
+
+-- This Monad instance is for exporting purposes only.
+
+instance
+  Monad:Eff : forall {Fs} -> Monad Sets (Eff Fs)
+  Monad:Eff = Monad:Free 
