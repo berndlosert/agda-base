@@ -2,15 +2,15 @@
 
 module Control.Monad.Free where
 
--- Let C be a category and let F be an endofunctor on C. A free monad on F is a
--- monad Free F on C equipped with a natural transformation lift : F ~> Free F
+-- Let C be a category and let F : ob C -> ob C. A free monad on F is a monad
+-- Free F on C equipped with a natural transformation lift : F ~> Free F
 -- satisfying the following universal property: for any monad M on C and
 -- natural transformation t : F ~> M, there is a unique monad morphism
 -- interpret t : Free F ~> M with the property that t = interpret t <<< lift.
 -- When C = Sets, we define Free F, lift and interpret as follows:
 
 open import Control.Category
-open import Control.Monad hiding (extend)
+open import Control.Monad
 open import Data.Functor
 
 record Free (F : Set -> Set) (X : Set) : Set where
@@ -31,44 +31,25 @@ interpret t free = run free t
 lower : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
 lower = interpret id
 
--- The foldr analog for Free. Notice the similarity with the version from
--- Foldable.
-
-open import Control.Monad.Codensity
-
-foldr : forall {F G} {{_ : Endofunctor Sets F}}
-  -> (F <<< G ~> G) -> (id ~> G) -> Free F ~> G
-foldr {F} {G} jn ret free = interpret {{Monad:Codensity {G}}} bnd free ret
-  where
-    bnd : F ~> Codensity G
-    bnd x k = jn (map k x)
-
--- Here is proof that Free F is a functor. Note that this doesn't require F to
--- be a functor. However, this is not a free construction.
-
-instance
-  Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-  Functor:Free .map f free = Free: \ t -> map f (run free t)
-
 -- Free F is a monad whenever F is a functor.
 
 instance
-  Monad:Free : forall {F} {{_ : Endofunctor Sets F}} -> Monad Sets (Free F)
-  Monad:Free .join free = Free: \ t -> join (map (\ f -> run f t) (run free t))
+  Monad:Free : forall {F} -> Monad Sets (Free F)
   Monad:Free .return x = Free: \ _ -> return x
+  Monad:Free .extend f m = Free: \ t -> 
+    join (map (interpret t <<< f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 
-hoist : forall {F G} {{_ : Endofunctor Sets G}}
-  -> (F ~> G) -> Free F ~> Free G
+hoist : forall {F G} -> (F ~> G) -> Free F ~> Free G
 hoist t free = run free (lift <<< t)
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
 -- is lift; the extend operation is defined below:
 
-extend : forall {F G} {{_ : Endofunctor Sets G}}
+flatMap : forall {F G}
   -> (F ~> Free G) -> Free F ~> Free G
-extend = interpret
+flatMap = interpret
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
@@ -81,6 +62,5 @@ uninterpret t x = t (lift x)
 -- When F is a functor, Free F X is an F-algebra for any type X. The operation
 -- of this algebra is:
 
-impure : forall {F X} {{_ : Endofunctor Sets F}}
-  -> F (Free F X) -> Free F X
-impure = join <<< lift
+impure : forall {F X} -> F (Free F X) -> Free F X
+impure op = join (lift op)
