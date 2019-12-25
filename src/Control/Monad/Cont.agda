@@ -12,25 +12,18 @@ module Control.Monad.Cont where
 Cont : Set -> Set -> Set
 Cont X Y = (Y -> X) -> X
 
--- Cont X is a functor.
-
-open import Control.Category
-open import Data.Functor
-
-instance
-  Functor:Cont : forall {X} -> Endofunctor Sets (Cont X)
-  Functor:Cont .map f h k = h (f >>> k)
-
 -- Cont X is also a monad. The Kleisli composition of this monad allows one
 -- to compose functions in CPS style.
 
+open import Control.Category
 open import Control.Monad
 open import Data.Function
+open import Data.Functor
 
 instance
   Monad:Cont : forall {X} -> Monad Sets (Cont X)
-  Monad:Cont .join h k = h (_$ k)
   Monad:Cont .return x = _$ x
+  Monad:Cont .extend k m = \ c -> m (\ x -> (k x) c) 
 
 -- The infamous call-with-current-continuation.
 
