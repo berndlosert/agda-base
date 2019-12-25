@@ -19,19 +19,24 @@ instance
 
 -- The function ask returns the config. value.
 
-open import Control.Monad.Eff
+import Control.Monad.Eff as Eff
+open Eff using (Eff) 
+open import Data.Functor.Union
 
 ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
-ask = liftEff id
+ask = Eff.send id
 
 -- Run a Reader computation with a given config. value to get an actual value.
 
 open import Control.Monad
+open import Data.List
 
-runReader : forall {R Fs X} -> Eff (Reader R :: Fs) X -> R -> Eff Fs X
-runReader eff r = Eff: \ t -> runEff eff \ where
-  (left reader) -> return (reader r)
-  (right u) -> t u
+run : forall {R Fs X} -> R -> Eff (Reader R :: Fs) X -> Eff Fs X
+run {R} {Fs} r eff = Eff.interpret t eff
+  where
+    t : Union (Reader R :: Fs) ~> Eff Fs
+    t (left k) = return (k r)
+    t (right u) = Eff.lift u
 
 -- Reader R is a monad. The return operation creates Reader computations that
 -- do not depend on config. values. The bind operation essentially passes
@@ -41,5 +46,5 @@ open import Data.Function
 
 instance
   Monad:Reader : forall {R} -> Monad Sets (Reader R)
-  Monad:Reader .join f r = f r r
   Monad:Reader .return x = const x
+  Monad:Reader .extend f m = \ r -> f (m r) r
