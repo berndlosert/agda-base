@@ -13,12 +13,9 @@ Codensity : (Set -> Set) -> Set -> Set
 Codensity F X = forall {Y} -> (X -> F Y) -> F Y
 
 instance
-  Functor:Codensity : forall {F} -> Endofunctor Sets (Codensity F)
-  Functor:Codensity .map f t g = t (f >>> g)
-
   Monad:Codensity : forall {F} -> Monad Sets (Codensity F)
-  Monad:Codensity .join k g = k (\ k' -> k' g)
-  Monad:Codensity .return x f = f x
+  Monad:Codensity .return x = \ k -> k x
+  Monad:Codensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
 
 -- And just like any monoid M is a submonoid of X -> X, any monad M is a
 -- "submonad" of Codensity M. The embedding of X in X -> X assigns to each x :
