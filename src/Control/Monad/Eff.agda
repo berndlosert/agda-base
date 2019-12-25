@@ -5,7 +5,7 @@ module Control.Monad.Eff where
 -- Eff Fs is just the free monad obtained from a disjoint union of Fs.
 
 import Control.Monad.Free as Free
-open Free using (Free; Free:; Monad:Free)
+open Free using (Free; Free:; Monad:Free) public
 open import Data.Functor.Union public
 
 Eff : List (Set -> Set) -> Set -> Set
