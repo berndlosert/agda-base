@@ -2,7 +2,6 @@
 
 module Data.Functor.Coyoneda where
 
-
 -- This is the existensial version Yoneda C F X.
 
 open import Control.Category
