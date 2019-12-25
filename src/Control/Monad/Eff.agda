@@ -41,13 +41,12 @@ interpret = Free.interpret
 open import Data.Function
 
 handleRelay : forall {F Fs X Y}
-  -> {{_ : Endofunctor Sets (Union Fs)}}
-  -> Union (F :: Fs) X
   -> (X -> Eff Fs Y)
   -> (F X -> Eff Fs Y)
+  -> Union (F :: Fs) X
   -> Eff Fs Y
-handleRelay (left x) loop h = h x
-handleRelay (right u) loop h = extend loop (Free.lift u)
+handleRelay loop h (left x) = h x
+handleRelay loop h (right u) = extend loop (Free.lift u)
 
 -- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
 -- computation.
