@@ -2,8 +2,7 @@
 
 module Control.Monad where
 
--- A functor F : ob C -> ob C is a monad when it comes with two natural
--- transformations join and return obeying the monad laws.
+-- We define monads as Kleisli triples for programming convenience.
 
 open import Control.Category
 open import Data.Functor
@@ -11,28 +10,19 @@ open import Data.Functor
 record Monad (C : Category) (F : ob C -> ob C) : Set where
   constructor Monad:
   field
-    {{instance:Functor}} : Functor C C F
-    join : {X : ob C} -> hom C (F (F X)) (F X)
-    return : {X : ob C} -> hom C X (F X)
+    return : forall {X} -> hom C X (F X)
+    extend : forall {X Y} -> hom C X (F Y) -> hom C (F X) (F Y)
 
-  extend : {X Y : ob C} -> hom C X (F Y) -> hom C (F X) (F Y)
-  extend f = let instance _ = C in map f >>> join
+  private instance _ = C
 
-open Monad {{...}} hiding (instance:Functor) public
+  join : forall {X} -> hom C (F (F X)) (F X)
+  join = extend id
 
--- A convenient constructor of monad instances that defines join and
--- instance:Functor in terms of extend.
+  instance
+    Functor:Monad : Functor C C F
+    Functor:Monad .map f = extend (return <<< f)
 
-Triple: : forall {C F}
-  -> (forall {X Y} -> hom C X (F Y) -> hom C (F X) (F Y))
-  -> (forall {X} -> hom C X (F X))
-  -> Monad C F
-Triple: {C} ext ret = let instance _ = C in
-  record {
-    instance:Functor = Functor: \ f -> ext (ret <<< f);
-    join = ext id;
-    return = ret
-  }
+open Monad {{...}} public
 
 -- For every category C, C ^ C is a monoidal category where the tensor is
 -- functor composition and the identity is the identity functor.
@@ -65,9 +55,8 @@ Kleisli {C} F = let instance _ = C in
 Monad:id : (C : Category) -> Monad C id
 Monad:id C = let instance _ = C in
   record {
-    instance:Functor = Functor:id C;
-    join = id;
-    return = id
+    return = id;
+    extend = id
   }
 
 module _ {F : Set -> Set} {{_ : Monad Sets F}} where

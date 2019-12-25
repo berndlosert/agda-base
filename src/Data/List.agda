@@ -15,15 +15,22 @@ instance
   Foldable:List .foldMap f [] = mempty
   Foldable:List .foldMap f (x :: xs) = f x <> foldMap f xs
 
--- List is a functor.
+-- List is a monad.
 
 open import Control.Category
+open import Control.Monad
 open import Data.Functor
 
 instance
-  Functor:List : Endofunctor Sets List
-  Functor:List .map f [] = []
-  Functor:List .map f (x :: xs) = f x :: map f xs
+  Monad:List : Monad Sets List
+  Monad:List .return = [_]
+  Monad:List .extend k [] = [] 
+  Monad:List .extend k (x :: xs) = k x ++ extend k xs
+
+-- The join operation of the list monad is concat.
+
+concat : forall {X} -> List (List X) -> List X 
+concat = join
 
 -- List is traversable.
 
@@ -36,11 +43,6 @@ instance
     where
       cons : F X -> F (List X) -> F (List X)
       cons x xs = (| _::_ x xs |)
-
--- Concatenating lists of lists is a natural transformation.
-
-concat : List <<< List ~> List
-concat = foldr _++_ []
 
 -- Reversing a list is a natural transformation.
 
@@ -69,14 +71,6 @@ break p [] = ([] , [])
 break p xs@(x :: xs') =
   if p x then ([] , xs)
   else let (ys , zs) = break p xs' in (x :: ys , zs)
-
--- List is a monad.
-
-instance
-  open import Control.Monad
-  Monad:List : Monad Sets List
-  Monad:List .join = concat
-  Monad:List .return = [_]
 
 -- The extend operation is concatMap.
 

@@ -27,23 +27,16 @@ postulate
 {-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC flushStdOut = System.hFlush System.stdout #-}
 
--- IO is a functor.
+-- IO forms a monad. 
 
 open import Control.Category
+open import Control.Monad
 open import Data.Functor
 
 instance
-  Functor:IO : Endofunctor Sets IO
-  Functor:IO .map f io = bindIO io (f >>> returnIO)
-
--- IO is a monad.
-
-open import Control.Monad
-
-instance
   Monad:IO : Monad Sets IO
-  Monad:IO .join io = bindIO io id
   Monad:IO .return x = returnIO x
+  Monad:IO .extend k io = bindIO io k 
 
 -- IO is an applicative.
 

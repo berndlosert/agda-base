@@ -9,21 +9,15 @@ open import Data.Maybe.Base public
 open import Control.Category
 open import Data.Functor
 
-instance
-  Functor:Maybe : Endofunctor Sets Maybe
-  Functor:Maybe .map f nothing = nothing
-  Functor:Maybe .map f (just x) = just (f x)
-
--- Maybe also forms a monad, which we can use to model computations that can
--- fail.
+-- Maybe forms a monad, which we can use to model computations that can fail.
 
 open import Control.Monad
 
 instance
   Monad:Maybe : Monad Sets Maybe
-  Monad:Maybe .join nothing = nothing
-  Monad:Maybe .join (just x) = x
   Monad:Maybe .return = just
+  Monad:Maybe .extend k nothing = nothing
+  Monad:Maybe .extend k (just x) = k x
 
 -- We derive the Applicative instance of Maybe from the Monad instance.
 
