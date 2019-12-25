@@ -20,11 +20,11 @@ Functor:Yoneda C F .map f alpha g = alpha (f >>> g)
   where instance _ = C
 
 -- The Yoneda lemma states that F X ~= Yoneda C F X. The -> direction
--- of this isomorphism is called liftYoneda.
-liftYoneda : forall {C F X} {{_ : Functor C Sets F}} -> F X -> Yoneda C F X
-liftYoneda y f = map f y
+-- of this isomorphism is called lift.
+lift : forall {C F X} {{_ : Functor C Sets F}} -> F X -> Yoneda C F X
+lift y f = map f y
 
--- The <- direction of the Yoneda lemma isomorphism is called lowerYoneda.
-lowerYoneda : forall {C F X} -> Yoneda C F X -> F X
-lowerYoneda {C} alpha = alpha id
+-- The <- direction of the Yoneda lemma isomorphism is called lower.
+lower : forall {C F X} -> Yoneda C F X -> F X
+lower {C} t = t id
   where instance _ = C
