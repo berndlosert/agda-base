@@ -4,7 +4,8 @@ module Control.Monad.Eff where
 
 -- Eff Fs is just the free monad obtained from a disjoint union of Fs.
 
-open import Control.Monad.Free
+import Control.Monad.Free as Free
+open Free using (Free; Free:; Monad:Free)
 open import Data.Functor.Union public
 
 Eff : List (Set -> Set) -> Set -> Set
@@ -28,16 +29,12 @@ open import Control.Category
 open import Control.Monad
 open import Data.Functor
 
-liftEff : forall {F Fs} {{_ : Member F Fs}} -> F ~> Eff Fs
-liftEff = liftFree <<< inj
+lift : forall {F Fs} {{_ : Member F Fs}} -> F ~> Eff Fs
+lift = Free.lift <<< inj
 
-runEff : forall {M Fs X} {{_ : Monad Sets M}}
-  -> Eff Fs X -> (Union Fs ~> M) -> M X
-runEff eff = runFree eff
-
-foldEff : forall {M Fs} -> {{_ : Monad Sets M}}
+interpret : forall {M Fs} {{_ : Monad Sets M}}
   -> (Union Fs ~> M) -> Eff Fs ~> M
-foldEff = foldFree
+interpret = Free.interpret
 
 -- Helper to handle an effect or relay it.
 
@@ -50,11 +47,11 @@ handleRelay : forall {F Fs X Y}
   -> (F X -> Eff Fs Y)
   -> Eff Fs Y
 handleRelay (left x) loop h = h x
-handleRelay (right u) loop h = extend loop (liftFree u)
+handleRelay (right u) loop h = extend loop (Free.lift u)
 
 -- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
 -- computation.
 
 run : forall {X} -> Eff [] X -> X
-run eff = runEff eff \ ()
+run eff = interpret (\ ()) eff
   where instance _ = Monad:id Sets
