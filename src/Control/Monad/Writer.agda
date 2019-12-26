@@ -37,7 +37,7 @@ run : forall {W Fs X}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
   (return <<< (_, mempty))
-  (\ { k (x , w) -> map (\ { (x' , w') -> (x' , w <> w') }) (k x) }) 
+  (\ { k (x , w) -> map (cross id (w <>_)) (k x) }) 
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
