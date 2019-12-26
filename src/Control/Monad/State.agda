@@ -10,32 +10,23 @@ open import Data.Product
 State : Set -> Set -> Set
 State S X = S -> X * S
 
--- The runState function carries out a state transition using the given
--- starting state.
-
-runState : {S X : Set} -> State S X -> S -> (X * S)
-runState trans s = trans s
-
--- The evalState function runs a state transition and returns the output.
+-- The run function carries out a state transition using the given starting
+-- state.
 
 open import Data.Function
 
-evalState : {S X : Set} -> State S X -> S -> X
-evalState trans = runState trans >>> fst
+run : {S X : Set} -> State S X -> S -> (X * S)
+run = id 
 
--- The execState function runs a state transition and returns the new state.
+-- The eval function runs a state transition and returns the output.
 
-execState : {S X : Set} -> State S X -> S -> S
-execState trans = runState trans >>> snd
+eval : {S X : Set} -> State S X -> S -> X
+eval trans = run trans >>> fst
 
--- State S is a functor.
+-- The exec function runs a state transition and returns the new state.
 
-open import Control.Category
-open import Data.Functor
-
-instance
-  Functor:State : {S : Set} -> Endofunctor Sets (State S)
-  Functor:State .map f t s = let (x , s') = t s in (f x , s')
+exec : {S X : Set} -> State S X -> S -> S
+exec trans = run trans >>> snd
 
 -- State S is also a monad. The return operation takes a value x and returns a
 -- transition that outputs x while staying in the same state. The bind
@@ -46,5 +37,5 @@ open import Control.Monad
 
 instance
   Monad:State : {S : Set} -> Monad Sets (State S)
-  Monad:State .join t s = let (t' , s') = t s in t' s'
   Monad:State .return x s = (x , s)
+  Monad:State .extend f m = \ s -> let (x , s') = m s in run (f x) s'
