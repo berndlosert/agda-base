@@ -32,8 +32,7 @@ open import Control.Monad
 open import Control.Monad.Free
 open import Data.Monoid
 
-run : forall {W Fs X}
-  -> {{_ : Monoid W}}
+run : forall {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
   (return <<< (_, mempty))
