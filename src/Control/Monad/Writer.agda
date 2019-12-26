@@ -10,43 +10,28 @@ open import Data.Product
 Writer : Set -> Set -> Set
 Writer W X = X * W
 
--- Writer W is a functor. The proof is provided by Endofunctor:Product.
-
-open import Data.Functor
-
 -- The tell function will produce a Writer computation that just stores the
 -- given value.
 
-import Control.Monad.Eff as Eff
-open Eff using (Eff)
-open import Data.Functor.Union
 open import Data.Unit
 
-tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
-tell w = Eff.send (tt , w)
+tell : forall {W} -> W -> Writer W Unit 
+tell w = (tt , w)
 
 -- Simple handler of Writer W effects.
 
 open import Control.Category
-open import Control.Monad
-open import Control.Monad.Free
 open import Data.Monoid
 
-run : forall {W Fs X} {{_ : Monoid W}}
-  -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
-run = Eff.fold
-  (return <<< (_, mempty))
-  (\ { k (x , w) -> map (cross id (w <>_)) (k x) }) 
+run : forall {W X} {{_ : Monoid W}}
+  -> Writer W X -> X * W
+run = id 
 
--- If W is a monoid, then Writer W is a monad. The return function in this case
--- produces a Writer computation that stores mempty. The bind operation
--- essentially does function application while combining the stored values
--- using the monoid operation.
+-- If W is a monoid, then Writer W is a monad.
 
---instance
---  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
---  Monad:Writer = record {
---      instance:Functor = Functor:Writer;
---      join = \ { ((x , w) , w') -> (x , w <> w') };
---      return = \ x -> (x , mempty)
---    }
+open import Control.Monad
+
+instance
+  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
+  Monad:Writer .return x = (x , mempty)
+  Monad:Writer .extend f (x , w) = let (y , w') = f x in (y , w <> w')
