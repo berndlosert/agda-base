@@ -17,11 +17,13 @@ open import Data.Functor
 -- The tell function will produce a Writer computation that just stores the
 -- given value.
 
-open import Control.Monad.Eff
+import Control.Monad.Eff as Eff
+open Eff using (Eff)
+open import Data.Functor.Union
 open import Data.Unit
 
 tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
-tell w = liftEff (tt , w)
+tell w = Eff.send (tt , w)
 
 -- Simple handler of Writer W effects.
 
@@ -30,27 +32,12 @@ open import Control.Monad
 open import Control.Monad.Free
 open import Data.Monoid
 
-runWriter : forall {W Fs X}
+run : forall {W Fs X}
   -> {{_ : Monoid W}}
-  -> {{_ : Endofunctor Sets (Union Fs)}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
-runWriter {W} {Fs} eff = runEff eff trans
-  where
-    ret : forall {Y} -> Y -> Y * W
-    ret = (_, mempty)
-
-    ext : forall {Y Z}
-      -> (Y -> Eff Fs (Z * W))
-      -> Eff Fs (Y * W) -> Eff Fs (Z * W)
-    ext f = extend (f <<< fst)
-
-    instance
-      _ : Monad Sets (Eff Fs <<< (_* W))
-      _ = Triple: ext (return <<< ret)
-
-    trans : forall {Y} -> Union (Writer W :: Fs) Y -> Eff Fs (Y * W)
-    trans (left (y , w)) = return (y , w)
-    trans (right u) = map ret (liftFree u)
+run = Eff.fold
+  (return <<< (_, mempty))
+  (\ { k (x , w) -> map (\ { (x' , w') -> (x' , w <> w') }) (k x) }) 
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation
