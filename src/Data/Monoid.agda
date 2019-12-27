@@ -9,7 +9,7 @@ open import Data.Semigroup public
 record Monoid (X : Set) : Set where
   constructor Monoid:
   field
-    {{instance:Semigroup}} : Semigroup X
+    {{Monoid:Semigroup}} : Semigroup X
     mempty : X
 
 open Monoid {{...}} public
@@ -29,7 +29,7 @@ open import Control.Category
 Monoid:endo : forall C {X} -> Monoid (hom C X X)
 Monoid:endo C = let instance _ = C in
   record {
-    instance:Semigroup = Semigroup:endo C;
+    Monoid:Semigroup = Semigroup:endo C;
     mempty = id
   }
 
@@ -37,7 +37,7 @@ Monoid:endo C = let instance _ = C in
 
 Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
 Monoid:Function = record {
-    instance:Semigroup = Semigroup:Function;
+    Monoid:Semigroup = Semigroup:Function;
     mempty = \ x -> mempty
   }
 
