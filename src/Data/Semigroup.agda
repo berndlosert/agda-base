@@ -26,12 +26,16 @@ instance
   Semigroup:Unit = Semigroup: \ _ _ -> tt
 
 -- For every category C and every object X : ob C, hom C X X is a semigroup
--- under composition.
+-- under composition and flipped composition.
 
 open import Control.Category
 
-Semigroup:endo : forall C {X} -> Semigroup (hom C X X)
-Semigroup:endo C = Semigroup: _<<<_
+Semigroup:<<< : forall C {X} -> Semigroup (hom C X X)
+Semigroup:<<< C = Semigroup: _<<<_
+  where instance _ = C
+
+Semigroup:>>> : forall C {X} -> Semigroup (hom C X X)
+Semigroup:>>> C = Semigroup: _>>>_
   where instance _ = C
 
 -- Functions of the form X -> Y, where Y forms a semigroup, also
