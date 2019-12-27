@@ -5,12 +5,8 @@ module Data.List.Base where
 -- List X is the type of finite lists of values of type X. It has two
 -- constructors: the empty list [] and the cons operator _::_.
 
-import Agda.Builtin.List as Builtin
-
-List = Builtin.List
-pattern [] = Builtin.[]
-pattern _::_ x y = Builtin._∷_ x y
-infixr 5 _::_
+open import Agda.Builtin.List public
+  renaming (_∷_ to _::_)
 
 -- Use _++_ for appending lists.
 
