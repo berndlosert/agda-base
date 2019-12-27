@@ -17,6 +17,7 @@ open import Data.Function
 open import Data.List.Base
 open import Data.Monoid
 open import Data.Nat
+open import Data.Unit
 
 record Foldable (F : Set -> Set) : Set where
   constructor Foldable:

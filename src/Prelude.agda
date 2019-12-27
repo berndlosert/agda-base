@@ -26,14 +26,14 @@ open import Control.Applicative public
 open import Control.Category public
 open import Control.Monad public
 
-open import Notation.Add
-open import Notation.Append
-open import Notation.Div
-open import Notation.Mod
-open import Notation.Mul
-open import Notation.Negative
-open import Notation.Number
-open import Notation.Sub
+open import Notation.Add public
+open import Notation.Append public
+open import Notation.Div public
+open import Notation.Mod public
+open import Notation.Mul public
+open import Notation.Negative public
+open import Notation.Number public
+open import Notation.Sub public
 
 open import System.IO public
 
