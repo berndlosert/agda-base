@@ -38,40 +38,28 @@ instance
   Add:Decimal : Add Decimal
   Add:Decimal = Add: (\ m n -> add m n 0d)
 
--- This converts a unary natural number to a decimal number.
+-- Convert a unary natural number to a decimal number.
 
-open import Data.Cast
 open import Data.Nat.Base
 
-instance
-  NatToDecimal : Cast Nat Decimal
-  NatToDecimal .cast zero = [ 0d ]
-  NatToDecimal .cast (suc n) = cast n + [ 1d ]
+fromNat : Nat -> Decimal
+fromNat zero = [ 0d ]
+fromNat (suc n) = fromNat n + [ 1d ]
 
--- Cast Decimal to Nat.
+-- Convert a decimal number to a unary natural number.
 
-instance
-  DecimalToNat : Cast Decimal Nat
-  DecimalToNat .cast [] = 0
-  DecimalToNat .cast (d :: ds) = cast d + 10 * cast ds
+toNat : Decimal -> Nat
+toNat [] = 0
+toNat (d :: ds) = Digit.toNat d + 10 * toNat ds
 
 -- This allows us to use natural number literals to write decimals.
 
 open import Data.Unit public
 open import Notation.Number public
 
-Number:Decimal : Number Decimal
-Number:Decimal = record {
-    Constraint = \ _ -> Unit;
-    fromNat = \ n -> cast n
-  }
-
--- Convert a list of digit characters to a decimal number.
-
-open import Data.Char
-open import Data.Maybe
-open import Data.Traversable
-
 instance
-  CharsToDecimal : Cast (List Char) (Maybe Decimal)
-  CharsToDecimal .cast ds = traverse cast (List.reverse ds)
+  Number:Decimal : Number Decimal
+  Number:Decimal = record {
+      Constraint = \ _ -> Unit;
+      fromNat = fromNat 
+    }

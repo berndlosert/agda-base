@@ -28,24 +28,13 @@ open import Agda.Builtin.String
 toList = primStringToList
 fromList = primStringFromList
 
--- Casting String to/from List Char.
+-- Convert a Char to a String. 
 
-open import Data.Cast
 open import Data.Char
 open import Data.List
 
-instance
-  StringToList : Cast String (List Char)
-  StringToList = Cast: toList 
-
-  StringFromList : Cast (List Char) String
-  StringFromList = Cast: fromList 
-
--- Cast Char to String.
-
-instance
-  CharToString : Cast Char String
-  CharToString = Cast: \ c -> fromList [ c ]
+toChar : Char -> String
+toChar c = fromList [ c ]
 
 -- Parse a natural number string into a natural number.
 
@@ -54,18 +43,17 @@ open import Data.Function
 open import Data.Maybe
 open import Data.Nat.Base
 
-instance
-  StringToNat : Cast String (Maybe Nat)
-  StringToNat .cast str =
-    let
-      decimal? : Maybe Decimal
-      decimal? = str
-        & cast {String} {List Char}
-        & cast {List Char} {Maybe Decimal}
-    in
-      case decimal? of \ where
-        nothing -> nothing
-        (just x) -> just (cast {Decimal} {Nat} x)
+parseNat : String -> Maybe Nat
+parseNat str =
+  let
+    decimal? : Maybe Decimal
+    decimal? = str
+      & cast {String} {List Char}
+      & cast {List Char} {Maybe Decimal}
+  in
+    case decimal? of \ where
+      nothing -> nothing
+      (just x) -> just (cast {Decimal} {Nat} x)
 
 -- Import the following functions from Haskell.
 
