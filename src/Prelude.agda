@@ -1,5 +1,7 @@
 {-# OPTIONS --type-in-type #-}
 
+module Prelude where
+
 open import Data.Bool public
 open import Data.Cast public
 open import Data.Char public
@@ -8,7 +10,7 @@ open import Data.Eq public
 open import Data.Function public
 open import Data.Functor public
 open import Data.Int public
-open import Data.List.Base public
+open import Data.List public
 open import Data.Maybe public
 open import Data.Monoid public
 open import Data.Nat public
@@ -16,7 +18,7 @@ open import Data.Product public
 open import Data.Ord public
 open import Data.Semigroup public
 open import Data.Stream public
-open import Data.String.Base public
+open import Data.String public
 open import Data.Unit public
 open import Data.Void public
 

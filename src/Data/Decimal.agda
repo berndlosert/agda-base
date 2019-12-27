@@ -6,7 +6,7 @@ module Data.Decimal where
 -- significant digit first.
 
 open import Data.Digit
-open import Data.List.Base
+open import Data.List
 
 Decimal : Set
 Decimal = List Digit
@@ -70,9 +70,8 @@ Number:Decimal = record {
 
 open import Data.Char
 open import Data.Maybe
-open import Data.List
 open import Data.Traversable
 
 instance
   CharsToDecimal : Cast (List Char) (Maybe Decimal)
-  CharsToDecimal .cast ds = traverse cast (reverse ds)
+  CharsToDecimal .cast ds = traverse cast (List.reverse ds)

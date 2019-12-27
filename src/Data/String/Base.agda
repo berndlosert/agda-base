@@ -5,6 +5,7 @@ module Data.String.Base where
 -- String is just Text from Haskell.
 
 import Agda.Builtin.String as Builtin
+
 open Builtin using (String) public
 
 -- This is how we compare strings for equality.
