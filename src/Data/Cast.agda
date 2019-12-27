@@ -9,6 +9,3 @@ record Cast (From To : Set) : Set where
     cast : From -> To
 
 open Cast {{...}} public
-
-castTo : {To From : Set} {{_ : Cast From To}} -> From -> To
-castTo = cast
