@@ -77,31 +77,26 @@ break p xs@(x :: xs') =
 concatMap : forall {X Y} -> (X -> List Y) -> List X -> List Y
 concatMap = extend
 
--- There are two known applicative instances of List: the one derived from
--- the monad instance and the ZipList one.
-
-open import Control.Applicative
-Applicative:List : Applicative List
-Applicative:List = Idiom: ap return
-
-Applicative:ZipList : Applicative List
-Applicative:ZipList = Applicative: zipList [_]
-  where
-    zipList : {X Y : Set} -> List X * List Y -> List (X * Y)
-    zipList ([] , _) = []
-    zipList (_ , []) = []
-    zipList (x :: xs , y :: ys) = (x , y) :: zipList (xs , ys)
-
--- A generalization of zip.
+-- Zip two lists together with a function. 
 
 zipWith : forall {X Y Z} -> (X -> Y -> Z) -> List X -> List Y -> List Z
 zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
-open import Data.Maybe
+-- List forms an applicative functor in two ways. The most common way given as
+-- an instance below. The other way is from the monad instance.
+
+open import Control.Applicative
+
+instance
+  Applicative:List : Applicative List
+  Applicative:List .zip (xs , ys) = zipWith _,_ xs ys 
+  Applicative:List .unit = [_]
 
 -- Decompose a list into its head and tail if it isn't empty.
+
+open import Data.Maybe
 
 uncons : forall {X} -> List X -> Maybe (X * List X)
 uncons [] = nothing
