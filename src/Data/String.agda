@@ -55,7 +55,7 @@ instance
 
 open import Data.Cast
 open import Data.Char
-open import Data.List
+open import Data.List.Base
 
 instance
   StringToList : Cast String (List Char)
@@ -109,10 +109,20 @@ postulate
 
 -- Pad a string with a character up to some desired length.
 
+import Data.List as List
+
 padRight : Nat -> Char -> String -> String
 padRight desiredLength padChar s =
-  s ++ (foldl _++_ "" (replicate (desiredLength - length s) (cast padChar)))
+  let replicated = List.replicate (desiredLength - length s) (cast padChar)
+  in s ++ (List.foldl _++_ "" replicated)
 
 padLeft : Nat -> Char -> String -> String
 padLeft desiredLength padChar s =
-  (foldl _++_ "" (replicate (desiredLength - length s) (cast padChar))) ++ s
+  let replicated = List.replicate (desiredLength - length s) (cast padChar)
+  in (List.foldl _++_ "" replicated) ++ s
+
+-- Concatenate a list of strings into one string. 
+
+concat : List String -> String
+concat [] = ""
+concat (str :: strs) = str ++ concat strs
