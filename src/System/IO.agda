@@ -5,7 +5,7 @@ module System.IO where
 -- Import a bunch of IO functions from Haskell.
 
 open import Agda.Builtin.IO public
-open import Data.String
+open import Data.String.Base
 open import Data.Unit
 
 postulate

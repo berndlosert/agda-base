@@ -4,7 +4,7 @@ module Text.Show where
 
 -- Conversion of values to readable Strings.
 
-open import Data.String
+open import Data.String.Base
 
 record Show (X : Set) : Set where
   constructor Show:
@@ -59,6 +59,8 @@ instance
   Show:Nat = Show: \ n -> show (pos n)
 
 -- Pretty-print String values.
+
+open import Agda.Builtin.String using (primShowString)
 
 instance
   Show:String : Show String

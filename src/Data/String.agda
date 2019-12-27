@@ -2,38 +2,7 @@
 
 module Data.String where
 
--- String is just Text from Haskell.
-
-open import Agda.Builtin.FromString public
-open import Agda.Builtin.String public
-
--- This is how we compare strings for equality.
-
-open import Data.Eq public
-
-instance
-  Eq:String : Eq String
-  Eq:String = Eq: primStringEquality
-
--- Use ++ to append strings.
-
-open import Notation.Append public
-
-instance
-  Append:String : Append String
-  Append:String = Append: primStringAppend
-
--- We need to define an IsString String instance if we're going to use
--- IsString.
-
-open import Data.Unit public
-
-instance
-  IsString:String : IsString String
-  IsString:String = record {
-      Constraint = \ _ -> Unit;
-      fromString = \ s -> s
-    }
+open import Data.String.Base
 
 -- String is a semigroup.
 
@@ -51,7 +20,15 @@ instance
   Monoid:String : Monoid String
   Monoid:String = Monoid: ""
 
--- Cast String to List Char.
+-- Functions for converting String to/from List Char.
+
+open import Agda.Builtin.String
+  using (primStringToList; primStringFromList)
+
+toList = primStringToList
+fromList = primStringFromList
+
+-- Casting String to/from List Char.
 
 open import Data.Cast
 open import Data.Char
@@ -59,19 +36,16 @@ open import Data.List.Base
 
 instance
   StringToList : Cast String (List Char)
-  StringToList = Cast: primStringToList
+  StringToList = Cast: toList 
 
--- Cast List Char to String.
-
-instance
   StringFromList : Cast (List Char) String
-  StringFromList = Cast: primStringFromList
+  StringFromList = Cast: fromList 
 
 -- Cast Char to String.
 
 instance
   CharToString : Cast Char String
-  CharToString = Cast: \ c -> primStringFromList [ c ]
+  CharToString = Cast: \ c -> fromList [ c ]
 
 -- Parse a natural number string into a natural number.
 
