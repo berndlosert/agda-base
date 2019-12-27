@@ -2,6 +2,9 @@
 
 module Data.Digit where
 
+open import Data.Digit.Base public
+  hiding (module Digit)
+
 module Digit where
   open import Data.Digit.Api public
     hiding (
@@ -14,5 +17,3 @@ open import Data.Digit.Api public
     Eq:Digit; 
     Ord:Digit
   )
-
-open import Data.Digit.Base

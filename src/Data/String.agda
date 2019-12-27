@@ -8,19 +8,11 @@ module String where
   open import Data.String.Api public
     hiding (
       Semigroup:String;
-      Monoid:String;
-      StringToList;
-      StringFromList;
-      CharToString;
-      StringToNat
+      Monoid:String
     )
 
 open import Data.String.Api public
   using (
     Semigroup:String;
-    Monoid:String;
-    StringToList;
-    StringFromList;
-    CharToString;
-    StringToNat
+    Monoid:String
   )
