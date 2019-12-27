@@ -14,3 +14,5 @@ open import Data.Digit.Api public
     Eq:Digit; 
     Ord:Digit
   )
+
+open import Data.Digit.Base
