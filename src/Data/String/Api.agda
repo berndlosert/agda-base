@@ -33,27 +33,26 @@ fromList = primStringFromList
 open import Data.Char
 open import Data.List
 
-toChar : Char -> String
-toChar c = fromList [ c ]
+fromChar : Char -> String
+fromChar c = fromList [ c ]
 
 -- Parse a natural number string into a natural number.
 
+open import Data.Digit
 open import Data.Decimal
 open import Data.Function
+open import Data.Traversable
 open import Data.Maybe
 open import Data.Nat.Base
 
+parseDecimal : String -> Maybe Decimal
+parseDecimal = toList >>> List.reverse >>> traverse Digit.fromChar
+
 parseNat : String -> Maybe Nat
 parseNat str =
-  let
-    decimal? : Maybe Decimal
-    decimal? = str
-      & cast {String} {List Char}
-      & cast {List Char} {Maybe Decimal}
-  in
-    case decimal? of \ where
+    case (parseDecimal str)  of \ where
       nothing -> nothing
-      (just x) -> just (cast {Decimal} {Nat} x)
+      (just x) -> just (Decimal.toNat x)
 
 -- Import the following functions from Haskell.
 
@@ -75,12 +74,12 @@ import Data.List as List
 
 padRight : Nat -> Char -> String -> String
 padRight desiredLength padChar s =
-  let replicated = List.replicate (desiredLength - length s) (cast padChar)
+  let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
   in s ++ (List.foldl _++_ "" replicated)
 
 padLeft : Nat -> Char -> String -> String
 padLeft desiredLength padChar s =
-  let replicated = List.replicate (desiredLength - length s) (cast padChar)
+  let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
   in (List.foldl _++_ "" replicated) ++ s
 
 -- Concatenate a list of strings into one string. 

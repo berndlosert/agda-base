@@ -50,6 +50,8 @@ open import Data.Function
 
 reverse : List ~> List
 reverse = foldl (flip _::_) []
+--reverse [] = []
+--reverse (x :: xs) = reverse xs ++ [ x ]
 
 -- The filter function filters out elements of the list not satisfying
 -- the given predicate.
