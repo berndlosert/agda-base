@@ -4,6 +4,7 @@ module Data.Nat.Base where
 
 -- The type Nat of unary natural numbers has two constructors: zero
 -- (for 0) and suc (for successor).
+
 open import Agda.Builtin.Nat public
   using (
     Nat;
@@ -21,31 +22,41 @@ open import Agda.Builtin.Nat public
   )
 
 -- Defines _+_ as addition.
+
 open import Notation.Add public
+
 instance
   Add:Nat : Add Nat
   Add:Nat = Add: addNat
 
 -- Defines _-_ as subtraction.
+
 open import Notation.Sub public
+
 instance
   Sub:Nat : Sub Nat
   Sub:Nat = Sub: subNat
 
 -- Defines _*_ as multiplication.
+
 open import Notation.Mul public
+
 instance
   Mul:Nat : Mul Nat
   Mul:Nat = Mul: mulNat
 
 -- Defines _==_ for equality.
+
 open import Data.Eq public
+
 instance
   Eq:Nat : Eq Nat
   Eq:Nat = Eq: eqNat
 
 -- Defines _<_ and related comparison operations.
+
 open import Data.Ord public
+
 instance
   Ord:Nat : Ord Nat
   Ord:Nat = Ord: ltNat

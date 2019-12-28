@@ -16,7 +16,8 @@ Constraint x = x === true
 
 -- We use trustMe to tell Agda that a constraint is satisfied. Use wisely.
 
-open import Agda.Builtin.TrustMe
+open import Agda.Builtin.TrustMe public
+  using ()
   renaming (primTrustMe to trustMe)
 
 -- Boolean equality for a type X is specified using an Eq X instance.

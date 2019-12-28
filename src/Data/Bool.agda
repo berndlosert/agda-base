@@ -9,14 +9,12 @@ open import Agda.Builtin.Bool public
 -- The equivalents of false and true at the type-level are Void and Unit. We
 -- record this fact with a Cast instance.
 
-open import Data.Cast
 open import Data.Unit
 open import Data.Void
 
-instance
-  BoolToSet : Cast Bool Set
-  BoolToSet .cast true = Unit
-  BoolToSet .cast false = Void
+So : Bool -> Set
+So true = Unit
+So false = Void
 
 -- The fold operation for Bool.
 

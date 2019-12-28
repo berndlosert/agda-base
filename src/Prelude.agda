@@ -7,6 +7,7 @@ open import Data.Cast public
 open import Data.Char public
 open import Data.Either public
 open import Data.Eq public
+open import Data.Fin public
 open import Data.Function public
 open import Data.Functor public
 open import Data.Int public
@@ -29,6 +30,7 @@ open import Control.Monad public
 open import Notation.Add public
 open import Notation.Append public
 open import Notation.Div public
+open import Notation.Index public
 open import Notation.Mod public
 open import Notation.Mul public
 open import Notation.Negative public

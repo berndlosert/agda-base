@@ -97,3 +97,11 @@ instance
       csv [] = ""
       csv (x :: []) = show x
       csv (x :: xs) = show x ++ " # " ++ csv xs
+
+-- Pretty print Fin values.
+
+open import Data.Fin 
+
+instance
+  Show:Fin : forall {n} -> Show (Fin (suc n))
+  Show:Fin = Show: \ n -> show (Fin.toNat n)

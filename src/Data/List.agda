@@ -199,13 +199,29 @@ module List where
   open import Data.Nat.Base
   
   replicate : forall {X} -> Nat -> X -> List X
-  replicate 0 x = []
+  replicate zero x = []
   replicate (suc n) x = x :: replicate n x
+
+  -- Try to get the nth element of a list.
+
+  index : forall {X} -> List X -> Nat -> Maybe X 
+  index [] _ = nothing
+  index (x :: xs) zero = just x
+  index (x :: xs) (suc n) = index xs n
+
+  -- Allows use to use _!!_ for index.
+
+  open import Notation.Index
+
+  instance
+    Index:List : Index List
+    Index:List = Index: Nat Maybe index
 
 open List public
   using (
     Foldable:List;
     Traversable:List;
     Applicative:List;
-    Monad:List
+    Monad:List;
+    Index:List
   )
