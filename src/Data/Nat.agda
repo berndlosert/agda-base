@@ -11,8 +11,8 @@ module Nat where
   -- modules to define instances of Number without getting a "No instance of
   -- type (Number Nat) was found in scope" error.
 
-  open import Data.Unit public
-  open import Notation.Number public
+  open import Data.Unit
+  open import Notation.Number
   
   Number:Nat : Number Nat
   Number:Nat = record {

@@ -24,24 +24,21 @@ module Fin where
   toNat zero = zero
   toNat (suc n) = suc (toNat n)
   
-  -- Convert a value m : Nat into a Fin (suc n) assuming m <= n. 
-
-  open import Data.Eq
-  
-  fromNat : forall m n -> {_ : Constraint (m <= n)} -> Fin (suc n)
-  fromNat zero _ = zero
-  fromNat (suc m) (suc n) {p} = suc (fromNat m n {p})
-  
   -- The Number:Fin instance allows us to write Fin n values using natural
   -- number literals.
   
+  open import Data.Eq
   open import Notation.Number
 
   Number:Fin : forall {n} -> Number (Fin (suc n))
   Number:Fin {n} = record {
       Constraint = \ m -> Constraint (m <= n);
-      fromNat = \ m {{p}} -> fromNat m n {p}
+      fromNat = \ m {{p}} -> go m n {p}
     }
+    where
+      go : forall m n -> {_ : Constraint (m <= n)} -> Fin (suc n)
+      go zero _ = zero
+      go (suc m) (suc n) {p} = suc (go m n {p})
 
 open Fin public
   using (Number:Fin)

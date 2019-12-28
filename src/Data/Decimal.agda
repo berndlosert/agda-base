@@ -43,29 +43,27 @@ module Decimal where
   
   -- Convert a unary natural number to a decimal number.
   
-  open import Data.Nat.Base
+  open import Data.Nat
+  open import Data.Unit
+  open import Notation.Number
   
-  fromNat : Nat -> Decimal
-  fromNat zero = [ 0d ]
-  fromNat (suc n) = fromNat n + [ 1d ]
+  Number:Decimal : Number Decimal 
+  Number:Decimal = record {
+       Constraint = \ _ -> Unit;
+       fromNat = \ n -> go n
+     }
+     where
+       go : Nat -> Decimal
+       go zero = [ 0d ]
+       go (suc n) = go n + [ 1d ]
   
   -- Convert a decimal number to a unary natural number.
   
+  instance _ = Number:Nat
+
   toNat : Decimal -> Nat
   toNat [] = 0
   toNat (d :: ds) = Digit.toNat d + 10 * toNat ds
-  
-  -- This allows us to use natural number literals to write decimals.
-  
-  open import Data.Unit public
-  open import Notation.Number public
-  
-  instance
-    Number:Decimal : Number Decimal
-    Number:Decimal = record {
-        Constraint = \ _ -> Unit;
-        fromNat = \ n -> fromNat n
-      }
 
 open Decimal public
   using (Add:Decimal; Number:Decimal)
