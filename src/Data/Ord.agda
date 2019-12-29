@@ -3,26 +3,33 @@
 module Data.Ord where
 
 -- This is used by the compare operation in Ord.
+
 data Ordering : Set where
   LT EQ GT : Ordering
 
+-- Ordering is a semigroup.
+
+open import Data.Semigroup
+
 instance
-  -- Ordering is a semigroup.
-  open import Data.Semigroup
   Semigroup:Ordering : Semigroup Ordering
   Semigroup:Ordering = Semigroup: \ where
     LT _ -> LT
     EQ y -> y
     GT _ -> GT
 
-  -- Ordering is a monoid.
-  open import Data.Monoid
-  Monoid:Ordering : Monoid Ordering
-  Monoid:Ordering = Monoid: EQ
+-- Ordering is a monoid.
+
+open import Data.Monoid
+
+Monoid:Ordering : Monoid Ordering
+Monoid:Ordering = Monoid: EQ
 
 -- An instance of type Ord X signifies that X is totally ordered.
+
 open import Data.Bool
 open import Data.Eq
+
 record Ord (X : Set) : Set where
   constructor Ord:
   field
@@ -52,6 +59,7 @@ record Ord (X : Set) : Set where
 open Ord {{...}} public
 
 -- A useful combinator for comparing.
+
 comparing : {X Y : Set} {{_ : Ord Y}}
   -> (X -> Y) -> X -> X -> Ordering
 comparing p x y = compare (p x) (p y)

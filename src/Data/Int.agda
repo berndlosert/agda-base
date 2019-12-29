@@ -17,11 +17,12 @@ module Int where
   open import Data.Unit
   open import Notation.Number
   
-  Number:Int : Number Int
-  Number:Int = record {
-      Constraint = \ _ -> Unit;
-      fromNat = \ n -> pos n
-    }
+  instance
+    Number:Int : Number Int
+    Number:Int = record {
+        Constraint = \ _ -> Unit;
+        fromNat = \ n -> pos n
+      }
 
   -- Allows us to write -n for negative integers.
 
@@ -47,20 +48,18 @@ module Int where
 
   abs : Int -> Int
   abs n = pos (toNat n)
- 
-  -- Negation of natural numbers.
 
-  instance
-    Negation:Nat->Int : Negation Nat Int
-    Negation:Nat->Int = Negation: \ where
-      0 -> pos zero
-      (suc n) -> negsuc n
-  
+  -- Negate a Nat to an Int.
+
+  neg : Nat -> Int
+  neg zero = pos (zero)
+  neg (suc n) = negsuc n
+ 
   -- Negation of integers.
 
   instance
-    Negation:Int->Int : Negation Int Int
-    Negation:Int->Int = Negation: \ where
+    Negation:Int : Negation Int
+    Negation:Int = Negation: \ where
       (pos zero) -> pos zero
       (pos (suc n)) -> negsuc n
       (negsuc n) -> pos (suc n)
@@ -119,8 +118,8 @@ module Int where
     Mul:Int = Mul: \ where
       (pos n) (pos m) -> pos (n * m)
       (negsuc n) (negsuc m) -> pos (suc n * suc m)
-      (pos n) (negsuc m) -> - (n * suc m)
-      (negsuc n) (pos m) -> - (suc n * m)
+      (pos n) (negsuc m) -> - (fromNat (n * suc m))
+      (negsuc n) (pos m) -> - (fromNat (suc n * m))
   
   -- Int subtraction.
 
@@ -143,8 +142,7 @@ open Int public
   using (
     Number:Int;
     Negative:Int;
-    Negation:Nat->Int;
-    Negation:Int->Int;
+    Negation:Int;
     Eq:Int;
     Ord:Int;
     Add:Int;

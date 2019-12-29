@@ -98,10 +98,18 @@ instance
       csv (x :: []) = show x
       csv (x :: xs) = show x ++ " # " ++ csv xs
 
--- Pretty print Fin values.
+-- Pretty-print Fin values.
 
 open import Data.Fin 
 
 instance
   Show:Fin : forall {n} -> Show (Fin (suc n))
   Show:Fin = Show: \ n -> show (Fin.toNat n)
+
+-- Pretty-print Float values
+
+open import Data.Float
+
+instance
+  Show:Float : Show Float
+  Show:Float = Show: Float.toString

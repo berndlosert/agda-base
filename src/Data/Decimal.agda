@@ -47,15 +47,16 @@ module Decimal where
   open import Data.Unit
   open import Notation.Number
   
-  Number:Decimal : Number Decimal 
-  Number:Decimal = record {
-       Constraint = \ _ -> Unit;
-       fromNat = \ n -> go n
-     }
-     where
-       go : Nat -> Decimal
-       go zero = [ 0d ]
-       go (suc n) = go n + [ 1d ]
+  instance
+    Number:Decimal : Number Decimal 
+    Number:Decimal = record {
+         Constraint = \ _ -> Unit;
+         fromNat = \ n -> go n
+       }
+       where
+         go : Nat -> Decimal
+         go zero = [ 0d ]
+         go (suc n) = go n + [ 1d ]
   
   -- Convert a decimal number to a unary natural number.
   

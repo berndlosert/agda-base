@@ -8,6 +8,7 @@ open import Data.Char public
 open import Data.Either public
 open import Data.Eq public
 open import Data.Fin public
+open import Data.Float public
 open import Data.Function public
 open import Data.Functor public
 open import Data.Int public

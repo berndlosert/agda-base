@@ -14,11 +14,12 @@ module Nat where
   open import Data.Unit
   open import Notation.Number
   
-  Number:Nat : Number Nat
-  Number:Nat = record {
-       Constraint = \ _ -> Unit;
-       fromNat = \ n -> n
-     }
+  instance
+    Number:Nat : Number Nat
+    Number:Nat = record {
+         Constraint = \ _ -> Unit;
+         fromNat = \ n -> n
+       }
   
   -- Used for telling Agda that a number literal is a Nat.
   
