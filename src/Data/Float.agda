@@ -94,6 +94,14 @@ module Float where
   atan = Builtin.primATan
   atan2 = Builtin.primATan2
 
+  -- Convert an Int to a Float.
+
+  open import Data.Int
+
+  fromInt : Int -> Float
+  fromInt (pos n) = fromNat n 
+  fromInt (negsuc n) = - (fromNat n) - 1.0
+
 open Float public
   using (
     Add:Float; 
