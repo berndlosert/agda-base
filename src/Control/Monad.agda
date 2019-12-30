@@ -59,17 +59,17 @@ Monad:id C = let instance _ = C in
     extend = id
   }
 
-module _ {F : Set -> Set} {{_ : Monad Sets F}} where
+module _ {F : Set -> Set} {{_ : Monad Sets F}} {X Y : Set} where
 
   -- Defining the bind operation _>>=_ and its cousin _>>_ allows us to use do
   -- notation.
 
   infixl 1 _>>=_
 
-  _>>=_ : forall {X Y} -> F X -> (X -> F Y) -> F Y
+  _>>=_ : F X -> (X -> F Y) -> F Y
   x >>= f = extend f x
 
   infixl 1 _>>_
 
-  _>>_ : forall {X Y} -> F X -> F Y -> F Y
+  _>>_ : F X -> F Y -> F Y
   x >> y = x >>= (\ _ -> y)

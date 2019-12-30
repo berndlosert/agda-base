@@ -45,7 +45,7 @@ module String where
   open import Data.Function
   open import Data.Traversable
   open import Data.Maybe
-  open import Data.Nat.Base
+  open import Data.Nat
   
   parseDecimal : String -> Maybe Decimal
   parseDecimal = toList >>> List.reverse >>> traverse Digit.fromChar
@@ -72,7 +72,8 @@ module String where
   
   -- Pad a string with a character up to some desired length.
   
-  import Data.List as List
+  open import Data.List
+  open import Notation.Sub
   
   padRight : Nat -> Char -> String -> String
   padRight desiredLength padChar s =

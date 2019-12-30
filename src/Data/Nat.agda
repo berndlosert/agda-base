@@ -7,6 +7,48 @@ open import Data.Nat.Base public
 
 module Nat where
 
+  import Agda.Builtin.Nat as Builtin
+
+  -- Defines _+_ as addition.
+  
+  open import Notation.Add
+  
+  instance
+    Add:Nat : Add Nat
+    Add:Nat = Add: Builtin._+_
+  
+  -- Defines _-_ as subtraction.
+  
+  open import Notation.Sub
+  
+  instance
+    Sub:Nat : Sub Nat
+    Sub:Nat = Sub: Builtin._-_ 
+  
+  -- Defines _*_ as multiplication.
+  
+  open import Notation.Mul
+  
+  instance
+    Mul:Nat : Mul Nat
+    Mul:Nat = Mul: Builtin._*_ 
+  
+  -- Defines _==_ for equality.
+  
+  open import Data.Eq
+  
+  instance
+    Eq:Nat : Eq Nat
+    Eq:Nat = Eq: Builtin._==_ 
+  
+  -- Defines _<_ and related comparison operations.
+  
+  open import Data.Ord
+  
+  instance
+    Ord:Nat : Ord Nat
+    Ord:Nat = Ord: Builtin._<_ 
+
   -- For some odd reason, we have to define Number:Nat in order for other
   -- modules to define instances of Number without getting a "No instance of
   -- type (Number Nat) was found in scope" error.
@@ -21,32 +63,27 @@ module Nat where
          fromNat = \ n -> n
        }
   
-  -- Used for telling Agda that a number literal is a Nat.
-  
-  Nat: : Nat -> Nat
-  Nat: x = x
-  
   -- Division of natural numbers.
   
-  open import Notation.Div public
+  open import Notation.Div
   open import Data.Void
   
   instance
     Div:Nat : Div Nat
     Div:Nat = record {
         Constraint = \ { zero -> Void; (suc n) -> Unit };
-        _/_ = \ { m (suc n) -> div-helper zero n m n }
+        _/_ = \ { m (suc n) -> Builtin.div-helper zero n m n }
       }
   
   -- The mod operation for natural numbers.
   
-  open import Notation.Mod public
+  open import Notation.Mod
   
   instance
     Mod:Nat : Mod Nat
     Mod:Nat = record {
         Constraint = \ { zero -> Void; (suc n) -> Unit };
-        _%_ = \ { m (suc n) -> mod-helper zero n m n }
+        _%_ = \ { m (suc n) -> Builtin.mod-helper zero n m n }
       }
   
   -- The natural numbers form a semigroup under addition.
@@ -67,10 +104,14 @@ module Nat where
 
 open Nat public
   using (
+    Add:Nat;
+    Sub:Nat;
+    Mul:Nat;
+    Eq:Nat;
+    Ord:Nat;
     Number:Nat;
     Div:Nat; 
     Mod:Nat;
     Semigroup:Nat;
-    Monoid:Nat;
-    Nat:
+    Monoid:Nat
   )

@@ -28,6 +28,7 @@ module Fin where
   -- number literals.
   
   open import Data.Eq
+  open import Data.Ord
   open import Notation.Number
 
   Number:Fin : forall {n} -> Number (Fin (suc n))

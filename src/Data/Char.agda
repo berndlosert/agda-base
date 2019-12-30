@@ -24,7 +24,9 @@ open import Agda.Builtin.Char public
 -- number.
 
 open import Data.Bool
-open import Data.Nat.Base
+open import Data.Eq
+open import Data.Nat
+open import Notation.Sub
 
 digitToNat : (c : Char) -> {_ : Constraint (isDigit c)} -> Nat
 digitToNat c = ord c - ord '0'

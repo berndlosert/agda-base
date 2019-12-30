@@ -196,7 +196,7 @@ module List where
   
   -- replicate n x is a list of length n with x the value of every element.
   
-  open import Data.Nat.Base
+  open import Data.Nat
   
   replicate : forall {X} -> Nat -> X -> List X
   replicate zero x = []

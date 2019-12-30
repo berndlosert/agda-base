@@ -13,6 +13,7 @@ module Data.Foldable where
 open import Control.Applicative
 open import Control.Category
 open import Data.Bool
+open import Data.Eq
 open import Data.Function
 open import Data.List.Base
 open import Data.Monoid

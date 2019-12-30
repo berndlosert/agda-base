@@ -90,7 +90,7 @@ module Int where
   
   -- Int addition.
 
-  open import Notation.Add public
+  open import Notation.Add
   open import Data.Function
 
   instance
@@ -111,7 +111,7 @@ module Int where
   
   -- Int multiplication.
 
-  open import Notation.Mul public
+  open import Notation.Mul
 
   instance
     Mul:Int : Mul Int
@@ -122,6 +122,8 @@ module Int where
       (negsuc n) (pos m) -> - (fromNat (suc n * m))
   
   -- Int subtraction.
+
+  open import Notation.Sub
 
   instance
     Sub:Int : Sub Int
