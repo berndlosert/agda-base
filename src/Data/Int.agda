@@ -129,16 +129,14 @@ module Int where
     Sub:Int : Sub Int
     Sub:Int = Sub: \ n m -> n + (- m)
   
-  -- Useful functions for producing ranges of integers.
+  -- Determine if a integer is even or odd.
 
-  open import Data.List.Base
+  even : Int -> Bool
+  even (pos n) = Nat.even n
+  even (negsuc n) = Nat.odd n
 
-  {-# TERMINATING #-}
-  from_to_count : Int -> Int -> List Int
-  from m to n count = case (compare m n) of \ where
-    EQ -> [ m ]
-    LT -> m :: from (m + pos (suc zero)) to n count
-    GT -> n :: from m to (n - pos (suc zero)) count
+  odd : Int -> Bool
+  odd n = not (even n)
 
 open Int public
   using (

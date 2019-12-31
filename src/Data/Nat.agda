@@ -102,6 +102,16 @@ module Nat where
     Monoid:Nat : Monoid Nat
     Monoid:Nat = Monoid: zero
 
+  -- Determine if a natural number is even or odd.
+
+  open import Data.Bool
+
+  even : Nat -> Bool
+  even n = n % 2 == 0 
+
+  odd : Nat -> Bool
+  odd n = not (even n) 
+
 open Nat public
   using (
     Add:Nat;

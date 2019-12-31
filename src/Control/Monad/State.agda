@@ -15,7 +15,7 @@ State S X = S -> X * S
 
 open import Data.Function
 
-run : {S X : Set} -> State S X -> S -> (X * S)
+run : forall {S X} -> State S X -> S -> (X * S)
 run = id 
 
 -- The eval function runs a state transition and returns the output.
@@ -25,7 +25,7 @@ eval trans = run trans >>> fst
 
 -- The exec function runs a state transition and returns the new state.
 
-exec : {S X : Set} -> State S X -> S -> S
+exec : forall {S X} -> State S X -> S -> S
 exec trans = run trans >>> snd
 
 -- State S is also a monad. The return operation takes a value x and returns a
@@ -36,6 +36,14 @@ exec trans = run trans >>> snd
 open import Control.Monad
 
 instance
-  Monad:State : {S : Set} -> Monad Sets (State S)
+  Monad:State : forall {S} -> Monad Sets (State S)
   Monad:State .return x s = (x , s)
   Monad:State .extend f m = \ s -> let (x , s') = m s in run (f x) s'
+
+-- Applicative instance of State S derived from the monad instance.
+
+open import Control.Applicative
+
+instance
+  Applicative:State : forall {S} -> Applicative (State S)
+  Applicative:State = Idiom: ap return
