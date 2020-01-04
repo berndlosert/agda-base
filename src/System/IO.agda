@@ -31,12 +31,19 @@ postulate
 
 open import Control.Category
 open import Control.Monad
-open import Data.Functor
 
 instance
   Monad:IO : Monad Sets IO
   Monad:IO .return x = returnIO x
   Monad:IO .extend k io = bindIO io k 
+
+-- IO forms a functor.
+
+open import Data.Functor
+
+instance
+  Functor:IO : Endofunctor Sets IO
+  Functor:IO = Functor: liftM
 
 -- IO is an applicative.
 

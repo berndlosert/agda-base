@@ -16,7 +16,8 @@ exists {X} P = Sigma X P
 
 -- This instance allows use to use _*_ for the Cartesian product.
 
-open import Notation.Mul public
+open import Notation.Mul
+
 instance
   Mul:Set : Mul Set
   Mul:Set = Mul: (\ X Y -> Sigma X (\ _ -> Y))

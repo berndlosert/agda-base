@@ -6,6 +6,7 @@ module Control.Monad where
 
 open import Control.Category
 open import Data.Functor
+open import Data.Product
 
 record Monad (C : Category) (F : ob C -> ob C) : Set where
   constructor Monad:
@@ -18,11 +19,14 @@ record Monad (C : Category) (F : ob C -> ob C) : Set where
   join : forall {X} -> hom C (F (F X) , F X)
   join = extend id
 
-  instance
-    Functor:Monad : Functor C C F
-    Functor:Monad .map f = extend (return <<< f)
-
 open Monad {{...}} public
+
+-- Every monad is a functor whose map operation is:
+
+liftM : forall {C M X Y} {{_ : Monad C M}}
+  -> hom C (X , Y) -> hom C (M X , M Y)
+liftM {C} f = extend (return <<< f)
+  where instance _ = C
 
 -- For every category C, C ^ C is a monoidal category where the tensor is
 -- functor composition and the identity is the identity functor.

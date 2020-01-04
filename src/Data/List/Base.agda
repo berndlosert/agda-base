@@ -10,7 +10,7 @@ open import Agda.Builtin.List public
 
 -- Use _++_ for appending lists.
 
-open import Notation.Append public
+open import Notation.Append
 
 instance
   Append:List : forall {X} -> Append (List X) (List X) (List X)

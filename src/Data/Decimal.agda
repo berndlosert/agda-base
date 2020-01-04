@@ -60,6 +60,8 @@ module Decimal where
   
   -- Convert a decimal number to a unary natural number.
   
+  open import Notation.Mul
+
   instance _ = Number:Nat
 
   toNat : Decimal -> Nat

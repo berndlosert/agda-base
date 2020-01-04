@@ -22,6 +22,12 @@ module Maybe where
     Monad:Maybe .extend k nothing = nothing
     Monad:Maybe .extend k (just x) = k x
   
+  -- We derive the Functor instance of Maybe from the Monad instance.
+
+  instance
+    Functor:Maybe : Endofunctor Sets Maybe
+    Functor:Maybe = Functor: liftM
+
   -- We derive the Applicative instance of Maybe from the Monad instance.
   
   open import Control.Applicative
@@ -29,7 +35,7 @@ module Maybe where
   instance
     Applicative:Maybe : Applicative Maybe
     Applicative:Maybe = Idiom: ap return
-  
+
   -- This is the left-biased Semigroup instance of Maybe X. This is useful when
   -- you have a list of Maybe X values and you want to pick the first one that is
   -- not nothing.
@@ -53,6 +59,7 @@ module Maybe where
 open Maybe public
   using (
     Monad:Maybe;
+    Functor:Maybe;
     Applicative:Maybe;
     Semigroup:First
   )

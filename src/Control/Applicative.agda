@@ -11,6 +11,7 @@ open import Data.Function
 open import Data.Functor
 open import Data.Product
 open import Data.Unit
+open import Notation.Mul
 
 record Applicative (F : Set -> Set) : Set where
   constructor Applicative:

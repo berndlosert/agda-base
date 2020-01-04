@@ -30,10 +30,7 @@ module State where
   exec : forall {S X} -> State S X -> S -> S
   exec trans = run trans >>> snd
   
-  -- State S is also a monad. The return operation takes a value x and returns
-  -- a transition that outputs x while staying in the same state. The bind
-  -- operation does function application to the output all the while
-  -- transitioning state.
+  -- State S forms a monad.
   
   open import Control.Monad
   
@@ -41,6 +38,14 @@ module State where
     Monad:State : forall {S} -> Monad Sets (State S)
     Monad:State .return x s = (x , s)
     Monad:State .extend f m = \ s -> let (x , s') = m s in run (f x) s'
+    
+  -- State S forms a functor.
+
+  open import Data.Functor
+
+  instance
+    Functor:State : forall {S} -> Endofunctor Sets (State S)
+    Functor:State = Functor: liftM
   
   -- Applicative instance of State S derived from the monad instance.
   

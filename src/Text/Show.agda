@@ -69,6 +69,8 @@ instance
 -- Pretty-print pairs.
 
 open import Data.Product
+open import Notation.Append
+open import Notation.Mul
 
 instance
   Show:Product : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)

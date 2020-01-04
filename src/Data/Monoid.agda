@@ -25,6 +25,7 @@ instance
 -- For every category C and object X : ob C, hom C X X is a monoid.
 
 open import Control.Category
+open import Data.Product
 
 Monoid:<<< : forall C {X} -> Monoid (hom C (X , X))
 Monoid:<<< C = let instance _ = C in
@@ -80,6 +81,8 @@ Monoidal : Category -> Set
 Monoidal C = Monoid (ob C)
 
 -- The category Sets is monoidal.
+
+open import Notation.Mul
 
 instance
   Monoidal:Sets : Monoidal Sets

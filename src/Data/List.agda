@@ -23,12 +23,19 @@ module List where
   open import Control.Category
   open import Control.Monad
   open import Data.Functor
+  open import Notation.Append
   
   instance
     Monad:List : Monad Sets List
     Monad:List .return = [_]
     Monad:List .extend k [] = [] 
     Monad:List .extend k (x :: xs) = k x ++ extend k xs
+
+  -- List is a functor.
+
+  instance
+    Functor:List : Endofunctor Sets List
+    Functor:List = Functor: liftM
   
   -- The join operation of the list monad is concat.
   
@@ -68,6 +75,7 @@ module List where
   -- of the list.
   
   open import Data.Product
+  open import Notation.Mul
   
   break : forall {X} -> (X -> Bool) -> List X -> List X * List X
   break p [] = ([] , [])
@@ -89,8 +97,6 @@ module List where
   
   -- List forms an applicative functor in two ways. The most common way given as
   -- an instance below. The other way is from the monad instance.
-  
-  open import Control.Applicative
   
   instance
     Applicative:List : Applicative List

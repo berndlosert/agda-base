@@ -37,7 +37,13 @@ instance
   Monad:Free : forall {F} -> Monad Sets (Free F)
   Monad:Free .return x = Free: \ _ -> return x
   Monad:Free .extend f m = Free: \ t -> 
-    join (map (interpret t <<< f) (interpret t m))
+    join (liftM (interpret t <<< f) (interpret t m))
+
+-- Free F is a functor.
+
+  instance
+    Functor:Free : forall {F} -> Endofunctor Sets (Free F)
+    Functor:Free = Functor: liftM 
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 

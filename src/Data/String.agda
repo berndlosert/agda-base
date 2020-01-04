@@ -9,6 +9,7 @@ module String where
   -- String is a semigroup.
   
   open import Data.Semigroup
+  open import Notation.Append
   
   instance
     Semigroup:String : Semigroup String

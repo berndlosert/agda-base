@@ -18,7 +18,7 @@ instance
 
 -- Use ++ to append strings.
 
-open import Notation.Append public
+open import Notation.Append
 
 instance
   Append:String : Append String String String

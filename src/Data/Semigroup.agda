@@ -29,6 +29,7 @@ instance
 -- under composition and flipped composition.
 
 open import Control.Category
+open import Data.Product
 
 Semigroup:<<< : forall C {X} -> Semigroup (hom C (X , X))
 Semigroup:<<< C = Semigroup: _<<<_

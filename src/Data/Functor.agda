@@ -6,6 +6,7 @@ module Data.Functor where
 -- operation satisfying the functor laws.
 
 open import Control.Category
+open import Data.Product
 
 record Functor (C D : Category) (F : ob C -> ob D) : Set where
   constructor Functor:
@@ -20,6 +21,8 @@ Endofunctor : (C : Category) -> (ob C -> ob C) -> Set
 Endofunctor C = Functor C C
 
 -- A convenient shorthand for defining profunctors.
+
+open import Notation.Mul
 
 Profunctor : (C D : Category) -> (ob D * ob C -> Set) -> Set
 Profunctor C D = Functor (Op D * C) Sets
@@ -130,6 +133,7 @@ instance
 -- With this, we can write F + G for coproduct of two endofunctors on Sets.
 
 open import Data.Either
+open import Notation.Add
 
 instance
   Add:Functor : Add (Set -> Set)
