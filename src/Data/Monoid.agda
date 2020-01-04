@@ -26,14 +26,14 @@ instance
 
 open import Control.Category
 
-Monoid:<<< : forall C {X} -> Monoid (hom C X X)
+Monoid:<<< : forall C {X} -> Monoid (hom C (X , X))
 Monoid:<<< C = let instance _ = C in
   record {
     Monoid:Semigroup = Semigroup:<<< C;
     mempty = id
   }
 
-Monoid:>>> : forall C {X} -> Monoid (hom C X X)
+Monoid:>>> : forall C {X} -> Monoid (hom C (X , X))
 Monoid:>>> C = let instance _ = C in
   record {
     Monoid:Semigroup = Semigroup:>>> C;
@@ -55,7 +55,7 @@ Monoid:Function = record {
 MonoidToCategory : (X : Set) {{_ : Monoid X}} -> Category
 MonoidToCategory X = record {
     ob = Unit;
-    hom = \ _ _ -> X;
+    hom = \ _ -> X;
     _<<<_ = _<>_;
     id = mempty
   }
@@ -67,7 +67,7 @@ open import Data.Product
 Monoids : Category
 Monoids = record {
     ob = exists Monoid;
-    hom =  \ { (X , _) (Y , _) -> X -> Y };
+    hom =  \ { ((X , _) , (Y , _)) -> X -> Y };
     _<<<_ = _<<<_;
     id = id
   }
@@ -82,8 +82,8 @@ Monoidal C = Monoid (ob C)
 -- The category Sets is monoidal.
 
 instance
-  Cartesian : Monoidal Sets
-  Cartesian = Monoid: {{Semigroup: _*_}} Unit
+  Monoidal:Sets : Monoidal Sets
+  Monoidal:Sets = Monoid: {{Semigroup: _*_}} Unit
 
 -- A monoid object in a monoidal category is an object with two operations
 -- mproduct and munit playing the role of _<>_ and mempty for monoids.
@@ -96,8 +96,8 @@ record MonoidOb
   where
     constructor MonoidOb:
     field
-      mproduct : hom C (X <> X) X
-      munit : hom C mempty X
+      mproduct : hom C (X <> X , X)
+      munit : hom C (mempty , X)
 
 open MonoidOb {{...}} public
 

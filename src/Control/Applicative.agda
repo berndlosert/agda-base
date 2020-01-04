@@ -2,10 +2,9 @@
 
 module Control.Applicative where
 
--- Applicative functors are lax monoidal functors of type Set -> Set that
--- preserve the Cartesian monoidal structure. In other words, a functor
--- F : Set -> Set is applicative when forall {X Y} -> F X * F Y -> F (X * Y)
--- and Unit -> F Unit.
+-- A functor F : Set -> Set is applicative when:
+--  * forall {X Y} -> F X * F Y -> F (X * Y) and
+--  * Unit -> F Unit.
 
 open import Control.Category
 open import Data.Function

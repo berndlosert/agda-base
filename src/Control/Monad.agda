@@ -10,12 +10,12 @@ open import Data.Functor
 record Monad (C : Category) (F : ob C -> ob C) : Set where
   constructor Monad:
   field
-    return : forall {X} -> hom C X (F X)
-    extend : forall {X Y} -> hom C X (F Y) -> hom C (F X) (F Y)
+    return : forall {X} -> hom C (X , F X)
+    extend : forall {X Y} -> hom C (X , F Y) -> hom C (F X , F Y)
 
   private instance _ = C
 
-  join : forall {X} -> hom C (F (F X)) (F X)
+  join : forall {X} -> hom C (F (F X) , F X)
   join = extend id
 
   instance
@@ -45,7 +45,7 @@ Kleisli : forall {C} F {{_ : Monad C F}} -> Category
 Kleisli {C} F = let instance _ = C in
   record {
     ob = ob C;
-    hom = \ X Y -> hom C X (F Y);
+    hom = \ { (X , Y) -> hom C (X , F Y) };
     _<<<_ = \ g f -> extend g <<< f;
     id = return
   }

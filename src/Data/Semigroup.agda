@@ -30,11 +30,11 @@ instance
 
 open import Control.Category
 
-Semigroup:<<< : forall C {X} -> Semigroup (hom C X X)
+Semigroup:<<< : forall C {X} -> Semigroup (hom C (X , X))
 Semigroup:<<< C = Semigroup: _<<<_
   where instance _ = C
 
-Semigroup:>>> : forall C {X} -> Semigroup (hom C X X)
+Semigroup:>>> : forall C {X} -> Semigroup (hom C (X , X))
 Semigroup:>>> C = Semigroup: _>>>_
   where instance _ = C
 
