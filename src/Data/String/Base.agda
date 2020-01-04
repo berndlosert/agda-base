@@ -21,7 +21,7 @@ instance
 open import Notation.Append public
 
 instance
-  Append:String : Append String
+  Append:String : Append String String String
   Append:String = Append: Builtin.primStringAppend
 
 -- We need to define an IsString String instance if we're going to use

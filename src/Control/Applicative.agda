@@ -16,7 +16,7 @@ open import Data.Unit
 record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
   field
-    {{instance:Functor}} : Endofunctor Sets F
+    {{Functor:Applicative}} : Endofunctor Sets F
     zip : forall {X Y} -> F X * F Y -> F (X * Y)
     unit : Unit -> F Unit
 

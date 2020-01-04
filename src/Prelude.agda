@@ -22,6 +22,7 @@ open import Data.Semigroup public
 open import Data.Stream public
 open import Data.String public
 open import Data.Unit public
+open import Data.Vec public
 open import Data.Void public
 
 open import Control.Applicative public

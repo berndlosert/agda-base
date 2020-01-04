@@ -2,18 +2,7 @@
 
 module Data.Fin where
 
-open import Data.Nat public
-
-module Base where
-
-  -- The type Fin (suc n) has n + 1 inhabitants, namely 0, 1, ..., n. Note that
-  -- Fin 0 is effectively the same as Void.
-  
-  data Fin : Nat -> Set where
-    zero : {n : Nat} -> Fin (suc n)
-    suc : {n : Nat} -> Fin n -> Fin (suc n)
-
-open Base public
+open import Data.Fin.Base public
   hiding (module Fin)
 
 module Fin where
