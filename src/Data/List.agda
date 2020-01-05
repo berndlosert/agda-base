@@ -223,22 +223,47 @@ module List where
     Index:List : Index List
     Index:List = Index: Nat Maybe index
 
+  -- take n, applied to a list xs, returns the prefix of xs of length n, or xs
+  -- itself if n > length xs.
+
+  take : forall {X} -> Nat -> List X -> List X
+  take 0 _ = []
+  take (suc n) [] = []
+  take (suc n) (x :: xs) = x :: take n xs
+
+  -- drop n xs returns the suffix of xs after the first n elements, or [] if
+  -- n > length xs.
+
+  drop : forall {X} -> Nat -> List X -> List X
+  drop 0 xs = xs
+  drop (suc n) [] = []
+  drop (suc n) (_ :: xs) = drop n xs
+
+  -- Split a list into two pieces at the given index.
+
+  splitAt : forall {X} -> Nat -> List X -> List X * List X
+  splitAt n xs = (take n xs , drop n xs)
+
+  -- Zip together a list of heads and a list of tails.
+
+  open import Notation.Sub
+
+  zipCons : forall {X} -> List X -> List (List X) -> List (List X) 
+  zipCons heads tails = 
+      (zipWith _::_ heads (tails ++ padding)) ++ excess
+    where
+      -- Extra tails that will be zipped with those heads that have no
+      -- corresponding tail in tails.
+      padding = replicate (size heads - size tails) [] 
+      -- The tails that cannot be zipped because they have no corresponding
+      -- head in heads.
+      excess = snd (splitAt (size heads) tails)
+
   -- Transposes the elements of a list of lists (thought of as a matrix). 
-  -- Examples:
-  --  * transpose [ [ 1 # 2 # 3 ] # [ 4 # 5 # 6 ] ]
-  --    === [ [ 1 # 4 ] # [ 2 # 5 ] # [ 3 # 6 ] ]
-  --  * transpose [ [ 10 # 11 ] # [ 20 ] # [] # [ 30 # 31 # 32 ] ] 
-  --    === [ [ 10 # 20 # 30 ] # [ 11 # 31 ] # [ 32 ] ]
-  
+
   transpose : forall {X} -> List (List X) -> List (List X)
   transpose [] = []
-  transpose {X} (heads :: tails) = spreadHeads heads (transpose tails)
-    where
-      spreadHeads : List X -> List (List X) -> List (List X) 
-      spreadHeads [] tails = tails
-      spreadHeads (head :: heads) [] = [ head ] :: spreadHeads heads []
-      spreadHeads (head :: heads) (tail :: tails) =
-        (head :: tail) :: spreadHeads heads tails
+  transpose (heads :: tails) = zipCons heads (transpose tails) 
 
 open List public
   using (
