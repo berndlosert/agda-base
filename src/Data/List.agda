@@ -95,8 +95,8 @@ module List where
   zipWith f _ [] = []
   zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
   
-  -- List forms an applicative functor in two ways. The most common way given as
-  -- an instance below. The other way is from the monad instance.
+  -- List forms an applicative functor in two ways. The most common way given
+  -- as an instance below. The other way is from the monad instance.
   
   instance
     Applicative:List : Applicative List
@@ -222,6 +222,18 @@ module List where
   instance
     Index:List : Index List
     Index:List = Index: Nat Maybe index
+
+  -- Transposes the elements of a list of lists (thought of as a matrix). 
+  
+  transpose : forall {X} -> List (List X) -> List (List X)
+  transpose [] = []
+  transpose {X} (heads :: tails) = spreadHeads heads (transpose tails)
+    where
+      spreadHeads : List X -> List (List X) -> List (List X) 
+      spreadHeads [] tails = tails
+      spreadHeads (head :: heads) [] = [ head ] :: spreadHeads heads []
+      spreadHeads (head :: heads) (tail :: tails) =
+        (head :: tail) :: spreadHeads heads tails
 
 open List public
   using (
