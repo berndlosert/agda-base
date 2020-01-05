@@ -95,16 +95,12 @@ D ^ C = let instance _ = D; instance _ = Trans: C D in
 
 -- A few special endofunctor instances.
 
+open import Data.Void
+open import Data.Unit
+
 instance
-  Functor:id[Sets] : Endofunctor Sets id
-  Functor:id[Sets] = Functor:id Sets
-
-  open import Data.Void
-
   Functor:const[Void] : Endofunctor Sets (const Void)
   Functor:const[Void] = Functor:const {Sets} {Sets} Void
-
-  open import Data.Unit
 
   Functor:const[Unit] : Endofunctor Sets (const Unit)
   Functor:const[Unit] = Functor:const {Sets} {Sets} Unit

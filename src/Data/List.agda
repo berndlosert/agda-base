@@ -224,6 +224,11 @@ module List where
     Index:List = Index: Nat Maybe index
 
   -- Transposes the elements of a list of lists (thought of as a matrix). 
+  -- Examples:
+  --  * transpose [ [ 1 # 2 # 3 ] # [ 4 # 5 # 6 ] ]
+  --    === [ [ 1 # 4 ] # [ 2 # 5 ] # [ 3 # 6 ] ]
+  --  * transpose [ [ 10 # 11 ] # [ 20 ] # [] # [ 30 # 31 # 32 ] ] 
+  --    === [ [ 10 # 20 # 30 ] # [ 11 # 31 ] # [ 32 ] ]
   
   transpose : forall {X} -> List (List X) -> List (List X)
   transpose [] = []

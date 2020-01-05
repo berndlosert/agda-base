@@ -12,21 +12,10 @@ open import Agda.Builtin.Int public
 
 module Int where
 
-  -- Allows using natural number literals to write positive integers.
-  
-  open import Data.Unit
-  open import Notation.Number
-  
-  instance
-    Number:Int : Number Int
-    Number:Int = record {
-        Constraint = \ _ -> Unit;
-        fromNat = \ n -> pos n
-      }
-
   -- Allows us to write -n for negative integers.
 
   open import Data.Nat
+  open import Data.Unit
   open import Notation.Negative
   
   instance
@@ -118,8 +107,8 @@ module Int where
     Mul:Int = Mul: \ where
       (pos n) (pos m) -> pos (n * m)
       (negsuc n) (negsuc m) -> pos (suc n * suc m)
-      (pos n) (negsuc m) -> - (fromNat (n * suc m))
-      (negsuc n) (pos m) -> - (fromNat (suc n * m))
+      (pos n) (negsuc m) -> - (pos (n * suc m))
+      (negsuc n) (pos m) -> - (pos (suc n * m))
   
   -- Int subtraction.
 
@@ -140,7 +129,6 @@ module Int where
 
 open Int public
   using (
-    Number:Int;
     Negative:Int;
     Negation:Int;
     Eq:Int;
