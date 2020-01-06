@@ -5,7 +5,7 @@ module Control.Monad.Writer where
 -- Writer W X models computations of type X that store a value of type W. We
 -- call such computations Writer computations.
 
-open import Data.Pair
+open import Data.Tuple
 
 Writer : Set -> Set -> Set
 Writer W X = X * W
@@ -36,7 +36,7 @@ run : forall {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
   (return <<< (_, mempty))
-  (\ { k (x , w) -> map (cross id (w <>_)) (k x) }) 
+  (\ { k (x , w) -> map (cross id (w <>_)) (k x) })
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores mempty. The bind operation

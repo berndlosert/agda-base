@@ -5,7 +5,7 @@ module Control.Monad.Writer where
 -- Writer W X models computations of type X that store a value of type W. We
 -- call such computations Writer computations.
 
-open import Data.Pair
+open import Data.Tuple
 
 Writer : Set -> Set -> Set
 Writer W X = X * W
@@ -15,7 +15,7 @@ Writer W X = X * W
 
 open import Data.Unit
 
-tell : forall {W} -> W -> Writer W Unit 
+tell : forall {W} -> W -> Writer W Unit
 tell w = (tt , w)
 
 -- Simple handler of Writer W effects.
@@ -25,7 +25,7 @@ open import Data.Monoid
 
 run : forall {W X} {{_ : Monoid W}}
   -> Writer W X -> X * W
-run = id 
+run = id
 
 -- If W is a monoid, then Writer W is a monad.
 

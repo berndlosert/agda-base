@@ -6,7 +6,7 @@ module Data.Functor where
 -- operation satisfying the functor laws.
 
 open import Control.Category
-open import Data.Pair
+open import Data.Tuple
 
 record Functor (C D : Category) (F : ob C -> ob D) : Set where
   constructor Functor:

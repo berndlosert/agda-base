@@ -68,7 +68,7 @@ instance
 
 -- Pretty-print pairs.
 
-open import Data.Pair
+open import Data.Tuple
 open import Notation.Append
 open import Notation.Mul
 
@@ -102,7 +102,7 @@ instance
 
 -- Pretty-print Fin values.
 
-open import Data.Fin 
+open import Data.Fin
 
 instance
   Show:Fin : forall {n} -> Show (Fin (suc n))

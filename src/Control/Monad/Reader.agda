@@ -17,7 +17,7 @@ instance
   Monad:Reader : forall {R} -> Monad Sets (Reader R)
   Monad:Reader .return x = \ _ -> x
   Monad:Reader .extend f m = \ r -> f (m r) r
-  
+
 -- The function ask returns the config. value.
 
 ask : forall {R} -> Reader R R
@@ -27,5 +27,5 @@ ask = id
 
 open import Data.List
 
-run : forall {R X} -> Reader R X -> R -> X 
+run : forall {R X} -> Reader R X -> R -> X
 run = id

@@ -23,7 +23,7 @@ open import Data.Functor
 instance
   Monad:Cont : forall {X} -> Monad Sets (Cont X)
   Monad:Cont .return x = _$ x
-  Monad:Cont .extend k m = \ c -> m (\ x -> (k x) c) 
+  Monad:Cont .extend k m = \ c -> m (\ x -> (k x) c)
 
 -- The infamous call-with-current-continuation.
 

@@ -4,7 +4,7 @@ module Data.Functor.Hom where
 
 open import Control.Category
 open import Data.Functor
-open import Data.Pair
+open import Data.Tuple
 
 -- Hom C is the bifunctor version of hom C.
 Hom : (C : Category) -> ob (Op C * C) -> Set

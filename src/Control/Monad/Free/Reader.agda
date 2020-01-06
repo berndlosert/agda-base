@@ -20,7 +20,7 @@ instance
 -- The function ask returns the config. value.
 
 import Control.Monad.Eff as Eff
-open Eff using (Eff) 
+open Eff using (Eff)
 open import Data.Functor.Union
 
 ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R

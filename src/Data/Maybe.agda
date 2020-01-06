@@ -8,20 +8,20 @@ open import Data.Maybe.Base public
 module Maybe where
 
   -- Maybe forms a functor.
-  
+
   open import Control.Category
   open import Data.Functor
-  
+
   -- Maybe forms a monad, which we can use to model computations that can fail.
-  
+
   open import Control.Monad
-  
+
   instance
     Monad:Maybe : Monad Sets Maybe
     Monad:Maybe .return = just
     Monad:Maybe .extend k nothing = nothing
     Monad:Maybe .extend k (just x) = k x
-  
+
   -- We derive the Functor instance of Maybe from the Monad instance.
 
   instance
@@ -29,9 +29,9 @@ module Maybe where
     Functor:Maybe = Functor: liftM
 
   -- We derive the Applicative instance of Maybe from the Monad instance.
-  
+
   open import Control.Applicative
-  
+
   instance
     Applicative:Maybe : Applicative Maybe
     Applicative:Maybe = Idiom: ap return
@@ -39,9 +39,9 @@ module Maybe where
   -- This is the left-biased Semigroup instance of Maybe X. This is useful when
   -- you have a list of Maybe X values and you want to pick the first one that is
   -- not nothing.
-  
+
   open import Data.Semigroup
-  
+
   instance
     Semigroup:First : forall {X} -> Semigroup (Maybe X)
     Semigroup:First = Semigroup: \ where
@@ -52,8 +52,8 @@ module Maybe where
   -- is nothing, it returns the default values; otherwise, it returns the value
   -- contained in the Maybe.
 
-  from : forall {X} -> X -> Maybe X -> X 
-  from x nothing = x 
+  from : forall {X} -> X -> Maybe X -> X
+  from x nothing = x
   from _ (just x) = x
 
 open Maybe public

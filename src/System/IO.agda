@@ -27,7 +27,7 @@ postulate
 {-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC flushStdOut = System.hFlush System.stdout #-}
 
--- IO forms a monad. 
+-- IO forms a monad.
 
 open import Control.Category
 open import Control.Monad
@@ -35,7 +35,7 @@ open import Control.Monad
 instance
   Monad:IO : Monad Sets IO
   Monad:IO .return x = returnIO x
-  Monad:IO .extend k io = bindIO io k 
+  Monad:IO .extend k io = bindIO io k
 
 -- IO forms a functor.
 

@@ -1,26 +1,38 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Pair where
+module Data.Tuple where
 
--- Pair is used to construct dependent pairs. It is a record with constructor
+-- Sigma is used to construct dependent pairs. It is a record with constructor
 -- _,_ and fields fst and snd.
 
 open import Agda.Builtin.Sigma public
-  renaming (Σ to Pair)
+  renaming (Σ to Sigma)
 
 -- The exists function should be thought of as the existensial quantifier, dual
 -- to forall.
 
 exists : forall {X} (P : X -> Set) -> Set
-exists {X} P = Pair X P 
+exists {X} P = Sigma X P
 
--- This instance allows use to use _*_ for the Cartesian product.
+-- The Cartesian product X * Y of two types X and Y is defined as follows:
 
 open import Notation.Mul
 
 instance
   Mul:Set : Mul Set
-  Mul:Set = Mul: (\ X Y -> Pair X (\ _ -> Y))
+  Mul:Set = Mul: (\ X Y -> Sigma X (\ _ -> Y))
+
+-- This is how we define n-tuples:
+
+open import Data.Nat.Base
+open import Data.Unit
+open import Notation.Exp
+
+instance
+  Exp:Tuple : Exp Set Nat Set
+  Exp:Tuple ._^_ X zero = Unit
+  Exp:Tuple ._^_ X (suc zero) = X
+  Exp:Tuple ._^_ X (suc (suc n)) = X * X ^ (suc n)
 
 -- Categorically speaking, for any two types X and Y, both X * Y and Y * X
 -- are products of X and Y. The function swap serves as proof that they are

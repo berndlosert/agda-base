@@ -55,7 +55,7 @@ fold : forall {F Fs X Y}
 fold {F} {Fs} {_} {Y} ret ext = Free.fold ret ext'
   where
     ext' : forall {X} -> (X -> Eff Fs Y) -> Union (F :: Fs) X -> Eff Fs Y
-    ext' ret (left x) = ext ret x 
+    ext' ret (left x) = ext ret x
     ext' ret (right u) = extend ret (Free.lift u)
 
 -- Eff [] X and X are isomorphic. This means that Eff [] X describes a pure
@@ -69,4 +69,4 @@ run eff = interpret (\ ()) eff
 
 instance
   Monad:Eff : forall {Fs} -> Monad Sets (Eff Fs)
-  Monad:Eff = Monad:Free 
+  Monad:Eff = Monad:Free

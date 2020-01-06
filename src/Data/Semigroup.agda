@@ -29,7 +29,7 @@ instance
 -- under composition and flipped composition.
 
 open import Control.Category
-open import Data.Pair
+open import Data.Tuple
 
 Semigroup:<<< : forall C {X} -> Semigroup (hom C (X , X))
 Semigroup:<<< C = Semigroup: _<<<_

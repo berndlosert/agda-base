@@ -5,7 +5,7 @@ module Data.Functor.Coyoneda where
 -- This is the existensial version Yoneda C F X.
 
 open import Control.Category
-open import Data.Pair
+open import Data.Tuple
 
 Coyoneda : (C : Category) -> (ob C -> Set) -> ob C -> Set
 Coyoneda C F Y = exists \ X -> F X * hom C X Y

@@ -10,19 +10,19 @@ open import Agda.Builtin.Float public
 module Float where
 
   import Agda.Builtin.Float as Builtin
-      
-  -- Convert a Nat to a Float. 
+
+  -- Convert a Nat to a Float.
 
   fromNat = Builtin.primNatToFloat
 
-  -- Use _+_ to add Float values. 
+  -- Use _+_ to add Float values.
 
   open import Notation.Add
 
   instance
     Add:Float : Add Float
     Add:Float = Add: Builtin.primFloatPlus
-    
+
   -- Use _-_ to subtract Float values.
 
   open import Notation.Sub
@@ -67,15 +67,15 @@ module Float where
     Eq:Float : Eq Float
     Eq:Float = Eq: Builtin.primFloatNumericalEquality
 
-  -- Compare Float values. 
+  -- Compare Float values.
 
   open import Data.Ord
 
   instance
     Ord:Float : Ord Float
-    Ord:Float = Ord: Builtin.primFloatNumericalLess 
+    Ord:Float = Ord: Builtin.primFloatNumericalLess
 
-  -- Pretty-print Float values. 
+  -- Pretty-print Float values.
 
   toString = Builtin.primShowFloat
 
@@ -99,12 +99,12 @@ module Float where
   open import Data.Int
 
   fromInt : Int -> Float
-  fromInt (pos n) = fromNat n 
+  fromInt (pos n) = fromNat n
   fromInt (negsuc n) = - (fromNat n) - 1.0
 
 open Float public
   using (
-    Add:Float; 
+    Add:Float;
     Sub:Float;
     Mul:Float;
     Negation:Float;

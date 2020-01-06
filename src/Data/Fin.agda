@@ -8,14 +8,14 @@ open import Data.Fin.Base public
 module Fin where
 
   -- Convert a Fin n into a Nat.
-  
+
   toNat : {n : Nat} -> Fin n -> Nat
   toNat zero = zero
   toNat (suc n) = suc (toNat n)
-  
+
   -- The Number:Fin instance allows us to write Fin n values using natural
   -- number literals.
-  
+
   open import Data.Eq
   open import Data.Ord
   open import Notation.Number

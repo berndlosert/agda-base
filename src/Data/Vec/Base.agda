@@ -2,7 +2,7 @@
 
 module Data.Vec.Base where
 
--- The type Vec X n is the type of lists of Xs of length n. 
+-- The type Vec X n is the type of lists of Xs of length n.
 
 open import Data.Nat
 

@@ -9,7 +9,7 @@ module Control.Applicative where
 open import Control.Category
 open import Data.Function
 open import Data.Functor
-open import Data.Pair
+open import Data.Tuple
 open import Data.Unit
 open import Notation.Mul
 

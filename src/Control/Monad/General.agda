@@ -6,7 +6,7 @@ module Control.Monad.General where
 -- value representing a request and callback is a function that is used to
 -- handle the response. Note that the type of the response depends on req.
 
-open import Data.Pair
+open import Data.Tuple
 
 Interact : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
 Interact Req Resp X = Sigma Req (\ req -> Resp req -> X)
@@ -34,7 +34,7 @@ open import Data.Function
 Fun : (X Y : Set) -> Set
 Fun X Y = Pi X (const Y)
 
--- This instance is for exporting purposes only. 
+-- This instance is for exporting purposes only.
 
 open import Control.Monad
 

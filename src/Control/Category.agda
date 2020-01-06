@@ -9,7 +9,7 @@ module Control.Category where
 --  * a composition operator _<<<_ for composing morphisms;
 --  * an identity operator id used for producing identity morphisms.
 
-open import Data.Pair
+open import Data.Tuple
 open import Notation.Mul
 
 record Category : Set where
@@ -48,7 +48,7 @@ instance
 Op : Category -> Category
 Op C = let instance _ = C in record {
     ob = ob C;
-    hom = hom C <<< swap; 
+    hom = hom C <<< swap;
     _<<<_ = _>>>_;
     id = id
   }
