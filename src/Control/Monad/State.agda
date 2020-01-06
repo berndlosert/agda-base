@@ -5,7 +5,7 @@ module Control.Monad.State where
 -- State S X models state transitions where the states are of type S and the
 -- transitions produce an output of type X.
 
-open import Data.Product
+open import Data.Pair
 
 State : Set -> Set -> Set
 State S X = S -> X * S

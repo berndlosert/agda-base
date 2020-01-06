@@ -9,7 +9,7 @@ module Control.Category where
 --  * a composition operator _<<<_ for composing morphisms;
 --  * an identity operator id used for producing identity morphisms.
 
-open import Data.Product
+open import Data.Pair
 open import Notation.Mul
 
 record Category : Set where

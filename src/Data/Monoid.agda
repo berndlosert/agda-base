@@ -25,7 +25,7 @@ instance
 -- For every category C and object X : ob C, hom C X X is a monoid.
 
 open import Control.Category
-open import Data.Product
+open import Data.Pair
 
 Monoid:<<< : forall C {X} -> Monoid (hom C (X , X))
 Monoid:<<< C = let instance _ = C in
@@ -63,7 +63,7 @@ MonoidToCategory X = record {
 
 -- Monoids form a category where the morphisms are monoid homomorphisms.
 
-open import Data.Product
+open import Data.Pair
 
 Monoids : Category
 Monoids = record {

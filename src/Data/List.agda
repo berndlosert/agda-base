@@ -74,7 +74,7 @@ module List where
   -- not satisfy the given predicate and returns it paired with the remainder
   -- of the list.
   
-  open import Data.Product
+  open import Data.Pair
   open import Notation.Mul
   
   break : forall {X} -> (X -> Bool) -> List X -> List X * List X

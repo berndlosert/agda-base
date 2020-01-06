@@ -17,7 +17,7 @@ open import Data.List public
 open import Data.Maybe public
 open import Data.Monoid public
 open import Data.Nat public
-open import Data.Product public
+open import Data.Pair public
 open import Data.Ord public
 open import Data.Semigroup public
 open import Data.Stream public

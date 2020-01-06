@@ -6,7 +6,7 @@ module Control.Monad where
 
 open import Control.Category
 open import Data.Functor
-open import Data.Product
+open import Data.Pair
 
 record Monad (C : Category) (F : ob C -> ob C) : Set where
   constructor Monad:

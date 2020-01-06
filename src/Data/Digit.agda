@@ -89,7 +89,7 @@ module Digit where
   
   -- Adding two digits m and n yields a pair of digits (sum , cout).
   
-  open import Data.Product
+  open import Data.Pair
   open import Notation.Mul
   
   halfAdd : Digit -> Digit -> Digit * Digit

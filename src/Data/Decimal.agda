@@ -18,7 +18,7 @@ module Decimal where
   
   open import Data.Digit
   open import Data.List
-  open import Data.Product
+  open import Data.Pair
   
   add : Decimal -> Decimal -> Digit -> Decimal
   add [] [] 0d = [] -- prevents adding leading zeros

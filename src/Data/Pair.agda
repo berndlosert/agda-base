@@ -1,18 +1,18 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Product where
+module Data.Pair where
 
--- Sigma is used to construct dependent pairs. It is a record with constructor
+-- Pair is used to construct dependent pairs. It is a record with constructor
 -- _,_ and fields fst and snd.
 
 open import Agda.Builtin.Sigma public
-  renaming (Σ to Sigma)
+  renaming (Σ to Pair)
 
 -- The exists function should be thought of as the existensial quantifier, dual
 -- to forall.
 
 exists : forall {X} (P : X -> Set) -> Set
-exists {X} P = Sigma X P
+exists {X} P = Pair X P 
 
 -- This instance allows use to use _*_ for the Cartesian product.
 
@@ -20,7 +20,7 @@ open import Notation.Mul
 
 instance
   Mul:Set : Mul Set
-  Mul:Set = Mul: (\ X Y -> Sigma X (\ _ -> Y))
+  Mul:Set = Mul: (\ X Y -> Pair X (\ _ -> Y))
 
 -- Categorically speaking, for any two types X and Y, both X * Y and Y * X
 -- are products of X and Y. The function swap serves as proof that they are

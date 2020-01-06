@@ -22,7 +22,7 @@ module Vec where
 
   -- Split a vector into two parts.
 
-  open import Data.Product
+  open import Data.Pair
   open import Notation.Mul
 
   splitAt : forall m {n X} -> Vec X (m + n) -> Vec X m * Vec X n 

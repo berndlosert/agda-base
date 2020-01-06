@@ -68,7 +68,7 @@ instance
 
 -- Pretty-print pairs.
 
-open import Data.Product
+open import Data.Pair
 open import Notation.Append
 open import Notation.Mul
 

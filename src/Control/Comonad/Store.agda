@@ -4,7 +4,7 @@ module Control.Comonad.Store where
 
 -- Store S is the dual of State S.
 
-open import Data.Product
+open import Data.Pair
 
 Store : Set -> Set -> Set
 Store S X = (S -> X) * S
