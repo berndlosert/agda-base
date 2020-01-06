@@ -66,3 +66,8 @@ apply (g , y) = g y
 
 dupe : forall {X} -> X -> X * X
 dupe x = (x , x)
+
+-- Left-to-right associativity of _*_.
+
+assoc : forall {X Y Z} -> (X * Y) * Z -> X * Y * Z
+assoc ((x , y) , z) = (x , y , z)
