@@ -84,14 +84,18 @@ open Trans {{...}} public
 -- D ^ C is the functor category of functors from C to D and natural
 -- transformatiosn between them.
 
-_^_ : Category -> Category -> Category
-D ^ C = let instance _ = D; instance _ = Trans: C D in
-  record {
-    ob = ob C -> ob D;
-    hom = \ { (F , G) -> F ~> G };
-    _<<<_ = \ beta alpha -> beta <<< alpha;
-    id = \ {F} {X} -> id {F X}
-  }
+open import Notation.Exp
+
+instance
+  Exp:Category : Exp Category Category Category
+  Exp:Category ._^_ D C =
+    let instance _ = D; instance _ = Trans: C D
+    in record {
+      ob = ob C -> ob D;
+      hom = \ { (F , G) -> F ~> G };
+      _<<<_ = \ beta alpha -> beta <<< alpha;
+      id = \ {F} {X} -> id {F X}
+    }
 
 -- A few special endofunctor instances.
 

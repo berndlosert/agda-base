@@ -33,6 +33,7 @@ liftM {C} f = extend (return <<< f)
 
 open import Data.Semigroup
 open import Data.Monoid
+open import Notation.Exp
 
 Monadic : (C : Category) -> Monoidal (C ^ C)
 Monadic C = Monoid: {{Semigroup: _>>>_}} id
