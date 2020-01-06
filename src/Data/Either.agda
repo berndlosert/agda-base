@@ -48,3 +48,10 @@ leftToMaybe _ = nothing
 rightToMaybe : forall {X Y} -> X + Y -> Maybe Y
 rightToMaybe (right y) = just y
 rightToMaybe _ = nothing
+
+-- _+_ forms a bifunctor in the obvious way. The map operation of this
+-- bifunctor in uncurried form is plus:
+
+plus : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X + X' -> Y + Y'
+plus f g (left x) = left (f x)
+plus f g (right y) = right (g y)

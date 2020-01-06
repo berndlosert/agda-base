@@ -48,7 +48,7 @@ swap (x , y) = (y , x)
 pair : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
 pair f g x = (f x , g x)
 
--- The uncurried version of _*_ forms a bifunctor. The map operation of this
+-- _*_ forms a bifunctor in the obvious way. The map operation of this
 -- bifunctor in uncurried form is cross.
 
 cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
