@@ -11,7 +11,7 @@ open import Data.Tuple
 record Functor (C D : Category) (F : ob C -> ob D) : Set where
   constructor Functor:
   field
-    map : forall {X Y} -> hom C (X , Y) -> hom D (F X , F Y)
+    map : forall {X Y} -> hom C X Y -> hom D (F X) (F Y)
 
 open Functor {{...}} public
 
@@ -64,7 +64,7 @@ Functor:nest (suc n) .map f = map (map {{Functor:nest n}} f)
 Categories : Category
 Categories = record {
     ob = Category;
-    hom = \ { (C , D) -> ob C -> ob D };
+    hom = \ C D -> ob C -> ob D;
     _<<<_ = _<<<_;
     id = id
   }
@@ -74,7 +74,7 @@ Categories = record {
 record Trans (C D : Category) : Set where
   infixr 2 _~>_
   _~>_ : (F G : ob C -> ob D) -> Set
-  F ~> G  = forall {X} -> hom D (F X , G X)
+  F ~> G  = forall {X} -> hom D (F X) (G X)
 
 Trans: : (C D : Category) -> Trans C D
 Trans: C D = record {}
@@ -92,7 +92,7 @@ instance
     let instance _ = D; instance _ = Trans: C D
     in record {
       ob = ob C -> ob D;
-      hom = \ { (F , G) -> F ~> G };
+      hom = _~>_;
       _<<<_ = \ beta alpha -> beta <<< alpha;
       id = \ {F} {X} -> id {F X}
     }
@@ -109,9 +109,9 @@ instance
   Functor:const[Unit] : Endofunctor Sets (const Unit)
   Functor:const[Unit] = Functor:const {Sets} {Sets} Unit
 
--- For every cateogry C, hom C is a profunctor.
+-- For every cateogry C, hom C forms a profunctor.
 
-Profunctor:hom : (C : Category) -> Profunctor C C (hom C)
+Profunctor:hom : (C : Category) -> Profunctor C C (uncurry (hom C))
 Profunctor:hom C .map (f , g) h = f >>> h >>> g
   where instance _ = C
 

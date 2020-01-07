@@ -8,23 +8,22 @@ open import Control.Category
 open import Data.Functor
 open import Data.Tuple
 
-record Monad (C : Category) (F : ob C -> ob C) : Set where
+record Monad (C : Category) (M : ob C -> ob C) : Set where
   constructor Monad:
   field
-    return : forall {X} -> hom C (X , F X)
-    extend : forall {X Y} -> hom C (X , F Y) -> hom C (F X , F Y)
+    return : forall {X} -> hom C X (M X)
+    extend : forall {X Y} -> hom C X (M Y) -> hom C (M X) (M Y)
 
-  private instance _ = C
-
-  join : forall {X} -> hom C (F (F X) , F X)
+  join : forall {X} -> hom C (M (M X)) (M X)
   join = extend id
+    where instance _ = C
 
 open Monad {{...}} public
 
 -- Every monad is a functor whose map operation is:
 
 liftM : forall {C M X Y} {{_ : Monad C M}}
-  -> hom C (X , Y) -> hom C (M X , M Y)
+  -> hom C X Y -> hom C (M X) (M Y)
 liftM {C} f = extend (return <<< f)
   where instance _ = C
 
@@ -50,7 +49,7 @@ Kleisli : forall {C} F {{_ : Monad C F}} -> Category
 Kleisli {C} F = let instance _ = C in
   record {
     ob = ob C;
-    hom = \ { (X , Y) -> hom C (X , F Y) };
+    hom = \ X Y -> hom C X (F Y);
     _<<<_ = \ g f -> extend g <<< f;
     id = return
   }

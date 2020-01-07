@@ -31,11 +31,11 @@ instance
 open import Control.Category
 open import Data.Tuple
 
-Semigroup:<<< : forall C {X} -> Semigroup (hom C (X , X))
+Semigroup:<<< : forall C {X} -> Semigroup (hom C X X)
 Semigroup:<<< C = Semigroup: _<<<_
   where instance _ = C
 
-Semigroup:>>> : forall C {X} -> Semigroup (hom C (X , X))
+Semigroup:>>> : forall C {X} -> Semigroup (hom C X X)
 Semigroup:>>> C = Semigroup: _>>>_
   where instance _ = C
 

@@ -27,14 +27,14 @@ instance
 open import Control.Category
 open import Data.Tuple
 
-Monoid:<<< : forall C {X} -> Monoid (hom C (X , X))
+Monoid:<<< : forall C {X} -> Monoid (hom C X X)
 Monoid:<<< C = let instance _ = C in
   record {
     Monoid:Semigroup = Semigroup:<<< C;
     mempty = id
   }
 
-Monoid:>>> : forall C {X} -> Monoid (hom C (X , X))
+Monoid:>>> : forall C {X} -> Monoid (hom C X X)
 Monoid:>>> C = let instance _ = C in
   record {
     Monoid:Semigroup = Semigroup:>>> C;
@@ -56,7 +56,7 @@ Monoid:Function = record {
 MonoidToCategory : (X : Set) {{_ : Monoid X}} -> Category
 MonoidToCategory X = record {
     ob = Unit;
-    hom = \ _ -> X;
+    hom = \ _ _ -> X;
     _<<<_ = _<>_;
     id = mempty
   }
@@ -68,7 +68,7 @@ open import Data.Tuple
 Monoids : Category
 Monoids = record {
     ob = exists Monoid;
-    hom =  \ { ((X , _) , (Y , _)) -> X -> Y };
+    hom =  \ { (X , _) (Y , _) -> X -> Y };
     _<<<_ = _<<<_;
     id = id
   }
@@ -99,8 +99,8 @@ record MonoidOb
   where
     constructor MonoidOb:
     field
-      mproduct : hom C (X <> X , X)
-      munit : hom C (mempty , X)
+      mproduct : hom C (X <> X) X
+      munit : hom C mempty X
 
 open MonoidOb {{...}} public
 
