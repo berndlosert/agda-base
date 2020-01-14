@@ -15,7 +15,6 @@ open import Control.Category
 open import Data.Bool
 open import Data.Eq
 open import Data.Function
-open import Data.List.Base
 open import Data.Monoid
 open import Data.Nat
 open import Data.Unit
@@ -35,9 +34,6 @@ record Foldable (F : Set -> Set) : Set where
 
   foldl : forall {X Y} -> (Y -> X -> Y) -> Y -> F X -> Y
   foldl f y x = foldMap {{Monoid:>>> Sets}} (flip f) x y
-
-  toList : forall {X} -> F X -> List X
-  toList x = foldMap [_] x
 
   null : forall {X} -> F X -> Bool
   null = foldMap {{Monoid:&&}} (const true)

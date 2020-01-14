@@ -10,7 +10,7 @@ data Either (X Y : Set) : Set where
 
 -- This instance makes it possible to write X + Y for Either X Y.
 
-open import Notation.Add
+open import Notation.Add public
 
 instance
   Add:Set : Add Set

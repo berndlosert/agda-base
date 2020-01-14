@@ -57,3 +57,18 @@ open import Data.Nat.Base
 nest : (n : Nat) {X : Set} -> (X -> X) -> X -> X
 nest zero f x = x
 nest (suc n) f x = f (nest n f x)
+
+-- Functions of the form X -> Y, where Y forms a semigroup, form a semigroup.
+
+open import Data.Semigroup public
+
+Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
+Semigroup:Function ._<>_ f g = \ x -> f x <> g x
+
+-- Functions of the form X -> Y where Y is a monoid form a monoid.
+
+open import Data.Monoid public
+
+Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
+Monoid:Function .Semigroup:Monoid = Semigroup:Function
+Monoid:Function .mempty = \ x -> mempty

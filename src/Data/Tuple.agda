@@ -16,7 +16,7 @@ exists {X} P = Sigma X P
 
 -- The Cartesian product X * Y of two types X and Y is defined as follows:
 
-open import Notation.Mul
+open import Notation.Mul public
 
 instance
   Mul:Set : Mul Set
@@ -26,7 +26,7 @@ instance
 
 open import Data.Nat.Base
 open import Data.Unit
-open import Notation.Exp
+open import Notation.Exp public
 
 instance
   Exp:Tuple : Exp Set Nat Set

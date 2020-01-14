@@ -11,3 +11,12 @@ record Stream (X : Set) : Set where
     tail : Stream X
 
 open Stream public
+
+-- Stream is a functor.
+
+open import Data.Functor public
+
+instance
+  Functor:Stream : Endofunctor Sets Stream
+  Functor:Stream .map f xs .head = f (head xs)
+  Functor:Stream .map f xs .tail = map f (tail xs)

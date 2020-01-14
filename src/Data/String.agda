@@ -6,23 +6,6 @@ open import Data.String.Base public
 
 module String where
 
-  -- String is a semigroup.
-
-  open import Data.Semigroup
-  open import Notation.Append
-
-  instance
-    Semigroup:String : Semigroup String
-    Semigroup:String = Semigroup: _++_
-
-  -- String is a monoid.
-
-  open import Data.Monoid
-
-  instance
-    Monoid:String : Monoid String
-    Monoid:String = Monoid: ""
-
   -- Functions for converting String to/from List Char.
 
   open import Agda.Builtin.String
@@ -74,26 +57,19 @@ module String where
   -- Pad a string with a character up to some desired length.
 
   open import Data.List
-  open import Notation.Sub
 
   padRight : Nat -> Char -> String -> String
   padRight desiredLength padChar s =
     let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-    in s ++ (List.foldl _++_ "" replicated)
+    in s ++ (foldl _++_ "" replicated)
 
   padLeft : Nat -> Char -> String -> String
   padLeft desiredLength padChar s =
     let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-    in (List.foldl _++_ "" replicated) ++ s
+    in (foldl _++_ "" replicated) ++ s
 
   -- Concatenate a list of strings into one string.
 
   concat : List String -> String
   concat [] = ""
   concat (str :: strs) = str ++ concat strs
-
-open String public
-  using (
-    Semigroup:String;
-    Monoid:String
-  )

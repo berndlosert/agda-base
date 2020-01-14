@@ -18,7 +18,7 @@ instance
 
 -- Use ++ to append strings.
 
-open import Notation.Append
+open import Notation.Append public
 
 instance
   Append:String : Append String String String
@@ -36,3 +36,19 @@ instance
       Constraint = \ _ -> Unit;
       fromString = \ s -> s
     }
+
+-- String is a semigroup.
+
+open import Data.Semigroup public
+
+instance
+  Semigroup:String : Semigroup String
+  Semigroup:String = Semigroup: _++_
+
+-- String is a monoid.
+
+open import Data.Monoid public
+
+instance
+  Monoid:String : Monoid String
+  Monoid:String = Monoid: ""

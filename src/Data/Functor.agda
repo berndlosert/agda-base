@@ -5,8 +5,7 @@ module Data.Functor where
 -- A function F : ob C -> ob D is a functor when it has a corresponding map
 -- operation satisfying the functor laws.
 
-open import Control.Category
-open import Data.Tuple
+open import Control.Category public
 
 record Functor (C D : Category) (F : ob C -> ob D) : Set where
   constructor Functor:
@@ -22,7 +21,7 @@ Endofunctor C = Functor C C
 
 -- A convenient shorthand for defining profunctors.
 
-open import Notation.Mul
+open import Data.Tuple public
 
 Profunctor : (C D : Category) -> (ob D * ob C -> Set) -> Set
 Profunctor C D = Functor (Op D * C) Sets
@@ -114,40 +113,6 @@ instance
 Profunctor:hom : (C : Category) -> Profunctor C C (uncurry (hom C))
 Profunctor:hom C .map (f , g) h = f >>> h >>> g
   where instance _ = C
-
--- With this, we can write F * G for coproduct of two endofunctors on Sets.
-
-instance
-  Mul:Functor : Mul (Set -> Set)
-  Mul:Functor = Mul: \ F G X -> F X * G X
-
--- The product of two endofunctors is a functor.
-
-instance
-  Endofunctor:Product : forall {F G}
-    -> {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets G}}
-    -> Endofunctor Sets (F * G)
-  Endofunctor:Product .map f (x , y) = (map f x , map f y)
-
--- With this, we can write F + G for coproduct of two endofunctors on Sets.
-
-open import Data.Either
-open import Notation.Add
-
-instance
-  Add:Functor : Add (Set -> Set)
-  Add:Functor = Add: \ F G X -> F X + G X
-
--- The coproduct of two endofunctors is a functor.
-
-instance
-  Endofunctor:Coproduct : forall {F G}
-    -> {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets G}}
-    -> Endofunctor Sets (F + G)
-  Endofunctor:Coproduct .map f (left x) = left (map f x)
-  Endofunctor:Coproduct .map f (right x) = right (map f x)
 
 -- And this allows use to use ~> for natural transformations for endofunctors on Sets.
 

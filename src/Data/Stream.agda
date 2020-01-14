@@ -7,16 +7,6 @@ open import Data.Stream.Base public
 
 module Stream where
 
-  -- Stream is a functor.
-
-  open import Control.Category
-  open import Data.Functor
-
-  instance
-    Functor:Stream : Endofunctor Sets Stream
-    Functor:Stream .map f xs .head = f (head xs)
-    Functor:Stream .map f xs .tail = map f (tail xs)
-
   -- iterate f x creates the stream [ x # f x # f (f x) # ... ].
 
   iterate : forall {X} -> (X -> X) -> X -> Stream X
@@ -45,6 +35,3 @@ module Stream where
   take : forall {X} -> Nat -> Stream X -> List X
   take 0 _ = []
   take (suc n) xs = head xs :: take n (tail xs)
-
-open Stream
-  using (Functor:Stream)

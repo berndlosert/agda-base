@@ -9,7 +9,7 @@ module Control.Applicative where
 open import Control.Category
 open import Data.Function
 open import Data.Functor
-open import Data.Tuple
+open import Data.Tuple public
 open import Data.Unit
 open import Notation.Mul
 
@@ -63,12 +63,11 @@ open Applicative {{...}} public
 -- zip in terms of pure and _<*>_.
 
 Idiom: : forall {F} {{_ : Endofunctor Sets F}}
- -> (forall {X Y} -> F (X -> Y) -> F X -> F Y)
- -> (forall {X} -> X -> F X)
- -> Applicative F
-Idiom: _<*>_ pure = \ where
-  .zip -> \ { (x , y) -> (pure _,_ <*> x) <*> y }
-  .unit -> pure {Unit}
+  -> (forall {X Y} -> F (X -> Y) -> F X -> F Y)
+  -> (forall {X} -> X -> F X)
+  -> Applicative F
+Idiom: _<*>_ pure .zip (x , y) = (pure _,_ <*> x) <*> y
+Idiom: _<*>_ pure .unit = pure {Unit}
 
 -- Every monad of type Set -> Set is an applicative with unit = return
 -- and _<*>_ = ap, where ap defined as follows:

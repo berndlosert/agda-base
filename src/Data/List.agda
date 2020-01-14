@@ -7,52 +7,10 @@ open import Data.List.Base public
 
 module List where
 
-  -- List is foldable.
-
-  open import Data.Foldable public
-  open import Data.Monoid
-
-  instance
-    Foldable:List : Foldable List
-    Foldable:List .lift = [_]
-    Foldable:List .foldMap f [] = mempty
-    Foldable:List .foldMap f (x :: xs) = f x <> foldMap f xs
-
-  -- List is a monad.
-
-  open import Control.Category
-  open import Control.Monad
-  open import Data.Functor
-  open import Notation.Append
-
-  instance
-    Monad:List : Monad Sets List
-    Monad:List .return = [_]
-    Monad:List .extend k [] = []
-    Monad:List .extend k (x :: xs) = k x ++ extend k xs
-
-  -- List is a functor.
-
-  instance
-    Functor:List : Endofunctor Sets List
-    Functor:List = Functor: liftM
-
   -- The join operation of the list monad is concat.
 
   concat : forall {X} -> List (List X) -> List X
   concat = join
-
-  -- List is traversable.
-
-  open import Control.Applicative
-  open import Data.Traversable
-
-  instance
-    Traversable:List : Traversable List
-    Traversable:List .sequence {F} {X} = foldr cons (pure [])
-      where
-        cons : F X -> F (List X) -> F (List X)
-        cons x xs = (| _::_ x xs |)
 
   -- Reversing a list is a natural transformation.
 
@@ -91,17 +49,7 @@ module List where
   -- Zip two lists together with a function.
 
   zipWith : forall {X Y Z} -> (X -> Y -> Z) -> List X -> List Y -> List Z
-  zipWith f [] _ = []
-  zipWith f _ [] = []
-  zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
-
-  -- List forms an applicative functor in two ways. The most common way given
-  -- as an instance below. The other way is from the monad instance.
-
-  instance
-    Applicative:List : Applicative List
-    Applicative:List .zip (xs , ys) = zipWith _,_ xs ys
-    Applicative:List .unit = [_]
+  zipWith f xs ys = map (uncurry f) (zip (xs , ys))
 
   -- Decompose a list into its head and tail if it isn't empty.
 
@@ -208,21 +156,6 @@ module List where
   replicate zero x = []
   replicate (suc n) x = x :: replicate n x
 
-  -- Try to get the nth element of a list.
-
-  index : forall {X} -> List X -> Nat -> Maybe X
-  index [] _ = nothing
-  index (x :: xs) zero = just x
-  index (x :: xs) (suc n) = index xs n
-
-  -- Allows use to use _!!_ for index.
-
-  open import Notation.Index
-
-  instance
-    Index:List : Index List
-    Index:List = Index: Nat Maybe index
-
   -- take n, applied to a list xs, returns the prefix of xs of length n, or xs
   -- itself if n > length xs.
 
@@ -264,12 +197,3 @@ module List where
   transpose : forall {X} -> List (List X) -> List (List X)
   transpose [] = []
   transpose (heads :: tails) = zipCons heads (transpose tails)
-
-open List public
-  using (
-    Foldable:List;
-    Traversable:List;
-    Applicative:List;
-    Monad:List;
-    Index:List
-  )

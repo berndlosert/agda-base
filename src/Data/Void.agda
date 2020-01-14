@@ -13,3 +13,11 @@ data Void : Set where
 
 absurd : {X : Set} -> Void -> X
 absurd ()
+
+-- Void forms the empty semigroup.
+
+open import Data.Semigroup
+
+instance
+  Semigroup:Void : Semigroup Void
+  Semigroup:Void = Semigroup: \ ()

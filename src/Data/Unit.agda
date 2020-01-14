@@ -29,3 +29,19 @@ thunk x tt = x
 
 unthunk : {X : Set} -> (Unit -> X) -> X
 unthunk x = x tt
+
+-- Unit forms a one-element semigroup.
+
+open import Data.Semigroup
+
+instance
+  Semigroup:Unit : Semigroup Unit
+  Semigroup:Unit = Semigroup: \ _ _ -> tt
+
+-- Unit forms a one-element monoid.
+
+open import Data.Monoid
+
+instance
+  Monoid:Unit : Monoid Unit
+  Monoid:Unit = Monoid: tt
