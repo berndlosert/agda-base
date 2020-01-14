@@ -36,24 +36,13 @@ instance
         let (sum , carry') = Digit.fullAdd m n carry
         in sum :: add ms ns carry'
 
--- Use natural number literals to write decimal numbers.
-
-open import Data.Nat public
-open import Data.Unit public
-open import Notation.Number public
-
-instance
-  Number:Decimal : Number Decimal
-  Number:Decimal = record {
-       Constraint = \ _ -> Unit;
-       fromNat = \ n -> go n
-     }
-     where
-       go : Nat -> Decimal
-       go zero = [ 0d ]
-       go (suc n) = go n + [ 1d ]
-
 module Decimal where
+
+  open import Data.Nat
+
+  fromNat : Nat -> Decimal
+  fromNat zero = [ 0d ]
+  fromNat (suc n) = fromNat n + [ 1d ]
 
   toNat : Decimal -> Nat
   toNat [] = 0

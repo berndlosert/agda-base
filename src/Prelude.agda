@@ -38,8 +38,7 @@ open import Notation.Exp public
 open import Notation.Index public
 open import Notation.Mod public
 open import Notation.Mul public
-open import Notation.Negative public
-open import Notation.Number public
+open import Notation.Negation public
 open import Notation.Sub public
 
 open import System.IO public

@@ -10,31 +10,10 @@ open import Agda.Builtin.Int public
   using (Int; pos; negsuc)
   hiding (module Int)
 
-open import Data.Unit public
-open import Notation.Number public
-
-instance
-  Number:Int : Number Int
-  Number:Int = record {
-       Constraint = \ _ -> Unit;
-       fromNat = \ n -> pos n
-     }
-
--- Allows us to write -n for negative integers.
+-- Negation of integers.
 
 open import Data.Nat public
-open import Notation.Negative public
-
-instance
-  Negative:Int : Negative Int
-  Negative:Int = record {
-      Constraint = \ _ -> Unit;
-      fromNeg = \ where
-        0 -> pos zero
-        (suc n) -> negsuc n
-    }
-
--- Negation of integers.
+open import Notation.Negation public
 
 instance
   Negation:Int : Negation Int

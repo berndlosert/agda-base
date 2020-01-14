@@ -48,23 +48,10 @@ instance
   Ord:Nat : Ord Nat
   Ord:Nat = Ord: Builtin._<_
 
--- For some odd reason, we have to define Number:Nat in order for other
--- modules to define instances of Number without getting a "No instance of
--- type (Number Nat) was found in scope" error.
-
-open import Data.Unit public
-open import Notation.Number public
-
-instance
-  Number:Nat : Number Nat
-  Number:Nat = record {
-       Constraint = \ _ -> Unit;
-       fromNat = \ n -> n
-     }
-
 -- Division of natural numbers.
 
-open import Data.Void
+open import Data.Unit public
+open import Data.Void public
 open import Notation.Div public
 
 instance

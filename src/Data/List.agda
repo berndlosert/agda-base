@@ -49,7 +49,7 @@ module List where
   -- Zip two lists together with a function.
 
   zipWith : forall {X Y Z} -> (X -> Y -> Z) -> List X -> List Y -> List Z
-  zipWith f xs ys = map (uncurry f) (zip (xs , ys))
+  zipWith = map2
 
   -- Decompose a list into its head and tail if it isn't empty.
 
@@ -197,3 +197,17 @@ module List where
   transpose : forall {X} -> List (List X) -> List (List X)
   transpose [] = []
   transpose (heads :: tails) = zipCons heads (transpose tails)
+
+  -- til n returns a list of the first n natural numbers.
+
+  til : Nat -> List Nat
+  til 0 = []
+  til (suc n) = til n ++ [ n ]
+
+  -- range m n produces a list of natural numbers from m to n.
+
+  range : Nat -> Nat -> List Nat
+  range m n = case compare m n of \ where
+    GT -> []
+    EQ -> [ m ]
+    LT -> map (_+ m) $ til $ suc (n - m)
