@@ -12,85 +12,83 @@ module Base where
 open Base public
   hiding (module Digit)
 
+-- This is how we compare digits for equality.
+
+open import Data.Eq public
+
+instance
+  Eq:Digit : Eq Digit
+  Eq:Digit = Eq: \ where
+    0d 0d -> true
+    1d 1d -> true
+    2d 2d -> true
+    3d 3d -> true
+    4d 4d -> true
+    5d 5d -> true
+    6d 6d -> true
+    7d 7d -> true
+    8d 8d -> true
+    9d 9d -> true
+    _ _ -> false
+
+-- This is how we compare digits in general.
+
+open import Data.Ord public
+
+instance
+  Ord:Digit : Ord Digit
+  Ord:Digit = Ord: \ where
+
+    0d 0d -> false
+    0d _ -> true
+
+    1d 0d -> false
+    1d 1d -> false
+    1d _ -> true
+
+    2d 0d -> false
+    2d 1d -> false
+    2d 2d -> false
+    2d _ -> true
+
+    3d 0d -> false
+    3d 1d -> false
+    3d 2d -> false
+    3d 3d -> false
+    3d _ -> true
+
+    4d 5d -> true
+    4d 6d -> true
+    4d 7d -> true
+    4d 8d -> true
+    4d 9d -> true
+    4d _ -> false
+
+    5d 6d -> true
+    5d 7d -> true
+    5d 8d -> true
+    5d 9d -> true
+    5d _ -> false
+
+    6d 7d -> true
+    6d 8d -> true
+    6d 9d -> true
+    6d _ -> false
+
+    7d 8d -> true
+    7d 9d -> true
+    7d _ -> false
+
+    8d 9d -> true
+    8d _ -> false
+
+    9d _ -> false
+
 module Digit where
-
-  -- This is how we compare digits for equality.
-
-  open import Data.Bool
-  open import Data.Eq
-
-  instance
-    Eq:Digit : Eq Digit
-    Eq:Digit = Eq: \ where
-      0d 0d -> true
-      1d 1d -> true
-      2d 2d -> true
-      3d 3d -> true
-      4d 4d -> true
-      5d 5d -> true
-      6d 6d -> true
-      7d 7d -> true
-      8d 8d -> true
-      9d 9d -> true
-      _ _ -> false
-
-  -- This is how we compare digits in general.
-
-  open import Data.Ord
-
-  instance
-    Ord:Digit : Ord Digit
-    Ord:Digit = Ord: \ where
-
-      0d 0d -> false
-      0d _ -> true
-
-      1d 0d -> false
-      1d 1d -> false
-      1d _ -> true
-
-      2d 0d -> false
-      2d 1d -> false
-      2d 2d -> false
-      2d _ -> true
-
-      3d 0d -> false
-      3d 1d -> false
-      3d 2d -> false
-      3d 3d -> false
-      3d _ -> true
-
-      4d 5d -> true
-      4d 6d -> true
-      4d 7d -> true
-      4d 8d -> true
-      4d 9d -> true
-      4d _ -> false
-
-      5d 6d -> true
-      5d 7d -> true
-      5d 8d -> true
-      5d 9d -> true
-      5d _ -> false
-
-      6d 7d -> true
-      6d 8d -> true
-      6d 9d -> true
-      6d _ -> false
-
-      7d 8d -> true
-      7d 9d -> true
-      7d _ -> false
-
-      8d 9d -> true
-      8d _ -> false
-
-      9d _ -> false
 
   -- Adding two digits m and n yields a pair of digits (sum , cout).
 
-  open import Data.Tuple
-  open import Notation.Mul
+  open import Data.Tuple public
 
   halfAdd : Digit -> Digit -> Digit * Digit
 
@@ -205,6 +203,7 @@ module Digit where
   halfAdd 9d 9d = (8d , 1d)
 
   -- Adding three digits m, n, cin yields a pair (sum , cout).
+
   fullAdd : Digit -> Digit -> Digit -> Digit * Digit
   fullAdd m n cin =
     let
@@ -266,6 +265,3 @@ module Digit where
     7d -> 7
     8d -> 8
     9d -> 9
-
-open Digit public
-  using (Eq:Digit; Ord:Digit)

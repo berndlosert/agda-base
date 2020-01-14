@@ -41,7 +41,7 @@ instance
 
 -- Use _/_ to divide Float values.
 
-open import Data.Unit
+open import Data.Unit public
 open import Notation.Div public
 
 instance
@@ -67,11 +67,19 @@ instance
   Ord:Float : Ord Float
   Ord:Float = Ord: Builtin.primFloatNumericalLess
 
+-- Convert a Nat to a Float.
+
+open import Data.Unit public
+open import Notation.Number public
+
+instance
+  Number:Float : Number Float
+  Number:Float = record {
+       Constraint = \ _ -> Unit;
+       fromNat = \ n -> Builtin.primNatToFloat n
+     }
+
 module Float where
-
-  -- Convert a Nat to a Float.
-
-  fromNat = Builtin.primNatToFloat
 
   -- Pretty-print Float values.
 

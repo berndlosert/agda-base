@@ -5,59 +5,56 @@ module Data.Decimal where
 -- The natural numbers represented as a list of digits with the least
 -- significant digit first.
 
-open import Data.Digit
-open import Data.List
+open import Data.Digit public
+open import Data.List public
 
 Decimal : Set
 Decimal = List Digit
 
+-- This allows us to use _+_ for adding decimals.
+
+open import Notation.Add public
+
+instance
+  Add:Decimal : Add Decimal
+  Add:Decimal ._+_ m n = add m n 0d
+    where
+
+      -- Add two decimal numbers and a carry digit following the school-taught
+      -- algorithm.
+
+      add : Decimal -> Decimal -> Digit -> Decimal
+      add [] [] 0d = [] -- prevents adding leading zeros
+      add [] [] carry = [ carry ]
+      add [] (n :: ns) carry =
+        let (sum , carry') = Digit.halfAdd n carry
+        in sum :: add [] ns carry'
+      add (m :: ms) [] carry =
+        let (sum , carry') = Digit.halfAdd m carry
+        in sum :: add ms [] carry'
+      add (m :: ms) (n :: ns) carry =
+        let (sum , carry') = Digit.fullAdd m n carry
+        in sum :: add ms ns carry'
+
+-- Use natural number literals to write decimal numbers.
+
+open import Data.Nat public
+open import Data.Unit public
+open import Notation.Number public
+
+instance
+  Number:Decimal : Number Decimal
+  Number:Decimal = record {
+       Constraint = \ _ -> Unit;
+       fromNat = \ n -> go n
+     }
+     where
+       go : Nat -> Decimal
+       go zero = [ 0d ]
+       go (suc n) = go n + [ 1d ]
+
 module Decimal where
-
-  -- Add two decimal numbers and a carry digit following the school-taught
-  -- algorithm.
-
-  open import Data.Digit
-  open import Data.List
-  open import Data.Tuple
-
-  add : Decimal -> Decimal -> Digit -> Decimal
-  add [] [] 0d = [] -- prevents adding leading zeros
-  add [] [] carry = [ carry ]
-  add [] (n :: ns) carry =
-    let (sum , carry') = Digit.halfAdd n carry
-    in sum :: add [] ns carry'
-  add (m :: ms) [] carry =
-    let (sum , carry') = Digit.halfAdd m carry
-    in sum :: add ms [] carry'
-  add (m :: ms) (n :: ns) carry =
-    let (sum , carry') = Digit.fullAdd m n carry
-    in sum :: add ms ns carry'
-
-  -- This allows us to use _+_ for adding decimals.
-
-  open import Notation.Add
-
-  instance
-    Add:Decimal : Add Decimal
-    Add:Decimal = Add: (\ m n -> add m n 0d)
-
-  -- Convert a unary natural number to a decimal number.
-
-  open import Data.Nat
-
-  fromNat : Nat -> Decimal
-  fromNat zero = [ 0d ]
-  fromNat (suc n) = fromNat n + [ 1d ]
-
-  -- Convert a decimal number to a unary natural number.
-
-  open import Notation.Mul
-
-  instance _ = Number:Nat
 
   toNat : Decimal -> Nat
   toNat [] = 0
   toNat (d :: ds) = Digit.toNat d + 10 * toNat ds
-
-open Decimal public
-  using (Add:Decimal)

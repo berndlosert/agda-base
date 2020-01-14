@@ -9,7 +9,7 @@ open import Agda.Builtin.Equality public
 
 -- Contraint is used for specifying contraints on the arguments of functions.
 
-open import Data.Bool
+open import Data.Bool public
 
 Constraint : Bool -> Set
 Constraint x = x === true
