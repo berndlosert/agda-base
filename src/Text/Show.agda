@@ -51,26 +51,23 @@ instance
 
 -- Pretty-print Nat values.
 
-open import Data.Cast
-open import Data.Nat.Base
+open import Data.Nat
 
 instance
   Show:Nat : Show Nat
-  Show:Nat = Show: \ n -> show (nonneg n)
+  Show:Nat .show n = Int.show (nonneg n)
 
 -- Pretty-print String values.
 
-open import Agda.Builtin.String using (primShowString)
+open import Data.String
 
 instance
   Show:String : Show String
-  Show:String = Show: primShowString
+  Show:String .show = String.show
 
 -- Pretty-print pairs.
 
 open import Data.Tuple
-open import Notation.Append
-open import Notation.Mul
 
 instance
   Show:Product : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)

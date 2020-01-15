@@ -6,8 +6,7 @@ module Data.Bool where
 
 open import Agda.Builtin.Bool public
 
--- The equivalents of false and true at the type-level are Void and Unit. We
--- record this fact with a Cast instance.
+-- The equivalents of false and true at the type-level are Void and Unit.
 
 open import Data.Unit
 open import Data.Void

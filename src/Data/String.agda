@@ -8,11 +8,11 @@ module String where
 
   -- Functions for converting String to/from List Char.
 
-  open import Agda.Builtin.String
-    using (primStringToList; primStringFromList)
+  open import Agda.Builtin.String as Builtin
 
-  toList = primStringToList
-  fromList = primStringFromList
+  toList = Builtin.primStringToList
+  fromList = Builtin.primStringFromList
+  show = Builtin.primShowString
 
   -- Convert a Char to a String.
 

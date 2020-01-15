@@ -3,7 +3,6 @@
 module Prelude where
 
 open import Data.Bool public
-open import Data.Cast public
 open import Data.Char public
 open import Data.Either public
 open import Data.Eq public
