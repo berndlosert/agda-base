@@ -43,11 +43,11 @@ instance
 
 -- Pretty-print Int values.
 
-open import Agda.Builtin.Int
+open import Data.Int
 
 instance
   Show:Int : Show Int
-  Show:Int = Show: primShowInteger
+  Show:Int .show = Int.show
 
 -- Pretty-print Nat values.
 
@@ -56,7 +56,7 @@ open import Data.Nat.Base
 
 instance
   Show:Nat : Show Nat
-  Show:Nat = Show: \ n -> show (pos n)
+  Show:Nat = Show: \ n -> show (nonneg n)
 
 -- Pretty-print String values.
 

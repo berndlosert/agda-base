@@ -6,7 +6,7 @@ module Data.Int where
 -- negsuc : Nat -> Int. The value nonneg n represents the nonnegitive integer n.
 -- The value negsuc n represents the negative integer -n - 1.
 
-open import Agda.Builtin.Int public
+open import Agda.Builtin.Int as Builtin public
   using (Int; negsuc)
   renaming (pos to nonneg)
   hiding (module Int)
@@ -85,9 +85,11 @@ open import Notation.Sub public
 
 instance
   Sub:Int : Sub Int
-  Sub:Int = Sub: \ n m -> n + (- m)
+  Sub:Int ._-_ n m = n + (- m)
 
 module Int where
+
+  show = Builtin.primShowInteger
 
   -- Convert an Int to a Nat (basically the absolute value).
 
