@@ -97,5 +97,5 @@ module Float where
   open import Data.Int
 
   fromInt : Int -> Float
-  fromInt (pos n) = fromNat n
+  fromInt (nonneg n) = fromNat n
   fromInt (negsuc n) = - (fromNat n) - 1.0
