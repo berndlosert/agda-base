@@ -9,7 +9,7 @@ open import Data.Semigroup public
 record Monoid (X : Set) : Set where
   constructor Monoid:
   field
-    {{Semigroup:Monoid}} : Semigroup X
+    overlap {{Semigroup:Monoid}} : Semigroup X
     mempty : X
 
 open Monoid {{...}} public

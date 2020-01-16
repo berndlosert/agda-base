@@ -13,7 +13,7 @@ open import Data.Functor
 record Traversable (T : Set -> Set) : Set where
   constructor Traversable:
   field
-    {{instance:Functor}} : Endofunctor Sets T
+    overlap {{instance:Functor}} : Endofunctor Sets T
     sequence : forall {F X} {{_ : Applicative F}}
       -> T (F X) -> F (T X)
 

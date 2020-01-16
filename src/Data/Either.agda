@@ -36,18 +36,23 @@ mirror : forall {X Y} -> X + Y -> Y + X
 mirror (left x) = right x
 mirror (right y) = left y
 
--- The injections left and right have two pseudoduals called leftToMaybe and
--- rightToMaybe.
+-- Left and right projections.
 
 open import Data.Maybe.Base
 
-leftToMaybe : forall {X Y} -> X + Y -> Maybe X
-leftToMaybe (left x) = just x
-leftToMaybe _ = nothing
+fromLeft : forall {X Y} -> X + Y -> Maybe X
+fromLeft (left x) = just x
+fromLeft _ = nothing
 
-rightToMaybe : forall {X Y} -> X + Y -> Maybe Y
-rightToMaybe (right y) = just y
-rightToMaybe _ = nothing
+fromRight : forall {X Y} -> X + Y -> Maybe Y
+fromRight (right y) = just y
+fromRight _ = nothing
+
+-- Turn a Maybe into an Either.
+
+note : forall {X Y} -> X -> Maybe Y -> Either X Y
+note x nothing = left x
+note x (just y) = right y
 
 -- _+_ forms a bifunctor in the obvious way. The map operation of this
 -- bifunctor in uncurried form is plus:
@@ -55,3 +60,19 @@ rightToMaybe _ = nothing
 plus : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X + X' -> Y + Y'
 plus f g (left x) = left (f x)
 plus f g (right y) = right (g y)
+
+-- Either X is a monad/applicative/functor for every X.
+
+open import Control.Monad
+
+instance
+  Monad:Either : forall {X} -> Monad Sets (Either X)
+  Monad:Either .return y = right y
+  Monad:Either .extend f (right y) = f y
+  Monad:Either .extend f (left x) = left x
+
+  Functor:Either : forall {X} -> Endofunctor Sets (Either X)
+  Functor:Either .map = liftM
+
+  Applicative:Either : forall {X} -> Applicative (Either X)
+  Applicative:Either = Idiom: ap return

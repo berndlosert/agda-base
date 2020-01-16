@@ -16,7 +16,7 @@ open import Notation.Mul
 record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
   field
-    {{Functor:Applicative}} : Endofunctor Sets F
+    overlap {{Functor:Applicative}} : Endofunctor Sets F
     zip : forall {X Y} -> F X * F Y -> F (X * Y)
     unit : Unit -> F Unit
 
@@ -31,31 +31,36 @@ record Applicative (F : Set -> Set) : Set where
   infixl 24 _<*>_
 
   _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
-  f <*> x = map apply (zip (f , x))
+  f <*> x = apply <$> zip (f , x)
 
   -- Lift a value.
 
   pure : forall {X} -> X -> F X
-  pure x = map (const x) (unit tt)
+  pure x = const x <$> unit tt
 
   -- This is the two-argument version of map.
 
   map2 : forall {X Y Z} -> (X -> Y -> Z) -> F X -> F Y -> F Z
-  map2 f x = map f x <*>_
+  map2 f x y = f <$> x <*> y
+
+  -- This is the three-argument version of map.
+
+  map3 : forall {W X Y Z} -> (W -> X -> Y -> Z) -> F W -> F X -> F Y -> F Z
+  map3 f w x y = f <$> w <*> x <*> y
 
   -- Generalization of flip const.
 
   infixl 24 _*>_
 
   _*>_ : forall {X Y} -> F X -> F Y -> F Y
-  _*>_ = map2 (flip const)
+  x *> y = flip const <$> x <*> y
 
   -- Generalization of const.
 
   infixl 24 _<*_
 
   _<*_ : forall {X Y} -> F X -> F Y -> F X
-  _<*_ = map2 const
+  x <* y = const <$> x <*> y
 
 open Applicative {{...}} public
 

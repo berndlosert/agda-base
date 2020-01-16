@@ -19,6 +19,14 @@ open Functor {{...}} public
 Endofunctor : (C : Category) -> (ob C -> ob C) -> Set
 Endofunctor C = Functor C C
 
+-- An infix synonym for map for functors of type Endofunctor Sets.
+
+infixl 24 _<$>_
+
+_<$>_ : forall {X Y F} {{_ : Endofunctor Sets F}}
+  -> (X -> Y) -> F X -> F Y
+_<$>_ = map
+
 -- A convenient shorthand for defining profunctors.
 
 open import Data.Tuple public
