@@ -75,4 +75,4 @@ instance
   Functor:Either .map = liftM
 
   Applicative:Either : forall {X} -> Applicative (Either X)
-  Applicative:Either = Idiom: ap return
+  Applicative:Either = Applicative: ap return

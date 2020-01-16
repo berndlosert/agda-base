@@ -83,10 +83,7 @@ open import Control.Applicative public
 
 instance
   Applicative:List : Applicative List
-  Applicative:List .zip ([] , _) = []
-  Applicative:List .zip (_ , []) = []
-  Applicative:List .zip (x :: xs , y :: ys) = (x , y) :: zip (xs , ys)
-  Applicative:List .unit = [_]
+  Applicative:List = Applicative: ap return
 
 -- List is traversable.
 

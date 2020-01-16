@@ -46,11 +46,6 @@ module List where
   concatMap : forall {X Y} -> (X -> List Y) -> List X -> List Y
   concatMap = extend
 
-  -- Zip two lists together with a function.
-
-  zipWith : forall {X Y Z} -> (X -> Y -> Z) -> List X -> List Y -> List Z
-  zipWith = map2
-
   -- Decompose a list into its head and tail if it isn't empty.
 
   open import Data.Maybe
@@ -176,6 +171,18 @@ module List where
 
   splitAt : forall {X} -> Nat -> List X -> List X * List X
   splitAt n xs = (take n xs , drop n xs)
+
+  -- Zip two lists together with a function.
+
+  zipWith : forall {X Y Z} -> (X -> Y -> Z) -> List X -> List Y -> List Z
+  zipWith f [] _ = []
+  zipWith f _ [] = []
+  zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
+
+  -- Zip two lists into a list of pairs.
+
+  zip : forall {X Y} -> List X -> List Y -> List (X * Y)
+  zip = zipWith _,_
 
   -- Zip together a list of heads and a list of tails.
 

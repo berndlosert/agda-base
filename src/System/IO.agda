@@ -50,7 +50,8 @@ instance
 open import Control.Applicative
 
 instance
-  Applicative:IO = Idiom: ap return
+  Applicative:IO : Applicative IO
+  Applicative:IO = Applicative: ap return
 
 -- IO X is a semigroup and a monoid whenever X is, respectively.
 
@@ -59,7 +60,7 @@ open import Data.Monoid
 
 instance
   Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
-  Semigroup:IO = Semigroup: \ x y -> map2 _<>_ x y
+  Semigroup:IO = Semigroup: \ x y -> (| _<>_ x y |)
 
   Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
   Monoid:IO = Monoid: (return mempty)

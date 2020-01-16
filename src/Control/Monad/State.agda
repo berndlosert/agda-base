@@ -5,11 +5,36 @@ module Control.Monad.State where
 -- State S X models state transitions where the states are of type S and the
 -- transitions produce an output of type X.
 
-open import Data.Tuple
-open import Notation.Mul
+open import Data.Tuple public
 
 State : Set -> Set -> Set
 State S X = S -> X * S
+
+-- State S forms a monad.
+
+open import Control.Category
+open import Control.Monad public
+
+instance
+  Monad:State : forall {S} -> Monad Sets (State S)
+  Monad:State .return x s = (x , s)
+  Monad:State .extend f m = \ s -> let (x , s') = m s in (f x) s'
+
+-- State S forms a functor.
+
+open import Data.Functor public
+
+instance
+  Functor:State : forall {S} -> Endofunctor Sets (State S)
+  Functor:State = Functor: liftM
+
+-- Applicative instance of State S derived from the monad instance.
+
+open import Control.Applicative public
+
+instance
+  Applicative:State : forall {S} -> Applicative (State S)
+  Applicative:State = Applicative: ap return
 
 module State where
 
@@ -30,34 +55,3 @@ module State where
 
   exec : forall {S X} -> State S X -> S -> S
   exec trans = run trans >>> snd
-
-  -- State S forms a monad.
-
-  open import Control.Monad
-
-  instance
-    Monad:State : forall {S} -> Monad Sets (State S)
-    Monad:State .return x s = (x , s)
-    Monad:State .extend f m = \ s -> let (x , s') = m s in run (f x) s'
-
-  -- State S forms a functor.
-
-  open import Data.Functor
-
-  instance
-    Functor:State : forall {S} -> Endofunctor Sets (State S)
-    Functor:State = Functor: liftM
-
-  -- Applicative instance of State S derived from the monad instance.
-
-  open import Control.Applicative
-
-  instance
-    Applicative:State : forall {S} -> Applicative (State S)
-    Applicative:State = Idiom: ap return
-
-open State
-  using (
-    Monad:State;
-    Applicative:State
-  )

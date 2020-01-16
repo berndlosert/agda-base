@@ -38,7 +38,7 @@ open import Control.Applicative public
 
 instance
   Applicative:Maybe : Applicative Maybe
-  Applicative:Maybe = Idiom: ap return
+  Applicative:Maybe = Applicative: ap return
 
 -- This is the left-biased Semigroup instance of Maybe X. This is useful when
 -- you have a list of Maybe X values and you want to pick the first one that is
