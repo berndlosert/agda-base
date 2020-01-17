@@ -2,8 +2,8 @@
 
 module Control.Comonad where
 
--- A functor F : ob C -> ob C is a comonad when it comes with two natural
--- transformations extract and duplicate obeying the comonad laws.
+-- A functor F : ob C -> ob C is a comonad when it comes with natural
+-- transformations extract and coextend/duplicate obeying the comonad laws.
 
 open import Control.Category
 open import Data.Functor
@@ -11,47 +11,36 @@ open import Data.Functor
 record Comonad (C : Category) (F : ob C -> ob C) : Set where
   constructor Comonad:
   field
-    {{instance:Functor}} : Functor C C F
-    duplicate : forall {X} -> hom C (F X) (F (F X))
+    {{Functor:Comonad}} : Functor C C F
+    coextend : forall {X Y} -> hom C (F X) Y -> hom C (F X) (F Y)
     extract : forall {X} -> hom C (F X) X
 
-  extend : forall {X Y} -> hom C (F X) Y -> hom C (F X) (F Y)
-  extend f = let instance _ = C in duplicate >>> map f
+  duplicate : forall {X} -> hom C (F X) (F (F X))
+  duplicate {X} = coextend id
+    where instance _ = C
 
-open Comonad {{...}} hiding (instance:Functor) public
-
--- Cokleisli F is the coKleisli category of a comonad F.
-
-Cokleisli : forall {C} F {{_ : Comonad C F}} -> Category
-Cokleisli {C} F = let instance _ = C in
-  record {
-    ob = ob C;
-    hom = \ X Y -> hom C (F X) Y;
-    _<<<_ = \ g f -> g <<< extend f;
-    id = extract
-  }
+open Comonad {{...}} public
 
 -- id is trivially a comonad.
 
 Comonad:id : (C : Category) -> Comonad C id
 Comonad:id C = let instance _ = C in
   record {
-      instance:Functor = Functor:id C;
-      duplicate = id;
+      Functor:Comonad = Functor:id C;
+      coextend = id;
       extract = id
   }
 
--- extend with the arguments swapped. Dual of _>>=_.
+module _ {F : Set -> Set} {{_ : Comonad Sets F}} {X Y : Set} where
 
-infixl 1 _=>>_
+  infixl 1 _=>>_ _=>=_
 
-_=>>_ : forall {F X Y} {{_ : Comonad Sets F}}
-  -> F X -> (F X -> Y) -> F Y
-x =>> f = extend f x
+  -- The cobind operator.
 
--- Cokleisli composition for comonads on Sets.
+  _=>>_ : F X -> (F X -> Y) -> F Y
+  x =>> f = coextend f x
 
-infixl 1 _=>=_
-_=>=_ : forall {F X Y Z} {{_ : Comonad Sets F}}
-  -> (F X -> Y) -> (F Y -> Z) -> (F X -> Z)
-f =>= g = extend f >>> g
+  -- Cokleisli composition for comonads on Sets.
+
+  _=>=_ : forall {Z} -> (F X -> Y) -> (F Y -> Z) -> (F X -> Z)
+  f =>= g = coextend f >>> g
