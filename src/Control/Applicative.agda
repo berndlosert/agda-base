@@ -9,7 +9,7 @@ open import Data.Functor
 
 record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
-  infixl 24 _<*>_
+  infixl 24 _<*>_ _*>_ _<*_
   field
     overlap {{Functor:Applicative}} : Endofunctor Sets F
     _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
@@ -17,14 +17,10 @@ record Applicative (F : Set -> Set) : Set where
 
   -- Generalization of flip const.
 
-  infixl 24 _*>_
-
   _*>_ : forall {X Y} -> F X -> F Y -> F Y
   x *> y = (| (flip const) x y |)
 
   -- Generalization of const.
-
-  infixl 24 _<*_
 
   _<*_ : forall {X Y} -> F X -> F Y -> F X
   x <* y = (| const x y |)
