@@ -8,9 +8,16 @@ module Control.Monad.Reader where
 Reader : Set -> Set -> Set
 Reader R X = R -> X
 
+-- Reader R is a functor.
+
+open import Data.Functor
+
+instance
+  Functor:Reader : forall {R} -> Endofunctor Sets (Reader R)
+  Functor:Reader .map f r = r >>> f
+
 -- Reader R is a monad.
 
-open import Control.Category
 open import Control.Monad
 
 instance
@@ -18,14 +25,16 @@ instance
   Monad:Reader .return x = \ _ -> x
   Monad:Reader .extend f m = \ r -> f (m r) r
 
--- The function ask returns the config. value.
+module Reader where
 
-ask : forall {R} -> Reader R R
-ask = id
+  -- The function ask returns the config. value.
 
--- Run a Reader computation with a given config. value to get an actual value.
+  ask : forall {R} -> Reader R R
+  ask = id
 
-open import Data.List
+  -- Run a Reader computation with a given config. value to get an actual value.
 
-run : forall {R X} -> Reader R X -> R -> X
-run = id
+  open import Data.List
+
+  run : forall {R X} -> Reader R X -> R -> X
+  run = id
