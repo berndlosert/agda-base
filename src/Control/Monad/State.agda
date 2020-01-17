@@ -10,23 +10,22 @@ open import Data.Tuple public
 State : Set -> Set -> Set
 State S X = S -> X * S
 
--- State S forms a monad.
-
-open import Control.Category
-open import Control.Monad public
-
-instance
-  Monad:State : forall {S} -> Monad Sets (State S)
-  Monad:State .return x s = (x , s)
-  Monad:State .extend f m = \ s -> let (x , s') = m s in (f x) s'
-
 -- State S forms a functor.
 
 open import Data.Functor public
 
 instance
   Functor:State : forall {S} -> Endofunctor Sets (State S)
-  Functor:State = Functor: liftM
+  Functor:State .map f m = \ s -> cross f id (m s)
+
+-- State S forms a monad.
+
+open import Control.Monad public
+
+instance
+  Monad:State : forall {S} -> Monad Sets (State S)
+  Monad:State .return x s = (x , s)
+  Monad:State .extend f m = \ s -> let (x , s') = m s in (f x) s'
 
 -- Applicative instance of State S derived from the monad instance.
 

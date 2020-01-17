@@ -31,19 +31,19 @@ module Free where
   lower : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
   lower = interpret id
 
+  -- Free F is a functor.
+
+  instance
+    Functor:Free : forall {F} -> Endofunctor Sets (Free F)
+    Functor:Free .map f free = Free: (map f <<< run free)
+
   -- Free F is a monad.
 
   instance
     Monad:Free : forall {F} -> Monad Sets (Free F)
     Monad:Free .return x = Free: \ _ -> return x
     Monad:Free .extend f m = Free: \ t ->
-      join (liftM (interpret t <<< f) (interpret t m))
-
-  -- Free F is a functor.
-
-    instance
-      Functor:Free : forall {F} -> Endofunctor Sets (Free F)
-      Functor:Free = Functor: liftM
+      join (map (interpret t <<< f) (interpret t m))
 
   -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 
@@ -90,6 +90,9 @@ module Free where
         -> Y
 
       instance
+        Functor:M : Endofunctor Sets M
+        Functor:M .map f m = \ ret ext -> m (f >>> ret) ext
+
         Monad:M : Monad Sets M
         Monad:M .return x = \ ret ext -> ret x
         Monad:M .extend f m = \ ret ext -> m (\ y -> (f y) ret ext) ext
@@ -113,12 +116,12 @@ module Free where
       -- standard definition of monad.
 
       M : Set -> Set
-      M X = forall {Y}
-        -> (X -> Y)
-        -> (F Y -> Y)
-        -> Y
+      M X = forall {Y} -> (X -> Y) -> (F Y -> Y) -> Y
 
       instance
+        Functor:M : Endofunctor Sets M
+        Functor:M .map f m = \ ret jn -> m (f >>> ret) jn
+
         Monad:M : Monad Sets M
         Monad:M .return x = \ ret jn -> ret x
         Monad:M .extend f m = \ ret jn -> m (\ x -> (f x) ret jn) jn

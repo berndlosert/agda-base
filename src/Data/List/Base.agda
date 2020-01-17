@@ -57,7 +57,16 @@ instance
   Foldable:List .foldMap f [] = mempty
   Foldable:List .foldMap f (x :: xs) = f x <> foldMap f xs
 
--- List is a monad.
+-- List forms a functor.
+
+open import Data.Functor public
+
+instance
+  Functor:List : Endofunctor Sets List
+  Functor:List .map f [] = []
+  Functor:List .map f (x :: xs) = f x :: map f xs
+
+-- List forms a monad.
 
 open import Control.Category
 open import Control.Monad public
@@ -68,16 +77,7 @@ instance
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
 
--- List is a functor.
-
-open import Data.Functor public
-
-instance
-  Functor:List : Endofunctor Sets List
-  Functor:List = Functor: liftM
-
--- List forms an applicative functor in two ways. The most common way given
--- as an instance below. The other way is from the monad instance.
+-- The Applicative instance of List is derived from the Monad instance.
 
 open import Control.Applicative public
 

@@ -63,16 +63,19 @@ plus f g (right y) = right (g y)
 
 -- Either X is a monad/applicative/functor for every X.
 
-open import Control.Monad
+open import Data.Functor public
+open import Control.Applicative public
+open import Control.Monad public
 
 instance
+  Functor:Either : forall {X} -> Endofunctor Sets (Either X)
+  Functor:Either .map f (left x) = left x
+  Functor:Either .map f (right y) = right (f y)
+
   Monad:Either : forall {X} -> Monad Sets (Either X)
   Monad:Either .return y = right y
   Monad:Either .extend f (right y) = f y
   Monad:Either .extend f (left x) = left x
-
-  Functor:Either : forall {X} -> Endofunctor Sets (Either X)
-  Functor:Either .map = liftM
 
   Applicative:Either : forall {X} -> Applicative (Either X)
   Applicative:Either = Applicative: ap return

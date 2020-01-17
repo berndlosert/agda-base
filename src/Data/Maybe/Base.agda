@@ -13,6 +13,15 @@ data Maybe (X : Set) : Set where
 
 {-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
+-- Maybe forms a functor.
+
+open import Data.Functor public
+
+instance
+  Functor:Maybe : Endofunctor Sets Maybe
+  Functor:Maybe .map f nothing = nothing
+  Functor:Maybe .map f (just x) = just (f x)
+
 -- Maybe forms a monad, which we can use to model computations that can fail.
 
 open import Control.Category
@@ -23,14 +32,6 @@ instance
   Monad:Maybe .return = just
   Monad:Maybe .extend k nothing = nothing
   Monad:Maybe .extend k (just x) = k x
-
--- We derive the Functor instance of Maybe from the Monad instance.
-
-open import Data.Functor public
-
-instance
-  Functor:Maybe : Endofunctor Sets Maybe
-  Functor:Maybe = Functor: liftM
 
 -- We derive the Applicative instance of Maybe from the Monad instance.
 

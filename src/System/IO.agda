@@ -27,27 +27,26 @@ postulate
 {-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC flushStdOut = System.hFlush System.stdout #-}
 
+-- IO forms a functor.
+
+open import Data.Functor public
+
+instance
+  Functor:IO : Endofunctor Sets IO
+  Functor:IO .map f io = bindIO io (f >>> returnIO)
+
 -- IO forms a monad.
 
-open import Control.Category
-open import Control.Monad
+open import Control.Monad public
 
 instance
   Monad:IO : Monad Sets IO
   Monad:IO .return x = returnIO x
   Monad:IO .extend k io = bindIO io k
 
--- IO forms a functor.
-
-open import Data.Functor
-
-instance
-  Functor:IO : Endofunctor Sets IO
-  Functor:IO = Functor: liftM
-
 -- IO is an applicative.
 
-open import Control.Applicative
+open import Control.Applicative public
 
 instance
   Applicative:IO : Applicative IO
@@ -55,8 +54,8 @@ instance
 
 -- IO X is a semigroup and a monoid whenever X is, respectively.
 
-open import Data.Semigroup
-open import Data.Monoid
+open import Data.Semigroup public
+open import Data.Monoid public
 
 instance
   Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
