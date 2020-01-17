@@ -5,7 +5,7 @@ module Control.Applicative where
 -- Definition of applicative functors.
 
 open import Data.Function
-open import Data.Functor
+open import Data.Functor public
 
 record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
