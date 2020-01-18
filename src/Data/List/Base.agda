@@ -14,11 +14,8 @@ open import Notation.Append public
 
 instance
   Append:List : forall {X} -> Append (List X) (List X) (List X)
-  Append:List {X} = Append: append
-    where
-      append : List X -> List X -> List X
-      append [] ys = ys
-      append (x :: xs) ys = x :: append xs ys
+  Append:List ._++_ [] ys = ys
+  Append:List ._++_ (x :: xs) ys = x :: xs ++ ys
 
 -- Notation for constructing/deconstructing lists. Note that we use # instead
 -- of , to separate list items because Agda gets confused when we use , for
