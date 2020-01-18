@@ -38,3 +38,10 @@ ap fs xs = do
   f <- fs
   x <- xs
   return (f x)
+
+-- id forms an applicative functor.
+
+Applicative:id : Applicative id
+Applicative:id .Functor:Applicative = Functor:id Sets
+Applicative:id ._<*>_ f x = f x
+Applicative:id .pure x = x

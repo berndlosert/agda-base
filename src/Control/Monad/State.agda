@@ -5,14 +5,14 @@ module Control.Monad.State where
 -- State S X models state transitions where the states are of type S and the
 -- transitions produce an output of type X.
 
-open import Data.Tuple public
+open import Data.Tuple
 
 State : Set -> Set -> Set
 State S X = S -> X * S
 
 -- State S forms a functor.
 
-open import Data.Functor public
+open import Data.Functor
 
 instance
   Functor:State : forall {S} -> Endofunctor Sets (State S)
@@ -20,7 +20,7 @@ instance
 
 -- State S forms a monad.
 
-open import Control.Monad public
+open import Control.Monad
 
 instance
   Monad:State : forall {S} -> Monad Sets (State S)
@@ -29,7 +29,7 @@ instance
 
 -- Applicative instance of State S derived from the monad instance.
 
-open import Control.Applicative public
+open import Control.Applicative
 
 instance
   Applicative:State : forall {S} -> Applicative (State S)
