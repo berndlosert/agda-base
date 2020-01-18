@@ -27,13 +27,6 @@ _<$>_ : forall {X Y F} {{_ : Endofunctor Sets F}}
   -> (X -> Y) -> F X -> F Y
 _<$>_ = map
 
--- A convenient shorthand for defining profunctors.
-
-open import Data.Tuple public
-
-Profunctor : (C D : Category) -> (ob D * ob C -> Set) -> Set
-Profunctor C D = Functor (Op D * C) Sets
-
 -- The composition of two functors forms a functor.
 
 Functor:<<< : forall {B C D} G F
@@ -53,7 +46,7 @@ Functor:id C .map = id
 open import Data.Function
 
 Functor:const : forall {B C} X -> Functor B C (const X)
-Functor:const {C = C} X .map = const (id {X})
+Functor:const {B} {C} X .map = const (id {X})
   where instance _ = C
 
 -- Let C be a category and let F be an endofunctor on C. Then the composition
@@ -115,12 +108,6 @@ instance
 
   Functor:const[Unit] : Endofunctor Sets (const Unit)
   Functor:const[Unit] = Functor:const {Sets} {Sets} Unit
-
--- For every cateogry C, hom C forms a profunctor.
-
-Profunctor:hom : (C : Category) -> Profunctor C C (uncurry (hom C))
-Profunctor:hom C .map (f , g) h = f >>> h >>> g
-  where instance _ = C
 
 -- And this allows use to use ~> for natural transformations for endofunctors on Sets.
 

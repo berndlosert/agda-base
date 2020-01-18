@@ -32,41 +32,37 @@ open Category {{...}} hiding (ob; hom) public
 
 instance
   Sets : Category
-  Sets = record {
-      ob = Set;
-      hom = \ X Y -> X -> Y;
-      _<<<_ = \ g f x -> g (f x);
-      id = \ x -> x
-    }
+  Sets = \ where
+    .ob -> Set
+    .hom X Y -> X -> Y
+    ._<<<_ g f -> \ x -> g (f x)
+    .id x -> x
 
 -- For every category C there is an oppossite category Op C that is just like
 -- C expect that hom and _<<<_ are flipped.
 
 Op : Category -> Category
-Op C = let instance _ = C in record {
-    ob = ob C;
-    hom = \ X Y -> hom C Y X;
-    _<<<_ = _>>>_;
-    id = id
-  }
+Op C = let instance _ = C in \ where
+  .ob -> ob C
+  .hom X Y -> hom C Y X
+  ._<<<_ -> _>>>_
+  .id -> id
 
--- The product C * D of two categories C and D has as objects all pairs (X , Y)
--- where X : ob C and Y : ob D; the morphisms are also pairs (f , g) where f is
--- a morphism from C and g is a morphism from D.
+-- The product C * C' of two categories C and C' has as objects all pairs
+-- (X , X') where X : ob C and X' : ob C'; the morphisms are also pairs
+-- (f , f') where f is a morphism from C and f' is a morphism from C'.
 
 open import Data.Tuple
-open import Notation.Mul
 
 instance
   Mul:Category : Mul Category
-  Mul:Category ._*_ C D =
-    let instance _ = C; instance _ = D in
-    record {
-      ob = ob C * ob D;
-      hom = \ { (X , W) (Y , Z) -> hom C X Y * hom D W Z };
-      _<<<_ = \ { (g , k) (f , h) -> (g <<< f , k <<< h) };
-      id = (id , id)
-    }
+  Mul:Category ._*_ C C' =
+    let instance _ = C; instance _ = C' in
+    \ where
+      .ob -> ob C * ob C'
+      .hom (X , X') (Y , Y') -> hom C X Y * hom C' X' Y'
+      ._<<<_ (g , g') (f , f') -> (g <<< f , g' <<< f')
+      .id -> (id , id)
 
 -- For every category C and every object X : ob C, hom C X X is a semigroup
 -- under composition and flipped composition.
