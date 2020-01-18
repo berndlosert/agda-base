@@ -45,3 +45,10 @@ Applicative:id : Applicative id
 Applicative:id .Functor:Applicative = Functor:id Sets
 Applicative:id ._<*>_ f x = f x
 Applicative:id .pure x = x
+
+-- For every monoid X, const X is an applicative functor.
+
+Applicative:const : forall {X} {{_ : Monoid X}} -> Applicative (const X)
+Applicative:const {X} .Functor:Applicative = Functor:const {Sets} {Sets} X
+Applicative:const ._<*>_ f x = f <> x
+Applicative:const .pure _ = mempty
