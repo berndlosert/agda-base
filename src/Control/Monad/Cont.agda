@@ -33,7 +33,7 @@ instance
 -- The infamous call-with-current-continuation.
 
 callCC : forall {X Y Z} -> ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
-callCC h k = h (\ x -> const (k x)) k
+callCC h = \ k -> h (\ x -> const (k x)) k
 
 -- Operators for delimited continuations.
 
