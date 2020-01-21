@@ -12,13 +12,18 @@ module Control.Monad.Cont where
 Cont : Set -> Set -> Set
 Cont X Y = (Y -> X) -> X
 
--- Cont X is also a monad. The Kleisli composition of this monad allows one
--- to compose functions in CPS style.
+-- Cont X forms a functor.
 
-open import Control.Category
-open import Control.Monad
-open import Data.Function
-open import Data.Functor
+open import Data.Functor public
+
+instance
+  Functor:Cont : forall {X} -> Endofunctor Sets (Cont X)
+  Functor:Cont .map f h = \ k -> h (f >>> k)
+
+-- Cont X forms a monad.
+
+open import Control.Monad public
+open import Data.Function public
 
 instance
   Monad:Cont : forall {X} -> Monad Sets (Cont X)
