@@ -32,8 +32,10 @@ instance
 
 -- The infamous call-with-current-continuation.
 
-callCC : forall {X Y Z} -> ((Z -> Cont X Y) -> Cont X Z) -> Cont X Z
-callCC h = \ k -> h (\ z -> const (k z)) k
+open import Data.Void
+
+callCC : forall {X Y} -> ((Y -> Cont X Void) -> Cont X Y) -> Cont X Y
+callCC h = \ k -> h (\ y -> const (k y)) k
 
 -- Operators for delimited continuations.
 
