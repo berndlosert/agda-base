@@ -13,6 +13,7 @@ Decimal = List Digit
 
 -- This allows us to use _+_ for adding decimals.
 
+open import Data.Tuple
 open import Notation.Add public
 
 instance
@@ -25,7 +26,7 @@ instance
 
       add : Decimal -> Decimal -> Digit -> Decimal
       add [] [] 0d = [] -- prevents adding leading zeros
-      add [] [] carry = [ carry ]
+      add [] [] carry = pure carry
       add [] (n :: ns) carry =
         let (sum , carry') = Digit.halfAdd n carry
         in sum :: add [] ns carry'
@@ -41,8 +42,8 @@ module Decimal where
   open import Data.Nat
 
   fromNat : Nat -> Decimal
-  fromNat zero = [ 0d ]
-  fromNat (suc n) = fromNat n + [ 1d ]
+  fromNat zero = pure 0d
+  fromNat (suc n) = fromNat n + pure 1d
 
   toNat : Decimal -> Nat
   toNat [] = 0

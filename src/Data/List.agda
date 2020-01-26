@@ -209,12 +209,12 @@ module List where
 
   til : Nat -> List Nat
   til 0 = []
-  til (suc n) = til n ++ [ n ]
+  til (suc n) = til n ++ pure n
 
   -- range m n produces a list of natural numbers from m to n.
 
   range : Nat -> Nat -> List Nat
   range m n = case compare m n of \ where
     GT -> []
-    EQ -> [ m ]
+    EQ -> pure n
     LT -> map (_+ m) $ til $ suc (n - m)

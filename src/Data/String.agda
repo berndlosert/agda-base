@@ -20,7 +20,7 @@ module String where
   open import Data.List
 
   fromChar : Char -> String
-  fromChar c = fromList [ c ]
+  fromChar c = fromList (pure c)
 
   -- Parse a natural number string into a natural number.
 

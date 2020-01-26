@@ -17,17 +17,6 @@ instance
   Append:List ._++_ [] ys = ys
   Append:List ._++_ (x :: xs) ys = x :: xs ++ ys
 
--- Notation for constructing/deconstructing lists. Note that we use # instead
--- of , to separate list items because Agda gets confused when we use , for
--- the separator.
-
-pattern [_] x = x :: []
-pattern [_#_] x y = x :: y :: []
-pattern [_#_#_] x y z = x :: y :: z :: []
-pattern [_#_#_#_] w x y z = w :: x :: y :: z :: []
-pattern [_#_#_#_#_] v w x y z = v :: w :: x :: y :: z :: []
-pattern [_#_#_#_#_#_] u v w x y z = u :: v :: w :: x :: y :: z :: []
-
 -- List X is a semigroup for any X.
 
 open import Data.Semigroup public
@@ -50,7 +39,7 @@ open import Data.Foldable public
 
 instance
   Foldable:List : Foldable List
-  Foldable:List .lift = [_]
+  Foldable:List .lift = _:: []
   Foldable:List .foldMap f [] = mempty
   Foldable:List .foldMap f (x :: xs) = f x <> foldMap f xs
 
@@ -70,7 +59,7 @@ open import Control.Monad public
 
 instance
   Monad:List : Monad Sets List
-  Monad:List .return = [_]
+  Monad:List .return = _:: []
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
 
