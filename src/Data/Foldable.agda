@@ -6,9 +6,9 @@ module Data.Foldable where
 -- lift : X -> F X such that for any monoid M and any function f : X -> M,
 -- there is a unique monoid homomorphism foldMap f : F X -> M satisfying
 -- lift >>> foldMap f = f. If F X is a free monoid on X for all X, then
--- the construction F is called a free-monoid constructor. A foldable F is
--- a free monoid constructor without the monoid requirement on F X and the
--- unique-monoid-homomorphism requirement on foldMap f.
+-- the construction F is called a free-monoid constructor. A foldable F is a
+-- free monoid constructor without lift, without the monoid requirement on F X
+-- and without the unique-monoid-homomorphism requirement on foldMap f.
 
 open import Control.Applicative
 open import Control.Category
@@ -22,7 +22,6 @@ open import Data.Unit
 record Foldable (F : Set -> Set) : Set where
   constructor Foldable:
   field
-    lift : forall {X} -> X -> F X
     foldMap : forall {X M} {{_ : Monoid M}}
       -> (X -> M) -> F X -> M
 
