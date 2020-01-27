@@ -20,6 +20,15 @@ open import Agda.Builtin.Char public
     primNatToChar to chr
   )
 
+-- With this instance we can compare Char values for equality.
+
+open import Data.Eq public
+open import Data.Nat
+
+instance
+  Eq:Char : Eq Char
+  Eq:Char ._==_ c c' = ord c == ord c'
+
 -- This function will convert a char digit into its corresponding natural
 -- number.
 
