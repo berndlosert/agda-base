@@ -22,27 +22,11 @@ module String where
   fromChar : Char -> String
   fromChar c = fromList (pure c)
 
-  -- Parse a natural number string into a natural number.
-
-  open import Data.Digit
-  open import Data.Decimal
-  open import Data.Function
-  open import Data.Traversable
-  open import Data.Maybe
-  open import Data.Nat
-
-  parseDecimal : String -> Maybe Decimal
-  parseDecimal = toList >>> List.reverse >>> traverse Digit.fromChar
-
-  parseNat : String -> Maybe Nat
-  parseNat str =
-      case (parseDecimal str)  of \ where
-        nothing -> nothing
-        (just x) -> just (Decimal.toNat x)
-
   -- Import the following functions from Haskell.
 
   open import Data.Bool
+  open import Data.Maybe
+  open import Data.Nat
 
   postulate
     startsWith : String -> String -> Bool

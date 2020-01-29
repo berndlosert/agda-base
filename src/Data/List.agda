@@ -36,10 +36,10 @@ module List where
   open import Notation.Mul
 
   break : forall {X} -> (X -> Bool) -> List X -> List X * List X
-  break p [] = ([] , [])
+  break p [] = pair [] []
   break p xs@(x :: xs') =
-    if p x then ([] , xs)
-    else let (ys , zs) = break p xs' in (x :: ys , zs)
+    if p x then pair [] xs
+    else let pair ys zs = break p xs' in pair (x :: ys) zs
 
   -- The extend operation is concatMap.
 
@@ -52,20 +52,20 @@ module List where
 
   uncons : forall {X} -> List X -> Maybe (X * List X)
   uncons [] = nothing
-  uncons (x :: xs) = just (x , xs)
+  uncons (x :: xs) = just (pair x xs)
 
   -- The inverse of uncons. This proves that List X ~= Maybe (X * List X).
 
   recons : forall {X} -> Maybe (X * List X) -> List X
   recons nothing = []
-  recons (just (x , xs)) = x :: xs
+  recons (just (pair x xs)) = x :: xs
 
   -- This proves that (List X , uncons) is an initial algebra. This is basically
   -- foldr in disguise.
 
   cata : forall {X Y} -> (Maybe (X * Y) -> Y) -> List X -> Y
   cata f [] = f nothing
-  cata f (x :: xs) = f (just (x , cata f xs))
+  cata f (x :: xs) = f (just (pair x (cata f xs)))
 
   -- Returns the head of a nonempty list.
 
@@ -170,7 +170,7 @@ module List where
   -- Split a list into two pieces at the given index.
 
   splitAt : forall {X} -> Nat -> List X -> List X * List X
-  splitAt n xs = (take n xs , drop n xs)
+  splitAt n xs = pair (take n xs) (drop n xs)
 
   -- Zip two lists together with a function.
 
@@ -182,7 +182,7 @@ module List where
   -- Zip two lists into a list of pairs.
 
   zip : forall {X Y} -> List X -> List Y -> List (X * Y)
-  zip = zipWith _,_
+  zip = zipWith pair
 
   -- Zip together a list of heads and a list of tails.
 

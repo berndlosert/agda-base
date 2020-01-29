@@ -12,6 +12,6 @@ module Vec where
   open import Data.Tuple public
 
   splitAt : forall m {n X} -> Vec X (m + n) -> Vec X m * Vec X n
-  splitAt zero xs = ([] , xs)
+  splitAt zero xs = pair [] xs
   splitAt (suc k) (x :: xs) with (splitAt k xs)
-  ... | (tk , dr) = (x :: tk , dr)
+  ... | (pair tk dr) = pair (x :: tk) dr

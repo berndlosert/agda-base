@@ -23,24 +23,6 @@ instance
     true -> "true"
     false -> "false"
 
--- Pretty-print Digit values.
-
-open import Data.Digit
-
-instance
-  Show:Digit : Show Digit
-  Show:Digit = Show: \ where
-    0d -> "0"
-    1d -> "1"
-    2d -> "2"
-    3d -> "3"
-    4d -> "4"
-    5d -> "5"
-    6d -> "6"
-    7d -> "7"
-    8d -> "8"
-    9d -> "9"
-
 -- Pretty-print Int values.
 
 open import Data.Int
@@ -72,7 +54,7 @@ open import Data.Tuple
 instance
   Show:Product : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)
   Show:Product = Show: \ where
-    (x , y) -> "( " ++ show x ++ " , " ++ show y ++ " )"
+    (pair x y) -> "pair " ++ show x ++ " " ++ show y
 
 -- Pretty-print Maybe values.
 
@@ -95,7 +77,7 @@ instance
       csv : {X : Set} {{_ : Show X}} -> List X -> String
       csv [] = ""
       csv (x :: []) = show x
-      csv (x :: xs) = show x ++ " # " ++ csv xs
+      csv (x :: xs) = show x ++ " , " ++ csv xs
 
 -- Pretty-print Fin values.
 

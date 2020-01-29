@@ -60,9 +60,9 @@ instance
     let instance _ = C; instance _ = C' in
     \ where
       .ob -> ob C * ob C'
-      .hom (X , X') (Y , Y') -> hom C X Y * hom C' X' Y'
-      ._<<<_ (g , g') (f , f') -> (g <<< f , g' <<< f')
-      .id -> (id , id)
+      .hom (pair X X') (pair Y Y') -> hom C X Y * hom C' X' Y'
+      ._<<<_ (pair g g') (pair f f') -> pair (g <<< f) (g' <<< f')
+      .id -> pair id id
 
 -- For every category C and every object X : ob C, hom C X X is a semigroup
 -- under composition and flipped composition.

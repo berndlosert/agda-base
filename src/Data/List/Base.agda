@@ -8,6 +8,29 @@ module Data.List.Base where
 open import Agda.Builtin.List public
   renaming (_∷_ to _::_)
 
+-- Useful pattern synonyms for building and deconstructing lists.
+
+pattern [_] x1 =
+  x1 :: []
+pattern [_,_] x1 x2 =
+  x1 :: x2 :: []
+pattern [_,_,_] x1 x2 x3 =
+  x1 :: x2 :: x3 :: []
+pattern [_,_,_,_] x1 x2 x3 x4 =
+  x1 :: x2 :: x3 :: x4 :: []
+pattern [_,_,_,_,_] x1 x2 x3 x4 x5 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: []
+pattern [_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: []
+pattern [_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: []
+pattern [_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: []
+pattern [_,_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 x9 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: []
+pattern [_,_,_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 =
+  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: x10 :: []
+
 -- Use _++_ for appending lists.
 
 open import Notation.Append public
@@ -58,7 +81,7 @@ open import Control.Monad public
 
 instance
   Monad:List : Monad Sets List
-  Monad:List .return = _:: []
+  Monad:List .return = [_]
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
 
