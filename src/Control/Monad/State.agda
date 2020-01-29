@@ -24,8 +24,8 @@ open import Control.Monad
 
 instance
   Monad:State : forall {S} -> Monad Sets (State S)
-  Monad:State .return x s = (x , s)
-  Monad:State .extend f m = \ s -> let (x , s') = m s in (f x) s'
+  Monad:State .return x s = pair x s
+  Monad:State .extend f m = \ s -> let (pair x s') = m s in (f x) s'
 
 -- Applicative instance of State S derived from the monad instance.
 
