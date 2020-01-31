@@ -20,7 +20,7 @@ General : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
 General Req Resp = Free (Interact Req Resp)
 
 call : forall {Req Resp} -> (req : Req) -> General Req Resp (Resp req)
-call req = Free: \ t -> t (req , id)
+call req = Free: \ t -> t (pair req id)
 
 -- Dependent function type of general recursive functions.
 
