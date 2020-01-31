@@ -62,10 +62,7 @@ instance
     later \ where .force -> map f (force thunk)
 
   Monad:Delay : {i : Size} -> Monad Sets (Delay i)
-  Monad:Delay = Triple: extendDelay now
-    where
-      extendDelay : forall {i X Y}
-        -> (X -> Delay i Y) -> Delay i X -> Delay i Y
-      extendDelay f (now x) = f x
-      extendDelay f (later thunk) =
-        later \ where .force -> extendDelay f (force thunk)
+  Monad:Delay .return = now
+  Monad:Delay .extend f (now x) = f x
+  Monad:Delay .extend f (later thunk) = later \ where
+    .force -> extend f (force thunk)
