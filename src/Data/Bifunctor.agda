@@ -2,7 +2,7 @@
 
 module Data.Bifunctor where
 
--- Programmer-friendly definition of bifunctors.
+-- Programmer-friendly definition of set-valued bifunctors.
 
 open import Data.Functor public
 open import Data.Tuple
@@ -22,10 +22,10 @@ open import Data.Function
 
 instance
   Endobifunctor:const : Endobifunctor Sets const
-  Endobifunctor:const .map (f , g) = f
+  Endobifunctor:const .map (pair f g) = f
 
   Endobifunctor:Tuple : Endobifunctor Sets _*_
-  Endobifunctor:Tuple .map (f , g) = cross f g
+  Endobifunctor:Tuple .map (pair f g) = cross f g
 
   Endobifunctor:Either : Endobifunctor Sets _+_
-  Endobifunctor:Either .map (f , g) = plus f g
+  Endobifunctor:Either .map (pair f g) = plus f g
