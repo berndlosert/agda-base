@@ -48,9 +48,7 @@ Op C = let instance _ = C in \ where
   ._<<<_ -> _>>>_
   .id -> id
 
--- The product C * C' of two categories C and C' has as objects all pairs
--- (X , X') where X : ob C and X' : ob C'; the morphisms are also pairs
--- (f , f') where f is a morphism from C and f' is a morphism from C'.
+-- With this instance, we can define product categories using _*_.
 
 open import Data.Tuple
 

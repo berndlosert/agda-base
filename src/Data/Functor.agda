@@ -76,15 +76,26 @@ record Trans (C D : Category) : Set where
   _~>_ : (F G : ob C -> ob D) -> Set
   F ~> G  = forall {X} -> hom D (F X) (G X)
 
+open Trans {{...}} public
+
+-- We use this to define Trans instances.
+
 Trans: : (C D : Category) -> Trans C D
 Trans: C D = record {}
 
-open Trans {{...}} public
+-- This is useful when dealing with (natural) transformations between
+-- endofunctors.
+
+Transendo : Category -> Set
+Transendo C = Trans C C
+
+Transendo: : (C : Category) -> Transendo C
+Transendo: C = record {}
 
 -- D ^ C is the functor category of functors from C to D and natural
 -- transformatiosn between them.
 
-open import Notation.Exp
+open import Notation.Exp public
 
 instance
   Exp:Category : Exp Category Category Category
@@ -97,19 +108,36 @@ instance
       id = \ {F} {X} -> id {F X}
     }
 
+-- The category Sets ^ Sets is special enough to warrant a Category instance.
+
+instance
+  Sets^Sets : Category
+  Sets^Sets = Sets ^ Sets
+
 -- A few special endofunctor instances.
 
 open import Data.Void
 open import Data.Unit
 
+Functor:const[Void] : Endofunctor Sets (const Void)
+Functor:const[Void] = Functor:const {Sets} {Sets} Void
+
+Functor:const[Unit] : Endofunctor Sets (const Unit)
+Functor:const[Unit] = Functor:const {Sets} {Sets} Unit
+
+-- This allows use to use ~> for natural transformations for endofunctors on
+-- Sets and Sets ^ Sets.
+
 instance
-  Functor:const[Void] : Endofunctor Sets (const Void)
-  Functor:const[Void] = Functor:const {Sets} {Sets} Void
+  Transendo:Sets : Transendo Sets
+  Transendo:Sets = Transendo: Sets
 
-  Functor:const[Unit] : Endofunctor Sets (const Unit)
-  Functor:const[Unit] = Functor:const {Sets} {Sets} Unit
+  Transendo:Sets^Sets : Transendo Sets^Sets
+  Transendo:Sets^Sets = Transendo: Sets^Sets
 
--- And this allows use to use ~> for natural transformations for endofunctors on Sets.
+-- hmap is just what we call the map functor of endofunctors from Sets^Sets to
+-- Sets^Sets.
 
-instance
-  Trans:SetsSets = Trans: Sets Sets
+hmap : forall {F S T} {{_ : Endofunctor Sets^Sets F}}
+  -> (S ~> T) -> F S ~> F T
+hmap = map

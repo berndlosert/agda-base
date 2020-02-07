@@ -53,8 +53,7 @@ module Free where
   -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
   -- is lift; the extend operation is defined below:
 
-  flatMap : forall {F G}
-    -> (F ~> Free G) -> Free F ~> Free G
+  flatMap : forall {F G} -> (F ~> Free G) -> Free F ~> Free G
   flatMap = interpret
 
   -- Free is a free construction. It is basically the left-adjoint of the
