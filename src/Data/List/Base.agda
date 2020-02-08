@@ -93,6 +93,13 @@ instance
   Applicative:List : Applicative List
   Applicative:List = Applicative: ap return
 
+-- List is an an alternative.
+
+instance
+  Alternative:List : Alternative List
+  Alternative:List ._<|>_ = _++_
+  Alternative:List .empty = []
+
 -- List is traversable.
 
 open import Data.Traversable public

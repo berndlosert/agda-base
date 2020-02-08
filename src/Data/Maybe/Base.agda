@@ -41,6 +41,16 @@ instance
   Applicative:Maybe : Applicative Maybe
   Applicative:Maybe = Applicative: ap return
 
+-- Maybe is an alternative functor.
+
+instance
+  Alternative:Maybe : Alternative Maybe
+  Alternative:Maybe ._<|>_ nothing nothing = nothing
+  Alternative:Maybe ._<|>_ (just x) nothing = just x
+  Alternative:Maybe ._<|>_ nothing (just x) = just x
+  Alternative:Maybe ._<|>_ (just x) (just y) = just x
+  Alternative:Maybe .empty = nothing
+
 -- This is the left-biased Semigroup instance of Maybe X. This is useful when
 -- you have a list of Maybe X values and you want to pick the first one that is
 -- not nothing.

@@ -52,3 +52,16 @@ Applicative:const : forall {X} {{_ : Monoid X}} -> Applicative (const X)
 Applicative:const {X} .Functor:Applicative = Functor:const {Sets} {Sets} X
 Applicative:const ._<*>_ f x = f <> x
 Applicative:const .pure _ = mempty
+
+-- An applicative functor F such that F X is a monoid for all X is called an
+-- alternative functor.
+
+record Alternative (F : Set -> Set) : Set where
+  constructor Altervative:
+  infixl 23 _<|>_
+  field
+    {{Applicative:Alternative}} : Applicative F
+    _<|>_ : forall {X} -> F X -> F X -> F X
+    empty : forall {X} -> F X
+
+open Alternative {{...}} public
