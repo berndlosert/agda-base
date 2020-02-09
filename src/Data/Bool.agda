@@ -11,9 +11,9 @@ open import Agda.Builtin.Bool public
 open import Data.Unit
 open import Data.Void
 
-So : Bool -> Set
-So true = Unit
-So false = Void
+Assert : Bool -> Set
+Assert true = Unit
+Assert false = Void
 
 -- The fold operation for Bool.
 

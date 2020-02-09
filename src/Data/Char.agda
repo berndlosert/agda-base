@@ -37,7 +37,7 @@ open import Data.Eq
 open import Data.Nat
 open import Notation.Sub
 
-digitToNat : (c : Char) -> {_ : Constraint (isDigit c)} -> Nat
+digitToNat : (c : Char) -> {_ : Assert (isDigit c)} -> Nat
 digitToNat c = ord c - ord '0'
 
 -- This is the Maybe version of the above operation.

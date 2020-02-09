@@ -44,7 +44,7 @@ record Foldable (F : Set -> Set) : Set where
   elem x = foldMap {{Monoid:||}} (_== x)
 
   Nonempty : forall {X} -> F X -> Set
-  Nonempty xs = Constraint (not (null xs))
+  Nonempty xs = Assert (not (null xs))
 
   traverse- : forall {X Y G} {{_ : Applicative G}}
     -> (X -> G Y) -> F X -> G Unit

@@ -16,17 +16,17 @@ module Fin where
   -- The Number:Fin instance allows us to write Fin n values using natural
   -- number literals.
 
-  open import Data.Eq
+  open import Data.Bool
   open import Data.Ord
   open import Notation.Number
 
   Number:Fin : forall {n} -> Number (Fin (suc n))
   Number:Fin {n} = record {
-      Constraint = \ m -> Constraint (m <= n);
+      Constraint = \ m -> Assert (m <= n);
       fromNat = \ m {{p}} -> go m n {p}
     }
     where
-      go : forall m n -> {_ : Constraint (m <= n)} -> Fin (suc n)
+      go : forall m n -> {_ : Assert (m <= n)} -> Fin (suc n)
       go zero _ = zero
       go (suc m) (suc n) {p} = suc (go m n {p})
 

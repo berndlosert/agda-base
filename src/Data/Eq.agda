@@ -7,13 +7,6 @@ module Data.Eq where
 open import Agda.Builtin.Equality public
   renaming (_≡_ to  _===_)
 
--- Contraint is used for specifying contraints on the arguments of functions.
-
-open import Data.Bool public
-
-Constraint : Bool -> Set
-Constraint x = x === true
-
 -- We use trustMe to tell Agda that a constraint is satisfied. Use wisely.
 
 open import Agda.Builtin.TrustMe public
@@ -21,6 +14,8 @@ open import Agda.Builtin.TrustMe public
   renaming (primTrustMe to trustMe)
 
 -- Boolean equality for a type X is specified using an Eq X instance.
+
+open import Data.Bool public
 
 record Eq (X : Set) : Set where
   constructor Eq:

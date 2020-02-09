@@ -218,3 +218,13 @@ module List where
     GT -> []
     EQ -> pure n
     LT -> map (_+ m) $ til $ suc (n - m)
+
+  -- The stripPrefix function drops the given prefix from a list. It returns
+  -- nothing if the list did not start with the prefix given, or just the list
+  -- after the prefix, if it does.
+
+  stripPrefix : forall {X} {{_ : Eq X}} -> List X -> List X -> Maybe (List X)
+  stripPrefix [] ys = just ys
+  stripPrefix (x :: xs) (y :: ys) =
+    if x == y then stripPrefix xs ys else nothing
+  stripPrefix _ _ = nothing

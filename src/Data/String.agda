@@ -22,25 +22,29 @@ module String where
   fromChar : Char -> String
   fromChar c = fromList (pure c)
 
-  -- Import the following functions from Haskell.
+  -- Get the length of a string.
 
-  open import Data.Bool
-  open import Data.Maybe
   open import Data.Nat
 
-  postulate
-    startsWith : String -> String -> Bool
-    stripPrefix : String -> String -> Maybe String
-    length : String -> Nat
+  length : String -> Nat
+  length = toList >>> size
 
-  {-# FOREIGN GHC import qualified Data.Text as Text #-}
-  {-# COMPILE GHC startsWith = Text.isPrefixOf #-}
-  {-# COMPILE GHC stripPrefix = Text.stripPrefix #-}
-  {-# COMPILE GHC length = toInteger . Text.length #-}
+  -- Determine if a string is a prefix of another string.
+
+  open import Data.Bool
+
+  startsWith : String -> String -> Bool
+  startsWith s s' = List.isPrefixOf (toList s) (toList s')
+
+  -- Remove the given prefix from a string if it has it.
+
+  open import Data.Function
+  open import Data.Maybe
+
+  stripPrefix : String -> String -> Maybe String
+  stripPrefix s s' = fromList <$> List.stripPrefix (toList s) (toList s')
 
   -- Pad a string with a character up to some desired length.
-
-  open import Data.List
 
   padRight : Nat -> Char -> String -> String
   padRight desiredLength padChar s =
@@ -57,3 +61,10 @@ module String where
   concat : List String -> String
   concat [] = ""
   concat (str :: strs) = str ++ concat strs
+
+  -- Optimizations.
+
+  {-# FOREIGN GHC import qualified Data.Text as Text #-}
+  {-# COMPILE GHC length = toInteger . Text.length #-}
+  {-# COMPILE GHC startsWith = Text.isPrefixOf #-}
+  {-# COMPILE GHC stripPrefix = Text.stripPrefix #-}
