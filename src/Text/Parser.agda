@@ -54,3 +54,41 @@ module Parser where
   item : Parser Char
   item = List.fromMaybe <<< String.uncons
 
+  -- satisfy takes a predicate, and yields a parser that consumes a single
+  -- character if it satisfies the predicate, and fails otherwise.
+
+  satisfy : (Char -> Bool) -> Parser Char
+  satisfy p = do
+    c <- item
+    if p c then pure c else empty
+
+  -- This combinator is used for creating single character parsers.
+
+  char : Char -> Parser Char
+  char c = satisfy (c ==_)
+
+  -- Parse digits.
+
+  digit : Parser Char
+  digit = satisfy isDigit
+
+  -- Parse letters.
+
+  letter : Parser Char
+  letter = satisfy isAlpha
+
+  -- Parse lower-case characters.
+
+  lower : Parser Char
+  lower = satisfy isLower
+
+  -- Parser upper-case characters.
+
+  upper : Parser Char
+  upper = satisfy (\ c -> isAlpha c && not (isLower c))
+
+  -- Parse alpha-numeric characters.
+
+  alphanum : Parser Char
+  alphanum = letter <|> digit
+
