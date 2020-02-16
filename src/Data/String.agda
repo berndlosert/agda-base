@@ -81,6 +81,11 @@ module String where
   tail : String -> Maybe String
   tail = map snd <<< uncons
 
+  -- Prepend a character to a string.
+
+  cons : Char -> String -> String
+  cons c s = fromList (c :: toList s)
+
   -- Tell Agda to use the Haskell versions of some of the functions above
   -- during compilation.
 
@@ -89,3 +94,4 @@ module String where
   {-# COMPILE GHC startsWith = Text.isPrefixOf #-}
   {-# COMPILE GHC stripPrefix = Text.stripPrefix #-}
   {-# COMPILE GHC uncons = Text.uncons #-}
+  {-# COMPILE GHC cons = Text.cons #-}
