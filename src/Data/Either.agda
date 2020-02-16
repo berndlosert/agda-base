@@ -8,6 +8,10 @@ data Either (X Y : Set) : Set where
   left : X -> Either X Y
   right : Y -> Either X Y
 
+-- This tells the Agda compiler to compile Either above to Haskell's Either.
+
+{-# COMPILE GHC Either = data Either (Left | Right) #-}
+
 -- This instance makes it possible to write X + Y for Either X Y.
 
 open import Notation.Add public

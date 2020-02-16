@@ -43,9 +43,6 @@ record Foldable (F : Set -> Set) : Set where
   elem : forall {X} {{_ : Eq X}} -> X -> F X -> Bool
   elem x = foldMap {{Monoid:||}} (_== x)
 
-  Nonempty : forall {X} -> F X -> Set
-  Nonempty xs = Assert (not (null xs))
-
   traverse- : forall {X Y G} {{_ : Applicative G}}
     -> (X -> G Y) -> F X -> G Unit
   traverse- f = foldr (f >>> _*>_) (pure tt)

@@ -87,10 +87,18 @@ instance
   Show:Fin : forall {n} -> Show (Fin (suc n))
   Show:Fin = Show: \ n -> show (Fin.toNat n)
 
--- Pretty-print Float values
+-- Pretty-print Float values.
 
 open import Data.Float
 
 instance
   Show:Float : Show Float
   Show:Float = Show: Float.toString
+
+-- Pretty-print Char values.
+
+open import Data.Char
+
+instance
+  Show:Char : Show Char
+  Show:Char = Show: \ c -> show (String.fromList [ c ])

@@ -28,21 +28,3 @@ open import Data.Nat
 instance
   Eq:Char : Eq Char
   Eq:Char ._==_ c c' = ord c == ord c'
-
--- This function will convert a char digit into its corresponding natural
--- number.
-
-open import Data.Bool
-open import Data.Eq
-open import Data.Nat
-open import Notation.Sub
-
-digitToNat : (c : Char) -> {_ : Assert (isDigit c)} -> Nat
-digitToNat c = ord c - ord '0'
-
--- This is the Maybe version of the above operation.
-
-open import Data.Maybe
-
-digitToNat? : (c : Char) -> Maybe Nat
-digitToNat? c = if isDigit c then just (ord c - ord '0') else nothing

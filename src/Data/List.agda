@@ -67,27 +67,17 @@ module List where
   cata f [] = f nothing
   cata f (x :: xs) = f (just (Pair: x (cata f xs)))
 
-  -- Returns the head of a nonempty list.
+  -- Returns the head of a nonempty list or nothing if it is empty.
 
-  head : forall {X} (xs : List X) -> {_ : Nonempty xs} -> X
-  head (x :: xs) = x
+  head : forall {X} -> List X -> Maybe X
+  head [] = nothing
+  head (x :: xs) = just x
 
-  -- Maybe version of head.
+  -- Returns the tail of a nonempty list or nothing if it is empty.
 
-  head? : forall {X} -> List X -> Maybe X
-  head? [] = nothing
-  head? (x :: xs) = just x
-
-  -- Returns the tail of a nonempty list.
-
-  tail : forall {X} (xs : List X) -> {_ : Nonempty xs} -> List X
-  tail (x :: xs) = xs
-
-  -- Maybe version of tail.
-
-  tail? : forall {X} -> List X -> Maybe (List X)
-  tail? [] = nothing
-  tail? (x :: xs) = just xs
+  tail : forall {X} -> List X -> Maybe (List X)
+  tail [] = nothing
+  tail (x :: xs) = just xs
 
   -- Takes two lists and returns true if the first list is a prefix of the
   -- second.
