@@ -54,6 +54,14 @@ module Parser where
   item : Parser Char
   item = List.fromMaybe <<< String.uncons
 
+  -- first p is the parser that just contains the first successful parse (if
+  -- it has one at all.
+
+  first : forall {X} -> Parser X -> Parser X
+  first p s = case p s of \ where
+    [] -> []
+    (x :: _) -> [ x ]
+
   -- satisfy takes a predicate, and yields a parser that consumes a single
   -- character if it satisfies the predicate, and fails otherwise.
 
@@ -114,3 +122,17 @@ module Parser where
   string s = case String.uncons s of \ where
     nothing -> return ""
     (just (Pair: c s')) -> char c >> string s' >> return (String.cons c s')
+
+  -- The combinator many (resp. many1) applies a parser p zero (resp. one) or
+  -- more times to an input string. The results from each application of p are
+  -- returned in a list.
+
+  {-# TERMINATING #-}
+  many : forall {x} -> Parser x -> Parser (List x)
+  many1 : forall {x} -> Parser x -> Parser (List x)
+
+  many p = first (many1 p <|> return [])
+  many1 p = do
+    x <- p
+    xs <- many p
+    return (x :: xs)
