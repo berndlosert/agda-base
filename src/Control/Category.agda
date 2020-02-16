@@ -66,7 +66,7 @@ instance
       .id -> pair id id
 
 -- For every category C and every object X : ob C, hom C X X is a semigroup
--- under composition and flipped composition.
+-- under composition.
 
 open import Data.Semigroup
 
@@ -74,24 +74,11 @@ Semigroup:<<< : forall C {X} -> Semigroup (hom C X X)
 Semigroup:<<< C = Semigroup: _<<<_
   where instance _ = C
 
-Semigroup:>>> : forall C {X} -> Semigroup (hom C X X)
-Semigroup:>>> C = Semigroup: _>>>_
-  where instance _ = C
-
 -- For every category C and object X : ob C, hom C X X is a monoid.
 
 open import Data.Monoid
 
 Monoid:<<< : forall C {X} -> Monoid (hom C X X)
-Monoid:<<< C = let instance _ = C in
-  record {
-    Semigroup:Monoid = Semigroup:<<< C;
-    mempty = id
-  }
-
-Monoid:>>> : forall C {X} -> Monoid (hom C X X)
-Monoid:>>> C = let instance _ = C in
-  record {
-    Semigroup:Monoid = Semigroup:>>> C;
-    mempty = id
-  }
+Monoid:<<< C = let instance _ = C in \ where
+  .Semigroup:Monoid -> Semigroup:<<< C
+  .mempty -> id
