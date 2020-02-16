@@ -10,3 +10,11 @@ record Semigroup (X : Set) : Set where
   field _<>_ : X -> X -> X
 
 open Semigroup {{...}} public
+
+-- Every semigroup instance has an opposite version.
+
+open import Notation.Dual public
+
+instance
+  Dual:Semigroup : forall {X} -> Dual (Semigroup X)
+  Dual:Semigroup .Op (Semigroup: _<>_) = Semigroup: \ x y -> y <> x
