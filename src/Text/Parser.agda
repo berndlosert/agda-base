@@ -54,13 +54,17 @@ module Parser where
   item : Parser Char
   item = List.fromMaybe <<< String.uncons
 
-  -- first p is the parser that just contains the first successful parse (if
-  -- it has one at all.
+  -- first p is the parser whose output contains only the first successful
+  -- parse (if it has one at all).
 
   first : forall {X} -> Parser X -> Parser X
   first p s = case p s of \ where
     [] -> []
     (x :: _) -> [ x ]
+
+  -- plus p q is just <|> wrapped in first.
+  plus : forall {X} -> Parser X -> Parser X -> Parser X
+  plus p q = first (p <|> q)
 
   -- satisfy takes a predicate, and yields a parser that consumes a single
   -- character if it satisfies the predicate, and fails otherwise.
@@ -131,8 +135,30 @@ module Parser where
   many : forall {x} -> Parser x -> Parser (List x)
   many1 : forall {x} -> Parser x -> Parser (List x)
 
-  many p = first (many1 p <|> return [])
+  many p = plus (many1 p) (return [])
   many1 p = do
     x <- p
     xs <- many p
     return (x :: xs)
+
+  -- This parses nonempty sequences of items separated by operators that
+  -- associate to the left.
+
+  {-# TERMINATING #-}
+  chainl1 : forall {X} -> Parser X -> Parser (X -> X -> X) -> Parser X
+  chainl1 p op = p >>= rest
+    where
+      rest : _
+      rest x = plus
+        (op >>= \ f -> p >>= \ y -> rest (f x y))
+        (return x)
+
+
+  -- Parser for natural numbers.
+
+  open import Data.Nat
+
+  nat : Parser Nat
+  nat = chainl1
+      (digit >>= \ x -> return (ord x - ord '0'))
+      (return (\ m n -> 10 * m + n))

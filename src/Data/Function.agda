@@ -72,3 +72,10 @@ open import Data.Monoid public
 Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
 Monoid:Function .Semigroup:Monoid = Semigroup:Function
 Monoid:Function .mempty = \ x -> mempty
+
+-- This is our attempt at emulating `op` notation from Haskell.
+
+infixl 25 _`_`_
+
+_`_`_ : {X Y Z : Set} -> X -> (X -> Y -> Z) -> Y -> Z
+x ` op ` y = op x y

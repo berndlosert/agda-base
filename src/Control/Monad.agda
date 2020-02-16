@@ -29,15 +29,27 @@ Monad:id C = let instance _ = C in
     extend = id
   }
 
-module _ {F : Set -> Set} {{_ : Monad Sets F}} {X Y : Set} where
+-- Defining the bind operation _>>=_ and its cousin _>>_ allows us to use do
+-- notation.
 
-  -- Defining the bind operation _>>=_ and its cousin _>>_ allows us to use do
-  -- notation.
+module _ {M : Set -> Set} {{_ : Monad Sets M}} {X Y : Set} where
 
   infixl 1 _>>=_ _>>_
 
-  _>>=_ : F X -> (X -> F Y) -> F Y
+  _>>=_ : M X -> (X -> M Y) -> M Y
   x >>= f = extend f x
 
-  _>>_ : F X -> F Y -> F Y
+  _>>_ : M X -> M Y -> M Y
   x >> y = x >>= (\ _ -> y)
+
+-- We use _<=<_ and _>=>_ for Kleisli composition for monads on Sets.
+
+module _ {M : Set -> Set} {{_ : Monad Sets M}} {X Y Z : Set} where
+
+  infixl 1 _<=<_ _>=>_
+
+  _<=<_ : (Y -> M Z) -> (X -> M Y) -> X -> M Z
+  g <=< f = \ x -> f x >>= g
+
+  _>=>_ : (X -> M Y) -> (Y -> M Z) -> X -> M Z
+  f >=> g = g <=< f
