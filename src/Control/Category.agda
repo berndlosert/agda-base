@@ -41,12 +41,15 @@ instance
 -- For every category C there is an oppossite category Op C that is just like
 -- C expect that hom and _<<<_ are flipped.
 
-Op : Category -> Category
-Op C = let instance _ = C in \ where
-  .ob -> ob C
-  .hom X Y -> hom C Y X
-  ._<<<_ -> _>>>_
-  .id -> id
+open import Notation.Dual public
+
+instance
+  Dual:Category : Dual Category
+  Dual:Category .Op C = let instance _ = C in \ where
+    .ob -> ob C
+    .hom X Y -> hom C Y X
+    ._<<<_ -> _>>>_
+    .id -> id
 
 -- With this instance, we can define product categories using _*_.
 
