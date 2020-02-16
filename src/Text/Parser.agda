@@ -26,7 +26,7 @@ open import Data.Function
 
 instance
   Monad:Parser : Monad Sets Parser
-  Monad:Parser .return x s = [ pair x s ]
+  Monad:Parser .return x s = [ Pair: x s ]
   Monad:Parser .extend f p s = List.concat $ map (uncurry f) (p s)
 
 -- Parser is an applicative functor.
@@ -54,4 +54,4 @@ module Parser where
   item : Parser Char
   item s = case String.toList s of \ where
     [] -> []
-    (c :: cs) -> [ pair c (String.fromList cs) ]
+    (c :: cs) -> [ Pair: c (String.fromList cs) ]

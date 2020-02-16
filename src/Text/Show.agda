@@ -54,7 +54,7 @@ open import Data.Tuple
 instance
   Show:Product : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)
   Show:Product = Show: \ where
-    (pair x y) -> "pair " ++ show x ++ " " ++ show y
+    (Pair: x y) -> "Pair: " ++ show x ++ " " ++ show y
 
 -- Pretty-print Maybe values.
 

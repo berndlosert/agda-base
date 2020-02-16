@@ -61,9 +61,9 @@ instance
     let instance _ = C; instance _ = C' in
     \ where
       .ob -> ob C * ob C'
-      .hom (pair X X') (pair Y Y') -> hom C X Y * hom C' X' Y'
-      ._<<<_ (pair g g') (pair f f') -> pair (g <<< f) (g' <<< f')
-      .id -> pair id id
+      .hom (Pair: X X') (Pair: Y Y') -> hom C X Y * hom C' X' Y'
+      ._<<<_ (Pair: g g') (Pair: f f') -> Pair: (g <<< f) (g' <<< f')
+      .id -> Pair: id id
 
 -- For every category C and every object X : ob C, hom C X X is a semigroup
 -- under composition.

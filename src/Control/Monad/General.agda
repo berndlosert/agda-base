@@ -2,14 +2,14 @@
 
 module Control.Monad.General where
 
--- A request/response interaction is a pair (req , callback) where req is some
--- value representing a request and callback is a function that is used to
--- handle the response. Note that the type of the response depends on req.
+-- A request/response interaction consists of a request and a callback for
+-- handling the response to the request.
 
-open import Data.Tuple
-
-Interact : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
-Interact Req Resp X = Sigma Req (\ req -> Resp req -> X)
+record Interaction (Req : Set) (Resp : Req -> Set) (X : Set) : Set where
+  constructor Interaction:
+  field
+    request : Req
+    callback : Resp request -> X
 
 -- General is used to model general recursion.
 
@@ -17,10 +17,10 @@ open import Control.Category
 open import Control.Monad.Free
 
 General : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
-General Req Resp = Free (Interact Req Resp)
+General Req Resp = Free (Interaction Req Resp)
 
 call : forall {Req Resp} -> (req : Req) -> General Req Resp (Resp req)
-call req = Free: \ t -> t (pair req id)
+call req = Free: \ t -> t (Interaction: req id)
 
 -- Dependent function type of general recursive functions.
 

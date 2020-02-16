@@ -2,25 +2,28 @@
 
 module Data.Tuple where
 
--- Sigma is used to construct dependent pairs. It is a record with constructor
--- pair and fields fst and snd.
-
-open import Agda.Builtin.Sigma public
-  renaming (Σ to Sigma; _,_ to pair)
-
--- The exists function should be thought of as the existensial quantifier, dual
--- to forall.
-
-exists : forall {X} (P : X -> Set) -> Set
-exists {X} P = Sigma X P
-
--- The Cartesian product X * Y of two types X and Y is defined as follows:
+-- Pair is used to construct nondependent pairs.
 
 open import Notation.Mul public
 
+record Pair (X Y : Set) : Set where
+  constructor Pair:
+  field
+    fst : X
+    snd : Y
+
+open Pair public
+
+-- This tells the Agda compiler to compile Pair to Haskell's (,) tuple type.
+
+{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Tuple.AgdaPair ((,)) #-}
+
+-- With this instance, we can write X * Y for Pair X Y.
+
 instance
   Mul:Set : Mul Set
-  Mul:Set = Mul: (\ X Y -> Sigma X (\ _ -> Y))
+  Mul:Set = Mul: Pair
 
 -- This is how we define n-tuples:
 
@@ -39,32 +42,32 @@ instance
 -- isomorphic.
 
 swap : forall {X Y} -> X * Y -> Y * X
-swap (pair x y) = pair y x
+swap (Pair: x y) = Pair: y x
 
 -- The fanout function is evidence that _*_ satisfies the universal property of
 -- products in the category Sets. You can also think of it as the unfold
 -- operation for _*_.
 
 fanout : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
-fanout f g x = pair (f x) (g x)
+fanout f g x = Pair: (f x) (g x)
 
 -- _*_ forms a bifunctor in the obvious way. The map operation of this
 -- bifunctor in uncurried form is cross.
 
 cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
-cross f g (pair x y) = pair (f x) (g y)
+cross f g (Pair: x y) = Pair: (f x) (g y)
 
 -- The function uncurry can be thought of as the fold operation for _*_.
 
 uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
-uncurry f (pair x y) = f x y
+uncurry f (Pair: x y) = f x y
 
 -- The inverse of uncurry is curry. These two functions witness an isomorphism
 -- between X * Y -> Z and X -> Y -> Z. They also serve as the left and right
 -- adjuncts of the adjunction between Writer Y and Reader Y.
 
 curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
-curry f x y = f (pair x y)
+curry f x y = f (Pair: x y)
 
 -- The function curry is also evidence that Y -> Z satisfies the universal
 -- property of being an exponential object in the category Sets. Recall that
@@ -72,9 +75,9 @@ curry f x y = f (pair x y)
 -- that apply (curry f x , y) = f (x , y) for any f : X * Y -> Z.
 
 apply : {Y Z : Set} -> (Y -> Z) * Y -> Z
-apply (pair g y) = g y
+apply (Pair: g y) = g y
 
 -- Duplicate an argument.
 
 dupe : forall {X} -> X -> X * X
-dupe x = pair x x
+dupe x = Pair: x x

@@ -22,10 +22,10 @@ open import Data.Function
 
 instance
   Endobifunctor:const : Endobifunctor Sets const
-  Endobifunctor:const .map (pair f g) = f
+  Endobifunctor:const .map (Pair: f g) = f
 
   Endobifunctor:Tuple : Endobifunctor Sets _*_
-  Endobifunctor:Tuple .map (pair f g) = cross f g
+  Endobifunctor:Tuple .map (Pair: f g) = cross f g
 
   Endobifunctor:Either : Endobifunctor Sets _+_
-  Endobifunctor:Either .map (pair f g) = plus f g
+  Endobifunctor:Either .map (Pair: f g) = plus f g
