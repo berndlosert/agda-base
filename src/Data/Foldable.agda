@@ -32,7 +32,7 @@ record Foldable (F : Set -> Set) : Set where
   foldr f y x = foldMap {{Monoid:<<< Sets}} f x y
 
   foldl : forall {X Y} -> (Y -> X -> Y) -> Y -> F X -> Y
-  foldl f y x = foldMap {{Monoid:>>> Sets}} (flip f) x y
+  foldl f y x = foldMap {{Op (Monoid:<<< Sets)}} (flip f) x y
 
   null : forall {X} -> F X -> Bool
   null = foldMap {{Monoid:&&}} (const true)
