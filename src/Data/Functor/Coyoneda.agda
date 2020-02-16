@@ -7,8 +7,8 @@ module Data.Functor.Coyoneda where
 open import Control.Category
 open import Data.Pair
 
-Coyoneda : (C : Category) -> (ob C -> Set) -> ob C -> Set
-Coyoneda C F Y = exists \ X -> F X * hom C X Y
+data Coyoneda (C : Category) (F : ob C -> Set) (Y : ob C) : Set where
+  Coyoneda: : forall {X} -> F X -> hom C X Y -> Coyoneda C F Y
 
 -- Coyoneda C F is a functor.
 
@@ -16,7 +16,7 @@ open import Data.Functor
 
 Functor:Coyoneda : (C : Category) (F : ob C -> Set)
   -> Functor C Sets (Coyoneda C F)
-Functor:Coyoneda C F .map f (_ , x , g) = (_ , x , f <<< g)
+Functor:Coyoneda C F .map f (Coyoneda: x g) = Coyoneda: x (f <<< g)
   where instance _ = C
 
 -- The coYoneda lemma states that F Y ~= Coyoneda C F Y. The isomorphsim
@@ -24,10 +24,10 @@ Functor:Coyoneda C F .map f (_ , x , g) = (_ , x , f <<< g)
 
 lower : forall {C F X} {{_ : Functor C Sets F}}
   -> Coyoneda C F X -> F X
-lower (_ , x , f) = map f x
+lower (Coyoneda: x f) = map f x
 
 lift : forall {C F X} -> F X -> Coyoneda C F X
-lift {C} y = (_ , y , id)
+lift {C} y = Coyoneda: y id
   where instance _ = C
 
 -- It turns out that Coyoneda is a free construction, i.e. Coyoneda C F is the
@@ -37,7 +37,7 @@ lift {C} y = (_ , y , id)
 interpret : forall {C F G} {{_ : Functor C Sets G}} ->
   let instance _ = Trans: C Sets in
   (F ~> G) -> Coyoneda C F ~> G
-interpret t (_ , x , f) = map f (t x)
+interpret t (Coyoneda: x f) = map f (t x)
 
 -- This is the left adjunct.
 uninterpret : forall {C F G} ->
