@@ -20,6 +20,10 @@ instance
   Add:Set : Add Set
   Add:Set = Add: Either
 
+-- This tells Agda to display Either X Y in compilation erros as X + Y.
+
+{-# DISPLAY Either X Y = X + Y #-}
+
 -- The function either is evidence that Either satisfies the universal property
 -- of coproducts in the category Sets. You can also think of it as the fold
 -- operation for Either.

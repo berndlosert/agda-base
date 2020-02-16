@@ -25,6 +25,10 @@ instance
   Mul:Set : Mul Set
   Mul:Set = Mul: Pair
 
+-- This tells Agda to display Pair X Y in compilation erros as X * Y.
+
+{-# DISPLAY Pair X Y = X * Y #-}
+
 -- This is how we define n-tuples:
 
 open import Data.Nat.Base

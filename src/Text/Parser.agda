@@ -92,3 +92,24 @@ module Parser where
   alphanum : Parser Char
   alphanum = letter <|> digit
 
+  -- Parse words.
+
+  {-# TERMINATING #-}
+  word : Parser String
+  word = neword <|> return ""
+    where
+      neword : Parser String
+      neword = do
+        c <- letter
+        s <- word
+        return (String.cons c s)
+
+  -- Produce string parsers.
+
+  open import Data.Maybe
+
+  {-# TERMINATING #-}
+  string : String -> Parser String
+  string s = case String.uncons s of \ where
+    nothing -> return ""
+    (just (Pair: c s')) -> char c >> string s' >> return (String.cons c s')
