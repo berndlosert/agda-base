@@ -52,6 +52,5 @@ module Parser where
   open import Data.Char
 
   item : Parser Char
-  item s = case String.toList s of \ where
-    [] -> []
-    (c :: cs) -> [ Pair: c (String.fromList cs) ]
+  item = List.fromMaybe <<< String.uncons
+

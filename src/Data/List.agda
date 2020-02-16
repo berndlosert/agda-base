@@ -218,3 +218,10 @@ module List where
   stripPrefix (x :: xs) (y :: ys) =
     if x == y then stripPrefix xs ys else nothing
   stripPrefix _ _ = nothing
+
+  -- This function returns an empty list when given nothing or the singleton
+  -- list [ x ] when given just x.
+
+  fromMaybe : forall {X} -> Maybe X -> List X
+  fromMaybe nothing = []
+  fromMaybe (just x) = [ x ]
