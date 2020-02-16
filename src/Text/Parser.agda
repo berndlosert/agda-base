@@ -60,7 +60,8 @@ module Parser where
   satisfy : (Char -> Bool) -> Parser Char
   satisfy p = do
     c <- item
-    if p c then pure c else empty
+    guard (p c)
+    return c
 
   -- This combinator is used for creating single character parsers.
 

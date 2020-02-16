@@ -65,3 +65,12 @@ record Alternative (F : Set -> Set) : Set where
     empty : forall {X} -> F X
 
 open Alternative {{...}} public
+
+-- Conditional failure of Alternative computations.
+
+open import Data.Bool
+open import Data.Unit
+
+guard : forall {F} {{_ : Alternative F}} -> Bool -> F Unit
+guard true = pure tt
+guard false = empty
