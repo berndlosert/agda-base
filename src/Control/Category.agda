@@ -53,7 +53,7 @@ instance
 
 -- With this instance, we can define product categories using _*_.
 
-open import Data.Tuple
+open import Data.Pair
 
 instance
   Mul:Category : Mul Category

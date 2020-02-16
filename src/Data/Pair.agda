@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Tuple where
+module Data.Pair where
 
 -- Pair is used to construct nondependent pairs.
 
@@ -17,7 +17,7 @@ open Pair public
 -- This tells the Agda compiler to compile Pair to Haskell's (,) tuple type.
 
 {-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Tuple.AgdaPair ((,)) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
 
 -- With this instance, we can write X * Y for Pair X Y.
 

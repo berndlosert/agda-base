@@ -9,7 +9,7 @@ module Vec where
 
   -- Split a vector into two parts.
 
-  open import Data.Tuple public
+  open import Data.Pair public
 
   splitAt : forall m {n X} -> Vec X (m + n) -> Vec X m * Vec X n
   splitAt zero xs = Pair: [] xs

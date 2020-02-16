@@ -5,7 +5,7 @@ module Data.Profunctor where
 -- Programmer-friendly definition of profunctors.
 
 open import Data.Functor public
-open import Data.Tuple
+open import Data.Pair
 
 Profunctor : (C D : Category) -> (ob D -> ob C -> Set) -> Set
 Profunctor C D P = Functor (Op D * C) Sets (uncurry P)

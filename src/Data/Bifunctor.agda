@@ -5,7 +5,7 @@ module Data.Bifunctor where
 -- Programmer-friendly definition of set-valued bifunctors.
 
 open import Data.Functor public
-open import Data.Tuple
+open import Data.Pair
 
 Bifunctor : (C D : Category) -> (ob C -> ob D -> Set) -> Set
 Bifunctor C D P = Functor (C * D) Sets (uncurry P)

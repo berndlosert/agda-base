@@ -4,7 +4,7 @@ module Data.Functor.Product where
 
 -- With this, we can write F * G for product of two endofunctors on Sets.
 
-open import Data.Tuple public
+open import Data.Pair public
 
 instance
   Mul:Functor : Mul (Set -> Set)

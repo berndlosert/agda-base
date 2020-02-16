@@ -49,7 +49,7 @@ instance
 
 -- Pretty-print pairs.
 
-open import Data.Tuple
+open import Data.Pair
 
 instance
   Show:Product : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)

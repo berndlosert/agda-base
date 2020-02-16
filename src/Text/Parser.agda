@@ -6,7 +6,7 @@ module Text.Parser where
 
 open import Data.List
 open import Data.String
-open import Data.Tuple
+open import Data.Pair
 
 Parser : Set -> Set
 Parser X = String -> List (X * String)

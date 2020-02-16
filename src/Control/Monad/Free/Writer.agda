@@ -5,7 +5,7 @@ module Control.Monad.Writer where
 -- Writer W X models computations of type X that store a value of type W. We
 -- call such computations Writer computations.
 
-open import Data.Tuple
+open import Data.Pair
 
 Writer : Set -> Set -> Set
 Writer W X = X * W

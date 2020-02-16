@@ -16,12 +16,12 @@ open import Data.List public
 open import Data.Maybe public
 open import Data.Monoid public
 open import Data.Nat public
-open import Data.Tuple public
+open import Data.Pair public
 open import Data.Ord public
 open import Data.Semigroup public
 open import Data.Stream public
 open import Data.String public
-open import Data.Tuple public
+open import Data.Pair public
 open import Data.Unit public
 open import Data.Vec public
 open import Data.Void public
