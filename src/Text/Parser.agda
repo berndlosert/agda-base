@@ -153,7 +153,6 @@ module Parser where
         (op >>= \ f -> p >>= \ y -> rest (f x y))
         (return x)
 
-
   -- Parser for natural numbers.
 
   open import Data.Nat
@@ -162,3 +161,22 @@ module Parser where
   nat = chainl1
       (digit >>= \ x -> return (ord x - ord '0'))
       (return (\ m n -> 10 * m + n))
+
+  -- Spaces parser.
+
+  spaces : Parser Unit
+  spaces = do
+    many1 (satisfy isSpace)
+    return tt
+
+  -- Junk parser.
+
+  junk : Parser Unit
+  junk = do
+    many spaces
+    return tt
+
+  -- Parser that skip junk.
+
+  skip : forall {X} -> Parser X -> Parser X
+  skip p = junk >> p
