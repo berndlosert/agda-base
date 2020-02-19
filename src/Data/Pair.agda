@@ -48,12 +48,12 @@ instance
 swap : forall {X Y} -> X * Y -> Y * X
 swap (Pair: x y) = Pair: y x
 
--- The fanout function is evidence that _*_ satisfies the universal property of
+-- The split function is evidence that _*_ satisfies the universal property of
 -- products in the category Sets. You can also think of it as the unfold
 -- operation for _*_.
 
-fanout : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
-fanout f g x = Pair: (f x) (g x)
+split : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
+split f g x = Pair: (f x) (g x)
 
 -- _*_ forms a bifunctor in the obvious way. The map operation of this
 -- bifunctor in uncurried form is cross.
