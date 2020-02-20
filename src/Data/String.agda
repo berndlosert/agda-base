@@ -3,6 +3,8 @@
 module Data.String where
 
 open import Data.String.Base public
+open import Data.String.Monoid public
+open import Data.String.Semigroup public
 
 module String where
 
