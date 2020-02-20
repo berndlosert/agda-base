@@ -4,7 +4,7 @@ module Data.List where
 
 open import Data.List.Applicative public
 open import Data.List.Alternative public
-open import Data.List.Base public hiding (module List)
+open import Data.List.Base public
 open import Data.List.Foldable public
 open import Data.List.Functor public
 open import Data.List.Monad public

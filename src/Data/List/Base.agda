@@ -7,6 +7,7 @@ module Data.List.Base where
 
 open import Agda.Builtin.List public
   renaming (_∷_ to _::_)
+  hiding (module List)
 
 -- Useful pattern synonyms for building and deconstructing lists.
 
