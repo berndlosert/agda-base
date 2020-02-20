@@ -55,10 +55,10 @@ module Either where
 
   partition = foldr (either l r) (Pair: [] [])
     where
-      l : _
-      l a p = Pair: (a :: fst p) (snd p)
-      r : _
-      r a p = Pair: (fst p) (a :: snd p)
+      l : X -> List X * List Y -> List X * List Y
+      l x p = Pair: (x :: fst p) (snd p)
+      r : Y -> List X * List Y -> List X * List Y
+      r y p = Pair: (fst p) (y :: snd p)
 
   isLeft (left _) = true
   isLeft _ = false
