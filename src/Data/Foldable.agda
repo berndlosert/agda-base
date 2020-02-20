@@ -15,6 +15,8 @@ open import Control.Category
 open import Data.Bool
 open import Data.Eq
 open import Data.Function
+open import Data.List.Base
+open import Data.List.Monoid
 open import Data.Monoid
 open import Data.Nat
 open import Data.Unit
@@ -22,33 +24,53 @@ open import Data.Unit
 record Foldable (F : Set -> Set) : Set where
   constructor Foldable:
   field
-    foldMap : forall {X M} {{_ : Monoid M}}
-      -> (X -> M) -> F X -> M
+    foldMap : forall {X M} {{_ : Monoid M}} -> (X -> M) -> F X -> M
 
-  fold : forall {X} {{_ : Monoid X}} -> F X -> X
+  private
+    variable
+      X Y : Set
+      G : Set -> Set
+
+  ------------------------------------------------------------------------------
+  -- Derived operations: overview
+  ------------------------------------------------------------------------------
+
+  -- Folds
+  fold : {{_ : Monoid X}} -> F X -> X
+  foldr : (X -> Y -> Y) -> Y -> F X -> Y
+  foldl : (Y -> X -> Y) -> Y -> F X -> Y
+
+  -- Predicates
+  null : F X -> Bool
+  elem : {{_ : Eq X}} -> X -> F X -> Bool
+
+  -- Traversing operations
+  traverse- : {{_ : Applicative G}} -> (X -> G Y) -> F X -> G Unit
+  for- : {{_ : Applicative G}} -> F X -> (X -> G Y) -> G Unit
+
+  -- List-related folds.
+  toList : F X -> List X
+
+  -- Misc.
+  size : F X -> Nat
+
+
+  ------------------------------------------------------------------------------
+  -- Derived operations: details
+  ------------------------------------------------------------------------------
+
   fold = foldMap id
-
-  foldr : forall {X Y} -> (X -> Y -> Y) -> Y -> F X -> Y
   foldr f y x = foldMap {{Monoid:<<< Sets}} f x y
-
-  foldl : forall {X Y} -> (Y -> X -> Y) -> Y -> F X -> Y
   foldl f y x = foldMap {{Op (Monoid:<<< Sets)}} (flip f) x y
 
-  null : forall {X} -> F X -> Bool
   null = foldMap {{Monoid:&&}} (const true)
-
-  size : forall {X} -> F X -> Nat
-  size = foldMap $ const $ suc zero
-
-  elem : forall {X} {{_ : Eq X}} -> X -> F X -> Bool
   elem x = foldMap {{Monoid:||}} (_== x)
 
-  traverse- : forall {X Y G} {{_ : Applicative G}}
-    -> (X -> G Y) -> F X -> G Unit
   traverse- f = foldr (f >>> _*>_) (pure tt)
-
-  for- : forall {X Y G} {{_ : Applicative G}}
-    -> F X -> (X -> G Y) -> G Unit
   for- = flip traverse-
+
+  toList =  foldMap [_]
+
+  size = foldMap (const 1)
 
 open Foldable {{...}} public

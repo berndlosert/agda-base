@@ -10,8 +10,8 @@ module String where
 
   open import Agda.Builtin.String as Builtin
 
-  toList = Builtin.primStringToList
-  fromList = Builtin.primStringFromList
+  unpack = Builtin.primStringToList
+  pack = Builtin.primStringFromList
   show = Builtin.primShowString
 
   -- Convert a Char to a String.
@@ -20,21 +20,21 @@ module String where
   open import Data.List
 
   fromChar : Char -> String
-  fromChar c = fromList (pure c)
+  fromChar c = pack (pure c)
 
   -- Get the length of a string.
 
   open import Data.Nat
 
   length : String -> Nat
-  length = toList >>> size
+  length = Builtin.primStringToList >>> size
 
   -- Determine if a string is a prefix of another string.
 
   open import Data.Bool
 
   startsWith : String -> String -> Bool
-  startsWith s s' = List.isPrefixOf (toList s) (toList s')
+  startsWith s s' = List.isPrefixOf (unpack s) (unpack s')
 
   -- Remove the given prefix from a string if it has it.
 
@@ -42,7 +42,7 @@ module String where
   open import Data.Maybe
 
   stripPrefix : String -> String -> Maybe String
-  stripPrefix s s' = fromList <$> List.stripPrefix (toList s) (toList s')
+  stripPrefix s s' = pack <$> List.stripPrefix (unpack s) (unpack s')
 
   -- Pad a string with a character up to some desired length.
 
@@ -67,9 +67,9 @@ module String where
   open import Data.Pair
 
   uncons : String -> Maybe (Char * String)
-  uncons s = case toList s of \ where
+  uncons s = case unpack s of \ where
     [] -> nothing
-    (c :: cs) -> just (Pair: c (fromList cs))
+    (c :: cs) -> just (Pair: c (pack cs))
 
   -- Get the head of a nonempty string.
 
@@ -84,7 +84,7 @@ module String where
   -- Prepend a character to a string.
 
   cons : Char -> String -> String
-  cons c s = fromList (c :: toList s)
+  cons c s = pack (c :: unpack s)
 
   -- Tell Agda to use the Haskell versions of some of the functions above
   -- during compilation.

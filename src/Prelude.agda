@@ -26,6 +26,7 @@ open import Data.Unit public
 open import Data.Vec public
 open import Data.Void public
 
+open import Control.Alternative public
 open import Control.Applicative public
 open import Control.Category public
 open import Control.Monad public

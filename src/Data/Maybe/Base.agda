@@ -43,6 +43,8 @@ instance
 
 -- Maybe is an alternative functor.
 
+open import Control.Alternative public
+
 instance
   Alternative:Maybe : Alternative Maybe
   Alternative:Maybe ._<|>_ nothing nothing = nothing

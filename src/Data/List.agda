@@ -2,8 +2,15 @@
 
 module Data.List where
 
-open import Data.List.Base public
-  hiding (module List)
+open import Data.List.Applicative public
+open import Data.List.Alternative public
+open import Data.List.Base public hiding (module List)
+open import Data.List.Foldable public
+open import Data.List.Functor public
+open import Data.List.Monad public
+open import Data.List.Monoid public
+open import Data.List.Semigroup public
+open import Data.List.Traversable public
 
 module List where
 
@@ -14,8 +21,9 @@ module List where
   open import Data.Nat
   open import Data.Pair
 
-  variable
-    X Y Z : Set
+  private
+    variable
+      X Y Z : Set
 
   ------------------------------------------------------------------------------
   -- Overview
