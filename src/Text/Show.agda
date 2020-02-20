@@ -101,4 +101,4 @@ open import Data.Char
 
 instance
   Show:Char : Show Char
-  Show:Char = Show: \ c -> show (String.fromList [ c ])
+  Show:Char = Show: \ c -> show (String.pack [ c ])

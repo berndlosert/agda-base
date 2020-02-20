@@ -2,8 +2,12 @@
 
 module Data.Maybe where
 
-open import Data.Maybe.Base public
-  hiding (module Maybe)
+open import Data.Maybe.Alternative public
+open import Data.Maybe.Applicative public
+open import Data.Maybe.Base public hiding (module Maybe)
+open import Data.Maybe.Functor public
+open import Data.Maybe.Monad public
+open import Data.Maybe.Semigroup public
 
 module Maybe where
 
