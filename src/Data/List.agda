@@ -17,6 +17,10 @@ module List where
   variable
     X Y Z : Set
 
+  ------------------------------------------------------------------------------
+  -- Overview
+  ------------------------------------------------------------------------------
+
   -- Special constructors
   recons : Maybe (X * List X) -> List X
   fromMaybe : Maybe X -> List X
@@ -66,7 +70,9 @@ module List where
   zip : List X -> List Y -> List (X * Y)
   zipCons : List X -> List (List X) -> List (List X)
 
-  -- Implementations -----------------------------------------------------------
+  ------------------------------------------------------------------------------
+  -- Details
+  ------------------------------------------------------------------------------
 
   -- The join operation of the list monad is concat.
   concat = join
