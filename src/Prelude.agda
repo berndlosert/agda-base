@@ -35,7 +35,6 @@ open import Notation.Append public
 open import Notation.Div public
 open import Notation.Dual public
 open import Notation.Exp public
-open import Notation.Index public
 open import Notation.Mod public
 open import Notation.Mul public
 open import Notation.Negation public

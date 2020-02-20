@@ -70,6 +70,9 @@ module List where
   zip : List X -> List Y -> List (X * Y)
   zipCons : List X -> List (List X) -> List (List X)
 
+  -- Indexing lists
+  elemAt : List X -> Nat -> Maybe X
+
   ------------------------------------------------------------------------------
   -- Details
   ------------------------------------------------------------------------------
@@ -219,3 +222,8 @@ module List where
   -- list [ x ] when given just x.
   fromMaybe nothing = []
   fromMaybe (just x) = [ x ]
+
+  -- elemAt xs n retrieves the (n - 1)th item in the list xs.
+  elemAt [] _ = nothing
+  elemAt (x :: xs) 0 = just x
+  elemAt (x :: xs) (suc n) = elemAt xs n

@@ -110,18 +110,3 @@ instance
     where
       cons : F X -> F (List X) -> F (List X)
       cons x xs = (| _::_ x xs |)
-
--- Allows use of _!!_ for indexing into a list.
-
-open import Data.Maybe
-open import Data.Nat.Base
-open import Notation.Index public
-
-instance
-  Index:List : Index List
-  Index:List = Index: Nat Maybe index
-    where
-      index : forall {X} -> List X -> Nat -> Maybe X
-      index [] _ = nothing
-      index (x :: xs) zero = just x
-      index (x :: xs) (suc n) = index xs n
