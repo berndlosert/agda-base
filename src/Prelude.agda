@@ -708,3 +708,55 @@ instance
 
   Monoid:<<< : forall {X} -> Monoid (X -> X)
   Monoid:<<< = Monoid: {{Semigroup:<<<}} id
+
+--------------------------------------------------------------------------------
+-- Functor instances
+--------------------------------------------------------------------------------
+
+instance
+  Functor:Pair : forall {X} -> Endofunctor Sets (Pair X)
+  Functor:Pair .map f (Pair: x y) = Pair: x (f y)
+
+  Functor:Either : forall {X} -> Endofunctor Sets (Either X)
+  Functor:Either .map f (left x) = left x
+  Functor:Either .map f (right y) = right (f y)
+
+  Functor:Maybe : Endofunctor Sets Maybe
+  Functor:Maybe .map f nothing = nothing
+  Functor:Maybe .map f (just x) = just (f x)
+
+  Functor:List : Endofunctor Sets List
+  Functor:List .map f [] = []
+  Functor:List .map f (x :: xs) = f x :: map f xs
+
+--------------------------------------------------------------------------------
+-- Monad instances
+--------------------------------------------------------------------------------
+
+instance
+
+  Monad:Either : forall {X} -> Monad Sets (Either X)
+  Monad:Either .return y = right y
+  Monad:Either .extend k (left x) = left x
+  Monad:Either .extend k (right y) = k y
+
+  Monad:Maybe : Monad Sets Maybe
+  Monad:Maybe .return = just
+  Monad:Maybe .extend k nothing = nothing
+  Monad:Maybe .extend k (just x) = k x
+
+  Monad:List : Monad Sets List
+  Monad:List .return = [_]
+  Monad:List .extend k [] = []
+  Monad:List .extend k (x :: xs) = k x ++ extend k xs
+
+--------------------------------------------------------------------------------
+-- Applicative instances
+--------------------------------------------------------------------------------
+
+instance
+  Applicative:Maybe : Applicative Maybe
+  Applicative:Maybe = Applicative: ap return
+
+  Applicative:List : Applicative List
+  Applicative:List = Applicative: ap return
