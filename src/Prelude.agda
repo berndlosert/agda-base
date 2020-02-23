@@ -520,6 +520,22 @@ untag : forall {X} -> X + X -> X
 untag (left x) = x
 untag (right x) = x
 
+isLeft : forall {X Y} -> Either X Y -> Bool
+isLeft (left _) = true
+isLeft _ = false
+
+isRight : forall {X Y} -> Either X Y -> Bool
+isRight (right _) = true
+isRight _ = false
+
+fromLeft : forall {X Y} -> X -> X + Y -> X
+fromLeft x (left x') = x'
+fromLeft x _ = x
+
+fromRight : forall {X Y} -> Y -> X + Y -> Y
+fromRight y (right y') = y'
+fromRight y _ = y
+
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Maybe
 --------------------------------------------------------------------------------
@@ -530,6 +546,13 @@ maybe y f (just x) = f x
 
 fromMaybe : forall {X} -> X -> Maybe X -> X
 fromMaybe = flip maybe id
+
+maybeToLeft : forall {X Y} -> Y -> Maybe X -> Either X Y
+maybeToLeft y nothing = right y
+maybeToLeft y (just x) = left x
+
+maybeToRight : forall {X Y} -> Y -> Maybe X -> Either Y X
+maybeToRight y m = mirror (maybeToLeft y m)
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding List
