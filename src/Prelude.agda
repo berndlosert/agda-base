@@ -126,6 +126,10 @@ data Maybe (X : Set) : Set where
 open import Agda.Builtin.List public
   using (List; [])
   renaming (_∷_ to _::_)
+  hiding (module List)
+
+open import Agda.Builtin.IO public
+  using (IO)
 
 {-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
@@ -306,6 +310,27 @@ ap fs xs = do
   f <- fs
   x <- xs
   return (f x)
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Void
+--------------------------------------------------------------------------------
+
+-- Since Void values logically don't exist, this witnesses the logical
+-- reasoning tool of "ex falso quodlibet".
+absurd : {X : Set} -> Void -> X
+absurd = \ ()
+
+-- If Void is uninhabited then any Functor that holds only values of type Void
+-- is holding no values.
+vacuous : forall {F X} {{_ : Endofunctor Sets F}} -> F Void -> F X
+vacuous = map absurd
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Unit
+--------------------------------------------------------------------------------
+
+ignore : forall {F X} {{_ : Endofunctor Sets F}} -> F X -> F Unit
+ignore = map (const tt)
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Bool
@@ -548,6 +573,22 @@ length : forall {X} -> List X -> Nat
 length = foldl (\ l x -> l + 1) 0
 
 --------------------------------------------------------------------------------
+-- Basic operations/functions regarding IO
+--------------------------------------------------------------------------------
+
+postulate
+  putStr : String -> IO Unit
+  putStrLn : String -> IO Unit
+  getLine : IO String
+  getContents : IO String
+
+{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
+{-# COMPILE GHC putStr = Text.putStr #-}
+{-# COMPILE GHC putStrLn = Text.putStrLn #-}
+{-# COMPILE GHC getLine = Text.getLine #-}
+{-# COMPILE GHC getContents = Text.getContents #-}
+
+--------------------------------------------------------------------------------
 -- Eq and Ord
 --------------------------------------------------------------------------------
 
@@ -766,6 +807,10 @@ instance
 -- Functor instances
 --------------------------------------------------------------------------------
 
+private
+  postulate
+    mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
+
 instance
   Functor:Pair : forall {X} -> Endofunctor Sets (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
@@ -782,12 +827,21 @@ instance
   Functor:List .map f [] = []
   Functor:List .map f (x :: xs) = f x :: map f xs
 
+  Functor:IO : Endofunctor Sets IO
+  Functor:IO .map = mapIO
+
+{-# COMPILE GHC mapIO = \ _ _ f -> map f #-}
+
 --------------------------------------------------------------------------------
 -- Monad instances
 --------------------------------------------------------------------------------
 
-instance
+private
+  postulate
+    returnIO : {X : Set} -> X -> IO X
+    bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
 
+instance
   Monad:Either : forall {X} -> Monad Sets (Either X)
   Monad:Either .return y = right y
   Monad:Either .extend k (left x) = left x
@@ -802,6 +856,13 @@ instance
   Monad:List .return = [_]
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
+
+  Monad:IO : Monad Sets IO
+  Monad:IO .return = returnIO
+  Monad:IO .extend = flip bindIO
+
+{-# COMPILE GHC returnIO = \ _ a -> return a #-}
+{-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 
 --------------------------------------------------------------------------------
 -- Applicative instances
