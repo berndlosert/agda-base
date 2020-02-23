@@ -76,7 +76,7 @@ record Append (X Y Z : Set) : Set where
 open Append {{...}} public
 
 --------------------------------------------------------------------------------
--- Essential types
+-- Basic types
 --------------------------------------------------------------------------------
 
 data Void : Set where
@@ -104,7 +104,150 @@ open import Agda.Builtin.Float
   using (Float)
 
 --------------------------------------------------------------------------------
--- Essential type constructors
+-- Basic operations/functions regarding Bool
+--------------------------------------------------------------------------------
+
+infix 0 if_then_else_
+infixr 5 _||_
+infixr 6 _&&_
+
+bool : {X : Set} -> X -> X -> Bool -> X
+bool x y false = x
+bool x y true = y
+
+if_then_else_ : {X : Set} -> Bool -> X -> X -> X
+if b then x else y = bool y x b
+
+not : Bool -> Bool
+not true  = false
+not false = true
+
+_&&_ : Bool -> Bool -> Bool
+true && b = b
+false && b = false
+
+_||_ : Bool -> Bool -> Bool
+true || b = true
+false || b = b
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Nat
+--------------------------------------------------------------------------------
+
+instance
+  Add:Nat : Add Nat
+  Add:Nat ._+_ = Agda.Builtin.Nat._+_
+
+  Sub:Nat : Sub Nat
+  Sub:Nat ._-_ = Agda.Builtin.Nat._-_
+
+  Mul:Nat : Mul Nat
+  Mul:Nat = Mul: Agda.Builtin.Nat._*_
+
+  Div:Nat : Div Nat
+  Div:Nat = record {
+      Constraint = \ { zero -> Void; (suc n) -> Unit };
+      _/_ = \ { m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n }
+    }
+
+  Mod:Nat : Mod Nat
+  Mod:Nat = record {
+      Constraint = \ { zero -> Void; (suc n) -> Unit };
+      _%_ = \ { m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n }
+    }
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Int
+--------------------------------------------------------------------------------
+
+instance
+  Add:Int : Add Int
+  Add:Int ._+_ = add
+    where
+      -- Subtracting two naturals to an integer result.
+      sub : Nat -> Nat -> Int
+      sub m 0 = pos m
+      sub 0 (suc n) = negsuc n
+      sub (suc m) (suc n) = sub m n
+
+      add : Int -> Int -> Int
+      add (negsuc m) (negsuc n) = negsuc (suc (m + n))
+      add (negsuc m) (pos n) = sub n (suc m)
+      add (pos m) (negsuc n) = sub m (suc n)
+      add (pos m) (pos n) = pos (m + n)
+
+  Negation:Int : Negation Int
+  Negation:Int = Negation: \ where
+    (pos zero) -> pos zero
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
+
+  Sub:Int : Sub Int
+  Sub:Int ._-_ n m = n + (- m)
+
+  Mul:Int : Mul Int
+  Mul:Int = Mul: \ where
+    (pos n) (pos m) -> pos (n * m)
+    (negsuc n) (negsuc m) -> pos (suc n * suc m)
+    (pos n) (negsuc m) -> - (pos (n * suc m))
+    (negsuc n) (pos m) -> - (pos (suc n * m))
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Char
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Char public
+  renaming (
+    primIsLower to isLower;
+    primIsDigit to isDigit;
+    primIsAlpha to isAlpha;
+    primIsSpace to isSpace;
+    primIsAscii to isAscii;
+    primIsLatin1 to isLatin1;
+    primIsPrint to isPrint;
+    primIsHexDigit to isHexDigit;
+    primToUpper to toUpper;
+    primToLower to toLower;
+    primCharToNat to ord;
+    primNatToChar to chr
+  )
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding String
+--------------------------------------------------------------------------------
+
+unpack = Agda.Builtin.String.primStringToList
+pack = Agda.Builtin.String.primStringFromList
+
+instance
+  Append:String : Append String String String
+  Append:String ._++_ = Agda.Builtin.String.primStringAppend
+
+--------------------------------------------------------------------------------
+-- Basic operations/functions regarding Float
+--------------------------------------------------------------------------------
+
+instance
+  Add:Float : Add Float
+  Add:Float = Add: Agda.Builtin.Float.primFloatPlus
+
+  Sub:Float : Sub Float
+  Sub:Float = Sub: Agda.Builtin.Float.primFloatMinus
+
+  Negation:Float : Negation Float
+  Negation:Float = Negation: Agda.Builtin.Float.primFloatNegate
+
+  Mul:Float : Mul Float
+  Mul:Float = Mul: Agda.Builtin.Float.primFloatTimes
+
+  Div:Float : Div Float
+  Div:Float = record {
+      Constraint = \ _ -> Unit;
+      _/_ = \ x y -> Agda.Builtin.Float.primFloatDiv x y
+    }
+
+--------------------------------------------------------------------------------
+-- Basic type constructors
 --------------------------------------------------------------------------------
 
 record Pair (X Y : Set) : Set where
@@ -115,13 +258,30 @@ record Pair (X Y : Set) : Set where
 
 open Pair public
 
+instance
+  Mul:Set : Mul Set
+  Mul:Set = Mul: Pair
+
+{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
+{-# DISPLAY Pair X Y = X * Y #-}
+
 data Either (X Y : Set) : Set where
   left : X -> Either X Y
   right : Y -> Either X Y
 
+instance
+  Add:Set : Add Set
+  Add:Set = Add: Either
+
+{-# COMPILE GHC Either = data Either (Left | Right) #-}
+
 data Maybe (X : Set) : Set where
   nothing : Maybe X
   just : X -> Maybe X
+
+{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
+{-# DISPLAY Either X Y = X + Y #-}
 
 open import Agda.Builtin.List public
   using (List; [])
@@ -130,21 +290,6 @@ open import Agda.Builtin.List public
 
 open import Agda.Builtin.IO public
   using (IO)
-
-{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
-{-# COMPILE GHC Either = data Either (Left | Right) #-}
-{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
-
-instance
-  Mul:Set : Mul Set
-  Mul:Set = Mul: Pair
-
-  Add:Set : Add Set
-  Add:Set = Add: Either
-
-{-# DISPLAY Pair X Y = X * Y #-}
-{-# DISPLAY Either X Y = X + Y #-}
 
 --------------------------------------------------------------------------------
 -- Utility functions
@@ -312,168 +457,84 @@ ap fs xs = do
   return (f x)
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Void
+-- Eq and Ord
 --------------------------------------------------------------------------------
 
--- Since Void values logically don't exist, this witnesses the logical
--- reasoning tool of "ex falso quodlibet".
-absurd : {X : Set} -> Void -> X
-absurd = \ ()
+record Eq (X : Set) : Set where
+  constructor Eq:
+  infix 4 _==_ _/=_
+  field
+    _==_ : X -> X -> Bool
 
--- If Void is uninhabited then any Functor that holds only values of type Void
--- is holding no values.
-vacuous : forall {F X} {{_ : Endofunctor Sets F}} -> F Void -> F X
-vacuous = map absurd
+  _/=_ : X -> X -> Bool
+  x /= y = not (x == y)
 
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Unit
---------------------------------------------------------------------------------
+open Eq {{...}} public
 
-ignore : forall {F X} {{_ : Endofunctor Sets F}} -> F X -> F Unit
-ignore = map (const tt)
+data Ordering : Set where
+  LT EQ GT : Ordering
 
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Bool
---------------------------------------------------------------------------------
+record Ord (X : Set) : Set where
+  constructor Ord:
+  field
+    {{instance:Eq}} : Eq X
+    _<_ : X -> X -> Bool
 
-infix 0 if_then_else_
-infixr 5 _||_
-infixr 6 _&&_
+  compare : X -> X -> Ordering
+  compare x y =
+    if x == y then EQ else
+    if x < y then LT else GT
 
-bool : {X : Set} -> X -> X -> Bool -> X
-bool x y false = x
-bool x y true = y
+  _<=_ : X -> X -> Bool
+  x <= y = (x == y) || (x < y)
 
-if_then_else_ : {X : Set} -> Bool -> X -> X -> X
-if b then x else y = bool y x b
+  _>_ : X -> X -> Bool
+  x > y = y < x
 
-not : Bool -> Bool
-not true  = false
-not false = true
+  _>=_ : X -> X -> Bool
+  x >= y = (x == y) || (x > y)
 
-_&&_ : Bool -> Bool -> Bool
-true && b = b
-false && b = false
+  min : X -> X -> X
+  min x y = if x < y then x else y
 
-_||_ : Bool -> Bool -> Bool
-true || b = true
-false || b = b
+  max : X -> X -> X
+  max x y = if x > y then x else y
 
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Nat
---------------------------------------------------------------------------------
+open Ord {{...}} public
 
-instance
-  Add:Nat : Add Nat
-  Add:Nat ._+_ = Agda.Builtin.Nat._+_
-
-  Sub:Nat : Sub Nat
-  Sub:Nat ._-_ = Agda.Builtin.Nat._-_
-
-  Mul:Nat : Mul Nat
-  Mul:Nat = Mul: Agda.Builtin.Nat._*_
-
-  Div:Nat : Div Nat
-  Div:Nat = record {
-      Constraint = \ { zero -> Void; (suc n) -> Unit };
-      _/_ = \ { m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n }
-    }
-
-  Mod:Nat : Mod Nat
-  Mod:Nat = record {
-      Constraint = \ { zero -> Void; (suc n) -> Unit };
-      _%_ = \ { m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n }
-    }
+comparing : {X Y : Set} {{_ : Ord Y}}
+  -> (X -> Y) -> X -> X -> Ordering
+comparing p x y = compare (p x) (p y)
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Int
+-- Semigroup and Monoid
 --------------------------------------------------------------------------------
 
-instance
-  Add:Int : Add Int
-  Add:Int ._+_ = add
-    where
-      -- Subtracting two naturals to an integer result.
-      sub : Nat -> Nat -> Int
-      sub m 0 = pos m
-      sub 0 (suc n) = negsuc n
-      sub (suc m) (suc n) = sub m n
+record Semigroup (X : Set) : Set where
+  constructor Semigroup:
+  infixr 6 _<>_
+  field _<>_ : X -> X -> X
 
-      add : Int -> Int -> Int
-      add (negsuc m) (negsuc n) = negsuc (suc (m + n))
-      add (negsuc m) (pos n) = sub n (suc m)
-      add (pos m) (negsuc n) = sub m (suc n)
-      add (pos m) (pos n) = pos (m + n)
+open Semigroup {{...}} public
 
-  Negation:Int : Negation Int
-  Negation:Int = Negation: \ where
-    (pos zero) -> pos zero
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
+record Monoid (X : Set) : Set where
+  constructor Monoid:
+  field
+    overlap {{Semigroup:Monoid}} : Semigroup X
+    mempty : X
 
-  Sub:Int : Sub Int
-  Sub:Int ._-_ n m = n + (- m)
-
-  Mul:Int : Mul Int
-  Mul:Int = Mul: \ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> - (pos (n * suc m))
-    (negsuc n) (pos m) -> - (pos (suc n * m))
+open Monoid {{...}} public
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Char
+-- Show
 --------------------------------------------------------------------------------
 
-open import Agda.Builtin.Char public
-  renaming (
-    primIsLower to isLower;
-    primIsDigit to isDigit;
-    primIsAlpha to isAlpha;
-    primIsSpace to isSpace;
-    primIsAscii to isAscii;
-    primIsLatin1 to isLatin1;
-    primIsPrint to isPrint;
-    primIsHexDigit to isHexDigit;
-    primToUpper to toUpper;
-    primToLower to toLower;
-    primCharToNat to ord;
-    primNatToChar to chr
-  )
+record Show (X : Set) : Set where
+  constructor Show:
+  field
+    show : X -> String
 
---------------------------------------------------------------------------------
--- Basic operations/functions regarding String
---------------------------------------------------------------------------------
-
-unpack = Agda.Builtin.String.primStringToList
-pack = Agda.Builtin.String.primStringFromList
-
-instance
-  Append:String : Append String String String
-  Append:String ._++_ = Agda.Builtin.String.primStringAppend
-
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Float
---------------------------------------------------------------------------------
-
-instance
-  Add:Float : Add Float
-  Add:Float = Add: Agda.Builtin.Float.primFloatPlus
-
-  Sub:Float : Sub Float
-  Sub:Float = Sub: Agda.Builtin.Float.primFloatMinus
-
-  Negation:Float : Negation Float
-  Negation:Float = Negation: Agda.Builtin.Float.primFloatNegate
-
-  Mul:Float : Mul Float
-  Mul:Float = Mul: Agda.Builtin.Float.primFloatTimes
-
-  Div:Float : Div Float
-  Div:Float = record {
-      Constraint = \ _ -> Unit;
-      _/_ = \ x y -> Agda.Builtin.Float.primFloatDiv x y
-    }
+open Show {{...}} public
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Pair
@@ -611,85 +672,8 @@ postulate
 {-# COMPILE GHC getLine = Text.getLine #-}
 {-# COMPILE GHC getContents = Text.getContents #-}
 
---------------------------------------------------------------------------------
--- Eq and Ord
---------------------------------------------------------------------------------
-
-record Eq (X : Set) : Set where
-  constructor Eq:
-  infix 4 _==_ _/=_
-  field
-    _==_ : X -> X -> Bool
-
-  _/=_ : X -> X -> Bool
-  x /= y = not (x == y)
-
-open Eq {{...}} public
-
-data Ordering : Set where
-  LT EQ GT : Ordering
-
-record Ord (X : Set) : Set where
-  constructor Ord:
-  field
-    {{instance:Eq}} : Eq X
-    _<_ : X -> X -> Bool
-
-  compare : X -> X -> Ordering
-  compare x y =
-    if x == y then EQ else
-    if x < y then LT else GT
-
-  _<=_ : X -> X -> Bool
-  x <= y = (x == y) || (x < y)
-
-  _>_ : X -> X -> Bool
-  x > y = y < x
-
-  _>=_ : X -> X -> Bool
-  x >= y = (x == y) || (x > y)
-
-  min : X -> X -> X
-  min x y = if x < y then x else y
-
-  max : X -> X -> X
-  max x y = if x > y then x else y
-
-open Ord {{...}} public
-
-comparing : {X Y : Set} {{_ : Ord Y}}
-  -> (X -> Y) -> X -> X -> Ordering
-comparing p x y = compare (p x) (p y)
-
---------------------------------------------------------------------------------
--- Semigroup and Monoid
---------------------------------------------------------------------------------
-
-record Semigroup (X : Set) : Set where
-  constructor Semigroup:
-  infixr 6 _<>_
-  field _<>_ : X -> X -> X
-
-open Semigroup {{...}} public
-
-record Monoid (X : Set) : Set where
-  constructor Monoid:
-  field
-    overlap {{Semigroup:Monoid}} : Semigroup X
-    mempty : X
-
-open Monoid {{...}} public
-
---------------------------------------------------------------------------------
--- Show
---------------------------------------------------------------------------------
-
-record Show (X : Set) : Set where
-  constructor Show:
-  field
-    show : X -> String
-
-open Show {{...}} public
+print : forall {X} {{_ : Show X}} -> X -> IO Unit
+print x = putStrLn (show x)
 
 --------------------------------------------------------------------------------
 -- Eq instances
@@ -751,80 +735,6 @@ instance
 
   Ord:Float : Ord Float
   Ord:Float ._<_ = Agda.Builtin.Float.primFloatNumericalLess
-
---------------------------------------------------------------------------------
--- Semigroup instances
---------------------------------------------------------------------------------
-
-instance
-  Dual:Semigroup : forall {X} -> Dual (Semigroup X)
-  Dual:Semigroup .Op (Semigroup: _<>_) = Semigroup: \ x y -> y <> x
-
-  Semigroup:Void : Semigroup Void
-  Semigroup:Void ._<>_ = \ ()
-
-  Semigroup:Unit : Semigroup Unit
-  Semigroup:Unit ._<>_ tt tt = tt
-
-  Semigroup:All : Semigroup Bool
-  Semigroup:All ._<>_ = _&&_
-
-  Semigroup:Any : Semigroup Bool
-  Semigroup:Any ._<>_ = _||_
-
-  Semigroup:Sum : Semigroup Nat
-  Semigroup:Sum ._<>_ = _+_
-
-  Semigroup:Product : Semigroup Nat
-  Semigroup:Product ._<>_ = _*_
-
-  Semigroup:String : Semigroup String
-  Semigroup:String ._<>_ = _++_
-
-  Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
-  Semigroup:Function ._<>_ f g = \ x -> f x <> g x
-
-  Semigroup:<<< : forall {X} -> Semigroup (X -> X)
-  Semigroup:<<< ._<>_ = _<<<_
-
-  Semigroup:First : forall {X} -> Semigroup (Maybe X)
-  Semigroup:First = Semigroup: \ where
-    nothing _ -> nothing
-    (just x) _ -> just x
-
---------------------------------------------------------------------------------
--- Monoid instances
---------------------------------------------------------------------------------
-
-instance
-  Dual:Monoid : forall {X} -> Dual (Monoid X)
-  Dual:Monoid .Op monoid = let instance inst = monoid in \ where
-    .Semigroup:Monoid -> Op (Semigroup:Monoid {{inst}})
-    .mempty -> mempty
-
-  Monoid:Unit : Monoid Unit
-  Monoid:Unit .mempty = tt
-
-  Monoid:All : Monoid Bool
-  Monoid:All = Monoid: {{Semigroup:All}} true
-
-  Monoid:Any : Monoid Bool
-  Monoid:Any = Monoid: {{Semigroup:Any}} false
-
-  Monoid:Sum : Monoid Nat
-  Monoid:Sum = Monoid: {{Semigroup:Sum}} 0
-
-  Monoid:Product : Monoid Nat
-  Monoid:Product = Monoid: {{Semigroup:Product}} 1
-
-  Monoid:String : Monoid String
-  Monoid:String .mempty = ""
-
-  Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
-  Monoid:Function .mempty = const mempty
-
-  Monoid:<<< : forall {X} -> Monoid (X -> X)
-  Monoid:<<< = Monoid: {{Semigroup:<<<}} id
 
 --------------------------------------------------------------------------------
 -- Functor instances
@@ -897,6 +807,90 @@ instance
 
   Applicative:List : Applicative List
   Applicative:List = Applicative: ap return
+
+  Applicative:IO : Applicative IO
+  Applicative:IO = Applicative: ap return
+
+--------------------------------------------------------------------------------
+-- Semigroup instances
+--------------------------------------------------------------------------------
+
+instance
+  Dual:Semigroup : forall {X} -> Dual (Semigroup X)
+  Dual:Semigroup .Op (Semigroup: _<>_) = Semigroup: \ x y -> y <> x
+
+  Semigroup:Void : Semigroup Void
+  Semigroup:Void ._<>_ = \ ()
+
+  Semigroup:Unit : Semigroup Unit
+  Semigroup:Unit ._<>_ tt tt = tt
+
+  Semigroup:All : Semigroup Bool
+  Semigroup:All ._<>_ = _&&_
+
+  Semigroup:Any : Semigroup Bool
+  Semigroup:Any ._<>_ = _||_
+
+  Semigroup:Sum : Semigroup Nat
+  Semigroup:Sum ._<>_ = _+_
+
+  Semigroup:Product : Semigroup Nat
+  Semigroup:Product ._<>_ = _*_
+
+  Semigroup:String : Semigroup String
+  Semigroup:String ._<>_ = _++_
+
+  Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
+  Semigroup:Function ._<>_ f g = \ x -> f x <> g x
+
+  Semigroup:<<< : forall {X} -> Semigroup (X -> X)
+  Semigroup:<<< ._<>_ = _<<<_
+
+  Semigroup:First : forall {X} -> Semigroup (Maybe X)
+  Semigroup:First = Semigroup: \ where
+    nothing _ -> nothing
+    (just x) _ -> just x
+
+  Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
+  Semigroup:IO = Semigroup: \ x y -> (| _<>_ x y |)
+
+--------------------------------------------------------------------------------
+-- Monoid instances
+--------------------------------------------------------------------------------
+
+instance
+  Dual:Monoid : forall {X} -> Dual (Monoid X)
+  Dual:Monoid .Op monoid = let instance inst = monoid in \ where
+    .Semigroup:Monoid -> Op (Semigroup:Monoid {{inst}})
+    .mempty -> mempty
+
+  Monoid:Unit : Monoid Unit
+  Monoid:Unit .mempty = tt
+
+  Monoid:All : Monoid Bool
+  Monoid:All = Monoid: {{Semigroup:All}} true
+
+  Monoid:Any : Monoid Bool
+  Monoid:Any = Monoid: {{Semigroup:Any}} false
+
+  Monoid:Sum : Monoid Nat
+  Monoid:Sum = Monoid: {{Semigroup:Sum}} 0
+
+  Monoid:Product : Monoid Nat
+  Monoid:Product = Monoid: {{Semigroup:Product}} 1
+
+  Monoid:String : Monoid String
+  Monoid:String .mempty = ""
+
+  Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
+  Monoid:Function .mempty = const mempty
+
+  Monoid:<<< : forall {X} -> Monoid (X -> X)
+  Monoid:<<< = Monoid: {{Semigroup:<<<}} id
+
+  Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
+  Monoid:IO = Monoid: (return mempty)
+
 
 --------------------------------------------------------------------------------
 -- Show instances
