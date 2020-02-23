@@ -13,18 +13,18 @@ record Add (X : Set) : Set where
 
 open Add {{...}} public
 
+record Negation (X : Set) : Set where
+  constructor Negation:
+  field -_ : X -> X
+
+open Negation {{...}} public
+
 record Sub (X : Set) : Set where
   constructor Sub:
   infixr 24 _-_
   field _-_ : X -> X -> X
 
 open Sub {{...}} public
-
-record Negation (X : Set) : Set where
-  constructor Negation:
-  field -_ : X -> X
-
-open Negation {{...}} public
 
 record Mul (X : Set) : Set where
   constructor Mul:
@@ -90,6 +90,9 @@ open import Agda.Builtin.Bool public
 
 open import Agda.Builtin.Nat public
   using (Nat; zero; suc)
+
+open import Agda.Builtin.Int public
+  using (Int; pos; negsuc)
 
 open import Agda.Builtin.Char public
   using (Char)
@@ -358,6 +361,42 @@ instance
     }
 
 --------------------------------------------------------------------------------
+-- Basic operations/functions regarding Int
+--------------------------------------------------------------------------------
+
+instance
+  Add:Int : Add Int
+  Add:Int ._+_ = add
+    where
+      -- Subtracting two naturals to an integer result.
+      sub : Nat -> Nat -> Int
+      sub m 0 = pos m
+      sub 0 (suc n) = negsuc n
+      sub (suc m) (suc n) = sub m n
+
+      add : Int -> Int -> Int
+      add (negsuc m) (negsuc n) = negsuc (suc (m + n))
+      add (negsuc m) (pos n) = sub n (suc m)
+      add (pos m) (negsuc n) = sub m (suc n)
+      add (pos m) (pos n) = pos (m + n)
+
+  Negation:Int : Negation Int
+  Negation:Int = Negation: \ where
+    (pos zero) -> pos zero
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
+
+  Sub:Int : Sub Int
+  Sub:Int ._-_ n m = n + (- m)
+
+  Mul:Int : Mul Int
+  Mul:Int = Mul: \ where
+    (pos n) (pos m) -> pos (n * m)
+    (negsuc n) (negsuc m) -> pos (suc n * suc m)
+    (pos n) (negsuc m) -> - (pos (n * suc m))
+    (negsuc n) (pos m) -> - (pos (suc n * m))
+
+--------------------------------------------------------------------------------
 -- Basic operations/functions regarding Char
 --------------------------------------------------------------------------------
 
@@ -380,6 +419,9 @@ open import Agda.Builtin.Char public
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding String
 --------------------------------------------------------------------------------
+
+unpack = Agda.Builtin.String.primStringToList
+pack = Agda.Builtin.String.primStringFromList
 
 instance
   Append:String : Append String String String
@@ -575,6 +617,17 @@ record Monoid (X : Set) : Set where
 open Monoid {{...}} public
 
 --------------------------------------------------------------------------------
+-- Show
+--------------------------------------------------------------------------------
+
+record Show (X : Set) : Set where
+  constructor Show:
+  field
+    show : X -> String
+
+open Show {{...}} public
+
+--------------------------------------------------------------------------------
 -- Eq instances
 --------------------------------------------------------------------------------
 
@@ -760,3 +813,52 @@ instance
 
   Applicative:List : Applicative List
   Applicative:List = Applicative: ap return
+
+--------------------------------------------------------------------------------
+-- Show instances
+--------------------------------------------------------------------------------
+
+instance
+  Show:Unit : Show Unit
+  Show:Unit .show tt = "tt"
+
+  Show:Bool : Show Bool
+  Show:Bool .show = \ where
+    true -> "true"
+    false -> "false"
+
+  Show:Int : Show Int
+  Show:Int .show = Agda.Builtin.Int.primShowInteger
+
+  Show:Nat : Show Nat
+  Show:Nat .show n = show (pos n)
+
+  Show:Pair : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X * Y)
+  Show:Pair .show (Pair: x y) = "Pair: " ++ show x ++ " " ++ show y
+
+  Show:Either : forall {X Y} {{_ : Show X}} {{_ : Show Y}} -> Show (X + Y)
+  Show:Either .show = \ where
+    (left x) -> "left " ++ show x
+    (right y) -> "right " ++ show y
+
+  Show:Maybe : {X : Set} {{_ : Show X}} -> Show (Maybe X)
+  Show:Maybe .show = \ where
+    (just x) -> "just " ++ show x
+    nothing -> "nothing"
+
+  Show:List : forall {X} {{_ : Show X}} -> Show (List X)
+  Show:List .show = \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
+    where
+      csv : {X : Set} {{_ : Show X}} -> List X -> String
+      csv [] = ""
+      csv (x :: []) = show x
+      csv (x :: xs) = show x ++ " , " ++ csv xs
+
+  Show:Char : Show Char
+  Show:Char .show c = "'" ++ pack [ c ] ++ "'"
+
+  Show:String : Show String
+  Show:String .show = Agda.Builtin.String.primShowString
+
+  Show:Float : Show Float
+  Show:Float .show = Agda.Builtin.Float.primShowFloat
