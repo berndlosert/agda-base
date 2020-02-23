@@ -653,6 +653,16 @@ foldl : {X Y : Set} -> (Y -> X -> Y) -> Y -> List X -> Y
 foldl f y [] = y
 foldl f y (x :: xs) = foldl f (f y x) xs
 
+foldMap : forall {X M} {{_ : Monoid M}} -> (X -> M) -> List X -> M
+foldMap f = foldr (\ x y -> f x <> y) mempty
+
+fold : forall {M} {{_ : Monoid M}} -> List M -> M
+fold = foldMap id
+
+filter : forall {X} -> (X -> Bool) -> List X -> List X
+filter p [] = []
+filter p (x :: xs) = if p x then x :: filter p xs else xs
+
 length : forall {X} -> List X -> Nat
 length = foldl (\ l x -> l + 1) 0
 

@@ -73,15 +73,47 @@ concat = join
 concatMap : (X -> List Y) -> List X -> List Y
 concatMap = extend
 
+-- and returns the conjunction of a container of Bools. For the result to be
+-- true, the container must be finite; false, however, results from a false
+-- value finitely far from the left end.
+and : List Bool -> Bool
+and = fold {{Monoid:All}}
+
+-- or returns the disjunction of a container of Bools. For the result to be
+-- false, the container must be finite; true, however, results from a true
+-- value finitely far from the left end.
+or : List Bool -> Bool
+or = fold {{Monoid:Any}}
+
+-- Determines whether any element of the structure satisfies the predicate.
+any : forall {X} -> (X -> Bool) -> List X -> Bool
+any f xs = or (map f xs)
+
+-- Determines whether all elements of the structure satisfy the predicate.
+all : forall {X} -> (X -> Bool) -> List X -> Bool
+all f xs = and (map f xs)
+
 --------------------------------------------------------------------------------
 -- Searching lists
 --------------------------------------------------------------------------------
 
--- The filter function filters out elements of the list not satisfying
--- the given predicate.
-filter : (X -> Bool) -> List X -> List X
-filter p [] = []
-filter p (x :: xs) = if p x then x :: filter p xs else xs
+-- The find function takes a predicate and a structure and returns the leftmost
+-- element of the list matching the predicate, or nothing if there is no such
+-- element.
+find : (X -> Bool) -> List X -> Maybe X
+find p xs = case filter p xs of \ where
+  [] -> nothing
+  (x :: _) -> just x
+
+-- The partition function takes a predicate, a list and returns the pair of
+-- lists of elements which do and do not satisfy the predicate.
+partition : (X -> Bool) -> List X -> List X * List X
+partition p xs = foldr (select p) (Pair: [] []) xs
+  where
+    select : (X -> Bool) -> X -> List X * List X -> List X * List X
+    select p x (Pair: ts fs) with p x
+    ... | true = Pair: (x :: ts) fs
+    ... | false = Pair: ts (x :: fs)
 
 --------------------------------------------------------------------------------
 -- Extracting sublists
@@ -123,16 +155,11 @@ stripPrefix (x :: xs) (y :: ys) =
   if x == y then stripPrefix xs ys else nothing
 stripPrefix _ _ = nothing
 
---------------------------------------------------------------------------------
--- Predicates
---------------------------------------------------------------------------------
-
--- Takes two lists and returns true if the first list is a prefix of the
--- second.
-isPrefixOf : {{_ : Eq X}} -> List X -> List X -> Bool
-isPrefixOf [] _ = true
-isPrefixOf _ [] = false
-isPrefixOf (x :: xs) (y :: ys) = (x == y) && (isPrefixOf xs ys)
+-- The tails function returns all final segments of the argument, longest
+-- first.
+tails : forall {X} -> List X -> List (List X)
+tails [] = [ [] ]
+tails l@(x :: xs) = l :: tails xs
 
 --------------------------------------------------------------------------------
 -- "By" operations
@@ -224,6 +251,27 @@ reverse = foldl (flip _::_) []
 transpose : List (List X) -> List (List X)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
+
+--------------------------------------------------------------------------------
+-- Predicates
+--------------------------------------------------------------------------------
+
+-- Takes two lists and returns true if the first list is a prefix of the
+-- second.
+isPrefixOf : {{_ : Eq X}} -> List X -> List X -> Bool
+isPrefixOf [] _ = true
+isPrefixOf _ [] = false
+isPrefixOf (x :: xs) (y :: ys) = (x == y) && (isPrefixOf xs ys)
+
+-- The isSuffixOf function takes two lists and returns true iff the first list
+-- is a suffix of the second.
+isSuffixOf : {{_ : Eq X}} -> List X -> List X -> Bool
+isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
+
+-- The isInfixOf function takes two lists and returns true iff the first list
+-- is contained, wholly and intact, anywhere within the second.
+isInfixOf : {{_ : Eq X}} -> List X -> List X -> Bool
+isInfixOf xs ys = any (isPrefixOf xs) (tails ys)
 
 ------------------------------------------------------------------------------
 -- Indexing lists
