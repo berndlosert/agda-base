@@ -3,7 +3,6 @@
 module Data.List where
 
 open import Prelude
-  hiding (fromMaybe)
 
 private
   variable
@@ -17,12 +16,6 @@ private
 recons : Maybe (X * List X) -> List X
 recons nothing = []
 recons (just (Pair: x xs)) = x :: xs
-
--- This function returns an empty list when given nothing or the singleton
--- list [ x ] when given just x.
-fromMaybe : Maybe X -> List X
-fromMaybe nothing = []
-fromMaybe (just x) = [ x ]
 
 -- replicate n x is a list of length n with x the value of every element.
 replicate : Nat -> X -> List X
@@ -61,6 +54,48 @@ uncons [] = nothing
 uncons (x :: xs) = just (Pair: x xs)
 
 --------------------------------------------------------------------------------
+-- Regular folds
+--------------------------------------------------------------------------------
+
+-- foldr, when applied to a binary operator, a starting value (typically the
+-- right-identity of the operator), and a list, reduces the list using the
+-- binary operator, from right to left.
+foldr : (X -> Y -> Y) -> Y -> List X -> Y
+foldr f y [] = y
+foldr f y (x :: xs) = f x (foldr f y xs)
+
+-- foldl is like foldr except it works from left to right.
+foldl : (Y -> X -> Y) -> Y -> List X -> Y
+foldl f y [] = y
+foldl f y (x :: xs) = foldl f (f y x) xs
+
+-- Maps each element of a list to a monoid, and combine the results.
+foldMap : {{_ : Monoid Y}} -> (X -> Y) -> List X -> Y
+foldMap f = foldr (\ x y -> f x <> y) mempty
+
+-- Combine the elements of a list using a monoid.
+fold : {{_ : Monoid X}} -> List X -> X
+fold = foldMap id
+
+--------------------------------------------------------------------------------
+-- Scans
+--------------------------------------------------------------------------------
+
+-- scanr is the right-to-left dual of scanl.
+scanr : (X -> Y -> Y) -> Y -> List X -> List Y
+scanr f y [] = y :: []
+scanr f y (x :: xs) =
+  case (scanr f y xs) of \ where
+    [] -> []
+    (y' :: ys) -> f x y' :: y' :: ys
+
+-- scanl is similar to foldl, but returns a list of successive reduced values
+-- from the left
+scanl : (Y -> X -> Y) -> Y -> List X -> List Y
+scanl f y [] = [ y ]
+scanl f y (x :: xs) = y :: scanl f (f y x) xs
+
+--------------------------------------------------------------------------------
 -- Special folds
 --------------------------------------------------------------------------------
 
@@ -93,9 +128,19 @@ any f xs = or (map f xs)
 all : forall {X} -> (X -> Bool) -> List X -> Bool
 all f xs = and (map f xs)
 
+-- Returns the length of the given list.
+length : forall {X} -> List X -> Nat
+length = foldl (\ l x -> l + 1) 0
+
 --------------------------------------------------------------------------------
 -- Searching lists
 --------------------------------------------------------------------------------
+
+-- filter, applied to a predicate and a list, returns the list of those
+-- elements that satisfy the predicate.
+filter : (X -> Bool) -> List X -> List X
+filter p [] = []
+filter p (x :: xs) = if p x then x :: filter p xs else xs
 
 -- The find function takes a predicate and a structure and returns the leftmost
 -- element of the list matching the predicate, or nothing if there is no such

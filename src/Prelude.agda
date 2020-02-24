@@ -312,6 +312,15 @@ case_of_ = _&_
 const : {X Y : Set} -> X -> Y -> X
 const x _ = x
 
+uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
+uncurry f (Pair: x y) = f x y
+
+curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
+curry f x y = f (Pair: x y)
+
+apply : {Y Z : Set} -> (Y -> Z) * Y -> Z
+apply (Pair: g y) = g y
+
 --------------------------------------------------------------------------------
 -- Category, Functor and Trans
 --------------------------------------------------------------------------------
@@ -537,85 +546,6 @@ record Show (X : Set) : Set where
 open Show {{...}} public
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Pair
---------------------------------------------------------------------------------
-
-split : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
-split f g x = Pair: (f x) (g x)
-
-cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
-cross f g (Pair: x y) = Pair: (f x) (g y)
-
-swap : forall {X Y} -> X * Y -> Y * X
-swap (Pair: x y) = Pair: y x
-
-dupe : forall {X} -> X -> X * X
-dupe x = Pair: x x
-
-uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
-uncurry f (Pair: x y) = f x y
-
-curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
-curry f x y = f (Pair: x y)
-
-apply : {Y Z : Set} -> (Y -> Z) * Y -> Z
-apply (Pair: g y) = g y
-
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Either
---------------------------------------------------------------------------------
-
-either : {X Y Z : Set} -> (X -> Z) -> (Y -> Z) -> X + Y -> Z
-either f g (left x) = f x
-either f g (right y) = g y
-
-plus : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X + X' -> Y + Y'
-plus f g (left x) = left (f x)
-plus f g (right y) = right (g y)
-
-mirror : forall {X Y} -> X + Y -> Y + X
-mirror (left x) = right x
-mirror (right y) = left y
-
-untag : forall {X} -> X + X -> X
-untag (left x) = x
-untag (right x) = x
-
-isLeft : forall {X Y} -> Either X Y -> Bool
-isLeft (left _) = true
-isLeft _ = false
-
-isRight : forall {X Y} -> Either X Y -> Bool
-isRight (right _) = true
-isRight _ = false
-
-fromLeft : forall {X Y} -> X -> X + Y -> X
-fromLeft x (left x') = x'
-fromLeft x _ = x
-
-fromRight : forall {X Y} -> Y -> X + Y -> Y
-fromRight y (right y') = y'
-fromRight y _ = y
-
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Maybe
---------------------------------------------------------------------------------
-
-maybe : {X Y : Set} -> Y -> (X -> Y) -> Maybe X -> Y
-maybe y f nothing = y
-maybe y f (just x) = f x
-
-fromMaybe : forall {X} -> X -> Maybe X -> X
-fromMaybe = flip maybe id
-
-maybeToLeft : forall {X Y} -> Y -> Maybe X -> Either X Y
-maybeToLeft y nothing = right y
-maybeToLeft y (just x) = left x
-
-maybeToRight : forall {X Y} -> Y -> Maybe X -> Either Y X
-maybeToRight y m = mirror (maybeToLeft y m)
-
---------------------------------------------------------------------------------
 -- Basic operations/functions regarding List
 --------------------------------------------------------------------------------
 
@@ -644,37 +574,6 @@ instance
   Append:List : forall {X} -> Append (List X) (List X) (List X)
   Append:List ._++_ [] ys = ys
   Append:List ._++_ (x :: xs) ys = x :: xs ++ ys
-
-foldr : {X Y : Set} -> (X -> Y -> Y) -> Y -> List X -> Y
-foldr f y [] = y
-foldr f y (x :: xs) = f x (foldr f y xs)
-
-foldl : {X Y : Set} -> (Y -> X -> Y) -> Y -> List X -> Y
-foldl f y [] = y
-foldl f y (x :: xs) = foldl f (f y x) xs
-
-foldMap : forall {X M} {{_ : Monoid M}} -> (X -> M) -> List X -> M
-foldMap f = foldr (\ x y -> f x <> y) mempty
-
-fold : forall {M} {{_ : Monoid M}} -> List M -> M
-fold = foldMap id
-
-filter : forall {X} -> (X -> Bool) -> List X -> List X
-filter p [] = []
-filter p (x :: xs) = if p x then x :: filter p xs else xs
-
-length : forall {X} -> List X -> Nat
-length = foldl (\ l x -> l + 1) 0
-
-scanr : forall {X Y} -> (X -> Y -> Y) -> Y -> List X -> List Y
-scanr f y [] = y :: []
-scanr f y (x :: xs) with scanr f y xs
-... | [] = []
-... | y' :: ys = f x y' :: y' :: ys
-
-scanl : forall {X Y} -> (Y -> X -> Y) -> Y -> List X -> List Y
-scanl f y [] = [ y ]
-scanl f y (x :: xs) = y :: scanl f (f y x) xs
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding IO
@@ -910,7 +809,6 @@ instance
 
   Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
   Monoid:IO = Monoid: (return mempty)
-
 
 --------------------------------------------------------------------------------
 -- Show instances
