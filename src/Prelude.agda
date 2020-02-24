@@ -263,7 +263,7 @@ instance
   Mul:Set = Mul: Pair
 
 {-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
 {-# DISPLAY Pair X Y = X * Y #-}
 
 data Either (X Y : Set) : Set where
@@ -665,6 +665,16 @@ filter p (x :: xs) = if p x then x :: filter p xs else xs
 
 length : forall {X} -> List X -> Nat
 length = foldl (\ l x -> l + 1) 0
+
+scanr : forall {X Y} -> (X -> Y -> Y) -> Y -> List X -> List Y
+scanr f y [] = y :: []
+scanr f y (x :: xs) with scanr f y xs
+... | [] = []
+... | y' :: ys = f x y' :: y' :: ys
+
+scanl : forall {X Y} -> (Y -> X -> Y) -> Y -> List X -> List Y
+scanl f y [] = [ y ]
+scanl f y (x :: xs) = y :: scanl f (f y x) xs
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding IO
