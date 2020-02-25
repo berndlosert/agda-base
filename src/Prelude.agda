@@ -81,6 +81,10 @@ open Append {{...}} public
 
 data Void : Set where
 
+open import Agda.Builtin.Equality public
+  using (refl)
+  renaming (_≡_ to _===_)
+
 open import Agda.Builtin.Unit public
   using (tt)
   renaming (⊤ to Unit)
@@ -287,6 +291,10 @@ open import Agda.Builtin.List public
   using (List; [])
   renaming (_∷_ to _::_)
   hiding (module List)
+
+data Vector (X : Set) : Nat -> Set where
+  [] : Vector X 0
+  _::_ : forall {n} -> X -> Vector X n -> Vector X (suc n)
 
 open import Agda.Builtin.IO public
   using (IO)
@@ -546,7 +554,7 @@ record Show (X : Set) : Set where
 open Show {{...}} public
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding List
+-- Basic operations regarding List and Vector
 --------------------------------------------------------------------------------
 
 pattern [_] x1 =
@@ -574,6 +582,11 @@ instance
   Append:List : forall {X} -> Append (List X) (List X) (List X)
   Append:List ._++_ [] ys = ys
   Append:List ._++_ (x :: xs) ys = x :: xs ++ ys
+
+  Append:Vector : forall {m n X}
+    -> Append (Vector X m) (Vector X n) (Vector X (m + n))
+  Append:Vector ._++_ [] ys = ys
+  Append:Vector ._++_ (x :: xs) ys = x :: xs ++ ys
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding IO
