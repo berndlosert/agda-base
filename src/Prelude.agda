@@ -75,6 +75,15 @@ record Append (X Y Z : Set) : Set where
 
 open Append {{...}} public
 
+open import Agda.Builtin.FromNat public
+  using (Number; fromNat)
+
+open import Agda.Builtin.FromNeg public
+  using (Negative; fromNeg)
+
+open import Agda.Builtin.FromString public
+  using (IsString; fromString)
+
 --------------------------------------------------------------------------------
 -- Basic types
 --------------------------------------------------------------------------------
@@ -108,6 +117,82 @@ open import Agda.Builtin.Float
   using (Float)
 
 --------------------------------------------------------------------------------
+-- Basic type constructors
+--------------------------------------------------------------------------------
+
+record Pair (X Y : Set) : Set where
+  constructor Pair:
+  field
+    fst : X
+    snd : Y
+
+open Pair public
+
+instance
+  Mul:Set : Mul Set
+  Mul:Set = Mul: Pair
+
+{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
+{-# DISPLAY Pair X Y = X * Y #-}
+
+data Either (X Y : Set) : Set where
+  left : X -> Either X Y
+  right : Y -> Either X Y
+
+instance
+  Add:Set : Add Set
+  Add:Set = Add: Either
+
+{-# COMPILE GHC Either = data Either (Left | Right) #-}
+
+data Maybe (X : Set) : Set where
+  nothing : Maybe X
+  just : X -> Maybe X
+
+{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
+{-# DISPLAY Either X Y = X + Y #-}
+
+open import Agda.Builtin.List public
+  using (List; [])
+  renaming (_∷_ to _::_)
+  hiding (module List)
+
+data Vector (X : Set) : Nat -> Set where
+  [] : Vector X zero
+  _::_ : forall {n} -> X -> Vector X n -> Vector X (suc n)
+
+open import Agda.Builtin.IO public
+  using (IO)
+
+--------------------------------------------------------------------------------
+-- Utility functions
+--------------------------------------------------------------------------------
+
+infixr 0 _$_
+infixl 1 _&_
+
+flip : {X Y Z : Set} -> (X -> Y -> Z) -> Y -> X -> Z
+flip f y x = f x y
+
+_$_ : {X Y : Set} -> (X -> Y) -> X -> Y
+f $ x = f x
+
+_&_ : {X Y : Set} -> X -> (X -> Y) -> Y
+x & f = f x
+
+case_of_ = _&_
+
+const : {X Y : Set} -> X -> Y -> X
+const x _ = x
+
+uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
+uncurry f (Pair: x y) = f x y
+
+curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
+curry f x y = f (Pair: x y)
+
+--------------------------------------------------------------------------------
 -- Basic operations/functions regarding Bool
 --------------------------------------------------------------------------------
 
@@ -134,6 +219,10 @@ _||_ : Bool -> Bool -> Bool
 true || b = true
 false || b = b
 
+Assert : Bool -> Set
+Assert true = Unit
+Assert false = Void
+
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Nat
 --------------------------------------------------------------------------------
@@ -158,6 +247,12 @@ instance
   Mod:Nat = record {
       Constraint = \ { zero -> Void; (suc n) -> Unit };
       _%_ = \ { m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n }
+    }
+
+  Number:Nat : Number Nat
+  Number:Nat = record {
+      Constraint = const Unit;
+      fromNat = \ n -> n
     }
 
 --------------------------------------------------------------------------------
@@ -227,6 +322,12 @@ instance
   Append:String : Append String String String
   Append:String ._++_ = Agda.Builtin.String.primStringAppend
 
+  IsString:String : IsString String
+  IsString:String = record {
+      Constraint = const Unit;
+      fromString = \ s -> s
+    }
+
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Float
 --------------------------------------------------------------------------------
@@ -246,89 +347,9 @@ instance
 
   Div:Float : Div Float
   Div:Float = record {
-      Constraint = \ _ -> Unit;
+      Constraint = const Unit;
       _/_ = \ x y -> Agda.Builtin.Float.primFloatDiv x y
     }
-
---------------------------------------------------------------------------------
--- Basic type constructors
---------------------------------------------------------------------------------
-
-record Pair (X Y : Set) : Set where
-  constructor Pair:
-  field
-    fst : X
-    snd : Y
-
-open Pair public
-
-instance
-  Mul:Set : Mul Set
-  Mul:Set = Mul: Pair
-
-{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
-{-# DISPLAY Pair X Y = X * Y #-}
-
-data Either (X Y : Set) : Set where
-  left : X -> Either X Y
-  right : Y -> Either X Y
-
-instance
-  Add:Set : Add Set
-  Add:Set = Add: Either
-
-{-# COMPILE GHC Either = data Either (Left | Right) #-}
-
-data Maybe (X : Set) : Set where
-  nothing : Maybe X
-  just : X -> Maybe X
-
-{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
-{-# DISPLAY Either X Y = X + Y #-}
-
-open import Agda.Builtin.List public
-  using (List; [])
-  renaming (_∷_ to _::_)
-  hiding (module List)
-
-data Vector (X : Set) : Nat -> Set where
-  [] : Vector X 0
-  _::_ : forall {n} -> X -> Vector X n -> Vector X (suc n)
-
-open import Agda.Builtin.IO public
-  using (IO)
-
---------------------------------------------------------------------------------
--- Utility functions
---------------------------------------------------------------------------------
-
-infixr 0 _$_
-infixl 1 _&_
-
-flip : {X Y Z : Set} -> (X -> Y -> Z) -> Y -> X -> Z
-flip f y x = f x y
-
-_$_ : {X Y : Set} -> (X -> Y) -> X -> Y
-f $ x = f x
-
-_&_ : {X Y : Set} -> X -> (X -> Y) -> Y
-x & f = f x
-
-case_of_ = _&_
-
-const : {X Y : Set} -> X -> Y -> X
-const x _ = x
-
-uncurry : {X Y Z : Set} -> (X -> Y -> Z) -> X * Y -> Z
-uncurry f (Pair: x y) = f x y
-
-curry : {X Y Z : Set} -> (X * Y -> Z) -> X -> Y -> Z
-curry f x y = f (Pair: x y)
-
-apply : {Y Z : Set} -> (Y -> Z) * Y -> Z
-apply (Pair: g y) = g y
-
 --------------------------------------------------------------------------------
 -- Category, Functor and Trans
 --------------------------------------------------------------------------------
