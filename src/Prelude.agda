@@ -90,10 +90,6 @@ open import Agda.Builtin.FromString public
 
 data Void : Set where
 
-open import Agda.Builtin.Equality public
-  using (refl)
-  renaming (_≡_ to _===_)
-
 open import Agda.Builtin.Unit public
   using (tt)
   renaming (⊤ to Unit)
@@ -119,6 +115,10 @@ open import Agda.Builtin.Float
 --------------------------------------------------------------------------------
 -- Basic type constructors
 --------------------------------------------------------------------------------
+
+open import Agda.Builtin.Equality public
+  using (refl)
+  renaming (_≡_ to _===_)
 
 record Pair (X Y : Set) : Set where
   constructor Pair:
