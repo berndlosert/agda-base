@@ -5,13 +5,13 @@ module Data.String where
 import Data.List as List
 import Prelude
 
-open Prelude hiding (length)
+open Prelude
 
 fromChar : Char -> String
 fromChar c = pack (pure c)
 
 length : String -> Nat
-length = unpack >>> Prelude.length
+length = unpack >>> List.length
 
 startsWith : String -> String -> Bool
 startsWith s s' = List.isPrefixOf (unpack s) (unpack s')
@@ -22,12 +22,12 @@ stripPrefix s s' = pack <$> List.stripPrefix (unpack s) (unpack s')
 padRight : Nat -> Char -> String -> String
 padRight desiredLength padChar s =
   let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-  in s ++ (foldl _++_ "" replicated)
+  in s ++ (List.foldl _++_ "" replicated)
 
 padLeft : Nat -> Char -> String -> String
 padLeft desiredLength padChar s =
   let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-  in (foldl _++_ "" replicated) ++ s
+  in (List.foldl _++_ "" replicated) ++ s
 
 concat : List String -> String
 concat [] = ""

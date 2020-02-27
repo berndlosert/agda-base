@@ -24,17 +24,13 @@ fromMaybe = flip maybe id
 
 -- Maybe produce a left, otherwise produce a right.
 maybeToLeft : Y -> Maybe X -> Either X Y
-maybeToLeft y nothing = right y
-maybeToLeft y (just x) = left x
+maybeToLeft y = maybe (right y) left
 
 -- Maybe produce a right, otherwise produce a left.
 maybeToRight : Y -> Maybe X -> Either Y X
-maybeToRight y m = mirror (maybeToLeft y m)
+maybeToRight y = maybe (left y) right
 
 -- This function returns an empty list when given nothing or the singleton
 -- list [ x ] when given just x.
 maybeToList : Maybe X -> List X
-maybeToList nothing = []
-maybeToList (just x) = [ x ]
-
-
+maybeToList = maybe [] [_]
