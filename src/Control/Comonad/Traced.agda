@@ -18,5 +18,5 @@ open import Control.Comonad
 
 instance
   Comonad:Traced : forall {M} {{_ : Monoid M}} -> Comonad Sets (Traced M)
-  Comonad:Traced .coextend h t m = h t
+  Comonad:Traced .coextend h t m = h $ \ m' -> t (m <> m')
   Comonad:Traced .extract f = f mempty
