@@ -18,5 +18,5 @@ open import Control.Comonad
 
 instance
   Comonad:Store : forall {S} -> Comonad Sets (Store S)
-  Comonad:Store .coextend f p@(Pair: g s) = Pair: (const (f p)) s
+  Comonad:Store .coextend f (Pair: g s) = Pair: (Pair: g >>> f) s
   Comonad:Store .extract (Pair: g s) = g s
