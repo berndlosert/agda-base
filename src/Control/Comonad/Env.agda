@@ -2,22 +2,19 @@
 
 module Control.Comonad.Env where
 
--- The enivornment comonad. This is the dual of the Reader monad.
+open import Prelude
 
-open import Data.Pair
+-- The enivornment comonad. This is the dual of the Reader monad.
 Env : Set -> Set -> Set
 Env E Y = E * Y
 
-open import Control.Category
-open import Data.Functor
-
 instance
   Functor:Env : forall {E} -> Endofunctor Sets (Env E)
-  Functor:Env .map f (e , x) = (e , f x)
+  Functor:Env .map f (Pair: e x) = Pair: e (f x)
 
 open import Control.Comonad
 
 instance
   Comonad:Env : forall {E} -> Comonad Sets (Env E)
-  Comonad:Env .duplicate (e , x) = (e , (e , x))
-  Comonad:Env .extract (e , x) = x
+  Comonad:Env .coextend f p@(Pair: e x) = Pair: e (f p)
+  Comonad:Env .extract (Pair: e x) = x

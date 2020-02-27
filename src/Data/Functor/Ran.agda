@@ -2,8 +2,7 @@
 
 module Data.Functor.Ran where
 
-open import Control.Category
-open import Data.Functor
+open import Prelude
 
 -- Ran F G is a generalization of Yoneda C F X. It an exponential object (with
 -- exponent F and base G) in the Monadic monoidal category Sets ^ Sets. It

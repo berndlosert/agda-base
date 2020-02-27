@@ -2,36 +2,56 @@
 
 module Data.Stream where
 
-open import Data.Stream.Base public
-  hiding (module Stream)
+open import Prelude
 
-module Stream where
+-- Stream X represents infinite lists of elements of X.
+record Stream (X : Set) : Set where
+  coinductive
+  field
+    head : X
+    tail : Stream X
 
-  -- iterate f x creates the stream [ x # f x # f (f x) # ... ].
+open Stream public
 
-  iterate : forall {X} -> (X -> X) -> X -> Stream X
-  iterate f x .head = x
-  iterate f x .tail = iterate f (f x)
+-- Stream forms a functor.
+instance
+  Functor:Stream : Endofunctor Sets Stream
+  Functor:Stream .map f xs .head = f (head xs)
+  Functor:Stream .map f xs .tail = map f (tail xs)
 
-  -- repeat x is the infinite list [ x # x # x # ... ].
+-- Stream forms an applicative.
+instance
+  Applicative:Stream : Applicative Stream
+  Applicative:Stream .pure x .head = x
+  Applicative:Stream .pure x .tail = pure x
+  Applicative:Stream ._<*>_ fs xs .head = head fs (head xs)
+  Applicative:Stream ._<*>_ fs xs .tail = tail fs <*> tail xs
 
-  repeat : forall {X} -> X -> Stream X
-  repeat x .head = x
-  repeat x .tail = repeat x
+-- Stream forms a comonad.
+open import Control.Comonad
 
-  -- Preprend a list to a stream.
+instance
+  Comonad:Stream : Comonad Sets Stream
+  Comonad:Stream .coextend f xs = pure (f xs)
+  Comonad:Stream .extract xs = head xs
 
-  open import Data.List using (List; _::_; [])
+-- iterate f x creates the stream [ x # f x # f (f x) # ... ].
+iterate : forall {X} -> (X -> X) -> X -> Stream X
+iterate f x .head = x
+iterate f x .tail = iterate f (f x)
 
-  prepend : forall {X} -> List X -> Stream X -> Stream X
-  prepend [] ys = ys
-  prepend (x :: xs) ys .head = x
-  prepend (x :: xs) ys .tail = prepend xs ys
+-- repeat x is the infinite list [ x # x # x # ... ].
+repeat : forall {X} -> X -> Stream X
+repeat x .head = x
+repeat x .tail = repeat x
 
-  -- Take the first n elements of a stream.
+-- Preprend a list to a stream.
+prepend : forall {X} -> List X -> Stream X -> Stream X
+prepend [] ys = ys
+prepend (x :: xs) ys .head = x
+prepend (x :: xs) ys .tail = prepend xs ys
 
-  open import Data.Nat
-
-  take : forall {X} -> Nat -> Stream X -> List X
-  take 0 _ = []
-  take (suc n) xs = head xs :: take n (tail xs)
+-- Take the first n elements of a stream.
+take : forall {X} -> Nat -> Stream X -> List X
+take 0 _ = []
+take (suc n) xs = head xs :: take n (tail xs)

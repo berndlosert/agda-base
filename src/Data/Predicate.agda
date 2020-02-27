@@ -2,9 +2,7 @@
 
 module Data.Predicate where
 
-open import Control.Category
-open import Data.Bool
-open import Data.Functor
+open import Prelude
 
 -- A Predicate X is a Bool-valued predicate on X.
 Predicate : Set -> Set

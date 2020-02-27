@@ -2,23 +2,19 @@
 
 module Data.Bifunctor where
 
+open import Prelude
+
 -- Programmer-friendly definition of set-valued bifunctors.
-
-open import Data.Functor public
-open import Data.Pair
-
 Bifunctor : (C D : Category) -> (ob C -> ob D -> Set) -> Set
 Bifunctor C D P = Functor (C * D) Sets (uncurry P)
 
 -- Convenient shorthand for endobifunctors.
-
 Endobifunctor : (C : Category) -> (ob C -> ob C -> Set) -> Set
 Endobifunctor C = Bifunctor C C
 
 -- Some useful bifunctor instances.
-
+open import Data.Pair
 open import Data.Either
-open import Data.Function
 
 instance
   Endobifunctor:const : Endobifunctor Sets const
