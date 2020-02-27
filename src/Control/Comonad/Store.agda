@@ -2,6 +2,8 @@
 
 module Control.Comonad.Store where
 
+open import Prelude
+
 -- Store S is the dual of State S.
 Store : Set -> Set -> Set
 Store S X = (S -> X) * S
@@ -16,8 +18,5 @@ open import Control.Comonad
 
 instance
   Comonad:Store : forall {S} -> Comonad Sets (Store S)
-  Comonad:Store = record {
-      instance:Functor = Functor:Store;
-      coextend = \ { p@(Pair: g s) -> (const (Pair: g , s) , s) };
-      extract = apply
-    }
+  Comonad:Store .coextend f p@(Pair: g s) = Pair: (const (f p)) s
+  Comonad:Store .extract (Pair: g s) = g s
