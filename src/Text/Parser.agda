@@ -36,8 +36,8 @@ instance
 empty : forall {X} -> Parser X
 empty s = []
 
--- Given two parsers p, q : Parser X, p <|> q is the parser that runs both p
--- and q.
+-- Given two parsers p, q : Parser X, p <|> q is the parser that
+-- nondeterministically chooses between running p or running q.
 _<|>_ : forall {X} -> Parser X -> Parser X -> Parser X
 p <|> q = \ s -> p s ++ q s
 
