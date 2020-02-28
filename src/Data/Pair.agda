@@ -15,3 +15,6 @@ swap = split snd fst
 
 dupe : forall {X} -> X -> X * X
 dupe = split id id
+
+apply : forall {X Y} -> (X -> Y) * X -> Y
+apply = uncurry _$_

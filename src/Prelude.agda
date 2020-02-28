@@ -786,20 +786,24 @@ instance
   Semigroup:Unit : Semigroup Unit
   Semigroup:Unit ._<>_ tt tt = tt
 
-  Semigroup:All : Semigroup Bool
-  Semigroup:All ._<>_ = _&&_
+Semigroup:All : Semigroup Bool
+Semigroup:All ._<>_ = _&&_
 
-  Semigroup:Any : Semigroup Bool
-  Semigroup:Any ._<>_ = _||_
+Semigroup:Any : Semigroup Bool
+Semigroup:Any ._<>_ = _||_
 
-  Semigroup:Sum : Semigroup Nat
-  Semigroup:Sum ._<>_ = _+_
+Semigroup:Sum : Semigroup Nat
+Semigroup:Sum ._<>_ = _+_
 
-  Semigroup:Product : Semigroup Nat
-  Semigroup:Product ._<>_ = _*_
+Semigroup:Product : Semigroup Nat
+Semigroup:Product ._<>_ = _*_
 
+instance
   Semigroup:String : Semigroup String
   Semigroup:String ._<>_ = _++_
+
+  Semigroup:List : forall {X} -> Semigroup (List X)
+  Semigroup:List ._<>_ = _++_
 
   Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
   Semigroup:Function ._<>_ f g = \ x -> f x <> g x
@@ -828,20 +832,24 @@ instance
   Monoid:Unit : Monoid Unit
   Monoid:Unit .mempty = tt
 
-  Monoid:All : Monoid Bool
-  Monoid:All = Monoid: {{Semigroup:All}} true
+Monoid:All : Monoid Bool
+Monoid:All = Monoid: {{Semigroup:All}} true
 
-  Monoid:Any : Monoid Bool
-  Monoid:Any = Monoid: {{Semigroup:Any}} false
+Monoid:Any : Monoid Bool
+Monoid:Any = Monoid: {{Semigroup:Any}} false
 
-  Monoid:Sum : Monoid Nat
-  Monoid:Sum = Monoid: {{Semigroup:Sum}} 0
+Monoid:Sum : Monoid Nat
+Monoid:Sum = Monoid: {{Semigroup:Sum}} 0
 
-  Monoid:Product : Monoid Nat
-  Monoid:Product = Monoid: {{Semigroup:Product}} 1
+Monoid:Product : Monoid Nat
+Monoid:Product = Monoid: {{Semigroup:Product}} 1
 
+instance
   Monoid:String : Monoid String
   Monoid:String .mempty = ""
+
+  Monoid:List : forall {X} -> Monoid (List X)
+  Monoid:List .mempty = []
 
   Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
   Monoid:Function .mempty = const mempty
