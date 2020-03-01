@@ -103,14 +103,14 @@ open import Agda.Builtin.Nat public
 open import Agda.Builtin.Int public
   using (Int; pos; negsuc)
 
+open import Agda.Builtin.Float public
+  using (Float)
+
 open import Agda.Builtin.Char public
   using (Char)
 
 open import Agda.Builtin.String public
   using (String)
-
-open import Agda.Builtin.Float
-  using (Float)
 
 --------------------------------------------------------------------------------
 -- Basic type constructors
@@ -648,14 +648,20 @@ instance
   Eq:Nat : Eq Nat
   Eq:Nat ._==_ = Agda.Builtin.Nat._==_
 
+  Eq:Int : Eq Int
+  Eq:Int ._==_ = \ where
+    (pos m) (pos n) -> m == n
+    (negsuc m) (negsuc n) -> m == n
+    _ _ -> false
+
+  Eq:Float : Eq Float
+  Eq:Float ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
+
   Eq:Char : Eq Char
   Eq:Char ._==_ c c' = ord c == ord c'
 
   Eq:String : Eq String
   Eq:String ._==_ = Agda.Builtin.String.primStringEquality
-
-  Eq:Float : Eq Float
-  Eq:Float ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
   Eq:Pair : forall {X Y} {{_ : Eq X}} {{_ : Eq Y}} -> Eq (Pair X Y)
   Eq:Pair ._==_ (Pair: x y) (Pair: x' y') = (x == x') && (y == y')
@@ -686,6 +692,13 @@ instance
   Ord:Nat : Ord Nat
   Ord:Nat ._<_ = Agda.Builtin.Nat._<_
 
+  Ord:Int : Ord Int
+  Ord:Int ._<_ = \ where
+    (pos m) (pos n) -> m < n
+    (negsuc m) (negsuc n) -> n < m
+    (pos _) (negsuc _) -> false
+    (negsuc _) (pos _) -> true
+
   Ord:Float : Ord Float
   Ord:Float ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
@@ -698,6 +711,9 @@ private
     mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
 
 instance
+  Functor:const : forall {X} -> Endofunctor Sets (const X)
+  Functor:const .map f = id
+
   Functor:Pair : forall {X} -> Endofunctor Sets (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
@@ -753,6 +769,10 @@ instance
 --------------------------------------------------------------------------------
 -- Applicative instances
 --------------------------------------------------------------------------------
+
+Applicative:const : forall {X} {{_ : Monoid X}} -> Applicative (const X)
+Applicative:const .pure = const mempty
+Applicative:const ._<*>_ = _<>_
 
 instance
   Applicative:Maybe : Applicative Maybe
