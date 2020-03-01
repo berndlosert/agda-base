@@ -2,7 +2,7 @@
 
 module Data.Float where
 
-open import Prelude
+open import Prelude hiding (fromNat)
 
 open import Agda.Builtin.Float public
   renaming (
