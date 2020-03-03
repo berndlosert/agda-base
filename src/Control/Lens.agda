@@ -15,7 +15,7 @@ record Strong (P : Set -> Set -> Set) : Set where
     overlap {{Profunctor:Strong}} : Endoprofunctor Sets P
     strong : forall {X Y Z} -> P X Y -> P (Z * X) (Z * Y)
 
-open Strong {{...}}
+open Strong {{...}} public
 
 Lens : (S T X Y : Set) -> Set
 Lens S T X Y = forall {P} {{_ : Strong P}} -> P X Y -> P S T
@@ -23,16 +23,8 @@ Lens S T X Y = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 Lens' : (S X : Set) -> Set
 Lens' S X = Lens S S X X
 
-toLens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
-toLens view update = dimap (split view id) update <<< strong
-
-fromLens : forall {S T X Y} -> Lens S T X Y -> (S -> X) * (S -> Y -> T)
-fromLens {S} {T} {X} {Y} lens = Pair: view update
-  where
-    view : S -> X
-    view = {!!}
-    update : S -> Y -> T
-    update = {!!}
+lens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
+lens v u = dimap (split id v) (uncurry u) <<< strong
 
 --------------------------------------------------------------------------------
 -- Prisms
@@ -43,7 +35,7 @@ record Choice (P : Set -> Set -> Set) : Set where
     overlap {{Profunctor:Choice}} : Endoprofunctor Sets P
     choice : forall {X Y Z} -> P X Y -> P (Z + X) (Z + Y)
 
-open Choice {{...}}
+open Choice {{...}} public
 
 Prism : (S T X Y : Set) -> Set
 Prism S T X Y = forall {P} {{_ : Choice P}} -> P X Y -> P S T
@@ -60,7 +52,7 @@ record Closed (P : Set -> Set -> Set) : Set where
     overlap {{Profunctor:Closed}} : Endoprofunctor Sets P
     closed : {X Y Z : Set} -> P X Y -> P (Z -> X) (Z -> Y)
 
-open Closed {{...}}
+open Closed {{...}} public
 
 Grate : (S T X Y : Set) -> Set
 Grate S T X Y = forall {P} {{_ : Closed P}} -> P X Y -> P S T
@@ -76,6 +68,8 @@ record Polynomial (P : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor:Polynomial}} : Endoprofunctor Sets P
     polynomial : forall {X Y Z} -> P X Y -> P (Monomial Z X) (Monomial Z Y)
+
+open Polynomial {{...}} public
 
 Traversal : (S T X Y : Set) -> Set
 Traversal S T X Y = forall {P} {{_ : Polynomial P}} -> P X Y -> P S T
