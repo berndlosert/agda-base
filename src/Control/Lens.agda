@@ -7,6 +7,17 @@ open import Data.Profunctor
 open import Prelude
 
 --------------------------------------------------------------------------------
+-- Adapters
+--------------------------------------------------------------------------------
+
+Adapter : (S T X Y : Set) -> Set
+Adapter S T X Y = forall {P} {{_ : Endoprofunctor Sets P}}
+  -> P X Y -> P S T
+
+Iso : (S X : Set) -> Set
+Iso S X = Adapter S S X X
+
+--------------------------------------------------------------------------------
 -- Lenses
 --------------------------------------------------------------------------------
 
@@ -24,7 +35,7 @@ Lens' : (S X : Set) -> Set
 Lens' S X = Lens S S X X
 
 lens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
-lens v u = dimap (split id v) (uncurry u) <<< strong
+lens v u = bimap (split id v) (uncurry u) <<< strong
 
 --------------------------------------------------------------------------------
 -- Prisms
