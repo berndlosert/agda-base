@@ -10,12 +10,15 @@ open import Prelude
 -- Adapters
 --------------------------------------------------------------------------------
 
-Adapter : (S T X Y : Set) -> Set
-Adapter S T X Y = forall {P} {{_ : Endoprofunctor Sets P}}
+Adapter : (X Y S T : Set) -> Set
+Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}}
   -> P X Y -> P S T
 
-Iso : (S X : Set) -> Set
-Iso S X = Adapter S S X X
+Iso : (X Y : Set) -> Set
+Iso X Y = Adapter X X Y Y
+
+Adapter: : forall {X Y S T} -> (S -> X) -> (Y -> T) -> Adapter X Y S T
+Adapter: from to = bimap from to
 
 --------------------------------------------------------------------------------
 -- Lenses
@@ -28,14 +31,14 @@ record Strong (P : Set -> Set -> Set) : Set where
 
 open Strong {{...}} public
 
-Lens : (S T X Y : Set) -> Set
-Lens S T X Y = forall {P} {{_ : Strong P}} -> P X Y -> P S T
+Lens : (X Y S T : Set) -> Set
+Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 
-Lens' : (S X : Set) -> Set
-Lens' S X = Lens S S X X
+Lens' : (X S : Set) -> Set
+Lens' X S = Lens X X S S
 
-lens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
-lens v u = bimap (split id v) (uncurry u) <<< strong
+lens : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
+lens get put = bimap (split id get) (uncurry put) <<< strong
 
 --------------------------------------------------------------------------------
 -- Prisms
@@ -48,8 +51,8 @@ record Choice (P : Set -> Set -> Set) : Set where
 
 open Choice {{...}} public
 
-Prism : (S T X Y : Set) -> Set
-Prism S T X Y = forall {P} {{_ : Choice P}} -> P X Y -> P S T
+Prism : (X Y S T : Set) -> Set
+Prism X Y S T = forall {P} {{_ : Choice P}} -> P X Y -> P S T
 
 Prism' : (S X : Set) -> Set
 Prism' S X = Prism S S X X
@@ -65,8 +68,8 @@ record Closed (P : Set -> Set -> Set) : Set where
 
 open Closed {{...}} public
 
-Grate : (S T X Y : Set) -> Set
-Grate S T X Y = forall {P} {{_ : Closed P}} -> P X Y -> P S T
+Grate : (X Y S T : Set) -> Set
+Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
 
 --------------------------------------------------------------------------------
 -- Traversals
@@ -82,5 +85,5 @@ record Polynomial (P : Set -> Set -> Set) : Set where
 
 open Polynomial {{...}} public
 
-Traversal : (S T X Y : Set) -> Set
-Traversal S T X Y = forall {P} {{_ : Polynomial P}} -> P X Y -> P S T
+Traversal : (X Y S T : Set) -> Set
+Traversal X Y S T = forall {P} {{_ : Polynomial P}} -> P X Y -> P S T
