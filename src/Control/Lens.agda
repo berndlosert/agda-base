@@ -20,6 +20,13 @@ Iso X Y = Adapter X X Y Y
 Adapter: : forall {X Y S T} -> (S -> X) -> (Y -> T) -> Adapter X Y S T
 Adapter: from to = bimap from to
 
+instance
+  Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
+  Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
+
+from : forall {X Y S T} -> Adapter X Y S T -> S -> X
+from adapter = adapter (Adapter: id id)
+
 --------------------------------------------------------------------------------
 -- Lenses
 --------------------------------------------------------------------------------
