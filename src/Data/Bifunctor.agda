@@ -4,24 +4,39 @@ module Data.Bifunctor where
 
 open import Prelude
 
--- Programmer-friendly definition of set-valued bifunctors.
-Bifunctor : (C D : Category) -> (ob C -> ob D -> Set) -> Set
-Bifunctor C D P = Functor (C * D) Sets (uncurry P)
+record Bifunctor (B C D : Category) (F : ob B -> ob C -> ob D) : Set where
+  constructor Bifunctor:
+  field
+    bimap : forall {X X' Y Y'}
+      -> hom B X Y -> hom C X' Y'
+      -> hom D (F X X') (F Y Y')
 
--- Convenient shorthand for endobifunctors.
-Endobifunctor : (C : Category) -> (ob C -> ob C -> Set) -> Set
-Endobifunctor C = Bifunctor C C
+  lmap : forall {X Y Z} -> hom B X Y -> hom D (F X Z) (F Y Z)
+  lmap f = bimap f id
+    where instance _ = C
 
--- Some useful bifunctor instances.
+  rmap : forall {X Y Z} -> hom C X Y -> hom D (F Z X) (F Z Y)
+  rmap g = bimap id g
+    where instance _ = B
+
+  instance
+    Functor:Bifunctor : Functor (B * C) D (uncurry F)
+    Functor:Bifunctor .map = uncurry bimap
+
+open Bifunctor {{...}} public
+
+Dyadic : (C : Category) -> (ob C -> ob C -> ob C) -> Set
+Dyadic C = Bifunctor C C C
+
 open import Data.Pair
 open import Data.Either
 
 instance
-  Endobifunctor:const : Endobifunctor Sets const
-  Endobifunctor:const .map (Pair: f g) = f
+  Dyadic:const : Dyadic Sets const
+  Dyadic:const .bimap f g = f
 
-  Endobifunctor:Tuple : Endobifunctor Sets _*_
-  Endobifunctor:Tuple .map (Pair: f g) = cross f g
+  Dyadic:Tuple : Dyadic Sets _*_
+  Dyadic:Tuple .bimap f g = cross f g
 
-  Endobifunctor:Either : Endobifunctor Sets _+_
-  Endobifunctor:Either .map (Pair: f g) = plus f g
+  Dyadic:Either : Dyadic Sets _+_
+  Dyadic:Either .bimap f g = plus f g
