@@ -24,7 +24,7 @@ Lens' : (S X : Set) -> Set
 Lens' S X = Lens S S X X
 
 toLens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
-toLens view update = map (Pair: (split view id) update) <<< strong
+toLens view update = dimap (split view id) update <<< strong
 
 fromLens : forall {S T X Y} -> Lens S T X Y -> (S -> X) * (S -> Y -> T)
 fromLens {S} {T} {X} {Y} lens = Pair: view update

@@ -4,21 +4,32 @@ module Data.Profunctor where
 
 open import Prelude
 
--- Programmer-friendly definition of profunctors.
-Profunctor : (C D : Category) -> (ob D -> ob C -> Set) -> Set
-Profunctor C D P = Functor (Op D * C) Sets (uncurry P)
+record Profunctor (C D : Category) (P : ob D -> ob C -> Set) : Set where
+  constructor Profunctor:
+  field
+    dimap : forall {W X Y Z}
+      -> hom D W X -> hom C Y Z
+      -> P X Y -> P W Z
+
+  lmap : forall {W X Y} -> hom D W X -> P X Y -> P W Y
+  lmap f = dimap f id
+    where instance _ = C
+
+  rmap : forall {X Y Z} -> hom C Y Z -> P X Y -> P X Z
+  rmap g = dimap id g
+    where instance _ = D
+
+  instance
+    Functor:Profunctor : Functor (Op D * C) Sets (uncurry P)
+    Functor:Profunctor .map = uncurry dimap
+
+open Profunctor {{...}} public
 
 Endoprofunctor : (C : Category) -> (ob C -> ob C -> Set) -> Set
 Endoprofunctor C = Profunctor C C
 
--- dimap f g is shorthand for map (Pair: f g).
-dimap : forall {C D P X X' Y Y'} {{_ : Profunctor C D P}}
-  -> hom (Op D) X X' -> hom C Y Y' -> P X Y -> P X' Y'
-dimap f g = map (Pair: f g)
-
--- For every cateogry C, hom C forms a profunctor.
 Profunctor:hom : (C : Category) -> Profunctor C C (hom C)
-Profunctor:hom C .map (Pair: f g) h = f >>> h >>> g
+Profunctor:hom C .dimap f g h = f >>> h >>> g
   where instance _ = C
 
 instance
