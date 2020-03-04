@@ -20,9 +20,25 @@ Iso X Y = Adapter X X Y Y
 Adapter: : forall {X Y S T} -> (S -> X) -> (Y -> T) -> Adapter X Y S T
 Adapter: from to = bimap from to
 
+record Exchange (X Y S T : Set) : Set where
+  constructor Exchange:
+  field
+    from : S -> X
+    to : Y -> T
+
 instance
   Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
   Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
+
+  Profunctor:Exchange : forall {X Y} -> Endoprofunctor Sets (Exchange X Y)
+  Profunctor:Exchange .bimap f g (Exchange: from to) =
+    Exchange: (from <<< f) (g <<< to)
+
+from : forall {X Y S T} -> Adapter X Y S T -> S -> X
+from adapter = Exchange.from $ adapter $ Exchange: id id
+
+to : forall {X Y S T} -> Adapter X Y S T -> Y -> T
+to adapter = Exchange.to $ adapter $ Exchange: id id
 
 --------------------------------------------------------------------------------
 -- Lenses
@@ -41,8 +57,35 @@ Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 Lens' : (X S : Set) -> Set
 Lens' X S = Lens X X S S
 
-lens : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
-lens get put = bimap (split id get) (uncurry put) <<< strong
+Lens: : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
+Lens: get put = bimap (split id get) (uncurry put) <<< strong
+
+record Shop (X Y S T : Set) : Set where
+  constructor Shop:
+  field
+    get : S -> X
+    put : S -> Y -> T
+
+instance
+  Profunctor:Lens : forall {X Y} -> Endoprofunctor Sets (Lens X Y)
+  Profunctor:Lens .bimap f g lens = bimap f g <<< lens
+
+  Profunctor:Shop : forall {X Y} -> Endoprofunctor Sets (Shop X Y)
+  Profunctor:Shop .bimap f g (Shop: get put) =
+    Shop: (get <<< f) (\ s -> g <<< put (f s))
+
+  Strong:Shop : forall {X Y} -> Strong (Shop X Y)
+  Strong:Shop .strong (Shop: get put) = Shop: get' put'
+    where
+      get' put' : _
+      get' (Pair: u s) = get s
+      put' (Pair: u s) y = Pair: u (put s y)
+
+get : forall {X Y S T} -> Lens X Y S T -> S -> X
+get lens = Shop.get $ lens $ Shop: id (flip const)
+
+put : forall {X Y S T} -> Lens X Y S T -> S -> Y -> T
+put lens = Shop.put $ lens $ Shop: id (flip const)
 
 --------------------------------------------------------------------------------
 -- Prisms
