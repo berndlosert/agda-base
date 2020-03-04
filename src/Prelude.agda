@@ -710,10 +710,14 @@ private
   postulate
     mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
 
-instance
-  Functor:const : forall {X} -> Endofunctor Sets (const X)
-  Functor:const .map f = id
+Functor:id : forall C -> Endofunctor C id
+Functor:id C .map = id
+  where instance _ = C
 
+Functor:const : forall X -> Endofunctor Sets (const X)
+Functor:const X .map f = id
+
+instance
   Functor:Pair : forall {X} -> Endofunctor Sets (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
@@ -743,6 +747,12 @@ private
     returnIO : {X : Set} -> X -> IO X
     bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
 
+Monad:id : forall C -> Monad C id
+Monad:id C = let instance _ = C in \ where
+  .Functor:Monad -> Functor:id C
+  .return -> id
+  .extend -> id
+
 instance
   Monad:Either : forall {X} -> Monad Sets (Either X)
   Monad:Either .return y = right y
@@ -770,9 +780,17 @@ instance
 -- Applicative instances
 --------------------------------------------------------------------------------
 
-Applicative:const : forall {X} {{_ : Monoid X}} -> Applicative (const X)
-Applicative:const .pure = const mempty
-Applicative:const ._<*>_ = _<>_
+Applicative:id : Applicative id
+Applicative:id = \ where
+  .Functor:Applicative -> Functor:id Sets
+  .pure -> id
+  ._<*>_ -> _$_
+
+Applicative:const : forall X {{_ : Monoid X}} -> Applicative (const X)
+Applicative:const X = \ where
+  .Functor:Applicative -> Functor:const X
+  .pure -> const mempty
+  ._<*>_ -> _<>_
 
 instance
   Applicative:Maybe : Applicative Maybe
