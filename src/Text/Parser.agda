@@ -49,9 +49,9 @@ item = maybeToList <<< String.uncons
 -- first p is the parser whose output contains only the first successful
 -- parse (if it has one at all).
 first : forall {X} -> Parser X -> Parser X
-first p s = case p s of \ where
-  [] -> []
-  (x :: _) -> [ x ]
+first p s with p s
+... | [] = []
+... | (x :: _) = [ x ]
 
 -- plus p q is just <|> wrapped in first.
 plus : forall {X} -> Parser X -> Parser X -> Parser X
@@ -102,9 +102,9 @@ word = neword <|> return ""
 -- Produce string parsers.
 {-# TERMINATING #-}
 string : String -> Parser String
-string s = case String.uncons s of \ where
-  nothing -> return ""
-  (just (Pair: c s')) -> char c >> string s' >> return (String.cons c s')
+string s with String.uncons s
+... | nothing = return ""
+... | (just (Pair: c s')) = char c >> string s' >> return (String.cons c s')
 
 -- The combinator many (resp. many1) applies a parser p zero (resp. one) or
 -- more times to an input string. The results from each application of p are
