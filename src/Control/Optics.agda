@@ -152,6 +152,29 @@ open Closed {{...}} public
 Grate : (X Y S T : Set) -> Set
 Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
 
+Grate: : forall {X Y S T} -> (((S -> X) -> Y) -> T) -> Grate X Y S T
+Grate: degrating = bimap _#_ degrating <<< closed
+
+record Grating (X Y S T : Set) : Set where
+  constructor Grating:
+  field
+    degrating : ((S -> X) -> Y) -> T
+
+instance
+  Profunctor:Grate : forall {X Y} -> Endoprofunctor Sets (Grate X Y)
+  Profunctor:Grate .bimap f g grate = bimap f g <<< grate
+
+  Profunctor:Grating : forall {X Y} -> Endoprofunctor Sets (Grating X Y)
+  Profunctor:Grating .bimap f g (Grating: degrating) =
+    Grating: \ d -> g (degrating \ k -> d (k <<< f))
+
+  Closed:Grating : forall {X Y} -> Closed (Grating X Y)
+  Closed:Grating .closed (Grating: degrating) =
+    Grating: \ f x -> degrating \ k -> f \ g -> k (g x)
+
+degrating : forall {X Y S T} -> Grate X Y S T -> ((S -> X) -> Y) -> T
+degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
+
 --------------------------------------------------------------------------------
 -- Traversals
 --------------------------------------------------------------------------------
