@@ -179,15 +179,21 @@ degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
 -- Traversals
 --------------------------------------------------------------------------------
 
-data Monomial (C : Nat -> Set) (X : Set) : Set where
-  Monomial: : forall {n} -> C n * Vector X n -> Monomial C X
+data Series (C : Nat -> Set) (X : Set) : Set where
+  Series: : forall {n} -> C n * Vector X n -> Series C X
 
 record Polynomial (P : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor:Polynomial}} : Endoprofunctor Sets P
-    polynomial : forall {X Y Z} -> P X Y -> P (Monomial Z X) (Monomial Z Y)
+    polynomial : forall {X Y Z} -> P X Y -> P (Series Z X) (Series Z Y)
 
 open Polynomial {{...}} public
 
 Traversal : (X Y S T : Set) -> Set
 Traversal X Y S T = forall {P} {{_ : Polynomial P}} -> P X Y -> P S T
+
+data FunList (X Y T : Set) : Set where
+  FunList: : {n : Nat} -> Vector X n -> (Vector Y n -> T) -> FunList X Y T
+
+Traversal: : forall {X Y S T} -> (S -> FunList X Y T) -> Traversal X Y S T
+Traversal: extract = bimap {!!} {!!} <<< polynomial
