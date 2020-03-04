@@ -114,6 +114,30 @@ record Market (X Y S T : Set) : Set where
     review : Y -> T
     matching : S -> T + X
 
+instance
+  Profunctor:Prism : forall {X Y} -> Endoprofunctor Sets (Prism X Y)
+  Profunctor:Prism .bimap f g prism = bimap f g <<< prism
+
+  Profunctor:Market : forall {X Y} -> Endoprofunctor Sets (Market X Y)
+  Profunctor:Market .bimap f g (Market: review matching) =
+      Market: (g <<< review) (lmap g <<< matching <<< f)
+
+  Choice:Market : forall {X Y} -> Choice (Market X Y)
+  Choice:Market .choice (Market: review matching) = Market: review' matching'
+    where
+      review' matching' : _
+      review' y = right (review y)
+      matching' (left u) = left (left u)
+      matching' (right s) with matching s
+      ... | left t = left (right t)
+      ... | right x = right x
+
+review : forall {X Y S T} -> Prism X Y S T -> Y -> T
+review prism = Market.review $ prism $ Market: id right
+
+matching : forall {X Y S T} -> Prism X Y S T -> S -> T + X
+matching prism = Market.matching $ prism $ Market: id right
+
 --------------------------------------------------------------------------------
 -- Grates
 --------------------------------------------------------------------------------
