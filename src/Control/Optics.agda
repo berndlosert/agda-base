@@ -24,9 +24,6 @@ instance
   Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
   Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
 
-from : forall {X Y S T} -> Adapter X Y S T -> S -> X
-from adapter = adapter (Adapter: id id)
-
 --------------------------------------------------------------------------------
 -- Lenses
 --------------------------------------------------------------------------------
