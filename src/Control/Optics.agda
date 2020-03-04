@@ -2,6 +2,7 @@
 
 module Control.Optics where
 
+open import Data.Either
 open import Data.Pair
 open import Data.Profunctor
 open import Prelude
@@ -103,6 +104,15 @@ Prism X Y S T = forall {P} {{_ : Choice P}} -> P X Y -> P S T
 
 Prism' : (S X : Set) -> Set
 Prism' S X = Prism S S X X
+
+Prism: : forall {X Y S T} -> (Y -> T) -> (S -> T + X) -> Prism X Y S T
+Prism: review matching = bimap matching untag <<< choice <<< rmap review
+
+record Market (X Y S T : Set) : Set where
+  constructor Market:
+  field
+    review : Y -> T
+    matching : S -> T + X
 
 --------------------------------------------------------------------------------
 -- Grates
