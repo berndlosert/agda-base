@@ -29,10 +29,10 @@ til (suc n) = til n ++ pure n
 
 -- range m n produces a list of natural numbers from m to n.
 range : Nat -> Nat -> List Nat
-range m n = case compare m n of \ where
-  GT -> []
-  EQ -> pure n
-  LT -> map (_+ m) $ til $ suc (n - m)
+range m n with compare m n
+... | GT = []
+... | EQ = [ n ]
+... | LT = map (_+ m) $ til $ suc (n - m)
 
 --------------------------------------------------------------------------------
 -- Special destructors
@@ -84,10 +84,9 @@ fold = foldMap id
 -- scanr is the right-to-left dual of scanl.
 scanr : (X -> Y -> Y) -> Y -> List X -> List Y
 scanr f y [] = y :: []
-scanr f y (x :: xs) =
-  case (scanr f y xs) of \ where
-    [] -> []
-    (y' :: ys) -> f x y' :: y' :: ys
+scanr f y (x :: xs) with scanr f y xs
+... | [] = []
+... | (y' :: ys) = f x y' :: y' :: ys
 
 -- scanl is similar to foldl, but returns a list of successive reduced values
 -- from the left
@@ -146,9 +145,9 @@ filter p (x :: xs) = if p x then x :: filter p xs else xs
 -- element of the list matching the predicate, or nothing if there is no such
 -- element.
 find : (X -> Bool) -> List X -> Maybe X
-find p xs = case filter p xs of \ where
-  [] -> nothing
-  (x :: _) -> just x
+find p xs with filter p xs
+... | [] = nothing
+... | (x :: _) = just x
 
 -- The partition function takes a predicate, a list and returns the pair of
 -- lists of elements which do and do not satisfy the predicate.
