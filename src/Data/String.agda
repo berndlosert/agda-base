@@ -34,9 +34,9 @@ concat [] = ""
 concat (str :: strs) = str ++ concat strs
 
 uncons : String -> Maybe (Char * String)
-uncons s = case unpack s of \ where
-  [] -> nothing
-  (c :: cs) -> just (Pair: c (pack cs))
+uncons s with unpack s
+... |  [] = nothing
+... |  (c :: cs) = just (Pair: c (pack cs))
 
 head : String -> Maybe Char
 head = map fst <<< uncons
