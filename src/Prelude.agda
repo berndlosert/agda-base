@@ -181,8 +181,6 @@ f $ x = f x
 _&_ : {X Y : Set} -> X -> (X -> Y) -> Y
 x & f = f x
 
-case_of_ = _&_
-
 const : {X Y : Set} -> X -> Y -> X
 const x _ = x
 
