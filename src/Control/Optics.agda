@@ -201,7 +201,7 @@ Traversal: traverse = wander traverse
 record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
   constructor Bazaar:
   field
-    run : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
+    traverse : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
 
 instance
   Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
@@ -211,5 +211,22 @@ instance
   Profunctor:Bazaar .bimap f g (Bazaar: b) = Bazaar: \ h s -> g <$> b h (f s)
 
   Strong:Bazaar : forall {P X Y} -> Strong (Bazaar P X Y)
-  Strong:Bazaar {P} {X} {Y} .strong {S} {T} {U} (Bazaar: b) =
-    Bazaar: \ where h (Pair: u s) -> Pair: u <$> b h s
+  Strong:Bazaar .strong (Bazaar: b) = Bazaar: \ where
+    h (Pair: u s) -> Pair: u <$> b h s
+
+  Choice:Bazaar : forall {P X Y} -> Choice (Bazaar P X Y)
+  Choice:Bazaar .choice (Bazaar: b) = Bazaar: \ where
+    h (right s) -> right <$> b h s
+    h (left u) -> left <$> pure u
+
+  Wander:Bazaar : forall {P X Y} -> Wander (Bazaar P X Y)
+  Wander:Bazaar .wander w (Bazaar: b) = Bazaar: \ where
+    h s -> w (b h) s
+
+traverse : forall {X Y S T}
+  -> Traversal X Y S T
+  -> forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T
+traverse {X} {Y} traversal = Bazaar.traverse $ traversal $ bazaar
+  where
+    bazaar : Bazaar (hom Sets) X Y X Y
+    bazaar = Bazaar: id
