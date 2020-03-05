@@ -198,11 +198,18 @@ Traversal: : forall {X Y S T}
   -> Traversal X Y S T
 Traversal: traverse = wander traverse
 
-record Bazaar (P : Set -> Set -> Set) (X Y T : Set) : Set where
+record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
   constructor Bazaar:
   field
-    run : forall {F} {{_ : Applicative F}} -> P X (F Y) -> F T
+    run : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
 
 instance
   Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
   Profunctor:Traversal .bimap f g traverse = bimap f g <<< traverse
+
+  Profunctor:Bazaar : forall {P X Y} -> Endoprofunctor Sets (Bazaar P X Y)
+  Profunctor:Bazaar .bimap f g (Bazaar: b) = Bazaar: \ h s -> g <$> b h (f s)
+
+  Strong:Bazaar : forall {P X Y} -> Strong (Bazaar P X Y)
+  Strong:Bazaar {P} {X} {Y} .strong {S} {T} {U} (Bazaar: b) =
+    Bazaar: \ where h (Pair: u s) -> Pair: u <$> b h s
