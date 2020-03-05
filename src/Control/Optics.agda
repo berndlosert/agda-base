@@ -179,21 +179,30 @@ degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
 -- Traversals
 --------------------------------------------------------------------------------
 
-data Series (C : Nat -> Set) (X : Set) : Set where
-  Series: : forall {n} -> C n * Vector X n -> Series C X
-
-record Polynomial (P : Set -> Set -> Set) : Set where
+record Wander (P : Set -> Set -> Set) : Set where
+  constructor Wander:
   field
-    overlap {{Profunctor:Polynomial}} : Endoprofunctor Sets P
-    polynomial : forall {X Y Z} -> P X Y -> P (Series Z X) (Series Z Y)
+    overlap {{Strong:Wander}} : Strong P
+    overlap {{Choice:Wander}} : Choice P
+    wander : forall {X Y S T}
+      -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
+      -> P X Y -> P S T
 
-open Polynomial {{...}} public
+open Wander {{...}}
 
 Traversal : (X Y S T : Set) -> Set
-Traversal X Y S T = forall {P} {{_ : Polynomial P}} -> P X Y -> P S T
+Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
 
-data FunList (X Y T : Set) : Set where
-  FunList: : {n : Nat} -> Vector X n -> (Vector Y n -> T) -> FunList X Y T
+Traversal: : forall {X Y S T}
+  -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
+  -> Traversal X Y S T
+Traversal: traverse = wander traverse
 
-Traversal: : forall {X Y S T} -> (S -> FunList X Y T) -> Traversal X Y S T
-Traversal: extract = bimap {!!} {!!} <<< polynomial
+record Bazaar (P : Set -> Set -> Set) (X Y T : Set) : Set where
+  constructor Bazaar:
+  field
+    run : forall {F} {{_ : Applicative F}} -> P X (F Y) -> F T
+
+instance
+  Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
+  Profunctor:Traversal .bimap f g traverse = bimap f g <<< traverse
