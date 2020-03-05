@@ -170,7 +170,7 @@ open import Agda.Builtin.IO public
 --------------------------------------------------------------------------------
 
 infixr 0 _$_
-infixl 1 _&_
+infixl 1 _#_
 
 flip : {X Y Z : Set} -> (X -> Y -> Z) -> Y -> X -> Z
 flip f y x = f x y
@@ -178,8 +178,9 @@ flip f y x = f x y
 _$_ : {X Y : Set} -> (X -> Y) -> X -> Y
 f $ x = f x
 
-_&_ : {X Y : Set} -> X -> (X -> Y) -> Y
-x & f = f x
+-- From PureScript (Haskell uses _&_)
+_#_ : {X Y : Set} -> X -> (X -> Y) -> Y
+x # f = f x
 
 const : {X Y : Set} -> X -> Y -> X
 const x _ = x
