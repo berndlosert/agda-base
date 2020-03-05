@@ -178,7 +178,6 @@ flip f y x = f x y
 _$_ : {X Y : Set} -> (X -> Y) -> X -> Y
 f $ x = f x
 
--- From PureScript (Haskell uses _&_)
 _#_ : {X Y : Set} -> X -> (X -> Y) -> Y
 x # f = f x
 
