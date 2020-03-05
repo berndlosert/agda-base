@@ -201,7 +201,7 @@ Traversal: traverse = wander traverse
 record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
   constructor Bazaar:
   field
-    traverse : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
+    traverseOf : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
 
 instance
   Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
@@ -223,10 +223,10 @@ instance
   Wander:Bazaar .wander w (Bazaar: b) = Bazaar: \ where
     h s -> w (b h) s
 
-traverse : forall {X Y S T}
+traverseOf : forall {X Y S T}
   -> Traversal X Y S T
   -> forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T
-traverse {X} {Y} traversal = Bazaar.traverse $ traversal $ bazaar
+traverseOf {X} {Y} traversal = Bazaar.traverseOf $ traversal $ bazaar
   where
     bazaar : Bazaar (hom Sets) X Y X Y
     bazaar = Bazaar: id
