@@ -8,41 +8,7 @@ open import Data.Profunctor
 open import Prelude
 
 --------------------------------------------------------------------------------
--- Adapters
---------------------------------------------------------------------------------
-
-Adapter : (X Y S T : Set) -> Set
-Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}}
-  -> P X Y -> P S T
-
-Iso : (X Y : Set) -> Set
-Iso X Y = Adapter X X Y Y
-
-Adapter: : forall {X Y S T} -> (S -> X) -> (Y -> T) -> Adapter X Y S T
-Adapter: from to = bimap from to
-
-record Exchange (X Y S T : Set) : Set where
-  constructor Exchange:
-  field
-    from : S -> X
-    to : Y -> T
-
-instance
-  Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
-  Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
-
-  Profunctor:Exchange : forall {X Y} -> Endoprofunctor Sets (Exchange X Y)
-  Profunctor:Exchange .bimap f g (Exchange: from to) =
-    Exchange: (from <<< f) (g <<< to)
-
-from : forall {X Y S T} -> Adapter X Y S T -> S -> X
-from adapter = Exchange.from $ adapter $ Exchange: id id
-
-to : forall {X Y S T} -> Adapter X Y S T -> Y -> T
-to adapter = Exchange.to $ adapter $ Exchange: id id
-
---------------------------------------------------------------------------------
--- Lenses
+-- Types classes for characterizing profunctor optics
 --------------------------------------------------------------------------------
 
 record Strong (P : Set -> Set -> Set) : Set where
@@ -52,22 +18,135 @@ record Strong (P : Set -> Set -> Set) : Set where
 
 open Strong {{...}} public
 
-Lens : (X Y S T : Set) -> Set
+record Choice (P : Set -> Set -> Set) : Set where
+  field
+    overlap {{Profunctor:Choice}} : Endoprofunctor Sets P
+    choice : forall {X Y Z} -> P X Y -> P (Z + X) (Z + Y)
+
+open Choice {{...}} public
+
+record Closed (P : Set -> Set -> Set) : Set where
+  field
+    overlap {{Profunctor:Closed}} : Endoprofunctor Sets P
+    closed : {X Y Z : Set} -> P X Y -> P (Z -> X) (Z -> Y)
+
+open Closed {{...}} public
+
+record Wander (P : Set -> Set -> Set) : Set where
+  constructor Wander:
+  field
+    overlap {{Strong:Wander}} : Strong P
+    overlap {{Choice:Wander}} : Choice P
+    wander : forall {X Y S T}
+      -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
+      -> P X Y -> P S T
+
+open Wander {{...}}
+
+--------------------------------------------------------------------------------
+-- Profunctor optics
+--------------------------------------------------------------------------------
+
+Optic : Set
+Optic = (X Y S T : Set) -> Set
+
+Optic' : Set
+Optic' = (X S : Set) -> Set
+
+Adapter : Optic
+Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}} -> P X Y -> P S T
+
+Iso : Optic'
+Iso X Y = Adapter X X Y Y
+
+Lens : Optic
 Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 
-Lens' : (X S : Set) -> Set
+Lens' : Optic'
 Lens' X S = Lens X X S S
 
-Lens: : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
-Lens: get put = bimap (split id get) (uncurry put) <<< strong
+Prism : Optic
+Prism X Y S T = forall {P} {{_ : Choice P}} -> P X Y -> P S T
 
+Prism' : Optic'
+Prism' S X = Prism S S X X
+
+Grate : Optic
+Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
+
+Traversal : Optic
+Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
+
+--------------------------------------------------------------------------------
+-- Concrete optics
+--------------------------------------------------------------------------------
+
+-- Corresponds to Adapter
+record Exchange (X Y S T : Set) : Set where
+  constructor Exchange:
+  field
+    from : S -> X
+    to : Y -> T
+
+-- Corresponds to Lens
 record Shop (X Y S T : Set) : Set where
   constructor Shop:
   field
     get : S -> X
     put : S -> Y -> T
 
+-- Corresponds to Prism
+record Market (X Y S T : Set) : Set where
+  constructor Market:
+  field
+    review : Y -> T
+    matching : S -> T + X
+
+-- Corresponds to Grate
+record Grating (X Y S T : Set) : Set where
+  constructor Grating:
+  field
+    degrating : ((S -> X) -> Y) -> T
+
+-- Corresponds to Traversal
+record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
+  constructor Bazaar:
+  field
+    traverseOf : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
+
+--------------------------------------------------------------------------------
+-- Constructors
+--------------------------------------------------------------------------------
+
+Adapter: : forall {X Y S T} -> (S -> X) -> (Y -> T) -> Adapter X Y S T
+Adapter: from to = bimap from to
+
+Lens: : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
+Lens: get put = bimap (split id get) (uncurry put) <<< strong
+
+Prism: : forall {X Y S T} -> (Y -> T) -> (S -> T + X) -> Prism X Y S T
+Prism: review matching = bimap matching untag <<< choice <<< rmap review
+
+Grate: : forall {X Y S T} -> (((S -> X) -> Y) -> T) -> Grate X Y S T
+Grate: degrating = bimap _#_ degrating <<< closed
+
+Traversal: : forall {X Y S T}
+  -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
+  -> Traversal X Y S T
+Traversal: traverse = wander traverse
+
+--------------------------------------------------------------------------------
+-- Profunctor instances
+--------------------------------------------------------------------------------
+
 instance
+  Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
+  Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
+
+  Profunctor:Exchange : forall {X Y} -> Endoprofunctor Sets (Exchange X Y)
+  Profunctor:Exchange .bimap f g (Exchange: from to) =
+    Exchange: (from <<< f) (g <<< to)
+
   Profunctor:Lens : forall {X Y} -> Endoprofunctor Sets (Lens X Y)
   Profunctor:Lens .bimap f g lens = bimap f g <<< lens
 
@@ -82,39 +161,6 @@ instance
       get' (Pair: u s) = get s
       put' (Pair: u s) y = Pair: u (put s y)
 
-get : forall {X Y S T} -> Lens X Y S T -> S -> X
-get lens = Shop.get $ lens $ Shop: id (flip const)
-
-put : forall {X Y S T} -> Lens X Y S T -> S -> Y -> T
-put lens = Shop.put $ lens $ Shop: id (flip const)
-
---------------------------------------------------------------------------------
--- Prisms
---------------------------------------------------------------------------------
-
-record Choice (P : Set -> Set -> Set) : Set where
-  field
-    overlap {{Profunctor:Choice}} : Endoprofunctor Sets P
-    choice : forall {X Y Z} -> P X Y -> P (Z + X) (Z + Y)
-
-open Choice {{...}} public
-
-Prism : (X Y S T : Set) -> Set
-Prism X Y S T = forall {P} {{_ : Choice P}} -> P X Y -> P S T
-
-Prism' : (S X : Set) -> Set
-Prism' S X = Prism S S X X
-
-Prism: : forall {X Y S T} -> (Y -> T) -> (S -> T + X) -> Prism X Y S T
-Prism: review matching = bimap matching untag <<< choice <<< rmap review
-
-record Market (X Y S T : Set) : Set where
-  constructor Market:
-  field
-    review : Y -> T
-    matching : S -> T + X
-
-instance
   Profunctor:Prism : forall {X Y} -> Endoprofunctor Sets (Prism X Y)
   Profunctor:Prism .bimap f g prism = bimap f g <<< prism
 
@@ -132,35 +178,6 @@ instance
       ... | left t = left (right t)
       ... | right x = right x
 
-review : forall {X Y S T} -> Prism X Y S T -> Y -> T
-review prism = Market.review $ prism $ Market: id right
-
-matching : forall {X Y S T} -> Prism X Y S T -> S -> T + X
-matching prism = Market.matching $ prism $ Market: id right
-
---------------------------------------------------------------------------------
--- Grates
---------------------------------------------------------------------------------
-
-record Closed (P : Set -> Set -> Set) : Set where
-  field
-    overlap {{Profunctor:Closed}} : Endoprofunctor Sets P
-    closed : {X Y Z : Set} -> P X Y -> P (Z -> X) (Z -> Y)
-
-open Closed {{...}} public
-
-Grate : (X Y S T : Set) -> Set
-Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
-
-Grate: : forall {X Y S T} -> (((S -> X) -> Y) -> T) -> Grate X Y S T
-Grate: degrating = bimap _#_ degrating <<< closed
-
-record Grating (X Y S T : Set) : Set where
-  constructor Grating:
-  field
-    degrating : ((S -> X) -> Y) -> T
-
-instance
   Profunctor:Grate : forall {X Y} -> Endoprofunctor Sets (Grate X Y)
   Profunctor:Grate .bimap f g grate = bimap f g <<< grate
 
@@ -172,38 +189,6 @@ instance
   Closed:Grating .closed (Grating: degrating) =
     Grating: \ f x -> degrating \ k -> f \ g -> k (g x)
 
-degrating : forall {X Y S T} -> Grate X Y S T -> ((S -> X) -> Y) -> T
-degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
-
---------------------------------------------------------------------------------
--- Traversals
---------------------------------------------------------------------------------
-
-record Wander (P : Set -> Set -> Set) : Set where
-  constructor Wander:
-  field
-    overlap {{Strong:Wander}} : Strong P
-    overlap {{Choice:Wander}} : Choice P
-    wander : forall {X Y S T}
-      -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
-      -> P X Y -> P S T
-
-open Wander {{...}}
-
-Traversal : (X Y S T : Set) -> Set
-Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
-
-Traversal: : forall {X Y S T}
-  -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
-  -> Traversal X Y S T
-Traversal: traverse = wander traverse
-
-record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
-  constructor Bazaar:
-  field
-    traverseOf : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
-
-instance
   Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
   Profunctor:Traversal .bimap f g traverse = bimap f g <<< traverse
 
@@ -223,6 +208,33 @@ instance
   Wander:Bazaar .wander w (Bazaar: b) = Bazaar: \ where
     h s -> w (b h) s
 
+--------------------------------------------------------------------------------
+-- Deconstructors
+--------------------------------------------------------------------------------
+
+-- For Adapter
+from : forall {X Y S T} -> Adapter X Y S T -> S -> X
+to : forall {X Y S T} -> Adapter X Y S T -> Y -> T
+from adapter = Exchange.from $ adapter $ Exchange: id id
+to adapter = Exchange.to $ adapter $ Exchange: id id
+
+-- For Lens
+get : forall {X Y S T} -> Lens X Y S T -> S -> X
+put : forall {X Y S T} -> Lens X Y S T -> S -> Y -> T
+get lens = Shop.get $ lens $ Shop: id (flip const)
+put lens = Shop.put $ lens $ Shop: id (flip const)
+
+-- For Prism
+review : forall {X Y S T} -> Prism X Y S T -> Y -> T
+matching : forall {X Y S T} -> Prism X Y S T -> S -> T + X
+review prism = Market.review $ prism $ Market: id right
+matching prism = Market.matching $ prism $ Market: id right
+
+-- For Grate
+degrating : forall {X Y S T} -> Grate X Y S T -> ((S -> X) -> Y) -> T
+degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
+
+-- For Traversal
 traverseOf : forall {X Y S T}
   -> Traversal X Y S T
   -> forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T
