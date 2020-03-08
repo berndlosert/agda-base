@@ -11,6 +11,7 @@ open import Prelude
 -- Types classes for characterizing profunctor optics
 --------------------------------------------------------------------------------
 
+-- Characterizes Lens
 record Strong (P : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor:Strong}} : Endoprofunctor Sets P
@@ -18,6 +19,7 @@ record Strong (P : Set -> Set -> Set) : Set where
 
 open Strong {{...}} public
 
+-- Characterizes Prism
 record Choice (P : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor:Choice}} : Endoprofunctor Sets P
@@ -25,6 +27,7 @@ record Choice (P : Set -> Set -> Set) : Set where
 
 open Choice {{...}} public
 
+-- Characterizes Grate
 record Closed (P : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor:Closed}} : Endoprofunctor Sets P
@@ -32,6 +35,7 @@ record Closed (P : Set -> Set -> Set) : Set where
 
 open Closed {{...}} public
 
+-- Characterizes Traversal
 record Wander (P : Set -> Set -> Set) : Set where
   constructor Wander:
   field
@@ -50,32 +54,32 @@ open Wander {{...}}
 Optic : Set
 Optic = (X Y S T : Set) -> Set
 
-Optic' : Set
-Optic' = (X S : Set) -> Set
+Simple : Optic -> Set -> Set -> Set
+Simple O X S = O X X S S
 
 Adapter : Optic
 Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}} -> P X Y -> P S T
 
-Iso : Optic'
-Iso X Y = Adapter X X Y Y
-
 Lens : Optic
 Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 
-Lens' : Optic'
-Lens' X S = Lens X X S S
-
 Prism : Optic
 Prism X Y S T = forall {P} {{_ : Choice P}} -> P X Y -> P S T
-
-Prism' : Optic'
-Prism' S X = Prism S S X X
 
 Grate : Optic
 Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
 
 Traversal : Optic
 Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
+
+Getter : Set -> Set -> Set
+Getter X S = Adapter X Unit S Unit
+
+Review : Set -> Set -> Set
+Review Y T = Adapter Unit Y Unit T
+
+Setter : Optic
+Setter X Y S T = (X -> Y) -> S -> T
 
 --------------------------------------------------------------------------------
 -- Concrete optics
@@ -99,8 +103,8 @@ record Shop (X Y S T : Set) : Set where
 record Market (X Y S T : Set) : Set where
   constructor Market:
   field
-    review : Y -> T
-    matching : S -> T + X
+    build : Y -> T
+    match : S -> T + X
 
 -- Corresponds to Grate
 record Grating (X Y S T : Set) : Set where
@@ -125,7 +129,7 @@ Lens: : forall {X Y S T} -> (S -> X) -> (S -> Y -> T) -> Lens X Y S T
 Lens: get put = bimap (split id get) (uncurry put) <<< strong
 
 Prism: : forall {X Y S T} -> (Y -> T) -> (S -> T + X) -> Prism X Y S T
-Prism: review matching = bimap matching untag <<< choice <<< rmap review
+Prism: build match = bimap match untag <<< choice <<< rmap build
 
 Grate: : forall {X Y S T} -> (((S -> X) -> Y) -> T) -> Grate X Y S T
 Grate: degrating = bimap _#_ degrating <<< closed
@@ -134,6 +138,12 @@ Traversal: : forall {X Y S T}
   -> (forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T)
   -> Traversal X Y S T
 Traversal: traverse = wander traverse
+
+Getter: : forall {X S} -> (S -> X) -> Getter X S
+Getter: from = Adapter: from id
+
+Review: : forall {Y T} -> (Y -> T) -> Review Y T
+Review: to = Adapter: id to
 
 --------------------------------------------------------------------------------
 -- Profunctor instances
@@ -165,16 +175,16 @@ instance
   Profunctor:Prism .bimap f g prism = bimap f g <<< prism
 
   Profunctor:Market : forall {X Y} -> Endoprofunctor Sets (Market X Y)
-  Profunctor:Market .bimap f g (Market: review matching) =
-      Market: (g <<< review) (lmap g <<< matching <<< f)
+  Profunctor:Market .bimap f g (Market: build match) =
+      Market: (g <<< build) (lmap g <<< match <<< f)
 
   Choice:Market : forall {X Y} -> Choice (Market X Y)
-  Choice:Market .choice (Market: review matching) = Market: review' matching'
+  Choice:Market .choice (Market: build match) = Market: build' match'
     where
-      review' matching' : _
-      review' y = right (review y)
-      matching' (left u) = left (left u)
-      matching' (right s) with matching s
+      build' match' : _
+      build' y = right (build y)
+      match' (left u) = left (left u)
+      match' (right s) with match s
       ... | left t = left (right t)
       ... | right x = right x
 
@@ -212,29 +222,24 @@ instance
 -- Deconstructors
 --------------------------------------------------------------------------------
 
--- For Adapter
 from : forall {X Y S T} -> Adapter X Y S T -> S -> X
 to : forall {X Y S T} -> Adapter X Y S T -> Y -> T
 from adapter = Exchange.from $ adapter $ Exchange: id id
 to adapter = Exchange.to $ adapter $ Exchange: id id
 
--- For Lens
 get : forall {X Y S T} -> Lens X Y S T -> S -> X
 put : forall {X Y S T} -> Lens X Y S T -> S -> Y -> T
 get lens = Shop.get $ lens $ Shop: id (flip const)
 put lens = Shop.put $ lens $ Shop: id (flip const)
 
--- For Prism
-review : forall {X Y S T} -> Prism X Y S T -> Y -> T
-matching : forall {X Y S T} -> Prism X Y S T -> S -> T + X
-review prism = Market.review $ prism $ Market: id right
-matching prism = Market.matching $ prism $ Market: id right
+build : forall {X Y S T} -> Prism X Y S T -> Y -> T
+match : forall {X Y S T} -> Prism X Y S T -> S -> T + X
+build prism = Market.build $ prism $ Market: id right
+match prism = Market.match $ prism $ Market: id right
 
--- For Grate
 degrating : forall {X Y S T} -> Grate X Y S T -> ((S -> X) -> Y) -> T
 degrating grate = Grating.degrating $ grate $ Grating: \ f -> f id
 
--- For Traversal
 traverseOf : forall {X Y S T}
   -> Traversal X Y S T
   -> forall {F} {{_ : Applicative F}} -> (X -> F Y) -> S -> F T
@@ -242,3 +247,9 @@ traverseOf {X} {Y} traversal = Bazaar.traverseOf $ traversal $ bazaar
   where
     bazaar : Bazaar (hom Sets) X Y X Y
     bazaar = Bazaar: id
+
+view : forall {X S} -> Getter X S -> S -> X
+view = from
+
+review : forall {Y T} -> Review Y T -> Y -> T
+review = to
