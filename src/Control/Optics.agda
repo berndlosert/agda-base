@@ -60,6 +60,12 @@ Simple O X S = O X X S S
 Adapter : Optic
 Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}} -> P X Y -> P S T
 
+Getter : Set -> Set -> Set
+Getter X S = Adapter X Unit S Unit
+
+Review : Set -> Set -> Set
+Review Y T = Adapter Unit Y Unit T
+
 Lens : Optic
 Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
 
@@ -71,12 +77,6 @@ Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
 
 Traversal : Optic
 Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
-
-Getter : Set -> Set -> Set
-Getter X S = Adapter X Unit S Unit
-
-Review : Set -> Set -> Set
-Review Y T = Adapter Unit Y Unit T
 
 Setter : Optic
 Setter X Y S T = (X -> Y) -> S -> T
@@ -117,6 +117,12 @@ record Bazaar (P : Set -> Set -> Set) (X Y S T : Set) : Set where
   constructor Bazaar:
   field
     traverseOf : forall {F} {{_ : Applicative F}} -> P X (F Y) -> S -> F T
+
+-- Corresponds to Setter
+record Mapping (X Y S T : Set) : Set where
+  constructor Mapping:
+  field
+    mapOf : (X -> Y) -> S -> T
 
 --------------------------------------------------------------------------------
 -- Constructors
@@ -227,6 +233,12 @@ to : forall {X Y S T} -> Adapter X Y S T -> Y -> T
 from adapter = Exchange.from $ adapter $ Exchange: id id
 to adapter = Exchange.to $ adapter $ Exchange: id id
 
+view : forall {X S} -> Getter X S -> S -> X
+view = from
+
+review : forall {Y T} -> Review Y T -> Y -> T
+review = to
+
 get : forall {X Y S T} -> Lens X Y S T -> S -> X
 put : forall {X Y S T} -> Lens X Y S T -> S -> Y -> T
 get lens = Shop.get $ lens $ Shop: id (flip const)
@@ -248,8 +260,3 @@ traverseOf {X} {Y} traversal = Bazaar.traverseOf $ traversal $ bazaar
     bazaar : Bazaar (hom Sets) X Y X Y
     bazaar = Bazaar: id
 
-view : forall {X S} -> Getter X S -> S -> X
-view = from
-
-review : forall {Y T} -> Review Y T -> Y -> T
-review = to
