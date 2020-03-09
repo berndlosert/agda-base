@@ -148,6 +148,15 @@ Traversal: : forall {X Y S T}
   -> Traversal X Y S T
 Traversal: traverse = wander traverse
 
+Getter: : forall {X Y S T} -> (S -> X) -> Getter X Y S T
+Getter: g = g >>>_
+
+Review: : forall {X Y S T} -> (Y -> T) -> Review X Y S T
+Review: = id
+
+Setter: : forall {X Y S T} -> ((X -> Y) -> S -> T) -> Setter X Y S T
+Setter: = id
+
 --------------------------------------------------------------------------------
 -- Profunctor instances
 --------------------------------------------------------------------------------
@@ -250,3 +259,12 @@ traverseOf {X} {Y} traversal = Bazaar.traverseOf $ traversal $ bazaar
   where
     bazaar : Bazaar (hom Sets) X Y X Y
     bazaar = Bazaar: id
+
+view : forall {X Y S T} -> Getter X Y S T -> S -> X
+view getter = getter id
+
+review : forall {X Y S T} -> Review X Y S T -> Y -> T
+review = id
+
+over : forall {X Y S T} -> Setter X Y S T -> (X -> Y) -> S -> T
+over = id
