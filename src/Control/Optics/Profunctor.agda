@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Optics where
+module Control.Optics.Profunctor where
 
 open import Data.Either
 open import Data.Pair
