@@ -14,7 +14,7 @@ open import Prelude
 -- Characterizes Lens
 record Strong (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Strong}} : Endoprofunctor Sets P
+    overlap {{Profunctor:Strong}} : Profunctor Sets Sets P
     strong : forall {X Y Z} -> P X Y -> P (Z * X) (Z * Y)
 
 open Strong {{...}} public
@@ -22,7 +22,7 @@ open Strong {{...}} public
 -- Characterizes Prism
 record Choice (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Choice}} : Endoprofunctor Sets P
+    overlap {{Profunctor:Choice}} : Profunctor Sets Sets P
     choice : forall {X Y Z} -> P X Y -> P (Z + X) (Z + Y)
 
 open Choice {{...}} public
@@ -30,7 +30,7 @@ open Choice {{...}} public
 -- Characterizes Grate
 record Closed (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Closed}} : Endoprofunctor Sets P
+    overlap {{Profunctor:Closed}} : Profunctor Sets Sets P
     closed : {X Y Z : Set} -> P X Y -> P (Z -> X) (Z -> Y)
 
 open Closed {{...}} public
@@ -58,7 +58,7 @@ Simple : Optic -> Set -> Set -> Set
 Simple O X S = O X X S S
 
 Adapter : Optic
-Adapter X Y S T = forall {P} {{_ : Endoprofunctor Sets P}} -> P X Y -> P S T
+Adapter X Y S T = forall {P} {{_ : Profunctor Sets Sets P}} -> P X Y -> P S T
 
 Lens : Optic
 Lens X Y S T = forall {P} {{_ : Strong P}} -> P X Y -> P S T
@@ -153,17 +153,17 @@ Traversal: traverse = wander traverse
 --------------------------------------------------------------------------------
 
 instance
-  Profunctor:Adapter : forall {X Y} -> Endoprofunctor Sets (Adapter X Y)
+  Profunctor:Adapter : forall {X Y} -> Profunctor Sets Sets (Adapter X Y)
   Profunctor:Adapter .bimap f g adapter = bimap f g <<< adapter
 
-  Profunctor:Exchange : forall {X Y} -> Endoprofunctor Sets (Exchange X Y)
+  Profunctor:Exchange : forall {X Y} -> Profunctor Sets Sets (Exchange X Y)
   Profunctor:Exchange .bimap f g (Exchange: from to) =
     Exchange: (from <<< f) (g <<< to)
 
-  Profunctor:Lens : forall {X Y} -> Endoprofunctor Sets (Lens X Y)
+  Profunctor:Lens : forall {X Y} -> Profunctor Sets Sets (Lens X Y)
   Profunctor:Lens .bimap f g lens = bimap f g <<< lens
 
-  Profunctor:Shop : forall {X Y} -> Endoprofunctor Sets (Shop X Y)
+  Profunctor:Shop : forall {X Y} -> Profunctor Sets Sets (Shop X Y)
   Profunctor:Shop .bimap f g (Shop: get put) =
     Shop: (get <<< f) (\ s -> g <<< put (f s))
 
@@ -174,10 +174,10 @@ instance
       get' (Pair: u s) = get s
       put' (Pair: u s) y = Pair: u (put s y)
 
-  Profunctor:Prism : forall {X Y} -> Endoprofunctor Sets (Prism X Y)
+  Profunctor:Prism : forall {X Y} -> Profunctor Sets Sets (Prism X Y)
   Profunctor:Prism .bimap f g prism = bimap f g <<< prism
 
-  Profunctor:Market : forall {X Y} -> Endoprofunctor Sets (Market X Y)
+  Profunctor:Market : forall {X Y} -> Profunctor Sets Sets (Market X Y)
   Profunctor:Market .bimap f g (Market: build match) =
       Market: (g <<< build) (lmap g <<< match <<< f)
 
@@ -191,10 +191,10 @@ instance
       ... | left t = left (right t)
       ... | right x = right x
 
-  Profunctor:Grate : forall {X Y} -> Endoprofunctor Sets (Grate X Y)
+  Profunctor:Grate : forall {X Y} -> Profunctor Sets Sets (Grate X Y)
   Profunctor:Grate .bimap f g grate = bimap f g <<< grate
 
-  Profunctor:Grating : forall {X Y} -> Endoprofunctor Sets (Grating X Y)
+  Profunctor:Grating : forall {X Y} -> Profunctor Sets Sets (Grating X Y)
   Profunctor:Grating .bimap f g (Grating: degrating) =
     Grating: \ d -> g (degrating \ k -> d (k <<< f))
 
@@ -202,10 +202,10 @@ instance
   Closed:Grating .closed (Grating: degrating) =
     Grating: \ f x -> degrating \ k -> f \ g -> k (g x)
 
-  Profunctor:Traversal : forall {X Y} -> Endoprofunctor Sets (Traversal X Y)
+  Profunctor:Traversal : forall {X Y} -> Profunctor Sets Sets (Traversal X Y)
   Profunctor:Traversal .bimap f g traverse = bimap f g <<< traverse
 
-  Profunctor:Bazaar : forall {P X Y} -> Endoprofunctor Sets (Bazaar P X Y)
+  Profunctor:Bazaar : forall {P X Y} -> Profunctor Sets Sets (Bazaar P X Y)
   Profunctor:Bazaar .bimap f g (Bazaar: b) = Bazaar: \ h s -> g <$> b h (f s)
 
   Strong:Bazaar : forall {P X Y} -> Strong (Bazaar P X Y)
