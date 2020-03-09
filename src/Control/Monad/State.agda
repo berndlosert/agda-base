@@ -13,7 +13,7 @@ State S X = S -> X * S
 open import Data.Pair
 
 instance
-  Functor:State : forall {S} -> Endofunctor Sets (State S)
+  Functor:State : forall {S} -> Functor Sets Sets (State S)
   Functor:State .map f m = \ s -> cross f id (m s)
 
 -- State S forms a monad.

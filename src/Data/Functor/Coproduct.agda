@@ -11,9 +11,9 @@ instance
 
 -- The coproduct of two endofunctors is a functor.
 instance
-  Endofunctor:Coproduct : forall {F G}
-    -> {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets G}}
-    -> Endofunctor Sets (F + G)
-  Endofunctor:Coproduct .map f (left x) = left (map f x)
-  Endofunctor:Coproduct .map f (right x) = right (map f x)
+  Functor:Coproduct : forall {F G}
+    -> {{_ : Functor Sets Sets F}}
+    -> {{_ : Functor Sets Sets G}}
+    -> Functor Sets Sets (F + G)
+  Functor:Coproduct .map f (left x) = left (map f x)
+  Functor:Coproduct .map f (right x) = right (map f x)

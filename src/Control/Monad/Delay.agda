@@ -56,7 +56,7 @@ open import Control.Monad
 open import Data.Functor
 
 instance
-  Functor:Delay : {i : Size} -> Endofunctor Sets (Delay i)
+  Functor:Delay : {i : Size} -> Functor Sets Sets (Delay i)
   Functor:Delay .map f (now x) = now (f x)
   Functor:Delay .map f (later thunk) =
     later \ where .force -> map f (force thunk)

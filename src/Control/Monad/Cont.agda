@@ -17,7 +17,7 @@ Cont X Y = (Y -> X) -> X
 open import Data.Functor public
 
 instance
-  Functor:Cont : forall {X} -> Endofunctor Sets (Cont X)
+  Functor:Cont : forall {X} -> Functor Sets Sets (Cont X)
   Functor:Cont .map f h = \ k -> h (f >>> k)
 
 -- Cont X forms a monad.

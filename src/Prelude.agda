@@ -403,12 +403,9 @@ record Functor (C D : Category) (F : ob C -> ob D) : Set where
 
 open Functor {{...}} public
 
-Endofunctor : (C : Category) -> (ob C -> ob C) -> Set
-Endofunctor C = Functor C C
-
 infixl 24 _<$>_
 
-_<$>_ : forall {X Y F} {{_ : Endofunctor Sets F}}
+_<$>_ : forall {X Y F} {{_ : Functor Sets Sets F}}
   -> (X -> Y) -> F X -> F Y
 _<$>_ = map
 
@@ -420,15 +417,9 @@ record Trans (C D : Category) : Set where
 
 open Trans {{...}} public
 
-Endotrans : Category -> Set
-Endotrans C = Trans C C
-
--- These are used to facilitate making instances of Trans.
+-- This is used to facilitate making instances of Trans.
 Trans: : (C D : Category) -> Trans C D
 Trans: C D = record {}
-
-Endotrans: : (C : Category) -> Endotrans C
-Endotrans: C = record {}
 
 --------------------------------------------------------------------------------
 -- Monad
@@ -437,7 +428,7 @@ Endotrans: C = record {}
 record Monad (C : Category) (M : ob C -> ob C) : Set where
   constructor Monad:
   field
-    overlap {{Functor:Monad}} : Endofunctor C M
+    overlap {{Functor:Monad}} : Functor C C M
     return : forall {X} -> hom C X (M X)
     extend : forall {X Y} -> hom C X (M Y) -> hom C (M X) (M Y)
 
@@ -471,7 +462,7 @@ record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
   infixl 24 _<*>_ _*>_ _<*_
   field
-    overlap {{Functor:Applicative}} : Endofunctor Sets F
+    overlap {{Functor:Applicative}} : Functor Sets Sets F
     _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
     pure : forall {X} -> X -> F X
 
@@ -708,30 +699,30 @@ private
   postulate
     mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
 
-Functor:id : forall C -> Endofunctor C id
+Functor:id : forall C -> Functor C C id
 Functor:id C .map = id
   where instance _ = C
 
-Functor:const : forall X -> Endofunctor Sets (const X)
+Functor:const : forall X -> Functor Sets Sets (const X)
 Functor:const X .map f = id
 
 instance
-  Functor:Pair : forall {X} -> Endofunctor Sets (Pair X)
+  Functor:Pair : forall {X} -> Functor Sets Sets (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
-  Functor:Either : forall {X} -> Endofunctor Sets (Either X)
+  Functor:Either : forall {X} -> Functor Sets Sets (Either X)
   Functor:Either .map f (left x) = left x
   Functor:Either .map f (right y) = right (f y)
 
-  Functor:Maybe : Endofunctor Sets Maybe
+  Functor:Maybe : Functor Sets Sets Maybe
   Functor:Maybe .map f nothing = nothing
   Functor:Maybe .map f (just x) = just (f x)
 
-  Functor:List : Endofunctor Sets List
+  Functor:List : Functor Sets Sets List
   Functor:List .map f [] = []
   Functor:List .map f (x :: xs) = f x :: map f xs
 
-  Functor:IO : Endofunctor Sets IO
+  Functor:IO : Functor Sets Sets IO
   Functor:IO .map = mapIO
 
 {-# COMPILE GHC mapIO = \ _ _ f -> map f #-}
@@ -805,8 +796,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Endotrans:Sets : Endotrans Sets
-  Endotrans:Sets = Endotrans: Sets
+  Endotrans:Sets = Trans: Sets Sets
 
 --------------------------------------------------------------------------------
 -- Semigroup instances

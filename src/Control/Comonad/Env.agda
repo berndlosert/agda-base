@@ -9,7 +9,7 @@ Env : Set -> Set -> Set
 Env E Y = E * Y
 
 instance
-  Functor:Env : forall {E} -> Endofunctor Sets (Env E)
+  Functor:Env : forall {E} -> Functor Sets Sets (Env E)
   Functor:Env .map f (Pair: e x) = Pair: e (f x)
 
 open import Control.Comonad

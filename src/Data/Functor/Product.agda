@@ -12,7 +12,7 @@ instance
 -- The product of two endofunctors is a functor.
 instance
   Endofunctor:Product : forall {F G}
-    -> {{_ : Endofunctor Sets F}}
-    -> {{_ : Endofunctor Sets G}}
-    -> Endofunctor Sets (F * G)
+    -> {{_ : Functor Sets Sets F}}
+    -> {{_ : Functor Sets Sets G}}
+    -> Functor Sets Sets (F * G)
   Endofunctor:Product .map f (Pair: x y) = Pair: (map f x) (map f y)

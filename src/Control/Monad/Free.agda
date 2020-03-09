@@ -34,7 +34,7 @@ module Free where
   -- Free F is a functor.
 
   instance
-    Functor:Free : forall {F} -> Endofunctor Sets (Free F)
+    Functor:Free : forall {F} -> Functor Sets Sets (Free F)
     Functor:Free .map f free = Free: (map f <<< run free)
 
   -- Free F is a monad.
@@ -89,7 +89,7 @@ module Free where
         -> Y
 
       instance
-        Functor:M : Endofunctor Sets M
+        Functor:M : Functor Sets Sets M
         Functor:M .map f m = \ ret ext -> m (f >>> ret) ext
 
         Monad:M : Monad Sets M
@@ -104,7 +104,7 @@ module Free where
   -- A fold operation based on the standard definition of monad. This one
   -- requires F to be a functor.
 
-  fold' : forall {F X Y} {{_ : Endofunctor Sets F}}
+  fold' : forall {F X Y} {{_ : Functor Sets Sets F}}
     -> (X -> Y)
     -> (F Y -> Y)
     -> Free F X -> Y
@@ -118,7 +118,7 @@ module Free where
       M X = forall {Y} -> (X -> Y) -> (F Y -> Y) -> Y
 
       instance
-        Functor:M : Endofunctor Sets M
+        Functor:M : Functor Sets Sets M
         Functor:M .map f m = \ ret jn -> m (f >>> ret) jn
 
         Monad:M : Monad Sets M

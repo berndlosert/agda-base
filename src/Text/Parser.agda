@@ -18,7 +18,7 @@ Parser X = String -> List (X * String)
 
 -- Parser is a functor.
 instance
-  Functor:Parser : Endofunctor Sets Parser
+  Functor:Parser : Functor Sets Sets Parser
   Functor:Parser .map f p s = map (cross f id) (p s)
 
 -- Parser is a monad.
