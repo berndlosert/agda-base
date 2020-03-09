@@ -7,6 +7,7 @@ open import Prelude hiding (fromNat)
 open import Agda.Builtin.Float public
   renaming (
     primNatToFloat to fromNat;
+    primFloatSqrt to sqrt;
     primRound to round;
     primFloor to floor;
     primCeiling to ceil;
