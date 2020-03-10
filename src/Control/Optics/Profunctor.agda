@@ -72,14 +72,14 @@ Grate X Y S T = forall {P} {{_ : Closed P}} -> P X Y -> P S T
 Traversal : Optic
 Traversal X Y S T = forall {P} {{_ : Wander P}} -> P X Y -> P S T
 
-Fold : Set -> Optic
-Fold R X Y S T = (X -> R) -> S -> R
+Fold : (R X S : Set) -> Set
+Fold R X S = (X -> R) -> S -> R
 
-Getter : Optic
-Getter X Y S T = forall {R} -> Fold R X Y S T
+Getter : (X S : Set) -> Set
+Getter X S = forall {R} -> Fold R X S
 
-Review : Optic
-Review X Y S T = Y -> T
+Review : (Y T : Set) -> Set
+Review Y T = Y -> T
 
 Setter : Optic
 Setter X Y S T = (X -> Y) -> S -> T
@@ -148,10 +148,10 @@ Traversal: : forall {X Y S T}
   -> Traversal X Y S T
 Traversal: traverse = wander traverse
 
-Getter: : forall {X Y S T} -> (S -> X) -> Getter X Y S T
+Getter: : forall {X S} -> (S -> X) -> Getter X S
 Getter: g = g >>>_
 
-Review: : forall {X Y S T} -> (Y -> T) -> Review X Y S T
+Review: : forall {Y T} -> (Y -> T) -> Review Y T
 Review: = id
 
 Setter: : forall {X Y S T} -> ((X -> Y) -> S -> T) -> Setter X Y S T
@@ -260,11 +260,19 @@ traverseOf {X} {Y} traversal = Bazaar.traverseOf $ traversal $ bazaar
     bazaar : Bazaar (hom Sets) X Y X Y
     bazaar = Bazaar: id
 
-view : forall {X Y S T} -> Getter X Y S T -> S -> X
+view : forall {X S} -> Getter X S -> S -> X
 view getter = getter id
 
-review : forall {X Y S T} -> Review X Y S T -> Y -> T
+review : forall {Y T} -> Review Y T -> Y -> T
 review = id
 
 over : forall {X Y S T} -> Setter X Y S T -> (X -> Y) -> S -> T
 over = id
+
+--------------------------------------------------------------------------------
+-- Operators
+--------------------------------------------------------------------------------
+
+_^#_ : forall {X S} -> S -> Getter X S -> X
+_^#_ = flip view
+
