@@ -435,10 +435,10 @@ Trans: : (C D : Category) -> Trans C D
 Trans: C D = record {}
 
 --------------------------------------------------------------------------------
--- Monad
+-- MonadOf
 --------------------------------------------------------------------------------
 
-record Monad (C : Category) (M : ob C -> ob C) : Set where
+record MonadOf (C : Category) (M : ob C -> ob C) : Set where
   constructor Monad:
   field
     overlap {{Functor:Monad}} : FunctorOf C C M
@@ -449,21 +449,23 @@ record Monad (C : Category) (M : ob C -> ob C) : Set where
   join = extend id
     where instance _ = C
 
-open Monad {{...}} public
+open MonadOf {{...}} public
+
+Monad = MonadOf Sets
 
 infixl 1 _>>=_ _>>_ _<=<_ _>=>_
 
-_>>=_ : forall {M X Y} {{_ : Monad Sets M}} -> M X -> (X -> M Y) -> M Y
+_>>=_ : forall {M X Y} {{_ : Monad M}} -> M X -> (X -> M Y) -> M Y
 _>>=_ = flip extend
 
-_>>_ : forall {M X Y} {{_ : Monad Sets M}} -> M X -> M Y -> M Y
+_>>_ : forall {M X Y} {{_ : Monad M}} -> M X -> M Y -> M Y
 x >> y = x >>= const y
 
-_<=<_ : forall {M} {X Y Z : Set} {{_ : Monad Sets M}}
+_<=<_ : forall {M} {X Y Z : Set} {{_ : Monad M}}
   -> (Y -> M Z) -> (X -> M Y) -> X -> M Z
 g <=< f = \ x -> f x >>= g
 
-_>=>_ : forall {M X Y Z} {{_ : Monad Sets M}}
+_>=>_ : forall {M X Y Z} {{_ : Monad M}}
   -> (X -> M Y) -> (Y -> M Z) -> X -> M Z
 _>=>_ = flip _<=<_
 
@@ -489,7 +491,7 @@ open Applicative {{...}} public
 
 -- Use this when you want to create an Applicative instance from a Monad
 -- instance.
-ap : forall {F X Y} {{_ : Monad Sets F}}
+ap : forall {F X Y} {{_ : Monad F}}
   -> F (X -> Y) -> F X -> F Y
 ap fs xs = do
   f <- fs
@@ -749,29 +751,29 @@ private
     returnIO : {X : Set} -> X -> IO X
     bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
 
-Monad:id : forall C -> Monad C id
+Monad:id : forall C -> MonadOf C id
 Monad:id C = let instance _ = C in \ where
   .Functor:Monad -> Functor:id C
   .return -> id
   .extend -> id
 
 instance
-  Monad:Either : forall {X} -> Monad Sets (Either X)
+  Monad:Either : forall {X} -> Monad (Either X)
   Monad:Either .return y = right y
   Monad:Either .extend k (left x) = left x
   Monad:Either .extend k (right y) = k y
 
-  Monad:Maybe : Monad Sets Maybe
+  Monad:Maybe : Monad Maybe
   Monad:Maybe .return = just
   Monad:Maybe .extend k nothing = nothing
   Monad:Maybe .extend k (just x) = k x
 
-  Monad:List : Monad Sets List
+  Monad:List : Monad List
   Monad:List .return = [_]
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
 
-  Monad:IO : Monad Sets IO
+  Monad:IO : Monad IO
   Monad:IO .return = returnIO
   Monad:IO .extend = flip bindIO
 

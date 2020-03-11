@@ -13,7 +13,7 @@ Codensity : (Set -> Set) -> Set -> Set
 Codensity F X = forall {Y} -> (X -> F Y) -> F Y
 
 instance
-  Monad:Codensity : forall {F} -> Monad Sets (Codensity F)
+  Monad:Codensity : forall {F} -> Monad (Codensity F)
   Monad:Codensity .return x = \ k -> k x
   Monad:Codensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
 
@@ -22,12 +22,12 @@ instance
 -- X the function x <>_ : X -> X; in the monad case, the embedding assings each
 -- x : M X to x >>=_ : Codensity M X.
 
-rep : forall {M} {{_ : Monad Sets M}} -> M ~> Codensity M
+rep : forall {M} {{_ : Monad M}} -> M ~> Codensity M
 rep x = x >>=_
 
 -- The left-inverse (retract) of rep for the monoid case assigns f : X -> X to
 -- f mempty. The monad version assigns each f : Codensity M X the value
 -- f return.
 
-abs : forall {M} {{_ : Monad Sets M}} -> Codensity M ~> M
+abs : forall {M} {{_ : Monad M}} -> Codensity M ~> M
 abs f = f return

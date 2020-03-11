@@ -45,6 +45,6 @@ run {R} {Fs} r eff = Eff.interpret t eff
 open import Data.Function
 
 instance
-  Monad:Reader : forall {R} -> Monad Sets (Reader R)
+  Monad:Reader : forall {R} -> Monad (Reader R)
   Monad:Reader .return x = const x
   Monad:Reader .extend f m = \ r -> f (m r) r

@@ -61,7 +61,7 @@ instance
   Functor:Delay .map f (later thunk) =
     later \ where .force -> map f (force thunk)
 
-  Monad:Delay : {i : Size} -> Monad Sets (Delay i)
+  Monad:Delay : {i : Size} -> Monad (Delay i)
   Monad:Delay .return = now
   Monad:Delay .extend f (now x) = f x
   Monad:Delay .extend f (later thunk) = later \ where

@@ -19,7 +19,7 @@ open import Control.Monad
 open import Data.Functor
 
 Eff: : forall {Fs X}
-  -> (forall {M} {{_ : Monad Sets M}} -> (Union Fs ~> M) -> M X)
+  -> (forall {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M X)
   -> Eff Fs X
 Eff: eff = Free: eff
 
@@ -32,7 +32,7 @@ open import Data.Functor
 lift : forall {Fs} -> Union Fs ~> Eff Fs
 lift = Free.lift
 
-interpret : forall {M Fs} {{_ : Monad Sets M}}
+interpret : forall {M Fs} {{_ : Monad M}}
   -> (Union Fs ~> M) -> Eff Fs ~> M
 interpret = Free.interpret
 
@@ -68,5 +68,5 @@ run eff = interpret (\ ()) eff
 -- This Monad instance is for exporting purposes only.
 
 instance
-  Monad:Eff : forall {Fs} -> Monad Sets (Eff Fs)
+  Monad:Eff : forall {Fs} -> Monad (Eff Fs)
   Monad:Eff = Monad:Free

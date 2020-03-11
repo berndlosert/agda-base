@@ -4,7 +4,7 @@ module Control.Monad.Freer where
 
 -- A higher-order version of Free.
 
-open import Control.Monad public
+open import Prelude
 
 module Freer where
 
@@ -16,20 +16,20 @@ module Freer where
     where
       constructor Freer:
       field
-        run : forall {M} {{_ : Monad Sets^Sets M}} -> (F ~> M) -> M T X
+        run : forall {M} {{_ : Monad^Sets M}} -> (F ~> M) -> M T X
 
   open Freer
 
   lift : forall {F} -> F ~> Freer F
   lift x = Freer: \ t -> t x
 
-  interpret : forall {F M} {{_ : Monad Sets^Sets M}}
+  interpret : forall {F M} {{_ : Monad^Sets M}}
     -> (F ~> M) -> Freer F ~> M
   interpret t freer = run freer t
 
   -- This is the left inverse (retract) of lift.
 
-  lower : forall {M} {{_ : Monad Sets^Sets M}} -> Freer M ~> M
+  lower : forall {M} {{_ : Monad^Sets M}} -> Freer M ~> M
   lower = interpret id
 
   -- Freer F is a functor.
@@ -42,7 +42,7 @@ module Freer where
   -- Freer F is a monad.
 
   instance
-    Monad:Freer : forall {F} -> Monad Sets^Sets (Freer F)
+    Monad:Freer : forall {F} -> Monad^Sets (Freer F)
     Monad:Freer .return x = Freer: \ _ -> return x
     Monad:Freer .extend f m = Freer: \ t ->
       join (hmap (interpret t <<< f) (interpret t m))

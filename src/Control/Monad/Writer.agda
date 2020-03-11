@@ -32,6 +32,6 @@ run = id
 open import Control.Monad
 
 instance
-  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad Sets (Writer W)
+  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
   Monad:Writer .return x = (x , mempty)
   Monad:Writer .extend f (x , w) = let (y , w') = f x in (y , w <> w')

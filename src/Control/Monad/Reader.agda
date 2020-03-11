@@ -16,7 +16,7 @@ instance
 
 -- Reader R is a monad.
 instance
-  Monad:Reader : forall {R} -> Monad Sets (Reader R)
+  Monad:Reader : forall {R} -> Monad (Reader R)
   Monad:Reader .return x = \ _ -> x
   Monad:Reader .extend f m = \ r -> f (m r) r
 

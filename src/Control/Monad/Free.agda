@@ -16,19 +16,19 @@ module Free where
   record Free (F : Set -> Set) (X : Set) : Set where
     constructor Free:
     field
-      run : forall {M} {{_ : Monad Sets M}} -> (F ~> M) -> M X
+      run : forall {M} {{_ : Monad M}} -> (F ~> M) -> M X
 
   open Free
 
   lift : forall {F} -> F ~> Free F
   lift x = Free: \ t -> t x
 
-  interpret : forall {F M} {{_ : Monad Sets M}} -> (F ~> M) -> Free F ~> M
+  interpret : forall {F M} {{_ : Monad M}} -> (F ~> M) -> Free F ~> M
   interpret t free = run free t
 
   -- This is the left inverse (retract) of lift.
 
-  lower : forall {M} {{_ : Monad Sets M}} -> Free M ~> M
+  lower : forall {M} {{_ : Monad M}} -> Free M ~> M
   lower = interpret id
 
   -- Free F is a functor.
@@ -40,7 +40,7 @@ module Free where
   -- Free F is a monad.
 
   instance
-    Monad:Free : forall {F} -> Monad Sets (Free F)
+    Monad:Free : forall {F} -> Monad (Free F)
     Monad:Free .return x = Free: \ _ -> return x
     Monad:Free .extend f m = Free: \ t ->
       join (map (interpret t <<< f) (interpret t m))
@@ -92,7 +92,7 @@ module Free where
         Functor:M : Functor M
         Functor:M .map f m = \ ret ext -> m (f >>> ret) ext
 
-        Monad:M : Monad Sets M
+        Monad:M : Monad M
         Monad:M .return x = \ ret ext -> ret x
         Monad:M .extend f m = \ ret ext -> m (\ y -> (f y) ret ext) ext
 
@@ -121,7 +121,7 @@ module Free where
         Functor:M : Functor M
         Functor:M .map f m = \ ret jn -> m (f >>> ret) jn
 
-        Monad:M : Monad Sets M
+        Monad:M : Monad M
         Monad:M .return x = \ ret jn -> ret x
         Monad:M .extend f m = \ ret jn -> m (\ x -> (f x) ret jn) jn
 

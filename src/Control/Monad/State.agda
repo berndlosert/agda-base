@@ -18,7 +18,7 @@ instance
 
 -- State S forms a monad.
 instance
-  Monad:State : forall {S} -> Monad Sets (State S)
+  Monad:State : forall {S} -> Monad (State S)
   Monad:State .return x s = Pair: x s
   Monad:State .extend f m = \ s -> let (Pair: x s') = m s in (f x) s'
 

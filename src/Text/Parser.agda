@@ -23,7 +23,7 @@ instance
 
 -- Parser is a monad.
 instance
-  Monad:Parser : Monad Sets Parser
+  Monad:Parser : Monad Parser
   Monad:Parser .return x s = [ Pair: x s ]
   Monad:Parser .extend f p s = join $ map (uncurry f) (p s)
 
