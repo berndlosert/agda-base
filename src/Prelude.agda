@@ -7,27 +7,23 @@ module Prelude where
 --------------------------------------------------------------------------------
 
 record Add (X : Set) : Set where
-  constructor Add:
   infixr 24 _+_
   field _+_ : X -> X -> X
 
 open Add {{...}} public
 
 record Negation (X : Set) : Set where
-  constructor Negation:
   field -_ : X -> X
 
 open Negation {{...}} public
 
 record Sub (X : Set) : Set where
-  constructor Sub:
   infixr 24 _-_
   field _-_ : X -> X -> X
 
 open Sub {{...}} public
 
 record Mul (X : Set) : Set where
-  constructor Mul:
   infixr 25 _*_
   field
     _*_ : X -> X -> X
@@ -35,7 +31,6 @@ record Mul (X : Set) : Set where
 open Mul {{...}} public
 
 record Div (X : Set) : Set where
-  constructor Div:
   infixr 25 _/_
   field
     Constraint : X -> Set
@@ -44,7 +39,6 @@ record Div (X : Set) : Set where
 open Div {{...}} hiding (Constraint) public
 
 record Mod (X : Set) : Set where
-  constructor Mod:
   infixr 25 _%_
   field
     Constraint : X -> Set
@@ -53,7 +47,6 @@ record Mod (X : Set) : Set where
 open Mod {{...}} hiding (Constraint) public
 
 record Exp (X Y Z : Set) : Set where
-  constructor Exp:
   infixr 50 _^_
   field
     _^_ : X -> Y -> Z
@@ -62,14 +55,12 @@ open Exp {{...}} public
 
 -- Used for defining  dual or opposite categories, semigroups, monoids, etc.
 record Dual (S : Set) : Set where
-  constructor Dual:
   field
      Op : S -> S
 
 open Dual {{...}} public
 
 record Append (X Y Z : Set) : Set where
-  constructor Append:
   infixr 25 _++_
   field _++_ : X -> Y -> Z
 
@@ -130,7 +121,7 @@ open Pair public
 
 instance
   Mul:Set : Mul Set
-  Mul:Set = Mul: Pair
+  Mul:Set ._*_ = Pair
 
 {-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
@@ -142,7 +133,7 @@ data Either (X Y : Set) : Set where
 
 instance
   Add:Set : Add Set
-  Add:Set = Add: Either
+  Add:Set ._+_ = Either
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
@@ -233,7 +224,7 @@ instance
   Sub:Nat ._-_ = Agda.Builtin.Nat._-_
 
   Mul:Nat : Mul Nat
-  Mul:Nat = Mul: Agda.Builtin.Nat._*_
+  Mul:Nat ._*_ = Agda.Builtin.Nat._*_
 
   Div:Nat : Div Nat
   Div:Nat = record {
@@ -274,7 +265,7 @@ instance
       add (pos m) (pos n) = pos (m + n)
 
   Negation:Int : Negation Int
-  Negation:Int = Negation: \ where
+  Negation:Int .-_ = \ where
     (pos zero) -> pos zero
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
@@ -283,7 +274,7 @@ instance
   Sub:Int ._-_ n m = n + (- m)
 
   Mul:Int : Mul Int
-  Mul:Int = Mul: \ where
+  Mul:Int ._*_ = \ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> - (pos (n * suc m))
@@ -332,16 +323,16 @@ instance
 
 instance
   Add:Float : Add Float
-  Add:Float = Add: Agda.Builtin.Float.primFloatPlus
+  Add:Float ._+_ = Agda.Builtin.Float.primFloatPlus
 
   Sub:Float : Sub Float
-  Sub:Float = Sub: Agda.Builtin.Float.primFloatMinus
+  Sub:Float ._-_ = Agda.Builtin.Float.primFloatMinus
 
   Negation:Float : Negation Float
-  Negation:Float = Negation: Agda.Builtin.Float.primFloatNegate
+  Negation:Float .-_ = Agda.Builtin.Float.primFloatNegate
 
   Mul:Float : Mul Float
-  Mul:Float = Mul: Agda.Builtin.Float.primFloatTimes
+  Mul:Float ._*_ = Agda.Builtin.Float.primFloatTimes
 
   Div:Float : Div Float
   Div:Float = record {
@@ -354,7 +345,6 @@ instance
 --------------------------------------------------------------------------------
 
 record Category : Set where
-  constructor Category:
   infixr 5 _<<<_ _>>>_
   field
     ob : Set
@@ -402,7 +392,6 @@ instance
 --------------------------------------------------------------------------------
 
 record FunctorOf (C D : Category) (F : ob C -> ob D) : Set where
-  constructor Functor:
   field
     map : forall {X Y} -> hom C X Y -> hom D (F X) (F Y)
 
@@ -439,7 +428,6 @@ Trans: C D = record {}
 --------------------------------------------------------------------------------
 
 record MonadOf (C : Category) (M : ob C -> ob C) : Set where
-  constructor Monad:
   field
     overlap {{Functor:Monad}} : FunctorOf C C M
     return : forall {X} -> hom C X (M X)
@@ -474,7 +462,6 @@ _>=>_ = flip _<=<_
 --------------------------------------------------------------------------------
 
 record Applicative (F : Set -> Set) : Set where
-  constructor Applicative:
   infixl 24 _<*>_ _*>_ _<*_
   field
     overlap {{Functor:Applicative}} : Functor F
@@ -503,7 +490,6 @@ ap fs xs = do
 --------------------------------------------------------------------------------
 
 record Eq (X : Set) : Set where
-  constructor Eq:
   infix 4 _==_ _/=_
   field
     _==_ : X -> X -> Bool
@@ -517,7 +503,6 @@ data Ordering : Set where
   LT EQ GT : Ordering
 
 record Ord (X : Set) : Set where
-  constructor Ord:
   field
     {{instance:Eq}} : Eq X
     _<_ : X -> X -> Bool
@@ -553,14 +538,12 @@ comparing p x y = compare (p x) (p y)
 --------------------------------------------------------------------------------
 
 record Semigroup (X : Set) : Set where
-  constructor Semigroup:
   infixr 6 _<>_
   field _<>_ : X -> X -> X
 
 open Semigroup {{...}} public
 
 record Monoid (X : Set) : Set where
-  constructor Monoid:
   field
     overlap {{Semigroup:Monoid}} : Semigroup X
     mempty : X
@@ -572,7 +555,6 @@ open Monoid {{...}} public
 --------------------------------------------------------------------------------
 
 record Show (X : Set) : Set where
-  constructor Show:
   field
     show : X -> String
 
@@ -798,13 +780,19 @@ Applicative:const X = \ where
 
 instance
   Applicative:Maybe : Applicative Maybe
-  Applicative:Maybe = Applicative: ap return
+  Applicative:Maybe = \ where
+    .pure -> return
+    ._<*>_ -> ap
 
   Applicative:List : Applicative List
-  Applicative:List = Applicative: ap return
+  Applicative:List = \ where
+    .pure -> return
+    ._<*>_ -> ap
 
   Applicative:IO : Applicative IO
-  Applicative:IO = Applicative: ap return
+  Applicative:IO = \ where
+    .pure -> return
+    ._<*>_ -> ap
 
 --------------------------------------------------------------------------------
 -- Trans instances
@@ -819,7 +807,8 @@ instance
 
 instance
   Dual:Semigroup : forall {X} -> Dual (Semigroup X)
-  Dual:Semigroup .Op (Semigroup: _<>_) = Semigroup: \ x y -> y <> x
+  Dual:Semigroup .Op S = let instance _ = S in \ where
+    ._<>_ x y -> y <> x
 
   Semigroup:Void : Semigroup Void
   Semigroup:Void ._<>_ = \ ()
@@ -853,12 +842,12 @@ instance
   Semigroup:<<< ._<>_ = _<<<_
 
   Semigroup:First : forall {X} -> Semigroup (Maybe X)
-  Semigroup:First = Semigroup: \ where
+  Semigroup:First ._<>_ = \ where
     nothing _ -> nothing
     (just x) _ -> just x
 
   Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
-  Semigroup:IO = Semigroup: \ x y -> (| _<>_ x y |)
+  Semigroup:IO ._<>_ x y = (| _<>_ x y |)
 
 --------------------------------------------------------------------------------
 -- Monoid instances
@@ -866,7 +855,7 @@ instance
 
 instance
   Dual:Monoid : forall {X} -> Dual (Monoid X)
-  Dual:Monoid .Op monoid = let instance inst = monoid in \ where
+  Dual:Monoid .Op M = let instance inst = M in \ where
     .Semigroup:Monoid -> Op (Semigroup:Monoid {{inst}})
     .mempty -> mempty
 
@@ -874,16 +863,23 @@ instance
   Monoid:Unit .mempty = tt
 
 Monoid:All : Monoid Bool
-Monoid:All = Monoid: {{Semigroup:All}} true
+Monoid:All .mempty = true
+  where instance _ = Semigroup:All
 
 Monoid:Any : Monoid Bool
-Monoid:Any = Monoid: {{Semigroup:Any}} false
+Monoid:Any = \ where
+  .Semigroup:Monoid -> Semigroup:Any
+  .mempty -> false
 
 Monoid:Sum : Monoid Nat
-Monoid:Sum = Monoid: {{Semigroup:Sum}} 0
+Monoid:Sum  = \ where
+  .Semigroup:Monoid -> Semigroup:Sum
+  .mempty -> 0
 
 Monoid:Product : Monoid Nat
-Monoid:Product = Monoid: {{Semigroup:Product}} 1
+Monoid:Product = \ where
+  .Semigroup:Monoid -> Semigroup:Product
+  .mempty -> 1
 
 instance
   Monoid:String : Monoid String
@@ -896,10 +892,12 @@ instance
   Monoid:Function .mempty = const mempty
 
   Monoid:<<< : forall {X} -> Monoid (X -> X)
-  Monoid:<<< = Monoid: {{Semigroup:<<<}} id
+  Monoid:<<< = \ where
+    .Semigroup:Monoid -> Semigroup:<<<
+    .mempty -> id
 
   Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
-  Monoid:IO = Monoid: (return mempty)
+  Monoid:IO .mempty = return mempty
 
 --------------------------------------------------------------------------------
 -- Show instances
