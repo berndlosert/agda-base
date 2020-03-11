@@ -10,7 +10,7 @@ Store S X = (S -> X) * S
 
 -- Store S is a functor.
 instance
-  Functor:Store : forall {S} -> Functor Sets Sets (Store S)
+  Functor:Store : forall {S} -> Functor (Store S)
   Functor:Store .map f (Pair: g s) = Pair: (g >>> f) s
 
 -- Store S is a comonad.

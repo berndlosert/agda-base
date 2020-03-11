@@ -15,7 +15,7 @@ open Stream public
 
 -- Stream forms a functor.
 instance
-  Functor:Stream : Functor Sets Sets Stream
+  Functor:Stream : Functor Stream
   Functor:Stream .map f xs .head = f (head xs)
   Functor:Stream .map f xs .tail = map f (tail xs)
 

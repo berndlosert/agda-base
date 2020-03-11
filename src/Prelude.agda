@@ -3,7 +3,7 @@
 module Prelude where
 
 --------------------------------------------------------------------------------
--- Type classes for notational convenience
+-- For notational convenience
 --------------------------------------------------------------------------------
 
 record Add (X : Set) : Set where
@@ -348,8 +348,9 @@ instance
       Constraint = const Unit;
       _/_ = \ x y -> Agda.Builtin.Float.primFloatDiv x y
     }
+
 --------------------------------------------------------------------------------
--- Category, Functor and Trans
+-- Category
 --------------------------------------------------------------------------------
 
 record Category : Set where
@@ -396,18 +397,30 @@ instance
       ._<<<_ (Pair: g g') (Pair: f f') -> Pair: (g <<< f) (g' <<< f')
       .id -> Pair: id id
 
-record Functor (C D : Category) (F : ob C -> ob D) : Set where
+--------------------------------------------------------------------------------
+-- FunctorOf
+--------------------------------------------------------------------------------
+
+record FunctorOf (C D : Category) (F : ob C -> ob D) : Set where
   constructor Functor:
   field
     map : forall {X Y} -> hom C X Y -> hom D (F X) (F Y)
 
-open Functor {{...}} public
+open FunctorOf {{...}} public
+
+-- Abbreviations for the common cases
+Functor = FunctorOf Sets Sets
+Contravariant = FunctorOf (Op Sets) Sets
 
 infixl 24 _<$>_
 
-_<$>_ : forall {X Y F} {{_ : Functor Sets Sets F}}
+_<$>_ : forall {X Y F} {{_ : Functor F}}
   -> (X -> Y) -> F X -> F Y
 _<$>_ = map
+
+--------------------------------------------------------------------------------
+-- Trans
+--------------------------------------------------------------------------------
 
 -- Squiggly arrows are used for (natural) transformations.
 record Trans (C D : Category) : Set where
@@ -428,7 +441,7 @@ Trans: C D = record {}
 record Monad (C : Category) (M : ob C -> ob C) : Set where
   constructor Monad:
   field
-    overlap {{Functor:Monad}} : Functor C C M
+    overlap {{Functor:Monad}} : FunctorOf C C M
     return : forall {X} -> hom C X (M X)
     extend : forall {X Y} -> hom C X (M Y) -> hom C (M X) (M Y)
 
@@ -462,7 +475,7 @@ record Applicative (F : Set -> Set) : Set where
   constructor Applicative:
   infixl 24 _<*>_ _*>_ _<*_
   field
-    overlap {{Functor:Applicative}} : Functor Sets Sets F
+    overlap {{Functor:Applicative}} : Functor F
     _<*>_ : forall {X Y} -> F (X -> Y) -> F X -> F Y
     pure : forall {X} -> X -> F X
 
@@ -699,30 +712,30 @@ private
   postulate
     mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
 
-Functor:id : forall C -> Functor C C id
+Functor:id : forall C -> FunctorOf C C id
 Functor:id C .map = id
   where instance _ = C
 
-Functor:const : forall X -> Functor Sets Sets (const X)
+Functor:const : forall X -> Functor (const X)
 Functor:const X .map f = id
 
 instance
-  Functor:Pair : forall {X} -> Functor Sets Sets (Pair X)
+  Functor:Pair : forall {X} -> Functor (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
-  Functor:Either : forall {X} -> Functor Sets Sets (Either X)
+  Functor:Either : forall {X} -> Functor (Either X)
   Functor:Either .map f (left x) = left x
   Functor:Either .map f (right y) = right (f y)
 
-  Functor:Maybe : Functor Sets Sets Maybe
+  Functor:Maybe : Functor Maybe
   Functor:Maybe .map f nothing = nothing
   Functor:Maybe .map f (just x) = just (f x)
 
-  Functor:List : Functor Sets Sets List
+  Functor:List : Functor List
   Functor:List .map f [] = []
   Functor:List .map f (x :: xs) = f x :: map f xs
 
-  Functor:IO : Functor Sets Sets IO
+  Functor:IO : Functor IO
   Functor:IO .map = mapIO
 
 {-# COMPILE GHC mapIO = \ _ _ f -> map f #-}

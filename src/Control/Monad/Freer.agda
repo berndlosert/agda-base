@@ -35,7 +35,7 @@ module Freer where
   -- Freer F is a functor.
 
   instance
-    Functor:Freer : forall {F} -> Functor Sets Sets^Sets (Freer F)
+    Functor:Freer : forall {F} -> Functor^Sets (Freer F)
     Functor:Freer .map f freer =
       Freer: (hmap f <<< run freer)
 

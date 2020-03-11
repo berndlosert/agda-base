@@ -10,7 +10,7 @@ Traced M X = M -> X
 
 -- Traced M is a functor.
 instance
-  Functor:Traced : forall {M} -> Functor Sets Sets (Traced M)
+  Functor:Traced : forall {M} -> Functor (Traced M)
   Functor:Traced .map f g = g >>> f
 
 -- Traced M is a comonad whenever M is a monoid.

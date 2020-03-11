@@ -11,7 +11,7 @@ Reader R X = R -> X
 
 -- Reader R is a functor.
 instance
-  Functor:Reader : forall {R} -> Functor Sets Sets (Reader R)
+  Functor:Reader : forall {R} -> Functor (Reader R)
   Functor:Reader .map f r = r >>> f
 
 -- Reader R is a monad.

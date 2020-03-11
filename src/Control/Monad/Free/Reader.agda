@@ -14,7 +14,7 @@ open import Control.Category
 open import Data.Functor
 
 instance
-  Functor:Reader : forall {R} -> Functor Sets Sets (Reader R)
+  Functor:Reader : forall {R} -> Functor (Reader R)
   Functor:Reader .map = _<<<_
 
 -- The function ask returns the config. value.
