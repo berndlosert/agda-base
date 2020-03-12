@@ -107,6 +107,9 @@ open import Agda.Builtin.String public
 -- Basic type constructors
 --------------------------------------------------------------------------------
 
+Function : Set -> Set -> Set
+Function X Y = X -> Y
+
 open import Agda.Builtin.Equality public
   using (refl)
   renaming (_≡_ to _===_)
@@ -120,8 +123,8 @@ record Pair (X Y : Set) : Set where
 open Pair public
 
 instance
-  Mul:Set : Mul Set
-  Mul:Set ._*_ = Pair
+  Mul:Pair : Mul Set
+  Mul:Pair ._*_ = Pair
 
 {-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
@@ -132,8 +135,8 @@ data Either (X Y : Set) : Set where
   right : Y -> Either X Y
 
 instance
-  Add:Set : Add Set
-  Add:Set ._+_ = Either
+  Add:Either : Add Set
+  Add:Either ._+_ = Either
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
@@ -363,7 +366,7 @@ instance
   Sets : Category
   Sets = \ where
     .ob -> Set
-    .hom X Y -> X -> Y
+    .hom -> Function
     ._<<<_ g f -> \ x -> g (f x)
     .id x -> x
 

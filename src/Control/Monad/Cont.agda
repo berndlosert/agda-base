@@ -2,6 +2,8 @@
 
 module Control.Monad.Cont where
 
+open import Prelude
+
 -- Cont X Y is the type of continuation handlers for continuations of type
 -- Y -> X. It is used for doing CPS programming. For example, given a function
 -- f : W -> Y whose output is being consumed by functions of type Y -> X, we
@@ -14,16 +16,11 @@ Cont X Y = (Y -> X) -> X
 
 -- Cont X forms a functor.
 
-open import Data.Functor public
-
 instance
   Functor:Cont : forall {X} -> Functor (Cont X)
   Functor:Cont .map f h = \ k -> h (f >>> k)
 
 -- Cont X forms a monad.
-
-open import Control.Monad public
-open import Data.Function public
 
 instance
   Monad:Cont : forall {X} -> Monad (Cont X)
@@ -31,8 +28,6 @@ instance
   Monad:Cont .extend k m = \ c -> m (\ x -> (k x) c)
 
 -- The infamous call-with-current-continuation.
-
-open import Data.Void
 
 callCC : forall {X Y} -> ((Y -> Cont X Void) -> Cont X Y) -> Cont X Y
 callCC h = \ k -> h (\ y -> const (k y)) k

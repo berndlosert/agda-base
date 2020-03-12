@@ -25,7 +25,9 @@ instance
 -- Applicative instance of State S derived from the monad instance.
 instance
   Applicative:State : forall {S} -> Applicative (State S)
-  Applicative:State = Applicative: ap return
+  Applicative:State = \ where
+    .pure -> return
+    ._<*>_ -> ap
 
 run : forall {S X} -> State S X -> S -> (X * S)
 run = id

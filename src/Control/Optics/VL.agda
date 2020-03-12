@@ -14,9 +14,14 @@ open import Prelude
 record Settable (F : Set -> Set) : Set where
   field
     overlap {{Applicative:Settable}} : Applicative F
-    unwrap : forall {X} -> F X -> X
+    -- This should be the inverse of pure.
+    unpure : forall {X} -> F X -> X
 
 open Settable {{...}}
+
+instance
+  Settable:Identity : Settable Identity
+  Settable:Identity .unpure (Identity: x) = x
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven

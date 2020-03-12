@@ -2,9 +2,12 @@
 
 module Data.Bifunctor where
 
+open import Data.Pair
+open import Data.Either
+open import Data.Functor.Const
 open import Prelude
 
-record Bifunctor (B C D : Category) (F : ob B -> ob C -> ob D) : Set where
+record BifunctorOf (B C D : Category) (F : ob B -> ob C -> ob D) : Set where
   constructor Bifunctor:
   field
     bimap : forall {X X' Y Y'}
@@ -20,23 +23,21 @@ record Bifunctor (B C D : Category) (F : ob B -> ob C -> ob D) : Set where
     where instance _ = B
 
   instance
-    Functor:Bifunctor : Functor (B * C) D (uncurry F)
+    Functor:Bifunctor : FunctorOf (B * C) D (uncurry F)
     Functor:Bifunctor .map = uncurry bimap
 
-open Bifunctor {{...}} public
+open BifunctorOf {{...}} public
 
-Dyadic : (C : Category) -> (ob C -> ob C -> ob C) -> Set
-Dyadic C = Bifunctor C C C
-
-open import Data.Pair
-open import Data.Either
+-- This case is so common, it deserves this abbreviation.
+Bifunctor = BifunctorOf Sets Sets Sets
 
 instance
-  Dyadic:const : Dyadic Sets const
-  Dyadic:const .bimap f g = f
+  Bifunctor:Const : Bifunctor Const
+  Bifunctor:Const .bimap f g = \ where
+    (Const: x) -> Const: (f x)
 
-  Dyadic:Tuple : Dyadic Sets _*_
-  Dyadic:Tuple .bimap f g = cross f g
+  Bifunctor:Pair : Bifunctor Pair
+  Bifunctor:Pair .bimap f g = cross f g
 
-  Dyadic:Either : Dyadic Sets _+_
-  Dyadic:Either .bimap f g = plus f g
+  Bifunctor:Either : Bifunctor Either
+  Bifunctor:Either .bimap f g = plus f g
