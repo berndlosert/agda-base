@@ -2,6 +2,8 @@
 
 module Control.Optics.VL where
 
+open import Data.Functor.Identity public
+open import Data.Functor.Const public
 open import Prelude
 
 --------------------------------------------------------------------------------
@@ -40,21 +42,24 @@ Lens : (S T X Y : Set) -> Set
 Lens S T X Y = forall {F} {{_ : Functor F}}
   -> (X -> F Y) -> S -> F T
 
+Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
+Simple Optic S X = Optic S S X X
+
 --------------------------------------------------------------------------------
 -- Getting operations
 --------------------------------------------------------------------------------
 
 Getting : (R S X : Set) -> Set
-Getting R S X = (X -> const R X) -> S -> const R S
+Getting R S X = (X -> Const R X) -> S -> Const R S
 
 to : forall {S X} -> (S -> X) -> forall {R} -> Getting R S X
-to k f = f <<< k
+to f k = Const: <<< Const.get <<< k <<< f
 
 view : {S X : Set} -> Getting X S X -> S -> X
-view g = g id
+view g = Const.get <<< g Const:
 
 foldMapOf : forall {R S X} -> Getting R S X -> (X -> R) -> S -> R
-foldMapOf = id
+foldMapOf g k = g (k >>> Const:) >>> Const.get
 
 foldrOf : forall {R S X} -> Getting (R -> R) S X -> (X -> R -> R) -> R -> S -> R
 foldrOf l f z = \ s -> foldMapOf l f s z
@@ -70,10 +75,20 @@ preview l = foldMapOf l just
 --------------------------------------------------------------------------------
 
 ASetter : (S T X Y : Set) -> Set
-ASetter S T X Y = (X -> id Y) -> S -> id T
+ASetter S T X Y = (X -> Identity Y) -> S -> Identity T
 
 over : forall {S T X Y} -> ASetter S T X Y -> (X -> Y) -> S -> T
-over = id
+over g k = g (k >>> Identity:) >>> Identity.run
 
 set : forall {S T X Y} -> ASetter S T X Y -> Y -> S -> T
-set l y = l (const y)
+set l y = l (\ _ -> Identity: y) >>> Identity.run
+
+sets : forall {S T X Y} -> ((X -> Y) -> S -> T) -> ASetter S T X Y
+sets f k = f (k >>> Identity.run) >>> Identity:
+
+--------------------------------------------------------------------------------
+-- Lens operations
+--------------------------------------------------------------------------------
+
+lens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
+lens v u f s = u s <$> f (v s)

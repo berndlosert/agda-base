@@ -397,7 +397,7 @@ record FunctorOf (C D : Category) (F : ob C -> ob D) : Set where
 
 open FunctorOf {{...}} public
 
--- Abbreviations for the common cases
+-- Abbreviations for common cases
 Functor = FunctorOf Sets Sets
 Contravariant = FunctorOf (Op Sets) Sets
 
@@ -696,13 +696,6 @@ private
   postulate
     mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
 
-Functor:id : forall C -> FunctorOf C C id
-Functor:id C .map = id
-  where instance _ = C
-
-Functor:const : forall X -> Functor (const X)
-Functor:const X .map f = id
-
 instance
   Functor:Pair : forall {X} -> Functor (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
@@ -733,12 +726,6 @@ private
     returnIO : {X : Set} -> X -> IO X
     bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
 
-Monad:id : forall C -> MonadOf C id
-Monad:id C = let instance _ = C in \ where
-  .Functor:Monad -> Functor:id C
-  .return -> id
-  .extend -> id
-
 instance
   Monad:Either : forall {X} -> Monad (Either X)
   Monad:Either .return y = right y
@@ -765,18 +752,6 @@ instance
 --------------------------------------------------------------------------------
 -- Applicative instances
 --------------------------------------------------------------------------------
-
-Applicative:id : Applicative id
-Applicative:id = \ where
-  .Functor:Applicative -> Functor:id Sets
-  .pure -> id
-  ._<*>_ -> _$_
-
-Applicative:const : forall X {{_ : Monoid X}} -> Applicative (const X)
-Applicative:const X = \ where
-  .Functor:Applicative -> Functor:const X
-  .pure -> const mempty
-  ._<*>_ -> _<>_
 
 instance
   Applicative:Maybe : Applicative Maybe
