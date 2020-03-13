@@ -400,9 +400,8 @@ record FunctorOf (C D : Category) (F : ob C -> ob D) : Set where
 
 open FunctorOf {{...}} public
 
--- Abbreviations for common cases
+-- This case is so common, it deserves the shorter name.
 Functor = FunctorOf Sets Sets
-Contravariant = FunctorOf (Op Sets) Sets
 
 infixl 24 _<$>_
 
@@ -757,6 +756,11 @@ instance
 --------------------------------------------------------------------------------
 
 instance
+  Applicative:Either : forall {X} -> Applicative (Either X)
+  Applicative:Either = \ where
+    .pure -> return
+    ._<*>_ -> ap
+
   Applicative:Maybe : Applicative Maybe
   Applicative:Maybe = \ where
     .pure -> return

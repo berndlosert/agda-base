@@ -300,6 +300,11 @@ transpose (heads :: tails) = zipCons heads (transpose tails)
 -- Predicates
 --------------------------------------------------------------------------------
 
+-- Checks if a list is empty.
+null : List X -> Bool
+null [] = true
+null _ = false
+
 -- Takes two lists and returns true if the first list is a prefix of the
 -- second.
 isPrefixOf : {{_ : Eq X}} -> List X -> List X -> Bool
