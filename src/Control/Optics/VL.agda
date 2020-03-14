@@ -80,8 +80,8 @@ foldrOf l f z = \ s -> foldMapOf l f s z
 toListOf : forall {S X} -> Getting (List X -> List X) S X -> S -> List X
 toListOf l = foldrOf l _::_ []
 
-preview : forall {S X} -> Getting (Maybe X) S X -> S -> Maybe X
-preview l = foldMapOf l just
+preview : forall {S X} -> Getting (First X) S X -> S -> Maybe X
+preview l = First.get <<< foldMapOf l (First: <<< just)
 
 traverseOf' : forall {F R S X} {{_ : Functor F}}
   -> Getting (F R) S X -> (X -> F R) -> S -> F Unit
@@ -147,24 +147,24 @@ instance
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-$fst : forall {X X' Y} -> Lens (X * Y) (X' * Y) X X'
-$fst k (Pair: x y) = flip Pair: y <$> k x
+fst! : forall {X X' Y} -> Lens (X * Y) (X' * Y) X X'
+fst! k (Pair: x y) = flip Pair: y <$> k x
 
-$snd : forall {X Y Y'} -> Lens (X * Y) (X * Y') Y Y'
-$snd k (Pair: x y) = Pair: x <$> k y
+snd! : forall {X Y Y'} -> Lens (X * Y) (X * Y') Y Y'
+snd! k (Pair: x y) = Pair: x <$> k y
 
-$left : forall {X X' Y} -> Traversal (Either X Y) (Either X' Y) X X'
-$left f (left x) = left <$> f x
-$left _ (right y) = pure (right y)
+left! : forall {X X' Y} -> Traversal (Either X Y) (Either X' Y) X X'
+left! f (left x) = left <$> f x
+left! _ (right y) = pure (right y)
 
-$right : forall {X Y Y'} -> Traversal (Either X Y) (Either X Y') Y Y'
-$right f (right y) = right <$> f y
-$right _ (left x) = pure (left x)
+right! : forall {X Y Y'} -> Traversal (Either X Y) (Either X Y') Y Y'
+right! f (right y) = right <$> f y
+right! _ (left x) = pure (left x)
 
-$just : forall {X X'} -> Traversal (Maybe X) (Maybe X') X X'
-$just f (just x) = just <$> f x
-$just _ nothing = pure nothing
+just! : forall {X X'} -> Traversal (Maybe X) (Maybe X') X X'
+just! f (just x) = just <$> f x
+just! _ nothing = pure nothing
 
-$nothing : forall {X} -> Simple Traversal (Maybe X) Unit
-$nothing f nothing = const nothing <$> f tt
-$nothing _ j = pure j
+nothing! : forall {X} -> Simple Traversal (Maybe X) Unit
+nothing! f nothing = const nothing <$> f tt
+nothing! _ j = pure j

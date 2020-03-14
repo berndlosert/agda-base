@@ -53,13 +53,6 @@ record Exp (X Y Z : Set) : Set where
 
 open Exp {{...}} public
 
--- Used for defining  dual or opposite categories, semigroups, monoids, etc.
-record Dual (S : Set) : Set where
-  field
-     Op : S -> S
-
-open Dual {{...}} public
-
 record Append (X Y Z : Set) : Set where
   infixr 25 _++_
   field _++_ : X -> Y -> Z
@@ -184,6 +177,11 @@ record First (X : Set) : Set where
   constructor First:
   field
     get : Maybe X
+
+record Dual (X : Set) : Set where
+  constructor Dual:
+  field
+    get : X
 
 --------------------------------------------------------------------------------
 -- Utility functions
@@ -396,14 +394,13 @@ instance
     ._<<<_ g f -> \ x -> g (f x)
     .id x -> x
 
--- Dual categories
-instance
-  Dual:Category : Dual Category
-  Dual:Category .Op C = let instance _ = C in \ where
-    .ob -> ob C
-    .hom X Y -> hom C Y X
-    ._<<<_ -> _>>>_
-    .id -> id
+-- Opposite categories
+Op : Category -> Category
+Op C = let instance _ = C in \ where
+  .ob -> ob C
+  .hom X Y -> hom C Y X
+  ._<<<_ -> _>>>_
+  .id -> id
 
 -- Product categories
 instance
@@ -702,10 +699,10 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Functor:Pair : forall {X} -> Functor (Pair X)
+  Functor:Pair : forall {X} -> Functor (X *_)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
-  Functor:Either : forall {X} -> Functor (Either X)
+  Functor:Either : forall {X} -> Functor (X +_)
   Functor:Either .map f (left x) = left x
   Functor:Either .map f (right y) = right (f y)
 
@@ -722,7 +719,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Monad:Either : forall {X} -> Monad (Either X)
+  Monad:Either : forall {X} -> Monad (X +_)
   Monad:Either .return y = right y
   Monad:Either .extend k (left x) = left x
   Monad:Either .extend k (right y) = k y
@@ -769,9 +766,8 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Dual:Semigroup : forall {X} -> Dual (Semigroup X)
-  Dual:Semigroup .Op S = let instance _ = S in \ where
-    ._<>_ x y -> y <> x
+  Semigroup:Dual : forall {X} {{_ : Semigroup X}} -> Semigroup (Dual X)
+  Semigroup:Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
   Semigroup:Void : Semigroup Void
   Semigroup:Void ._<>_ = \ ()
@@ -794,6 +790,12 @@ instance
   Semigroup:String : Semigroup String
   Semigroup:String ._<>_ = _++_
 
+  Semigroup:Maybe : forall {X} {{_ : Semigroup X}} -> Semigroup (Maybe X)
+  Semigroup:Maybe ._<>_ = \ where
+    nothing y -> y
+    x nothing -> x
+    (just x) (just y) -> just (x <> y)
+
   Semigroup:List : forall {X} -> Semigroup (List X)
   Semigroup:List ._<>_ = _++_
 
@@ -803,20 +805,16 @@ instance
   Semigroup:<<< : forall {X} -> Semigroup (X -> X)
   Semigroup:<<< ._<>_ = _<<<_
 
-  Semigroup:First : forall {X} -> Semigroup (Maybe X)
-  Semigroup:First ._<>_ = \ where
-    nothing _ -> nothing
-    (just x) _ -> just x
+  Semigroup:First : forall {X} -> Semigroup (First X)
+  Semigroup:First ._<>_ x _ = x
 
 --------------------------------------------------------------------------------
 -- Monoid instances
 --------------------------------------------------------------------------------
 
 instance
-  Dual:Monoid : forall {X} -> Dual (Monoid X)
-  Dual:Monoid .Op M = let instance inst = M in \ where
-    .Semigroup:Monoid -> Op (Semigroup:Monoid {{inst}})
-    .mempty -> mempty
+  Monoid:Dual : forall {X} {{_ : Monoid X}} -> Monoid (Dual X)
+  Monoid:Dual .mempty = Dual: mempty
 
   Monoid:Unit : Monoid Unit
   Monoid:Unit .mempty = tt
@@ -836,6 +834,9 @@ instance
   Monoid:String : Monoid String
   Monoid:String .mempty = ""
 
+  Monoid:Maybe : forall {X} {{_ : Monoid X}} -> Monoid (Maybe X)
+  Monoid:Maybe .mempty = nothing
+
   Monoid:List : forall {X} -> Monoid (List X)
   Monoid:List .mempty = []
 
@@ -846,6 +847,9 @@ instance
   Monoid:<<< = \ where
     .Semigroup:Monoid -> Semigroup:<<<
     .mempty -> id
+
+  Monoid:First : forall {X} -> Monoid (First X)
+  Monoid:First .mempty = First: nothing
 
 --------------------------------------------------------------------------------
 -- Show instances
