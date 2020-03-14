@@ -2,6 +2,7 @@
 
 module Data.Functor.Const where
 
+open import Data.Functor.Contravariant
 open import Prelude
 
 record Const (X Y : Set) : Set where

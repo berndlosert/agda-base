@@ -34,3 +34,9 @@ maybeToRight y = maybe (left y) right
 -- list [ x ] when given just x.
 maybeToList : Maybe X -> List X
 maybeToList = maybe [] [_]
+
+-- The listToMaybe function returns nothing on an empty list or just x where x
+-- is the first element of the list.
+listToMaybe : List X -> Maybe X
+listToMaybe [] = nothing
+listToMaybe (x :: _) = just x

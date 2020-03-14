@@ -30,7 +30,9 @@ instance
 -- Parser is an applicative functor.
 instance
   Applicative:Parser : Applicative Parser
-  Applicative:Parser = Applicative: ap return
+  Applicative:Parser = \ where
+    .pure -> return
+    ._<*>_ -> ap
 
 -- The empty parser doesn't parse anything.
 empty : forall {X} -> Parser X

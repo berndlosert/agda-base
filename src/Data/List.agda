@@ -296,6 +296,12 @@ transpose : List (List X) -> List (List X)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
 
+-- Traverse a list.
+traverse : forall {F X Y} {{_ : Applicative F}}
+  -> (X -> F Y) -> List X -> F (List Y)
+traverse f [] = pure []
+traverse f (x :: xs) = (| _::_ (f x) (traverse f xs) |)
+
 --------------------------------------------------------------------------------
 -- Predicates
 --------------------------------------------------------------------------------
