@@ -31,7 +31,7 @@ instance
 open import Control.Comonad
 
 instance
-  Comonad:Stream : Comonad Sets Stream
+  Comonad:Stream : Comonad Stream
   Comonad:Stream .coextend f xs = pure (f xs)
   Comonad:Stream .extract xs = head xs
 

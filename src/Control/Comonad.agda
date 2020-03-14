@@ -6,10 +6,9 @@ open import Prelude
 
 -- A functor F : ob C -> ob C is a comonad when it comes with natural
 -- transformations extract and coextend/duplicate obeying the comonad laws.
-record Comonad (C : Category) (F : ob C -> ob C) : Set where
-  constructor Comonad:
+record ComonadOf (C : Category) (F : ob C -> ob C) : Set where
   field
-    {{Functor:Comonad}} : Functor C C F
+    {{Functor:Comonad}} : FunctorOf C C F
     coextend : forall {X Y} -> hom C (F X) Y -> hom C (F X) (F Y)
     extract : forall {X} -> hom C (F X) X
 
@@ -17,9 +16,12 @@ record Comonad (C : Category) (F : ob C -> ob C) : Set where
   duplicate {X} = coextend id
     where instance _ = C
 
-open Comonad {{...}} public
+open ComonadOf {{...}} public
 
-module _ {F : Set -> Set} {{_ : Comonad Sets F}} {X Y : Set} where
+Comonad : (Set -> Set) -> Set
+Comonad = ComonadOf Sets
+
+module _ {F : Set -> Set} {{_ : Comonad F}} {X Y : Set} where
 
   infixl 1 _=>>_ _=>=_
 

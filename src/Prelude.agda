@@ -156,9 +156,6 @@ data Vector (X : Set) : Nat -> Set where
   [] : Vector X zero
   _::_ : forall {n} -> X -> Vector X n -> Vector X (suc n)
 
-open import Agda.Builtin.IO public
-  using (IO)
-
 --------------------------------------------------------------------------------
 -- Utility functions
 --------------------------------------------------------------------------------
@@ -598,25 +595,6 @@ instance
   Append:Vector ._++_ (x :: xs) ys = x :: xs ++ ys
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding IO
---------------------------------------------------------------------------------
-
-postulate
-  putStr : String -> IO Unit
-  putStrLn : String -> IO Unit
-  getLine : IO String
-  getContents : IO String
-
-{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC putStr = Text.putStr #-}
-{-# COMPILE GHC putStrLn = Text.putStrLn #-}
-{-# COMPILE GHC getLine = Text.getLine #-}
-{-# COMPILE GHC getContents = Text.getContents #-}
-
-print : forall {X} {{_ : Show X}} -> X -> IO Unit
-print x = putStrLn (show x)
-
---------------------------------------------------------------------------------
 -- Eq instances
 --------------------------------------------------------------------------------
 
@@ -694,10 +672,6 @@ instance
 -- Functor instances
 --------------------------------------------------------------------------------
 
-private
-  postulate
-    mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
-
 instance
   Functor:Pair : forall {X} -> Functor (Pair X)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
@@ -714,19 +688,9 @@ instance
   Functor:List .map f [] = []
   Functor:List .map f (x :: xs) = f x :: map f xs
 
-  Functor:IO : Functor IO
-  Functor:IO .map = mapIO
-
-{-# COMPILE GHC mapIO = \ _ _ f -> map f #-}
-
 --------------------------------------------------------------------------------
 -- Monad instances
 --------------------------------------------------------------------------------
-
-private
-  postulate
-    returnIO : {X : Set} -> X -> IO X
-    bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
 
 instance
   Monad:Either : forall {X} -> Monad (Either X)
@@ -743,13 +707,6 @@ instance
   Monad:List .return = [_]
   Monad:List .extend k [] = []
   Monad:List .extend k (x :: xs) = k x ++ extend k xs
-
-  Monad:IO : Monad IO
-  Monad:IO .return = returnIO
-  Monad:IO .extend = flip bindIO
-
-{-# COMPILE GHC returnIO = \ _ a -> return a #-}
-{-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 
 --------------------------------------------------------------------------------
 -- Applicative instances
@@ -768,11 +725,6 @@ instance
 
   Applicative:List : Applicative List
   Applicative:List = \ where
-    .pure -> return
-    ._<*>_ -> ap
-
-  Applicative:IO : Applicative IO
-  Applicative:IO = \ where
     .pure -> return
     ._<*>_ -> ap
 
@@ -828,9 +780,6 @@ instance
     nothing _ -> nothing
     (just x) _ -> just x
 
-  Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
-  Semigroup:IO ._<>_ x y = (| _<>_ x y |)
-
 --------------------------------------------------------------------------------
 -- Monoid instances
 --------------------------------------------------------------------------------
@@ -877,9 +826,6 @@ instance
   Monoid:<<< = \ where
     .Semigroup:Monoid -> Semigroup:<<<
     .mempty -> id
-
-  Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
-  Monoid:IO .mempty = return mempty
 
 --------------------------------------------------------------------------------
 -- Show instances
@@ -929,3 +875,55 @@ instance
 
   Show:Float : Show Float
   Show:Float .show = Agda.Builtin.Float.primShowFloat
+
+--------------------------------------------------------------------------------
+-- IO
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.IO public
+  using (IO)
+
+postulate
+  mapIO : {X Y : Set} -> (X -> Y) -> IO X -> IO Y
+  returnIO : {X : Set} -> X -> IO X
+  bindIO : {X Y : Set} -> IO X -> (X -> IO Y) -> IO Y
+  putStr : String -> IO Unit
+  putStrLn : String -> IO Unit
+  getLine : IO String
+  getContents : IO String
+
+{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
+{-# COMPILE GHC mapIO = \ _ _ f -> map f #-}
+{-# COMPILE GHC returnIO = \ _ a -> return a #-}
+{-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
+{-# COMPILE GHC putStr = Text.putStr #-}
+{-# COMPILE GHC putStrLn = Text.putStrLn #-}
+{-# COMPILE GHC getLine = Text.getLine #-}
+{-# COMPILE GHC getContents = Text.getContents #-}
+
+instance
+  Functor:IO : Functor IO
+  Functor:IO .map = mapIO
+
+  Monad:IO : Monad IO
+  Monad:IO .return = returnIO
+  Monad:IO .extend = flip bindIO
+
+  Applicative:IO : Applicative IO
+  Applicative:IO = \ where
+    .pure -> return
+    ._<*>_ -> ap
+
+  Semigroup:IO : forall {X} {{_ : Semigroup X}} -> Semigroup (IO X)
+  Semigroup:IO ._<>_ x y = (| _<>_ x y |)
+
+  Monoid:IO : forall {X} {{_ : Monoid X}} -> Monoid (IO X)
+  Monoid:IO .mempty = return mempty
+
+print : forall {X} {{_ : Show X}} -> X -> IO Unit
+print x = putStrLn (show x)
+
+interact : (String -> String) -> IO Unit
+interact f = do
+  s <- getContents
+  putStr (f s)

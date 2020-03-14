@@ -23,11 +23,11 @@ fromMaybe : X -> Maybe X -> X
 fromMaybe = flip maybe id
 
 -- Maybe produce a left, otherwise produce a right.
-maybeToLeft : Y -> Maybe X -> Either X Y
+maybeToLeft : Y -> Maybe X -> X + Y
 maybeToLeft y = maybe (right y) left
 
 -- Maybe produce a right, otherwise produce a left.
-maybeToRight : Y -> Maybe X -> Either Y X
+maybeToRight : Y -> Maybe X -> Y + X
 maybeToRight y = maybe (left y) right
 
 -- This function returns an empty list when given nothing or the singleton
