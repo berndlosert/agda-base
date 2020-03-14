@@ -83,13 +83,13 @@ toListOf l = foldrOf l _::_ []
 preview : forall {S X} -> Getting (Maybe X) S X -> S -> Maybe X
 preview l = foldMapOf l just
 
-traverseOf! : forall {F R S X} {{_ : Functor F}}
+traverseOf' : forall {F R S X} {{_ : Functor F}}
   -> Getting (F R) S X -> (X -> F R) -> S -> F Unit
-traverseOf! l f = map (const tt) <<< foldMapOf l f
+traverseOf' l f = map (const tt) <<< foldMapOf l f
 
-forOf! : forall {F R S X} {{_ : Functor F}}
+forOf' : forall {F R S X} {{_ : Functor F}}
   -> Getting (F R) S X -> S -> (X -> F R) -> F Unit
-forOf! = flip <<< traverseOf!
+forOf' = flip <<< traverseOf'
 
 --------------------------------------------------------------------------------
 -- ASetter operations
@@ -142,3 +142,29 @@ open Each {{...}} public
 instance
   Each:List : forall {X Y} -> Each (List X) (List Y) X Y
   Each:List .each = List.traverse
+
+--------------------------------------------------------------------------------
+-- Basic lens and traversals
+--------------------------------------------------------------------------------
+
+$fst : forall {X X' Y} -> Lens (X * Y) (X' * Y) X X'
+$fst k (Pair: x y) = flip Pair: y <$> k x
+
+$snd : forall {X Y Y'} -> Lens (X * Y) (X * Y') Y Y'
+$snd k (Pair: x y) = Pair: x <$> k y
+
+$left : forall {X X' Y} -> Traversal (Either X Y) (Either X' Y) X X'
+$left f (left x) = left <$> f x
+$left _ (right y) = pure (right y)
+
+$right : forall {X Y Y'} -> Traversal (Either X Y) (Either X Y') Y Y'
+$right f (right y) = right <$> f y
+$right _ (left x) = pure (left x)
+
+$just : forall {X X'} -> Traversal (Maybe X) (Maybe X') X X'
+$just f (just x) = just <$> f x
+$just _ nothing = pure nothing
+
+$nothing : forall {X} -> Simple Traversal (Maybe X) Unit
+$nothing f nothing = const nothing <$> f tt
+$nothing _ j = pure j

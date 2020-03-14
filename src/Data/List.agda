@@ -111,13 +111,17 @@ concatMap = extend
 -- true, the container must be finite; false, however, results from a false
 -- value finitely far from the left end.
 and : List Bool -> Bool
-and = fold {{Monoid:All}}
+and [] = false
+and (false :: bs) = false
+and (true :: bs) = and bs
 
 -- or returns the disjunction of a container of Bools. For the result to be
 -- false, the container must be finite; true, however, results from a true
 -- value finitely far from the left end.
 or : List Bool -> Bool
-or = fold {{Monoid:Any}}
+or [] = true
+or (true :: bs) = true
+or (false :: bs) = or bs
 
 -- Determines whether any element of the structure satisfies the predicate.
 any : forall {X} -> (X -> Bool) -> List X -> Bool

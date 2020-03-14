@@ -157,6 +157,25 @@ data Vector (X : Set) : Nat -> Set where
   _::_ : forall {n} -> X -> Vector X n -> Vector X (suc n)
 
 --------------------------------------------------------------------------------
+-- Wrapper types
+--------------------------------------------------------------------------------
+
+record All : Set where
+  constructor All:
+  field
+    get : Bool
+
+record Any : Set where
+  constructor Any:
+  field
+    get : Bool
+
+record First (X : Set) : Set where
+  constructor First:
+  field
+    get : Maybe X
+
+--------------------------------------------------------------------------------
 -- Utility functions
 --------------------------------------------------------------------------------
 
@@ -750,11 +769,11 @@ instance
   Semigroup:Unit : Semigroup Unit
   Semigroup:Unit ._<>_ tt tt = tt
 
-Semigroup:All : Semigroup Bool
-Semigroup:All ._<>_ = _&&_
+  Semigroup:All : Semigroup All
+  Semigroup:All ._<>_ (All: x) (All: y) = All: (x && y)
 
-Semigroup:Any : Semigroup Bool
-Semigroup:Any ._<>_ = _||_
+  Semigroup:Any : Semigroup Any
+  Semigroup:Any ._<>_ (Any: x) (Any: y) = Any: (x || y)
 
 Semigroup:Sum : Semigroup Nat
 Semigroup:Sum ._<>_ = _+_
@@ -793,14 +812,11 @@ instance
   Monoid:Unit : Monoid Unit
   Monoid:Unit .mempty = tt
 
-Monoid:All : Monoid Bool
-Monoid:All .mempty = true
-  where instance _ = Semigroup:All
+  Monoid:All : Monoid All
+  Monoid:All .mempty = All: true
 
-Monoid:Any : Monoid Bool
-Monoid:Any = \ where
-  .Semigroup:Monoid -> Semigroup:Any
-  .mempty -> false
+  Monoid:Any : Monoid Any
+  Monoid:Any .mempty = Any: false
 
 Monoid:Sum : Monoid Nat
 Monoid:Sum  = \ where
