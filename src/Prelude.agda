@@ -170,6 +170,16 @@ record Any : Set where
   field
     get : Bool
 
+record Sum (X : Set) : Set where
+  constructor Sum:
+  field
+    get : X
+
+record Product (X : Set) : Set where
+  constructor Product:
+  field
+    get : X
+
 record First (X : Set) : Set where
   constructor First:
   field
@@ -775,13 +785,12 @@ instance
   Semigroup:Any : Semigroup Any
   Semigroup:Any ._<>_ (Any: x) (Any: y) = Any: (x || y)
 
-Semigroup:Sum : Semigroup Nat
-Semigroup:Sum ._<>_ = _+_
+  Semigroup:Sum : Semigroup (Sum Nat)
+  Semigroup:Sum ._<>_ (Sum: x) (Sum: y) = Sum: (x + y)
 
-Semigroup:Product : Semigroup Nat
-Semigroup:Product ._<>_ = _*_
+  Semigroup:Product : Semigroup (Product Nat)
+  Semigroup:Product ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
-instance
   Semigroup:String : Semigroup String
   Semigroup:String ._<>_ = _++_
 
@@ -818,17 +827,12 @@ instance
   Monoid:Any : Monoid Any
   Monoid:Any .mempty = Any: false
 
-Monoid:Sum : Monoid Nat
-Monoid:Sum  = \ where
-  .Semigroup:Monoid -> Semigroup:Sum
-  .mempty -> 0
+  Monoid:Sum : Monoid (Sum Nat)
+  Monoid:Sum .mempty = Sum: 0
 
-Monoid:Product : Monoid Nat
-Monoid:Product = \ where
-  .Semigroup:Monoid -> Semigroup:Product
-  .mempty -> 1
+  Monoid:Product : Monoid (Product Nat)
+  Monoid:Product .mempty = Product: 1
 
-instance
   Monoid:String : Monoid String
   Monoid:String .mempty = ""
 
