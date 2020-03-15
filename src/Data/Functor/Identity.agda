@@ -30,5 +30,3 @@ instance
 
   Monad:Identity : Monad Identity
   Monad:Identity ._>>=_ (Identity: a) k = k a
-
-
