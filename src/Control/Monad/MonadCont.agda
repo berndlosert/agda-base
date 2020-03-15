@@ -1,0 +1,16 @@
+{-# OPTIONS --type-in-type #-}
+
+module Control.Monad.MonadCont where
+
+open import Prelude
+
+private
+  variable
+    A B : Set
+
+record MonadCont (M : Set -> Set) : Set where
+  field
+    {{Monad:MonadCont}} : Monad M
+    callCC : ((A -> M B) -> M A) -> M A
+
+open MonadCont {{...}} public

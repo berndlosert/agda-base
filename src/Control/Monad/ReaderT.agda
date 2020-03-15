@@ -1,8 +1,9 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.ReaderT where
+module Control.Monad.ReaderT where
 
-open import Control.Monad.Trans.Classes
+open import Control.Monad.MonadReader
+open import Control.Monad.MonadTrans
 open import Prelude
 
 private
@@ -21,15 +22,12 @@ map' f m = ReaderT: $ f <<< ReaderT.run m
 with' : (R' -> R) -> ReaderT R M ~> ReaderT R' M
 with' f m = ReaderT: $ ReaderT.run m <<< f
 
-lift : M ~> ReaderT R M
-lift m = ReaderT: (const m)
-
 instance
   Functor:ReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
   Functor:ReaderT .map f = map' (map f)
 
   Applicative:ReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
-  Applicative:ReaderT .pure = lift <<< pure
+  Applicative:ReaderT .pure = ReaderT: <<< const <<< pure
   Applicative:ReaderT ._<*>_ f v = ReaderT: $ \ r ->
     ReaderT.run f r <*> ReaderT.run v r
 
@@ -38,8 +36,11 @@ instance
     a <- ReaderT.run m r
     ReaderT.run (k a) r
 
-  MonadReader:ReaderT : MonadReader (ReaderT R M)
+  MonadReader:ReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
   MonadReader:ReaderT = \ where
-    .ask = ReaderT: return
-    .local = with'
+    .ask -> ReaderT: return
+    .local -> with'
 
+  MonadTrans:ReaderT : MonadTrans (ReaderT R)
+  MonadTrans:ReaderT .lift = ReaderT: <<< const
+  MonadTrans:ReaderT .transform = Monad:ReaderT

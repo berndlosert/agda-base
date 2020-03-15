@@ -1,8 +1,9 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.ContT where
+module Control.Monad.ContT where
 
-open import Control.Monad.Trans.Classes
+open import Control.Monad.MonadCont
+open import Control.Monad.MonadTrans
 open import Prelude
 
 private
@@ -38,7 +39,7 @@ instance
 
   MonadTrans:ContT : MonadTrans (ContT R)
   MonadTrans:ContT .lift m = ContT: (m >>=_)
-  MonadTrans:ContT .transform _ = Monad:ContT
+  MonadTrans:ContT .transform = Monad:ContT
 
   MonadCont:ContT : MonadCont (ContT R M)
   MonadCont:ContT .callCC f =
