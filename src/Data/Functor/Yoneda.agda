@@ -4,23 +4,26 @@ module Data.Functor.Yoneda where
 
 open import Prelude
 
--- The type Yoneda C F X can be viewed as the partial application of map to
+private
+  variable
+    A B : Set
+    F : Set -> Set
+
+-- The type Yoneda F A can be viewed as the partial application of map to
 -- its second argument (assuming F is a functor).
-Yoneda : (C : Category) -> (ob C -> Set) -> ob C -> Set
-Yoneda C F X = forall {Y} -> hom C X Y -> F Y
+Yoneda : (Set -> Set) -> Set -> Set
+Yoneda F A = forall {B} -> (A -> B) -> F B
 
--- Yoneda C F is a functor.
-Functor:Yoneda : (C : Category) (F : ob C -> Set)
-  -> Functor C Sets (Yoneda C F)
-Functor:Yoneda C F .map f t g = t (f >>> g)
-  where instance _ = C
+-- Yoneda F is a functor.
+instance
+  Functor:Yoneda : Functor (Yoneda F)
+  Functor:Yoneda .map f t g = t (f >>> g)
 
--- The Yoneda lemma states that F X ~= Yoneda C F X. The -> direction
+-- The Yoneda lemma states that F A ~= Yoneda C F A. The -> direction
 -- of this isomorphism is called lift.
-lift : forall {C F X} {{_ : Functor C Sets F}} -> F X -> Yoneda C F X
+lift : {{_ : Functor F}} -> F A -> Yoneda F A
 lift y f = map f y
 
 -- The <- direction of the Yoneda lemma isomorphism is called lower.
-lower : forall {C F X} -> Yoneda C F X -> F X
-lower {C} t = t id
-  where instance _ = C
+lower : Yoneda F A -> F A
+lower t = t id

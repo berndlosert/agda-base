@@ -7,12 +7,12 @@ open import Prelude
 -- With this, we can write F * G for product of two endofunctors on Sets.
 instance
   Mul:Functor : Mul (Set -> Set)
-  Mul:Functor = Mul: \ F G X -> F X * G X
+  Mul:Functor ._*_ F G = \ A -> F A * G A
 
 -- The product of two endofunctors is a functor.
 instance
-  Endofunctor:Product : forall {F G}
+  Functor:Product : forall {F G}
     -> {{_ : Functor F}}
     -> {{_ : Functor G}}
     -> Functor (F * G)
-  Endofunctor:Product .map f (Pair: x y) = Pair: (map f x) (map f y)
+  Functor:Product .map f (Pair: x y) = Pair: (map f x) (map f y)

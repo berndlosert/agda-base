@@ -4,12 +4,10 @@ module Data.Functor.Coproduct where
 
 open import Prelude
 
--- With this, we can write F + G for coproduct of two endofunctors on Sets.
 instance
   Add:Functor : Add (Set -> Set)
-  Add:Functor = Add: \ F G X -> F X + G X
+  Add:Functor ._+_ F G = \ A -> F A + G A
 
--- The coproduct of two endofunctors is a functor.
 instance
   Functor:Coproduct : forall {F G}
     -> {{_ : Functor F}}
