@@ -13,6 +13,11 @@ open Data.Functor.Contravariant
 open Data.Functor.Const public
 open Prelude
 
+private
+  variable
+    A B C R S T : Set
+    F : Set -> Set
+
 --------------------------------------------------------------------------------
 -- Type classes used for characterizing optics
 --------------------------------------------------------------------------------
@@ -22,7 +27,7 @@ record Settable (F : Set -> Set) : Set where
   field
     overlap {{Applicative:Settable}} : Applicative F
     -- This should be the inverse of pure.
-    unpure : forall {X} -> F X -> X
+    unpure : F A -> A
 
 open Settable {{...}}
 
@@ -34,137 +39,134 @@ instance
 -- Optics ala Van Laarhoven
 --------------------------------------------------------------------------------
 
-Traversal : (S T X Y : Set) -> Set
-Traversal S T X Y = forall {F} {{_ : Applicative F}}
-  -> (X -> F Y) -> S -> F T
+Lenslike : (F : Set -> Set) (S T A B : Set) -> Set
+Lenslike F S T A B = (A -> F B) -> S -> F T
 
-Setter : (S T X Y : Set) -> Set
-Setter S T X Y = forall {F} {{_ : Settable F}}
-  -> (X -> F Y) -> S -> F T
+Traversal : (S T A B : Set) -> Set
+Traversal S T A B = forall {F} {{_ : Applicative F}}
+  -> Lenslike F S T A B
 
-Fold : (S T X Y : Set) -> Set
-Fold S T X Y = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
-  -> (X -> F Y) -> S -> F T
+Setter : (S T A B : Set) -> Set
+Setter S T A B = forall {F} {{_ : Settable F}}
+  -> Lenslike F S T A B
 
-Getter : (S T X Y : Set) -> Set
-Getter S T X Y = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
-  -> (X -> F Y) -> S -> F T
+Fold : (S T A B : Set) -> Set
+Fold S T A B = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
+  -> Lenslike F S T A B
 
-Lens : (S T X Y : Set) -> Set
-Lens S T X Y = forall {F} {{_ : Functor F}}
-  -> (X -> F Y) -> S -> F T
+Getter : (S T A B : Set) -> Set
+Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
+  -> Lenslike F S T A B
+
+Lens : (S T A B : Set) -> Set
+Lens S T A B = forall {F} {{_ : Functor F}}
+  -> Lenslike F S T A B
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
-Simple Optic S X = Optic S S X X
+Simple Optic S A = Optic S S A A
 
 --------------------------------------------------------------------------------
 -- Getting operations
 --------------------------------------------------------------------------------
 
-Getting : (R S X : Set) -> Set
-Getting R S X = (X -> Const R X) -> S -> Const R S
+Getting : (R S A : Set) -> Set
+Getting R S A = (A -> Const R A) -> S -> Const R S
 
-to : forall {S X} -> (S -> X) -> forall {R} -> Getting R S X
+to : (S -> A) -> Getting R S A
 to f k = Const: <<< Const.get <<< k <<< f
 
-view : {S X : Set} -> Getting X S X -> S -> X
+view : Getting A S A -> S -> A
 view g = Const.get <<< g Const:
 
-foldMapOf : forall {R S X} -> Getting R S X -> (X -> R) -> S -> R
+foldMapOf : Getting R S A -> (A -> R) -> S -> R
 foldMapOf g k = g (k >>> Const:) >>> Const.get
 
-foldrOf : forall {R S X}
-  -> Getting (R -> R) S X -> (X -> R -> R) -> R -> S -> R
+foldrOf : Getting (R -> R) S A -> (A -> R -> R) -> R -> S -> R
 foldrOf l f z = \ s -> foldMapOf l f s z
 
-toListOf : forall {S X} -> Getting (List X -> List X) S X -> S -> List X
+toListOf : Getting (List A -> List A) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
-preview : forall {S X} -> Getting (First X) S X -> S -> Maybe X
+preview : Getting (First A) S A -> S -> Maybe A
 preview l = First.get <<< foldMapOf l (First: <<< just)
 
-traverseOf' : forall {F R S X} {{_ : Functor F}}
-  -> Getting (F R) S X -> (X -> F R) -> S -> F Unit
+traverseOf' : {{_ : Functor F}}
+  -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
 traverseOf' l f = map (const tt) <<< foldMapOf l f
 
-forOf' : forall {F R S X} {{_ : Functor F}}
-  -> Getting (F R) S X -> S -> (X -> F R) -> F Unit
+forOf' : {{_ : Functor F}}
+  -> Getting (F R) S A -> S -> (A -> F R) -> F Unit
 forOf' = flip <<< traverseOf'
 
 --------------------------------------------------------------------------------
 -- ASetter operations
 --------------------------------------------------------------------------------
 
-ASetter : (S T X Y : Set) -> Set
-ASetter S T X Y = (X -> Identity Y) -> S -> Identity T
+ASetter : (S T A B : Set) -> Set
+ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
-over : forall {S T X Y} -> ASetter S T X Y -> (X -> Y) -> S -> T
+over : ASetter S T A B -> (A -> B) -> S -> T
 over g k = g (k >>> Identity:) >>> Identity.run
 
-set : forall {S T X Y} -> ASetter S T X Y -> Y -> S -> T
+set : ASetter S T A B -> B -> S -> T
 set l y = l (\ _ -> Identity: y) >>> Identity.run
 
-sets : forall {S T X Y} -> ((X -> Y) -> S -> T) -> ASetter S T X Y
+sets : ((A -> B) -> S -> T) -> ASetter S T A B
 sets f k = f (k >>> Identity.run) >>> Identity:
 
 --------------------------------------------------------------------------------
 -- Lenslike operations
 --------------------------------------------------------------------------------
 
-Lenslike : (F : Set -> Set) (S T X Y : Set) -> Set
-Lenslike F S T X Y = (X -> F Y) -> S -> F T
-
-traverseOf : forall {F S T X Y} ->
-  Lenslike F S T X Y -> (X -> F Y) -> S -> F T
+traverseOf : Lenslike F S T A B -> (A -> F B) -> S -> F T
 traverseOf = id
 
-forOf : forall {F S T X Y} ->
-  Lenslike F S T X Y -> S -> (X -> F Y) -> F T
+forOf : Lenslike F S T A B -> S -> (A -> F B) -> F T
 forOf = flip
 
 --------------------------------------------------------------------------------
 -- Lens operations
 --------------------------------------------------------------------------------
 
-lens : forall {S T X Y} -> (S -> X) -> (S -> Y -> T) -> Lens S T X Y
+lens : (S -> A) -> (S -> B -> T) -> Lens S T A B
 lens v u f s = u s <$> f (v s)
 
 --------------------------------------------------------------------------------
 -- Each definition and instances
 --------------------------------------------------------------------------------
 
-record Each (S T X Y : Set) : Set where
+record Each (S T A B : Set) : Set where
   field
-    each : Traversal S T X Y
+    each : Traversal S T A B
 
 open Each {{...}} public
 
 instance
-  Each:List : forall {X Y} -> Each (List X) (List Y) X Y
+  Each:List : Each (List A) (List B) A B
   Each:List .each = List.traverse
 
 --------------------------------------------------------------------------------
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-fst! : forall {X X' Y} -> Lens (X * Y) (X' * Y) X X'
+fst! : Lens (A * C) (B * C) A B
 fst! k (Pair: x y) = flip Pair: y <$> k x
 
-snd! : forall {X Y Y'} -> Lens (X * Y) (X * Y') Y Y'
+snd! : Lens (A * B) (A * C) B C
 snd! k (Pair: x y) = Pair: x <$> k y
 
-left! : forall {X X' Y} -> Traversal (Either X Y) (Either X' Y) X X'
+left! : Traversal (Either A C) (Either B C) A B
 left! f (left x) = left <$> f x
 left! _ (right y) = pure (right y)
 
-right! : forall {X Y Y'} -> Traversal (Either X Y) (Either X Y') Y Y'
+right! : Traversal (Either A B) (Either A C) B C
 right! f (right y) = right <$> f y
 right! _ (left x) = pure (left x)
 
-just! : forall {X X'} -> Traversal (Maybe X) (Maybe X') X X'
+just! : Traversal (Maybe A) (Maybe B) A B
 just! f (just x) = just <$> f x
 just! _ nothing = pure nothing
 
-nothing! : forall {X} -> Simple Traversal (Maybe X) Unit
+nothing! : Simple Traversal (Maybe A) Unit
 nothing! f nothing = const nothing <$> f tt
 nothing! _ j = pure j

@@ -4,27 +4,31 @@ module Data.Functor.Identity where
 
 open import Prelude
 
-record Identity (X : Set) : Set where
+private
+  variable
+    A : Set
+
+record Identity (A : Set) : Set where
   constructor Identity:
   field
-    run : X
+    run : A
 
 instance
-  Eq:Identity : forall {X} {{_ : Eq X}} -> Eq (Identity X)
-  Eq:Identity ._==_ (Identity: x) (Identity: x') = x == x'
+  Eq:Identity : {{_ : Eq A}} -> Eq (Identity A)
+  Eq:Identity ._==_ (Identity: x) (Identity: y) = x == y
 
-  Ord:Identity : forall {X} {{_ : Ord X}} -> Ord (Identity X)
-  Ord:Identity ._<_ (Identity: x) (Identity: x') = x < x'
+  Ord:Identity : {{_ : Ord A}} -> Ord (Identity A)
+  Ord:Identity ._<_ (Identity: x) (Identity: y) = x < y
 
   Functor:Identity : Functor Identity
-  Functor:Identity .map f (Identity: x) = Identity: (f x)
-
-  Monad:Identity : Monad Identity
-  Monad:Identity = \ where
-    .return x -> Identity: x
-    .extend f (Identity: x) -> f x
+  Functor:Identity .map f (Identity: a) = Identity: (f a)
 
   Applicative:Identity : Applicative Identity
   Applicative:Identity = \ where
-    .pure -> return
-    ._<*>_ -> ap
+    .pure -> Identity:
+    ._<*>_ (Identity: f) x -> map f x
+
+  Monad:Identity : Monad Identity
+  Monad:Identity ._>>=_ (Identity: a) k = k a
+
+
