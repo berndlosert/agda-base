@@ -2,40 +2,36 @@
 
 module Control.Monad.Cont where
 
-open import Prelude
+import Control.Monad.Trans.ContT as ContT
+import Prelude
 
--- Cont X Y is the type of continuation handlers for continuations of type
--- Y -> X. It is used for doing CPS programming. For example, given a function
--- f : W -> Y whose output is being consumed by functions of type Y -> X, we
--- can change f into a CPS function f' : W -> Cont X Y that on input w
--- returns a continuation handler h that on input k : Y -> X (a continuation),
--- returns k (f w).
+open ContT using (ContT; ContT:)
+open Prelude
+
+private
+  variable
+    A B R R' : Set
 
 Cont : Set -> Set -> Set
-Cont X Y = (Y -> X) -> X
+Cont R A = ContT R Identity A
 
--- Cont X forms a functor.
+Cont: : ((A -> R) -> R) -> Cont R A
+Cont: f = ContT: (\ c -> Identity: (f (Identity.run <<< c)))
 
-instance
-  Functor:Cont : forall {X} -> Functor (Cont X)
-  Functor:Cont .map f h = \ k -> h (f >>> k)
+run : Cont R A -> (A -> R) -> R
+run m k = Identity.run (ContT.run m (Identity: <<< k))
 
--- Cont X forms a monad.
+eval : Cont R R -> R
+eval m = Identity.run (ContT.eval m)
 
-instance
-  Monad:Cont : forall {X} -> Monad (Cont X)
-  Monad:Cont .return x = _$ x
-  Monad:Cont .extend k m = \ c -> m (\ x -> (k x) c)
+map' : (R -> R) -> Cont R A -> Cont R A
+map' f = ContT.map' (Identity: <<< f <<< Identity.run)
 
--- The infamous call-with-current-continuation.
+with' : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
+with' f = ContT.with' ((Identity: <<<_) <<< f <<< (Identity.run <<<_))
 
-callCC : forall {X Y} -> ((Y -> Cont X Void) -> Cont X Y) -> Cont X Y
-callCC h = \ k -> h (\ y -> const (k y)) k
+reset : Cont R R -> Cont R' R
+reset = ContT.reset
 
--- Operators for delimited continuations.
-
-reset : forall {X Y} -> Cont X X -> Cont Y X
-reset h k = k (h id)
-
-shift : forall {X Y} -> ((X -> Y) -> Cont Y Y) -> Cont Y X
-shift f k = (f k) id
+shift : ((A -> R) -> Cont R R) -> Cont R A
+shift f = ContT.shift (f <<< (Identity.run <<<_))

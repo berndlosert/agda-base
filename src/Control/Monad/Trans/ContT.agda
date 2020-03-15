@@ -2,7 +2,7 @@
 
 module Control.Monad.Trans.ContT where
 
-open import Control.Monad.Trans.Class
+open import Control.Monad.Trans.Classes
 open import Prelude
 
 private
@@ -40,8 +40,9 @@ instance
   MonadTrans:ContT .lift m = ContT: (m >>=_)
   MonadTrans:ContT .transform _ = Monad:ContT
 
-callCC : ((A -> ContT R M B) -> ContT R M A) -> ContT R M A
-callCC f = ContT: $ \ c -> ContT.run (f (\ x -> ContT: $ \ _ -> c x)) c
+  MonadCont:ContT : MonadCont (ContT R M)
+  MonadCont:ContT .callCC f =
+    ContT: $ \ c -> ContT.run (f (\ x -> ContT: $ \ _ -> c x)) c
 
 reset : {{_ : Monad M}} -> ContT R M R -> ContT R' M R
 reset = lift <<< eval
