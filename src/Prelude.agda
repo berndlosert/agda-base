@@ -158,6 +158,11 @@ data Vector (A : Set) : Nat -> Set where
 -- Wrapper types
 --------------------------------------------------------------------------------
 
+record Identity (A : Set) : Set where
+  constructor Identity:
+  field
+    run : A
+
 record All : Set where
   constructor All:
   field
@@ -607,6 +612,9 @@ instance
     (just x) (just y) -> x == y
     _ _ -> false
 
+  Eq:Identity : {{_ : Eq A}} -> Eq (Identity A)
+  Eq:Identity ._==_ (Identity: x) (Identity: y) = x == y
+
 --------------------------------------------------------------------------------
 -- Ord instances
 --------------------------------------------------------------------------------
@@ -631,6 +639,9 @@ instance
   Ord:Float : Ord Float
   Ord:Float ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
+  Ord:Identity : {{_ : Ord A}} -> Ord (Identity A)
+  Ord:Identity ._<_ (Identity: x) (Identity: y) = x < y
+
 --------------------------------------------------------------------------------
 -- Functor instances
 --------------------------------------------------------------------------------
@@ -652,6 +663,9 @@ instance
   Functor:List : Functor List
   Functor:List .map f [] = []
   Functor:List .map f (x :: xs) = f x :: map f xs
+
+  Functor:Identity : Functor Identity
+  Functor:Identity .map f (Identity: a) = Identity: (f a)
 
 --------------------------------------------------------------------------------
 -- Applicative instances
@@ -677,6 +691,11 @@ instance
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: fs <*> xs
 
+  Applicative:Identity : Applicative Identity
+  Applicative:Identity = \ where
+    .pure -> Identity:
+    ._<*>_ (Identity: f) x -> map f x
+
 --------------------------------------------------------------------------------
 -- Monad instances
 --------------------------------------------------------------------------------
@@ -696,6 +715,9 @@ instance
   Monad:List ._>>=_ = \ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
+
+  Monad:Identity : Monad Identity
+  Monad:Identity ._>>=_ (Identity: a) k = k a
 
 --------------------------------------------------------------------------------
 -- Semigroup instances

@@ -2,13 +2,11 @@
 
 module Control.Optics.VL where
 
-import Data.Functor.Identity
 import Data.Functor.Contravariant
 import Data.Functor.Const
 import Data.List as List
 import Prelude
 
-open Data.Functor.Identity public
 open Data.Functor.Contravariant
 open Data.Functor.Const public
 open Prelude
