@@ -16,23 +16,19 @@ open Prelude
 Parser : Set -> Set
 Parser X = String -> List (X * String)
 
--- Parser is a functor.
 instance
   Functor:Parser : Functor Parser
   Functor:Parser .map f p s = map (cross f id) (p s)
 
--- Parser is a monad.
-instance
-  Monad:Parser : Monad Parser
-  Monad:Parser .return x s = [ Pair: x s ]
-  Monad:Parser .extend f p s = join $ map (uncurry f) (p s)
-
--- Parser is an applicative functor.
-instance
   Applicative:Parser : Applicative Parser
-  Applicative:Parser = \ where
-    .pure -> return
-    ._<*>_ -> ap
+  Applicative:Parser .pure x s = [ Pair: x s ]
+  Applicative:Parser ._<*>_ f p = \ s -> do
+    (Pair: g s') <- f s
+    (Pair: x s'') <- p s'
+    return (Pair: (g x) s'')
+
+  Monad:Parser : Monad Parser
+  Monad:Parser ._>>=_ p f s = join $ map (uncurry f) (p s)
 
 -- The empty parser doesn't parse anything.
 empty : forall {X} -> Parser X
