@@ -6,6 +6,11 @@ module Prelude where
 -- For notational convenience
 --------------------------------------------------------------------------------
 
+private
+  variable
+    A B C : Set
+    F G : Set -> Set
+
 record Add (A : Set) : Set where
   infixr 24 _+_
   field _+_ : A -> A -> A
@@ -191,31 +196,31 @@ infixr 0 _$_
 infixl 1 _#_
 infixr 5 _<<<_ _>>>_
 
-flip : {A B C : Set} -> (A -> B -> C) -> B -> A -> C
+flip : (A -> B -> C) -> B -> A -> C
 flip f y x = f x y
 
-id : {A : Set} -> A -> A
+id : A -> A
 id x = x
 
-_$_ : {A B : Set} -> (A -> B) -> A -> B
+_$_ : (A -> B) -> A -> B
 _$_ = id
 
-_#_ : {A B : Set} -> A -> (A -> B) -> B
+_#_ : A -> (A -> B) -> B
 _#_ = flip _$_
 
-_<<<_ : {A B C : Set} -> (B -> C) -> (A -> B) -> A -> C
+_<<<_ : (B -> C) -> (A -> B) -> A -> C
 g <<< f = \ x -> g (f x)
 
-_>>>_ : {A B C : Set} -> (A -> B) -> (B -> C) -> A -> C
+_>>>_ : (A -> B) -> (B -> C) -> A -> C
 _>>>_ = flip _<<<_
 
-const : {A B : Set} -> A -> B -> A
+const : A -> B -> A
 const x _ = x
 
-uncurry : {A B C : Set} -> (A -> B -> C) -> A * B -> C
+uncurry : (A -> B -> C) -> A * B -> C
 uncurry f (Pair: x y) = f x y
 
-curry : {A B C : Set} -> (A * B -> C) -> A -> B -> C
+curry : (A * B -> C) -> A -> B -> C
 curry f x y = f (Pair: x y)
 
 --------------------------------------------------------------------------------
@@ -226,11 +231,11 @@ infix 0 if_then_else_
 infixr 5 _||_
 infixr 6 _&&_
 
-bool : {A : Set} -> A -> A -> Bool -> A
+bool : A -> A -> Bool -> A
 bool x y false = x
 bool x y true = y
 
-if_then_else_ : {A : Set} -> Bool -> A -> A -> A
+if_then_else_ : Bool -> A -> A -> A
 if b then x else y = bool y x b
 
 not : Bool -> Bool
@@ -383,14 +388,13 @@ instance
 
 record Functor (F : Set -> Set) : Set where
   field
-    map : forall {A B} -> (A -> B) -> (F A -> F B)
+    map : (A -> B) -> (F A -> F B)
 
 open Functor {{...}} public
 
 infixl 24 _<$>_
 
-_<$>_ : forall {A B F} {{_ : Functor F}}
-  -> (A -> B) -> F A -> F B
+_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
 _<$>_ = map
 
 infixr 2 _~>_
@@ -406,13 +410,13 @@ record Applicative (F : Set -> Set) : Set where
   infixl 24 _<*>_ _*>_ _<*_
   field
     overlap {{Functor:Applicative}} : Functor F
-    _<*>_ : forall {A B} -> F (A -> B) -> F A -> F B
-    pure : forall {A} -> A -> F A
+    _<*>_ : F (A -> B) -> F A -> F B
+    pure : A -> F A
 
-  _*>_ : forall {A B} -> F A -> F B -> F B
+  _*>_ : F A -> F B -> F B
   x *> y = (| (flip const) x y |)
 
-  _<*_ : forall {A B} -> F A -> F B -> F A
+  _<*_ : F A -> F B -> F A
   x <* y = (| const x y |)
 
 open Applicative {{...}} public
@@ -425,21 +429,21 @@ record Monad (M : Set -> Set) : Set where
   infixl 1 _>>=_ _=<<_ _<=<_ _>=>_
   field
     overlap {{Applicative:Monad}} : Applicative M
-    _>>=_ : forall {A B} -> M A -> (A -> M B) -> M B
+    _>>=_ : M A -> (A -> M B) -> M B
 
-  return : forall {A} -> A -> M A
+  return : A -> M A
   return = pure
 
-  _=<<_ : forall {A B} -> (A -> M B) -> M A -> M B
+  _=<<_ : (A -> M B) -> M A -> M B
   _=<<_ = flip _>>=_
 
-  join : forall {A} -> M (M A) -> M A
+  join : M (M A) -> M A
   join = _=<<_ id
 
-  _<=<_ : forall {A B C : Set} -> (B -> M C) -> (A -> M B) -> A -> M C
+  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
   g <=< f = \ x -> f x >>= g
 
-  _>=>_ : forall {A B C}-> (A -> M B) -> (B -> M C) -> A -> M C
+  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
   _>=>_ = flip _<=<_
 
 open Monad {{...}} public
@@ -488,8 +492,7 @@ record Ord (A : Set) : Set where
 
 open Ord {{...}} public
 
-comparing : {A B : Set} {{_ : Ord B}}
-  -> (A -> B) -> A -> A -> Ordering
+comparing : {{_ : Ord B}} -> (A -> B) -> A -> A -> Ordering
 comparing p x y = compare (p x) (p y)
 
 --------------------------------------------------------------------------------
@@ -589,16 +592,16 @@ instance
   Eq:String : Eq String
   Eq:String ._==_ = Agda.Builtin.String.primStringEquality
 
-  Eq:Pair : forall {A B} {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
+  Eq:Pair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
   Eq:Pair ._==_ (Pair: x y) (Pair: x' y') = (x == x') && (y == y')
 
-  Eq:Either : forall {A B} {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
+  Eq:Either : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
   Eq:Either ._==_ = \ where
     (left x) (left x') -> x == x'
     (right y) (right y') -> y == y'
     _ _ -> false
 
-  Eq:Maybe : forall {A} {{_ : Eq A}} -> Eq (Maybe A)
+  Eq:Maybe : {{_ : Eq A}} -> Eq (Maybe A)
   Eq:Maybe ._==_ = \ where
     nothing nothing -> true
     (just x) (just x') -> x == x'
@@ -633,10 +636,10 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Functor:Pair : forall {A} -> Functor (A *_)
+  Functor:Pair : Functor (A *_)
   Functor:Pair .map f (Pair: x y) = Pair: x (f y)
 
-  Functor:Either : forall {A} -> Functor (A +_)
+  Functor:Either : Functor (A +_)
   Functor:Either .map f = \ where
     (left x) -> left x
     (right y) -> right (f y)
@@ -655,7 +658,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Applicative:Either : forall {A} -> Applicative (A +_)
+  Applicative:Either : Applicative (A +_)
   Applicative:Either = \ where
     .pure -> right
     ._<*>_ (left x) _ -> left x
@@ -679,7 +682,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Monad:Either : forall {A} -> Monad (A +_)
+  Monad:Either : Monad (A +_)
   Monad:Either ._>>=_ = \ where
     (left x) k -> left x
     (right y) k -> k y
@@ -699,7 +702,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Semigroup:Dual : forall {A} {{_ : Semigroup A}} -> Semigroup (Dual A)
+  Semigroup:Dual : {{_ : Semigroup A}} -> Semigroup (Dual A)
   Semigroup:Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
   Semigroup:Void : Semigroup Void
@@ -723,22 +726,22 @@ instance
   Semigroup:String : Semigroup String
   Semigroup:String ._<>_ = _++_
 
-  Semigroup:Maybe : forall {A} {{_ : Semigroup A}} -> Semigroup (Maybe A)
+  Semigroup:Maybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
   Semigroup:Maybe ._<>_ = \ where
     nothing y -> y
     x nothing -> x
     (just x) (just y) -> just (x <> y)
 
-  Semigroup:List : forall {A} -> Semigroup (List A)
+  Semigroup:List : Semigroup (List A)
   Semigroup:List ._<>_ = _++_
 
-  Semigroup:Function : {A B : Set} {{_ : Semigroup B}} -> Semigroup (A -> B)
+  Semigroup:Function : {{_ : Semigroup B}} -> Semigroup (A -> B)
   Semigroup:Function ._<>_ f g = \ x -> f x <> g x
 
-  Semigroup:<<< : forall {A} -> Semigroup (A -> A)
+  Semigroup:<<< : Semigroup (A -> A)
   Semigroup:<<< ._<>_ = _<<<_
 
-  Semigroup:First : forall {A} -> Semigroup (First A)
+  Semigroup:First : Semigroup (First A)
   Semigroup:First ._<>_ x _ = x
 
 --------------------------------------------------------------------------------
@@ -746,7 +749,7 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Monoid:Dual : forall {A} {{_ : Monoid A}} -> Monoid (Dual A)
+  Monoid:Dual : {{_ : Monoid A}} -> Monoid (Dual A)
   Monoid:Dual .mempty = Dual: mempty
 
   Monoid:Unit : Monoid Unit
@@ -767,21 +770,21 @@ instance
   Monoid:String : Monoid String
   Monoid:String .mempty = ""
 
-  Monoid:Maybe : forall {A} {{_ : Monoid A}} -> Monoid (Maybe A)
+  Monoid:Maybe : {{_ : Monoid A}} -> Monoid (Maybe A)
   Monoid:Maybe .mempty = nothing
 
-  Monoid:List : forall {A} -> Monoid (List A)
+  Monoid:List : Monoid (List A)
   Monoid:List .mempty = []
 
-  Monoid:Function : {A B : Set} {{_ : Monoid B}} -> Monoid (A -> B)
+  Monoid:Function : {{_ : Monoid B}} -> Monoid (A -> B)
   Monoid:Function .mempty = const mempty
 
-  Monoid:<<< : forall {A} -> Monoid (A -> A)
+  Monoid:<<< : Monoid (A -> A)
   Monoid:<<< = \ where
     .Semigroup:Monoid -> Semigroup:<<<
     .mempty -> id
 
-  Monoid:First : forall {A} -> Monoid (First A)
+  Monoid:First : Monoid (First A)
   Monoid:First .mempty = First: nothing
 
 --------------------------------------------------------------------------------
@@ -803,20 +806,20 @@ instance
   Show:Nat : Show Nat
   Show:Nat .show n = show (pos n)
 
-  Show:Pair : forall {A B} {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
+  Show:Pair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
   Show:Pair .show (Pair: x y) = "Pair: " ++ show x ++ " " ++ show y
 
-  Show:Either : forall {A B} {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
+  Show:Either : {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
   Show:Either .show = \ where
     (left x) -> "left " ++ show x
     (right y) -> "right " ++ show y
 
-  Show:Maybe : {A : Set} {{_ : Show A}} -> Show (Maybe A)
+  Show:Maybe : {{_ : Show A}} -> Show (Maybe A)
   Show:Maybe .show = \ where
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 
-  Show:List : forall {A} {{_ : Show A}} -> Show (List A)
+  Show:List : {{_ : Show A}} -> Show (List A)
   Show:List .show = \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
     where
       csv : {A : Set} {{_ : Show A}} -> List A -> String
@@ -841,10 +844,10 @@ open import Agda.Builtin.IO public
   using (IO)
 
 postulate
-  mapIO : {A B : Set} -> (A -> B) -> IO A -> IO B
-  pureIO : {A : Set} -> A -> IO A
-  apIO : {A B : Set} -> IO (A -> B) -> IO A -> IO B
-  bindIO : {A B : Set} -> IO A -> (A -> IO B) -> IO B
+  mapIO : (A -> B) -> IO A -> IO B
+  pureIO : A -> IO A
+  apIO : IO (A -> B) -> IO A -> IO B
+  bindIO : IO A -> (A -> IO B) -> IO B
   putStr : String -> IO Unit
   putStrLn : String -> IO Unit
   getLine : IO String
@@ -872,13 +875,13 @@ instance
   Monad:IO : Monad IO
   Monad:IO ._>>=_ = bindIO
 
-  Semigroup:IO : forall {A} {{_ : Semigroup A}} -> Semigroup (IO A)
+  Semigroup:IO : {{_ : Semigroup A}} -> Semigroup (IO A)
   Semigroup:IO ._<>_ x y = (| _<>_ x y |)
 
-  Monoid:IO : forall {A} {{_ : Monoid A}} -> Monoid (IO A)
+  Monoid:IO : {{_ : Monoid A}} -> Monoid (IO A)
   Monoid:IO .mempty = return mempty
 
-print : forall {A} {{_ : Show A}} -> A -> IO Unit
+print : {{_ : Show A}} -> A -> IO Unit
 print x = putStrLn (show x)
 
 interact : (String -> String) -> IO Unit
