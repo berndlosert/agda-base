@@ -197,10 +197,10 @@ infixl 1 _#_
 infixr 5 _<<<_ _>>>_
 
 flip : (A -> B -> C) -> B -> A -> C
-flip f y x = f x y
+flip f b a = f a b
 
 id : A -> A
-id x = x
+id a = a
 
 _$_ : (A -> B) -> A -> B
 _$_ = id
@@ -209,19 +209,19 @@ _#_ : A -> (A -> B) -> B
 _#_ = flip _$_
 
 _<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ x -> g (f x)
+g <<< f = \ a -> g (f a)
 
 _>>>_ : (A -> B) -> (B -> C) -> A -> C
 _>>>_ = flip _<<<_
 
 const : A -> B -> A
-const x _ = x
+const a _ = a
 
 uncurry : (A -> B -> C) -> A * B -> C
-uncurry f (Pair: x y) = f x y
+uncurry f (Pair: a b) = f a b
 
 curry : (A * B -> C) -> A -> B -> C
-curry f x y = f (Pair: x y)
+curry f a b = f (Pair: a b)
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Bool
@@ -232,11 +232,11 @@ infixr 5 _||_
 infixr 6 _&&_
 
 bool : A -> A -> Bool -> A
-bool x y false = x
-bool x y true = y
+bool a _ false = a
+bool _ a true = a
 
 if_then_else_ : Bool -> A -> A -> A
-if b then x else y = bool y x b
+if b then t else f = bool f t b
 
 not : Bool -> Bool
 not true  = false
@@ -414,10 +414,10 @@ record Applicative (F : Set -> Set) : Set where
     pure : A -> F A
 
   _*>_ : F A -> F B -> F B
-  x *> y = (| (flip const) x y |)
+  a *> b = (| (flip const) a b |)
 
   _<*_ : F A -> F B -> F A
-  x <* y = (| const x y |)
+  a <* b = (| const a b |)
 
 open Applicative {{...}} public
 
@@ -441,7 +441,7 @@ record Monad (M : Set -> Set) : Set where
   join = _=<<_ id
 
   _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
-  g <=< f = \ x -> f x >>= g
+  g <=< f = f >>> (_>>= g)
 
   _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
   _>=>_ = flip _<=<_
@@ -526,26 +526,26 @@ open Show {{...}} public
 -- Basic operations regarding List and Vector
 --------------------------------------------------------------------------------
 
-pattern [_] x1 =
-  x1 :: []
-pattern [_,_] x1 x2 =
-  x1 :: x2 :: []
-pattern [_,_,_] x1 x2 x3 =
-  x1 :: x2 :: x3 :: []
-pattern [_,_,_,_] x1 x2 x3 x4 =
-  x1 :: x2 :: x3 :: x4 :: []
-pattern [_,_,_,_,_] x1 x2 x3 x4 x5 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: []
-pattern [_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: []
-pattern [_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: []
-pattern [_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: []
-pattern [_,_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 x9 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: []
-pattern [_,_,_,_,_,_,_,_,_,_] x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 =
-  x1 :: x2 :: x3 :: x4 :: x5 :: x6 :: x7 :: x8 :: x9 :: x10 :: []
+pattern [_] a =
+  a :: []
+pattern [_,_] a b =
+  a :: b :: []
+pattern [_,_,_] a b c =
+  a :: b :: c :: []
+pattern [_,_,_,_] a b c d =
+  a :: b :: c :: d :: []
+pattern [_,_,_,_,_] a b c d e =
+  a :: b :: c :: d :: e :: []
+pattern [_,_,_,_,_,_] a b c d e f =
+  a :: b :: c :: d :: e :: f :: []
+pattern [_,_,_,_,_,_,_] a b c d e f g =
+  a :: b :: c :: d :: e :: f :: g :: []
+pattern [_,_,_,_,_,_,_,_] a b c d e f g h =
+  a :: b :: c :: d :: e :: f :: g :: h :: []
+pattern [_,_,_,_,_,_,_,_,_] a b c d e f g h i =
+  a :: b :: c :: d :: e :: f :: g :: h :: i :: []
+pattern [_,_,_,_,_,_,_,_,_,_] a b c d e f g h i j =
+  a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: []
 
 instance
   Append:List : forall {A} -> Append (List A) (List A) (List A)
@@ -587,24 +587,24 @@ instance
   Eq:Float ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
   Eq:Char : Eq Char
-  Eq:Char ._==_ c c' = ord c == ord c'
+  Eq:Char ._==_ c d = ord c == ord d
 
   Eq:String : Eq String
   Eq:String ._==_ = Agda.Builtin.String.primStringEquality
 
   Eq:Pair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  Eq:Pair ._==_ (Pair: x y) (Pair: x' y') = (x == x') && (y == y')
+  Eq:Pair ._==_ (Pair: a b) (Pair: c d) = (a == c) && (b == d)
 
   Eq:Either : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
   Eq:Either ._==_ = \ where
-    (left x) (left x') -> x == x'
-    (right y) (right y') -> y == y'
+    (left x) (left y) -> x == y
+    (right x) (right y) -> x == y
     _ _ -> false
 
   Eq:Maybe : {{_ : Eq A}} -> Eq (Maybe A)
   Eq:Maybe ._==_ = \ where
     nothing nothing -> true
-    (just x) (just x') -> x == x'
+    (just x) (just y) -> x == y
     _ _ -> false
 
 --------------------------------------------------------------------------------
@@ -637,17 +637,17 @@ instance
 
 instance
   Functor:Pair : Functor (A *_)
-  Functor:Pair .map f (Pair: x y) = Pair: x (f y)
+  Functor:Pair .map f (Pair: a x) = Pair: a (f x)
 
   Functor:Either : Functor (A +_)
   Functor:Either .map f = \ where
-    (left x) -> left x
-    (right y) -> right (f y)
+    (left a) -> left a
+    (right x) -> right (f x)
 
   Functor:Maybe : Functor Maybe
   Functor:Maybe .map f = \ where
     nothing -> nothing
-    (just x) -> just (f x)
+    (just a) -> just (f a)
 
   Functor:List : Functor List
   Functor:List .map f [] = []
@@ -661,7 +661,7 @@ instance
   Applicative:Either : Applicative (A +_)
   Applicative:Either = \ where
     .pure -> right
-    ._<*>_ (left x) _ -> left x
+    ._<*>_ (left a) _ -> left a
     ._<*>_ (right f) r -> map f r
 
   Applicative:Maybe : Applicative Maybe
@@ -684,8 +684,8 @@ instance
 instance
   Monad:Either : Monad (A +_)
   Monad:Either ._>>=_ = \ where
-    (left x) k -> left x
-    (right y) k -> k y
+    (left a) k -> left a
+    (right x) k -> k x
 
   Monad:Maybe : Monad Maybe
   Monad:Maybe ._>>=_ = \ where
@@ -728,15 +728,15 @@ instance
 
   Semigroup:Maybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
   Semigroup:Maybe ._<>_ = \ where
-    nothing y -> y
-    x nothing -> x
+    nothing m -> m
+    m nothing -> m
     (just x) (just y) -> just (x <> y)
 
   Semigroup:List : Semigroup (List A)
   Semigroup:List ._<>_ = _++_
 
   Semigroup:Function : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  Semigroup:Function ._<>_ f g = \ x -> f x <> g x
+  Semigroup:Function ._<>_ f g = \ a -> f a <> g a
 
   Semigroup:<<< : Semigroup (A -> A)
   Semigroup:<<< ._<>_ = _<<<_
