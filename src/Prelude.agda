@@ -431,7 +431,7 @@ open Applicative {{...}} public
 --------------------------------------------------------------------------------
 
 record Monad (M : Set -> Set) : Set where
-  infixl 1 _>>=_ _=<<_ _<=<_ _>=>_
+  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
   field
     overlap {{Applicative:Monad}} : Applicative M
     _>>=_ : M A -> (A -> M B) -> M B
@@ -444,6 +444,12 @@ record Monad (M : Set -> Set) : Set where
 
   join : M (M A) -> M A
   join = _=<<_ id
+
+  _>>_ : M A -> M B -> M B
+  _>>_ = _*>_
+
+  _<<_ : M A -> M B -> M A
+  _<<_ = _<*_
 
   _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
   g <=< f = f >>> (_>>= g)
