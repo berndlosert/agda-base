@@ -5,14 +5,16 @@ module Data.Profunctor where
 open import Data.Bifunctor public
 open import Prelude
 
-ProfunctorOf : (C D : Category) -> (ob D -> ob C -> Set) -> Set
-ProfunctorOf C D = BifunctorOf (Op D) C Sets
+private
+  variable
+    A B C D : Set
 
-Profunctor = ProfunctorOf Sets Sets
+record Profunctor (P : Set -> Set -> Set) : Set where
+  field
+    dimap : (A -> B) -> (C -> D) -> P B C -> P A D
 
-Profunctor:hom : (C : Category) -> ProfunctorOf C C (hom C)
-Profunctor:hom C .bimap f g h = f >>> h >>> g
-  where instance _ = C
+open Profunctor {{...}} public
 
 instance
-  Profunctor:Function = Profunctor:hom Sets
+  Profunctor:Function : Profunctor Function
+  Profunctor:Function .dimap f g h = f >>> h >>> g

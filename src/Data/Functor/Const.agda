@@ -5,25 +5,29 @@ module Data.Functor.Const where
 open import Data.Functor.Contravariant
 open import Prelude
 
-record Const (X Y : Set) : Set where
+private
+  variable
+    A B : Set
+
+record Const (A B : Set) : Set where
   constructor Const:
   field
-    get : X
+    get : A
 
 instance
-  Eq:Const : forall {X Y} {{_ : Eq X}} -> Eq (Const X Y)
-  Eq:Const ._==_ (Const: x) (Const: x') = x == x'
+  Eq:Const : {{_ : Eq A}} -> Eq (Const A B)
+  Eq:Const ._==_ (Const: x) (Const: y) = x == y
 
-  Ord:Const : forall {X Y} {{_ : Ord X}} -> Ord (Const X Y)
-  Ord:Const ._<_ (Const: x) (Const: x') = x < x'
+  Ord:Const : {{_ : Ord A}} -> Ord (Const A B)
+  Ord:Const ._<_ (Const: x) (Const: y) = x < y
 
-  Functor:Const : forall {X} -> Functor (Const X)
-  Functor:Const .map f (Const: x) = Const: x
+  Functor:Const : Functor (Const A)
+  Functor:Const .map f (Const: a) = Const: a
 
-  Contravariant:Const : forall {X} -> Contravariant (Const X)
-  Contravariant:Const .map f (Const: x) = Const: x
+  Contravariant:Const : Contravariant (Const A)
+  Contravariant:Const .contramap f (Const: a) = Const: a
 
-  Applicative:Const : forall {X} {{_ : Monoid X}} -> Applicative (Const X)
+  Applicative:Const : {{_ : Monoid A}} -> Applicative (Const A)
   Applicative:Const = \ where
     .pure x -> Const: mempty
-    ._<*>_ (Const: x) (Const: x') -> Const: (x <> x')
+    ._<*>_ (Const: x) (Const: y) -> Const: (x <> y)

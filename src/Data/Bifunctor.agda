@@ -7,37 +7,29 @@ open import Data.Either
 open import Data.Functor.Const
 open import Prelude
 
-record BifunctorOf (B C D : Category) (F : ob B -> ob C -> ob D) : Set where
-  constructor Bifunctor:
+private
+  variable
+    A B C D : Set
+
+record Bifunctor (P : Set -> Set -> Set) : Set where
   field
-    bimap : forall {X X' Y Y'}
-      -> hom B X Y -> hom C X' Y'
-      -> hom D (F X X') (F Y Y')
+    bimap : (A -> B) -> (C -> D) -> P A C -> P B D
 
-  lmap : forall {X Y Z} -> hom B X Y -> hom D (F X Z) (F Y Z)
-  lmap f = bimap f id
-    where instance _ = C
+  first : (A -> B) -> P A C -> P B C
+  first f = bimap f id
 
-  rmap : forall {X Y Z} -> hom C X Y -> hom D (F Z X) (F Z Y)
-  rmap g = bimap id g
-    where instance _ = B
+  second : (B -> C) -> P A B -> P A C
+  second g = bimap id g
 
-  instance
-    Functor:Bifunctor : FunctorOf (B * C) D (uncurry F)
-    Functor:Bifunctor .map = uncurry bimap
-
-open BifunctorOf {{...}} public
-
--- This case is so common, it deserves this abbreviation.
-Bifunctor = BifunctorOf Sets Sets Sets
+open Bifunctor {{...}} public
 
 instance
   Bifunctor:Const : Bifunctor Const
   Bifunctor:Const .bimap f g = \ where
     (Const: x) -> Const: (f x)
 
-  Bifunctor:Pair : Bifunctor Pair
+  Bifunctor:Pair : Bifunctor _*_
   Bifunctor:Pair .bimap f g = cross f g
 
-  Bifunctor:Either : Bifunctor Either
+  Bifunctor:Either : Bifunctor _+_
   Bifunctor:Either .bimap f g = plus f g

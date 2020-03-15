@@ -4,12 +4,16 @@ module Data.Functor.Contravariant where
 
 open import Prelude
 
-Contravariant = FunctorOf (Op Sets) Sets
+private
+  variable
+    A B : Set
+    F : Set -> Set
 
-contramap : forall {F} {{_ : Contravariant F}}
-  -> forall {X Y} -> (X -> Y) -> F Y -> F X
-contramap = map
+record Contravariant (F : Set -> Set) : Set where
+  field
+    contramap : (A -> B) -> F B -> F A
 
-phantom : forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
-  -> forall {X Y} -> F X -> F Y
+open Contravariant {{...}} public
+
+phantom : {{_ : Functor F}} {{_ : Contravariant F}} -> F A -> F B
 phantom x = contramap (const tt) $ map (const tt) x
