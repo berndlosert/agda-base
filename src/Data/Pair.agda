@@ -4,17 +4,21 @@ module Data.Pair where
 
 open import Prelude
 
-split : {X Y Z : Set} -> (X -> Y) -> (X -> Z) -> X -> Y * Z
-split f g x = Pair: (f x) (g x)
+private
+  variable
+    A B C D : Set
 
-cross : forall {X X' Y Y'} -> (X -> Y) -> (X' -> Y') -> X * X' -> Y * Y'
+split : (A -> B) -> (A -> C) -> A -> B * C
+split f g a = Pair: (f a) (g a)
+
+cross : (A -> B) -> (C -> D) -> A * C -> B * D
 cross f g = split (f <<< fst) (g <<< snd)
 
-swap : forall {X Y} -> X * Y -> Y * X
+swap : A * B -> B * A
 swap = split snd fst
 
-dupe : forall {X} -> X -> X * X
+dupe : A -> A * A
 dupe = split id id
 
-apply : forall {X Y} -> (X -> Y) * X -> Y
+apply : (A -> B) * A -> B
 apply = uncurry _$_

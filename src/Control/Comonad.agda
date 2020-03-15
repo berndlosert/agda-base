@@ -4,31 +4,24 @@ module Control.Comonad where
 
 open import Prelude
 
--- A functor F : ob C -> ob C is a comonad when it comes with natural
--- transformations extract and coextend/duplicate obeying the comonad laws.
-record ComonadOf (C : Category) (F : ob C -> ob C) : Set where
-  field
-    {{Functor:Comonad}} : FunctorOf C C F
-    coextend : forall {X Y} -> hom C (F X) Y -> hom C (F X) (F Y)
-    extract : forall {X} -> hom C (F X) X
+private
+  variable
+    A B C : Set
 
-  duplicate : forall {X} -> hom C (F X) (F (F X))
-  duplicate {X} = coextend id
-    where instance _ = C
-
-open ComonadOf {{...}} public
-
-Comonad : (Set -> Set) -> Set
-Comonad = ComonadOf Sets
-
-module _ {F : Set -> Set} {{_ : Comonad F}} {X Y : Set} where
-
+record Comonad (W : Set -> Set) : Set where
   infixl 1 _=>>_ _=>=_
+  field
+    {{Functor:Comonad}} : Functor W
+    extend : (W A -> B) -> W A -> W B
+    extract : W A -> A
 
-  -- The cobind operator.
-  _=>>_ : F X -> (F X -> Y) -> F Y
-  x =>> f = coextend f x
+  duplicate : W A -> W (W A)
+  duplicate = extend id
 
-  -- Cokleisli composition for comonads on Sets.
-  _=>=_ : forall {Z} -> (F X -> Y) -> (F Y -> Z) -> (F X -> Z)
-  f =>= g = coextend f >>> g
+  _=>>_ : W A -> (W A -> B) -> W B
+  _=>>_ = flip extend
+
+  _=>=_ : (W A -> B) -> (W B -> C) -> (W A -> C)
+  f =>= g = extend f >>> g
+
+open Comonad {{...}} public

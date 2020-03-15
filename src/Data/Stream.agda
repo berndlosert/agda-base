@@ -4,54 +4,58 @@ module Data.Stream where
 
 open import Prelude
 
--- Stream X represents infinite lists of elements of X.
-record Stream (X : Set) : Set where
+private
+  variable
+    A : Set
+
+-- Stream A represents infinite lists of elements of A.
+record Stream (A : Set) : Set where
   coinductive
   field
-    head : X
-    tail : Stream X
+    head : A
+    tail : Stream A
 
 open Stream public
 
 -- Stream forms a functor.
 instance
   Functor:Stream : Functor Stream
-  Functor:Stream .map f xs .head = f (head xs)
-  Functor:Stream .map f xs .tail = map f (tail xs)
+  Functor:Stream .map f as .head = f (head as)
+  Functor:Stream .map f as .tail = map f (tail as)
 
 -- Stream forms an applicative.
 instance
   Applicative:Stream : Applicative Stream
-  Applicative:Stream .pure x .head = x
-  Applicative:Stream .pure x .tail = pure x
-  Applicative:Stream ._<*>_ fs xs .head = head fs (head xs)
-  Applicative:Stream ._<*>_ fs xs .tail = tail fs <*> tail xs
+  Applicative:Stream .pure a .head = a
+  Applicative:Stream .pure a .tail = pure a
+  Applicative:Stream ._<*>_ fs as .head = head fs (head as)
+  Applicative:Stream ._<*>_ fs as .tail = tail fs <*> tail as
 
 -- Stream forms a comonad.
 open import Control.Comonad
 
 instance
   Comonad:Stream : Comonad Stream
-  Comonad:Stream .coextend f xs = pure (f xs)
-  Comonad:Stream .extract xs = head xs
+  Comonad:Stream .extend f as = pure (f as)
+  Comonad:Stream .extract as = head as
 
--- iterate f x creates the stream [ x # f x # f (f x) # ... ].
-iterate : forall {X} -> (X -> X) -> X -> Stream X
-iterate f x .head = x
-iterate f x .tail = iterate f (f x)
+-- iterate f a creates the stream [ a # f a # f (f a) # ... ].
+iterate : forall {A} -> (A -> A) -> A -> Stream A
+iterate f a .head = a
+iterate f a .tail = iterate f (f a)
 
--- repeat x is the infinite list [ x # x # x # ... ].
-repeat : forall {X} -> X -> Stream X
-repeat x .head = x
-repeat x .tail = repeat x
+-- repeat a is the infinite list [ a # a # a # ... ].
+repeat : forall {A} -> A -> Stream A
+repeat a .head = a
+repeat a .tail = repeat a
 
 -- Preprend a list to a stream.
-prepend : forall {X} -> List X -> Stream X -> Stream X
+prepend : forall {A} -> List A -> Stream A -> Stream A
 prepend [] ys = ys
-prepend (x :: xs) ys .head = x
-prepend (x :: xs) ys .tail = prepend xs ys
+prepend (a :: as) ys .head = a
+prepend (a :: as) ys .tail = prepend as ys
 
 -- Take the first n elements of a stream.
-take : forall {X} -> Nat -> Stream X -> List X
+take : forall {A} -> Nat -> Stream A -> List A
 take 0 _ = []
-take (suc n) xs = head xs :: take n (tail xs)
+take (suc n) as = head as :: take n (tail as)

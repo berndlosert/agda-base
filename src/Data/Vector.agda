@@ -4,7 +4,12 @@ module Data.Vector where
 
 open import Prelude
 
-splitAt : forall m {n X} -> Vector X (m + n) -> Vector X m * Vector X n
-splitAt zero xs = Pair: [] xs
-splitAt (suc k) (x :: xs) with (splitAt k xs)
-... | (Pair: tk dr) = Pair: (x :: tk) dr
+private
+  variable
+    A : Set
+    m n : Nat
+
+splitAt : (m : Nat) -> Vector A (m + n) -> Vector A m * Vector A n
+splitAt zero as = Pair: [] as
+splitAt (suc k) (a :: as) with (splitAt k as)
+... | (Pair: tk dr) = Pair: (a :: tk) dr
