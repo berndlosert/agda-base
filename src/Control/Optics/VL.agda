@@ -130,7 +130,7 @@ lens : (S -> A) -> (S -> B -> T) -> Lens S T A B
 lens v u f s = u s <$> f (v s)
 
 --------------------------------------------------------------------------------
--- Each definition and instances
+-- Each and instances
 --------------------------------------------------------------------------------
 
 record Each (S T A B : Set) : Set where
