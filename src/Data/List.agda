@@ -306,6 +306,11 @@ traverse : forall {F A B} {{_ : Applicative F}}
 traverse f [] = pure []
 traverse f (a :: as) = (| _::_ (f a) (traverse f as) |)
 
+-- Traverse a list without accumulating.
+traverse' : forall {F A B} {{_ : Applicative F}}
+  -> (A -> F B) -> List A -> F Unit
+traverse' f = foldr (_*>_ <<< f) (pure tt)
+
 --------------------------------------------------------------------------------
 -- Predicates
 --------------------------------------------------------------------------------
@@ -333,11 +338,20 @@ isInfixOf : {{_ : Eq A}} -> List A -> List A -> Bool
 isInfixOf xs ys = any (isPrefixOf xs) (tails ys)
 
 ------------------------------------------------------------------------------
--- Indexing lists
+-- Indexing operations
 ------------------------------------------------------------------------------
 
--- elemAt xs n retrieves the (n - 1)th item in the list xs.
-elemAt : List A -> Nat -> Maybe A
-elemAt [] _ = nothing
-elemAt (a :: _) 0 = just a
-elemAt (_ :: as) (suc n) = elemAt as n
+-- elemAt as n retrieves the (n - 1)th item in the list as.
+elemAt : Nat -> List A -> Maybe A
+elemAt _ [] = nothing
+elemAt 0 (a :: _) = just a
+elemAt (suc i) (_ :: as) = elemAt i as
+
+-- deleteAt deletes the element at an index. If the index is invalid, the
+-- original list will be returned.
+deleteAt : Nat -> List A -> List A
+deleteAt i xs with i < length xs
+deleteAt 0 (y :: ys) | true = ys
+deleteAt (suc n) (y :: ys) | true = y :: deleteAt n ys
+deleteAt _ [] | true = [] -- This case should never be reached.
+... | false = xs
