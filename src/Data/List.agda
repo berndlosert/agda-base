@@ -209,6 +209,21 @@ tails : List A -> List (List A)
 tails [] = [ [] ]
 tails as@(x :: xs) = as :: tails xs
 
+-- takeWhile, applied to a predicate p and a list as, returns the longest
+-- prefix (possibly empty) of as of elements that satisfy p:
+takeWhile : (A -> Bool) -> List A -> List A
+takeWhile _ [] = []
+takeWhile p (a :: as) with p a
+... | true = a :: takeWhile p as
+... | false = []
+
+-- dropWhile p as returns the suffix remaining after 'takeWhile' p as:
+dropWhile : (A -> Bool) -> List A -> List A
+dropWhile _ [] = []
+dropWhile p xs@(y :: ys) with p y
+... | true = dropWhile p ys
+... | false = ys
+
 --------------------------------------------------------------------------------
 -- "By" operations
 --------------------------------------------------------------------------------
@@ -262,20 +277,20 @@ union : {{_ : Eq A}} -> List A -> List A -> List A
 union = unionBy _==_
 
 --------------------------------------------------------------------------------
--- Cipping
+-- Zipping
 --------------------------------------------------------------------------------
 
--- Cips two lists together with a function.
+-- Zips two lists together with a function.
 zipWith : (A -> B -> C) -> List A -> List B -> List C
 zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
--- Cips two lists into a list of pairs.
+-- Zips two lists into a list of pairs.
 zip : List A -> List B -> List (A * B)
 zip = zipWith Pair:
 
--- Cips together a list of heads and a list of tails.
+-- Zips together a list of heads and a list of tails.
 zipCons : List A -> List (List A) -> List (List A)
 zipCons heads tails =
     (zipWith _::_ heads (tails ++ padding)) ++ excess

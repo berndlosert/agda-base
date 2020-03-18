@@ -12,9 +12,13 @@ open Data.Maybe using (maybeToList)
 open Data.Pair using (cross)
 open Prelude
 
--- Parser that parses values of type X from a string.
+private
+  variable
+    A : Set
+
+-- Parser that parses values of type A from a string.
 Parser : Set -> Set
-Parser X = String -> List (X * String)
+Parser A = String -> List (A * String)
 
 instance
   Functor:Parser : Functor Parser
@@ -31,12 +35,13 @@ instance
   Monad:Parser ._>>=_ p f s = join $ map (uncurry f) (p s)
 
 -- The empty parser doesn't parse anything.
-empty : forall {X} -> Parser X
+empty : Parser A
 empty s = []
 
--- Given two parsers p, q : Parser X, p <|> q is the parser that
+-- Given two parsers p, q : Parser A, p <|> q is the parser that
 -- nondeterministically chooses between running p or running q.
-_<|>_ : forall {X} -> Parser X -> Parser X -> Parser X
+infixl 3 _<|>_
+_<|>_ : Parser A -> Parser A -> Parser A
 p <|> q = \ s -> p s ++ q s
 
 -- item is a parser that consumes the first character if the input string is
@@ -46,13 +51,13 @@ item = maybeToList <<< String.uncons
 
 -- first p is the parser whose output contains only the first successful
 -- parse (if it has one at all).
-first : forall {X} -> Parser X -> Parser X
+first : Parser A -> Parser A
 first p s with p s
 ... | [] = []
 ... | (x :: _) = [ x ]
 
 -- plus p q is just <|> wrapped in first.
-plus : forall {X} -> Parser X -> Parser X -> Parser X
+plus : Parser A -> Parser A -> Parser A
 plus p q = first (p <|> q)
 
 -- satisfy takes a predicate, and yields a parser that consumes a single
@@ -120,7 +125,7 @@ many1 p = do
 -- This parses nonempty sequences of items separated by operators that
 -- associate to the left.
 {-# TERMINATING #-}
-chainl1 : forall {X} -> Parser X -> Parser (X -> X -> X) -> Parser X
+chainl1 : Parser A -> Parser (A -> A -> A) -> Parser A
 chainl1 p op = p >>= rest
   where
     rest : _
@@ -146,6 +151,15 @@ junk = do
   many spaces
   return tt
 
--- Parser that skip junk.
-skip : forall {X} -> Parser X -> Parser X
+-- Parser that skips junk.
+skip : Parser A -> Parser A
 skip p = junk >> p
+
+-- Consumes input as long as the predicate returns true, and return the
+-- consumed input.
+takeWhile : (Char -> Bool) -> Parser String
+takeWhile p s = [ Pair: (String.takeWhile p s) (String.dropWhile p s) ]
+
+-- Consumes the rest of the input.
+takeRest : Parser String
+takeRest = takeWhile (const true)

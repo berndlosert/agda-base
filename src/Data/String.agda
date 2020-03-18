@@ -47,9 +47,17 @@ tail = map snd <<< uncons
 cons : Char -> String -> String
 cons c s = pack (c :: unpack s)
 
+takeWhile : (Char -> Bool) -> String -> String
+takeWhile p = unpack >>> List.takeWhile p >>> pack
+
+dropWhile : (Char -> Bool) -> String -> String
+dropWhile p = unpack >>> List.dropWhile p >>> pack
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
 {-# COMPILE GHC startsWith = Text.isPrefixOf #-}
 {-# COMPILE GHC stripPrefix = Text.stripPrefix #-}
 {-# COMPILE GHC uncons = Text.uncons #-}
 {-# COMPILE GHC cons = Text.cons #-}
+{-# COMPILE GHC takeWhile = Text.takeWhile #-}
+{-# COMPILE GHC dropWhile = Text.dropWhile #-}
