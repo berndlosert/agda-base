@@ -2,40 +2,46 @@
 
 module Control.Monad.State where
 
-open import Prelude
+import Control.Monad.StateT as StateT
+import Prelude
 
--- State S X models state transitions where the states are of type S and the
--- transitions produce an output of type X.
+open Prelude
+open StateT using (StateT; state)
+
+private
+  variable
+    A B S : Set
+    M : Set -> Set
+
 State : Set -> Set -> Set
-State S X = S -> X * S
+State S = StateT S Identity
 
--- State S forms a functor.
-open import Data.Pair
+State: : {{_ : Monad M}} -> (S -> A * S) -> State S A
+State: = state
 
-instance
-  Functor:State : forall {S} -> Functor (State S)
-  Functor:State .map f m = \ s -> cross f id (m s)
+run : State S A -> S -> A * S
+run m = Identity.run <<< StateT.run m
 
--- State S forms a monad.
-instance
-  Monad:State : forall {S} -> Monad (State S)
-  Monad:State .return x s = Pair: x s
-  Monad:State .extend f m = \ s -> let (Pair: x s') = m s in (f x) s'
+eval : State S A -> S -> A
+eval m s = fst (run m s)
 
--- Applicative instance of State S derived from the monad instance.
-instance
-  Applicative:State : forall {S} -> Applicative (State S)
-  Applicative:State = \ where
-    .pure -> return
-    ._<*>_ -> ap
+exec : State S A -> S -> S
+exec m s = snd (run m s)
 
-run : forall {S X} -> State S X -> S -> (X * S)
-run = id
+map' : (A * S -> B * S) -> State S A -> State S B
+map' f = StateT.map' (Identity: <<< f <<< Identity.run)
 
--- The eval function runs a state transition and returns the output.
-eval : {S X : Set} -> State S X -> S -> X
-eval trans = run trans >>> fst
+with' : (S -> S) -> State S A -> State S A
+with' = StateT.with'
 
--- The exec function runs a state transition and returns the new state.
-exec : forall {S X} -> State S X -> S -> S
-exec trans = run trans >>> snd
+get : State S S
+get = StateT.get
+
+put : S -> State S Unit
+put = StateT.put
+
+modify : (S -> S) -> State S Unit
+modify = StateT.modify
+
+gets : (S -> A) -> State S A
+gets = StateT.gets
