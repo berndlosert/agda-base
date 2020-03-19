@@ -2,28 +2,28 @@
 
 module Control.Monad.Reader where
 
-open import Prelude
+import Control.Monad.ReaderT as ReaderT
+import Prelude
 
--- Reader R X models computations of type X that depend on a config. value of
--- type R. Such computations are called Reader computations.
+open Prelude
+open ReaderT using (ReaderT; ReaderT:)
+
+private
+  variable
+    A B R R' : Set
+    M : Set -> Set
+
 Reader : Set -> Set -> Set
-Reader R X = R -> X
+Reader R = ReaderT R Identity
 
--- Reader R is a functor.
-instance
-  Functor:Reader : forall {R} -> Functor (Reader R)
-  Functor:Reader .map f r = r >>> f
+Reader: : {{_ : Monad M}} -> (R -> A) -> Reader R A
+Reader: f = ReaderT: (return <<< f)
 
--- Reader R is a monad.
-instance
-  Monad:Reader : forall {R} -> Monad (Reader R)
-  Monad:Reader .return x = \ _ -> x
-  Monad:Reader .extend f m = \ r -> f (m r) r
+run : Reader R A -> R -> A
+run m = Identity.run <<< ReaderT.run m
 
--- The function ask returns the config. value.
-ask : forall {R} -> Reader R R
-ask = id
+map' : (A -> B) -> Reader R A -> Reader R B
+map' f = ReaderT.map' (Identity: <<< f <<< Identity.run)
 
--- Run a Reader computation with a given config. value to get an actual value.
-run : forall {R X} -> Reader R X -> R -> X
-run = id
+with' : (R' -> R) -> Reader R A -> Reader R' A
+with' f m = ReaderT.with' f m

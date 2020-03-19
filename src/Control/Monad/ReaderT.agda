@@ -39,7 +39,7 @@ instance
   MonadReader:ReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
   MonadReader:ReaderT = \ where
     .ask -> ReaderT: return
-    .local -> with'
+    .local f -> with' f
 
   MonadTrans:ReaderT : MonadTrans (ReaderT R)
   MonadTrans:ReaderT .lift = ReaderT: <<< const
