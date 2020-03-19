@@ -478,7 +478,7 @@ data Ordering : Set where
 
 record Ord (A : Set) : Set where
   field
-    {{instance:Eq}} : Eq A
+    overlap {{Eq:Ord}} : Eq A
     _<_ : A -> A -> Bool
 
   compare : A -> A -> Ordering
