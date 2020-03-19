@@ -835,7 +835,7 @@ instance
   Show:Nat .show n = show (pos n)
 
   Show:Pair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
-  Show:Pair .show (Pair: x y) = "Pair: " ++ show x ++ " " ++ show y
+  Show:Pair .show (Pair: x y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
   Show:Either : {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
   Show:Either .show = \ where
@@ -882,8 +882,6 @@ postulate
   getContents : IO String
 
 {-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC mapIO = \ _ _ f -> map f #-}
-{-# COMPILE GHC apIO = \ _ _ mf ma -> ap mf ma #-}
 {-# COMPILE GHC pureIO = \ _ a -> pure a #-}
 {-# COMPILE GHC bindIO = \ _ _ ma f -> ma >>= f #-}
 {-# COMPILE GHC putStr = Text.putStr #-}
@@ -893,12 +891,12 @@ postulate
 
 instance
   Functor:IO : Functor IO
-  Functor:IO .map = mapIO
+  Functor:IO .map f io = bindIO io (f >>> pureIO)
 
   Applicative:IO : Applicative IO
   Applicative:IO = \ where
     .pure -> pureIO
-    ._<*>_ -> apIO
+    ._<*>_ fs xs -> bindIO fs (\ f -> bindIO xs (\ x -> pureIO (f x)))
 
   Monad:IO : Monad IO
   Monad:IO ._>>=_ = bindIO

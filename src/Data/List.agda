@@ -326,6 +326,11 @@ traverse' : forall {F A B} {{_ : Applicative F}}
   -> (A -> F B) -> List A -> F Unit
 traverse' f = foldr (_*>_ <<< f) (pure tt)
 
+-- Shorthand for flip traverse'.
+for' : forall {F A B} {{_ : Applicative F}}
+  -> List A -> (A -> F B) -> F Unit
+for' = flip traverse'
+
 --------------------------------------------------------------------------------
 -- Predicates
 --------------------------------------------------------------------------------
@@ -355,6 +360,13 @@ isInfixOf xs ys = any (isPrefixOf xs) (tails ys)
 ------------------------------------------------------------------------------
 -- Indexing operations
 ------------------------------------------------------------------------------
+
+-- indexed pairs each element with its index.
+indexed : List A -> List (Nat * A)
+indexed as = zip indices as
+  where
+    indices : List Nat
+    indices = til (length as)
 
 -- elemAt as n retrieves the (n - 1)th item in the list as.
 elemAt : Nat -> List A -> Maybe A

@@ -163,3 +163,9 @@ takeWhile p s = [ Pair: (String.takeWhile p s) (String.dropWhile p s) ]
 -- Consumes the rest of the input.
 takeRest : Parser String
 takeRest = takeWhile (const true)
+
+-- Run a parser on a string and get the first result.
+parse : Parser A -> String -> Maybe A
+parse p s with p s
+... | [] = nothing
+... | (Pair: a _) :: _ = just a
