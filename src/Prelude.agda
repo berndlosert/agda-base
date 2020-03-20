@@ -412,7 +412,7 @@ F ~> G  = forall {A} -> F A -> G A
 record Applicative (F : Set -> Set) : Set where
   infixl 24 _<*>_ _*>_ _<*_
   field
-    overlap {{functor}} : Functor F
+    overlap {{super}} : Functor F
     _<*>_ : F (A -> B) -> F A -> F B
     pure : A -> F A
 
@@ -431,7 +431,7 @@ open Applicative {{...}} public
 record Monad (M : Set -> Set) : Set where
   infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
   field
-    overlap {{applicative}} : Applicative M
+    overlap {{super}} : Applicative M
     _>>=_ : M A -> (A -> M B) -> M B
 
   return : A -> M A
@@ -658,16 +658,16 @@ instance
 
 instance
   applicativeEither : Applicative (A +_)
-  applicativeEither = \ where
-    .pure -> right
-    ._<*>_ (left a) _ -> left a
-    ._<*>_ (right f) r -> map f r
+  applicativeEither .pure = right
+  applicativeEither ._<*>_ = \ where
+    (left a) _ -> left a
+    (right f) r -> map f r
 
   applicativeMaybe : Applicative Maybe
-  applicativeMaybe = \ where
-    .pure -> just
-    ._<*>_ (just f) m -> map f m
-    ._<*>_ nothing _ -> nothing
+  applicativeMaybe .pure = just
+  applicativeMaybe ._<*>_ = \ where
+    (just f) m -> map f m
+    nothing _ -> nothing
 
   applicativeList : Applicative List
   applicativeList .pure = singleton
@@ -677,9 +677,8 @@ instance
     (f :: fs) (x :: xs) -> f x :: fs <*> xs
 
   applicativeIdentity : Applicative Identity
-  applicativeIdentity = \ where
-    .pure -> value
-    ._<*>_ (value f) x -> map f x
+  applicativeIdentity .pure = value
+  applicativeIdentity ._<*>_ (value f) x = map f x
 
 --------------------------------------------------------------------------------
 -- Monad instances
@@ -873,9 +872,9 @@ instance
   functorIO .map f io = bindIO io (f >>> pureIO)
 
   applicativeIO : Applicative IO
-  applicativeIO = \ where
-    .pure -> pureIO
-    ._<*>_ fs xs -> bindIO fs (\ f -> bindIO xs (\ x -> pureIO (f x)))
+  applicativeIO .pure = pureIO
+  applicative ._<*>_ fs xs =
+    bindIO fs (\ f -> bindIO xs (\ x -> pureIO (f x)))
 
   monadIO : Monad IO
   monadIO ._>>=_ = bindIO
