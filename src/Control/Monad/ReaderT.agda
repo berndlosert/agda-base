@@ -36,11 +36,11 @@ instance
     a <- ReaderT.run m r
     ReaderT.run (k a) r
 
-  MonadReader:ReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
-  MonadReader:ReaderT = \ where
+  monadReaderReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
+  monadReaderReaderT = \ where
     .ask -> ReaderT: return
     .local f -> with' f
 
-  MonadTrans:ReaderT : MonadTrans (ReaderT R)
-  MonadTrans:ReaderT .lift = ReaderT: <<< const
-  MonadTrans:ReaderT .transform = monadReaderT
+  monadTransReaderT : MonadTrans (ReaderT R)
+  monadTransReaderT .lift = ReaderT: <<< const
+  monadTransReaderT .transform = monadReaderT

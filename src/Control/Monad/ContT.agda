@@ -37,12 +37,12 @@ instance
   monadContT : Monad (ContT R M)
   monadContT ._>>=_ m k = ContT: $ \ c -> ContT.run m (\ x -> ContT.run (k x) c)
 
-  MonadTrans:ContT : MonadTrans (ContT R)
-  MonadTrans:ContT .lift m = ContT: (m >>=_)
-  MonadTrans:ContT .transform = monadContT
+  monadTransContT : MonadTrans (ContT R)
+  monadTransContT .lift m = ContT: (m >>=_)
+  monadTransContT .transform = monadContT
 
-  MonadCont:ContT : MonadCont (ContT R M)
-  MonadCont:ContT .callCC f =
+  monadContContT : MonadCont (ContT R M)
+  monadContContT .callCC f =
     ContT: $ \ c -> ContT.run (f (\ x -> ContT: $ \ _ -> c x)) c
 
 reset : {{_ : Monad M}} -> ContT R M R -> ContT R' M R

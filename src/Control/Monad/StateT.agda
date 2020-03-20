@@ -49,8 +49,8 @@ instance
     (a , s') <- StateT.run m s
     StateT.run (k a) s'
 
-  MonadTrans:StateT : MonadTrans (StateT S)
-  MonadTrans:StateT = \ where
+  monadTransStateT : MonadTrans (StateT S)
+  monadTransStateT = \ where
     .lift m -> StateT: \ s -> do
       a <- m
       return (a , s)
