@@ -22,5 +22,5 @@ record Profunctor (P : Set -> Set -> Set) : Set where
 open Profunctor {{...}} public
 
 instance
-  Profunctor:Function : Profunctor Function
-  Profunctor:Function .dimap f g h = f >>> h >>> g
+  profunctorFunction : Profunctor Function
+  profunctorFunction .dimap f g h = f >>> h >>> g

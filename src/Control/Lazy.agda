@@ -13,5 +13,5 @@ open import Agda.Builtin.Coinduction public
 
 -- Lazy is a functor.
 instance
-  Functor:Lazy : Functor Lazy
-  Functor:Lazy .map f x = delay (f (force x))
+  functorLazy : Functor Lazy
+  functorLazy .map f x = delay (f (force x))

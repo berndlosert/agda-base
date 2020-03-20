@@ -21,18 +21,18 @@ Parser : Set -> Set
 Parser A = String -> List (A * String)
 
 instance
-  Functor:Parser : Functor Parser
-  Functor:Parser .map f p s = map (cross f id) (p s)
+  functorParser : Functor Parser
+  functorParser .map f p s = map (cross f id) (p s)
 
-  Applicative:Parser : Applicative Parser
-  Applicative:Parser .pure x s = singleton (x , s)
-  Applicative:Parser ._<*>_ f p = \ s -> do
+  applicativeParser : Applicative Parser
+  applicativeParser .pure x s = singleton (x , s)
+  applicativeParser ._<*>_ f p = \ s -> do
     (g , s') <- f s
     (x , s'') <- p s'
     return (g x , s'')
 
-  Monad:Parser : Monad Parser
-  Monad:Parser ._>>=_ p f s = join $ map (uncurry f) (p s)
+  monadParser : Monad Parser
+  monadParser ._>>=_ p f s = join $ map (uncurry f) (p s)
 
 -- The empty parser doesn't parse anything.
 empty : Parser A

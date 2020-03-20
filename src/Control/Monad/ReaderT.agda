@@ -23,16 +23,16 @@ with' : (R' -> R) -> ReaderT R M ~> ReaderT R' M
 with' f m = ReaderT: $ ReaderT.run m <<< f
 
 instance
-  Functor:ReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
-  Functor:ReaderT .map f = map' (map f)
+  functorReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
+  functorReaderT .map f = map' (map f)
 
-  Applicative:ReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
-  Applicative:ReaderT .pure = ReaderT: <<< const <<< pure
-  Applicative:ReaderT ._<*>_ f v = ReaderT: $ \ r ->
+  applicativeReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
+  applicativeReaderT .pure = ReaderT: <<< const <<< pure
+  applicativeReaderT ._<*>_ f v = ReaderT: $ \ r ->
     ReaderT.run f r <*> ReaderT.run v r
 
-  Monad:ReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
-  Monad:ReaderT ._>>=_ m k = ReaderT: $ \ r -> do
+  monadReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
+  monadReaderT ._>>=_ m k = ReaderT: $ \ r -> do
     a <- ReaderT.run m r
     ReaderT.run (k a) r
 
@@ -43,4 +43,4 @@ instance
 
   MonadTrans:ReaderT : MonadTrans (ReaderT R)
   MonadTrans:ReaderT .lift = ReaderT: <<< const
-  MonadTrans:ReaderT .transform = Monad:ReaderT
+  MonadTrans:ReaderT .transform = monadReaderT

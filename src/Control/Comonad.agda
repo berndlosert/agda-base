@@ -11,7 +11,7 @@ private
 record Comonad (W : Set -> Set) : Set where
   infixl 1 _=>>_ _=>=_
   field
-    {{Functor:Comonad}} : Functor W
+    {{functor}} : Functor W
     extend : (W A -> B) -> W A -> W B
     extract : W A -> A
 

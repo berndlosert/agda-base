@@ -7,9 +7,9 @@ module Data.Monoid where
 open import Data.Semigroup public
 
 record Monoid (X : Set) : Set where
-  constructor Monoid:
+  constructor monoid
   field
-    overlap {{Semigroup:Monoid}} : Semigroup X
+    overlap {{semigroupMonoid}} : Semigroup X
     mempty : X
 
 open Monoid {{...}} public
@@ -21,5 +21,5 @@ open import Notation.Dual public
 instance
   Dual:Monoid : forall {X} -> Dual (Monoid X)
   Dual:Monoid .Op monoid = let instance inst = monoid in \ where
-    .Semigroup:Monoid -> Op (Semigroup:Monoid {{inst}})
+    .semigroupMonoid -> Op (semigroupMonoid {{inst}})
     .mempty -> mempty

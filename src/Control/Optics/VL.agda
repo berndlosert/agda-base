@@ -23,7 +23,7 @@ private
 -- Characterizes Setter
 record Settable (F : Set -> Set) : Set where
   field
-    overlap {{Applicative:Settable}} : Applicative F
+    overlap {{applicativeSettable}} : Applicative F
     -- This should be the inverse of pure.
     unpure : F A -> A
 

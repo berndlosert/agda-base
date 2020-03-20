@@ -15,19 +15,19 @@ record Const (A B : Set) : Set where
     get : A
 
 instance
-  Eq:Const : {{_ : Eq A}} -> Eq (Const A B)
-  Eq:Const ._==_ (Const: x) (Const: y) = x == y
+  eqConst : {{_ : Eq A}} -> Eq (Const A B)
+  eqConst ._==_ (Const: x) (Const: y) = x == y
 
-  Ord:Const : {{_ : Ord A}} -> Ord (Const A B)
-  Ord:Const ._<_ (Const: x) (Const: y) = x < y
+  ordConst : {{_ : Ord A}} -> Ord (Const A B)
+  ordConst ._<_ (Const: x) (Const: y) = x < y
 
-  Functor:Const : Functor (Const A)
-  Functor:Const .map f (Const: a) = Const: a
+  functorConst : Functor (Const A)
+  functorConst .map f (Const: a) = Const: a
 
-  Contravariant:Const : Contravariant (Const A)
-  Contravariant:Const .contramap f (Const: a) = Const: a
+  contravariantConst : Contravariant (Const A)
+  contravariantConst .contramap f (Const: a) = Const: a
 
-  Applicative:Const : {{_ : Monoid A}} -> Applicative (Const A)
-  Applicative:Const = \ where
+  applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
+  applicativeConst = \ where
     .pure x -> Const: mempty
     ._<*>_ (Const: x) (Const: y) -> Const: (x <> y)

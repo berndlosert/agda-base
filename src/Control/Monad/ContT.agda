@@ -26,20 +26,20 @@ with' : ((B -> M R) -> (A -> M R)) -> ContT R M A -> ContT R M B
 with' f m = ContT: $ ContT.run m <<< f
 
 instance
-  Functor:ContT : Functor (ContT R M)
-  Functor:ContT .map f m = ContT: \ c -> ContT.run m (c <<< f)
+  functorContT : Functor (ContT R M)
+  functorContT .map f m = ContT: \ c -> ContT.run m (c <<< f)
 
-  Applicative:ContT : Applicative (ContT R M)
-  Applicative:ContT .pure x = ContT: (_$ x)
-  Applicative:ContT ._<*>_ f v =
+  applicativeContT : Applicative (ContT R M)
+  applicativeContT .pure x = ContT: (_$ x)
+  applicativeContT ._<*>_ f v =
     ContT: \ c -> ContT.run f $ \ g -> ContT.run v (c <<< g)
 
-  Monad:ContT : Monad (ContT R M)
-  Monad:ContT ._>>=_ m k = ContT: $ \ c -> ContT.run m (\ x -> ContT.run (k x) c)
+  monadContT : Monad (ContT R M)
+  monadContT ._>>=_ m k = ContT: $ \ c -> ContT.run m (\ x -> ContT.run (k x) c)
 
   MonadTrans:ContT : MonadTrans (ContT R)
   MonadTrans:ContT .lift m = ContT: (m >>=_)
-  MonadTrans:ContT .transform = Monad:ContT
+  MonadTrans:ContT .transform = monadContT
 
   MonadCont:ContT : MonadCont (ContT R M)
   MonadCont:ContT .callCC f =

@@ -15,12 +15,12 @@ record Predicate (A : Set) : Set where
     get : A -> Bool
 
 instance
-  Semigroup:Predicate : Semigroup (Predicate A)
-  Semigroup:Predicate ._<>_ (Predicate: p) (Predicate: q) =
+  semigroupPredicate : Semigroup (Predicate A)
+  semigroupPredicate ._<>_ (Predicate: p) (Predicate: q) =
     Predicate: (\ a -> p a && q a)
 
-  Monoid:Predicate : Monoid (Predicate A)
-  Monoid:Predicate .mempty = Predicate: (const true)
+  monoidPredicate : Monoid (Predicate A)
+  monoidPredicate .mempty = Predicate: (const true)
 
-  Functor:Predicate : Contravariant Predicate
-  Functor:Predicate .contramap f (Predicate: p) = Predicate: (f >>> p)
+  functorPredicate : Contravariant Predicate
+  functorPredicate .contramap f (Predicate: p) = Predicate: (f >>> p)

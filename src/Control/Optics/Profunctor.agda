@@ -20,7 +20,7 @@ private
 -- Characterizes Lens
 record Strong (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Strong}} : Profunctor P
+    overlap {{profunctorStrong}} : Profunctor P
     strong : P A B -> P (C * A) (C * B)
 
 open Strong {{...}} public
@@ -28,7 +28,7 @@ open Strong {{...}} public
 -- Characterizes Prism
 record Choice (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Choice}} : Profunctor P
+    overlap {{profunctorChoice}} : Profunctor P
     choice : P A B -> P (C + A) (C + B)
 
 open Choice {{...}} public
@@ -36,7 +36,7 @@ open Choice {{...}} public
 -- Characterizes Grate
 record Closed (P : Set -> Set -> Set) : Set where
   field
-    overlap {{Profunctor:Closed}} : Profunctor P
+    overlap {{profunctorClosed}} : Profunctor P
     closed : P A B -> P (C -> A) (C -> B)
 
 open Closed {{...}} public
@@ -166,18 +166,18 @@ Setter: = id
 --------------------------------------------------------------------------------
 
 instance
-  Profunctor:Adapter : Profunctor (Adapter A B)
-  Profunctor:Adapter .dimap f g adapter = dimap f g <<< adapter
+  profunctorAdapter : Profunctor (Adapter A B)
+  profunctorAdapter .dimap f g adapter = dimap f g <<< adapter
 
-  Profunctor:Exchange : Profunctor (Exchange A B)
-  Profunctor:Exchange .dimap f g (Exchange: from to) =
+  profunctorExchange : Profunctor (Exchange A B)
+  profunctorExchange .dimap f g (Exchange: from to) =
     Exchange: (from <<< f) (g <<< to)
 
-  Profunctor:Lens : Profunctor (Lens A B)
-  Profunctor:Lens .dimap f g lens = dimap f g <<< lens
+  profunctorLens : Profunctor (Lens A B)
+  profunctorLens .dimap f g lens = dimap f g <<< lens
 
-  Profunctor:Shop : Profunctor (Shop A B)
-  Profunctor:Shop .dimap f g (Shop: get put) =
+  profunctorShop : Profunctor (Shop A B)
+  profunctorShop .dimap f g (Shop: get put) =
     Shop: (get <<< f) (\ s -> g <<< put (f s))
 
   Strong:Shop : Strong (Shop A B)
@@ -187,11 +187,11 @@ instance
       get' (u , s) = get s
       put' (u , s) y = (u , put s y)
 
-  Profunctor:Prism : Profunctor (Prism A B)
-  Profunctor:Prism .dimap f g prism = dimap f g <<< prism
+  profunctorPrism : Profunctor (Prism A B)
+  profunctorPrism .dimap f g prism = dimap f g <<< prism
 
-  Profunctor:Market : Profunctor (Market A B)
-  Profunctor:Market .dimap f g (Market: build match) =
+  profunctorMarket : Profunctor (Market A B)
+  profunctorMarket .dimap f g (Market: build match) =
       Market: (g <<< build) (first g <<< match <<< f)
 
   Choice:Market : Choice (Market A B)
@@ -204,22 +204,22 @@ instance
       ... | left t = left (right t)
       ... | right x = right x
 
-  Profunctor:Grate : Profunctor (Grate A B)
-  Profunctor:Grate .dimap f g grate = dimap f g <<< grate
+  profunctorGrate : Profunctor (Grate A B)
+  profunctorGrate .dimap f g grate = dimap f g <<< grate
 
-  Profunctor:Grating : Profunctor (Grating A B)
-  Profunctor:Grating .dimap f g (Grating: degrating) =
+  profunctorGrating : Profunctor (Grating A B)
+  profunctorGrating .dimap f g (Grating: degrating) =
     Grating: \ d -> g (degrating \ k -> d (k <<< f))
 
   Closed:Grating : Closed (Grating A B)
   Closed:Grating .closed (Grating: degrating) =
     Grating: \ f x -> degrating \ k -> f \ g -> k (g x)
 
-  Profunctor:Traversal : Profunctor (Traversal A B)
-  Profunctor:Traversal .dimap f g traverse = dimap f g <<< traverse
+  profunctorTraversal : Profunctor (Traversal A B)
+  profunctorTraversal .dimap f g traverse = dimap f g <<< traverse
 
-  Profunctor:Bazaar : Profunctor (Bazaar P A B)
-  Profunctor:Bazaar .dimap f g (Bazaar: b) = Bazaar: \ h s -> g <$> b h (f s)
+  profunctorBazaar : Profunctor (Bazaar P A B)
+  profunctorBazaar .dimap f g (Bazaar: b) = Bazaar: \ h s -> g <$> b h (f s)
 
   Strong:Bazaar : Strong (Bazaar P A B)
   Strong:Bazaar .strong (Bazaar: b) = Bazaar: \ where

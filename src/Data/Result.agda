@@ -9,15 +9,15 @@ data Result (E X : Set) : Set where
   ok : X -> Result E X
 
 instance
-  Functor:Result : forall {E} -> Functor (Result E)
-  Functor:Result .map f = \ where
+  functorResult : forall {E} -> Functor (Result E)
+  functorResult .map f = \ where
     (ok x) -> ok (f x)
     (error e) -> error e
 
-  Applicative:Result : forall {E} {{_ : Semigroup E}}
+  applicativeResult : forall {E} {{_ : Semigroup E}}
     -> Applicative (Result E)
-  Applicative:Result .pure = ok
-  Applicative:Result ._<*>_ = \ where
+  applicativeResult .pure = ok
+  applicativeResult ._<*>_ = \ where
     (ok f) (ok x) -> ok (f x)
     (ok _) (error e) -> error e
     (error e) (error e') -> error (e <> e')

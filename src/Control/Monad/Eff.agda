@@ -5,7 +5,7 @@ module Control.Monad.Eff where
 -- Eff Fs is just the free monad obtained from a disjoint union of Fs.
 
 import Control.Monad.Free as Free
-open Free using (Free; Free:; Monad:Free)
+open Free using (Free; Free:; monadFree)
 open import Data.Functor.Union
 
 Eff : List (Set -> Set) -> Set -> Set
@@ -63,10 +63,10 @@ fold {F} {Fs} {_} {Y} ret ext = Free.fold ret ext'
 
 run : forall {X} -> Eff [] X -> X
 run eff = interpret (\ ()) eff
-  where instance _ = Monad:id Sets
+  where instance _ = monadid Sets
 
 -- This Monad instance is for exporting purposes only.
 
 instance
-  Monad:Eff : forall {Fs} -> Monad (Eff Fs)
-  Monad:Eff = Monad:Free
+  monadEff : forall {Fs} -> Monad (Eff Fs)
+  monadEff = monadFree

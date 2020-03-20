@@ -11,8 +11,8 @@ instance
 
 -- The product of two endofunctors is a functor.
 instance
-  Functor:Product : forall {F G}
+  functorProduct : forall {F G}
     -> {{_ : Functor F}}
     -> {{_ : Functor G}}
     -> Functor (F * G)
-  Functor:Product .map f (x , y) = (map f x , map f y)
+  functorProduct .map f (x , y) = (map f x , map f y)

@@ -32,20 +32,20 @@ with' : (S -> S) -> StateT S M A -> StateT S M A
 with' f m = StateT: $ StateT.run m <<< f
 
 instance
-  Functor:StateT : {{_ : Functor M}} -> Functor (StateT S M)
-  Functor:StateT .map f m = StateT: $ \ s ->
+  functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
+  functorStateT .map f m = StateT: $ \ s ->
     map (\ where (a , s') -> (f a , s')) $ StateT.run m s
 
-  Applicative:StateT : {{_ : Monad M}} -> Applicative (StateT S M)
-  Applicative:StateT = \ where
+  applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
+  applicativeStateT = \ where
     .pure a -> StateT: $ \ s -> return (a , s)
     ._<*>_ (StateT: mf) (StateT: mx) -> StateT: $ \ s -> do
       (f , s') <- mf s
       (x , s'') <- mx s'
       return (f x , s'')
 
-  Monad:StateT : {{_ : Monad M}} -> Monad (StateT S M)
-  Monad:StateT ._>>=_ m k = StateT: $ \ s -> do
+  monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
+  monadStateT ._>>=_ m k = StateT: $ \ s -> do
     (a , s') <- StateT.run m s
     StateT.run (k a) s'
 
@@ -54,7 +54,7 @@ instance
     .lift m -> StateT: \ s -> do
       a <- m
       return (a , s)
-    .transform -> Monad:StateT
+    .transform -> monadStateT
 
 state : {{_ : Monad M}} -> (S -> A * S) -> StateT S M A
 state f = StateT: (return <<< f)

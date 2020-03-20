@@ -44,9 +44,9 @@ run = Eff.fold
 -- using the monoid operation.
 
 --instance
---  Monad:Writer : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
---  Monad:Writer = record {
---      instance:Functor = Functor:Writer;
+--  monadWriter : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
+--  monadWriter = record {
+--      instance:Functor = functorWriter;
 --      join = \ { ((x , w) , w') -> (x , w <> w') };
 --      return = \ x -> (x , mempty)
 --    }

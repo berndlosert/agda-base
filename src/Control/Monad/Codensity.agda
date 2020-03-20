@@ -13,9 +13,9 @@ Codensity : (Set -> Set) -> Set -> Set
 Codensity F X = forall {Y} -> (X -> F Y) -> F Y
 
 instance
-  Monad:Codensity : forall {F} -> Monad (Codensity F)
-  Monad:Codensity .return x = \ k -> k x
-  Monad:Codensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
+  monadCodensity : forall {F} -> Monad (Codensity F)
+  monadCodensity .return x = \ k -> k x
+  monadCodensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
 
 -- And just like any monoid M is a submonoid of X -> X, any monad M is a
 -- "submonad" of Codensity M. The embedding of X in X -> X assigns to each x :

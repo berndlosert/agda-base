@@ -39,5 +39,5 @@ Fun X Y = Pi X (const Y)
 open import Control.Monad
 
 instance
-  Monad:General : forall {Req Resp} -> Monad (General Req Resp)
-  Monad:General = Monad:Free
+  monadGeneral : forall {Req Resp} -> Monad (General Req Resp)
+  monadGeneral = monadFree

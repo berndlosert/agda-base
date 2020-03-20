@@ -10,8 +10,8 @@ private
 
 record MonadWriter (W : Set) (M : Set -> Set) : Set where
   field
-    {{Monoid:MonadWriter}} : Monoid W
-    {{Monad:Monad}} : Monad M
+    {{monoidMonadWriter}} : Monoid W
+    {{monadMonad}} : Monad M
     tell : W -> M Unit
     listen : M A -> M (A * W)
     pass : M (A * (W -> W)) -> M A

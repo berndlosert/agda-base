@@ -62,13 +62,13 @@ nest (suc n) f x = f (nest n f x)
 
 open import Data.Semigroup public
 
-Semigroup:Function : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
-Semigroup:Function ._<>_ f g = \ x -> f x <> g x
+semigroupFunction : {X Y : Set} {{_ : Semigroup Y}} -> Semigroup (X -> Y)
+semigroupFunction ._<>_ f g = \ x -> f x <> g x
 
 -- Functions of the form X -> Y where Y is a monoid form a monoid.
 
 open import Data.Monoid public
 
-Monoid:Function : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
-Monoid:Function .Semigroup:Monoid = Semigroup:Function
-Monoid:Function .mempty = \ x -> mempty
+monoidFunction : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
+monoidFunction .semigroupMonoid = semigroupFunction
+monoidFunction .mempty = \ x -> mempty

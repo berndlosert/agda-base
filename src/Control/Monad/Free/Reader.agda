@@ -14,8 +14,8 @@ open import Control.Category
 open import Data.Functor
 
 instance
-  Functor:Reader : forall {R} -> Functor (Reader R)
-  Functor:Reader .map = _<<<_
+  functorReader : forall {R} -> Functor (Reader R)
+  functorReader .map = _<<<_
 
 -- The function ask returns the config. value.
 
@@ -45,6 +45,6 @@ run {R} {Fs} r eff = Eff.interpret t eff
 open import Data.Function
 
 instance
-  Monad:Reader : forall {R} -> Monad (Reader R)
-  Monad:Reader .return x = const x
-  Monad:Reader .extend f m = \ r -> f (m r) r
+  monadReader : forall {R} -> Monad (Reader R)
+  monadReader .return x = const x
+  monadReader .extend f m = \ r -> f (m r) r

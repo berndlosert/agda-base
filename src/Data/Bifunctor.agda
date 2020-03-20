@@ -24,12 +24,12 @@ record Bifunctor (P : Set -> Set -> Set) : Set where
 open Bifunctor {{...}} public
 
 instance
-  Bifunctor:Const : Bifunctor Const
-  Bifunctor:Const .bimap f g = \ where
+  bifunctorConst : Bifunctor Const
+  bifunctorConst .bimap f g = \ where
     (Const: x) -> Const: (f x)
 
-  Bifunctor:Pair : Bifunctor _*_
-  Bifunctor:Pair .bimap f g = cross f g
+  bifunctorPair : Bifunctor _*_
+  bifunctorPair .bimap f g = cross f g
 
-  Bifunctor:Either : Bifunctor _+_
-  Bifunctor:Either .bimap f g = plus f g
+  bifunctorEither : Bifunctor _+_
+  bifunctorEither .bimap f g = plus f g

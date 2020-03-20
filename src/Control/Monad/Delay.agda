@@ -56,13 +56,13 @@ open import Control.Monad
 open import Data.Functor
 
 instance
-  Functor:Delay : {i : Size} -> Functor (Delay i)
-  Functor:Delay .map f (now x) = now (f x)
-  Functor:Delay .map f (later thunk) =
+  functorDelay : {i : Size} -> Functor (Delay i)
+  functorDelay .map f (now x) = now (f x)
+  functorDelay .map f (later thunk) =
     later \ where .force -> map f (force thunk)
 
-  Monad:Delay : {i : Size} -> Monad (Delay i)
-  Monad:Delay .return = now
-  Monad:Delay .extend f (now x) = f x
-  Monad:Delay .extend f (later thunk) = later \ where
+  monadDelay : {i : Size} -> Monad (Delay i)
+  monadDelay .return = now
+  monadDelay .extend f (now x) = f x
+  monadDelay .extend f (later thunk) = later \ where
     .force -> extend f (force thunk)

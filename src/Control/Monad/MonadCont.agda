@@ -10,7 +10,7 @@ private
 
 record MonadCont (M : Set -> Set) : Set where
   field
-    {{Monad:MonadCont}} : Monad M
+    {{monad}} : Monad M
     callCC : ((A -> M B) -> M A) -> M A
 
 open MonadCont {{...}} public

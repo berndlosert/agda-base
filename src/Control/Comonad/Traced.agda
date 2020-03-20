@@ -14,9 +14,9 @@ Traced : Set -> Set -> Set
 Traced M X = M -> X
 
 instance
-  Functor:Traced : Functor (Traced M)
-  Functor:Traced .map f g = g >>> f
+  functorTraced : Functor (Traced M)
+  functorTraced .map f g = g >>> f
 
-  Comonad:Traced : {{_ : Monoid M}} -> Comonad (Traced M)
-  Comonad:Traced .extend h t m = h $ \ m' -> t (m <> m')
-  Comonad:Traced .extract f = f mempty
+  comonadTraced : {{_ : Monoid M}} -> Comonad (Traced M)
+  comonadTraced .extend h t m = h $ \ m' -> t (m <> m')
+  comonadTraced .extract f = f mempty
