@@ -20,10 +20,10 @@ Reader: : {{_ : Monad M}} -> (R -> A) -> Reader R A
 Reader: f = ReaderT: (return <<< f)
 
 run : Reader R A -> R -> A
-run m = Identity.run <<< ReaderT.run m
+run m = runIdentity <<< ReaderT.run m
 
 map' : (A -> B) -> Reader R A -> Reader R B
-map' f = ReaderT.map' (value <<< f <<< Identity.run)
+map' f = ReaderT.map' (value <<< f <<< runIdentity)
 
 with' : (R' -> R) -> Reader R A -> Reader R' A
 with' f m = ReaderT.with' f m

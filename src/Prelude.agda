@@ -159,7 +159,8 @@ data Vector (A : Set) : Nat -> Set where
 
 record Identity (A : Set) : Set where
   constructor value
-  field run : A
+  field runIdentity : A
+open Identity public
 
 record All : Set where
   constructor value

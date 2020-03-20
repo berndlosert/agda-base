@@ -104,13 +104,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = g (k >>> value) >>> Identity.run
+over g k = g (k >>> value) >>> runIdentity
 
 set : ASetter S T A B -> B -> S -> T
-set l y = l (\ _ -> value y) >>> Identity.run
+set l y = l (\ _ -> value y) >>> runIdentity
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = f (k >>> Identity.run) >>> value
+sets f k = f (k >>> runIdentity) >>> value
 
 --------------------------------------------------------------------------------
 -- Lenslike operations

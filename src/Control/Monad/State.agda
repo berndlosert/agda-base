@@ -20,7 +20,7 @@ State: : {{_ : Monad M}} -> (S -> A * S) -> State S A
 State: = state
 
 run : State S A -> S -> A * S
-run m = Identity.run <<< StateT.run m
+run m = runIdentity <<< StateT.run m
 
 eval : State S A -> S -> A
 eval m s = fst (run m s)
@@ -29,7 +29,7 @@ exec : State S A -> S -> S
 exec m s = snd (run m s)
 
 map' : (A * S -> B * S) -> State S A -> State S B
-map' f = StateT.map' (value <<< f <<< Identity.run)
+map' f = StateT.map' (value <<< f <<< runIdentity)
 
 with' : (S -> S) -> State S A -> State S A
 with' = StateT.with'
