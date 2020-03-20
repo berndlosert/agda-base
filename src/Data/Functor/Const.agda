@@ -5,29 +5,26 @@ module Data.Functor.Const where
 open import Data.Functor.Contravariant
 open import Prelude
 
-private
-  variable
-    A B : Set
+private variable A B : Set
 
 record Const (A B : Set) : Set where
-  constructor Const:
-  field
-    get : A
+  constructor value
+  field get : A
 
 instance
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ (Const: x) (Const: y) = x == y
+  eqConst ._==_ (value x) (value y) = x == y
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ (Const: x) (Const: y) = x < y
+  ordConst ._<_ (value x) (value y) = x < y
 
   functorConst : Functor (Const A)
-  functorConst .map f (Const: a) = Const: a
+  functorConst .map f (value a) = value a
 
   contravariantConst : Contravariant (Const A)
-  contravariantConst .contramap f (Const: a) = Const: a
+  contravariantConst .contramap f (value a) = value a
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst = \ where
-    .pure x -> Const: empty
-    ._<*>_ (Const: x) (Const: y) -> Const: (x <> y)
+    .pure x -> value empty
+    ._<*>_ (value x) (value y) -> value (x <> y)

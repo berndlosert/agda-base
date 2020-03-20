@@ -159,38 +159,31 @@ data Vector (A : Set) : Nat -> Set where
 
 record Identity (A : Set) : Set where
   constructor value
-  field
-    run : A
+  field run : A
 
 record All : Set where
   constructor value
-  field
-    get : Bool
+  field get : Bool
 
 record Any : Set where
   constructor value
-  field
-    get : Bool
+  field get : Bool
 
 record Sum (A : Set) : Set where
   constructor value
-  field
-    get : A
+  field get : A
 
 record Product (A : Set) : Set where
   constructor value
-  field
-    get : A
+  field get : A
 
 record First (A : Set) : Set where
   constructor value
-  field
-    get : Maybe A
+  field get : Maybe A
 
 record Dual (A : Set) : Set where
   constructor value
-  field
-    get : A
+  field get : A
 
 --------------------------------------------------------------------------------
 -- Basic functions
@@ -873,7 +866,7 @@ instance
 
   applicativeIO : Applicative IO
   applicativeIO .pure = pureIO
-  applicative ._<*>_ fs xs =
+  applicativeIO ._<*>_ fs xs =
     bindIO fs (\ f -> bindIO xs (\ x -> pureIO (f x)))
 
   monadIO : Monad IO

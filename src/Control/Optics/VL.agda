@@ -71,13 +71,13 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = Const: <<< Const.get <<< k <<< f
+to f k = value <<< Const.get <<< k <<< f
 
 view : Getting A S A -> S -> A
-view g = Const.get <<< g Const:
+view g = Const.get <<< g value
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = g (k >>> Const:) >>> Const.get
+foldMapOf g k = g (k >>> value) >>> Const.get
 
 foldrOf : Getting (R -> R) S A -> (A -> R -> R) -> R -> S -> R
 foldrOf l f z = \ s -> foldMapOf l f s z
@@ -148,10 +148,10 @@ instance
 --------------------------------------------------------------------------------
 
 fst! : Lens (A * C) (B * C) A B
-fst! k (x , y) = flip _,_ y <$> k x
+fst! k (x , y) = (_, y) <$> k x
 
 snd! : Lens (A * B) (A * C) B C
-snd! k (x , y) = _,_ x <$> k y
+snd! k (x , y) = (x ,_) <$> k y
 
 left! : Traversal (Either A C) (Either B C) A B
 left! f (left x) = left <$> f x

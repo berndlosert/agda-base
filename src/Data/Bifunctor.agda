@@ -26,7 +26,7 @@ open Bifunctor {{...}} public
 instance
   bifunctorConst : Bifunctor Const
   bifunctorConst .bimap f g = \ where
-    (Const: x) -> Const: (f x)
+    (value x) -> value (f x)
 
   bifunctorPair : Bifunctor _*_
   bifunctorPair .bimap f g = cross f g
