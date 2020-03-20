@@ -105,6 +105,8 @@ open import Agda.Builtin.String public
 -- Basic type constructors
 --------------------------------------------------------------------------------
 
+infixr 4 _,_
+
 Function : Set -> Set -> Set
 Function A B = A -> B
 
@@ -113,7 +115,7 @@ open import Agda.Builtin.Equality public
   renaming (_≡_ to _===_)
 
 record Pair (A B : Set) : Set where
-  constructor Pair:
+  constructor _,_
   field
     fst : A
     snd : B
@@ -124,7 +126,7 @@ instance
   Mul:Pair : Mul Set
   Mul:Pair ._*_ = Pair
 
-{-# FOREIGN GHC type AgdaPair a b = (a , b) #-}
+{-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
 {-# DISPLAY Pair A B = A * B #-}
 
@@ -148,7 +150,6 @@ data Maybe (A : Set) : Set where
 open import Agda.Builtin.List public
   using (List; [])
   renaming (_∷_ to _::_)
-  hiding (module List)
 
 data Vector (A : Set) : Nat -> Set where
   [] : Vector A zero
@@ -223,10 +224,10 @@ const : A -> B -> A
 const a _ = a
 
 uncurry : (A -> B -> C) -> A * B -> C
-uncurry f (Pair: a b) = f a b
+uncurry f (a , b) = f a b
 
 curry : (A * B -> C) -> A -> B -> C
-curry f a b = f (Pair: a b)
+curry f a b = f (a , b)
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Bool
@@ -391,18 +392,17 @@ instance
 -- Functor
 --------------------------------------------------------------------------------
 
+infixl 24 _<$>_
+infixr 2 _~>_
+
 record Functor (F : Set -> Set) : Set where
   field
     map : (A -> B) -> (F A -> F B)
 
 open Functor {{...}} public
 
-infixl 24 _<$>_
-
 _<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
 _<$>_ = map
-
-infixr 2 _~>_
 
 _~>_ : (F G : Set -> Set) -> Set
 F ~> G  = forall {A} -> F A -> G A
@@ -585,7 +585,7 @@ instance
   Eq:String ._==_ = Agda.Builtin.String.primStringEquality
 
   Eq:Pair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  Eq:Pair ._==_ (Pair: a b) (Pair: c d) = (a == c) && (b == d)
+  Eq:Pair ._==_ (a , b) (c , d) = (a == c) && (b == d)
 
   Eq:Either : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
   Eq:Either ._==_ = \ where
@@ -635,7 +635,7 @@ instance
 
 instance
   Functor:Pair : Functor (A *_)
-  Functor:Pair .map f (Pair: a x) = Pair: a (f x)
+  Functor:Pair .map f (a , x) = (a , f x)
 
   Functor:Either : Functor (A +_)
   Functor:Either .map f = \ where
@@ -816,7 +816,7 @@ instance
   Show:Nat .show n = show (pos n)
 
   Show:Pair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
-  Show:Pair .show (Pair: x y) = "(" ++ show x ++ " , " ++ show y ++ ")"
+  Show:Pair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
   Show:Either : {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
   Show:Either .show = \ where
