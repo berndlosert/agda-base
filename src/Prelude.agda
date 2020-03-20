@@ -164,27 +164,33 @@ open Identity public
 
 record All : Set where
   constructor value
-  field get : Bool
+  field getAll : Bool
+open All public
 
 record Any : Set where
   constructor value
-  field get : Bool
+  field getAny : Bool
+open Any public
 
 record Sum (A : Set) : Set where
   constructor value
-  field get : A
+  field getSum : A
+open Sum public
 
 record Product (A : Set) : Set where
   constructor value
-  field get : A
+  field getProduct : A
+open Product public
 
 record First (A : Set) : Set where
   constructor value
-  field get : Maybe A
+  field getFirst : Maybe A
+open First public
 
 record Dual (A : Set) : Set where
   constructor value
-  field get : A
+  field getDual : A
+open Dual public
 
 --------------------------------------------------------------------------------
 -- Basic functions

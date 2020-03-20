@@ -86,7 +86,7 @@ toListOf : Getting (List A -> List A) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
 preview : Getting (First A) S A -> S -> Maybe A
-preview l = First.get <<< foldMapOf l (value <<< just)
+preview l = getFirst <<< foldMapOf l (value <<< just)
 
 traverseOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
