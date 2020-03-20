@@ -158,37 +158,37 @@ data Vector (A : Set) : Nat -> Set where
 --------------------------------------------------------------------------------
 
 record Identity (A : Set) : Set where
-  constructor Identity:
+  constructor value
   field
     run : A
 
 record All : Set where
-  constructor All:
+  constructor value
   field
     get : Bool
 
 record Any : Set where
-  constructor Any:
+  constructor value
   field
     get : Bool
 
 record Sum (A : Set) : Set where
-  constructor Sum:
+  constructor value
   field
     get : A
 
 record Product (A : Set) : Set where
-  constructor Product:
+  constructor value
   field
     get : A
 
 record First (A : Set) : Set where
-  constructor First:
+  constructor value
   field
     get : Maybe A
 
 record Dual (A : Set) : Set where
-  constructor Dual:
+  constructor value
   field
     get : A
 
@@ -598,7 +598,7 @@ instance
     _ _ -> false
 
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ (Identity: x) (Identity: y) = x == y
+  eqIdentity ._==_ (value x) (value y) = x == y
 
 --------------------------------------------------------------------------------
 -- Ord instances
@@ -625,7 +625,7 @@ instance
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ (Identity: x) (Identity: y) = x < y
+  ordIdentity ._<_ (value x) (value y) = x < y
 
 --------------------------------------------------------------------------------
 -- Functor instances
@@ -650,7 +650,7 @@ instance
   functorList .map f (x :: xs) = f x :: map f xs
 
   functorIdentity : Functor Identity
-  functorIdentity .map f (Identity: a) = Identity: (f a)
+  functorIdentity .map f (value a) = value (f a)
 
 --------------------------------------------------------------------------------
 -- Applicative instances
@@ -678,8 +678,8 @@ instance
 
   applicativeIdentity : Applicative Identity
   applicativeIdentity = \ where
-    .pure -> Identity:
-    ._<*>_ (Identity: f) x -> map f x
+    .pure -> value
+    ._<*>_ (value f) x -> map f x
 
 --------------------------------------------------------------------------------
 -- Monad instances
@@ -702,7 +702,7 @@ instance
     (x :: xs) k -> k x ++ (xs >>= k)
 
   monadIdentity : Monad Identity
-  monadIdentity ._>>=_ (Identity: a) k = k a
+  monadIdentity ._>>=_ (value a) k = k a
 
 --------------------------------------------------------------------------------
 -- Semigroup instances
@@ -710,7 +710,7 @@ instance
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
+  semigroupDual ._<>_ (value x) (value y) = value (y <> x)
 
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = \ ()
@@ -719,16 +719,16 @@ instance
   semigroupUnit ._<>_ tt tt = tt
 
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ (All: x) (All: y) = All: (x && y)
+  semigroupAll ._<>_ (value x) (value y) = value (x && y)
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (Any: x) (Any: y) = Any: (x || y)
+  semigroupAny ._<>_ (value x) (value y) = value (x || y)
 
   semigroupSum : Semigroup (Sum Nat)
-  semigroupSum ._<>_ (Sum: x) (Sum: y) = Sum: (x + y)
+  semigroupSum ._<>_ (value x) (value y) = value (x + y)
 
   semigroupProduct : Semigroup (Product Nat)
-  semigroupProduct ._<>_ (Product: x) (Product: y) = Product: (x * y)
+  semigroupProduct ._<>_ (value x) (value y) = value (x * y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = _++_
@@ -757,22 +757,22 @@ instance
 
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .mempty = Dual: mempty
+  monoidDual .mempty = value mempty
 
   monoidUnit : Monoid Unit
   monoidUnit .mempty = tt
 
   monoidAll : Monoid All
-  monoidAll .mempty = All: true
+  monoidAll .mempty = value true
 
   monoidAny : Monoid Any
-  monoidAny .mempty = Any: false
+  monoidAny .mempty = value false
 
   monoidSum : Monoid (Sum Nat)
-  monoidSum .mempty = Sum: 0
+  monoidSum .mempty = value 0
 
   monoidProduct : Monoid (Product Nat)
-  monoidProduct .mempty = Product: 1
+  monoidProduct .mempty = value 1
 
   monoidString : Monoid String
   monoidString .mempty = ""
@@ -792,7 +792,7 @@ instance
     .mempty -> id
 
   monoidFirst : Monoid (First A)
-  monoidFirst .mempty = First: nothing
+  monoidFirst .mempty = value nothing
 
 --------------------------------------------------------------------------------
 -- Show instances
