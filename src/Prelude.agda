@@ -478,7 +478,7 @@ data Ordering : Set where
 
 record Ord (A : Set) : Set where
   field
-    overlap {{Eq:Ord}} : Eq A
+    overlap {{eq}} : Eq A
     _<_ : A -> A -> Bool
 
   compare : A -> A -> Ordering
@@ -518,7 +518,7 @@ open Semigroup {{...}} public
 
 record Monoid (A : Set) : Set where
   field
-    overlap {{Semigroup:Monoid}} : Semigroup A
+    overlap {{semigroup}} : Semigroup A
     mempty : A
 
 open Monoid {{...}} public
@@ -809,7 +809,7 @@ instance
 
   Monoid:<<< : Monoid (A -> A)
   Monoid:<<< = \ where
-    .Semigroup:Monoid -> Semigroup:<<<
+    .semigroup -> Semigroup:<<<
     .mempty -> id
 
   Monoid:First : Monoid (First A)

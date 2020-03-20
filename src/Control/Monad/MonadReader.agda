@@ -10,7 +10,7 @@ private
 
 record MonadReader (R : Set) (M : Set -> Set) : Set where
   field
-    {{Monad:MonadReader}} : Monad M
+    {{monad}} : Monad M
     ask : M R
     local : (R -> R) -> M ~> M
 
@@ -20,3 +20,4 @@ record MonadReader (R : Set) (M : Set -> Set) : Set where
     return (f r)
 
 open MonadReader {{...}} public
+  hiding (monad)
