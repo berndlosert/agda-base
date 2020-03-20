@@ -15,7 +15,7 @@ private
 -- The inverse of uncons. This proves that List A ~= Maybe (A * List A).
 recons : Maybe (A * List A) -> List A
 recons nothing = []
-recons (just (Pair: a as)) = a :: as
+recons (just (a , as)) = a :: as
 
 -- replicate n x is a list of length n with x the value of every element.
 replicate : Nat -> A -> List A
@@ -31,7 +31,7 @@ til (suc n) = til n ++ pure n
 range : Nat -> Nat -> List Nat
 range m n with compare m n
 ... | GT = []
-... | EQ = [ n ]
+... | EQ = singleton n
 ... | LT = map (_+ m) $ til $ suc (n - m)
 
 --------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ tail (a :: as) = just as
 -- Decomposes a list into its head and tail if it isn't empty.
 uncons : List A -> Maybe (A * List A)
 uncons [] = nothing
-uncons (a :: as) = just (Pair: a as)
+uncons (a :: as) = just (a , as)
 
 --------------------------------------------------------------------------------
 -- Regular folds
@@ -91,7 +91,7 @@ scanr f b (a :: as) with scanr f b as
 -- scanl is similar to foldl, but returns a list of successive reduced values
 -- from the left
 scanl : (B -> A -> B) -> B -> List A -> List B
-scanl f b [] = [ b ]
+scanl f b [] = singleton b
 scanl f b (a :: as) = b :: scanl f (f b a) as
 
 --------------------------------------------------------------------------------
@@ -156,12 +156,12 @@ find p as with filter p as
 -- The partition function takes a predicate, a list and returns the pair of
 -- lists of elements which do and do not satisfy the predicate.
 partition : (A -> Bool) -> List A -> List A * List A
-partition p xs = foldr (select p) (Pair: [] []) xs
+partition p xs = foldr (select p) ([] , []) xs
   where
     select : (A -> Bool) -> A -> List A * List A -> List A * List A
-    select p a (Pair: ts fs) with p a
-    ... | true = Pair: (a :: ts) fs
-    ... | false = Pair: ts (a :: fs)
+    select p a (ts , fs) with p a
+    ... | true = (a :: ts , fs)
+    ... | false = (ts , a :: fs)
 
 --------------------------------------------------------------------------------
 -- Extracting sublists
@@ -185,14 +185,14 @@ drop (suc n) (_ :: as) = drop n as
 -- not satisfy the given predicate and returns it paired with the remainder
 -- of the list.
 break : (A -> Bool) -> List A -> List A * List A
-break p [] = Pair: [] []
+break p [] = ([] , [])
 break p as@(x :: xs) =
-  if p x then Pair: [] as
-  else let Pair: ys zs = break p xs in Pair: (x :: ys) zs
+  if p x then ([] , as)
+  else let (ys , zs) = break p xs in (x :: ys , zs)
 
 -- Splits a list into two pieces at the given index.
 splitAt : Nat -> List A -> List A * List A
-splitAt n as = Pair: (take n as) (drop n as)
+splitAt n as = (take n as , drop n as)
 
 -- The stripPrefix function drops the given prefix from a list. It returns
 -- nothing if the list did not start with the prefix given, or just the list
@@ -206,7 +206,7 @@ stripPrefix _ _ = nothing
 -- The tails function returns all final segments of the argument, longest
 -- first.
 tails : List A -> List (List A)
-tails [] = [ [] ]
+tails [] = singleton []
 tails as@(x :: xs) = as :: tails xs
 
 -- takeWhile, applied to a predicate p and a list as, returns the longest
@@ -288,7 +288,7 @@ zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
 -- Zips two lists into a list of pairs.
 zip : List A -> List B -> List (A * B)
-zip = zipWith Pair:
+zip = zipWith _,_
 
 -- Zips together a list of heads and a list of tails.
 zipCons : List A -> List (List A) -> List (List A)

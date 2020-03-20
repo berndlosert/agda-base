@@ -31,7 +31,7 @@ open Settable {{...}}
 
 instance
   Settable:Identity : Settable Identity
-  Settable:Identity .unpure (Identity: x) = x
+  Settable:Identity .unpure (value x) = x
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -86,7 +86,7 @@ toListOf : Getting (List A -> List A) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
 preview : Getting (First A) S A -> S -> Maybe A
-preview l = First.get <<< foldMapOf l (First: <<< just)
+preview l = First.get <<< foldMapOf l (value <<< just)
 
 traverseOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
@@ -104,13 +104,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = g (k >>> Identity:) >>> Identity.run
+over g k = g (k >>> value) >>> Identity.run
 
 set : ASetter S T A B -> B -> S -> T
-set l y = l (\ _ -> Identity: y) >>> Identity.run
+set l y = l (\ _ -> value y) >>> Identity.run
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = f (k >>> Identity.run) >>> Identity:
+sets f k = f (k >>> Identity.run) >>> value
 
 --------------------------------------------------------------------------------
 -- Lenslike operations
@@ -148,10 +148,10 @@ instance
 --------------------------------------------------------------------------------
 
 fst! : Lens (A * C) (B * C) A B
-fst! k (Pair: x y) = flip Pair: y <$> k x
+fst! k (x , y) = flip _,_ y <$> k x
 
 snd! : Lens (A * B) (A * C) B C
-snd! k (Pair: x y) = Pair: x <$> k y
+snd! k (x , y) = _,_ x <$> k y
 
 left! : Traversal (Either A C) (Either B C) A B
 left! f (left x) = left <$> f x

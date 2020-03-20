@@ -184,8 +184,8 @@ instance
   Strong:Shop .strong (Shop: get put) = Shop: get' put'
     where
       get' put' : _
-      get' (Pair: u s) = get s
-      put' (Pair: u s) y = Pair: u (put s y)
+      get' (u , s) = get s
+      put' (u , s) y = (u , put s y)
 
   Profunctor:Prism : Profunctor (Prism A B)
   Profunctor:Prism .dimap f g prism = dimap f g <<< prism
@@ -223,7 +223,7 @@ instance
 
   Strong:Bazaar : Strong (Bazaar P A B)
   Strong:Bazaar .strong (Bazaar: b) = Bazaar: \ where
-    h (Pair: u s) -> Pair: u <$> b h s
+    h (u , s) -> _,_ u <$> b h s
 
   Choice:Bazaar : Choice (Bazaar P A B)
   Choice:Bazaar .choice (Bazaar: b) = Bazaar: \ where

@@ -16,8 +16,8 @@ Store S X = (S -> X) * S
 -- Store S is a functor.
 instance
   Functor:Store : Functor (Store S)
-  Functor:Store .map f (Pair: g s) = Pair: (g >>> f) s
+  Functor:Store .map f (g , s) = (g >>> f , s)
 
   Comonad:Store : Comonad (Store S)
-  Comonad:Store .extend f (Pair: g s) = Pair: (Pair: g >>> f) s
-  Comonad:Store .extract (Pair: g s) = g s
+  Comonad:Store .extend f (g , s) = (_,_ g >>> f , s)
+  Comonad:Store .extract (g , s) = g s

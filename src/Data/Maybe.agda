@@ -33,7 +33,7 @@ maybeToRight b = maybe (left b) right
 -- This function returns an empty list when given nothing or the singleton
 -- list [ x ] when given just x.
 maybeToList : Maybe A -> List A
-maybeToList = maybe [] [_]
+maybeToList = maybe [] singleton
 
 -- The listToMaybe function returns nothing on an empty list or just x where x
 -- is the first element of the list.

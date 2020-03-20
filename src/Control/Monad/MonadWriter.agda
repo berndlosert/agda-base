@@ -17,18 +17,18 @@ record MonadWriter (W : Set) (M : Set -> Set) : Set where
     pass : M (A * (W -> W)) -> M A
 
   writer : A * W -> M A
-  writer (Pair: a w) = do
+  writer (a , w) = do
     tell w
     return a
 
   listens : (W -> B) -> M A -> M (A * B)
   listens f m = do
-    (Pair: a w) <- listen m
-    return (Pair: a (f w))
+    (a , w) <- listen m
+    return (a , f w)
 
   censor : (W -> W) -> M ~> M
   censor f m = pass $ do
     a <- m
-    return (Pair: a f)
+    return (a , f)
 
 open MonadWriter {{...}} public

@@ -36,7 +36,7 @@ concat (str :: strs) = str ++ concat strs
 uncons : String -> Maybe (Char * String)
 uncons s with unpack s
 ... |  [] = nothing
-... |  (c :: cs) = just (Pair: c (pack cs))
+... |  (c :: cs) = just (c , pack cs)
 
 head : String -> Maybe Char
 head = map fst <<< uncons

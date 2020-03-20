@@ -15,4 +15,4 @@ instance
     -> {{_ : Functor F}}
     -> {{_ : Functor G}}
     -> Functor (F * G)
-  Functor:Product .map f (Pair: x y) = Pair: (map f x) (map f y)
+  Functor:Product .map f (x , y) = (map f x , map f y)

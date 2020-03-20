@@ -9,7 +9,7 @@ private
     A B C D : Set
 
 split : (A -> B) -> (A -> C) -> A -> B * C
-split f g a = Pair: (f a) (g a)
+split f g a = (f a , g a)
 
 cross : (A -> B) -> (C -> D) -> A * C -> B * D
 cross f g = split (f <<< fst) (g <<< snd)

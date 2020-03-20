@@ -10,6 +10,6 @@ private
     m n : Nat
 
 splitAt : (m : Nat) -> Vector A (m + n) -> Vector A m * Vector A n
-splitAt zero as = Pair: [] as
+splitAt zero as = ([] , as)
 splitAt (suc k) (a :: as) with (splitAt k as)
-... | (Pair: tk dr) = Pair: (a :: tk) dr
+... | (tk , dr) = (a :: tk , dr)

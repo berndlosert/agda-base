@@ -25,11 +25,11 @@ instance
   Functor:Parser .map f p s = map (cross f id) (p s)
 
   Applicative:Parser : Applicative Parser
-  Applicative:Parser .pure x s = [ Pair: x s ]
+  Applicative:Parser .pure x s = singleton (x , s)
   Applicative:Parser ._<*>_ f p = \ s -> do
-    (Pair: g s') <- f s
-    (Pair: x s'') <- p s'
-    return (Pair: (g x) s'')
+    (g , s') <- f s
+    (x , s'') <- p s'
+    return (g x , s'')
 
   Monad:Parser : Monad Parser
   Monad:Parser ._>>=_ p f s = join $ map (uncurry f) (p s)
@@ -54,7 +54,7 @@ item = maybeToList <<< String.uncons
 first : Parser A -> Parser A
 first p s with p s
 ... | [] = []
-... | (x :: _) = [ x ]
+... | (x :: _) = singleton x
 
 -- plus p q is just <|> wrapped in first.
 plus : Parser A -> Parser A -> Parser A
@@ -107,7 +107,7 @@ word = neword <|> return ""
 string : String -> Parser String
 string s with String.uncons s
 ... | nothing = return ""
-... | (just (Pair: c s')) = char c >> string s' >> return (String.cons c s')
+... | (just (c , s')) = char c >> string s' >> return (String.cons c s')
 
 -- The combinator many (resp. many1) applies a parser p zero (resp. one) or
 -- more times to an input string. The results from each application of p are
@@ -158,7 +158,7 @@ skip p = junk >> p
 -- Consumes input as long as the predicate returns true, and return the
 -- consumed input.
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p s = [ Pair: (String.takeWhile p s) (String.dropWhile p s) ]
+takeWhile p s = singleton (String.takeWhile p s , String.dropWhile p s)
 
 -- Consumes the rest of the input.
 takeRest : Parser String
@@ -168,4 +168,4 @@ takeRest = takeWhile (const true)
 parse : Parser A -> String -> Maybe A
 parse p s with p s
 ... | [] = nothing
-... | (Pair: a _) :: _ = just a
+... | (a , _) :: _ = just a
