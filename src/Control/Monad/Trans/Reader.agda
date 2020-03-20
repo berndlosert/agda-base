@@ -2,7 +2,7 @@
 
 module Control.Monad.Trans.Reader where
 
-open import Control.Monad.MonadTrans
+open import Control.Monad.Trans.Class
 open import Prelude
 
 private
