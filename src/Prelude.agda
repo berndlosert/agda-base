@@ -537,26 +537,7 @@ open Show {{...}} public
 -- Basic operations regarding List and Vector
 --------------------------------------------------------------------------------
 
-pattern [_] a =
-  a :: []
-pattern [_,_] a b =
-  a :: b :: []
-pattern [_,_,_] a b c =
-  a :: b :: c :: []
-pattern [_,_,_,_] a b c d =
-  a :: b :: c :: d :: []
-pattern [_,_,_,_,_] a b c d e =
-  a :: b :: c :: d :: e :: []
-pattern [_,_,_,_,_,_] a b c d e f =
-  a :: b :: c :: d :: e :: f :: []
-pattern [_,_,_,_,_,_,_] a b c d e f g =
-  a :: b :: c :: d :: e :: f :: g :: []
-pattern [_,_,_,_,_,_,_,_] a b c d e f g h =
-  a :: b :: c :: d :: e :: f :: g :: h :: []
-pattern [_,_,_,_,_,_,_,_,_] a b c d e f g h i =
-  a :: b :: c :: d :: e :: f :: g :: h :: i :: []
-pattern [_,_,_,_,_,_,_,_,_,_] a b c d e f g h i j =
-  a :: b :: c :: d :: e :: f :: g :: h :: i :: j :: []
+pattern singleton a = a :: []
 
 instance
   Append:List : forall {A} -> Append (List A) (List A) (List A)
@@ -691,7 +672,7 @@ instance
     ._<*>_ nothing _ -> nothing
 
   Applicative:List : Applicative List
-  Applicative:List .pure = [_]
+  Applicative:List .pure = singleton
   Applicative:List ._<*>_ = \ where
     [] _ -> []
     _ [] -> []
@@ -856,7 +837,7 @@ instance
       csv (x :: xs) = show x ++ " , " ++ csv xs
 
   Show:Char : Show Char
-  Show:Char .show c = "'" ++ pack [ c ] ++ "'"
+  Show:Char .show c = "'" ++ pack (singleton c) ++ "'"
 
   Show:String : Show String
   Show:String .show = Agda.Builtin.String.primShowString
