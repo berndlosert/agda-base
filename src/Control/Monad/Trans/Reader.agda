@@ -34,6 +34,7 @@ open MonadReader {{...}} public
 record ReaderT (R : Set) (M : Set -> Set) (A : Set) : Set where
   constructor readerT
   field runReaderT : R -> M A
+
 open ReaderT public
 
 mapReaderT : (M A -> N B) -> ReaderT R M A -> ReaderT R N B

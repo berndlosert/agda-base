@@ -2,14 +2,14 @@
 
 module Prelude where
 
---------------------------------------------------------------------------------
--- For notational convenience
---------------------------------------------------------------------------------
-
 private
   variable
     A B C : Set
     F G : Set -> Set
+
+--------------------------------------------------------------------------------
+-- For notational convenience
+--------------------------------------------------------------------------------
 
 record Add (A : Set) : Set where
   infixr 24 _+_
@@ -126,7 +126,6 @@ instance
 
 {-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
-{-# DISPLAY Pair A B = A * B #-}
 
 data Either (A B : Set) : Set where
   left : A -> Either A B
@@ -143,7 +142,6 @@ data Maybe (A : Set) : Set where
   just : A -> Maybe A
 
 {-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
-{-# DISPLAY Either A B = A + B #-}
 
 open import Agda.Builtin.List public
   using (List; [])
@@ -160,36 +158,43 @@ data Vector (A : Set) : Nat -> Set where
 record Identity (A : Set) : Set where
   constructor value
   field runIdentity : A
+
 open Identity public
 
 record All : Set where
   constructor value
   field getAll : Bool
+
 open All public
 
 record Any : Set where
   constructor value
   field getAny : Bool
+
 open Any public
 
 record Sum (A : Set) : Set where
   constructor value
   field getSum : A
+
 open Sum public
 
 record Product (A : Set) : Set where
   constructor value
   field getProduct : A
+
 open Product public
 
 record First (A : Set) : Set where
   constructor value
   field getFirst : Maybe A
+
 open First public
 
 record Dual (A : Set) : Set where
   constructor value
   field getDual : A
+
 open Dual public
 
 --------------------------------------------------------------------------------
