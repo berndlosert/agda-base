@@ -29,7 +29,7 @@ exec : State S A -> S -> S
 exec m s = snd (run m s)
 
 map' : (A * S -> B * S) -> State S A -> State S B
-map' f = StateT.map' (Identity: <<< f <<< Identity.run)
+map' f = StateT.map' (value <<< f <<< Identity.run)
 
 with' : (S -> S) -> State S A -> State S A
 with' = StateT.with'

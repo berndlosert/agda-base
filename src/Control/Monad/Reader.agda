@@ -23,7 +23,7 @@ run : Reader R A -> R -> A
 run m = Identity.run <<< ReaderT.run m
 
 map' : (A -> B) -> Reader R A -> Reader R B
-map' f = ReaderT.map' (Identity: <<< f <<< Identity.run)
+map' f = ReaderT.map' (value <<< f <<< Identity.run)
 
 with' : (R' -> R) -> Reader R A -> Reader R' A
 with' f m = ReaderT.with' f m
