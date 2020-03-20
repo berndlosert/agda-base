@@ -71,7 +71,7 @@ foldl f b (a :: as) = foldl f (f b a) as
 
 -- Maps each element of a list to a monoid, and combine the results.
 foldMap : {{_ : Monoid B}} -> (A -> B) -> List A -> B
-foldMap f = foldr (\ x y -> f x <> y) mempty
+foldMap f = foldr (\ x y -> f x <> y) empty
 
 -- Combine the elements of a list using a monoid.
 fold : {{_ : Monoid A}} -> List A -> A

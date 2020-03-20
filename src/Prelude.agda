@@ -517,7 +517,7 @@ open Semigroup {{...}} public
 record Monoid (A : Set) : Set where
   field
     overlap {{semigroup}} : Semigroup A
-    mempty : A
+    empty : A
 
 open Monoid {{...}} public
 
@@ -757,42 +757,42 @@ instance
 
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .mempty = value mempty
+  monoidDual .empty = value empty
 
   monoidUnit : Monoid Unit
-  monoidUnit .mempty = tt
+  monoidUnit .empty = tt
 
   monoidAll : Monoid All
-  monoidAll .mempty = value true
+  monoidAll .empty = value true
 
   monoidAny : Monoid Any
-  monoidAny .mempty = value false
+  monoidAny .empty = value false
 
   monoidSum : Monoid (Sum Nat)
-  monoidSum .mempty = value 0
+  monoidSum .empty = value 0
 
   monoidProduct : Monoid (Product Nat)
-  monoidProduct .mempty = value 1
+  monoidProduct .empty = value 1
 
   monoidString : Monoid String
-  monoidString .mempty = ""
+  monoidString .empty = ""
 
   monoidMaybe : {{_ : Monoid A}} -> Monoid (Maybe A)
-  monoidMaybe .mempty = nothing
+  monoidMaybe .empty = nothing
 
   monoidList : Monoid (List A)
-  monoidList .mempty = []
+  monoidList .empty = []
 
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .mempty = const mempty
+  monoidFunction .empty = const empty
 
   monoid<<< : Monoid (A -> A)
   monoid<<< = \ where
     .semigroup -> semigroup<<<
-    .mempty -> id
+    .empty -> id
 
   monoidFirst : Monoid (First A)
-  monoidFirst .mempty = value nothing
+  monoidFirst .empty = value nothing
 
 --------------------------------------------------------------------------------
 -- Show instances
@@ -884,7 +884,7 @@ instance
   semigroupIO ._<>_ x y = (| _<>_ x y |)
 
   monoidIO : {{_ : Monoid A}} -> Monoid (IO A)
-  monoidIO .mempty = return mempty
+  monoidIO .empty = return empty
 
 print : {{_ : Show A}} -> A -> IO Unit
 print x = putStrLn (show x)

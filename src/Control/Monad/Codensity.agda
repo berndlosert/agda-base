@@ -26,7 +26,7 @@ rep : forall {M} {{_ : Monad M}} -> M ~> Codensity M
 rep x = x >>=_
 
 -- The left-inverse (retract) of rep for the monoid case assigns f : X -> X to
--- f mempty. The monad version assigns each f : Codensity M X the value
+-- f empty. The monad version assigns each f : Codensity M X the value
 -- f return.
 
 abs : forall {M} {{_ : Monad M}} -> Codensity M ~> M

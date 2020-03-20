@@ -71,4 +71,4 @@ open import Data.Monoid public
 
 monoidFunction : {X Y : Set} {{_ : Monoid Y}} -> Monoid (X -> Y)
 monoidFunction .semigroupMonoid = semigroupFunction
-monoidFunction .mempty = \ x -> mempty
+monoidFunction .empty = \ x -> empty

@@ -10,7 +10,7 @@ record Monoid (X : Set) : Set where
   constructor monoid
   field
     overlap {{semigroupMonoid}} : Semigroup X
-    mempty : X
+    empty : X
 
 open Monoid {{...}} public
 
@@ -22,4 +22,4 @@ instance
   Dual:Monoid : forall {X} -> Dual (Monoid X)
   Dual:Monoid .Op monoid = let instance inst = monoid in \ where
     .semigroupMonoid -> Op (semigroupMonoid {{inst}})
-    .mempty -> mempty
+    .empty -> empty

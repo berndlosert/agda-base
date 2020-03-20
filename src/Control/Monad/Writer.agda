@@ -33,5 +33,5 @@ open import Control.Monad
 
 instance
   monadWriter : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
-  monadWriter .return x = (x , mempty)
+  monadWriter .return x = (x , empty)
   monadWriter .extend f (x , w) = let (y , w') = f x in (y , w <> w')

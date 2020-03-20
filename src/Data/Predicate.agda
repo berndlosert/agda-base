@@ -20,7 +20,7 @@ instance
     Predicate: (\ a -> p a && q a)
 
   monoidPredicate : Monoid (Predicate A)
-  monoidPredicate .mempty = Predicate: (const true)
+  monoidPredicate .empty = Predicate: (const true)
 
   functorPredicate : Contravariant Predicate
   functorPredicate .contramap f (Predicate: p) = Predicate: (f >>> p)
