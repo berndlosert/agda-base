@@ -30,8 +30,7 @@ open Sub {{...}} public
 
 record Mul (A : Set) : Set where
   infixr 25 _*_
-  field
-    _*_ : A -> A -> A
+  field _*_ : A -> A -> A
 
 open Mul {{...}} public
 
@@ -53,8 +52,7 @@ open Mod {{...}} hiding (Constraint) public
 
 record Exp (A B C : Set) : Set where
   infixr 50 _^_
-  field
-    _^_ : A -> B -> C
+  field _^_ : A -> B -> C
 
 open Exp {{...}} public
 
@@ -123,8 +121,8 @@ record Pair (A B : Set) : Set where
 open Pair public
 
 instance
-  Mul:Pair : Mul Set
-  Mul:Pair ._*_ = Pair
+  mulPair : Mul Set
+  mulPair ._*_ = Pair
 
 {-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
 {-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
@@ -135,8 +133,8 @@ data Either (A B : Set) : Set where
   right : B -> Either A B
 
 instance
-  Add:Either : Add Set
-  Add:Either ._+_ = Either
+  addEither : Add Set
+  addEither ._+_ = Either
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
@@ -265,17 +263,17 @@ Assert false = Void
 --------------------------------------------------------------------------------
 
 instance
-  Add:Nat : Add Nat
-  Add:Nat ._+_ = Agda.Builtin.Nat._+_
+  addNat : Add Nat
+  addNat ._+_ = Agda.Builtin.Nat._+_
 
-  Sub:Nat : Sub Nat
-  Sub:Nat ._-_ = Agda.Builtin.Nat._-_
+  subNat : Sub Nat
+  subNat ._-_ = Agda.Builtin.Nat._-_
 
-  Mul:Nat : Mul Nat
-  Mul:Nat ._*_ = Agda.Builtin.Nat._*_
+  mulNat : Mul Nat
+  mulNat ._*_ = Agda.Builtin.Nat._*_
 
-  Div:Nat : Div Nat
-  Div:Nat = record {
+  divNat : Div Nat
+  divNat = record {
       Constraint = \ { zero -> Void; (suc n) -> Unit };
       _/_ = \ { m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n }
     }
@@ -297,8 +295,8 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Add:Int : Add Int
-  Add:Int ._+_ = add
+  addInt : Add Int
+  addInt ._+_ = add
     where
       -- Subtracting two naturals to an integer result.
       sub : Nat -> Nat -> Int
@@ -312,17 +310,17 @@ instance
       add (pos m) (negsuc n) = sub m (suc n)
       add (pos m) (pos n) = pos (m + n)
 
-  Negation:Int : Negation Int
-  Negation:Int .-_ = \ where
+  negationInt : Negation Int
+  negationInt .-_ = \ where
     (pos zero) -> pos zero
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
 
-  Sub:Int : Sub Int
-  Sub:Int ._-_ n m = n + (- m)
+  subInt : Sub Int
+  subInt ._-_ n m = n + (- m)
 
-  Mul:Int : Mul Int
-  Mul:Int ._*_ = \ where
+  mulInt : Mul Int
+  mulInt ._*_ = \ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> - (pos (n * suc m))
@@ -356,8 +354,8 @@ unpack = Agda.Builtin.String.primStringToList
 pack = Agda.Builtin.String.primStringFromList
 
 instance
-  Append:String : Append String String String
-  Append:String ._++_ = Agda.Builtin.String.primStringAppend
+  appendString : Append String String String
+  appendString ._++_ = Agda.Builtin.String.primStringAppend
 
   IsString:String : IsString String
   IsString:String = record {
@@ -370,20 +368,20 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Add:Float : Add Float
-  Add:Float ._+_ = Agda.Builtin.Float.primFloatPlus
+  addFloat : Add Float
+  addFloat ._+_ = Agda.Builtin.Float.primFloatPlus
 
-  Sub:Float : Sub Float
-  Sub:Float ._-_ = Agda.Builtin.Float.primFloatMinus
+  subFloat : Sub Float
+  subFloat ._-_ = Agda.Builtin.Float.primFloatMinus
 
-  Negation:Float : Negation Float
-  Negation:Float .-_ = Agda.Builtin.Float.primFloatNegate
+  negationFloat : Negation Float
+  negationFloat .-_ = Agda.Builtin.Float.primFloatNegate
 
-  Mul:Float : Mul Float
-  Mul:Float ._*_ = Agda.Builtin.Float.primFloatTimes
+  mulFloat : Mul Float
+  mulFloat ._*_ = Agda.Builtin.Float.primFloatTimes
 
-  Div:Float : Div Float
-  Div:Float = record {
+  divFloat : Div Float
+  divFloat = record {
       Constraint = const Unit;
       _/_ = \ x y -> Agda.Builtin.Float.primFloatDiv x y
     }
@@ -414,7 +412,7 @@ F ~> G  = forall {A} -> F A -> G A
 record Applicative (F : Set -> Set) : Set where
   infixl 24 _<*>_ _*>_ _<*_
   field
-    overlap {{Functor:Applicative}} : Functor F
+    overlap {{functor}} : Functor F
     _<*>_ : F (A -> B) -> F A -> F B
     pure : A -> F A
 
@@ -433,7 +431,7 @@ open Applicative {{...}} public
 record Monad (M : Set -> Set) : Set where
   infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
   field
-    overlap {{Applicative:Monad}} : Applicative M
+    overlap {{applicative}} : Applicative M
     _>>=_ : M A -> (A -> M B) -> M B
 
   return : A -> M A
@@ -540,146 +538,146 @@ open Show {{...}} public
 pattern singleton a = a :: []
 
 instance
-  Append:List : forall {A} -> Append (List A) (List A) (List A)
-  Append:List ._++_ [] ys = ys
-  Append:List ._++_ (x :: xs) ys = x :: xs ++ ys
+  appendList : forall {A} -> Append (List A) (List A) (List A)
+  appendList ._++_ [] ys = ys
+  appendList ._++_ (x :: xs) ys = x :: xs ++ ys
 
-  Append:Vector : forall {m n A}
+  appendVector : forall {m n A}
     -> Append (Vector A m) (Vector A n) (Vector A (m + n))
-  Append:Vector ._++_ [] ys = ys
-  Append:Vector ._++_ (x :: xs) ys = x :: xs ++ ys
+  appendVector ._++_ [] ys = ys
+  appendVector ._++_ (x :: xs) ys = x :: xs ++ ys
 
 --------------------------------------------------------------------------------
 -- Eq instances
 --------------------------------------------------------------------------------
 
 instance
-  Eq:Void : Eq Void
-  Eq:Void ._==_ = \ ()
+  eqVoid : Eq Void
+  eqVoid ._==_ = \ ()
 
-  Eq:Unit : Eq Unit
-  Eq:Unit ._==_ tt tt = true
+  eqUnit : Eq Unit
+  eqUnit ._==_ tt tt = true
 
-  Eq:Bool : Eq Bool
-  Eq:Bool ._==_ = \ where
+  eqBool : Eq Bool
+  eqBool ._==_ = \ where
     true true -> true
     false false -> false
     _ _ -> false
 
-  Eq:Nat : Eq Nat
-  Eq:Nat ._==_ = Agda.Builtin.Nat._==_
+  eqNat : Eq Nat
+  eqNat ._==_ = Agda.Builtin.Nat._==_
 
-  Eq:Int : Eq Int
-  Eq:Int ._==_ = \ where
+  eqInt : Eq Int
+  eqInt ._==_ = \ where
     (pos m) (pos n) -> m == n
     (negsuc m) (negsuc n) -> m == n
     _ _ -> false
 
-  Eq:Float : Eq Float
-  Eq:Float ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
+  eqFloat : Eq Float
+  eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
-  Eq:Char : Eq Char
-  Eq:Char ._==_ c d = ord c == ord d
+  eqChar : Eq Char
+  eqChar ._==_ c d = ord c == ord d
 
-  Eq:String : Eq String
-  Eq:String ._==_ = Agda.Builtin.String.primStringEquality
+  eqString : Eq String
+  eqString ._==_ = Agda.Builtin.String.primStringEquality
 
-  Eq:Pair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  Eq:Pair ._==_ (a , b) (c , d) = (a == c) && (b == d)
+  eqPair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
+  eqPair ._==_ (a , b) (c , d) = (a == c) && (b == d)
 
-  Eq:Either : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
-  Eq:Either ._==_ = \ where
+  eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
+  eqEither ._==_ = \ where
     (left x) (left y) -> x == y
     (right x) (right y) -> x == y
     _ _ -> false
 
-  Eq:Maybe : {{_ : Eq A}} -> Eq (Maybe A)
-  Eq:Maybe ._==_ = \ where
+  eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
+  eqMaybe ._==_ = \ where
     nothing nothing -> true
     (just x) (just y) -> x == y
     _ _ -> false
 
-  Eq:Identity : {{_ : Eq A}} -> Eq (Identity A)
-  Eq:Identity ._==_ (Identity: x) (Identity: y) = x == y
+  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
+  eqIdentity ._==_ (Identity: x) (Identity: y) = x == y
 
 --------------------------------------------------------------------------------
 -- Ord instances
 --------------------------------------------------------------------------------
 
 instance
-  Ord:Void : Ord Void
-  Ord:Void ._<_ = \ ()
+  ordVoid : Ord Void
+  ordVoid ._<_ = \ ()
 
-  Ord:Unit : Ord Unit
-  Ord:Unit ._<_ tt tt = false
+  ordUnit : Ord Unit
+  ordUnit ._<_ tt tt = false
 
-  Ord:Nat : Ord Nat
-  Ord:Nat ._<_ = Agda.Builtin.Nat._<_
+  ordNat : Ord Nat
+  ordNat ._<_ = Agda.Builtin.Nat._<_
 
-  Ord:Int : Ord Int
-  Ord:Int ._<_ = \ where
+  ordInt : Ord Int
+  ordInt ._<_ = \ where
     (pos m) (pos n) -> m < n
     (negsuc m) (negsuc n) -> n < m
     (pos _) (negsuc _) -> false
     (negsuc _) (pos _) -> true
 
-  Ord:Float : Ord Float
-  Ord:Float ._<_ = Agda.Builtin.Float.primFloatNumericalLess
+  ordFloat : Ord Float
+  ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
-  Ord:Identity : {{_ : Ord A}} -> Ord (Identity A)
-  Ord:Identity ._<_ (Identity: x) (Identity: y) = x < y
+  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
+  ordIdentity ._<_ (Identity: x) (Identity: y) = x < y
 
 --------------------------------------------------------------------------------
 -- Functor instances
 --------------------------------------------------------------------------------
 
 instance
-  Functor:Pair : Functor (A *_)
-  Functor:Pair .map f (a , x) = (a , f x)
+  functorPair : Functor (A *_)
+  functorPair .map f (a , x) = (a , f x)
 
-  Functor:Either : Functor (A +_)
-  Functor:Either .map f = \ where
+  functorEither : Functor (A +_)
+  functorEither .map f = \ where
     (left a) -> left a
     (right x) -> right (f x)
 
-  Functor:Maybe : Functor Maybe
-  Functor:Maybe .map f = \ where
+  functorMaybe : Functor Maybe
+  functorMaybe .map f = \ where
     nothing -> nothing
     (just a) -> just (f a)
 
-  Functor:List : Functor List
-  Functor:List .map f [] = []
-  Functor:List .map f (x :: xs) = f x :: map f xs
+  functorList : Functor List
+  functorList .map f [] = []
+  functorList .map f (x :: xs) = f x :: map f xs
 
-  Functor:Identity : Functor Identity
-  Functor:Identity .map f (Identity: a) = Identity: (f a)
+  functorIdentity : Functor Identity
+  functorIdentity .map f (Identity: a) = Identity: (f a)
 
 --------------------------------------------------------------------------------
 -- Applicative instances
 --------------------------------------------------------------------------------
 
 instance
-  Applicative:Either : Applicative (A +_)
-  Applicative:Either = \ where
+  applicativeEither : Applicative (A +_)
+  applicativeEither = \ where
     .pure -> right
     ._<*>_ (left a) _ -> left a
     ._<*>_ (right f) r -> map f r
 
-  Applicative:Maybe : Applicative Maybe
-  Applicative:Maybe = \ where
+  applicativeMaybe : Applicative Maybe
+  applicativeMaybe = \ where
     .pure -> just
     ._<*>_ (just f) m -> map f m
     ._<*>_ nothing _ -> nothing
 
-  Applicative:List : Applicative List
-  Applicative:List .pure = singleton
-  Applicative:List ._<*>_ = \ where
+  applicativeList : Applicative List
+  applicativeList .pure = singleton
+  applicativeList ._<*>_ = \ where
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: fs <*> xs
 
-  Applicative:Identity : Applicative Identity
-  Applicative:Identity = \ where
+  applicativeIdentity : Applicative Identity
+  applicativeIdentity = \ where
     .pure -> Identity:
     ._<*>_ (Identity: f) x -> map f x
 
@@ -688,162 +686,162 @@ instance
 --------------------------------------------------------------------------------
 
 instance
-  Monad:Either : Monad (A +_)
-  Monad:Either ._>>=_ = \ where
+  monadEither : Monad (A +_)
+  monadEither ._>>=_ = \ where
     (left a) k -> left a
     (right x) k -> k x
 
-  Monad:Maybe : Monad Maybe
-  Monad:Maybe ._>>=_ = \ where
+  monadMaybe : Monad Maybe
+  monadMaybe ._>>=_ = \ where
     nothing k -> nothing
     (just x) k -> k x
 
-  Monad:List : Monad List
-  Monad:List ._>>=_ = \ where
+  monadList : Monad List
+  monadList ._>>=_ = \ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
-  Monad:Identity : Monad Identity
-  Monad:Identity ._>>=_ (Identity: a) k = k a
+  monadIdentity : Monad Identity
+  monadIdentity ._>>=_ (Identity: a) k = k a
 
 --------------------------------------------------------------------------------
 -- Semigroup instances
 --------------------------------------------------------------------------------
 
 instance
-  Semigroup:Dual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  Semigroup:Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
+  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
+  semigroupDual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
-  Semigroup:Void : Semigroup Void
-  Semigroup:Void ._<>_ = \ ()
+  semigroupVoid : Semigroup Void
+  semigroupVoid ._<>_ = \ ()
 
-  Semigroup:Unit : Semigroup Unit
-  Semigroup:Unit ._<>_ tt tt = tt
+  semigroupUnit : Semigroup Unit
+  semigroupUnit ._<>_ tt tt = tt
 
-  Semigroup:All : Semigroup All
-  Semigroup:All ._<>_ (All: x) (All: y) = All: (x && y)
+  semigroupAll : Semigroup All
+  semigroupAll ._<>_ (All: x) (All: y) = All: (x && y)
 
-  Semigroup:Any : Semigroup Any
-  Semigroup:Any ._<>_ (Any: x) (Any: y) = Any: (x || y)
+  semigroupAny : Semigroup Any
+  semigroupAny ._<>_ (Any: x) (Any: y) = Any: (x || y)
 
-  Semigroup:Sum : Semigroup (Sum Nat)
-  Semigroup:Sum ._<>_ (Sum: x) (Sum: y) = Sum: (x + y)
+  semigroupSum : Semigroup (Sum Nat)
+  semigroupSum ._<>_ (Sum: x) (Sum: y) = Sum: (x + y)
 
-  Semigroup:Product : Semigroup (Product Nat)
-  Semigroup:Product ._<>_ (Product: x) (Product: y) = Product: (x * y)
+  semigroupProduct : Semigroup (Product Nat)
+  semigroupProduct ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
-  Semigroup:String : Semigroup String
-  Semigroup:String ._<>_ = _++_
+  semigroupString : Semigroup String
+  semigroupString ._<>_ = _++_
 
-  Semigroup:Maybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
-  Semigroup:Maybe ._<>_ = \ where
+  semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
+  semigroupMaybe ._<>_ = \ where
     nothing m -> m
     m nothing -> m
     (just x) (just y) -> just (x <> y)
 
-  Semigroup:List : Semigroup (List A)
-  Semigroup:List ._<>_ = _++_
+  semigroupList : Semigroup (List A)
+  semigroupList ._<>_ = _++_
 
-  Semigroup:Function : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  Semigroup:Function ._<>_ f g = \ a -> f a <> g a
+  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
+  semigroupFunction ._<>_ f g = \ a -> f a <> g a
 
-  Semigroup:<<< : Semigroup (A -> A)
-  Semigroup:<<< ._<>_ = _<<<_
+  semigroup<<< : Semigroup (A -> A)
+  semigroup<<< ._<>_ = _<<<_
 
-  Semigroup:First : Semigroup (First A)
-  Semigroup:First ._<>_ x _ = x
+  semigroupFirst : Semigroup (First A)
+  semigroupFirst ._<>_ x _ = x
 
 --------------------------------------------------------------------------------
 -- Monoid instances
 --------------------------------------------------------------------------------
 
 instance
-  Monoid:Dual : {{_ : Monoid A}} -> Monoid (Dual A)
-  Monoid:Dual .mempty = Dual: mempty
+  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
+  monoidDual .mempty = Dual: mempty
 
-  Monoid:Unit : Monoid Unit
-  Monoid:Unit .mempty = tt
+  monoidUnit : Monoid Unit
+  monoidUnit .mempty = tt
 
-  Monoid:All : Monoid All
-  Monoid:All .mempty = All: true
+  monoidAll : Monoid All
+  monoidAll .mempty = All: true
 
-  Monoid:Any : Monoid Any
-  Monoid:Any .mempty = Any: false
+  monoidAny : Monoid Any
+  monoidAny .mempty = Any: false
 
-  Monoid:Sum : Monoid (Sum Nat)
-  Monoid:Sum .mempty = Sum: 0
+  monoidSum : Monoid (Sum Nat)
+  monoidSum .mempty = Sum: 0
 
-  Monoid:Product : Monoid (Product Nat)
-  Monoid:Product .mempty = Product: 1
+  monoidProduct : Monoid (Product Nat)
+  monoidProduct .mempty = Product: 1
 
-  Monoid:String : Monoid String
-  Monoid:String .mempty = ""
+  monoidString : Monoid String
+  monoidString .mempty = ""
 
-  Monoid:Maybe : {{_ : Monoid A}} -> Monoid (Maybe A)
-  Monoid:Maybe .mempty = nothing
+  monoidMaybe : {{_ : Monoid A}} -> Monoid (Maybe A)
+  monoidMaybe .mempty = nothing
 
-  Monoid:List : Monoid (List A)
-  Monoid:List .mempty = []
+  monoidList : Monoid (List A)
+  monoidList .mempty = []
 
-  Monoid:Function : {{_ : Monoid B}} -> Monoid (A -> B)
-  Monoid:Function .mempty = const mempty
+  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
+  monoidFunction .mempty = const mempty
 
-  Monoid:<<< : Monoid (A -> A)
-  Monoid:<<< = \ where
-    .semigroup -> Semigroup:<<<
+  monoid<<< : Monoid (A -> A)
+  monoid<<< = \ where
+    .semigroup -> semigroup<<<
     .mempty -> id
 
-  Monoid:First : Monoid (First A)
-  Monoid:First .mempty = First: nothing
+  monoidFirst : Monoid (First A)
+  monoidFirst .mempty = First: nothing
 
 --------------------------------------------------------------------------------
 -- Show instances
 --------------------------------------------------------------------------------
 
 instance
-  Show:Unit : Show Unit
-  Show:Unit .show tt = "tt"
+  showUnit : Show Unit
+  showUnit .show tt = "tt"
 
-  Show:Bool : Show Bool
-  Show:Bool .show = \ where
+  showBool : Show Bool
+  showBool .show = \ where
     true -> "true"
     false -> "false"
 
-  Show:Int : Show Int
-  Show:Int .show = Agda.Builtin.Int.primShowInteger
+  showInt : Show Int
+  showInt .show = Agda.Builtin.Int.primShowInteger
 
-  Show:Nat : Show Nat
-  Show:Nat .show n = show (pos n)
+  showNat : Show Nat
+  showNat .show n = show (pos n)
 
-  Show:Pair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
-  Show:Pair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
+  showPair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
+  showPair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
-  Show:Either : {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
-  Show:Either .show = \ where
+  showEither : {{_ : Show A}} {{_ : Show B}} -> Show (A + B)
+  showEither .show = \ where
     (left x) -> "left " ++ show x
     (right y) -> "right " ++ show y
 
-  Show:Maybe : {{_ : Show A}} -> Show (Maybe A)
-  Show:Maybe .show = \ where
+  showMaybe : {{_ : Show A}} -> Show (Maybe A)
+  showMaybe .show = \ where
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 
-  Show:List : {{_ : Show A}} -> Show (List A)
-  Show:List .show = \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
+  showList : {{_ : Show A}} -> Show (List A)
+  showList .show = \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
     where
       csv : {A : Set} {{_ : Show A}} -> List A -> String
       csv [] = ""
       csv (x :: []) = show x
       csv (x :: xs) = show x ++ " , " ++ csv xs
 
-  Show:Char : Show Char
-  Show:Char .show c = "'" ++ pack (singleton c) ++ "'"
+  showChar : Show Char
+  showChar .show c = "'" ++ pack (singleton c) ++ "'"
 
-  Show:String : Show String
-  Show:String .show = Agda.Builtin.String.primShowString
+  showString : Show String
+  showString .show = Agda.Builtin.String.primShowString
 
-  Show:Float : Show Float
-  Show:Float .show = Agda.Builtin.Float.primShowFloat
+  showFloat : Show Float
+  showFloat .show = Agda.Builtin.Float.primShowFloat
 
 --------------------------------------------------------------------------------
 -- IO
@@ -871,22 +869,22 @@ postulate
 {-# COMPILE GHC getContents = Text.getContents #-}
 
 instance
-  Functor:IO : Functor IO
-  Functor:IO .map f io = bindIO io (f >>> pureIO)
+  functorIO : Functor IO
+  functorIO .map f io = bindIO io (f >>> pureIO)
 
-  Applicative:IO : Applicative IO
-  Applicative:IO = \ where
+  applicativeIO : Applicative IO
+  applicativeIO = \ where
     .pure -> pureIO
     ._<*>_ fs xs -> bindIO fs (\ f -> bindIO xs (\ x -> pureIO (f x)))
 
-  Monad:IO : Monad IO
-  Monad:IO ._>>=_ = bindIO
+  monadIO : Monad IO
+  monadIO ._>>=_ = bindIO
 
-  Semigroup:IO : {{_ : Semigroup A}} -> Semigroup (IO A)
-  Semigroup:IO ._<>_ x y = (| _<>_ x y |)
+  semigroupIO : {{_ : Semigroup A}} -> Semigroup (IO A)
+  semigroupIO ._<>_ x y = (| _<>_ x y |)
 
-  Monoid:IO : {{_ : Monoid A}} -> Monoid (IO A)
-  Monoid:IO .mempty = return mempty
+  monoidIO : {{_ : Monoid A}} -> Monoid (IO A)
+  monoidIO .mempty = return mempty
 
 print : {{_ : Show A}} -> A -> IO Unit
 print x = putStrLn (show x)
