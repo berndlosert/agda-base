@@ -71,13 +71,13 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = value <<< Const.get <<< k <<< f
+to f k = value <<< getConst <<< k <<< f
 
 view : Getting A S A -> S -> A
-view g = Const.get <<< g value
+view g = getConst <<< g value
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = g (k >>> value) >>> Const.get
+foldMapOf g k = g (k >>> value) >>> getConst
 
 foldrOf : Getting (R -> R) S A -> (A -> R -> R) -> R -> S -> R
 foldrOf l f z = \ s -> foldMapOf l f s z

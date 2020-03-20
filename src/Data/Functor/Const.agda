@@ -9,7 +9,8 @@ private variable A B : Set
 
 record Const (A B : Set) : Set where
   constructor value
-  field get : A
+  field getConst : A
+open Const public
 
 instance
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
