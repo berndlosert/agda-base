@@ -75,7 +75,7 @@ foldMap f = foldr (\ x y -> f x <> y) empty
 
 -- Combine the elements of a list using a monoid.
 fold : {{_ : Monoid A}} -> List A -> A
-fold = foldMap id
+fold = foldMap identity
 
 --------------------------------------------------------------------------------
 -- Scans
