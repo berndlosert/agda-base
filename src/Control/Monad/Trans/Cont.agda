@@ -84,11 +84,11 @@ Cont R A = ContT R Identity A
 cont : ((A -> R) -> R) -> Cont R A
 cont f = contT (\ c -> value (f (runIdentity <<< c)))
 
-run : Cont R A -> (A -> R) -> R
-run m k = runIdentity (runContT m (value <<< k))
+runCont : Cont R A -> (A -> R) -> R
+runCont m k = runIdentity (runContT m (value <<< k))
 
-eval : Cont R R -> R
-eval m = runIdentity (evalContT m)
+evalCont : Cont R R -> R
+evalCont m = runIdentity (evalContT m)
 
 mapCont : (R -> R) -> Cont R A -> Cont R A
 mapCont f = mapContT (value <<< f <<< runIdentity)
