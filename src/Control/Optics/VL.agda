@@ -147,24 +147,24 @@ instance
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-fst! : Lens (A * C) (B * C) A B
-fst! k (x , y) = (_, y) <$> k x
+fstL : Lens (A * C) (B * C) A B
+fstL k (x , y) = (_, y) <$> k x
 
-snd! : Lens (A * B) (A * C) B C
-snd! k (x , y) = (x ,_) <$> k y
+sndL : Lens (A * B) (A * C) B C
+sndL k (x , y) = (x ,_) <$> k y
 
-left! : Traversal (Either A C) (Either B C) A B
-left! f (left x) = left <$> f x
-left! _ (right y) = pure (right y)
+leftT : Traversal (Either A C) (Either B C) A B
+leftT f (left x) = left <$> f x
+leftT _ (right y) = pure (right y)
 
-right! : Traversal (Either A B) (Either A C) B C
-right! f (right y) = right <$> f y
-right! _ (left x) = pure (left x)
+rightT : Traversal (Either A B) (Either A C) B C
+rightT f (right y) = right <$> f y
+rightT _ (left x) = pure (left x)
 
-just! : Traversal (Maybe A) (Maybe B) A B
-just! f (just x) = just <$> f x
-just! _ nothing = pure nothing
+justT : Traversal (Maybe A) (Maybe B) A B
+justT f (just x) = just <$> f x
+justT _ nothing = pure nothing
 
-nothing! : Simple Traversal (Maybe A) Unit
-nothing! f nothing = const nothing <$> f tt
-nothing! _ j = pure j
+nothingT : Simple Traversal (Maybe A) Unit
+nothingT f nothing = const nothing <$> f tt
+nothingT _ j = pure j
