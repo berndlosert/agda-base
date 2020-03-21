@@ -324,7 +324,7 @@ traverse f (a :: as) = (| _::_ (f a) (traverse f as) |)
 -- Traverse a list without accumulating.
 traverse' : forall {F A B} {{_ : Applicative F}}
   -> (A -> F B) -> List A -> F Unit
-traverse' f = foldr (_*>_ <<< f) (pure tt)
+traverse' f = foldr (_*>_ <<< f) (pure unit)
 
 -- Shorthand for flip traverse'.
 for' : forall {F A B} {{_ : Applicative F}}

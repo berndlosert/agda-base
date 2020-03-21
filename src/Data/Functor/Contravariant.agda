@@ -16,4 +16,4 @@ record Contravariant (F : Set -> Set) : Set where
 open Contravariant {{...}} public
 
 phantom : {{_ : Functor F}} {{_ : Contravariant F}} -> F A -> F B
-phantom x = contramap (const tt) $ map (const tt) x
+phantom x = contramap (const unit) $ map (const unit) x

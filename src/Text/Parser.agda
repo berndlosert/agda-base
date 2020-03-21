@@ -16,17 +16,16 @@ private variable A : Set
 
 record Parser (A : Set) : Set where
   constructor parser
-  field
-    runParser : String -> List (A * String)
+  field runParser : String -> List (A * String)
 
 open Parser public
 
 instance
   functorParser : Functor Parser
-  functorParser .map f p = parser \ s -> map (cross f id) (runParser p s)
+  functorParser .map f p = parser $ map (cross f id) <<< runParser p
 
   applicativeParser : Applicative Parser
-  applicativeParser .pure x = parser \ s -> singleton (x , s)
+  applicativeParser .pure x = parser $ singleton <<< (x ,_)
   applicativeParser ._<*>_ f p = parser \ s -> do
     (g , s') <- runParser f s
     (x , s'') <- runParser p s'
@@ -142,13 +141,13 @@ nat = chainl1
 spaces : Parser Unit
 spaces = do
   many1 (satisfy isSpace)
-  return tt
+  return unit
 
 -- Junk parser.
 junk : Parser Unit
 junk = do
   many spaces
-  return tt
+  return unit
 
 -- Parser that skips junk.
 skip : Parser A -> Parser A

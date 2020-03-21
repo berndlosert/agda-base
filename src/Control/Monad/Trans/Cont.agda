@@ -82,19 +82,19 @@ Cont : Set -> Set -> Set
 Cont R A = ContT R Identity A
 
 cont : ((A -> R) -> R) -> Cont R A
-cont f = contT (\ c -> value (f (runIdentity <<< c)))
+cont f = contT (\ c -> identity: (f (runIdentity <<< c)))
 
 runCont : Cont R A -> (A -> R) -> R
-runCont m k = runIdentity (runContT m (value <<< k))
+runCont m k = runIdentity (runContT m (identity: <<< k))
 
 evalCont : Cont R R -> R
 evalCont m = runIdentity (evalContT m)
 
 mapCont : (R -> R) -> Cont R A -> Cont R A
-mapCont f = mapContT (value <<< f <<< runIdentity)
+mapCont f = mapContT (identity: <<< f <<< runIdentity)
 
 withCont : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
-withCont f = withContT ((value <<<_) <<< f <<< (runIdentity <<<_))
+withCont f = withContT ((identity: <<<_) <<< f <<< (runIdentity <<<_))
 
 reset : Cont R R -> Cont R' R
 reset = resetT

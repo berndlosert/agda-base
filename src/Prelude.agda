@@ -78,8 +78,7 @@ open import Agda.Builtin.FromString public
 data Void : Set where
 
 open import Agda.Builtin.Unit public
-  using (tt)
-  renaming (⊤ to Unit)
+  renaming (⊤ to Unit; tt to unit)
 
 open import Agda.Builtin.Bool public
   using (Bool; true; false)
@@ -156,46 +155,52 @@ data Vector (A : Set) : Nat -> Set where
 --------------------------------------------------------------------------------
 
 record Identity (A : Set) : Set where
-  constructor value
+  constructor identity:
   field runIdentity : A
 
 open Identity public
 
 record All : Set where
-  constructor value
+  constructor all:
   field getAll : Bool
 
 open All public
 
 record Any : Set where
-  constructor value
+  constructor any:
   field getAny : Bool
 
 open Any public
 
 record Sum (A : Set) : Set where
-  constructor value
+  constructor sum:
   field getSum : A
 
 open Sum public
 
 record Product (A : Set) : Set where
-  constructor value
+  constructor product:
   field getProduct : A
 
 open Product public
 
 record First (A : Set) : Set where
-  constructor value
+  constructor first:
   field getFirst : Maybe A
 
 open First public
 
 record Dual (A : Set) : Set where
-  constructor value
+  constructor dual:
   field getDual : A
 
 open Dual public
+
+record Endo A : Set where
+  constructor endo:
+  field appEndo : A -> A
+
+open Endo public
 
 --------------------------------------------------------------------------------
 -- Basic functions
@@ -561,7 +566,7 @@ instance
   eqVoid ._==_ = \ ()
 
   eqUnit : Eq Unit
-  eqUnit ._==_ tt tt = true
+  eqUnit ._==_ unit unit = true
 
   eqBool : Eq Bool
   eqBool ._==_ = \ where
@@ -603,7 +608,7 @@ instance
     _ _ -> false
 
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ (value x) (value y) = x == y
+  eqIdentity ._==_ (identity: x) (identity: y) = x == y
 
 --------------------------------------------------------------------------------
 -- Ord instances
@@ -614,7 +619,7 @@ instance
   ordVoid ._<_ = \ ()
 
   ordUnit : Ord Unit
-  ordUnit ._<_ tt tt = false
+  ordUnit ._<_ unit unit = false
 
   ordNat : Ord Nat
   ordNat ._<_ = Agda.Builtin.Nat._<_
@@ -630,7 +635,7 @@ instance
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ (value x) (value y) = x < y
+  ordIdentity ._<_ (identity: x) (identity: y) = x < y
 
 --------------------------------------------------------------------------------
 -- Functor instances
@@ -655,7 +660,7 @@ instance
   functorList .map f (x :: xs) = f x :: map f xs
 
   functorIdentity : Functor Identity
-  functorIdentity .map f (value a) = value (f a)
+  functorIdentity .map f (identity: a) = identity: (f a)
 
 --------------------------------------------------------------------------------
 -- Applicative instances
@@ -682,8 +687,8 @@ instance
     (f :: fs) (x :: xs) -> f x :: fs <*> xs
 
   applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = value
-  applicativeIdentity ._<*>_ (value f) x = map f x
+  applicativeIdentity .pure = identity:
+  applicativeIdentity ._<*>_ (identity: f) x = map f x
 
 --------------------------------------------------------------------------------
 -- Monad instances
@@ -706,7 +711,7 @@ instance
     (x :: xs) k -> k x ++ (xs >>= k)
 
   monadIdentity : Monad Identity
-  monadIdentity ._>>=_ (value a) k = k a
+  monadIdentity ._>>=_ (identity: a) k = k a
 
 --------------------------------------------------------------------------------
 -- Semigroup instances
@@ -714,25 +719,25 @@ instance
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (value x) (value y) = value (y <> x)
+  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
 
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = \ ()
 
   semigroupUnit : Semigroup Unit
-  semigroupUnit ._<>_ tt tt = tt
+  semigroupUnit ._<>_ unit unit = unit
 
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ (value x) (value y) = value (x && y)
+  semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (value x) (value y) = value (x || y)
+  semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
 
   semigroupSum : Semigroup (Sum Nat)
-  semigroupSum ._<>_ (value x) (value y) = value (x + y)
+  semigroupSum ._<>_ (sum: x) (sum: y) = sum: (x + y)
 
   semigroupProduct : Semigroup (Product Nat)
-  semigroupProduct ._<>_ (value x) (value y) = value (x * y)
+  semigroupProduct ._<>_ (product: x) (product: y) = product: (x * y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = _++_
@@ -761,22 +766,22 @@ instance
 
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .empty = value empty
+  monoidDual .empty = dual: empty
 
   monoidUnit : Monoid Unit
-  monoidUnit .empty = tt
+  monoidUnit .empty = unit
 
   monoidAll : Monoid All
-  monoidAll .empty = value true
+  monoidAll .empty = all: true
 
   monoidAny : Monoid Any
-  monoidAny .empty = value false
+  monoidAny .empty = any: false
 
   monoidSum : Monoid (Sum Nat)
-  monoidSum .empty = value 0
+  monoidSum .empty = sum: 0
 
   monoidProduct : Monoid (Product Nat)
-  monoidProduct .empty = value 1
+  monoidProduct .empty = product: 1
 
   monoidString : Monoid String
   monoidString .empty = ""
@@ -796,7 +801,7 @@ instance
     .empty -> id
 
   monoidFirst : Monoid (First A)
-  monoidFirst .empty = value nothing
+  monoidFirst .empty = first: nothing
 
 --------------------------------------------------------------------------------
 -- Show instances
@@ -804,7 +809,7 @@ instance
 
 instance
   showUnit : Show Unit
-  showUnit .show tt = "tt"
+  showUnit .show unit = "unit"
 
   showBool : Show Bool
   showBool .show = \ where
@@ -831,12 +836,9 @@ instance
     nothing -> "nothing"
 
   showList : {{_ : Show A}} -> Show (List A)
-  showList .show = \ { [] -> "[]"; xs -> "[ " ++ csv xs ++ " ]" }
-    where
-      csv : {A : Set} {{_ : Show A}} -> List A -> String
-      csv [] = ""
-      csv (x :: []) = show x
-      csv (x :: xs) = show x ++ " , " ++ csv xs
+  showList .show = \ where
+    [] -> "[]"
+    (a :: as) -> show a ++ " :: " ++ show as
 
   showChar : Show Char
   showChar .show c = "'" ++ pack (singleton c) ++ "'"

@@ -30,8 +30,8 @@ record Settable (F : Set -> Set) : Set where
 open Settable {{...}}
 
 instance
-  Settable:Identity : Settable Identity
-  Settable:Identity .unpure (value x) = x
+  settableIdentity : Settable Identity
+  settableIdentity .unpure (identity: x) = x
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -71,13 +71,13 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = value <<< getConst <<< k <<< f
+to f k = const: <<< getConst <<< k <<< f
 
 view : Getting A S A -> S -> A
-view g = getConst <<< g value
+view g = getConst <<< g const:
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = g (k >>> value) >>> getConst
+foldMapOf g k = g (k >>> const:) >>> getConst
 
 foldrOf : Getting (R -> R) S A -> (A -> R -> R) -> R -> S -> R
 foldrOf l f z = \ s -> foldMapOf l f s z
@@ -86,11 +86,11 @@ toListOf : Getting (List A -> List A) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
 preview : Getting (First A) S A -> S -> Maybe A
-preview l = getFirst <<< foldMapOf l (value <<< just)
+preview l = getFirst <<< foldMapOf l (first: <<< just)
 
 traverseOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
-traverseOf' l f = map (const tt) <<< foldMapOf l f
+traverseOf' l f = map (const unit) <<< foldMapOf l f
 
 forOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> S -> (A -> F R) -> F Unit
@@ -104,13 +104,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = g (k >>> value) >>> runIdentity
+over g k = g (k >>> identity:) >>> runIdentity
 
 set : ASetter S T A B -> B -> S -> T
-set l y = l (\ _ -> value y) >>> runIdentity
+set l y = l (\ _ -> identity: y) >>> runIdentity
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = f (k >>> runIdentity) >>> value
+sets f k = f (k >>> runIdentity) >>> identity:
 
 --------------------------------------------------------------------------------
 -- Lenslike operations
@@ -140,8 +140,8 @@ record Each (S T A B : Set) : Set where
 open Each {{...}} public
 
 instance
-  Each:List : Each (List A) (List B) A B
-  Each:List .each = List.traverse
+  eachList : Each (List A) (List B) A B
+  eachList .each = List.traverse
 
 --------------------------------------------------------------------------------
 -- Basic lens and traversals
@@ -166,5 +166,5 @@ justT f (just x) = just <$> f x
 justT _ nothing = pure nothing
 
 nothingT : Simple Traversal (Maybe A) Unit
-nothingT f nothing = const nothing <$> f tt
+nothingT f nothing = const nothing <$> f unit
 nothingT _ j = pure j
