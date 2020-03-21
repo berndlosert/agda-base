@@ -18,7 +18,7 @@ swap : A * B -> B * A
 swap = split snd fst
 
 dupe : A -> A * A
-dupe = split id id
+dupe = split identity identity
 
 apply : (A -> B) * A -> B
 apply = uncurry _$_

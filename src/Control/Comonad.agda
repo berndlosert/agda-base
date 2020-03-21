@@ -4,9 +4,7 @@ module Control.Comonad where
 
 open import Prelude
 
-private
-  variable
-    A B C : Set
+private variable A B C : Set
 
 record Comonad (W : Set -> Set) : Set where
   infixl 1 _=>>_ _=>=_
@@ -16,7 +14,7 @@ record Comonad (W : Set -> Set) : Set where
     extract : W A -> A
 
   duplicate : W A -> W (W A)
-  duplicate = extend id
+  duplicate = extend identity
 
   _=>>_ : W A -> (W A -> B) -> W B
   _=>>_ = flip extend

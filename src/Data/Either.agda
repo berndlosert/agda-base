@@ -24,7 +24,7 @@ mirror = either right left
 
 -- Untags (i.e. removes) the left/right wrapper around a value.
 untag : A + A -> A
-untag = either id id
+untag = either identity identity
 
 -- Returns true if the given Either value is a left; false otherwise.
 isLeft : A + B -> Bool
@@ -36,8 +36,8 @@ isRight = not <<< isLeft
 
 -- Return the contents of a left-value or a default value otherwise.
 fromLeft : A -> A + B -> A
-fromLeft x = either id (const x)
+fromLeft x = either identity (const x)
 
 -- Return the contents of a right-value or a default value otherwise.
 fromRight : B -> A + B -> B
-fromRight y = either (const y) id
+fromRight y = either (const y) identity

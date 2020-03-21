@@ -213,11 +213,11 @@ infixr 5 _<<<_ _>>>_
 flip : (A -> B -> C) -> B -> A -> C
 flip f b a = f a b
 
-id : A -> A
-id a = a
+identity : A -> A
+identity a = a
 
 _$_ : (A -> B) -> A -> B
-_$_ = id
+_$_ = identity
 
 _#_ : A -> (A -> B) -> B
 _#_ = flip _$_
@@ -451,7 +451,7 @@ record Monad (M : Set -> Set) : Set where
   _=<<_ = flip _>>=_
 
   join : M (M A) -> M A
-  join = _=<<_ id
+  join = _=<<_ identity
 
   _>>_ : M A -> M B -> M B
   _>>_ = _*>_
@@ -798,7 +798,7 @@ instance
   monoid<<< : Monoid (A -> A)
   monoid<<< = \ where
     .semigroup -> semigroup<<<
-    .empty -> id
+    .empty -> identity
 
   monoidFirst : Monoid (First A)
   monoidFirst .empty = first: nothing

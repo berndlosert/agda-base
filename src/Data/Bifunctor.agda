@@ -16,17 +16,16 @@ record Bifunctor (P : Set -> Set -> Set) : Set where
     bimap : (A -> B) -> (C -> D) -> P A C -> P B D
 
   first : (A -> B) -> P A C -> P B C
-  first f = bimap f id
+  first f = bimap f identity
 
   second : (B -> C) -> P A B -> P A C
-  second g = bimap id g
+  second g = bimap identity g
 
 open Bifunctor {{...}} public
 
 instance
   bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g = \ where
-    (value x) -> value (f x)
+  bifunctorConst .bimap f g (const: x) = const: (f x)
 
   bifunctorPair : Bifunctor _*_
   bifunctorPair .bimap f g = cross f g
