@@ -754,8 +754,8 @@ instance
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
   semigroupFunction ._<>_ f g = \ a -> f a <> g a
 
-  semigroup<<< : Semigroup (A -> A)
-  semigroup<<< ._<>_ = _<<<_
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
 
   semigroupFirst : Semigroup (First A)
   semigroupFirst ._<>_ x _ = x
@@ -795,10 +795,8 @@ instance
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
   monoidFunction .empty = const empty
 
-  monoid<<< : Monoid (A -> A)
-  monoid<<< = \ where
-    .semigroup -> semigroup<<<
-    .empty -> identity
+  monoidEndo : Monoid (Endo A)
+  monoidEndo .empty = endo: identity
 
   monoidFirst : Monoid (First A)
   monoidFirst .empty = first: nothing
