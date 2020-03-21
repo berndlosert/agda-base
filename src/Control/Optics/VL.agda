@@ -117,7 +117,7 @@ sets f k = f (k >>> runIdentity) >>> identity:
 --------------------------------------------------------------------------------
 
 traverseOf : Lenslike F S T A B -> (A -> F B) -> S -> F T
-traverseOf = id
+traverseOf = identity
 
 forOf : Lenslike F S T A B -> S -> (A -> F B) -> F T
 forOf = flip
