@@ -26,4 +26,4 @@ lift y f = map f y
 
 -- The <- direction of the Yoneda lemma isomorphism is called lower.
 lower : Yoneda F A -> F A
-lower t = t id
+lower t = t identity
