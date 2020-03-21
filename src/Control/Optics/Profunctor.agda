@@ -135,30 +135,24 @@ record Mapping (A B S T : Set) : Set where
 -- Constructors
 --------------------------------------------------------------------------------
 
-adapter: : (S -> A) -> (B -> T) -> Adapter A B S T
-adapter: from to = dimap from to
+adapter : (S -> A) -> (B -> T) -> Adapter A B S T
+adapter from to = dimap from to
 
-lens: : (S -> A) -> (S -> B -> T) -> Lens A B S T
-lens: get put = dimap (split identity get) (uncurry put) <<< strong
+lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
+lens get put = dimap (split identity get) (uncurry put) <<< strong
 
-prism: : (B -> T) -> (S -> T + A) -> Prism A B S T
-prism: build match = dimap match untag <<< choice <<< rmap build
+prism : (B -> T) -> (S -> T + A) -> Prism A B S T
+prism build match = dimap match untag <<< choice <<< rmap build
 
-grate: : (((S -> A) -> B) -> T) -> Grate A B S T
-grate: degrating = dimap _#_ degrating <<< closed
+grate : (((S -> A) -> B) -> T) -> Grate A B S T
+grate degrating = dimap _#_ degrating <<< closed
 
-traversal: : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
+traversal : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
   -> Traversal A B S T
-traversal: traverse = wander traverse
+traversal traverse = wander traverse
 
-getter: : (S -> A) -> Getter A S
-getter: g = g >>>_
-
-review: : (B -> T) -> Review B T
-review: = identity
-
-setter: : ((A -> B) -> S -> T) -> Setter A B S T
-setter: = identity
+getter : (S -> A) -> Getter A S
+getter g = g >>>_
 
 --------------------------------------------------------------------------------
 -- Profunctor instances
