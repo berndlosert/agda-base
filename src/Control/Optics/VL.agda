@@ -5,10 +5,12 @@ module Control.Optics.VL where
 import Data.Functor.Contravariant
 import Data.Functor.Const
 import Data.List as List
+import Data.Profunctor
 import Prelude
 
 open Data.Functor.Contravariant
 open Data.Functor.Const public
+open Data.Profunctor
 open Prelude
 
 private
@@ -79,11 +81,17 @@ view g = getConst <<< g const:
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
 foldMapOf g k = g (k >>> const:) >>> getConst
 
-foldrOf : Getting (R -> R) S A -> (A -> R -> R) -> R -> S -> R
-foldrOf l f z = \ s -> foldMapOf l f s z
+foldrOf : Getting (Endo R) S A -> (A -> R -> R) -> R -> S -> R
+foldrOf l f z = flip appEndo z <<< foldMapOf l (endo: <<< f)
 
-toListOf : Getting (List A -> List A) S A -> S -> List A
+foldlOf : Getting (Dual (Endo R)) S A -> (R -> A -> R) -> R -> S -> R
+foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (dual: <<< endo: <<< flip f))
+
+toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
+
+lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
+lengthOf l = foldlOf l (\ a _ -> a + 1) 0
 
 preview : Getting (First A) S A -> S -> Maybe A
 preview l = getFirst <<< foldMapOf l (first: <<< just)

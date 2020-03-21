@@ -20,7 +20,7 @@ maybe b f (just a) = f a
 -- Maybe is nothing, it returns the default values; otherwise, it returns the
 -- value contained in the Maybe.
 fromMaybe : A -> Maybe A -> A
-fromMaybe = flip maybe id
+fromMaybe = flip maybe identity
 
 -- Maybe produce a left, otherwise produce a right.
 maybeToLeft : B -> Maybe A -> A + B
