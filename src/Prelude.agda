@@ -397,75 +397,20 @@ instance
     }
 
 --------------------------------------------------------------------------------
--- Functor
+-- Basic operations regarding List and Vector
 --------------------------------------------------------------------------------
 
-infixl 24 _<$>_
-infixr 2 _~>_
+pattern singleton a = a :: []
 
-record Functor (F : Set -> Set) : Set where
-  field
-    map : (A -> B) -> (F A -> F B)
+instance
+  appendList : forall {A} -> Append (List A) (List A) (List A)
+  appendList ._++_ [] ys = ys
+  appendList ._++_ (x :: xs) ys = x :: xs ++ ys
 
-open Functor {{...}} public
-
-_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
-_<$>_ = map
-
-_~>_ : (F G : Set -> Set) -> Set
-F ~> G  = forall {A} -> F A -> G A
-
---------------------------------------------------------------------------------
--- Applicative
---------------------------------------------------------------------------------
-
-record Applicative (F : Set -> Set) : Set where
-  infixl 24 _<*>_ _*>_ _<*_
-  field
-    overlap {{super}} : Functor F
-    _<*>_ : F (A -> B) -> F A -> F B
-    pure : A -> F A
-
-  _*>_ : F A -> F B -> F B
-  a *> b = (| (flip const) a b |)
-
-  _<*_ : F A -> F B -> F A
-  a <* b = (| const a b |)
-
-open Applicative {{...}} public
-
---------------------------------------------------------------------------------
--- Monad
---------------------------------------------------------------------------------
-
-record Monad (M : Set -> Set) : Set where
-  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
-  field
-    overlap {{super}} : Applicative M
-    _>>=_ : M A -> (A -> M B) -> M B
-
-  return : A -> M A
-  return = pure
-
-  _=<<_ : (A -> M B) -> M A -> M B
-  _=<<_ = flip _>>=_
-
-  join : M (M A) -> M A
-  join = _=<<_ identity
-
-  _>>_ : M A -> M B -> M B
-  _>>_ = _*>_
-
-  _<<_ : M A -> M B -> M A
-  _<<_ = _<*_
-
-  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
-  g <=< f = f >>> (_>>= g)
-
-  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
-  _>=>_ = flip _<=<_
-
-open Monad {{...}} public
+  appendVector : forall {m n A}
+    -> Append (Vector A m) (Vector A n) (Vector A (m + n))
+  appendVector ._++_ [] ys = ys
+  appendVector ._++_ (x :: xs) ys = x :: xs ++ ys
 
 --------------------------------------------------------------------------------
 -- Eq and Ord
@@ -542,20 +487,75 @@ record Show (A : Set) : Set where
 open Show {{...}} public
 
 --------------------------------------------------------------------------------
--- Basic operations regarding List and Vector
+-- Functor
 --------------------------------------------------------------------------------
 
-pattern singleton a = a :: []
+infixl 24 _<$>_
+infixr 2 _~>_
 
-instance
-  appendList : forall {A} -> Append (List A) (List A) (List A)
-  appendList ._++_ [] ys = ys
-  appendList ._++_ (x :: xs) ys = x :: xs ++ ys
+record Functor (F : Set -> Set) : Set where
+  field
+    map : (A -> B) -> (F A -> F B)
 
-  appendVector : forall {m n A}
-    -> Append (Vector A m) (Vector A n) (Vector A (m + n))
-  appendVector ._++_ [] ys = ys
-  appendVector ._++_ (x :: xs) ys = x :: xs ++ ys
+open Functor {{...}} public
+
+_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
+_<$>_ = map
+
+_~>_ : (F G : Set -> Set) -> Set
+F ~> G  = forall {A} -> F A -> G A
+
+--------------------------------------------------------------------------------
+-- Applicative
+--------------------------------------------------------------------------------
+
+record Applicative (F : Set -> Set) : Set where
+  infixl 24 _<*>_ _*>_ _<*_
+  field
+    overlap {{super}} : Functor F
+    _<*>_ : F (A -> B) -> F A -> F B
+    pure : A -> F A
+
+  _*>_ : F A -> F B -> F B
+  a *> b = (| (flip const) a b |)
+
+  _<*_ : F A -> F B -> F A
+  a <* b = (| const a b |)
+
+open Applicative {{...}} public
+
+--------------------------------------------------------------------------------
+-- Monad
+--------------------------------------------------------------------------------
+
+record Monad (M : Set -> Set) : Set where
+  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
+  field
+    overlap {{super}} : Applicative M
+    _>>=_ : M A -> (A -> M B) -> M B
+
+  return : A -> M A
+  return = pure
+
+  _=<<_ : (A -> M B) -> M A -> M B
+  _=<<_ = flip _>>=_
+
+  join : M (M A) -> M A
+  join = _=<<_ identity
+
+  _>>_ : M A -> M B -> M B
+  _>>_ = _*>_
+
+  _<<_ : M A -> M B -> M A
+  _<<_ = _<*_
+
+  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
+  g <=< f = f >>> (_>>= g)
+
+  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
+  _>=>_ = flip _<=<_
+
+open Monad {{...}} public
 
 --------------------------------------------------------------------------------
 -- Eq instances
