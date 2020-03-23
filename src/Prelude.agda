@@ -234,6 +234,162 @@ curry : (A * B -> C) -> A -> B -> C
 curry f a b = f (a , b)
 
 --------------------------------------------------------------------------------
+-- Eq and Ord
+--------------------------------------------------------------------------------
+
+record Eq (A : Set) : Set where
+  infix 4 _==_ _/=_
+  field
+    _==_ : A -> A -> Bool
+
+  _/=_ : A -> A -> Bool
+  x /= y with x == y
+  ... | true = false
+  ... | false = true
+
+open Eq {{...}} public
+
+data Ordering : Set where
+  LT EQ GT : Ordering
+
+record Ord (A : Set) : Set where
+  field
+    overlap {{eq}} : Eq A
+    compare : A -> A -> Ordering
+
+  _<_ : A -> A -> Bool
+  x < y with compare x y
+  ... | LT = true
+  ... | _ = false
+
+  _<=_ : A -> A -> Bool
+  x <= y with compare x y
+  ... | LT = true
+  ... | EQ = true
+  ... | _ = false
+
+  _>_ : A -> A -> Bool
+  x > y = y < x
+
+  _>=_ : A -> A -> Bool
+  x >= y = y <= x
+
+  min : A -> A -> A
+  min x y with compare x y
+  ... | LT = x
+  ... | EQ = x
+  ... | GT = y
+
+  max : A -> A -> A
+  max x y with compare x y
+  ... | LT = y
+  ... | EQ = y
+  ... | GT = x
+
+open Ord {{...}} public
+
+comparing : {{_ : Ord B}} -> (A -> B) -> A -> A -> Ordering
+comparing p x y = compare (p x) (p y)
+
+--------------------------------------------------------------------------------
+-- Semigroup and Monoid
+--------------------------------------------------------------------------------
+
+record Semigroup (A : Set) : Set where
+  infixr 6 _<>_
+  field _<>_ : A -> A -> A
+
+open Semigroup {{...}} public
+
+record Monoid (A : Set) : Set where
+  field
+    overlap {{semigroup}} : Semigroup A
+    empty : A
+
+open Monoid {{...}} public
+
+--------------------------------------------------------------------------------
+-- Show
+--------------------------------------------------------------------------------
+
+record Show (A : Set) : Set where
+  field
+    show : A -> String
+
+open Show {{...}} public
+
+--------------------------------------------------------------------------------
+-- Functor
+--------------------------------------------------------------------------------
+
+infixl 24 _<$>_
+infixr 2 _~>_
+
+record Functor (F : Set -> Set) : Set where
+  field
+    map : (A -> B) -> (F A -> F B)
+
+open Functor {{...}} public
+
+_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
+_<$>_ = map
+
+_~>_ : (F G : Set -> Set) -> Set
+F ~> G  = forall {A} -> F A -> G A
+
+--------------------------------------------------------------------------------
+-- Applicative
+--------------------------------------------------------------------------------
+
+record Applicative (F : Set -> Set) : Set where
+  infixl 24 _<*>_ _*>_ _<*_
+  field
+    overlap {{super}} : Functor F
+    _<*>_ : F (A -> B) -> F A -> F B
+    pure : A -> F A
+
+  _*>_ : F A -> F B -> F B
+  a *> b = (| (flip const) a b |)
+
+  _<*_ : F A -> F B -> F A
+  a <* b = (| const a b |)
+
+open Applicative {{...}} public
+
+--------------------------------------------------------------------------------
+-- Monad
+--------------------------------------------------------------------------------
+
+record Monad (M : Set -> Set) : Set where
+  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
+  field
+    overlap {{super}} : Applicative M
+    _>>=_ : M A -> (A -> M B) -> M B
+
+  return : A -> M A
+  return = pure
+
+  _=<<_ : (A -> M B) -> M A -> M B
+  _=<<_ = flip _>>=_
+
+  join : M (M A) -> M A
+  join = _=<<_ identity
+
+  _>>_ : M A -> M B -> M B
+  _>>_ = _*>_
+
+  _<<_ : M A -> M B -> M A
+  _<<_ = _<*_
+
+  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
+  g <=< f = f >>> (_>>= g)
+
+  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
+  _>=>_ = flip _<=<_
+
+open Monad {{...}} public
+
+--------------------------------------------------------------------------------
 -- Basic operations/functions regarding Bool
 --------------------------------------------------------------------------------
 
@@ -485,162 +641,6 @@ maybeToList = maybe [] singleton
 listToMaybe : List A -> Maybe A
 listToMaybe [] = nothing
 listToMaybe (a :: _) = just a
-
---------------------------------------------------------------------------------
--- Eq and Ord
---------------------------------------------------------------------------------
-
-record Eq (A : Set) : Set where
-  infix 4 _==_ _/=_
-  field
-    _==_ : A -> A -> Bool
-
-  _/=_ : A -> A -> Bool
-  x /= y with x == y
-  ... | true = false
-  ... | false = true
-
-open Eq {{...}} public
-
-data Ordering : Set where
-  LT EQ GT : Ordering
-
-record Ord (A : Set) : Set where
-  field
-    overlap {{eq}} : Eq A
-    compare : A -> A -> Ordering
-
-  _<_ : A -> A -> Bool
-  x < y with compare x y
-  ... | LT = true
-  ... | _ = false
-
-  _<=_ : A -> A -> Bool
-  x <= y with compare x y
-  ... | LT = true
-  ... | EQ = true
-  ... | _ = false
-
-  _>_ : A -> A -> Bool
-  x > y = y < x
-
-  _>=_ : A -> A -> Bool
-  x >= y = y <= x
-
-  min : A -> A -> A
-  min x y with compare x y
-  ... | LT = x
-  ... | EQ = x
-  ... | GT = y
-
-  max : A -> A -> A
-  max x y with compare x y
-  ... | LT = y
-  ... | EQ = y
-  ... | GT = x
-
-open Ord {{...}} public
-
-comparing : {{_ : Ord B}} -> (A -> B) -> A -> A -> Ordering
-comparing p x y = compare (p x) (p y)
-
---------------------------------------------------------------------------------
--- Semigroup and Monoid
---------------------------------------------------------------------------------
-
-record Semigroup (A : Set) : Set where
-  infixr 6 _<>_
-  field _<>_ : A -> A -> A
-
-open Semigroup {{...}} public
-
-record Monoid (A : Set) : Set where
-  field
-    overlap {{semigroup}} : Semigroup A
-    empty : A
-
-open Monoid {{...}} public
-
---------------------------------------------------------------------------------
--- Show
---------------------------------------------------------------------------------
-
-record Show (A : Set) : Set where
-  field
-    show : A -> String
-
-open Show {{...}} public
-
---------------------------------------------------------------------------------
--- Functor
---------------------------------------------------------------------------------
-
-infixl 24 _<$>_
-infixr 2 _~>_
-
-record Functor (F : Set -> Set) : Set where
-  field
-    map : (A -> B) -> (F A -> F B)
-
-open Functor {{...}} public
-
-_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
-_<$>_ = map
-
-_~>_ : (F G : Set -> Set) -> Set
-F ~> G  = forall {A} -> F A -> G A
-
---------------------------------------------------------------------------------
--- Applicative
---------------------------------------------------------------------------------
-
-record Applicative (F : Set -> Set) : Set where
-  infixl 24 _<*>_ _*>_ _<*_
-  field
-    overlap {{super}} : Functor F
-    _<*>_ : F (A -> B) -> F A -> F B
-    pure : A -> F A
-
-  _*>_ : F A -> F B -> F B
-  a *> b = (| (flip const) a b |)
-
-  _<*_ : F A -> F B -> F A
-  a <* b = (| const a b |)
-
-open Applicative {{...}} public
-
---------------------------------------------------------------------------------
--- Monad
---------------------------------------------------------------------------------
-
-record Monad (M : Set -> Set) : Set where
-  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
-  field
-    overlap {{super}} : Applicative M
-    _>>=_ : M A -> (A -> M B) -> M B
-
-  return : A -> M A
-  return = pure
-
-  _=<<_ : (A -> M B) -> M A -> M B
-  _=<<_ = flip _>>=_
-
-  join : M (M A) -> M A
-  join = _=<<_ identity
-
-  _>>_ : M A -> M B -> M B
-  _>>_ = _*>_
-
-  _<<_ : M A -> M B -> M A
-  _<<_ = _<*_
-
-  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
-  g <=< f = f >>> (_>>= g)
-
-  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
-  _>=>_ = flip _<=<_
-
-open Monad {{...}} public
 
 --------------------------------------------------------------------------------
 -- Eq instances
