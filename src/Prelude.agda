@@ -8,6 +8,57 @@ private
     F G : Set -> Set
 
 --------------------------------------------------------------------------------
+-- Essential functions
+--------------------------------------------------------------------------------
+
+flip : (A -> B -> C) -> B -> A -> C
+flip f b a = f a b
+
+identity : A -> A
+identity a = a
+
+infixr 0 _$_
+_$_ : (A -> B) -> A -> B
+_$_ = identity
+
+infixr 5 _<<<_
+_<<<_ : (B -> C) -> (A -> B) -> A -> C
+g <<< f = \ a -> g (f a)
+
+infixr 5 _>>>_
+_>>>_ : (A -> B) -> (B -> C) -> A -> C
+_>>>_ = flip _<<<_
+
+const : A -> B -> A
+const a _ = a
+
+--------------------------------------------------------------------------------
+-- Bool
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Bool public
+  using (Bool; true; false)
+
+infix 0 if_then_else_
+if_then_else_ : Bool -> A -> A -> A
+if true then a else _ = a
+if false then _ else a = a
+
+not : Bool -> Bool
+not true = false
+not false = true
+
+infixr 6 _&&_
+_&&_ : Bool -> Bool -> Bool
+true && b = b
+false && _ = false
+
+infixr 5 _||_
+_||_ : Bool -> Bool -> Bool
+true || _ = true
+false || b = b
+
+--------------------------------------------------------------------------------
 -- For notational convenience
 --------------------------------------------------------------------------------
 
@@ -56,9 +107,9 @@ record Exp (A B C : Set) : Set where
 
 open Exp {{...}} public
 
-record Append (A B C : Set) : Set where
+record Append A : Set where
   infixr 25 _++_
-  field _++_ : A -> B -> C
+  field _++_ : A -> A -> A
 
 open Append {{...}} public
 
@@ -72,180 +123,17 @@ open import Agda.Builtin.FromString public
   using (IsString; fromString)
 
 --------------------------------------------------------------------------------
--- Basic types
---------------------------------------------------------------------------------
-
-data Void : Set where
-
-open import Agda.Builtin.Unit public
-  renaming (⊤ to Unit; tt to unit)
-
-open import Agda.Builtin.Bool public
-  using (Bool; true; false)
-
-open import Agda.Builtin.Nat public
-  using (Nat; zero; suc)
-
-open import Agda.Builtin.Int public
-  using (Int; pos; negsuc)
-
-open import Agda.Builtin.Float public
-  using (Float)
-
-open import Agda.Builtin.Char public
-  using (Char)
-
-open import Agda.Builtin.String public
-  using (String)
-
---------------------------------------------------------------------------------
--- Basic type constructors
---------------------------------------------------------------------------------
-
-infixr 4 _,_
-
-Function : Set -> Set -> Set
-Function A B = A -> B
-
-open import Agda.Builtin.Equality public
-  using (refl)
-  renaming (_≡_ to _===_)
-
-record Pair (A B : Set) : Set where
-  constructor _,_
-  field
-    fst : A
-    snd : B
-
-open Pair public
-
-instance
-  mulPair : Mul Set
-  mulPair ._*_ = Pair
-
-{-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
-
-data Either (A B : Set) : Set where
-  left : A -> Either A B
-  right : B -> Either A B
-
-instance
-  addEither : Add Set
-  addEither ._+_ = Either
-
-{-# COMPILE GHC Either = data Either (Left | Right) #-}
-
-open import Agda.Builtin.List public
-  using (List; [])
-  renaming (_∷_ to _::_)
-
-data Maybe (A : Set) : Set where
-  nothing : Maybe A
-  just : A -> Maybe A
-
-{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
-
---------------------------------------------------------------------------------
--- Wrapper types
---------------------------------------------------------------------------------
-
-record Identity (A : Set) : Set where
-  constructor identity:
-  field runIdentity : A
-
-open Identity public
-
-record All : Set where
-  constructor all:
-  field getAll : Bool
-
-open All public
-
-record Any : Set where
-  constructor any:
-  field getAny : Bool
-
-open Any public
-
-record Sum (A : Set) : Set where
-  constructor sum:
-  field getSum : A
-
-open Sum public
-
-record Product (A : Set) : Set where
-  constructor product:
-  field getProduct : A
-
-open Product public
-
-record First (A : Set) : Set where
-  constructor first:
-  field getFirst : Maybe A
-
-open First public
-
-record Dual (A : Set) : Set where
-  constructor dual:
-  field getDual : A
-
-open Dual public
-
-record Endo A : Set where
-  constructor endo:
-  field appEndo : A -> A
-
-open Endo public
-
---------------------------------------------------------------------------------
--- Basic functions
---------------------------------------------------------------------------------
-
-infixr 0 _$_
-infixl 1 _#_
-infixr 5 _<<<_ _>>>_
-
-flip : (A -> B -> C) -> B -> A -> C
-flip f b a = f a b
-
-identity : A -> A
-identity a = a
-
-_$_ : (A -> B) -> A -> B
-_$_ = identity
-
-_#_ : A -> (A -> B) -> B
-_#_ = flip _$_
-
-_<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ a -> g (f a)
-
-_>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _<<<_
-
-const : A -> B -> A
-const a _ = a
-
-uncurry : (A -> B -> C) -> A * B -> C
-uncurry f (a , b) = f a b
-
-curry : (A * B -> C) -> A -> B -> C
-curry f a b = f (a , b)
-
---------------------------------------------------------------------------------
 -- Eq and Ord
 --------------------------------------------------------------------------------
 
 record Eq (A : Set) : Set where
-  infix 4 _==_ _/=_
+  infix 4 _==_
   field
     _==_ : A -> A -> Bool
 
+  infix 4 _/=_
   _/=_ : A -> A -> Bool
-  x /= y with x == y
-  ... | true = false
-  ... | false = true
+  x /= y = not (x == y)
 
 open Eq {{...}} public
 
@@ -255,18 +143,13 @@ data Ordering : Set where
 record Ord (A : Set) : Set where
   field
     overlap {{eq}} : Eq A
-    compare : A -> A -> Ordering
+    _<_ : A -> A -> Bool
 
-  _<_ : A -> A -> Bool
-  x < y with compare x y
-  ... | LT = true
-  ... | _ = false
+  compare : A -> A -> Ordering
+  compare x y = if x < y then LT else if x == y then EQ else GT
 
   _<=_ : A -> A -> Bool
-  x <= y with compare x y
-  ... | LT = true
-  ... | EQ = true
-  ... | _ = false
+  x <= y = (x < y) || (x == y)
 
   _>_ : A -> A -> Bool
   x > y = y < x
@@ -275,16 +158,10 @@ record Ord (A : Set) : Set where
   x >= y = y <= x
 
   min : A -> A -> A
-  min x y with compare x y
-  ... | LT = x
-  ... | EQ = x
-  ... | GT = y
+  min x y = if x < y then x else y
 
   max : A -> A -> A
-  max x y with compare x y
-  ... | LT = y
-  ... | EQ = y
-  ... | GT = x
+  max x y = if x < y then y else x
 
 open Ord {{...}} public
 
@@ -308,22 +185,36 @@ record Monoid (A : Set) : Set where
 
 open Monoid {{...}} public
 
---------------------------------------------------------------------------------
--- Show
---------------------------------------------------------------------------------
+record Dual (A : Set) : Set where
+  constructor dual:
+  field getDual : A
 
-record Show (A : Set) : Set where
-  field
-    show : A -> String
+open Dual public
 
-open Show {{...}} public
+instance
+  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
+  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
+
+  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
+  monoidDual .empty = dual: empty
+
+-- For additive semigroups.
+record Sum (A : Set) : Set where
+  constructor sum:
+  field getSum : A
+
+open Sum public
+
+-- For multiplicative semigroups.
+record Product (A : Set) : Set where
+  constructor product:
+  field getProduct : A
+
+open Product public
 
 --------------------------------------------------------------------------------
 -- Functor
 --------------------------------------------------------------------------------
-
-infixl 24 _<$>_
-infixr 2 _~>_
 
 record Functor (F : Set -> Set) : Set where
   field
@@ -331,9 +222,11 @@ record Functor (F : Set -> Set) : Set where
 
 open Functor {{...}} public
 
+infixl 24 _<$>_
 _<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
 _<$>_ = map
 
+infixr 2 _~>_
 _~>_ : (F G : Set -> Set) -> Set
 F ~> G  = forall {A} -> F A -> G A
 
@@ -342,15 +235,17 @@ F ~> G  = forall {A} -> F A -> G A
 --------------------------------------------------------------------------------
 
 record Applicative (F : Set -> Set) : Set where
-  infixl 24 _<*>_ _*>_ _<*_
+  infixl 24 _<*>_
   field
     overlap {{super}} : Functor F
     _<*>_ : F (A -> B) -> F A -> F B
     pure : A -> F A
 
+  infixl 24 _*>_
   _*>_ : F A -> F B -> F B
   a *> b = (| (flip const) a b |)
 
+  infixl 24 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
 
@@ -361,7 +256,7 @@ open Applicative {{...}} public
 --------------------------------------------------------------------------------
 
 record Monad (M : Set -> Set) : Set where
-  infixl 1 _>>=_ _=<<_ _>>_ _<<_ _<=<_ _>=>_
+  infixl 1 _>>=_
   field
     overlap {{super}} : Applicative M
     _>>=_ : M A -> (A -> M B) -> M B
@@ -369,62 +264,94 @@ record Monad (M : Set -> Set) : Set where
   return : A -> M A
   return = pure
 
+  infixl 1 _=<<_
   _=<<_ : (A -> M B) -> M A -> M B
   _=<<_ = flip _>>=_
 
   join : M (M A) -> M A
   join = _=<<_ identity
 
+  infixl 1 _>>_
   _>>_ : M A -> M B -> M B
   _>>_ = _*>_
 
+  infixl 1 _<<_
   _<<_ : M A -> M B -> M A
   _<<_ = _<*_
 
+  infixl 1 _<=<_
   _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
   g <=< f = f >>> (_>>= g)
 
+  infixl 1 _>=>_
   _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
   _>=>_ = flip _<=<_
 
 open Monad {{...}} public
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Bool
+-- Void
 --------------------------------------------------------------------------------
 
-infix 0 if_then_else_
-infixr 5 _||_
-infixr 6 _&&_
+data Void : Set where
 
-bool : A -> A -> Bool -> A
-bool a _ false = a
-bool _ a true = a
+absurd : Void -> A
+absurd = \ ()
 
-if_then_else_ : Bool -> A -> A -> A
-if b then t else f = bool f t b
-
-not : Bool -> Bool
-not true  = false
-not false = true
-
-_&&_ : Bool -> Bool -> Bool
-true && b = b
-false && _ = false
-
-_||_ : Bool -> Bool -> Bool
-true || _ = true
-false || b = b
-
-Assert : Bool -> Set
-Assert true = Unit
-Assert false = Void
-
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Nat
---------------------------------------------------------------------------------
+vacuous : {{_ : Functor F}} -> F Void -> F A
+vacuous = map absurd
 
 instance
+  eqVoid : Eq Void
+  eqVoid ._==_ = \ ()
+
+  ordVoid : Ord Void
+  ordVoid ._<_ = \ ()
+
+  semigroupVoid : Semigroup Void
+  semigroupVoid ._<>_ = \ ()
+
+--------------------------------------------------------------------------------
+-- Unit
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Unit public
+  renaming (⊤ to Unit; tt to unit)
+
+instance
+  eqUnit : Eq Unit
+  eqUnit ._==_ unit unit = true
+
+  ordUnit : Ord Unit
+  ordUnit ._<_ unit unit = false
+
+  semigroupUnit : Semigroup Unit
+  semigroupUnit ._<>_ unit unit = unit
+
+  monoidUnit : Monoid Unit
+  monoidUnit .empty = unit
+
+--------------------------------------------------------------------------------
+-- Nat
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Nat public
+  using (Nat; zero; suc)
+
+natrec : A -> (Nat -> A -> A) -> Nat -> A
+natrec a _ 0 = a
+natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
+
+foldN : A -> (A -> A) -> Nat -> A
+foldN a f = natrec a (const f)
+
+instance
+  eqNat : Eq Nat
+  eqNat ._==_ = Agda.Builtin.Nat._==_
+
+  ordNat : Ord Nat
+  ordNat ._<_ = Agda.Builtin.Nat._<_
+
   addNat : Add Nat
   addNat ._+_ = Agda.Builtin.Nat._+_
 
@@ -440,30 +367,55 @@ instance
       _/_ = \ { m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n }
     }
 
-  Mod:Nat : Mod Nat
-  Mod:Nat = record {
+  modNat : Mod Nat
+  modNat = record {
       Constraint = \ { zero -> Void; (suc n) -> Unit };
       _%_ = \ { m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n }
     }
 
-  Number:Nat : Number Nat
-  Number:Nat = record {
+  numberNat : Number Nat
+  numberNat = record {
       Constraint = const Unit;
       fromNat = \ n -> n
     }
 
-natrec : A -> (Nat -> A -> A) -> Nat -> A
-natrec a _ 0 = a
-natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
+  semigroupSum : Semigroup (Sum Nat)
+  semigroupSum ._<>_ (sum: x) (sum: y) = sum: (x + y)
 
-foldN : A -> (A -> A) -> Nat -> A
-foldN a f = natrec a (const f)
+  semigroupProduct : Semigroup (Product Nat)
+  semigroupProduct ._<>_ (product: x) (product: y) = product: (x * y)
+
+  monoidSum : Monoid (Sum Nat)
+  monoidSum .empty = sum: 0
+
+  monoidProduct : Monoid (Product Nat)
+  monoidProduct .empty = product: 1
 
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Int
+-- Int
 --------------------------------------------------------------------------------
+
+open import Agda.Builtin.Int public
+  using (Int; pos; negsuc)
+
+foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
+foldZ f g (pos n) = f n
+foldZ f g (negsuc n) = g n
 
 instance
+  eqInt : Eq Int
+  eqInt ._==_ = \ where
+    (pos m) (pos n) -> m == n
+    (negsuc m) (negsuc n) -> m == n
+    _ _ -> false
+
+  ordInt : Ord Int
+  ordInt ._<_ = \ where
+    (pos m) (pos n) -> m < n
+    (negsuc m) (negsuc n) -> m > n
+    (negsuc _) (pos _) -> true
+    (pos _) (negsuc _) -> false
+
   addInt : Add Int
   addInt ._+_ = add
     where
@@ -495,52 +447,20 @@ instance
     (pos n) (negsuc m) -> - (pos (n * suc m))
     (negsuc n) (pos m) -> - (pos (suc n * m))
 
-foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
-foldZ f g (pos n) = f n
-foldZ f g (negsuc n) = g n
-
 --------------------------------------------------------------------------------
--- Basic operations/functions regarding Char
+-- Float
 --------------------------------------------------------------------------------
 
-open import Agda.Builtin.Char public
-  renaming (
-    primIsLower to isLower;
-    primIsDigit to isDigit;
-    primIsAlpha to isAlpha;
-    primIsSpace to isSpace;
-    primIsAscii to isAscii;
-    primIsLatin1 to isLatin1;
-    primIsPrint to isPrint;
-    primIsHexDigit to isHexDigit;
-    primToUpper to toUpper;
-    primToLower to toLower;
-    primCharToNat to ord;
-    primNatToChar to chr
-  )
-
---------------------------------------------------------------------------------
--- Basic operations/functions regarding String
---------------------------------------------------------------------------------
-
-unpack = Agda.Builtin.String.primStringToList
-pack = Agda.Builtin.String.primStringFromList
+open import Agda.Builtin.Float public
+  using (Float)
 
 instance
-  appendString : Append String String String
-  appendString ._++_ = Agda.Builtin.String.primStringAppend
+  eqFloat : Eq Float
+  eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
-  IsString:String : IsString String
-  IsString:String = record {
-      Constraint = const Unit;
-      fromString = \ s -> s
-    }
+  ordFloat : Ord Float
+  ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
---------------------------------------------------------------------------------
--- Basic operations/functions regarding Float
---------------------------------------------------------------------------------
-
-instance
   addFloat : Add Float
   addFloat ._+_ = Agda.Builtin.Float.primFloatPlus
 
@@ -560,8 +480,79 @@ instance
     }
 
 --------------------------------------------------------------------------------
--- Basic operations regarding Pair
+-- Char
 --------------------------------------------------------------------------------
+
+open import Agda.Builtin.Char public
+  using (Char)
+  renaming (
+    primIsLower to isLower;
+    primIsDigit to isDigit;
+    primIsAlpha to isAlpha;
+    primIsSpace to isSpace;
+    primIsAscii to isAscii;
+    primIsLatin1 to isLatin1;
+    primIsPrint to isPrint;
+    primIsHexDigit to isHexDigit;
+    primToUpper to toUpper;
+    primToLower to toLower;
+    primCharToNat to ord;
+    primNatToChar to chr
+  )
+
+instance
+  eqChar : Eq Char
+  eqChar ._==_ c d = let ord = Agda.Builtin.Char.primCharToNat in
+    ord c == ord d
+
+--------------------------------------------------------------------------------
+-- String
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.String public
+  using (String)
+  renaming (
+    primStringToList to unpack;
+    primStringFromList to pack
+  )
+
+instance
+  eqString : Eq String
+  eqString ._==_ = Agda.Builtin.String.primStringEquality
+
+  appendString : Append String
+  appendString ._++_ = Agda.Builtin.String.primStringAppend
+
+  isStringString : IsString String
+  isStringString = record {
+      Constraint = const Unit;
+      fromString = \ s -> s
+    }
+
+  semigroupString : Semigroup String
+  semigroupString ._<>_ = _++_
+
+  monoidString : Monoid String
+  monoidString .empty = ""
+
+--------------------------------------------------------------------------------
+-- Pair
+--------------------------------------------------------------------------------
+
+infixr 4 _,_
+record Pair (A B : Set) : Set where
+  constructor _,_
+  field
+    fst : A
+    snd : B
+
+open Pair public
+
+{-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
+
+instance mulSet : Mul Set
+mulSet ._*_ = Pair
 
 split : (A -> B) -> (A -> C) -> A -> B * C
 split f g a = (f a , g a)
@@ -575,12 +566,34 @@ swap = split snd fst
 dupe : A -> A * A
 dupe = split identity identity
 
+uncurry : (A -> B -> C) -> A * B -> C
+uncurry f (a , b) = f a b
+
+curry : (A * B -> C) -> A -> B -> C
+curry f a b = f (a , b)
+
 apply : (A -> B) * A -> B
 apply = uncurry _$_
 
+instance
+  eqPair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A * B)
+  eqPair ._==_ (a , b) (c , d) = (a == c) && (b == d)
+
+  functorPair : Functor (A *_)
+  functorPair .map f (a , x) = (a , f x)
+
 --------------------------------------------------------------------------------
--- Basic operations regarding Either
+-- Either
 --------------------------------------------------------------------------------
+
+data Either (A B : Set) : Set where
+  left : A -> Either A B
+  right : B -> Either A B
+
+{-# COMPILE GHC Either = data Either (Left | Right) #-}
+
+instance addSet : Add Set
+addSet ._+_ = Either
 
 either : (A -> C) -> (B -> C) -> A + B -> C
 either f g (left x) = f x
@@ -607,20 +620,38 @@ fromLeft x = either identity (const x)
 fromRight : B -> A + B -> B
 fromRight y = either (const y) identity
 
--------------------------------------------------------------------------------
--- Basic operations regarding List
---------------------------------------------------------------------------------
-
-pattern singleton a = a :: []
-
 instance
-  appendList : forall {A} -> Append (List A) (List A) (List A)
-  appendList ._++_ [] ys = ys
-  appendList ._++_ (x :: xs) ys = x :: xs ++ ys
+  eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
+  eqEither ._==_ = \ where
+    (left x) (left y) -> x == y
+    (right x) (right y) -> x == y
+    _ _ -> false
 
----------------------------------------------------------------------------------
--- Basic operations regarding Maybe
+  functorEither : Functor (A +_)
+  functorEither .map f = \ where
+    (left a) -> left a
+    (right x) -> right (f x)
+
+  applicativeEither : Applicative (A +_)
+  applicativeEither .pure = right
+  applicativeEither ._<*>_ = \ where
+    (left a) _ -> left a
+    (right f) r -> map f r
+
+  monadEither : Monad (A +_)
+  monadEither ._>>=_ = \ where
+    (left a) k -> left a
+    (right x) k -> k x
+
 --------------------------------------------------------------------------------
+-- Maybe
+--------------------------------------------------------------------------------
+
+data Maybe (A : Set) : Set where
+  nothing : Maybe A
+  just : A -> Maybe A
+
+{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b
@@ -635,136 +666,70 @@ maybeToLeft b = maybe (right b) left
 maybeToRight : B -> Maybe A -> B + A
 maybeToRight b = maybe (left b) right
 
-maybeToList : Maybe A -> List A
-maybeToList = maybe [] singleton
+record First (A : Set) : Set where
+  constructor first:
+  field getFirst : Maybe A
 
-listToMaybe : List A -> Maybe A
-listToMaybe [] = nothing
-listToMaybe (a :: _) = just a
-
---------------------------------------------------------------------------------
--- Eq instances
---------------------------------------------------------------------------------
+open First public
 
 instance
-  eqVoid : Eq Void
-  eqVoid ._==_ = \ ()
-
-  eqUnit : Eq Unit
-  eqUnit ._==_ unit unit = true
-
-  eqBool : Eq Bool
-  eqBool ._==_ = \ where
-    true true -> true
-    false false -> false
-    _ _ -> false
-
-  eqNat : Eq Nat
-  eqNat ._==_ = Agda.Builtin.Nat._==_
-
-  eqInt : Eq Int
-  eqInt ._==_ = \ where
-    (pos m) (pos n) -> m == n
-    (negsuc m) (negsuc n) -> m == n
-    _ _ -> false
-
-  eqFloat : Eq Float
-  eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
-
-  eqChar : Eq Char
-  eqChar ._==_ c d = ord c == ord d
-
-  eqString : Eq String
-  eqString ._==_ = Agda.Builtin.String.primStringEquality
-
-  eqPair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  eqPair ._==_ (a , b) (c , d) = (a == c) && (b == d)
-
-  eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
-  eqEither ._==_ = \ where
-    (left x) (left y) -> x == y
-    (right x) (right y) -> x == y
-    _ _ -> false
-
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = \ where
     nothing nothing -> true
     (just x) (just y) -> x == y
     _ _ -> false
 
-  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ (identity: x) (identity: y) = x == y
-
---------------------------------------------------------------------------------
--- Ord instances
---------------------------------------------------------------------------------
-
-instance
-  ordVoid : Ord Void
-  ordVoid .compare = \ ()
-
-  ordUnit : Ord Unit
-  ordUnit .compare unit unit = EQ
-
-  ordNat : Ord Nat
-  ordNat .compare m n = let _<_ = Agda.Builtin.Nat._<_ in
-    if m < n then LT else if m == n then EQ else GT
-
-  ordInt : Ord Int
-  ordInt .compare = \ where
-    (pos m) (pos n) -> compare m n
-    (negsuc m) (negsuc n) -> compare m n
-    (negsuc _) (pos _) -> LT
-    (pos _) (negsuc _) -> GT
-
-  ordFloat : Ord Float
-  ordFloat .compare x y = let _<_ = Agda.Builtin.Float.primFloatNumericalLess in
-    if x < y then LT else if x == y then EQ else GT
-
-  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity .compare (identity: x) (identity: y) = compare x y
-
---------------------------------------------------------------------------------
--- Functor instances
---------------------------------------------------------------------------------
-
-instance
-  functorPair : Functor (A *_)
-  functorPair .map f (a , x) = (a , f x)
-
-  functorEither : Functor (A +_)
-  functorEither .map f = \ where
-    (left a) -> left a
-    (right x) -> right (f x)
-
   functorMaybe : Functor Maybe
   functorMaybe .map f = \ where
     nothing -> nothing
     (just a) -> just (f a)
-
-  functorList : Functor List
-  functorList .map f [] = []
-  functorList .map f (x :: xs) = f x :: map f xs
-
-  functorIdentity : Functor Identity
-  functorIdentity .map f (identity: a) = identity: (f a)
-
---------------------------------------------------------------------------------
--- Applicative instances
---------------------------------------------------------------------------------
-
-instance
-  applicativeEither : Applicative (A +_)
-  applicativeEither .pure = right
-  applicativeEither ._<*>_ = \ where
-    (left a) _ -> left a
-    (right f) r -> map f r
 
   applicativeMaybe : Applicative Maybe
   applicativeMaybe .pure = just
   applicativeMaybe ._<*>_ = \ where
     (just f) m -> map f m
     nothing _ -> nothing
+
+  monadMaybe : Monad Maybe
+  monadMaybe ._>>=_ = \ where
+    nothing k -> nothing
+    (just x) k -> k x
+
+  semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
+  semigroupMaybe ._<>_ = \ where
+    nothing m -> m
+    m nothing -> m
+    (just x) (just y) -> just (x <> y)
+
+  monoidMaybe : {{_ : Monoid A}} -> Monoid (Maybe A)
+  monoidMaybe .empty = nothing
+
+  semigroupFirst : Semigroup (First A)
+  semigroupFirst ._<>_ (first: x) (first: y) with x | y
+  ... | nothing | m = first: m
+  ... | (just a) | _ = first: (just a)
+
+  monoidFirst : Monoid (First A)
+  monoidFirst .empty = first: nothing
+
+--------------------------------------------------------------------------------
+-- List
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.List public
+  using (List; [])
+  renaming (_∷_ to _::_)
+
+pattern singleton a = a :: []
+
+instance
+  appendList : Append (List A)
+  appendList ._++_ [] ys = ys
+  appendList ._++_ (x :: xs) ys = x :: xs ++ ys
+
+  functorList : Functor List
+  functorList .map f [] = []
+  functorList .map f (x :: xs) = f x :: map f xs
 
   applicativeList : Applicative List
   applicativeList .pure = singleton
@@ -773,46 +738,146 @@ instance
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: fs <*> xs
 
-  applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = identity:
-  applicativeIdentity ._<*>_ (identity: f) x = map f x
-
---------------------------------------------------------------------------------
--- Monad instances
---------------------------------------------------------------------------------
-
-instance
-  monadEither : Monad (A +_)
-  monadEither ._>>=_ = \ where
-    (left a) k -> left a
-    (right x) k -> k x
-
-  monadMaybe : Monad Maybe
-  monadMaybe ._>>=_ = \ where
-    nothing k -> nothing
-    (just x) k -> k x
-
   monadList : Monad List
   monadList ._>>=_ = \ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
+  semigroupList : Semigroup (List A)
+  semigroupList ._<>_ = _++_
+
+  monoidList : Monoid (List A)
+  monoidList .empty = []
+
+foldr : (A -> B -> B) -> B -> List A -> B
+foldr f b [] = b
+foldr f b (a :: as) = f a (foldr f b as)
+
+foldl : (B -> A -> B) -> B -> List A -> B
+foldl f b [] = b
+foldl f b (a :: as) = foldl f (f b a) as
+
+foldMap : {{_ : Monoid B}} -> (A -> B) -> List A -> B
+foldMap f = foldr (\ x y -> f x <> y) empty
+
+fold : {{_ : Monoid A}} -> List A -> A
+fold = foldMap identity
+
+recons : Maybe (A * List A) -> List A
+recons = maybe [] (uncurry _::_)
+-- recons nothing = []
+-- recons (just (a , as)) = a :: as
+
+replicate : Nat -> A -> List A
+replicate zero a = []
+replicate (suc n) a = a :: replicate n a
+
+til : Nat -> List Nat
+til 0 = []
+til (suc n) = til n ++ singleton n
+
+range : Nat -> Nat -> List Nat
+range m n with compare m n
+... | GT = []
+... | EQ = singleton n
+... | LT = map (_+ m) $ til $ suc (n - m)
+
+maybeToList : Maybe A -> List A
+maybeToList = maybe [] singleton
+
+listToMaybe : List A -> Maybe A
+listToMaybe [] = nothing
+listToMaybe (a :: _) = just a
+
+--------------------------------------------------------------------------------
+-- Function
+--------------------------------------------------------------------------------
+
+Function : Set -> Set -> Set
+Function A B = A -> B
+
+record Endo A : Set where
+  constructor endo:
+  field appEndo : A -> A
+
+open Endo public
+
+instance
+  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
+  semigroupFunction ._<>_ f g = \ a -> f a <> g a
+
+  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
+  monoidFunction .empty = const empty
+
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
+
+  monoidEndo : Monoid (Endo A)
+  monoidEndo .empty = endo: identity
+
+--------------------------------------------------------------------------------
+-- Propositional equality
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Equality public
+  using (refl)
+  renaming (_≡_ to _===_)
+
+--------------------------------------------------------------------------------
+-- Identity
+--------------------------------------------------------------------------------
+
+record Identity (A : Set) : Set where
+  constructor identity:
+  field runIdentity : A
+
+open Identity public
+
+instance
+  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
+  eqIdentity ._==_ (identity: x) (identity: y) = x == y
+
+  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
+  ordIdentity ._<_ (identity: x) (identity: y) = x < y
+
+  semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
+  semigroupIdentity ._<>_ (identity: x) (identity: y) = identity: (x <> y)
+
+  monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
+  monoidIdentity .empty = identity: empty
+
+  functorIdentity : Functor Identity
+  functorIdentity .map f (identity: a) = identity: (f a)
+
+  applicativeIdentity : Applicative Identity
+  applicativeIdentity .pure = identity:
+  applicativeIdentity ._<*>_ (identity: f) x = map f x
+
   monadIdentity : Monad Identity
   monadIdentity ._>>=_ (identity: a) k = k a
 
 --------------------------------------------------------------------------------
--- Semigroup instances
+-- Bool instances
 --------------------------------------------------------------------------------
 
+record All : Set where
+  constructor all:
+  field getAll : Bool
+
+open All public
+
+record Any : Set where
+  constructor any:
+  field getAny : Bool
+
+open Any public
+
 instance
-  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
-
-  semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = \ ()
-
-  semigroupUnit : Semigroup Unit
-  semigroupUnit ._<>_ unit unit = unit
+  eqBool : Eq Bool
+  eqBool ._==_ = \ where
+    true true -> true
+    false false -> false
+    _ _ -> false
 
   semigroupAll : Semigroup All
   semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
@@ -820,77 +885,21 @@ instance
   semigroupAny : Semigroup Any
   semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
 
-  semigroupSum : Semigroup (Sum Nat)
-  semigroupSum ._<>_ (sum: x) (sum: y) = sum: (x + y)
-
-  semigroupProduct : Semigroup (Product Nat)
-  semigroupProduct ._<>_ (product: x) (product: y) = product: (x * y)
-
-  semigroupString : Semigroup String
-  semigroupString ._<>_ = _++_
-
-  semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
-  semigroupMaybe ._<>_ = \ where
-    nothing m -> m
-    m nothing -> m
-    (just x) (just y) -> just (x <> y)
-
-  semigroupList : Semigroup (List A)
-  semigroupList ._<>_ = _++_
-
-  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  semigroupFunction ._<>_ f g = \ a -> f a <> g a
-
-  semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
-
-  semigroupFirst : Semigroup (First A)
-  semigroupFirst ._<>_ x _ = x
-
---------------------------------------------------------------------------------
--- Monoid instances
---------------------------------------------------------------------------------
-
-instance
-  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .empty = dual: empty
-
-  monoidUnit : Monoid Unit
-  monoidUnit .empty = unit
-
   monoidAll : Monoid All
   monoidAll .empty = all: true
 
   monoidAny : Monoid Any
   monoidAny .empty = any: false
 
-  monoidSum : Monoid (Sum Nat)
-  monoidSum .empty = sum: 0
-
-  monoidProduct : Monoid (Product Nat)
-  monoidProduct .empty = product: 1
-
-  monoidString : Monoid String
-  monoidString .empty = ""
-
-  monoidMaybe : {{_ : Monoid A}} -> Monoid (Maybe A)
-  monoidMaybe .empty = nothing
-
-  monoidList : Monoid (List A)
-  monoidList .empty = []
-
-  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .empty = const empty
-
-  monoidEndo : Monoid (Endo A)
-  monoidEndo .empty = endo: identity
-
-  monoidFirst : Monoid (First A)
-  monoidFirst .empty = first: nothing
-
 --------------------------------------------------------------------------------
--- Show instances
+-- Show
 --------------------------------------------------------------------------------
+
+record Show (A : Set) : Set where
+  field
+    show : A -> String
+
+open Show {{...}} public
 
 instance
   showUnit : Show Unit
