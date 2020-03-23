@@ -342,8 +342,8 @@ natrec : A -> (Nat -> A -> A) -> Nat -> A
 natrec a _ 0 = a
 natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 
-foldN : A -> (A -> A) -> Nat -> A
-foldN a f = natrec a (const f)
+applyN : (A -> A) -> Nat -> A -> A
+applyN f n a = natrec a (const f) n
 
 instance
   eqNat : Eq Nat
@@ -765,12 +765,11 @@ fold = foldMap identity
 
 recons : Maybe (A * List A) -> List A
 recons = maybe [] (uncurry _::_)
--- recons nothing = []
--- recons (just (a , as)) = a :: as
 
 replicate : Nat -> A -> List A
-replicate zero a = []
-replicate (suc n) a = a :: replicate n a
+replicate n a = applyN (a ::_) n []
+--replicate zero a = []
+--replicate (suc n) a = a :: replicate n a
 
 til : Nat -> List Nat
 til 0 = []
@@ -788,6 +787,18 @@ maybeToList = maybe [] singleton
 listToMaybe : List A -> Maybe A
 listToMaybe [] = nothing
 listToMaybe (a :: _) = just a
+
+head : List A -> Maybe A
+head [] = nothing
+head (a :: as) = just a
+
+tail : List A -> Maybe (List A)
+tail [] = nothing
+tail (a :: as) = just as
+
+uncons : List A -> Maybe (A * List A)
+uncons [] = nothing
+uncons (a :: as) = just (a , as)
 
 --------------------------------------------------------------------------------
 -- Function
