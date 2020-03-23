@@ -4,7 +4,7 @@ module Prelude where
 
 private
   variable
-    A B C : Set
+    A B C D : Set
     F G : Set -> Set
 
 --------------------------------------------------------------------------------
@@ -136,19 +136,15 @@ instance
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
+open import Agda.Builtin.List public
+  using (List; [])
+  renaming (_∷_ to _::_)
+
 data Maybe (A : Set) : Set where
   nothing : Maybe A
   just : A -> Maybe A
 
 {-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
-
-open import Agda.Builtin.List public
-  using (List; [])
-  renaming (_∷_ to _::_)
-
-data Vector (A : Set) : Nat -> Set where
-  [] : Vector A zero
-  _::_ : forall {n} -> A -> Vector A n -> Vector A (suc n)
 
 --------------------------------------------------------------------------------
 -- Wrapper types
@@ -258,10 +254,10 @@ not false = true
 
 _&&_ : Bool -> Bool -> Bool
 true && b = b
-false && b = false
+false && _ = false
 
 _||_ : Bool -> Bool -> Bool
-true || b = true
+true || _ = true
 false || b = b
 
 Assert : Bool -> Set
@@ -300,6 +296,13 @@ instance
       fromNat = \ n -> n
     }
 
+natrec : A -> (Nat -> A -> A) -> Nat -> A
+natrec a _ 0 = a
+natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
+
+foldN : A -> (A -> A) -> Nat -> A
+foldN a f = natrec a (const f)
+
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Int
 --------------------------------------------------------------------------------
@@ -335,6 +338,10 @@ instance
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> - (pos (n * suc m))
     (negsuc n) (pos m) -> - (pos (suc n * m))
+
+foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
+foldZ f g (pos n) = f n
+foldZ f g (negsuc n) = g n
 
 --------------------------------------------------------------------------------
 -- Basic operations/functions regarding Char
@@ -397,7 +404,55 @@ instance
     }
 
 --------------------------------------------------------------------------------
--- Basic operations regarding List and Vector
+-- Basic operations regarding Pair
+--------------------------------------------------------------------------------
+
+split : (A -> B) -> (A -> C) -> A -> B * C
+split f g a = (f a , g a)
+
+cross : (A -> B) -> (C -> D) -> A * C -> B * D
+cross f g = split (f <<< fst) (g <<< snd)
+
+swap : A * B -> B * A
+swap = split snd fst
+
+dupe : A -> A * A
+dupe = split identity identity
+
+apply : (A -> B) * A -> B
+apply = uncurry _$_
+
+--------------------------------------------------------------------------------
+-- Basic operations regarding Either
+--------------------------------------------------------------------------------
+
+either : (A -> C) -> (B -> C) -> A + B -> C
+either f g (left x) = f x
+either f g (right y) = g y
+
+plus : (A -> B) -> (C -> D) -> A + C -> B + D
+plus f g = either (left <<< f) (right <<< g)
+
+mirror : A + B -> B + A
+mirror = either right left
+
+untag : A + A -> A
+untag = either identity identity
+
+isLeft : A + B -> Bool
+isLeft = either (const true) (const false)
+
+isRight : A + B -> Bool
+isRight = not <<< isLeft
+
+fromLeft : A -> A + B -> A
+fromLeft x = either identity (const x)
+
+fromRight : B -> A + B -> B
+fromRight y = either (const y) identity
+
+-------------------------------------------------------------------------------
+-- Basic operations regarding List
 --------------------------------------------------------------------------------
 
 pattern singleton a = a :: []
@@ -407,10 +462,29 @@ instance
   appendList ._++_ [] ys = ys
   appendList ._++_ (x :: xs) ys = x :: xs ++ ys
 
-  appendVector : forall {m n A}
-    -> Append (Vector A m) (Vector A n) (Vector A (m + n))
-  appendVector ._++_ [] ys = ys
-  appendVector ._++_ (x :: xs) ys = x :: xs ++ ys
+---------------------------------------------------------------------------------
+-- Basic operations regarding Maybe
+--------------------------------------------------------------------------------
+
+maybe : B -> (A -> B) -> Maybe A -> B
+maybe b f nothing = b
+maybe b f (just a) = f a
+
+fromMaybe : A -> Maybe A -> A
+fromMaybe = flip maybe identity
+
+maybeToLeft : B -> Maybe A -> A + B
+maybeToLeft b = maybe (right b) left
+
+maybeToRight : B -> Maybe A -> B + A
+maybeToRight b = maybe (left b) right
+
+maybeToList : Maybe A -> List A
+maybeToList = maybe [] singleton
+
+listToMaybe : List A -> Maybe A
+listToMaybe [] = nothing
+listToMaybe (a :: _) = just a
 
 --------------------------------------------------------------------------------
 -- Eq and Ord
@@ -422,7 +496,9 @@ record Eq (A : Set) : Set where
     _==_ : A -> A -> Bool
 
   _/=_ : A -> A -> Bool
-  x /= y = not (x == y)
+  x /= y with x == y
+  ... | true = false
+  ... | false = true
 
 open Eq {{...}} public
 
@@ -432,27 +508,36 @@ data Ordering : Set where
 record Ord (A : Set) : Set where
   field
     overlap {{eq}} : Eq A
-    _<_ : A -> A -> Bool
+    compare : A -> A -> Ordering
 
-  compare : A -> A -> Ordering
-  compare x y =
-    if x == y then EQ else
-    if x < y then LT else GT
+  _<_ : A -> A -> Bool
+  x < y with compare x y
+  ... | LT = true
+  ... | _ = false
 
   _<=_ : A -> A -> Bool
-  x <= y = (x == y) || (x < y)
+  x <= y with compare x y
+  ... | LT = true
+  ... | EQ = true
+  ... | _ = false
 
   _>_ : A -> A -> Bool
   x > y = y < x
 
   _>=_ : A -> A -> Bool
-  x >= y = (x == y) || (x > y)
+  x >= y = y <= x
 
   min : A -> A -> A
-  min x y = if x < y then x else y
+  min x y with compare x y
+  ... | LT = x
+  ... | EQ = x
+  ... | GT = y
 
   max : A -> A -> A
-  max x y = if x > y then x else y
+  max x y with compare x y
+  ... | LT = y
+  ... | EQ = y
+  ... | GT = x
 
 open Ord {{...}} public
 
@@ -616,26 +701,28 @@ instance
 
 instance
   ordVoid : Ord Void
-  ordVoid ._<_ = \ ()
+  ordVoid .compare = \ ()
 
   ordUnit : Ord Unit
-  ordUnit ._<_ unit unit = false
+  ordUnit .compare unit unit = EQ
 
   ordNat : Ord Nat
-  ordNat ._<_ = Agda.Builtin.Nat._<_
+  ordNat .compare m n = let _<_ = Agda.Builtin.Nat._<_ in
+    if m < n then LT else if m == n then EQ else GT
 
   ordInt : Ord Int
-  ordInt ._<_ = \ where
-    (pos m) (pos n) -> m < n
-    (negsuc m) (negsuc n) -> n < m
-    (pos _) (negsuc _) -> false
-    (negsuc _) (pos _) -> true
+  ordInt .compare = \ where
+    (pos m) (pos n) -> compare m n
+    (negsuc m) (negsuc n) -> compare m n
+    (negsuc _) (pos _) -> LT
+    (pos _) (negsuc _) -> GT
 
   ordFloat : Ord Float
-  ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
+  ordFloat .compare x y = let _<_ = Agda.Builtin.Float.primFloatNumericalLess in
+    if x < y then LT else if x == y then EQ else GT
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ (identity: x) (identity: y) = x < y
+  ordIdentity .compare (identity: x) (identity: y) = compare x y
 
 --------------------------------------------------------------------------------
 -- Functor instances
