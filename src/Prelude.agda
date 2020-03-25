@@ -68,7 +68,7 @@ false || b = b
 --------------------------------------------------------------------------------
 
 record Add (A : Set) : Set where
-  infixr 24 _+_
+  infixr 6 _+_
   field _+_ : A -> A -> A
 
 open Add {{...}} public
@@ -79,19 +79,19 @@ record Negation (A : Set) : Set where
 open Negation {{...}} public
 
 record Sub (A : Set) : Set where
-  infixr 24 _-_
+  infixr 6 _-_
   field _-_ : A -> A -> A
 
 open Sub {{...}} public
 
 record Mul (A : Set) : Set where
-  infixr 25 _*_
+  infixr 7 _*_
   field _*_ : A -> A -> A
 
 open Mul {{...}} public
 
 record Div (A : Set) : Set where
-  infixr 25 _/_
+  infixr 7 _/_
   field
     Constraint : A -> Set
     _/_ : (x y : A) -> {_ : Constraint y} -> A
@@ -107,13 +107,13 @@ record Mod (A : Set) : Set where
 open Mod {{...}} public
 
 record Exp (A B C : Set) : Set where
-  infixr 50 _^_
+  infixr 8 _^_
   field _^_ : A -> B -> C
 
 open Exp {{...}} public
 
 record Append A : Set where
-  infixr 25 _++_
+  infixr 5 _++_
   field _++_ : A -> A -> A
 
 open Append {{...}} public
@@ -180,9 +180,8 @@ comparing p x y = compare (p x) (p y)
 --------------------------------------------------------------------------------
 -- Semigroup and Monoid
 --------------------------------------------------------------------------------
-
 record Semigroup (A : Set) : Set where
-  infixr 6 _<>_
+  infixr 5 _<>_
   field _<>_ : A -> A -> A
 
 open Semigroup {{...}} public
@@ -229,13 +228,24 @@ record Functor (F : Set -> Set) : Set where
   field
     map : (A -> B) -> (F A -> F B)
 
+  infixl 4 _<$>_
+  _<$>_ : (A -> B) -> F A -> F B
+  _<$>_ = map
+
+  infixl 4 _<$_
+  _<$_ : B -> F A -> F B
+  _<$_ = map <<< const
+
+  infixl 4 _$>_
+  _$>_ : F A -> B -> F B
+  _$>_ = flip _<$_
+
+  void : F A -> F Unit
+  void = unit <$_
+
 open Functor {{...}} public
 
-infixl 24 _<$>_
-_<$>_ : {{_ : Functor F}} -> (A -> B) -> F A -> F B
-_<$>_ = map
-
-infixr 2 _~>_
+infixr 0 _~>_
 _~>_ : (F G : Set -> Set) -> Set
 F ~> G  = forall {A} -> F A -> G A
 
@@ -257,6 +267,14 @@ record Applicative (F : Set -> Set) : Set where
   infixl 24 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
+
+  when : Bool -> F Unit -> F Unit
+  when true x = x
+  when false _ = pure unit
+
+  unless : Bool -> F Unit -> F Unit
+  unless false x = x
+  unless true _ = pure unit
 
 open Applicative {{...}} public
 
