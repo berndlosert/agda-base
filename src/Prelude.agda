@@ -8,23 +8,23 @@ private
     F G : Set -> Set
 
 --------------------------------------------------------------------------------
--- Essential functions
+-- Void, Unit and Bool
+--------------------------------------------------------------------------------
+
+data Void : Set where
+
+open import Agda.Builtin.Unit public
+  renaming (⊤ to Unit; tt to unit)
+
+open import Agda.Builtin.Bool public
+  using (Bool; true; false)
+
+--------------------------------------------------------------------------------
+-- Essential functions and operations
 --------------------------------------------------------------------------------
 
 identity : A -> A
 identity a = a
-
-infixr 0 _$_
-_$_ : (A -> B) -> A -> B
-_$_ = identity
-
-infixr 5 _<<<_
-_<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ a -> g (f a)
-
-infixr 5 _>>>_
-_>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _<<<_
 
 const : A -> B -> A
 const a _ = a
@@ -32,12 +32,17 @@ const a _ = a
 flip : (A -> B -> C) -> B -> A -> C
 flip f b a = f a b
 
---------------------------------------------------------------------------------
--- Void, Unit and Bool
---------------------------------------------------------------------------------
+infixr 0 _$_
+_$_ : (A -> B) -> A -> B
+_$_ = identity
 
-open import Agda.Builtin.Bool public
-  using (Bool; true; false)
+infixr 9 _<<<_
+_<<<_ : (B -> C) -> (A -> B) -> A -> C
+g <<< f = \ a -> g (f a)
+
+infixr 9 _>>>_
+_>>>_ : (A -> B) -> (B -> C) -> A -> C
+_>>>_ = flip _<<<_
 
 infix 0 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
@@ -48,12 +53,12 @@ not : Bool -> Bool
 not true = false
 not false = true
 
-infixr 6 _&&_
+infixr 3 _&&_
 _&&_ : Bool -> Bool -> Bool
 true && b = b
 false && _ = false
 
-infixr 5 _||_
+infixr 2 _||_
 _||_ : Bool -> Bool -> Bool
 true || _ = true
 false || b = b
@@ -91,7 +96,7 @@ record Div (A : Set) : Set where
     Constraint : A -> Set
     _/_ : (x y : A) -> {_ : Constraint y} -> A
 
-open Div {{...}} hiding (Constraint) public
+open Div {{...}} public
 
 record Mod (A : Set) : Set where
   infixr 25 _%_
@@ -99,7 +104,7 @@ record Mod (A : Set) : Set where
     Constraint : A -> Set
     _%_ : (x y : A) -> {_ : Constraint y} -> A
 
-open Mod {{...}} hiding (Constraint) public
+open Mod {{...}} public
 
 record Exp (A B C : Set) : Set where
   infixr 50 _^_
@@ -141,6 +146,7 @@ data Ordering : Set where
   LT EQ GT : Ordering
 
 record Ord (A : Set) : Set where
+  infixl 4 _<_
   field
     overlap {{eq}} : Eq A
     _<_ : A -> A -> Bool
@@ -148,12 +154,15 @@ record Ord (A : Set) : Set where
   compare : A -> A -> Ordering
   compare x y = if x < y then LT else if x == y then EQ else GT
 
+  infixl 4 _<=_
   _<=_ : A -> A -> Bool
   x <= y = (x < y) || (x == y)
 
+  infixl 4 _>_
   _>_ : A -> A -> Bool
   x > y = y < x
 
+  infixl 4 _>=_
   _>=_ : A -> A -> Bool
   x >= y = y <= x
 
@@ -293,14 +302,6 @@ open Monad {{...}} public
 -- Void
 --------------------------------------------------------------------------------
 
-data Void : Set where
-
-absurd : Void -> A
-absurd = \ ()
-
-vacuous : {{_ : Functor F}} -> F Void -> F A
-vacuous = map absurd
-
 instance
   eqVoid : Eq Void
   eqVoid ._==_ = \ ()
@@ -314,9 +315,6 @@ instance
 --------------------------------------------------------------------------------
 -- Unit
 --------------------------------------------------------------------------------
-
-open import Agda.Builtin.Unit public
-  renaming (⊤ to Unit; tt to unit)
 
 instance
   eqUnit : Eq Unit
