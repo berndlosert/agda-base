@@ -848,7 +848,7 @@ tail [] = nothing
 tail (a :: as) = just as
 
 --------------------------------------------------------------------------------
--- Function
+-- Function and Endo
 --------------------------------------------------------------------------------
 
 Function : Set -> Set -> Set
@@ -942,6 +942,9 @@ instance
   showNat : Show Nat
   showNat .show n = show (pos n)
 
+  showFloat : Show Float
+  showFloat .show = Agda.Builtin.Float.primShowFloat
+
   showPair : {{_ : Show A}} {{_ : Show B}} -> Show (A * B)
   showPair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
@@ -965,9 +968,6 @@ instance
 
   showString : Show String
   showString .show = Agda.Builtin.String.primShowString
-
-  showFloat : Show Float
-  showFloat .show = Agda.Builtin.Float.primShowFloat
 
 --------------------------------------------------------------------------------
 -- IO
