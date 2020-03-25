@@ -128,6 +128,49 @@ open import Agda.Builtin.FromString public
   using (IsString; fromString)
 
 --------------------------------------------------------------------------------
+-- Semigroup and Monoid
+--------------------------------------------------------------------------------
+record Semigroup (A : Set) : Set where
+  infixr 5 _<>_
+  field _<>_ : A -> A -> A
+
+open Semigroup {{...}} public
+
+record Monoid (A : Set) : Set where
+  field
+    overlap {{semigroup}} : Semigroup A
+    empty : A
+
+open Monoid {{...}} public
+
+record Dual (A : Set) : Set where
+  constructor dual:
+  field getDual : A
+
+open Dual public
+
+instance
+  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
+  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
+
+  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
+  monoidDual .empty = dual: empty
+
+-- For additive semigroups.
+record Sum (A : Set) : Set where
+  constructor sum:
+  field getSum : A
+
+open Sum public
+
+-- For multiplicative semigroups.
+record Product (A : Set) : Set where
+  constructor product:
+  field getProduct : A
+
+open Product public
+
+--------------------------------------------------------------------------------
 -- Eq and Ord
 --------------------------------------------------------------------------------
 
@@ -178,49 +221,6 @@ comparing : {{_ : Ord B}} -> (A -> B) -> A -> A -> Ordering
 comparing p x y = compare (p x) (p y)
 
 --------------------------------------------------------------------------------
--- Semigroup and Monoid
---------------------------------------------------------------------------------
-record Semigroup (A : Set) : Set where
-  infixr 5 _<>_
-  field _<>_ : A -> A -> A
-
-open Semigroup {{...}} public
-
-record Monoid (A : Set) : Set where
-  field
-    overlap {{semigroup}} : Semigroup A
-    empty : A
-
-open Monoid {{...}} public
-
-record Dual (A : Set) : Set where
-  constructor dual:
-  field getDual : A
-
-open Dual public
-
-instance
-  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
-
-  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .empty = dual: empty
-
--- For additive semigroups.
-record Sum (A : Set) : Set where
-  constructor sum:
-  field getSum : A
-
-open Sum public
-
--- For multiplicative semigroups.
-record Product (A : Set) : Set where
-  constructor product:
-  field getProduct : A
-
-open Product public
-
---------------------------------------------------------------------------------
 -- Functor
 --------------------------------------------------------------------------------
 
@@ -254,17 +254,17 @@ F ~> G  = forall {A} -> F A -> G A
 --------------------------------------------------------------------------------
 
 record Applicative (F : Set -> Set) : Set where
-  infixl 24 _<*>_
+  infixl 4 _<*>_
   field
     overlap {{super}} : Functor F
     _<*>_ : F (A -> B) -> F A -> F B
     pure : A -> F A
 
-  infixl 24 _*>_
+  infixl 4 _*>_
   _*>_ : F A -> F B -> F B
   a *> b = (| (flip const) a b |)
 
-  infixl 24 _<*_
+  infixl 4 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
 
@@ -291,7 +291,7 @@ record Monad (M : Set -> Set) : Set where
   return : A -> M A
   return = pure
 
-  infixl 1 _=<<_
+  infixr 1 _=<<_
   _=<<_ : (A -> M B) -> M A -> M B
   _=<<_ = flip _>>=_
 
@@ -302,22 +302,22 @@ record Monad (M : Set -> Set) : Set where
   _>>_ : M A -> M B -> M B
   _>>_ = _*>_
 
-  infixl 1 _<<_
+  infixr 1 _<<_
   _<<_ : M A -> M B -> M A
   _<<_ = _<*_
 
-  infixl 1 _<=<_
+  infixr 1 _<=<_
   _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
   g <=< f = f >>> (_>>= g)
 
-  infixl 1 _>=>_
+  infixr 1 _>=>_
   _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
   _>=>_ = flip _<=<_
 
 open Monad {{...}} public
 
 --------------------------------------------------------------------------------
--- Void
+-- Instances for Void
 --------------------------------------------------------------------------------
 
 instance
@@ -331,7 +331,7 @@ instance
   semigroupVoid ._<>_ = \ ()
 
 --------------------------------------------------------------------------------
--- Unit
+-- Instances for Unit
 --------------------------------------------------------------------------------
 
 instance
@@ -346,6 +346,41 @@ instance
 
   monoidUnit : Monoid Unit
   monoidUnit .empty = unit
+
+--------------------------------------------------------------------------------
+-- Innstances for Bool and wrappers Any, All
+--------------------------------------------------------------------------------
+
+record All : Set where
+  constructor all:
+  field getAll : Bool
+
+open All public
+
+record Any : Set where
+  constructor any:
+  field getAny : Bool
+
+open Any public
+
+instance
+  eqBool : Eq Bool
+  eqBool ._==_ = \ where
+    true true -> true
+    false false -> false
+    _ _ -> false
+
+  semigroupAll : Semigroup All
+  semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
+
+  semigroupAny : Semigroup Any
+  semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
+
+  monoidAll : Monoid All
+  monoidAll .empty = all: true
+
+  monoidAny : Monoid Any
+  monoidAny .empty = any: false
 
 --------------------------------------------------------------------------------
 -- Nat
@@ -752,7 +787,7 @@ instance
   applicativeList ._<*>_ = \ where
     [] _ -> []
     _ [] -> []
-    (f :: fs) (x :: xs) -> f x :: fs <*> xs
+    (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
 
   monadList : Monad List
   monadList ._>>=_ = \ where
@@ -884,41 +919,6 @@ instance
   monadIdentity ._>>=_ (identity: a) k = k a
 
 --------------------------------------------------------------------------------
--- Bool instances
---------------------------------------------------------------------------------
-
-record All : Set where
-  constructor all:
-  field getAll : Bool
-
-open All public
-
-record Any : Set where
-  constructor any:
-  field getAny : Bool
-
-open Any public
-
-instance
-  eqBool : Eq Bool
-  eqBool ._==_ = \ where
-    true true -> true
-    false false -> false
-    _ _ -> false
-
-  semigroupAll : Semigroup All
-  semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
-
-  semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
-
-  monoidAll : Monoid All
-  monoidAll .empty = all: true
-
-  monoidAny : Monoid Any
-  monoidAny .empty = any: false
-
---------------------------------------------------------------------------------
 -- Show
 --------------------------------------------------------------------------------
 
@@ -929,6 +929,9 @@ record Show (A : Set) : Set where
 open Show {{...}} public
 
 instance
+  showVoid : Show Void
+  showVoid .show ()
+
   showUnit : Show Unit
   showUnit .show unit = "unit"
 
