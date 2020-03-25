@@ -771,8 +771,6 @@ open import Agda.Builtin.List public
   using (List; [])
   renaming (_∷_ to _::_)
 
-pattern singleton a = a :: []
-
 instance
   appendList : Append (List A)
   appendList ._++_ [] ys = ys
@@ -783,7 +781,7 @@ instance
   functorList .map f (x :: xs) = f x :: map f xs
 
   applicativeList : Applicative List
-  applicativeList .pure = singleton
+  applicativeList .pure x = x :: []
   applicativeList ._<*>_ = \ where
     [] _ -> []
     _ [] -> []
@@ -824,16 +822,16 @@ replicate n a = applyN (a ::_) n []
 
 til : Nat -> List Nat
 til 0 = []
-til (suc n) = til n ++ singleton n
+til (suc n) = til n ++ pure n
 
 range : Nat -> Nat -> List Nat
 range m n with compare m n
 ... | GT = []
-... | EQ = singleton n
+... | EQ = pure n
 ... | LT = map (_+ m) $ til $ suc (n - m)
 
 maybeToList : Maybe A -> List A
-maybeToList = maybe [] singleton
+maybeToList = maybe [] pure
 
 listToMaybe : List A -> Maybe A
 listToMaybe [] = nothing
@@ -965,7 +963,7 @@ instance
     (a :: as) -> show a ++ " :: " ++ show as
 
   showChar : Show Char
-  showChar .show c = "'" ++ pack (singleton c) ++ "'"
+  showChar .show c = "'" ++ pack (pure c) ++ "'"
 
   showString : Show String
   showString .show = Agda.Builtin.String.primShowString
