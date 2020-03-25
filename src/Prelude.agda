@@ -11,9 +11,6 @@ private
 -- Essential functions
 --------------------------------------------------------------------------------
 
-flip : (A -> B -> C) -> B -> A -> C
-flip f b a = f a b
-
 identity : A -> A
 identity a = a
 
@@ -32,8 +29,11 @@ _>>>_ = flip _<<<_
 const : A -> B -> A
 const a _ = a
 
+flip : (A -> B -> C) -> B -> A -> C
+flip f b a = f a b
+
 --------------------------------------------------------------------------------
--- Bool
+-- Void, Unit and Bool
 --------------------------------------------------------------------------------
 
 open import Agda.Builtin.Bool public
