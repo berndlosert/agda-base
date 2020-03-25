@@ -812,13 +812,15 @@ foldMap f = foldr (\ x y -> f x <> y) empty
 fold : {{_ : Monoid A}} -> List A -> A
 fold = foldMap identity
 
+uncons : List A -> Maybe (A * List A)
+uncons [] = nothing
+uncons (a :: as) = just (a , as)
+
 recons : Maybe (A * List A) -> List A
 recons = maybe [] (uncurry _::_)
 
 replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
---replicate zero a = []
---replicate (suc n) a = a :: replicate n a
 
 til : Nat -> List Nat
 til 0 = []
@@ -844,10 +846,6 @@ head (a :: as) = just a
 tail : List A -> Maybe (List A)
 tail [] = nothing
 tail (a :: as) = just as
-
-uncons : List A -> Maybe (A * List A)
-uncons [] = nothing
-uncons (a :: as) = just (a , as)
 
 --------------------------------------------------------------------------------
 -- Function
