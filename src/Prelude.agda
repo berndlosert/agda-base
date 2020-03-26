@@ -6,6 +6,7 @@ private
   variable
     A B C D : Set
     F G : Set -> Set
+    M : Set -> Set
 
 --------------------------------------------------------------------------------
 -- Void, Unit and Bool
@@ -44,7 +45,7 @@ infixr 9 _>>>_
 _>>>_ : (A -> B) -> (B -> C) -> A -> C
 _>>>_ = flip _<<<_
 
-infix 0 if_then_else_
+infix 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
 if true then a else _ = a
 if false then _ else a = a
@@ -315,14 +316,6 @@ record Monad (M : Set -> Set) : Set where
   _>=>_ = flip _<=<_
 
 open Monad {{...}} public
-
---------------------------------------------------------------------------------
--- Foldable
---------------------------------------------------------------------------------
-
-record Foldable (S A : Set) : Set where
-  field
-    foldMap :: {{_ : Monoid B}} -> (A -> B) -> S -> B
 
 --------------------------------------------------------------------------------
 -- Instances for Void
@@ -772,6 +765,131 @@ instance
   monoidFirst .empty = first: nothing
 
 --------------------------------------------------------------------------------
+-- Function and Endo
+--------------------------------------------------------------------------------
+
+Function : Set -> Set -> Set
+Function A B = A -> B
+
+record Endo A : Set where
+  constructor endo:
+  field appEndo : A -> A
+
+open Endo public
+
+instance
+  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
+  semigroupFunction ._<>_ f g = \ a -> f a <> g a
+
+  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
+  monoidFunction .empty = const empty
+
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
+
+  monoidEndo : Monoid (Endo A)
+  monoidEndo .empty = endo: identity
+
+--------------------------------------------------------------------------------
+-- Foldable
+--------------------------------------------------------------------------------
+
+record Foldable (S A : Set) : Set where
+  field
+    singleton : A -> S
+    foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
+
+  fold : {{_ : Monoid A}} -> S -> A
+  fold = foldMap identity
+
+  foldr : (A -> B -> B) -> B -> S -> B
+  foldr f b s = appEndo (foldMap (endo: <<< f) s) b
+
+  foldl : (B -> A -> B) -> B -> S -> B
+  foldl f b s =
+    (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) s) b
+
+  foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
+  foldrM f z0 xs = foldl g return xs z0
+    where
+      g : _
+      g k x z = f x z >>= k
+
+  foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> S -> M B
+  foldlM f z0 xs = foldr g return xs z0
+    where
+      g : _
+      g x k z = f z x >>= k
+
+  traverse- : {{_ : Applicative F}} -> (A -> F B) -> S -> F Unit
+  traverse- f = foldr (_*>_ <<< f) (pure unit)
+
+  for- : {{_ : Applicative F}} -> S -> (A -> F B) -> F Unit
+  for- = flip traverse-
+
+  length : S -> Nat
+  length = foldl (\ c _ -> suc c) 0
+
+  null : S -> Bool
+  null s = length s == 0
+
+  any : (A -> Bool) -> S -> Bool
+  any p = getAny <<< foldMap (any: <<< p)
+
+  all : (A -> Bool) -> S -> Bool
+  all p = getAll <<< foldMap (all: <<< p)
+
+  elem : {{_ : Ord A}} -> A -> S -> Bool
+  elem = any <<< _==_
+
+  notElem : {{_ : Ord A}} -> A -> S -> Bool
+  notElem x = not <<< elem x
+
+  find : (A -> Bool) -> S -> Maybe A
+  find p =
+    getFirst <<< foldMap (\ x -> first: (if p x then just x else nothing))
+
+  at : Nat -> S -> Maybe A
+  at n = snd <<< foldl f (0 , nothing)
+    where
+      f :  Nat * Maybe A -> A -> Nat * Maybe A
+      f (k , m) a = (suc k , if k == n then just a else m)
+
+  takeWhile : {{_ : Monoid S}} -> (A -> Bool) -> S -> S
+  takeWhile p = foldl f empty
+    where
+      f : S -> A -> S
+      f s a with p a
+      ... | true = s <> singleton a
+      ... | false = s
+
+  dropWhile : {{_ : Monoid S}} -> (A -> Bool) -> S -> S
+  dropWhile p = snd <<< foldl f (true , empty)
+    where
+      f : Bool * S -> A -> Bool * S
+      f (b , s) a with b | p a
+      ... | true | true = (true , s)
+      ... | true | false = (false , s <> singleton a)
+      ... | false | _ = (false , s <> singleton a)
+
+open Foldable {{...}}
+
+module _ {{_ : forall {A} -> Foldable (F A) A}} where
+
+  and : F Bool -> Bool
+  and = foldr _&&_ true
+
+  or : F Bool -> Bool
+  or = foldr _||_ false
+
+  sequence- :  {{_ : Applicative G}}
+    -> F (G A) -> G Unit
+  sequence- = foldr _*>_ (pure unit)
+
+  --intercalate : {{_ : Monoid A}} -> A -> F A -> A
+  --intercalate sep xs = (foldl go true mempty xs)
+
+--------------------------------------------------------------------------------
 -- List
 --------------------------------------------------------------------------------
 
@@ -806,19 +924,11 @@ instance
   monoidList : Monoid (List A)
   monoidList .empty = []
 
-foldr : (A -> B -> B) -> B -> List A -> B
-foldr f b [] = b
-foldr f b (a :: as) = f a (foldr f b as)
-
-foldl : (B -> A -> B) -> B -> List A -> B
-foldl f b [] = b
-foldl f b (a :: as) = foldl f (f b a) as
-
-foldMap : {{_ : Monoid B}} -> (A -> B) -> List A -> B
-foldMap f = foldr (\ x y -> f x <> y) empty
-
-fold : {{_ : Monoid A}} -> List A -> A
-fold = foldMap identity
+  foldableList : Foldable (List A) A
+  foldableList .singleton = pure
+  foldableList .foldMap f = \ where
+    [] -> empty
+    (a :: as) -> f a <> foldMap f as
 
 uncons : List A -> Maybe (A * List A)
 uncons [] = nothing
@@ -854,32 +964,6 @@ head (a :: as) = just a
 tail : List A -> Maybe (List A)
 tail [] = nothing
 tail (a :: as) = just as
-
---------------------------------------------------------------------------------
--- Function and Endo
---------------------------------------------------------------------------------
-
-Function : Set -> Set -> Set
-Function A B = A -> B
-
-record Endo A : Set where
-  constructor endo:
-  field appEndo : A -> A
-
-open Endo public
-
-instance
-  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  semigroupFunction ._<>_ f g = \ a -> f a <> g a
-
-  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .empty = const empty
-
-  semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
-
-  monoidEndo : Monoid (Endo A)
-  monoidEndo .empty = endo: identity
 
 --------------------------------------------------------------------------------
 -- Propositional equality
