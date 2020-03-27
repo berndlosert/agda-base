@@ -142,6 +142,13 @@ record Monoid (A : Set) : Set where
     overlap {{semigroup}} : Semigroup A
     empty : A
 
+  when : Bool -> A -> A
+  when true x = x
+  when false _ = empty
+
+  unless : Bool -> A -> A
+  unless = when <<< not
+
 open Monoid {{...}} public
 
 record Dual (A : Set) : Set where
@@ -170,6 +177,16 @@ record Product (A : Set) : Set where
   field getProduct : A
 
 open Product public
+
+instance
+  semigroupVoid : Semigroup Void
+  semigroupVoid ._<>_ = \ ()
+
+  semigroupUnit : Semigroup Unit
+  semigroupUnit ._<>_ unit unit = unit
+
+  monoidUnit : Monoid Unit
+  monoidUnit .empty = unit
 
 --------------------------------------------------------------------------------
 -- Eq and Ord
@@ -221,6 +238,25 @@ open Ord {{...}} public
 comparing : {{_ : Ord B}} -> (A -> B) -> A -> A -> Ordering
 comparing p x y = compare (p x) (p y)
 
+instance
+  eqVoid : Eq Void
+  eqVoid ._==_ = \ ()
+
+  eqUnit : Eq Unit
+  eqUnit ._==_ unit unit = true
+
+  eqBool : Eq Bool
+  eqBool ._==_ = \ where
+    true true -> true
+    false false -> false
+    _ _ -> false
+
+  ordVoid : Ord Void
+  ordVoid ._<_ = \ ()
+
+  ordUnit : Ord Unit
+  ordUnit ._<_ unit unit = false
+
 --------------------------------------------------------------------------------
 -- Functor
 --------------------------------------------------------------------------------
@@ -269,13 +305,8 @@ record Applicative (F : Set -> Set) : Set where
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
 
-  when : Bool -> F Unit -> F Unit
-  when true x = x
-  when false _ = pure unit
-
-  unless : Bool -> F Unit -> F Unit
-  unless false x = x
-  unless true _ = pure unit
+  whenA : F Bool -> F Unit -> F Unit
+  whenA b x = (| when b x |)
 
 open Applicative {{...}} public
 
@@ -318,38 +349,7 @@ record Monad (M : Set -> Set) : Set where
 open Monad {{...}} public
 
 --------------------------------------------------------------------------------
--- Instances for Void
---------------------------------------------------------------------------------
-
-instance
-  eqVoid : Eq Void
-  eqVoid ._==_ = \ ()
-
-  ordVoid : Ord Void
-  ordVoid ._<_ = \ ()
-
-  semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = \ ()
-
---------------------------------------------------------------------------------
--- Instances for Unit
---------------------------------------------------------------------------------
-
-instance
-  eqUnit : Eq Unit
-  eqUnit ._==_ unit unit = true
-
-  ordUnit : Ord Unit
-  ordUnit ._<_ unit unit = false
-
-  semigroupUnit : Semigroup Unit
-  semigroupUnit ._<>_ unit unit = unit
-
-  monoidUnit : Monoid Unit
-  monoidUnit .empty = unit
-
---------------------------------------------------------------------------------
--- Innstances for Bool and wrappers Any, All
+-- Any and All
 --------------------------------------------------------------------------------
 
 record All : Set where
@@ -365,12 +365,6 @@ record Any : Set where
 open Any public
 
 instance
-  eqBool : Eq Bool
-  eqBool ._==_ = \ where
-    true true -> true
-    false false -> false
-    _ _ -> false
-
   semigroupAll : Semigroup All
   semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
 
@@ -672,6 +666,9 @@ fromLeft x = either identity (const x)
 fromRight : B -> A + B -> B
 fromRight y = either (const y) identity
 
+fromEither : (A -> B) -> A + B -> B
+fromEither f = either f identity
+
 instance
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
   eqEither ._==_ = \ where
@@ -818,13 +815,6 @@ range m n with compare m n
 ... | GT = []
 ... | EQ = pure n
 ... | LT = map (_+ m) $ til $ suc (n - m)
-
-maybeToList : Maybe A -> List A
-maybeToList = maybe [] pure
-
-listToMaybe : List A -> Maybe A
-listToMaybe [] = nothing
-listToMaybe (a :: _) = just a
 
 head : List A -> Maybe A
 head [] = nothing

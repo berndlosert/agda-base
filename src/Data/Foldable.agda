@@ -57,8 +57,8 @@ record Foldable (S A : Set) : Set where
   notElem x = not <<< elem x
 
   find : (A -> Bool) -> S -> Maybe A
-  find p =
-    getFirst <<< foldMap (\ x -> first: (if p x then just x else nothing))
+  find p = let f a = when (p a) $ first: (just a) in
+    getFirst <<< foldMap f
 
   at : Nat -> S -> Maybe A
   at n = snd <<< foldl f (0 , nothing)
