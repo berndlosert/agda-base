@@ -76,7 +76,7 @@ runReader : Reader R A -> R -> A
 runReader m = runIdentity <<< runReaderT m
 
 mapReader : (A -> B) -> Reader R A -> Reader R B
-mapReader f = mapReaderT (value <<< f <<< runIdentity)
+mapReader f = mapReaderT (identity: <<< f <<< runIdentity)
 
 withReader : (R' -> R) -> Reader R A -> Reader R' A
 withReader f m = withReaderT f m
