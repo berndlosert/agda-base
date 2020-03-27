@@ -25,16 +25,12 @@ record Foldable (S A : Set) : Set where
     (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) s) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
-  foldrM f b0 s = foldl g return s b0
-    where
-      g : _
-      g k x z = f x z >>= k
+  foldrM f b s = let g k a b' = f a b' >>= k in
+    foldl g return s b
 
   foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> S -> M B
-  foldlM f z0 xs = foldr g return xs z0
-    where
-      g : _
-      g x k z = f z x >>= k
+  foldlM f b s = let g a k b' = f b' a >>= k in
+    foldr g return s b
 
   traverse- : {{_ : Applicative F}} -> (A -> F B) -> S -> F Unit
   traverse- f = foldr (_*>_ <<< f) (pure unit)
