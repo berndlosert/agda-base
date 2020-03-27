@@ -107,6 +107,9 @@ record Foldable (S A : Set) : Set where
         f : Nat * S -> A -> Nat * S
         f (k , s) a = (suc k , if k == n then s else snoc s a)
 
+    tail : S -> Maybe S
+    tail s = if null s then nothing else deleteAt 0 s
+
 open Foldable {{...}} public
 
 module _ {{_ : forall {A} -> Foldable (F A) A}} where
