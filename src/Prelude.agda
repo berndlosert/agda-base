@@ -151,19 +151,6 @@ record Monoid (A : Set) : Set where
 
 open Monoid {{...}} public
 
-record Dual (A : Set) : Set where
-  constructor dual:
-  field getDual : A
-
-open Dual public
-
-instance
-  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
-
-  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .empty = dual: empty
-
 -- For additive semigroups.
 record Sum (A : Set) : Set where
   constructor sum:
@@ -178,12 +165,45 @@ record Product (A : Set) : Set where
 
 open Product public
 
+-- Dual semigroups.
+record Dual (A : Set) : Set where
+  constructor dual:
+  field getDual : A
+
+open Dual public
+
+-- Semigroup were x <> y = x.
+record First (A : Set) : Set where
+  constructor first:
+  field getFirst : A
+
+open First public
+
+-- Semigroup were x <> y = y.
+record Last (A : Set) : Set where
+  constructor last:
+  field getLast : A
+
+open Last public
+
 instance
+  semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
+  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
+
+  semigroupFirst : Semigroup (First A)
+  semigroupFirst ._<>_ x y = x
+
+  semigroupLast : Semigroup (Last A)
+  semigroupLast ._<>_ x y = y
+
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = \ ()
 
   semigroupUnit : Semigroup Unit
   semigroupUnit ._<>_ unit unit = unit
+
+  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
+  monoidDual .empty = dual: empty
 
   monoidUnit : Monoid Unit
   monoidUnit .empty = unit
@@ -304,9 +324,6 @@ record Applicative (F : Set -> Set) : Set where
   infixl 4 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
-
-  whenA : F Bool -> F Unit -> F Unit
-  whenA b x = (| when b x |)
 
 open Applicative {{...}} public
 
@@ -715,12 +732,6 @@ maybeToLeft b = maybe (right b) left
 maybeToRight : B -> Maybe A -> B + A
 maybeToRight b = maybe (left b) right
 
-record First (A : Set) : Set where
-  constructor first:
-  field getFirst : Maybe A
-
-open First public
-
 instance
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = \ where
@@ -750,16 +761,8 @@ instance
     m nothing -> m
     (just x) (just y) -> just (x <> y)
 
-  monoidMaybe : {{_ : Monoid A}} -> Monoid (Maybe A)
+  monoidMaybe : {{_ : Semigroup A}} -> Monoid (Maybe A)
   monoidMaybe .empty = nothing
-
-  semigroupFirst : Semigroup (First A)
-  semigroupFirst ._<>_ (first: x) (first: y) with x | y
-  ... | nothing | m = first: m
-  ... | (just a) | _ = first: (just a)
-
-  monoidFirst : Monoid (First A)
-  monoidFirst .empty = first: nothing
 
 --------------------------------------------------------------------------------
 -- List
@@ -795,13 +798,6 @@ instance
 
   monoidList : Monoid (List A)
   monoidList .empty = []
-
-uncons : List A -> Maybe (A * List A)
-uncons [] = nothing
-uncons (a :: as) = just (a , as)
-
-recons : Maybe (A * List A) -> List A
-recons = maybe [] (uncurry _::_)
 
 replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
