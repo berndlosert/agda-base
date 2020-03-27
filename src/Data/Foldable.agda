@@ -54,6 +54,9 @@ record Foldable (S A : Set) : Set where
       f :  Nat * Maybe A -> A -> Nat * Maybe A
       f (k , m) a = (suc k , if k == n then just a else m)
 
+  head : S -> Maybe A
+  head = at 0
+
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool
@@ -72,11 +75,14 @@ record Foldable (S A : Set) : Set where
 
   module _ {{_ : Monoid S}} where
 
-  --fromMaybe : {{_ : Monoid S}} -> Maybe A -> S
-  --fromMaybe = maybe empty singleton
+    cons : A -> S -> S
+    cons a s = singleton a <> s
 
-  --toMaybe : {{_ : Monoid S}} S -> Maybe A
-  --toMaybe = foldl (\ s a -> just a) nothing
+    snoc : S -> A -> S
+    snoc s a = s <> singleton a
+
+    replicate : Nat -> A -> S
+    replicate n a = applyN (cons a) n empty
 
     takeWhile : (A -> Bool) -> S -> S
     takeWhile p = foldl f empty
@@ -94,6 +100,12 @@ record Foldable (S A : Set) : Set where
         ... | true | true = (true , s)
         ... | true | false = (false , s <> singleton a)
         ... | false | _ = (false , s <> singleton a)
+
+    deleteAt : Nat -> S -> S
+    deleteAt n = snd <<< foldl f (0 , empty)
+      where
+        f : Nat * S -> A -> Nat * S
+        f (k , s) a = (suc k , if k == n then s else snoc s a)
 
 open Foldable {{...}} public
 
