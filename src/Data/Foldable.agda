@@ -25,7 +25,7 @@ record Foldable (S A : Set) : Set where
     (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) s) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
-  foldrM f z0 xs = foldl g return xs z0
+  foldrM f b0 s = foldl g return s b0
     where
       g : _
       g k x z = f x z >>= k
@@ -46,7 +46,7 @@ record Foldable (S A : Set) : Set where
   length = foldl (\ c _ -> suc c) 0
 
   null : S -> Bool
-  null s = length s == 0
+  null = untag <<< foldlM (\ _ _ -> left false) true
 
   any : (A -> Bool) -> S -> Bool
   any p = getAny <<< foldMap (any: <<< p)
@@ -87,7 +87,15 @@ record Foldable (S A : Set) : Set where
       ... | true | false = (false , s <> singleton a)
       ... | false | _ = (false , s <> singleton a)
 
-open Foldable {{...}}
+  --fromMaybe : {{_ : Monoid S}} -> Maybe A -> S
+  --fromMaybe = maybe empty singleton
+
+  --toMaybe : {{_ : Monoid S}} S -> Maybe A
+  --toMaybe = foldl (\ s a -> just a) nothing
+
+
+
+open Foldable {{...}} public
 
 module _ {{_ : forall {A} -> Foldable (F A) A}} where
 
