@@ -43,9 +43,15 @@ record Listlike (S A : Set) : Set where
   tail s = if null s then nothing else just (deleteAt 0 s)
 
   inits : S -> List S
-  inits = snd <<< foldl f (nil , [])
+  inits s = (snd $ foldl f (nil , identity) s) []
     where
-      f : S * List S -> A -> S * List S
-      f (s , acc) a = let s' = snoc s a in (s' , acc ++ singleton s')
+      f : S * (List S -> List S) -> A -> S * (List S -> List S)
+      f (s , acc) a = let s' = snoc s a in (s' , acc <<< (s' ::_ ))
 
 open Listlike {{...}} public
+
+instance
+  listlikeList : forall {A} -> Listlike (List A) A
+  listlikeList .nil = []
+  listlikeList .cons = _::_
+  listlikeList .snoc as a = as ++ singleton a
