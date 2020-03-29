@@ -20,12 +20,11 @@ record Listlike (S A : Set) : Set where
   replicate n a = applyN (cons a) n nil
 
   takeWhile : (A -> Bool) -> S -> S
-  takeWhile p = reverse <<< foldl f nil
+  takeWhile p = reverse <<< snd <<< untag <<< foldlM f (true , nil)
     where
-      f : S -> A -> S
-      f s a with p a
-      ... | true = cons a s
-      ... | false = s
+      f : Bool * S -> A -> Bool * S + Bool * S
+      f (b , s) a = let b' = b && p a in
+        if b' then right (b' , cons a s) else left (b' , s)
 
   dropWhile : (A -> Bool) -> S -> S
   dropWhile p = reverse <<< snd <<< foldl f (true , nil)
