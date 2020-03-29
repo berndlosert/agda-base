@@ -732,6 +732,9 @@ maybeToLeft b = maybe (right b) left
 maybeToRight : B -> Maybe A -> B + A
 maybeToRight b = maybe (left b) right
 
+ensure : (A -> Bool) -> A -> Maybe A
+ensure f a = if f a then just a else nothing
+
 instance
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = \ where
@@ -876,6 +879,9 @@ open import Agda.Builtin.Equality public
   using (refl)
   renaming (_≡_ to _===_)
 
+Assert : Bool -> Set
+Assert = true ===_
+
 --------------------------------------------------------------------------------
 -- Show
 --------------------------------------------------------------------------------
@@ -920,10 +926,13 @@ instance
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 
-  showList : {{_ : Show A}} -> Show (List A)
-  showList .show = \ where
-    [] -> "[]"
-    (a :: as) -> show a ++ " :: " ++ show as
+  showList : forall {A} {{_ : Show A}} -> Show (List A)
+  showList .show [] = "[]"
+  showList {A} .show as = "(" ++ show' as ++ ")"
+    where
+      show' : List A -> String
+      show' [] = "[]"
+      show' (x :: xs) = show x ++ " :: " ++ show' xs
 
   showChar : Show Char
   showChar .show c = "'" ++ pack (pure c) ++ "'"
