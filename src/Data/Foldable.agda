@@ -35,6 +35,9 @@ record Foldable (S A : Set) : Set where
   null : S -> Bool
   null = untag <<< foldlM (\ _ _ -> left false) true
 
+  nonempty : S -> Bool
+  nonempty = not <<< null
+
   count : S -> Nat
   count = foldl (\ c _ -> suc c) 0
 
@@ -72,43 +75,6 @@ record Foldable (S A : Set) : Set where
 
     for- : S -> (A -> F B) -> F Unit
     for- = flip traverse-
-
-  module _ {{_ : Monoid S}} where
-
-    cons : A -> S -> S
-    cons a s = singleton a <> s
-
-    snoc : S -> A -> S
-    snoc s a = s <> singleton a
-
-    replicate : Nat -> A -> S
-    replicate n a = applyN (cons a) n empty
-
-    takeWhile : (A -> Bool) -> S -> S
-    takeWhile p = foldl f empty
-      where
-        f : S -> A -> S
-        f s a with p a
-        ... | true = s <> singleton a
-        ... | false = s
-
-    dropWhile : (A -> Bool) -> S -> S
-    dropWhile p = snd <<< foldl f (true , empty)
-      where
-        f : Bool * S -> A -> Bool * S
-        f (b , s) a with b | p a
-        ... | true | true = (true , s)
-        ... | true | false = (false , s <> singleton a)
-        ... | false | _ = (false , s <> singleton a)
-
-    deleteAt : Nat -> S -> S
-    deleteAt n = snd <<< foldl f (0 , empty)
-      where
-        f : Nat * S -> A -> Nat * S
-        f (k , s) a = (suc k , if k == n then s else snoc s a)
-
-    tail : S -> Maybe S
-    tail s = if null s then nothing else deleteAt 0 s
 
 open Foldable {{...}} public
 
