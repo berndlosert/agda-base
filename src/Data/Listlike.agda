@@ -13,6 +13,12 @@ record Listlike (S A : Set) : Set where
     snoc : S -> A -> S
     {{foldable}} : Foldable S A
 
+  listrec : forall {B} -> (A * S -> B -> B) -> B -> S -> B
+  listrec {B} f b = snd <<< foldr g (nil , b)
+    where
+      g : A -> S * B -> S * B
+      g a (s , b') = (cons a s , f (a , s) b')
+
   reverse : S -> S
   reverse = foldl (flip cons) nil
 
@@ -30,10 +36,9 @@ record Listlike (S A : Set) : Set where
   dropWhile p = reverse <<< snd <<< foldl f (true , nil)
     where
       f : Bool * S -> A -> Bool * S
-      f (b , s) a with b | p a
-      ... | true | true = (true , s)
-      ... | true | false = (false , cons a s)
-      ... | false | _ = (false , cons a s)
+      f (b , s) a with b && p a
+      ... | true = (true , s)
+      ... | false = (false , cons a s)
 
   take : Nat -> S -> S
   take n = reverse <<< snd <<< foldl f (0 , nil)
