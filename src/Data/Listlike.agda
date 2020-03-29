@@ -36,6 +36,12 @@ record Listlike (S A : Set) : Set where
       ... | true | false = (false , cons a s)
       ... | false | _ = (false , cons a s)
 
+  take : Nat -> S -> S
+  take n = reverse <<< snd <<< foldl f (0 , nil)
+    where
+      f : Nat * S -> A -> Nat * S
+      f (k , s) a = (suc k , if k < n then cons a s else s)
+
   deleteAt : Nat -> S -> S
   deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
     where
