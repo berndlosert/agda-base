@@ -799,9 +799,6 @@ instance
   monoidList : Monoid (List A)
   monoidList .empty = []
 
-replicate : Nat -> A -> List A
-replicate n a = applyN (a ::_) n []
-
 til : Nat -> List Nat
 til 0 = []
 til (suc n) = til n ++ pure n
@@ -811,14 +808,6 @@ range m n with compare m n
 ... | GT = []
 ... | EQ = pure n
 ... | LT = map (_+ m) $ til $ suc (n - m)
-
-head : List A -> Maybe A
-head [] = nothing
-head (a :: as) = just a
-
-tail : List A -> Maybe (List A)
-tail [] = nothing
-tail (a :: as) = just as
 
 --------------------------------------------------------------------------------
 -- Function and Endo
