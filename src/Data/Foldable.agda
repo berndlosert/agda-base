@@ -54,7 +54,7 @@ record Foldable (S A : Set) : Set where
   at : Nat -> S -> Maybe A
   at n = leftToMaybe <<< foldlM f 0
     where
-      f : Nat -> A -> Either A Nat
+      f : Nat -> A -> A + Nat
       f k a = if k == n then left a else right (suc k)
 
   head : S -> Maybe A
