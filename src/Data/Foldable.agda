@@ -70,8 +70,11 @@ record Foldable (S A : Set) : Set where
 
   module _ {{_ : Applicative F}} where
 
-    for : S -> (A -> F B) -> F Unit
-    for s f = foldr (_*>_ <<< f) (pure unit) s
+    traverse! : (A -> F B) -> S -> F Unit
+    traverse! f = foldr (_*>_ <<< f) (pure unit)
+
+    for! : S -> (A -> F B) -> F Unit
+    for! = flip traverse!
 
 open Foldable {{...}} public
 
@@ -83,9 +86,8 @@ module _ {{_ : forall {A} -> Foldable (F A) A}} where
   or : F Bool -> Bool
   or = foldr _||_ false
 
-  sequence- :  {{_ : Applicative G}}
-    -> F (G A) -> G Unit
-  sequence- = foldr _*>_ (pure unit)
+  sequence! :  {{_ : Applicative G}} -> F (G A) -> G Unit
+  sequence! = foldr _*>_ (pure unit)
 
   --intercalate : {{_ : Monoid A}} -> A -> F A -> A
   --intercalate sep xs = (foldl go true mempty xs)
