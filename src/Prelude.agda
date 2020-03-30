@@ -722,6 +722,13 @@ data Maybe (A : Set) : Set where
 
 {-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
+isJust : Maybe A -> Bool
+isJust (just _) = true
+isJust _ = false
+
+isNothing : Maybe A -> Bool
+isNothing = not <<< isJust
+
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b
 maybe b f (just a) = f a
@@ -733,7 +740,7 @@ maybeToLeft : B -> Maybe A -> A + B
 maybeToLeft b = maybe (right b) left
 
 maybeToRight : B -> Maybe A -> B + A
-maybeToRight b = maybe (left b) right
+maybeToRight b = mirror <<< maybeToLeft b
 
 leftToMaybe : A + B -> Maybe A
 leftToMaybe = either just (const nothing)

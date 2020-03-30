@@ -39,23 +39,23 @@ record Foldable (S A : Set) : Set where
   nonempty = not <<< null
 
   count : S -> Nat
-  count = foldl (\ c _ -> suc c) 0
-
-  any : (A -> Bool) -> S -> Bool
-  any p = getAny <<< foldMap (any: <<< p)
-
-  all : (A -> Bool) -> S -> Bool
-  all p = getAll <<< foldMap (all: <<< p)
+  count = foldr (const suc) 0
 
   find : (A -> Bool) -> S -> Maybe A
-  find p = leftToMaybe <<<
-    foldlM (\ _ a -> maybeToLeft unit (ensure p a)) unit
+  find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
+    leftToMaybe <<< foldlM (ensure' p) unit
+
+  any : (A -> Bool) -> S -> Bool
+  any p = isJust <<< find p
+
+  all : (A -> Bool) -> S -> Bool
+  all p = not <<< any (not <<< p)
 
   at : Nat -> S -> Maybe A
-  at n = snd <<< foldl f (0 , nothing)
+  at n = leftToMaybe <<< foldlM f 0
     where
-      f :  Nat * Maybe A -> A -> Nat * Maybe A
-      f (k , m) a = (suc k , if k == n then just a else m)
+      f : Nat -> A -> Either A Nat
+      f k a = if k == n then left a else right (suc k)
 
   head : S -> Maybe A
   head = at 0

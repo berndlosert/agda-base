@@ -13,11 +13,19 @@ record Listlike (S A : Set) : Set where
     snoc : S -> A -> S
     {{foldable}} : Foldable S A
 
-  listrec : forall {B} -> (A * S -> B -> B) -> B -> S -> B
-  listrec {B} f b = snd <<< foldr g (nil , b)
+  foldr' : forall {B} -> (A * S -> B -> B) -> B -> S -> B
+  foldr' {B} f b = snd <<< foldr g (nil , b)
     where
       g : A -> S * B -> S * B
       g a (s , b') = (cons a s , f (a , s) b')
+
+  foldl' : forall {B} -> (B -> S * A -> B) -> B -> S -> B
+  foldl' {B} f b = snd <<< foldl g (nil , b)
+    where
+      g : S * B -> A -> S * B
+      g (s , b') a = (cons a s , f b' (s , a))
+
+  --foldrM : {{_ : Monad M}} -> ((A -> B -> M B) -> B -> S -> M B
 
   reverse : S -> S
   reverse = foldl (flip cons) nil
@@ -68,3 +76,9 @@ instance
   listlikeList .nil = []
   listlikeList .cons = _::_
   listlikeList .snoc as a = as ++ singleton a
+
+
+  listlikeString : Listlike String Char
+  listlikeString .nil = ""
+  listlikeString .cons c s = pack (c :: unpack s)
+  listlikeString .snoc s c = pack (unpack s ++ singleton c)
