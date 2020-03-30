@@ -70,8 +70,8 @@ record Foldable (S A : Set) : Set where
 
   module _ {{_ : Applicative F}} where
 
-    foreach : S -> (A -> F B) -> F Unit
-    foreach s f = foldr (_*>_ <<< f) (pure unit) s
+    for : S -> (A -> F B) -> F Unit
+    for s f = foldr (_*>_ <<< f) (pure unit) s
 
 open Foldable {{...}} public
 
