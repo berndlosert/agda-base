@@ -48,8 +48,8 @@ record Foldable (S A : Set) : Set where
   all p = getAll <<< foldMap (all: <<< p)
 
   find : (A -> Bool) -> S -> Maybe A
-  find p = let f = ensure (p <<< getFirst) <<< first: in
-    map getFirst <<< foldMap f
+  find p = let ensure' p = ensure (p <<< getFirst) <<< first: in
+    map getFirst <<< foldMap (ensure' p)
 
   at : Nat -> S -> Maybe A
   at n = snd <<< foldl f (0 , nothing)
