@@ -49,7 +49,7 @@ record Foldable (S A : Set) : Set where
 
   find : (A -> Bool) -> S -> Maybe A
   find p = leftToMaybe <<<
-    foldlM (\ _ a -> if p a then left a else right unit) unit
+    foldlM (\ _ a -> maybeToLeft unit (ensure p a)) unit
 
   at : Nat -> S -> Maybe A
   at n = snd <<< foldl f (0 , nothing)
