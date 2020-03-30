@@ -48,8 +48,6 @@ record Foldable (S A : Set) : Set where
   all p = getAll <<< foldMap (all: <<< p)
 
   find : (A -> Bool) -> S -> Maybe A
-  --find p = let ensure' p = ensure (p <<< getFirst) <<< first: in
-  --  map getFirst <<< foldMap (ensure' p)
   find p = leftToMaybe <<<
     foldlM (\ _ a -> if p a then left a else right unit) unit
 
