@@ -49,7 +49,7 @@ record Foldable (S A : Set) : Set where
 
   find : (A -> Bool) -> S -> Maybe A
   find p s = let f a = when (p a) $ just (first: a) in
-    maybe nothing (just <<< getFirst) (foldMap f s)
+    map getFirst (foldMap f s)
 
   at : Nat -> S -> Maybe A
   at n = snd <<< foldl f (0 , nothing)
