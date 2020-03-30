@@ -205,6 +205,9 @@ instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
   monoidDual .empty = dual: empty
 
+  monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
+  monoidFirst .empty = first: empty
+
   monoidUnit : Monoid Unit
   monoidUnit .empty = unit
 
@@ -732,8 +735,14 @@ maybeToLeft b = maybe (right b) left
 maybeToRight : B -> Maybe A -> B + A
 maybeToRight b = maybe (left b) right
 
+leftToMaybe : A + B -> Maybe A
+leftToMaybe = either just (const nothing)
+
+rightToMaybe : A + B -> Maybe B
+rightToMaybe = leftToMaybe <<< mirror
+
 ensure : (A -> Bool) -> A -> Maybe A
-ensure f a = if f a then just a else nothing
+ensure p a = if p a then just a else nothing
 
 instance
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
