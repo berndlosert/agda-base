@@ -72,6 +72,12 @@ record Listlike (S A : Set) : Set where
       f (k , s) a =
         if k < n then right (suc k , cons a s) else left (suc k , s)
 
+  drop : Nat -> S -> S
+  drop n = reverse <<< snd <<< foldl f (0 , nil)
+    where
+      f : Nat * S -> A -> Nat * S
+      f (k , s) a = if k < n then (suc k , s) else (suc k , cons a s)
+
   deleteAt : Nat -> S -> S
   deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
     where
@@ -83,6 +89,9 @@ record Listlike (S A : Set) : Set where
 
   inits : S -> List S
   inits s = map (flip take s) $ til (length s + 1)
+
+  tails : S -> List S
+  tails s = map (flip drop s) $ til (length s + 1)
 
 open Listlike {{...}} public
 
