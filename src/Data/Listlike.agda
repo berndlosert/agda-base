@@ -101,7 +101,6 @@ instance
   listlikeList .cons = _::_
   listlikeList .snoc as a = as ++ singleton a
 
-
   listlikeString : Listlike String Char
   listlikeString .nil = ""
   listlikeString .cons c s = pack (c :: unpack s)
