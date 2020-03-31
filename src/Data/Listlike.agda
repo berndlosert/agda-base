@@ -6,6 +6,8 @@ open import Prelude
 
 open import Data.Foldable public
 
+private variable T : Set
+
 record Listlike (S A : Set) : Set where
   field
     nil : S
@@ -13,19 +15,37 @@ record Listlike (S A : Set) : Set where
     snoc : S -> A -> S
     {{foldable}} : Foldable S A
 
-  foldr' : forall {B} -> (A * S -> B -> B) -> B -> S -> B
-  foldr' {B} f b = snd <<< foldr g (nil , b)
+  append : S -> S -> S
+  append x y = foldr f nil x
     where
-      g : A -> S * B -> S * B
-      g a (s , b') = (cons a s , f (a , s) b')
+      f : A -> S -> S
+      f a s = if null s then cons a y else cons a s
 
-  foldl' : forall {B} -> (B -> S * A -> B) -> B -> S -> B
-  foldl' {B} f b = snd <<< foldl g (nil , b)
+  intersperse : A -> S -> S
+  intersperse sep = foldr f nil
     where
-      g : S * B -> A -> S * B
-      g (s , b') a = (cons a s , f b' (s , a))
+      f : A -> S -> S
+      f a s = if null s then cons a s else cons a (cons sep s)
 
-  --foldrM : {{_ : Monad M}} -> ((A -> B -> M B) -> B -> S -> M B
+  concat : List S -> S
+  concat = foldr append nil
+
+  intercalate : S -> List S -> S
+  intercalate sep [] = nil
+  intercalate sep (s :: []) = s
+  intercalate sep (s :: rest) = append (append s sep) (intercalate sep rest)
+
+  --foldr' : forall {B} -> (A * S -> B -> B) -> B -> S -> B
+  --foldr' {B} f b = snd <<< foldr g (nil , b)
+  --  where
+  --    g : A -> S * B -> S * B
+  --    g a (s , b') = (cons a s , f (a , s) b')
+
+  --foldl' : forall {B} -> (B -> S * A -> B) -> B -> S -> B
+  --foldl' {B} f b = snd <<< foldl g (nil , b)
+  --  where
+  --    g : S * B -> A -> S * B
+  --    g (s , b') a = (snoc a s , f b' (s , a))
 
   reverse : S -> S
   reverse = foldl (flip cons) nil
