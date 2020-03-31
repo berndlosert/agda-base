@@ -82,10 +82,7 @@ record Listlike (S A : Set) : Set where
   tail s = if null s then nothing else just (deleteAt 0 s)
 
   inits : S -> List S
-  inits s = (snd $ foldl f (nil , identity) s) []
-    where
-      f : S * (List S -> List S) -> A -> S * (List S -> List S)
-      f (s , acc) a = let s' = snoc s a in (s' , acc <<< (s' ::_ ))
+  inits s = map (flip take s) $ til (length s + 1)
 
 open Listlike {{...}} public
 
