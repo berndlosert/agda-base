@@ -60,12 +60,10 @@ record Listlike (S A : Set) : Set where
       f s a = if p a then right (cons a s) else left s
 
   dropWhile : (A -> Bool) -> S -> S
-  dropWhile p = reverse <<< snd <<< foldl f (true , nil)
+  dropWhile p = reverse <<< foldl f nil
     where
-      f : Bool * S -> A -> Bool * S
-      f (b , s) a with b && p a
-      ... | true = (true , s)
-      ... | false = (false , cons a s)
+      f : S -> A -> S
+      f s a = if p a then s else cons a s
 
   take : Nat -> S -> S
   take n = reverse <<< snd <<< foldl f (0 , nil)
