@@ -66,10 +66,11 @@ record Listlike (S A : Set) : Set where
       f s a = if p a then s else cons a s
 
   take : Nat -> S -> S
-  take n = reverse <<< snd <<< foldl f (0 , nil)
+  take n = reverse <<< snd <<< untag <<< foldlM f (0 , nil)
     where
-      f : Nat * S -> A -> Nat * S
-      f (k , s) a = (suc k , if k < n then cons a s else s)
+      f : Nat * S -> A -> Nat * S + Nat * S
+      f (k , s) a =
+        if k < n then right (suc k , cons a s) else left (suc k , s)
 
   deleteAt : Nat -> S -> S
   deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
