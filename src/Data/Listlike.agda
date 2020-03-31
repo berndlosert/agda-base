@@ -35,18 +35,6 @@ record Listlike (S A : Set) : Set where
   intercalate sep (s :: []) = s
   intercalate sep (s :: rest) = append (append s sep) (intercalate sep rest)
 
-  --foldr' : forall {B} -> (A * S -> B -> B) -> B -> S -> B
-  --foldr' {B} f b = snd <<< foldr g (nil , b)
-  --  where
-  --    g : A -> S * B -> S * B
-  --    g a (s , b') = (cons a s , f (a , s) b')
-
-  --foldl' : forall {B} -> (B -> S * A -> B) -> B -> S -> B
-  --foldl' {B} f b = snd <<< foldl g (nil , b)
-  --  where
-  --    g : S * B -> A -> S * B
-  --    g (s , b') a = (snoc a s , f b' (s , a))
-
   reverse : S -> S
   reverse = foldl (flip cons) nil
 
