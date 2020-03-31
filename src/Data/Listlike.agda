@@ -21,14 +21,14 @@ record Listlike (S A : Set) : Set where
       f : A -> S -> S
       f a s = if null s then cons a y else cons a s
 
+  concat : List S -> S
+  concat = foldr append nil
+
   intersperse : A -> S -> S
   intersperse sep = foldr f nil
     where
       f : A -> S -> S
       f a s = if null s then cons a s else cons a (cons sep s)
-
-  concat : List S -> S
-  concat = foldr append nil
 
   intercalate : S -> List S -> S
   intercalate sep [] = nil
