@@ -16,10 +16,10 @@ record Listlike (S A : Set) : Set where
     {{foldable}} : Foldable S A
 
   append : S -> S -> S
-  append x y = foldr f nil x
+  append s1 s2 = foldr f nil s1
     where
       f : A -> S -> S
-      f a s = if null s then cons a y else cons a s
+      f a s = if null s then cons a s2 else cons a s
 
   concat : List S -> S
   concat = foldr append nil
@@ -54,11 +54,10 @@ record Listlike (S A : Set) : Set where
   replicate n a = applyN (cons a) n nil
 
   takeWhile : (A -> Bool) -> S -> S
-  takeWhile p = reverse <<< snd <<< untag <<< foldlM f (true , nil)
+  takeWhile p = reverse <<< untag <<< foldlM f nil
     where
-      f : Bool * S -> A -> Bool * S + Bool * S
-      f (b , s) a = let b' = b && p a in
-        if b' then right (b' , cons a s) else left (b' , s)
+      f : S -> A -> S + S
+      f s a = if p a then right (cons a s) else left s
 
   dropWhile : (A -> Bool) -> S -> S
   dropWhile p = reverse <<< snd <<< foldl f (true , nil)
