@@ -38,7 +38,7 @@ record Sequence (S A : Set) : Set where
   append s1 s2 = foldr f nil s1
     where
       f : A -> S -> S
-      f a s = if null s then cons a s2 else cons a s
+      f a s = cons a (if null s then s2 else s)
 
   concat : List S -> S
   concat = foldr append nil
