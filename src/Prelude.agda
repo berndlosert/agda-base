@@ -50,20 +50,6 @@ if_then_else_ : Bool -> A -> A -> A
 if true then a else _ = a
 if false then _ else a = a
 
-not : Bool -> Bool
-not true = false
-not false = true
-
-infixr 3 _&&_
-_&&_ : Bool -> Bool -> Bool
-true && b = b
-false && _ = false
-
-infixr 2 _||_
-_||_ : Bool -> Bool -> Bool
-true || _ = true
-false || b = b
-
 --------------------------------------------------------------------------------
 -- For notational convenience
 --------------------------------------------------------------------------------
@@ -127,6 +113,36 @@ open import Agda.Builtin.FromNeg public
 
 open import Agda.Builtin.FromString public
   using (IsString; fromString)
+
+--------------------------------------------------------------------------------
+-- Boolean
+--------------------------------------------------------------------------------
+
+record Boolean (B : Set) : Set where
+  infixr 2 _||_
+  infixr 3 _&&_
+  field
+    bottom : B
+    top : B
+    not : B -> B
+    _&&_ : B -> B -> B
+    _||_ : Bool -> Bool -> Bool
+
+open Boolean {{...}} public
+
+instance
+  booleanBool : Boolean Bool
+  booleanBool .bottom = false
+  booleanBool .top = true
+  booleanBool .not = \ where
+    true -> false
+    false -> true
+  booleanBool ._&&_ = \ where
+    true true -> true
+    _ _ -> false
+  booleanBool ._||_ = \ where
+    falase false -> false
+    _ _ -> true
 
 --------------------------------------------------------------------------------
 -- Semigroup and Monoid
