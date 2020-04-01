@@ -66,20 +66,26 @@ record Sequence (S A : Set) : Set where
       f : Nat * S -> A -> Nat * S
       f (k , s) a = if k < n then (suc k , s) else (suc k , cons a s)
 
+  inits : S -> List S
+  inits s = map (flip take s) $ til (length s + 1)
+
+  tails : S -> List S
+  tails s = map (flip drop s) $ til (length s + 1)
+
   deleteAt : Nat -> S -> S
   deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
     where
       f : Nat * S -> A -> Nat * S
       f (k , s) a = (suc k , if k == n then s else cons a s)
 
+  setAt : Nat -> A -> S -> S
+  setAt n x = reverse <<< snd <<< foldl f (0 , nil)
+    where
+      f : Nat * S -> A -> Nat * S
+      f (k , s) a = (suc k , if k == n then cons x s else cons a s)
+
   tail : S -> Maybe S
   tail s = if null s then nothing else just (deleteAt 0 s)
-
-  inits : S -> List S
-  inits s = map (flip take s) $ til (length s + 1)
-
-  tails : S -> List S
-  tails s = map (flip drop s) $ til (length s + 1)
 
 open Sequence {{...}} public
 
