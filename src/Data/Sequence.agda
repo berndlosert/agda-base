@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Listlike where
+module Data.Sequence where
 
 open import Prelude
 
@@ -8,7 +8,7 @@ open import Data.Foldable public
 
 private variable T : Set
 
-record Listlike (S A : Set) : Set where
+record Sequence (S A : Set) : Set where
   field
     nil : S
     cons : A -> S -> S
@@ -81,15 +81,15 @@ record Listlike (S A : Set) : Set where
   tails : S -> List S
   tails s = map (flip drop s) $ til (length s + 1)
 
-open Listlike {{...}} public
+open Sequence {{...}} public
 
 instance
-  listlikeList : forall {A} -> Listlike (List A) A
-  listlikeList .nil = []
-  listlikeList .cons = _::_
-  listlikeList .snoc as a = as ++ singleton a
+  sequenceList : forall {A} -> Sequence (List A) A
+  sequenceList .nil = []
+  sequenceList .cons = _::_
+  sequenceList .snoc as a = as ++ singleton a
 
-  listlikeString : Listlike String Char
-  listlikeString .nil = ""
-  listlikeString .cons c s = pack (c :: unpack s)
-  listlikeString .snoc s c = pack (unpack s ++ singleton c)
+  sequenceString : Sequence String Char
+  sequenceString .nil = ""
+  sequenceString .cons c s = pack (c :: unpack s)
+  sequenceString .snoc s c = pack (unpack s ++ singleton c)
