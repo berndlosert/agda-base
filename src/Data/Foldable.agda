@@ -38,8 +38,8 @@ record Foldable (S A : Set) : Set where
   nonempty : S -> Bool
   nonempty = not <<< null
 
-  count : S -> Nat
-  count = foldr (const suc) 0
+  length : S -> Nat
+  length = foldr (const suc) 0
 
   find : (A -> Bool) -> S -> Maybe A
   find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
@@ -88,9 +88,6 @@ module _ {{_ : forall {A} -> Foldable (F A) A}} where
 
   sequence! :  {{_ : Applicative G}} -> F (G A) -> G Unit
   sequence! = foldr _*>_ (pure unit)
-
-  --intercalate : {{_ : Monoid A}} -> A -> F A -> A
-  --intercalate sep xs = (foldl go true mempty xs)
 
 instance
   foldableList : Foldable (List A) A
