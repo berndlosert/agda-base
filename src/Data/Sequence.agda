@@ -15,6 +15,25 @@ record Sequence (S A : Set) : Set where
     snoc : S -> A -> S
     {{foldable}} : Foldable S A
 
+  head : S -> Maybe A
+  head = leftToMaybe <<< foldlM (const left) unit
+
+  uncons : S -> Maybe (A * S)
+  uncons = foldr f nothing
+    where
+      f : A -> Maybe (A * S) -> Maybe (A * S)
+      f a nothing = just (a , singleton a)
+      f a (just (_ , s)) = just (a , cons a s)
+
+  tail : S -> Maybe S
+  tail = maybe nothing (just <<< snd) <<< uncons
+
+  reverse : S -> S
+  reverse = foldl (flip cons) nil
+
+  replicate : Nat -> A -> S
+  replicate n a = applyN (cons a) n nil
+
   append : S -> S -> S
   append s1 s2 = foldr f nil s1
     where
@@ -34,12 +53,6 @@ record Sequence (S A : Set) : Set where
   intercalate sep [] = nil
   intercalate sep (s :: []) = s
   intercalate sep (s :: rest) = append (append s sep) (intercalate sep rest)
-
-  reverse : S -> S
-  reverse = foldl (flip cons) nil
-
-  replicate : Nat -> A -> S
-  replicate n a = applyN (cons a) n nil
 
   takeWhile : (A -> Bool) -> S -> S
   takeWhile p = reverse <<< untag <<< foldlM f nil
@@ -92,9 +105,6 @@ record Sequence (S A : Set) : Set where
     where
       f : Nat * S -> A -> Nat * S
       f (k , s) a = (suc k , if k == n then cons a' (cons a s) else cons a s)
-
-  tail : S -> Maybe S
-  tail s = if null s then nothing else just (deleteAt 0 s)
 
 open Sequence {{...}} public
 
