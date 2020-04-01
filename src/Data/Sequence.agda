@@ -12,7 +12,6 @@ record Sequence (S A : Set) : Set where
   field
     nil : S
     cons : A -> S -> S
-    snoc : S -> A -> S
     {{foldable}} : Foldable S A
 
   head : S -> Maybe A
@@ -39,6 +38,9 @@ record Sequence (S A : Set) : Set where
     where
       f : A -> S -> S
       f a s = cons a (if null s then s2 else s)
+
+  snoc : S -> A -> S
+  snoc s a = append s (singleton a)
 
   concat : List S -> S
   concat = foldr append nil
@@ -112,9 +114,7 @@ instance
   sequenceList : forall {A} -> Sequence (List A) A
   sequenceList .nil = []
   sequenceList .cons = _::_
-  sequenceList .snoc as a = as ++ singleton a
 
   sequenceString : Sequence String Char
   sequenceString .nil = ""
   sequenceString .cons c s = pack (c :: unpack s)
-  sequenceString .snoc s c = pack (unpack s ++ singleton c)
