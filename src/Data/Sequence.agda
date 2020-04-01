@@ -10,7 +10,7 @@ record Sequence (S A : Set) : Set where
   field
     nil : S
     cons : A -> S -> S
-    {{foldable}} : Foldable S A
+    {{super}} : Foldable S A
 
   singleton : A -> S
   singleton a = cons a nil
