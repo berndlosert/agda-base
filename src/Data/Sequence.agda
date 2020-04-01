@@ -78,11 +78,20 @@ record Sequence (S A : Set) : Set where
       f : Nat * S -> A -> Nat * S
       f (k , s) a = (suc k , if k == n then s else cons a s)
 
+  modifyAt : Nat -> (A -> A) -> S -> S
+  modifyAt n f = reverse <<< snd <<< foldl g (0 , nil)
+    where
+      g : Nat * S -> A -> Nat * S
+      g (k , s) a = (suc k , if k == n then cons (f a) s else cons a s)
+
   setAt : Nat -> A -> S -> S
-  setAt n x = reverse <<< snd <<< foldl f (0 , nil)
+  setAt n a = modifyAt n (const a)
+
+  insertAt : Nat -> A -> S -> S
+  insertAt n a' = reverse <<< snd <<< foldl f (0 , nil)
     where
       f : Nat * S -> A -> Nat * S
-      f (k , s) a = (suc k , if k == n then cons x s else cons a s)
+      f (k , s) a = (suc k , if k == n then cons a' (cons a s) else cons a s)
 
   tail : S -> Maybe S
   tail s = if null s then nothing else just (deleteAt 0 s)
