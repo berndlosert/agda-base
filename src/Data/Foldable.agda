@@ -11,7 +11,6 @@ private
 
 record Foldable (S A : Set) : Set where
   field
-    singleton : A -> S
     foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
 
   fold : {{_ : Monoid A}} -> S -> A
@@ -45,20 +44,17 @@ record Foldable (S A : Set) : Set where
   find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
     leftToMaybe <<< foldlM (ensure' p) unit
 
-  any : (A -> Bool) -> S -> Bool
-  any p = isJust <<< find p
-
-  all : (A -> Bool) -> S -> Bool
-  all p = not <<< any (not <<< p)
-
   at : Nat -> S -> Maybe A
   at n = leftToMaybe <<< foldlM f 0
     where
       f : Nat -> A -> A + Nat
       f k a = if k == n then left a else right (suc k)
 
-  head : S -> Maybe A
-  head = at 0
+  any : (A -> Bool) -> S -> Bool
+  any p = isJust <<< find p
+
+  all : (A -> Bool) -> S -> Bool
+  all p = not <<< any (not <<< p)
 
   module _ {{_ : Eq A}} where
 
@@ -91,11 +87,9 @@ module _ {{_ : forall {A} -> Foldable (F A) A}} where
 
 instance
   foldableList : Foldable (List A) A
-  foldableList .singleton x = x :: []
   foldableList .foldMap f = \ where
     [] -> empty
     (a :: as) -> f a <> foldMap f as
 
   foldableString : Foldable (String) Char
-  foldableString .singleton c = pack (singleton c)
   foldableString .foldMap f s = foldMap f (unpack s)

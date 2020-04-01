@@ -6,13 +6,14 @@ open import Prelude
 
 open import Data.Foldable public
 
-private variable T : Set
-
 record Sequence (S A : Set) : Set where
   field
     nil : S
     cons : A -> S -> S
     {{foldable}} : Foldable S A
+
+  singleton : A -> S
+  singleton a = cons a nil
 
   head : S -> Maybe A
   head = leftToMaybe <<< foldlM (const left) unit
