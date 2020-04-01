@@ -2,10 +2,9 @@
 
 module Control.Optics.Profunctor where
 
-open import Data.Either
-open import Data.Pair
-open import Data.Profunctor
 open import Prelude
+
+open import Data.Profunctor
 
 private
   variable
@@ -145,7 +144,7 @@ prism : (B -> T) -> (S -> T + A) -> Prism A B S T
 prism build match = dimap match untag <<< choice <<< rmap build
 
 grate : (((S -> A) -> B) -> T) -> Grate A B S T
-grate degrating = dimap _#_ degrating <<< closed
+grate degrating = dimap (flip _$_) degrating <<< closed
 
 traversal : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
   -> Traversal A B S T

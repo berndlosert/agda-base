@@ -2,10 +2,9 @@
 
 module Data.Bifunctor where
 
-open import Data.Pair
-open import Data.Either
-open import Data.Functor.Const
 open import Prelude
+
+open import Data.Functor.Const
 
 private
   variable

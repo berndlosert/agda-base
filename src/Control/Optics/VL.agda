@@ -2,16 +2,11 @@
 
 module Control.Optics.VL where
 
-import Data.Functor.Contravariant
-import Data.Functor.Const
-import Data.List as List
-import Data.Profunctor
-import Prelude
+open import Prelude
 
-open Data.Functor.Contravariant
-open Data.Functor.Const public
-open Data.Profunctor
-open Prelude
+open import Data.Functor.Contravariant
+open import Data.Functor.Const
+open import Data.Profunctor
 
 private
   variable
@@ -148,8 +143,8 @@ record Each (S T A B : Set) : Set where
 open Each {{...}} public
 
 instance
-  eachList : Each (List A) (List B) A B
-  eachList .each = List.traverse
+  --eachList : Each (List A) (List B) A B
+  --eachList .each = traverse
 
 --------------------------------------------------------------------------------
 -- Basic lens and traversals
