@@ -6,28 +6,29 @@ open import Prelude
 
 private
   variable
-    A B : Set
+    A B S : Set
     F G M : Set -> Set
 
-record Foldable (S A : Set) : Set where
+record Foldable (S : Set) : Set where
   field
-    foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
+    Elem : Set
+    foldMap : {{_ : Monoid B}} -> (Elem -> B) -> S -> B
 
-  fold : {{_ : Monoid A}} -> S -> A
+  fold : {{_ : Monoid Elem}} -> S -> Elem
   fold = foldMap identity
 
-  foldr : (A -> B -> B) -> B -> S -> B
+  foldr : (Elem -> B -> B) -> B -> S -> B
   foldr f b s = appEndo (foldMap (endo: <<< f) s) b
 
-  foldl : (B -> A -> B) -> B -> S -> B
+  foldl : (B -> Elem -> B) -> B -> S -> B
   foldl f b s =
     (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) s) b
 
-  foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
+  foldrM : {{_ : Monad M}} -> (Elem -> B -> M B) -> B -> S -> M B
   foldrM f b s = let g k a b' = f a b' >>= k in
     foldl g return s b
 
-  foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> S -> M B
+  foldlM : {{_ : Monad M}} -> (B -> Elem -> M B) -> B -> S -> M B
   foldlM f b s = let g a k b' = f b' a >>= k in
     foldr g return s b
 
@@ -40,56 +41,55 @@ record Foldable (S A : Set) : Set where
   length : S -> Nat
   length = foldr (const suc) 0
 
-  find : (A -> Bool) -> S -> Maybe A
+  find : (Elem -> Bool) -> S -> Maybe Elem
   find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
     leftToMaybe <<< foldlM (ensure' p) unit
 
-  at : Nat -> S -> Maybe A
+  at : Nat -> S -> Maybe Elem
   at n = leftToMaybe <<< foldlM f 0
     where
-      f : Nat -> A -> A + Nat
+      f : Nat -> Elem -> Elem + Nat
       f k a = if k == n then left a else right (suc k)
 
-  any : (A -> Bool) -> S -> Bool
+  any : (Elem -> Bool) -> S -> Bool
   any p = isJust <<< find p
 
-  all : (A -> Bool) -> S -> Bool
+  all : (Elem -> Bool) -> S -> Bool
   all p = not <<< any (not <<< p)
 
-  module _ {{_ : Eq A}} where
+  module _ {{_ : Eq Elem}} where
 
-    elem : A -> S -> Bool
+    elem : Elem -> S -> Bool
     elem = any <<< _==_
 
-    notElem : A -> S -> Bool
+    notElem : Elem -> S -> Bool
     notElem x = not <<< elem x
 
   module _ {{_ : Applicative F}} where
 
-    traverse! : (A -> F B) -> S -> F Unit
+    traverse! : (Elem -> F B) -> S -> F Unit
     traverse! f = foldr (_*>_ <<< f) (pure unit)
 
-    for! : S -> (A -> F B) -> F Unit
+    for! : S -> (Elem -> F B) -> F Unit
     for! = flip traverse!
+
+  module _ {{_ : Boolean Elem}} where
+
+    or : S -> Elem
+    or = foldr _||_ bottom
+
+    and : S -> Elem
+    and = foldr _&&_ top
 
 open Foldable {{...}} public
 
-module _ {{_ : forall {A} -> Foldable (F A) A}} where
-
-  and : F Bool -> Bool
-  and = foldr _&&_ true
-
-  or : F Bool -> Bool
-  or = foldr _||_ false
-
-  sequence! :  {{_ : Applicative G}} -> F (G A) -> G Unit
-  sequence! = foldr _*>_ (pure unit)
-
 instance
-  foldableList : Foldable (List A) A
+  foldableList : forall {A} -> Foldable (List A)
+  foldableList {A} .Elem = A
   foldableList .foldMap f = \ where
     [] -> empty
     (a :: as) -> f a <> foldMap f as
 
-  foldableString : Foldable (String) Char
+  foldableString : Foldable String
+  foldableString .Elem = Char
   foldableString .foldMap f s = foldMap f (unpack s)

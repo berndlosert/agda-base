@@ -126,7 +126,7 @@ record Boolean (B : Set) : Set where
     top : B
     not : B -> B
     _&&_ : B -> B -> B
-    _||_ : Bool -> Bool -> Bool
+    _||_ : B -> B -> B
 
 open Boolean {{...}} public
 
@@ -913,6 +913,10 @@ open import Agda.Builtin.Equality public
 
 Assert : Bool -> Set
 Assert = true ===_
+
+coerce : {eq : A === B} -> A -> B
+coerce {eq = eq} with eq
+... | refl = identity
 
 --------------------------------------------------------------------------------
 -- Show
