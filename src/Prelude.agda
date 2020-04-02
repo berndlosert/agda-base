@@ -794,6 +794,12 @@ instance
     (just f) m -> map f m
     nothing _ -> nothing
 
+  alternativeMaybe : Alternative Maybe
+  alternativeMaybe .empty = nothing
+  alternativeMaybe ._<|>_ = \ where
+    nothing r -> r
+    l _ -> l
+
   monadMaybe : Monad Maybe
   monadMaybe ._>>=_ = \ where
     nothing k -> nothing
@@ -831,6 +837,10 @@ instance
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
+
+  alternativeList : Alternative List
+  alternativeList .empty = []
+  alternativeList ._<|>_ = _++_
 
   monadList : Monad List
   monadList ._>>=_ = \ where
@@ -949,11 +959,11 @@ instance
     true -> "true"
     false -> "false"
 
+  showNat : Show Nat
+  showNat .show = Agda.Builtin.String.primShowNat
+
   showInt : Show Int
   showInt .show = Agda.Builtin.Int.primShowInteger
-
-  showNat : Show Nat
-  showNat .show n = show (pos n)
 
   showFloat : Show Float
   showFloat .show = Agda.Builtin.Float.primShowFloat
