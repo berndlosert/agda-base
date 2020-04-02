@@ -346,6 +346,15 @@ record Applicative (F : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
+record Alternative (F : Set -> Set) : Set where
+  infixl 3 _<|>_
+  field
+    overlap {{super}} : Applicative F
+    _<|>_ : F A -> F A -> F A
+    empty : F A
+
+open Alternative {{...}} public
+
 --------------------------------------------------------------------------------
 -- Monad
 --------------------------------------------------------------------------------
