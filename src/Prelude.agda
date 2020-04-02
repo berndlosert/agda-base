@@ -156,11 +156,11 @@ open Semigroup {{...}} public
 record Monoid (A : Set) : Set where
   field
     overlap {{semigroup}} : Semigroup A
-    empty : A
+    mempty : A
 
   when : Bool -> A -> A
   when true x = x
-  when false _ = empty
+  when false _ = mempty
 
   unless : Bool -> A -> A
   unless = when <<< not
@@ -219,13 +219,13 @@ instance
   semigroupUnit ._<>_ unit unit = unit
 
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .empty = dual: empty
+  monoidDual .mempty = dual: mempty
 
   monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
-  monoidFirst .empty = first: empty
+  monoidFirst .mempty = first: mempty
 
   monoidUnit : Monoid Unit
-  monoidUnit .empty = unit
+  monoidUnit .mempty = unit
 
 --------------------------------------------------------------------------------
 -- Eq and Ord
@@ -326,7 +326,7 @@ _~>_ : (F G : Set -> Set) -> Set
 F ~> G  = forall {A} -> F A -> G A
 
 --------------------------------------------------------------------------------
--- Applicative
+-- Applicative and Alternative
 --------------------------------------------------------------------------------
 
 record Applicative (F : Set -> Set) : Set where
@@ -408,10 +408,10 @@ instance
   semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
 
   monoidAll : Monoid All
-  monoidAll .empty = all: true
+  monoidAll .mempty = all: true
 
   monoidAny : Monoid Any
-  monoidAny .empty = any: false
+  monoidAny .mempty = any: false
 
 --------------------------------------------------------------------------------
 -- Nat
@@ -468,10 +468,10 @@ instance
   semigroupProduct ._<>_ (product: x) (product: y) = product: (x * y)
 
   monoidSum : Monoid (Sum Nat)
-  monoidSum .empty = sum: 0
+  monoidSum .mempty = sum: 0
 
   monoidProduct : Monoid (Product Nat)
-  monoidProduct .empty = product: 1
+  monoidProduct .mempty = product: 1
 
 --------------------------------------------------------------------------------
 -- Int
@@ -615,7 +615,7 @@ instance
   semigroupString ._<>_ = _++_
 
   monoidString : Monoid String
-  monoidString .empty = ""
+  monoidString .mempty = ""
 
 --------------------------------------------------------------------------------
 -- Pair
@@ -797,7 +797,7 @@ instance
     (just x) (just y) -> just (x <> y)
 
   monoidMaybe : {{_ : Semigroup A}} -> Monoid (Maybe A)
-  monoidMaybe .empty = nothing
+  monoidMaybe .mempty = nothing
 
 --------------------------------------------------------------------------------
 -- List
@@ -832,7 +832,7 @@ instance
   semigroupList ._<>_ = _++_
 
   monoidList : Monoid (List A)
-  monoidList .empty = []
+  monoidList .mempty = []
 
 til : Nat -> List Nat
 til 0 = []
@@ -862,13 +862,13 @@ instance
   semigroupFunction ._<>_ f g = \ a -> f a <> g a
 
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .empty = const empty
+  monoidFunction .mempty = const mempty
 
   semigroupEndo : Semigroup (Endo A)
   semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
 
   monoidEndo : Monoid (Endo A)
-  monoidEndo .empty = endo: identity
+  monoidEndo .mempty = endo: identity
 
 --------------------------------------------------------------------------------
 -- Identity
@@ -891,7 +891,7 @@ instance
   semigroupIdentity ._<>_ (identity: x) (identity: y) = identity: (x <> y)
 
   monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
-  monoidIdentity .empty = identity: empty
+  monoidIdentity .mempty = identity: mempty
 
   functorIdentity : Functor Identity
   functorIdentity .map f (identity: a) = identity: (f a)
@@ -1017,7 +1017,7 @@ instance
   semigroupIO ._<>_ x y = (| _<>_ x y |)
 
   monoidIO : {{_ : Monoid A}} -> Monoid (IO A)
-  monoidIO .empty = return empty
+  monoidIO .mempty = return mempty
 
 print : {{_ : Show A}} -> A -> IO Unit
 print x = putStrLn (show x)
