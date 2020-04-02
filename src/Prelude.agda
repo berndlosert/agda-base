@@ -394,6 +394,20 @@ record Monad (M : Set -> Set) : Set where
 open Monad {{...}} public
 
 --------------------------------------------------------------------------------
+-- Propositional equality
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.Equality public
+  using (refl)
+  renaming (_≡_ to _===_)
+
+open import Agda.Builtin.TrustMe public
+  renaming (primTrustMe to trustMe)
+
+Assert : Bool -> Set
+Assert = true ===_
+
+--------------------------------------------------------------------------------
 -- Any and All
 --------------------------------------------------------------------------------
 
@@ -761,6 +775,9 @@ maybe b f (just a) = f a
 fromMaybe : A -> Maybe A -> A
 fromMaybe = flip maybe identity
 
+fromJust : (m : Maybe A) {_ : Assert (isJust m)} -> A
+fromJust (just a) = a
+
 maybeToLeft : B -> Maybe A -> A + B
 maybeToLeft b = maybe (right b) left
 
@@ -921,21 +938,6 @@ instance
 
   monadIdentity : Monad Identity
   monadIdentity ._>>=_ (identity: a) k = k a
-
---------------------------------------------------------------------------------
--- Propositional equality
---------------------------------------------------------------------------------
-
-open import Agda.Builtin.Equality public
-  using (refl)
-  renaming (_≡_ to _===_)
-
-Assert : Bool -> Set
-Assert = true ===_
-
-coerce : {eq : A === B} -> A -> B
-coerce {eq = eq} with eq
-... | refl = identity
 
 --------------------------------------------------------------------------------
 -- Show

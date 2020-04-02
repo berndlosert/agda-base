@@ -9,6 +9,19 @@ private
     A B : Set
     F M : Set -> Set
 
+--------------------------------------------------------------------------------
+-- Nonempty
+--------------------------------------------------------------------------------
+
+infixr 5 _:|_
+
+data Nonempty (T : Set -> Set) (A : Set) : Set where
+  _:|_ : A -> T A -> Nonempty T A
+
+--------------------------------------------------------------------------------
+-- Foldable
+--------------------------------------------------------------------------------
+
 record Foldable (T : Set -> Set) : Set where
   field
     foldMap : {{_ : Monoid B}} -> (A -> B) -> T A -> B
@@ -17,25 +30,28 @@ record Foldable (T : Set -> Set) : Set where
   fold = foldMap identity
 
   foldr : (A -> B -> B) -> B -> T A -> B
-  foldr f b s = appEndo (foldMap (endo: <<< f) s) b
+  foldr f b as = appEndo (foldMap (endo: <<< f) as) b
+
+  foldr1 : (A -> A -> A) -> Nonempty T A -> A
+  foldr1 f (a :| as) = foldr f a as
 
   foldl : (B -> A -> B) -> B -> T A -> B
-  foldl f b s =
-    (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) s) b
+  foldl f b as =
+    (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) as) b
+
+  foldl1 : (A -> A -> A) -> Nonempty T A -> A
+  foldl1 f (a :| as) = foldl f a as
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> T A -> M B
-  foldrM f b s = let g k a b' = f a b' >>= k in
-    foldl g return s b
+  foldrM f b as = let g k a b' = f a b' >>= k in
+    foldl g return as b
 
   foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> T A -> M B
-  foldlM f b s = let g a k b' = f b' a >>= k in
-    foldr g return s b
+  foldlM f b as = let g a k b' = f b' a >>= k in
+    foldr g return as b
 
   null : T A -> Bool
   null = untag <<< foldlM (\ _ _ -> left false) true
-
-  nonempty : T A -> Bool
-  nonempty = not <<< null
 
   length : T A -> Nat
   length = foldr (const suc) 0
@@ -84,6 +100,10 @@ record Foldable (T : Set -> Set) : Set where
     and = foldr _&&_ top
 
 open Foldable {{...}} public
+
+--------------------------------------------------------------------------------
+-- Instances
+--------------------------------------------------------------------------------
 
 instance
   foldableList : Foldable List
