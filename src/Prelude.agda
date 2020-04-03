@@ -412,29 +412,29 @@ open import Agda.Builtin.TrustMe public
 --------------------------------------------------------------------------------
 
 record All : Set where
-  constructor all:
-  field getAll : Bool
+  constructor toAll
+  field fromAll : Bool
 
 open All public
 
 record Any : Set where
-  constructor any:
-  field getAny : Bool
+  constructor toAny
+  field fromAny : Bool
 
 open Any public
 
 instance
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ (all: x) (all: y) = all: (x && y)
+  semigroupAll ._<>_ x y = toAll $ on _&&_ fromAll x y
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (any: x) (any: y) = any: (x || y)
+  semigroupAny ._<>_ x y = toAny $ on _||_ fromAny x y
 
   monoidAll : Monoid All
-  monoidAll .mempty = all: true
+  monoidAll .mempty = toAll true
 
   monoidAny : Monoid Any
-  monoidAny .mempty = any: false
+  monoidAny .mempty = toAny false
 
 --------------------------------------------------------------------------------
 -- Nat
@@ -920,12 +920,6 @@ instance
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
   ordIdentity ._<_ = on _<_ fromIdentity
 
-  semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ x y = toIdentity (on _<>_ fromIdentity x y)
-
-  monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
-  monoidIdentity .mempty = toIdentity mempty
-
   functorIdentity : Functor Identity
   functorIdentity .map f = toIdentity <<< f <<< fromIdentity
 
@@ -935,6 +929,12 @@ instance
 
   monadIdentity : Monad Identity
   monadIdentity ._>>=_ a k = k (fromIdentity a)
+
+  semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
+  semigroupIdentity ._<>_ x y = toIdentity (on _<>_ fromIdentity x y)
+
+  monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
+  monoidIdentity .mempty = toIdentity mempty
 
 --------------------------------------------------------------------------------
 -- Show
