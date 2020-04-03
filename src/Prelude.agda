@@ -172,15 +172,15 @@ open Monoid {{...}} public
 
 -- For additive semigroups.
 record Sum (A : Set) : Set where
-  constructor sum:
-  field getSum : A
+  constructor toSum
+  field fromSum : A
 
 open Sum public
 
 -- For multiplicative semigroups.
 record Product (A : Set) : Set where
-  constructor product:
-  field getProduct : A
+  constructor toProduct
+  field fromProduct : A
 
 open Product public
 
@@ -488,16 +488,16 @@ instance
     }
 
   semigroupSum : Semigroup (Sum Nat)
-  semigroupSum ._<>_ (sum: x) (sum: y) = sum: (x + y)
+  semigroupSum ._<>_ x y = toSum (fromSum x + fromSum y)
 
   semigroupProduct : Semigroup (Product Nat)
-  semigroupProduct ._<>_ (product: x) (product: y) = product: (x * y)
+  semigroupProduct ._<>_ x y = toProduct (fromProduct x * fromProduct y)
 
   monoidSum : Monoid (Sum Nat)
-  monoidSum .mempty = sum: 0
+  monoidSum .mempty = toSum 0
 
   monoidProduct : Monoid (Product Nat)
-  monoidProduct .mempty = product: 1
+  monoidProduct .mempty = toProduct 1
 
 --------------------------------------------------------------------------------
 -- Int
@@ -888,8 +888,8 @@ Function : Set -> Set -> Set
 Function A B = A -> B
 
 record Endo A : Set where
-  constructor endo:
-  field appEndo : A -> A
+  constructor toEndo
+  field fromEndo : A -> A
 
 open Endo public
 
@@ -901,10 +901,10 @@ instance
   monoidFunction .mempty = const mempty
 
   semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
+  semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)
 
   monoidEndo : Monoid (Endo A)
-  monoidEndo .mempty = endo: identity
+  monoidEndo .mempty = toEndo identity
 
 --------------------------------------------------------------------------------
 -- Identity
