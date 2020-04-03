@@ -6,11 +6,13 @@ open import Prelude
 
 open import Data.Foldable public
 
+private variable A : Set
+
 record Sequence (S A : Set) : Set where
   field
     nil : S
     cons : A -> S -> S
-    {{super}} : Foldable S A
+    {{super}} : Fold S A
 
   singleton : A -> S
   singleton a = cons a nil
@@ -112,10 +114,6 @@ record Sequence (S A : Set) : Set where
 open Sequence {{...}} public
 
 instance
-  sequenceList : forall {A} -> Sequence (List A) A
+  sequenceList : Sequence (List A) A
   sequenceList .nil = []
   sequenceList .cons = _::_
-
-  sequenceString : Sequence String Char
-  sequenceString .nil = ""
-  sequenceString .cons c s = pack (c :: unpack s)
