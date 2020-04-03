@@ -27,5 +27,5 @@ instance
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst = \ where
-    .pure x -> const: empty
+    .pure x -> const: mempty
     ._<*>_ (const: x) (const: y) -> const: (x <> y)

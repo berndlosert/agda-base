@@ -88,8 +88,8 @@ toListOf l = foldrOf l _::_ []
 lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
 lengthOf l = foldlOf l (\ a _ -> a + 1) 0
 
-preview : Getting (First A) S A -> S -> Maybe A
-preview l = getFirst <<< foldMapOf l (first: <<< just)
+--preview : Getting (First A) S A -> S -> Maybe A
+--preview l = getFirst <<< foldMapOf l (first: <<< just)
 
 traverseOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
@@ -142,7 +142,7 @@ record Each (S T A B : Set) : Set where
 
 open Each {{...}} public
 
-instance
+--:instance
   --eachList : Each (List A) (List B) A B
   --eachList .each = traverse
 
@@ -150,8 +150,8 @@ instance
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-fstL : Lens (A * C) (B * C) A B
-fstL k (x , y) = (_, y) <$> k x
+_fst : Lens (A * C) (B * C) A B
+_fst k (x , y) = (_, y) <$> k x
 
 sndL : Lens (A * B) (A * C) B C
 sndL k (x , y) = (x ,_) <$> k y
