@@ -14,21 +14,17 @@ private
     F : Set -> Set
 
 --------------------------------------------------------------------------------
--- Type classes used for characterizing optics
+-- Additional Type classes used for characterizing optics
 --------------------------------------------------------------------------------
 
--- Characterizes Setter
-record Settable (F : Set -> Set) : Set where
-  field
-    overlap {{applicativeSettable}} : Applicative F
-    -- This should be the inverse of pure.
-    unpure : F A -> A
+record Copointed (F : Set -> Set) : Set where
+  field extract : F A -> A
 
-open Settable {{...}}
+open Copointed {{...}}
 
 instance
-  settableIdentity : Settable Identity
-  settableIdentity .unpure (toIdentity x) = x
+  copointedIdentity : Copointed Identity
+  copointedIdentity .extract = fromIdentity
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -39,19 +35,19 @@ Traversal S T A B = forall {F} {{_ : Applicative F}}
   -> (A -> F B) -> S -> F T
 
 Setter : (S T A B : Set) -> Set
-Setter S T A B = forall {F} {{_ : Settable F}}
+Setter S T A B = forall {F} {{_ : Applicative F}} {{_ : Copointed F}}
   -> (A -> F B) -> S -> F T
 
 Fold : (S T A B : Set) -> Set
 Fold S T A B = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
-Getter : (S T A B : Set) -> Set
-Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
-  -> (A -> F B) -> S -> F T
-
 Lens : (S T A B : Set) -> Set
 Lens S T A B = forall {F} {{_ : Functor F}}
+  -> (A -> F B) -> S -> F T
+
+Getter : (S T A B : Set) -> Set
+Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
