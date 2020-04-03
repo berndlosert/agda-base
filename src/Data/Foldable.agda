@@ -21,11 +21,11 @@ record Fold (S A : Set) : Set where
   fold = foldMap identity
 
   foldr : (A -> B -> B) -> B -> S -> B
-  foldr f b as = appEndo (foldMap (endo: <<< f) as) b
+  foldr f b as = fromEndo (foldMap (toEndo <<< f) as) b
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
-    (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) as) b
+    (fromEndo <<< fromDual) (foldMap (toDual <<< toEndo <<< flip f) as) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
