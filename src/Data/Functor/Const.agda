@@ -19,6 +19,12 @@ instance
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
   ordConst ._<_ = on _<_ fromConst
 
+  semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
+  semigroupConst ._<>_ x y = toConst $ fromConst x <> fromConst y
+
+  monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
+  monoidConst .mempty = toConst mempty
+
   functorConst : Functor (Const A)
   functorConst .map f = toConst <<< fromConst
 
@@ -28,10 +34,6 @@ instance
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst = \ where
     .pure x -> toConst mempty
-    ._<*>_ x y -> toConst (fromConst x <> fromConst y)
+    ._<*>_ f x -> toConst $ fromConst f <> fromConst x
 
-  semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
-  semigroupConst ._<>_ x y = toConst (fromConst x <> fromConst y)
 
-  monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
-  monoidConst .mempty = toConst mempty
