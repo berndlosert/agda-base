@@ -305,7 +305,7 @@ instance
 
 record Functor (F : Set -> Set) : Set where
   field
-    map : (A -> B) -> (F A -> F B)
+    map : (A -> B) -> F A -> F B
 
   infixl 4 _<$>_
   _<$>_ : (A -> B) -> F A -> F B
@@ -346,6 +346,9 @@ record Applicative (F : Set -> Set) : Set where
   infixl 4 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
+
+  map2 : (A -> B -> C) -> F A -> F B -> F C
+  map2 f x y = (| f x y |)
 
 open Applicative {{...}} public
 
@@ -914,12 +917,6 @@ record Identity (A : Set) : Set where
 open Identity public
 
 instance
-  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ = on _==_ fromIdentity
-
-  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ = on _<_ fromIdentity
-
   functorIdentity : Functor Identity
   functorIdentity .map f = toIdentity <<< f <<< fromIdentity
 
@@ -930,8 +927,14 @@ instance
   monadIdentity : Monad Identity
   monadIdentity ._>>=_ a k = k (fromIdentity a)
 
+  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
+  eqIdentity ._==_ x y = fromIdentity (| _==_ x y |)
+
+  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
+  ordIdentity ._<_ x y = fromIdentity (| _<_ x y |)
+
   semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ x y = toIdentity (on _<>_ fromIdentity x y)
+  semigroupIdentity ._<>_ x y = (| _<>_ x y |)
 
   monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
   monoidIdentity .mempty = toIdentity mempty
