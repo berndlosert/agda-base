@@ -34,28 +34,25 @@ instance
 -- Optics ala Van Laarhoven
 --------------------------------------------------------------------------------
 
-Lenslike : (F : Set -> Set) (S T A B : Set) -> Set
-Lenslike F S T A B = (A -> F B) -> S -> F T
-
 Traversal : (S T A B : Set) -> Set
 Traversal S T A B = forall {F} {{_ : Applicative F}}
-  -> Lenslike F S T A B
+  -> (A -> F B) -> S -> F T
 
 Setter : (S T A B : Set) -> Set
 Setter S T A B = forall {F} {{_ : Settable F}}
-  -> Lenslike F S T A B
+  -> (A -> F B) -> S -> F T
 
 Fold : (S T A B : Set) -> Set
 Fold S T A B = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
-  -> Lenslike F S T A B
+  -> (A -> F B) -> S -> F T
 
 Getter : (S T A B : Set) -> Set
 Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
-  -> Lenslike F S T A B
+  -> (A -> F B) -> S -> F T
 
 Lens : (S T A B : Set) -> Set
 Lens S T A B = forall {F} {{_ : Functor F}}
-  -> Lenslike F S T A B
+  -> (A -> F B) -> S -> F T
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
 Simple Optic S A = Optic S S A A
@@ -116,16 +113,6 @@ sets : ((A -> B) -> S -> T) -> ASetter S T A B
 sets f k = f (k >>> fromIdentity) >>> toIdentity
 
 --------------------------------------------------------------------------------
--- Lenslike operations
---------------------------------------------------------------------------------
-
-traverseOf : Lenslike F S T A B -> (A -> F B) -> S -> F T
-traverseOf = identity
-
-forOf : Lenslike F S T A B -> S -> (A -> F B) -> F T
-forOf = flip
-
---------------------------------------------------------------------------------
 -- Lens operations
 --------------------------------------------------------------------------------
 
@@ -151,7 +138,7 @@ open Each {{...}} public
 --------------------------------------------------------------------------------
 
 #fst : Lens (A * C) (B * C) A B
-#fst k (x , y) = (_, y) <$> k x
+#fst k (a , c) = (_, c) <$> k a
 
 #snd : Lens (A * B) (A * C) B C
 #snd k (x , y) = (x ,_) <$> k y
