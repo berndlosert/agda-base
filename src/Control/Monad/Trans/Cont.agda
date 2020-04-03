@@ -26,7 +26,7 @@ open MonadCont {{...}} public
 --------------------------------------------------------------------------------
 
 record ContT (R : Set) (M : Set -> Set) (A : Set) : Set where
-  constructor contT
+  constructor contT:
   field
     runContT : (A -> M R) -> M R
 
@@ -36,41 +36,41 @@ evalContT : {{_ : Monad M}} -> ContT R M R -> M R
 evalContT m = runContT m return
 
 mapContT : (M R -> M R) -> ContT R M ~> ContT R M
-mapContT f m = contT $ f <<< runContT m
+mapContT f m = contT: $ f <<< runContT m
 
 withContT : ((B -> M R) -> (A -> M R)) -> ContT R M A -> ContT R M B
-withContT f m = contT $ runContT m <<< f
+withContT f m = contT: $ runContT m <<< f
 
 instance
   functorContT : Functor (ContT R M)
-  functorContT .map f m = contT \ c -> runContT m (c <<< f)
+  functorContT .map f m = contT: \ c -> runContT m (c <<< f)
 
   applicativeContT : Applicative (ContT R M)
-  applicativeContT .pure x = contT (_$ x)
+  applicativeContT .pure x = contT: (_$ x)
   applicativeContT ._<*>_ f v =
-    contT \ c -> runContT f $ \ g -> runContT v (c <<< g)
+    contT: \ c -> runContT f $ \ g -> runContT v (c <<< g)
 
   monadContT : Monad (ContT R M)
-  monadContT ._>>=_ m k = contT $ \ c -> runContT m (\ x -> runContT (k x) c)
+  monadContT ._>>=_ m k = contT: $ \ c -> runContT m (\ x -> runContT (k x) c)
 
   monadTransContT : MonadTrans (ContT R)
-  monadTransContT .lift m = contT (m >>=_)
+  monadTransContT .lift m = contT: (m >>=_)
   monadTransContT .transform = monadContT
 
   monadContContT : MonadCont (ContT R M)
   monadContContT .callCC f =
-    contT $ \ c -> runContT (f (\ x -> contT $ \ _ -> c x)) c
+    contT: $ \ c -> runContT (f (\ x -> contT: $ \ _ -> c x)) c
 
 resetT : {{_ : Monad M}} -> ContT R M R -> ContT R' M R
 resetT = lift <<< evalContT
 
 shiftT : {{_ : Monad M}} -> ((A -> M R) -> ContT R M R) -> ContT R M A
-shiftT f = contT (evalContT <<< f)
+shiftT f = contT: (evalContT <<< f)
 
 liftLocal : {{_ : Monad M}}
   -> M R' -> ((R' -> R') -> M R -> M R)
   -> (R' -> R') -> ContT R M ~> ContT R M
-liftLocal ask local f m = contT $ \ c -> do
+liftLocal ask local f m = contT: $ \ c -> do
     r <- ask
     local f (runContT m (local (const r) <<< c))
 
@@ -82,22 +82,22 @@ Cont : Set -> Set -> Set
 Cont R A = ContT R Identity A
 
 cont : ((A -> R) -> R) -> Cont R A
-cont f = contT (\ c -> identity: (f (runIdentity <<< c)))
+cont f = contT: (\ c -> toIdentity (f (fromIdentity <<< c)))
 
 runCont : Cont R A -> (A -> R) -> R
-runCont m k = runIdentity (runContT m (identity: <<< k))
+runCont m k = fromIdentity (runContT m (toIdentity <<< k))
 
 evalCont : Cont R R -> R
-evalCont m = runIdentity (evalContT m)
+evalCont m = fromIdentity (evalContT m)
 
 mapCont : (R -> R) -> Cont R A -> Cont R A
-mapCont f = mapContT (identity: <<< f <<< runIdentity)
+mapCont f = mapContT (map f)
 
 withCont : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
-withCont f = withContT ((identity: <<<_) <<< f <<< (runIdentity <<<_))
+withCont f = withContT ((toIdentity <<<_) <<< f <<< (fromIdentity <<<_))
 
 reset : Cont R R -> Cont R' R
 reset = resetT
 
 shift : ((A -> R) -> Cont R R) -> Cont R A
-shift f = shiftT (f <<< (runIdentity <<<_))
+shift f = shiftT (f <<< (fromIdentity <<<_))

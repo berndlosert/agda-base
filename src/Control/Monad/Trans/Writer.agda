@@ -63,7 +63,7 @@ instance
 
   applicativeWriterT : {{_ : Monoid W}} {{_ : Applicative M}}
     -> Applicative (WriterT W M)
-  applicativeWriterT .pure a = writerT $ pure (a , empty)
+  applicativeWriterT .pure a = writerT $ pure (a , mempty)
   applicativeWriterT ._<*>_ (writerT f) (writerT v) = writerT $ (| k f v |)
     where
       k : _
@@ -78,12 +78,12 @@ instance
   monadTransWriterT : {{_ : Monoid W}} -> MonadTrans (WriterT W)
   monadTransWriterT .lift m = writerT $ do
     a <- m
-    return (a , empty)
+    return (a , mempty)
   monadTransWriterT .transform = monadWriterT
 
   monadWriterWriterT : {{_ : Monoid W}} {{_ : Monad M}}
     -> MonadWriter W (WriterT W M)
-  monadWriterWriterT .tell w = writerT $ return (tt , w)
+  monadWriterWriterT .tell w = writerT $ return (unit , w)
   monadWriterWriterT .listen m = writerT $ do
     (a , w) <- runWriterT m
     return ((a , w) , w)
@@ -99,10 +99,10 @@ Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
 runWriter : Writer W A -> A * W
-runWriter = runIdentity <<< runWriterT
+runWriter = fromIdentity <<< runWriterT
 
 execWriter : Writer W A -> W
 execWriter m = snd (runWriter m)
 
 mapWriter : (A * W -> B * W') -> Writer W A -> Writer W' B
-mapWriter f = mapWriterT (value <<< f <<< runIdentity)
+mapWriter = mapWriterT <<< map

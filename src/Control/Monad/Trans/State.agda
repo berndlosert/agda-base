@@ -28,7 +28,7 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
     return a
 
   modify : (S -> S) -> M Unit
-  modify f = state $ (\ s -> (tt , f s))
+  modify f = state $ (\ s -> (unit , f s))
 
   gets : (S -> A) -> M A
   gets f = do
@@ -95,7 +95,7 @@ State : Set -> Set -> Set
 State S = StateT S Identity
 
 runState : State S A -> S -> A * S
-runState m = runIdentity <<< runStateT m
+runState m = fromIdentity <<< runStateT m
 
 evalState : State S A -> S -> A
 evalState m s = fst (runState m s)
@@ -104,7 +104,7 @@ execState : State S A -> S -> S
 execState m s = snd (runState m s)
 
 mapState : (A * S -> B * S) -> State S A -> State S B
-mapState f = mapStateT (value <<< f <<< runIdentity)
+mapState = mapStateT <<< map
 
 withState : (S -> S) -> State S ~> State S
 withState f = withStateT f

@@ -8,24 +8,24 @@ open import Prelude
 private variable A B : Set
 
 record Const (A B : Set) : Set where
-  constructor const:
-  field getConst : A
+  constructor toConst
+  field fromConst : A
 open Const public
 
 instance
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ (const: x) (const: y) = x == y
+  eqConst ._==_ = on _==_ fromConst
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ (const: x) (const: y) = x < y
+  ordConst ._<_ = on _<_ fromConst
 
   functorConst : Functor (Const A)
-  functorConst .map f (const: a) = const: a
+  functorConst .map f = toConst <<< fromConst
 
   contravariantConst : Contravariant (Const A)
-  contravariantConst .contramap f (const: a) = const: a
+  contravariantConst .contramap f = toConst <<< fromConst
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst = \ where
-    .pure x -> const: mempty
-    ._<*>_ (const: x) (const: y) -> const: (x <> y)
+    .pure x -> toConst mempty
+    ._<*>_ x y -> toConst (fromConst x <> fromConst y)

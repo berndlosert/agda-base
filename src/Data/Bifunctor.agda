@@ -24,7 +24,7 @@ open Bifunctor {{...}} public
 
 instance
   bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g (const: x) = const: (f x)
+  bifunctorConst .bimap f g = toConst <<< f <<< fromConst
 
   bifunctorPair : Bifunctor _*_
   bifunctorPair .bimap f g = cross f g

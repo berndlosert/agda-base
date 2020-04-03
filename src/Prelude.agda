@@ -186,28 +186,28 @@ open Product public
 
 -- Dual semigroups.
 record Dual (A : Set) : Set where
-  constructor dual:
-  field getDual : A
+  constructor toDual
+  field fromDual : A
 
 open Dual public
 
 -- Semigroup were x <> y = x.
 record First (A : Set) : Set where
-  constructor first:
-  field getFirst : A
+  constructor toFirst
+  field fromFirst : A
 
 open First public
 
 -- Semigroup were x <> y = y.
 record Last (A : Set) : Set where
-  constructor last:
-  field getLast : A
+  constructor toLast
+  field fromLast : A
 
 open Last public
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (dual: x) (dual: y) = dual: (y <> x)
+  semigroupDual ._<>_ (toDual x) (toDual y) = toDual (y <> x)
 
   semigroupFirst : Semigroup (First A)
   semigroupFirst ._<>_ x y = x
@@ -222,10 +222,10 @@ instance
   semigroupUnit ._<>_ unit unit = unit
 
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .mempty = dual: mempty
+  monoidDual .mempty = toDual mempty
 
   monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
-  monoidFirst .mempty = first: mempty
+  monoidFirst .mempty = toFirst mempty
 
   monoidUnit : Monoid Unit
   monoidUnit .mempty = unit
