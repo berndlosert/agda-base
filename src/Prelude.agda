@@ -404,9 +404,6 @@ open import Agda.Builtin.Equality public
 open import Agda.Builtin.TrustMe public
   renaming (primTrustMe to trustMe)
 
-Assert : Bool -> Set
-Assert = true ===_
-
 --------------------------------------------------------------------------------
 -- Any and All
 --------------------------------------------------------------------------------
@@ -774,9 +771,6 @@ maybe b f (just a) = f a
 
 fromMaybe : A -> Maybe A -> A
 fromMaybe = flip maybe identity
-
-fromJust : (m : Maybe A) {_ : Assert (isJust m)} -> A
-fromJust (just a) = a
 
 maybeToLeft : B -> Maybe A -> A + B
 maybeToLeft b = maybe (right b) left
