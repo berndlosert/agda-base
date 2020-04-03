@@ -29,3 +29,9 @@ instance
   applicativeConst = \ where
     .pure x -> toConst mempty
     ._<*>_ x y -> toConst (fromConst x <> fromConst y)
+
+  semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
+  semigroupConst ._<>_ x y = toConst (fromConst x <> fromConst y)
+
+  monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
+  monoidConst .mempty = toConst mempty
