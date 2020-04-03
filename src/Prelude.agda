@@ -33,6 +33,9 @@ const a _ = a
 flip : (A -> B -> C) -> B -> A -> C
 flip f b a = f a b
 
+on : (B -> B -> C) -> (A -> B) -> A -> A -> C
+on f g x y = f (g x) (g y)
+
 infixr 0 _$_
 _$_ : (A -> B) -> A -> B
 _$_ = identity
@@ -905,33 +908,33 @@ instance
 --------------------------------------------------------------------------------
 
 record Identity (A : Set) : Set where
-  constructor identity:
-  field runIdentity : A
+  constructor toIdentity
+  field fromIdentity : A
 
 open Identity public
 
 instance
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ (identity: x) (identity: y) = x == y
+  eqIdentity ._==_ = on _==_ fromIdentity
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ (identity: x) (identity: y) = x < y
+  ordIdentity ._<_ = on _<_ fromIdentity
 
   semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ (identity: x) (identity: y) = identity: (x <> y)
+  semigroupIdentity ._<>_ x y = toIdentity (on _<>_ fromIdentity x y)
 
   monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
-  monoidIdentity .mempty = identity: mempty
+  monoidIdentity .mempty = toIdentity mempty
 
   functorIdentity : Functor Identity
-  functorIdentity .map f (identity: a) = identity: (f a)
+  functorIdentity .map f = toIdentity <<< f <<< fromIdentity
 
   applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = identity:
-  applicativeIdentity ._<*>_ (identity: f) x = map f x
+  applicativeIdentity .pure = toIdentity
+  applicativeIdentity ._<*>_ = map <<< fromIdentity
 
   monadIdentity : Monad Identity
-  monadIdentity ._>>=_ (identity: a) k = k a
+  monadIdentity ._>>=_ a k = k (fromIdentity a)
 
 --------------------------------------------------------------------------------
 -- Show
