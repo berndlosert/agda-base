@@ -40,49 +40,49 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
 --------------------------------------------------------------------------------
 
 record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
-  constructor stateT
+  constructor toStateT
   field
-    runStateT : S -> M (A * S)
+    fromStateT : S -> M (A * S)
 
 open StateT public
 
 evalStateT : {{_ : Monad M}} -> StateT S M A -> S -> M A
 evalStateT m s = do
-  (a , _) <- runStateT m s
+  (a , _) <- fromStateT m s
   return a
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
 execStateT m s = do
-  (_ , s') <- runStateT m s
+  (_ , s') <- fromStateT m s
   return s'
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
-mapStateT f m = stateT $ f <<< runStateT m
+mapStateT f m = toStateT $ f <<< fromStateT m
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A
-withStateT f m = stateT $ runStateT m <<< f
+withStateT f m = toStateT $ fromStateT m <<< f
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = stateT $ \ s ->
-    map (\ where (a , s') -> (f a , s')) $ runStateT m s
+  functorStateT .map f m = toStateT $ \ s ->
+    map (\ where (a , s') -> (f a , s')) $ fromStateT m s
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = \ where
-    .pure a -> stateT $ \ s -> return (a , s)
-    ._<*>_ (stateT mf) (stateT mx) -> stateT $ \ s -> do
+    .pure a -> toStateT $ \ s -> return (a , s)
+    ._<*>_ (toStateT mf) (toStateT mx) -> toStateT $ \ s -> do
       (f , s') <- mf s
       (x , s'') <- mx s'
       return (f x , s'')
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = stateT $ \ s -> do
-    (a , s') <- runStateT m s
-    runStateT (k a) s'
+  monadStateT ._>>=_ m k = toStateT $ \ s -> do
+    (a , s') <- fromStateT m s
+    fromStateT (k a) s'
 
   monadTransStateT : MonadTrans (StateT S)
   monadTransStateT = \ where
-    .lift m -> stateT \ s -> do
+    .lift m -> toStateT \ s -> do
       a <- m
       return (a , s)
     .transform -> monadStateT
@@ -94,14 +94,17 @@ instance
 State : Set -> Set -> Set
 State S = StateT S Identity
 
-runState : State S A -> S -> A * S
-runState m = fromIdentity <<< runStateT m
+toState : (S -> A * S) -> State S A
+toState t = toStateT (t >>> toIdentity)
+
+fromState : State S A -> S -> A * S
+fromState m = fromIdentity <<< fromStateT m
 
 evalState : State S A -> S -> A
-evalState m s = fst (runState m s)
+evalState m s = fst (fromState m s)
 
 execState : State S A -> S -> S
-execState m s = snd (runState m s)
+execState m s = snd (fromState m s)
 
 mapState : (A * S -> B * S) -> State S A -> State S B
 mapState = mapStateT <<< map
