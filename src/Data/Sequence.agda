@@ -113,7 +113,14 @@ record Sequence (S A : Set) : Set where
 
 open Sequence {{...}} public
 
+Sequential : (Set -> Set) -> Set
+Sequential T = forall {A} -> Sequence (T A) A
+
 instance
-  sequenceList : Sequence (List A) A
-  sequenceList .nil = []
-  sequenceList .cons = _::_
+  sequentialList : Sequential List
+  sequentialList .nil = []
+  sequentialList .cons = _::_
+
+  sequenceStringChar : Sequence String Char
+  sequenceStringChar .nil = ""
+  sequenceStringChar .cons c s = pack (c :: unpack s)
