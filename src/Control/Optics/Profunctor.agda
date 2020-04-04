@@ -173,6 +173,12 @@ instance
   profunctorForget : Profunctor (Forget R)
   profunctorForget .dimap f g h = toForget (fromForget h <<< f)
 
+  strongForget : Strong (Forget R)
+  strongForget .strong z = toForget (fromForget z <<< snd)
+
+  choiceForget : {{_ : Monoid R}} -> Choice (Forget R)
+  choiceForget .choice z = toForget $ either mempty (fromForget z)
+
   profunctorAdapter : Profunctor (Adapter A B)
   profunctorAdapter .dimap f g adapter = dimap f g <<< adapter
 
