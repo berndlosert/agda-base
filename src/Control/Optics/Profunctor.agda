@@ -246,18 +246,18 @@ instance
 --------------------------------------------------------------------------------
 
 from : Adapter A B S T -> S -> A
-to : Adapter A B S T -> B -> T
 from a = Exchange.from $ a $ toExchange identity identity
+to : Adapter A B S T -> B -> T
 to a = Exchange.to $ a $ toExchange identity identity
 
 get : Lens A B S T -> S -> A
-put : Lens A B S T -> S -> B -> T
 get l = Shop.get $ l $ toShop identity (flip const)
+put : Lens A B S T -> S -> B -> T
 put l = Shop.put $ l $ toShop identity (flip const)
 
 build : Prism A B S T -> B -> T
-match : Prism A B S T -> S -> T + A
 build p = Market.build $ p $ toMarket identity right
+match : Prism A B S T -> S -> T + A
 match p = Market.match $ p $ toMarket identity right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T
