@@ -270,7 +270,7 @@ traverseOf {A} {B} t = Bazaar.traverseOf (t b)
     b : Bazaar Function A B A B
     b = toBazaar identity
 
-view : Simple Getter A S -> S -> A
+view : Getter A B S T -> S -> A
 view g = fromForget $ g (toForget identity)
 
 review : Review B T -> B -> T
