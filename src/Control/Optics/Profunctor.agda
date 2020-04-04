@@ -181,18 +181,18 @@ instance
   choiceForget .choice z = toForget $ either mempty (fromForget z)
 
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
-  wanderForget .wander f r =
-    toForget $ fromConst <<< f (toConst <<< fromForget r)
+  wanderForget .wander t f =
+    toForget $ fromConst <<< t (toConst <<< fromForget f)
 
   profunctorAdapter : Profunctor (Adapter A B)
-  profunctorAdapter .dimap f g adapter = dimap f g <<< adapter
+  profunctorAdapter .dimap f g a = dimap f g <<< a
 
   profunctorExchange : Profunctor (Exchange A B)
   profunctorExchange .dimap f g (toExchange from to) =
     toExchange (from <<< f) (g <<< to)
 
   profunctorLens : Profunctor (Lens A B)
-  profunctorLens .dimap f g lens = dimap f g <<< lens
+  profunctorLens .dimap f g l = dimap f g <<< l
 
   profunctorShop : Profunctor (Shop A B)
   profunctorShop .dimap f g (toShop get put) =
@@ -206,7 +206,7 @@ instance
       put' (u , s) y = (u , put s y)
 
   profunctorPrism : Profunctor (Prism A B)
-  profunctorPrism .dimap f g prism = dimap f g <<< prism
+  profunctorPrism .dimap f g p = dimap f g <<< p
 
   profunctorMarket : Profunctor (Market A B)
   profunctorMarket .dimap f g (toMarket build match) =
@@ -223,18 +223,18 @@ instance
       ... | right x = right x
 
   profunctorGrate : Profunctor (Grate A B)
-  profunctorGrate .dimap f g grate = dimap f g <<< grate
+  profunctorGrate .dimap f g r = dimap f g <<< r
 
   profunctorGrating : Profunctor (Grating A B)
-  profunctorGrating .dimap f g (toGrating degrating) =
-    toGrating \ d -> g (degrating \ k -> d (k <<< f))
+  profunctorGrating .dimap f g (toGrating r) =
+    toGrating \ d -> g (r \ k -> d (k <<< f))
 
   closedGrating : Closed (Grating A B)
   closedGrating .closed (toGrating degrating) =
     toGrating \ f x -> degrating \ k -> f \ g -> k (g x)
 
   profunctorTraversal : Profunctor (Traversal A B)
-  profunctorTraversal .dimap f g traverse = dimap f g <<< traverse
+  profunctorTraversal .dimap f g t = dimap f g <<< t
 
   profunctorBazaar : Profunctor (Bazaar P A B)
   profunctorBazaar .dimap f g (toBazaar b) = toBazaar \ h s -> g <$> b h (f s)
