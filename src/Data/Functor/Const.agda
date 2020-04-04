@@ -10,6 +10,7 @@ private variable A B : Set
 record Const (A B : Set) : Set where
   constructor toConst
   field fromConst : A
+
 open Const public
 
 instance
