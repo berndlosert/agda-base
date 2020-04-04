@@ -261,11 +261,11 @@ build p = Market.build $ p $ toMarket identity right
 match p = Market.match $ p $ toMarket identity right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T
-degrating grate = Grating.degrating $ grate $ toGrating \ f -> f identity
+degrating g = Grating.degrating $ g $ toGrating \ f -> f identity
 
 traverseOf : Traversal A B S T
   -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
-traverseOf {A} {B} t = Bazaar.traverseOf $ t $ b
+traverseOf {A} {B} t = Bazaar.traverseOf (t b)
   where
     b : Bazaar Function A B A B
     b = toBazaar identity
