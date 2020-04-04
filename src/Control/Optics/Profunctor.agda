@@ -52,16 +52,22 @@ record Wander (P : Set -> Set -> Set) : Set where
 open Wander {{...}}
 
 --------------------------------------------------------------------------------
--- Profunctor for characterizing optics
+-- Profunctors for characterizing optics
 --------------------------------------------------------------------------------
 
 -- Characterizes Fold
 record Forget (R A B : Set) : Set where
   constructor toForget
-  field
-    fromForget : A -> R
+  field fromForget : A -> R
 
 open Forget
+
+-- Characaterizes Review
+record Tagged (A B : Set) : Set where
+  constructor toTagged
+  field fromTagged : B
+
+open Tagged
 
 --------------------------------------------------------------------------------
 -- Profunctor optics
@@ -94,11 +100,11 @@ Fold R A B S T = Forget R A B -> Forget R S T
 Getter : Optic
 Getter A B S T = forall {R} -> Fold R A B S T
 
-Review : (B T : Set) -> Set
-Review B T = B -> T
+Review : Optic
+Review A B S T = Tagged A B -> Tagged S T
 
 Setter : Optic
-Setter A B S T = (A -> B) -> S -> T
+Setter A B S T = Function A B -> Function S T
 
 --------------------------------------------------------------------------------
 -- Concrete optics
@@ -167,7 +173,7 @@ getter : (S -> A) -> Simple Getter A S
 getter g f = toForget (g >>> fromForget f)
 
 --------------------------------------------------------------------------------
--- Profunctor instances
+-- Instances
 --------------------------------------------------------------------------------
 
 instance
@@ -183,6 +189,15 @@ instance
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
   wanderForget .wander t f =
     toForget $ fromConst <<< t (toConst <<< fromForget f)
+
+  profunctorTagged : Profunctor Tagged
+  profunctorTagged .dimap _ g x = toTagged (g $ fromTagged x)
+
+  choiceTagged : Choice Tagged
+  choiceTagged .choice x = toTagged (right $ fromTagged x)
+
+  closedTagged : Closed Tagged
+  closedTagged .closed x = toTagged (const $ fromTagged x)
 
   profunctorAdapter : Profunctor (Adapter A B)
   profunctorAdapter .dimap f g a = dimap f g <<< a
@@ -284,8 +299,8 @@ traverseOf {A} {B} t = Bazaar.traverseOf (t b)
 view : Getter A B S T -> S -> A
 view g = fromForget $ g (toForget identity)
 
-review : Review B T -> B -> T
-review = identity
+review : Review A B S T -> B -> T
+review r b = fromTagged $ r (toTagged b)
 
 over : Setter A B S T -> (A -> B) -> S -> T
 over = identity
