@@ -5,6 +5,7 @@ module Control.Optics.Profunctor where
 open import Prelude
 
 open import Data.Profunctor
+open import Data.Functor.Const
 
 private
   variable
@@ -178,6 +179,10 @@ instance
 
   choiceForget : {{_ : Monoid R}} -> Choice (Forget R)
   choiceForget .choice z = toForget $ either mempty (fromForget z)
+
+  wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
+  wanderForget .wander f r =
+    toForget $ fromConst <<< f (toConst <<< fromForget r)
 
   profunctorAdapter : Profunctor (Adapter A B)
   profunctorAdapter .dimap f g adapter = dimap f g <<< adapter
