@@ -87,11 +87,11 @@ Grate A B S T = forall {P} {{_ : Closed P}} -> P A B -> P S T
 Traversal : Optic
 Traversal A B S T = forall {P} {{_ : Wander P}} -> P A B -> P S T
 
-Fold : (R A S : Set) -> Set
-Fold R A S = (A -> R) -> S -> R
+Fold : Set -> Optic
+Fold R A B S T = Forget R A B -> Forget R S T
 
-Getter : (A S : Set) -> Set
-Getter A S = forall {R} -> Fold R A S
+Getter : Optic
+Getter A B S T = forall {R} -> Fold R A B S T
 
 Review : (B T : Set) -> Set
 Review B T = B -> T
@@ -162,8 +162,8 @@ traversal : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
   -> Traversal A B S T
 traversal traverse = wander traverse
 
-getter : (S -> A) -> Getter A S
-getter g = g >>>_
+getter : (S -> A) -> Simple Getter A S
+getter g f = toForget (g >>> fromForget f)
 
 --------------------------------------------------------------------------------
 -- Profunctor instances
@@ -247,41 +247,34 @@ instance
 
 from : Adapter A B S T -> S -> A
 to : Adapter A B S T -> B -> T
-from adapter = Exchange.from $ adapter $ toExchange identity identity
-to adapter = Exchange.to $ adapter $ toExchange identity identity
+from a = Exchange.from $ a $ toExchange identity identity
+to a = Exchange.to $ a $ toExchange identity identity
 
 get : Lens A B S T -> S -> A
 put : Lens A B S T -> S -> B -> T
-get lens = Shop.get $ lens $ toShop identity (flip const)
-put lens = Shop.put $ lens $ toShop identity (flip const)
+get l = Shop.get $ l $ toShop identity (flip const)
+put l = Shop.put $ l $ toShop identity (flip const)
 
 build : Prism A B S T -> B -> T
 match : Prism A B S T -> S -> T + A
-build prism = Market.build $ prism $ toMarket identity right
-match prism = Market.match $ prism $ toMarket identity right
+build p = Market.build $ p $ toMarket identity right
+match p = Market.match $ p $ toMarket identity right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T
 degrating grate = Grating.degrating $ grate $ toGrating \ f -> f identity
 
 traverseOf : Traversal A B S T
   -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
-traverseOf {A} {B} traversal = Bazaar.traverseOf $ traversal $ bazaar
+traverseOf {A} {B} t = Bazaar.traverseOf $ t $ b
   where
-    bazaar : Bazaar Function A B A B
-    bazaar = toBazaar identity
+    b : Bazaar Function A B A B
+    b = toBazaar identity
 
-view : Getter A S -> S -> A
-view getter = getter identity
+view : Simple Getter A S -> S -> A
+view g = fromForget $ g (toForget identity)
 
 review : Review B T -> B -> T
 review = identity
 
 over : Setter A B S T -> (A -> B) -> S -> T
 over = identity
-
---------------------------------------------------------------------------------
--- Operators
---------------------------------------------------------------------------------
-
-_^#_ : forall {A S} -> S -> Getter A S -> A
-_^#_ = flip view
