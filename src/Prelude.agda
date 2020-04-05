@@ -5,8 +5,7 @@ module Prelude where
 private
   variable
     A B C D : Set
-    F G : Set -> Set
-    M : Set -> Set
+    F G M : Set -> Set
 
 --------------------------------------------------------------------------------
 -- Void, Unit and Bool
@@ -158,7 +157,7 @@ open Semigroup {{...}} public
 
 record Monoid (A : Set) : Set where
   field
-    overlap {{semigroup}} : Semigroup A
+    overlap {{super}} : Semigroup A
     mempty : A
 
   when : Bool -> A -> A
@@ -236,8 +235,7 @@ instance
 
 record Eq (A : Set) : Set where
   infix 4 _==_
-  field
-    _==_ : A -> A -> Bool
+  field _==_ : A -> A -> Bool
 
   infix 4 _/=_
   _/=_ : A -> A -> Bool
