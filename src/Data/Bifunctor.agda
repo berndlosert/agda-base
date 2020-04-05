@@ -15,10 +15,10 @@ record Bifunctor (P : Set -> Set -> Set) : Set where
     bimap : (A -> B) -> (C -> D) -> P A C -> P B D
 
   first : (A -> B) -> P A C -> P B C
-  first f = bimap f identity
+  first f = bimap f id
 
   second : (B -> C) -> P A B -> P A C
-  second g = bimap identity g
+  second g = bimap id g
 
 open Bifunctor {{...}} public
 

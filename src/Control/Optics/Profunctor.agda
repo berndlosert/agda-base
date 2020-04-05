@@ -157,7 +157,7 @@ adapter : (S -> A) -> (B -> T) -> Adapter A B S T
 adapter from to = dimap from to
 
 lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
-lens get put = dimap (split identity get) (uncurry put) <<< strong
+lens get put = dimap (split id get) (uncurry put) <<< strong
 
 prism : (B -> T) -> (S -> T + A) -> Prism A B S T
 prism build match = dimap match untag <<< choice <<< rmap build
@@ -272,35 +272,35 @@ instance
 --------------------------------------------------------------------------------
 
 from : Adapter A B S T -> S -> A
-from a = Exchange.from $ a $ toExchange identity identity
+from a = Exchange.from $ a $ toExchange id id
 to : Adapter A B S T -> B -> T
-to a = Exchange.to $ a $ toExchange identity identity
+to a = Exchange.to $ a $ toExchange id id
 
 get : Lens A B S T -> S -> A
-get l = Shop.get $ l $ toShop identity (flip const)
+get l = Shop.get $ l $ toShop id (flip const)
 put : Lens A B S T -> S -> B -> T
-put l = Shop.put $ l $ toShop identity (flip const)
+put l = Shop.put $ l $ toShop id (flip const)
 
 build : Prism A B S T -> B -> T
-build p = Market.build $ p $ toMarket identity right
+build p = Market.build $ p $ toMarket id right
 match : Prism A B S T -> S -> T + A
-match p = Market.match $ p $ toMarket identity right
+match p = Market.match $ p $ toMarket id right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T
-degrating g = Grating.degrating $ g $ toGrating \ f -> f identity
+degrating g = Grating.degrating $ g $ toGrating \ f -> f id
 
 traverseOf : Traversal A B S T
   -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
 traverseOf {A} {B} t = Bazaar.traverseOf (t b)
   where
     b : Bazaar Function A B A B
-    b = toBazaar identity
+    b = toBazaar id
 
 view : Getter A B S T -> S -> A
-view g = fromForget $ g (toForget identity)
+view g = fromForget $ g (toForget id)
 
 review : Review A B S T -> B -> T
 review r b = fromTagged $ r (toTagged b)
 
 over : Setter A B S T -> (A -> B) -> S -> T
-over = identity
+over = id

@@ -14,7 +14,7 @@ record Comonad (W : Set -> Set) : Set where
     extract : W A -> A
 
   duplicate : W A -> W (W A)
-  duplicate = extend identity
+  duplicate = extend id
 
   _=>>_ : W A -> (W A -> B) -> W B
   _=>>_ = flip extend

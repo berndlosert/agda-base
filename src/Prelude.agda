@@ -23,8 +23,8 @@ open import Agda.Builtin.Bool public
 -- Essential functions and operations
 --------------------------------------------------------------------------------
 
-identity : A -> A
-identity a = a
+id : A -> A
+id a = a
 
 const : A -> B -> A
 const a _ = a
@@ -37,7 +37,7 @@ on f g x y = f (g x) (g y)
 
 infixr 0 _$_
 _$_ : (A -> B) -> A -> B
-_$_ = identity
+_$_ = id
 
 infixr 9 _<<<_
 _<<<_ : (B -> C) -> (A -> B) -> A -> C
@@ -377,7 +377,7 @@ record Monad (M : Set -> Set) : Set where
   _=<<_ = flip _>>=_
 
   join : M (M A) -> M A
-  join = _=<<_ identity
+  join = _=<<_ id
 
   infixl 1 _>>_
   _>>_ : M A -> M B -> M B
@@ -670,7 +670,7 @@ swap : A * B -> B * A
 swap = split snd fst
 
 dupe : A -> A * A
-dupe = split identity identity
+dupe = split id id
 
 uncurry : (A -> B -> C) -> A * B -> C
 uncurry f (a , b) = f a b
@@ -712,7 +712,7 @@ mirror : A + B -> B + A
 mirror = either right left
 
 untag : A + A -> A
-untag = either identity identity
+untag = either id id
 
 isLeft : A + B -> Bool
 isLeft = either (const true) (const false)
@@ -721,13 +721,13 @@ isRight : A + B -> Bool
 isRight = not <<< isLeft
 
 fromLeft : A -> A + B -> A
-fromLeft x = either identity (const x)
+fromLeft x = either id (const x)
 
 fromRight : B -> A + B -> B
-fromRight y = either (const y) identity
+fromRight y = either (const y) id
 
 fromEither : (A -> B) -> A + B -> B
-fromEither f = either f identity
+fromEither f = either f id
 
 instance
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (A + B)
@@ -774,7 +774,7 @@ maybe b f nothing = b
 maybe b f (just a) = f a
 
 fromMaybe : A -> Maybe A -> A
-fromMaybe = flip maybe identity
+fromMaybe = flip maybe id
 
 maybeToLeft : B -> Maybe A -> A + B
 maybeToLeft b = maybe (right b) left
@@ -902,7 +902,7 @@ instance
   semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)
 
   monoidEndo : Monoid (Endo A)
-  monoidEndo .mempty = toEndo identity
+  monoidEndo .mempty = toEndo id
 
 --------------------------------------------------------------------------------
 -- Id

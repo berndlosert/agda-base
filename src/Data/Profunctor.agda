@@ -12,10 +12,10 @@ record Profunctor (P : Set -> Set -> Set) : Set where
     dimap : (A -> B) -> (C -> D) -> P B C -> P A D
 
   lmap : (A -> B) -> P B C -> P A C
-  lmap f = dimap f identity
+  lmap f = dimap f id
 
   rmap : (B -> C) -> P A B -> P A C
-  rmap f = dimap identity f
+  rmap f = dimap id f
 
 open Profunctor {{...}} public
 

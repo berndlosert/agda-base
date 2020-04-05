@@ -2,7 +2,7 @@
 
 module Data.Monoid where
 
--- A semigroup is a monoid when its binary operation has an identity.
+-- A semigroup is a monoid when its binary operation has an id.
 
 open import Data.Semigroup public
 

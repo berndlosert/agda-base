@@ -22,7 +22,7 @@ open Parser public
 
 instance
   functorParser : Functor Parser
-  functorParser .map f p = parser $ map (cross f identity) <<< runParser p
+  functorParser .map f p = parser $ map (cross f id) <<< runParser p
 
   applicativeParser : Applicative Parser
   applicativeParser .pure x = parser $ singleton <<< (x ,_)

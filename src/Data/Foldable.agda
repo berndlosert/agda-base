@@ -18,7 +18,7 @@ record Fold (S A : Set) : Set where
     foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
 
   fold : {{_ : Monoid A}} -> S -> A
-  fold = foldMap identity
+  fold = foldMap id
 
   foldr : (A -> B -> B) -> B -> S -> B
   foldr f b as = fromEndo (foldMap (toEndo <<< f) as) b
@@ -84,7 +84,7 @@ record Fold (S A : Set) : Set where
 open Fold {{...}} public
 
 sequence! : {{_ : Applicative F}} {{_ : Fold S (F A)}} -> S -> F Unit
-sequence! = traverse! identity
+sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
 Foldable T = forall {A} -> Fold (T A) A

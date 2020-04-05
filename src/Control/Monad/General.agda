@@ -18,7 +18,7 @@ General : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
 General Req Resp = Free (Interaction Req Resp)
 
 call : forall {Req Resp} -> (req : Req) -> General Req Resp (Resp req)
-call req = Free: \ t -> t (Interaction: req identity)
+call req = Free: \ t -> t (Interaction: req id)
 
 -- Dependent function type of general recursive functions.
 Pi : (Req : Set) (Resp : Req -> Set) -> Set

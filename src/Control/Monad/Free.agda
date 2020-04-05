@@ -25,7 +25,7 @@ interpret t free = run free t
 
 -- This is the left inverse (retract) of lift.
 lower : forall {M} {{_ : Monad M}} -> Free M ~> M
-lower = interpret identity
+lower = interpret id
 
 instance
   functorFree : forall {F} -> Functor (Free F)
