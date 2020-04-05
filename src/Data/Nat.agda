@@ -2,18 +2,54 @@
 
 module Data.Nat where
 
-open import Prelude
+open import Agda.Builtin.Nat public using (Nat; suc)
+open import Data.Bool using (Bool; true; false)
+open import Data.Eq public using (Eq; _==_; _/=_)
+open import Data.Function using (const)
+open import Data.GCD using (GCD)
+open import Data.GCD public using (quot; mod; gcd)
+open import Data.Ord using (Ord)
+open import Data.Ord public using (compare; LT; EQ; GT)
+open import Data.Ord public using (_<_; _<=_; _>_; _>=_)
+open import Data.Ord public using (min; max; comparing)
+open import Data.Ring using (Ring)
+open import Data.Ring public using (-_; _-_)
+open import Data.Semiring using (Semiring; zero; one)
+open import Data.Semiring public using (_+_; _*_)
+open import Data.Type.Undefined using (undefined)
+open import Data.Unit using (Unit)
+open import Data.Void using (Void)
 
--- Determine if a natural number is even or odd.
-even odd : Nat -> Bool
-even n = n % 2 == 0
-odd n = not (even n)
+private variable A : Set
 
--- The greatest common divisor of two natural numbers.
-{-# TERMINATING #-}
-gcd : Nat -> Nat -> Nat
-gcd m 0 = m
-gcd 0 n = n
-gcd m n@(suc _) = if m > n then gcd n (m % n) else gcd n m
+natrec : A -> (Nat -> A -> A) -> Nat -> A
+natrec a _ 0 = a
+natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 
-{-# COMPILE GHC gcd = Prelude.gcd #-}
+applyN : (A -> A) -> Nat -> A -> A
+applyN f n a = natrec a (const f) n
+
+instance
+  eqNat : Eq Nat
+  eqNat ._==_ = Agda.Builtin.Nat._==_
+
+  ordNat : Ord Nat
+  ordNat ._<_ = Agda.Builtin.Nat._<_
+
+  semiringNat : Semiring Nat
+  semiringNat .zero = 0
+  semiringNat .one = 1
+  semiringNat ._+_ = Agda.Builtin.Nat._+_
+  semiringNat ._*_ = Agda.Builtin.Nat._*_
+
+  ringNat : Ring Nat
+  ringNat .-_ n = 0 - n
+  ringNat ._-_ = Agda.Builtin.Nat._-_
+
+  gcdNat : GCD Nat
+  gcdNat .quot = \ where
+    m 0 -> undefined
+    m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n
+  gcdNat .mod = \ where
+    m 0 -> undefined
+    m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n

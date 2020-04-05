@@ -2,24 +2,40 @@
 
 module Data.Monoid where
 
--- A semigroup is a monoid when its binary operation has an id.
+open import Data.Bool using (Bool; true; false; not)
+open import Data.Semigroup using (Semigroup; Dual; toDual)
+open import Data.Semigroup using (First; toFirst)
+open import Data.Semigroup using (All; toAll; Any; toAny)
+open import Data.Unit using (Unit; unit)
 
-open import Data.Semigroup public
+private variable A : Set
 
-record Monoid (X : Set) : Set where
-  constructor monoid
+record Monoid (A : Set) : Set where
   field
-    overlap {{semigroupMonoid}} : Semigroup X
-    empty : X
+    overlap {{super}} : Semigroup A
+    mempty : A
+
+  when : Bool -> A -> A
+  when true x = x
+  when false _ = mempty
+
+  unless : Bool -> A -> A
+  unless b = when (not b)
 
 open Monoid {{...}} public
 
--- Every monoid instance has an opposite version.
-
-open import Notation.Dual public
-
 instance
-  Dual:Monoid : forall {X} -> Dual (Monoid X)
-  Dual:Monoid .Op monoid = let instance inst = monoid in \ where
-    .semigroupMonoid -> Op (semigroupMonoid {{inst}})
-    .empty -> empty
+  monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
+  monoidDual .mempty = toDual mempty
+
+  monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
+  monoidFirst .mempty = toFirst mempty
+
+  monoidUnit : Monoid Unit
+  monoidUnit .mempty = unit
+
+  monoidAll : Monoid All
+  monoidAll .mempty = toAll true
+
+  monoidAny : Monoid Any
+  monoidAny .mempty = toAny false
