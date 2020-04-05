@@ -96,13 +96,13 @@ instance
 --------------------------------------------------------------------------------
 
 Writer : Set -> Set -> Set
-Writer W = WriterT W Identity
+Writer W = WriterT W Id
 
 toWriter : A * W -> Writer W A
-toWriter = toIdentity >>> toWriterT
+toWriter = toId >>> toWriterT
 
 fromWriter : Writer W A -> A * W
-fromWriter = fromIdentity <<< fromWriterT
+fromWriter = fromId <<< fromWriterT
 
 execWriter : Writer W A -> W
 execWriter m = snd (fromWriter m)

@@ -23,8 +23,8 @@ record Copointed (F : Set -> Set) : Set where
 open Copointed {{...}}
 
 instance
-  copointedIdentity : Copointed Identity
-  copointedIdentity .extract = fromIdentity
+  copointedId : Copointed Id
+  copointedId .extract = fromId
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -97,16 +97,16 @@ forOf' = flip <<< traverseOf'
 --------------------------------------------------------------------------------
 
 ASetter : (S T A B : Set) -> Set
-ASetter S T A B = (A -> Identity B) -> S -> Identity T
+ASetter S T A B = (A -> Id B) -> S -> Id T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = g (k >>> toIdentity) >>> fromIdentity
+over g k = g (k >>> toId) >>> fromId
 
 set : ASetter S T A B -> B -> S -> T
-set l y = l (\ _ -> toIdentity y) >>> fromIdentity
+set l y = l (\ _ -> toId y) >>> fromId
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = f (k >>> fromIdentity) >>> toIdentity
+sets f k = f (k >>> fromId) >>> toId
 
 --------------------------------------------------------------------------------
 -- Lens operations

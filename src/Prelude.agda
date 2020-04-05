@@ -905,37 +905,37 @@ instance
   monoidEndo .mempty = toEndo identity
 
 --------------------------------------------------------------------------------
--- Identity
+-- Id
 --------------------------------------------------------------------------------
 
-record Identity (A : Set) : Set where
-  constructor toIdentity
-  field fromIdentity : A
+record Id (A : Set) : Set where
+  constructor toId
+  field fromId : A
 
-open Identity public
+open Id public
 
 instance
-  functorIdentity : Functor Identity
-  functorIdentity .map f = toIdentity <<< f <<< fromIdentity
+  functorId : Functor Id
+  functorId .map f = toId <<< f <<< fromId
 
-  applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = toIdentity
-  applicativeIdentity ._<*>_ = map <<< fromIdentity
+  applicativeId : Applicative Id
+  applicativeId .pure = toId
+  applicativeId ._<*>_ = map <<< fromId
 
-  monadIdentity : Monad Identity
-  monadIdentity ._>>=_ a k = k (fromIdentity a)
+  monadId : Monad Id
+  monadId ._>>=_ a k = k (fromId a)
 
-  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ x y = fromIdentity (| _==_ x y |)
+  eqId : {{_ : Eq A}} -> Eq (Id A)
+  eqId ._==_ x y = fromId (| _==_ x y |)
 
-  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ x y = fromIdentity (| _<_ x y |)
+  ordId : {{_ : Ord A}} -> Ord (Id A)
+  ordId ._<_ x y = fromId (| _<_ x y |)
 
-  semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ x y = (| _<>_ x y |)
+  semigroupId : {{_ : Semigroup A}} -> Semigroup (Id A)
+  semigroupId ._<>_ x y = (| _<>_ x y |)
 
-  monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
-  monoidIdentity .mempty = toIdentity mempty
+  monoidId : {{_ : Monoid A}} -> Monoid (Id A)
+  monoidId .mempty = toId mempty
 
 --------------------------------------------------------------------------------
 -- Show

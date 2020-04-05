@@ -92,13 +92,13 @@ instance
 --------------------------------------------------------------------------------
 
 State : Set -> Set -> Set
-State S = StateT S Identity
+State S = StateT S Id
 
 toState : (S -> A * S) -> State S A
-toState t = toStateT (t >>> toIdentity)
+toState t = toStateT (t >>> toId)
 
 fromState : State S A -> S -> A * S
-fromState m = fromIdentity <<< fromStateT m
+fromState m = fromId <<< fromStateT m
 
 evalState : State S A -> S -> A
 evalState m s = fst (fromState m s)

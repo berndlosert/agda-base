@@ -79,25 +79,25 @@ liftLocal ask local f m = toContT $ \ c -> do
 --------------------------------------------------------------------------------
 
 Cont : Set -> Set -> Set
-Cont R A = ContT R Identity A
+Cont R A = ContT R Id A
 
 toCont : ((A -> R) -> R) -> Cont R A
-toCont f = toContT (\ c -> toIdentity (f (fromIdentity <<< c)))
+toCont f = toContT (\ c -> toId (f (fromId <<< c)))
 
 fromCont : Cont R A -> (A -> R) -> R
-fromCont m k = fromIdentity (fromContT m (toIdentity <<< k))
+fromCont m k = fromId (fromContT m (toId <<< k))
 
 evalCont : Cont R R -> R
-evalCont m = fromIdentity (evalContT m)
+evalCont m = fromId (evalContT m)
 
 mapCont : (R -> R) -> Cont R A -> Cont R A
 mapCont f = mapContT (map f)
 
 withCont : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
-withCont f = withContT ((toIdentity <<<_) <<< f <<< (fromIdentity <<<_))
+withCont f = withContT ((toId <<<_) <<< f <<< (fromId <<<_))
 
 reset : Cont R R -> Cont R' R
 reset = resetT
 
 shift : ((A -> R) -> Cont R R) -> Cont R A
-shift f = shiftT (f <<< (fromIdentity <<<_))
+shift f = shiftT (f <<< (fromId <<<_))

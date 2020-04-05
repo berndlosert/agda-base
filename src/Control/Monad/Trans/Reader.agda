@@ -70,16 +70,16 @@ instance
 --------------------------------------------------------------------------------
 
 Reader : Set -> Set -> Set
-Reader R = ReaderT R Identity
+Reader R = ReaderT R Id
 
 toReader : (R -> A) -> Reader R A
-toReader f = toReaderT (f >>> toIdentity)
+toReader f = toReaderT (f >>> toId)
 
 fromReader : Reader R A -> R -> A
-fromReader m = fromIdentity <<< fromReaderT m
+fromReader m = fromId <<< fromReaderT m
 
 mapReader : (A -> B) -> Reader R A -> Reader R B
-mapReader f = mapReaderT (toIdentity <<< f <<< fromIdentity)
+mapReader f = mapReaderT (toId <<< f <<< fromId)
 
 withReader : (R' -> R) -> Reader R A -> Reader R' A
 withReader f m = withReaderT f m
