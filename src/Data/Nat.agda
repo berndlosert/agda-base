@@ -15,6 +15,7 @@ open import Data.Ord public using (min; max; comparing)
 open import Data.Ring using (Ring)
 open import Data.Ring public using (-_; _-_)
 open import Data.Semiring using (Semiring; zero; one)
+open import Data.Semiring using (Nonzero; toNonzero; fromNonzero)
 open import Data.Semiring public using (_+_; _*_)
 open import Data.Type.Undefined using (undefined)
 open import Data.Unit using (Unit)
@@ -47,9 +48,9 @@ instance
   ringNat ._-_ = Agda.Builtin.Nat._-_
 
   gcdNat : GCD Nat
-  gcdNat .quot = \ where
-    m 0 -> undefined
-    m (suc n) -> Agda.Builtin.Nat.div-helper zero n m n
-  gcdNat .mod = \ where
-    m 0 -> undefined
-    m (suc n) -> Agda.Builtin.Nat.mod-helper zero n m n
+  gcdNat .quot m n with fromNonzero n
+  ... | 0 = undefined
+  ... | (suc k) = Agda.Builtin.Nat.div-helper 0 k m k
+  gcdNat .mod m n with fromNonzero n
+  ... | 0 = undefined
+  ... | (suc k) = Agda.Builtin.Nat.mod-helper 0 k m k

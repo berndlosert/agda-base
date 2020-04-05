@@ -2,7 +2,6 @@
 
 module Data.Semiring where
 
-open import Data.Bool using (IsTrue)
 open import Data.Eq using (Eq; _/=_)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Semigroup using (Semigroup; _<>_)
@@ -19,10 +18,17 @@ record Semiring (A : Set) : Set where
     _+_ : A -> A -> A
     _*_ : A -> A -> A
 
-  Nonzero : {{_ : Eq A}} -> A -> Set
-  Nonzero a = IsTrue (a /= zero)
-
 open Semiring {{...}} public
+
+record IsNonzeroPredicate (A : Set) : Set where
+  field
+    overlap {{semiring}} : Semiring A
+    IsNonzero : A -> Set
+
+open IsNonzeroPredicate {{...}} public
+
+data Nonzero (A : Set) : Set where
+  nonzero : {{_ : IsNonzeroPredicate A}} (a : A) {_ : IsNonzero A} -> Nonzero A
 
 record Sum (A : Set) : Set where
   constructor toSum
