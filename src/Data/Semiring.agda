@@ -20,16 +20,6 @@ record Semiring (A : Set) : Set where
 
 open Semiring {{...}} public
 
-record IsNonzeroPredicate (A : Set) : Set where
-  field
-    overlap {{semiring}} : Semiring A
-    IsNonzero : A -> Set
-
-open IsNonzeroPredicate {{...}} public
-
-data Nonzero (A : Set) : Set where
-  nonzero : {{_ : IsNonzeroPredicate A}} (a : A) {_ : IsNonzero A} -> Nonzero A
-
 record Sum (A : Set) : Set where
   constructor toSum
   field fromSum : A
