@@ -3,10 +3,11 @@
 module Data.Semigroup where
 
 open import Data.Bool using (Bool; true; false; _&&_; _||_)
+open import Data.Function using (_<<<_)
 open import Data.Unit using (Unit; unit)
 open import Data.Void using (Void)
 
-private variable A : Set
+private variable A B : Set
 
 record Semigroup (A : Set) : Set where
   infixr 5 _<>_
@@ -49,6 +50,12 @@ record Any : Set where
 
 open Any public
 
+record Endo A : Set where
+  constructor toEndo
+  field fromEndo : A -> A
+
+open Endo public
+
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
   semigroupDual ._<>_ (toDual x) (toDual y) = toDual (y <> x)
@@ -70,3 +77,9 @@ instance
 
   semigroupAny : Semigroup Any
   semigroupAny ._<>_ x y = toAny (fromAny x || fromAny y)
+
+  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
+  semigroupFunction ._<>_ f g = \ a -> f a <> g a
+
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)

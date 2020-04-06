@@ -3,12 +3,14 @@
 module Data.Monoid where
 
 open import Data.Bool using (Bool; true; false; not)
+open import Data.Function using (const; id)
 open import Data.Semigroup using (Semigroup; Dual; toDual)
 open import Data.Semigroup using (First; toFirst)
 open import Data.Semigroup using (All; toAll; Any; toAny)
+open import Data.Semigroup using (Endo; toEndo)
 open import Data.Unit using (Unit; unit)
 
-private variable A : Set
+private variable A B : Set
 
 record Monoid (A : Set) : Set where
   field
@@ -39,3 +41,9 @@ instance
 
   monoidAny : Monoid Any
   monoidAny .mempty = toAny false
+
+  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
+  monoidFunction .mempty = const mempty
+
+  monoidEndo : Monoid (Endo A)
+  monoidEndo .mempty = toEndo id

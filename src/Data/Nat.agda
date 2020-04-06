@@ -5,6 +5,7 @@ module Data.Nat where
 open import Agda.Builtin.Nat public using (Nat; suc)
 open import Data.Bool using (Bool; true; false)
 open import Data.Division public using (Division; Nonzero; _/_; _%_)
+open import Data.Eq using (Eq)
 open import Data.Eq public using (Eq; _==_; _/=_)
 open import Data.Function using (const)
 open import Data.Ord using (Ord)

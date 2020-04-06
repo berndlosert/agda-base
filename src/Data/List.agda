@@ -2,27 +2,76 @@
 
 module Data.List where
 
-open import Prelude
+private variable A B C : Set
 
-private
-  variable
-    A B C : Set
+open import Agda.Builtin.List public using (List; [])
+open import Agda.Builtin.List public renaming (_∷_ to _::_)
+open import Control.Alternative using (Alternative)
+open import Control.Alternative using (_<|>_; empty)
+open import Control.Applicative using (Applicative)
+open import Control.Applicative public using (_<*>_; _*>_; pure)
+open import Control.Monad using (Monad)
+open import Control.Monad public using (_>>=_; _=<<_; return; join)
+open import Data.Bool using (Bool; false; true; if_then_else_; _||_; _&&_)
+open import Data.Eq using (Eq)
+open import Data.Eq public using (_==_; _/=_)
+open import Data.Foldable using (Foldable)
+open import Data.Foldable public using (foldMap; foldr; foldl)
+open import Data.Function using (_$_; flip; _<<<_)
+open import Data.Functor using (Functor)
+open import Data.Functor public using (map)
+open import Data.Maybe using (Maybe; just; nothing)
+open import Data.Monoid using (Monoid; mempty)
+open import Data.Nat using (Nat; suc; _+_; -_; _-_; _<_)
+open import Data.Ord using (Ord)
+open import Data.Ord public using (compare; LT; GT; EQ)
+open import Data.Pair using (Pair; _,_)
+open import Data.Semigroup using (Semigroup)
+open import Data.Semigroup public using (_<>_)
+open import Data.Unit using (Unit; unit)
 
-------------------------------------------------------------------------------
--- Special constructors
-------------------------------------------------------------------------------
+instance
+  semigroupList : Semigroup (List A)
+  semigroupList ._<>_ [] ys = ys
+  semigroupList ._<>_ (x :: xs) ys = x :: xs <> ys
 
---------------------------------------------------------------------------------
--- Special destructors
---------------------------------------------------------------------------------
+  monoidList : Monoid (List A)
+  monoidList .mempty = []
 
---------------------------------------------------------------------------------
--- Regular folds
---------------------------------------------------------------------------------
+  foldableList : Foldable List
+  foldableList .foldMap f = \ where
+    [] -> mempty
+    (a :: as) -> f a <> foldMap f as
 
---------------------------------------------------------------------------------
--- Scans
---------------------------------------------------------------------------------
+  functorList : Functor List
+  functorList .map f [] = []
+  functorList .map f (x :: xs) = f x :: map f xs
+
+  applicativeList : Applicative List
+  applicativeList .pure x = x :: []
+  applicativeList ._<*>_ = \ where
+    [] _ -> []
+    _ [] -> []
+    (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
+
+  alternativeList : Alternative List
+  alternativeList .empty = mempty
+  alternativeList ._<|>_ = _<>_
+
+  monadList : Monad List
+  monadList ._>>=_ = \ where
+    [] k -> []
+    (x :: xs) k -> k x <> (xs >>= k)
+
+til : Nat -> List Nat
+til 0 = []
+til (suc n) = til n <> pure n
+
+range : Nat -> Nat -> List Nat
+range m n with compare m n
+... | GT = []
+... | EQ = pure n
+... | LT = map (_+ m) $ til $ suc (n - m)
 
 -- scanr is the right-to-left dual of scanl.
 scanr : (A -> B -> B) -> B -> List A -> List B
@@ -34,7 +83,7 @@ scanr f b (a :: as) with scanr f b as
 -- scanl is similar to foldl, but returns a list of successive reduced values
 -- from the left
 scanl : (B -> A -> B) -> B -> List A -> List B
-scanl f b [] = singleton b
+scanl f b [] = pure b
 scanl f b (a :: as) = b :: scanl f (f b a) as
 
 --------------------------------------------------------------------------------
@@ -98,10 +147,10 @@ find p as with filter p as
 
 -- The partition function takes a predicate, a list and returns the pair of
 -- lists of elements which do and do not satisfy the predicate.
-partition : (A -> Bool) -> List A -> List A * List A
+partition : (A -> Bool) -> List A -> Pair (List A) (List A)
 partition p xs = foldr (select p) ([] , []) xs
   where
-    select : (A -> Bool) -> A -> List A * List A -> List A * List A
+    select : (A -> Bool) -> A -> Pair (List A) (List A) -> Pair (List A) (List A)
     select p a (ts , fs) with p a
     ... | true = (a :: ts , fs)
     ... | false = (ts , a :: fs)
@@ -127,14 +176,14 @@ drop (suc n) (_ :: as) = drop n as
 -- The break function finds the longest initial segment of a list that does
 -- not satisfy the given predicate and returns it paired with the remainder
 -- of the list.
-break : (A -> Bool) -> List A -> List A * List A
+break : (A -> Bool) -> List A -> Pair (List A) (List A)
 break p [] = ([] , [])
 break p as@(x :: xs) =
   if p x then ([] , as)
   else let (ys , zs) = break p xs in (x :: ys , zs)
 
 -- Splits a list into two pieces at the given index.
-splitAt : Nat -> List A -> List A * List A
+splitAt : Nat -> List A -> Pair (List A) (List A)
 splitAt n as = (take n as , drop n as)
 
 -- The stripPrefix function drops the given prefix from a list. It returns
@@ -149,7 +198,7 @@ stripPrefix _ _ = nothing
 -- The tails function returns all final segments of the argument, longest
 -- first.
 tails : List A -> List (List A)
-tails [] = singleton []
+tails [] = pure []
 tails as@(x :: xs) = as :: tails xs
 
 -- takeWhile, applied to a predicate p and a list as, returns the longest
@@ -172,52 +221,52 @@ dropWhile p xs@(y :: ys) with p y
 --------------------------------------------------------------------------------
 
 -- deleteBy eq x xs deletes the first item y in xs that satisfies eq x y.
-deleteBy : (A -> A -> Bool) -> A -> List A -> List A
-deleteBy _ _ [] = []
-deleteBy eq x (y :: ys) = if eq x y then ys else y :: deleteBy eq x ys
+--deleteBy : (A -> A -> Bool) -> A -> List A -> List A
+--deleteBy _ _ [] = []
+--deleteBy eq x (y :: ys) = if eq x y then ys else y :: deleteBy eq x ys
 
 -- Removes duplicate elements from a list where the duplicates are determined
 -- by the user-supplied equality predicate.
-nubBy : (A -> A -> Bool) -> List A -> List A
-nubBy {A} eq l = nubBy' l []
-  where
-    elemBy : (A -> A -> Bool) -> A -> List A -> Bool
-    elemBy _ _ [] = false
-    elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
-
-    nubBy' : List A -> List A -> List A
-    nubBy' [] _ = []
-    nubBy' (y :: ys) xs =
-      if elemBy eq y xs
-      then nubBy' ys xs
-      else y :: nubBy' ys (y :: xs)
+--nubBy : (A -> A -> Bool) -> List A -> List A
+--nubBy {A} eq l = nubBy' l []
+--  where
+--    elemBy : (A -> A -> Bool) -> A -> List A -> Bool
+--    elemBy _ _ [] = false
+--    elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
+--
+--    nubBy' : List A -> List A -> List A
+--    nubBy' [] _ = []
+--    nubBy' (y :: ys) xs =
+--      if elemBy eq y xs
+--      then nubBy' ys xs
+--      else y :: nubBy' ys (y :: xs)
 
 -- Construct the union of two lists. Duplicates are removed according to the
 -- user-supplied equality predicate.
-unionBy : (A -> A -> Bool) -> List A -> List A -> List A
-unionBy eq xs ys = xs ++ foldl (flip (deleteBy eq)) (nubBy eq ys) ys
+--unionBy : (A -> A -> Bool) -> List A -> List A -> List A
+--unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
 
 --------------------------------------------------------------------------------
 -- Set-like operations
 --------------------------------------------------------------------------------
 
 -- Deletes an element from a list.
-delete : {{_ : Eq A}} -> A -> List A -> List A
-delete = deleteBy _==_
+--delete : {{_ : Eq A}} -> A -> List A -> List A
+--delete = deleteBy _==_
 
 -- The nub function removes duplicate elements from a list. In particular, it
 -- keeps only the first occurrence of each element. (The name nub means
 -- 'essence'.) It is a special case of nubBy, which allows the programmer to
 -- supply their own equality test.
-nub : {{_ : Eq A}} -> List A -> List A
-nub = nubBy _==_
+--nub : {{_ : Eq A}} -> List A -> List A
+--nub = nubBy _==_
 
 -- The union function returns the list union of the two lists. Duplicates, and
 -- elements of the first list, are removed from the the second list, but if the
 -- first list contains duplicates, so will the result. It is a special case of
 -- unionBy, which allows the programmer to supply their own equality test.
-union : {{_ : Eq A}} -> List A -> List A -> List A
-union = unionBy _==_
+--union : {{_ : Eq A}} -> List A -> List A -> List A
+--union = unionBy _==_
 
 --------------------------------------------------------------------------------
 -- Zipping
@@ -230,20 +279,20 @@ zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
 -- Zips two lists into a list of pairs.
-zip : List A -> List B -> List (A * B)
+zip : List A -> List B -> List (Pair A B)
 zip = zipWith _,_
 
 -- Zips together a list of heads and a list of tails.
-zipCons : List A -> List (List A) -> List (List A)
-zipCons heads tails =
-    (zipWith _::_ heads (tails ++ padding)) ++ excess
-  where
-    -- Extra tails that will be zipped with those heads that have no
-    -- corresponding tail in tails.
-    padding = replicate (length heads - length tails) []
-    -- The tails that cannot be zipped because they have no corresponding
-    -- head in heads.
-    excess = snd (splitAt (length heads) tails)
+--zipCons : List A -> List (List A) -> List (List A)
+--zipCons heads tails =
+--    (zipWith _::_ heads (tails <> padding)) <> excess
+--  where
+--    -- Extra tails that will be zipped with those heads that have no
+--    -- corresponding tail in tails.
+--    padding = replicate (length heads - length tails) []
+--    -- The tails that cannot be zipped because they have no corresponding
+--    -- head in heads.
+--    excess = snd (splitAt (length heads) tails)
 
 --------------------------------------------------------------------------------
 -- Transformations
@@ -254,9 +303,9 @@ reverse : List A -> List A
 reverse = foldl (flip _::_) []
 
 -- Transposes the elements of a list of lists (thought of as a matrix).
-transpose : List (List A) -> List (List A)
-transpose [] = []
-transpose (heads :: tails) = zipCons heads (transpose tails)
+--transpose : List (List A) -> List (List A)
+--transpose [] = []
+--transpose (heads :: tails) = zipCons heads (transpose tails)
 
 -- Traverse a list.
 traverse : forall {F A B} {{_ : Applicative F}}
@@ -305,7 +354,7 @@ isInfixOf xs ys = any (isPrefixOf xs) (tails ys)
 ------------------------------------------------------------------------------
 
 -- indexed pairs each element with its index.
-indexed : List A -> List (Nat * A)
+indexed : List A -> List (Pair Nat A)
 indexed as = zip indices as
   where
     indices : List Nat

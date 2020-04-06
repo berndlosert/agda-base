@@ -2,16 +2,24 @@
 
 module Data.Foldable where
 
-open import Prelude
+open import Control.Applicative using (Applicative; _*>_; pure)
+open import Control.Monad using (Monad; _>>=_; return)
+open import Data.Function using (id; _<<<_; flip; const)
+open import Data.Boolean using (Boolean; tt; ff; _&&_; _||_)
+open import Data.Bool using (Bool; false; true; if_then_else_; not)
+open import Data.Either using (Either; left; right; untag)
+open import Data.Eq using (Eq; _==_)
+open import Data.Maybe using (Maybe; maybeToLeft; ensure; leftToMaybe; isJust)
+open import Data.Monoid using (Monoid)
+open import Data.Nat using (Nat; suc)
+open import Data.Semigroup using (fromEndo; toEndo)
+open import Data.Semigroup using (fromDual; toDual)
+open import Data.Unit using (Unit; unit)
 
 private
   variable
     A B S : Set
     F M : Set -> Set
-
---------------------------------------------------------------------------------
--- Fold and Foldable
---------------------------------------------------------------------------------
 
 record Fold (S A : Set) : Set where
   field
@@ -48,7 +56,7 @@ record Fold (S A : Set) : Set where
   at : Nat -> S -> Maybe A
   at n = leftToMaybe <<< foldlM f 0
     where
-      f : Nat -> A -> A + Nat
+      f : Nat -> A -> Either A Nat
       f k a = if k == n then left a else right (suc k)
 
   any : (A -> Bool) -> S -> Bool
@@ -76,10 +84,10 @@ record Fold (S A : Set) : Set where
   module _ {{_ : Boolean A}} where
 
     or : S -> A
-    or = foldr _||_ bottom
+    or = foldr _||_ ff
 
     and : S -> A
-    and = foldr _&&_ top
+    and = foldr _&&_ tt
 
 open Fold {{...}} public
 
@@ -88,16 +96,3 @@ sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
 Foldable T = forall {A} -> Fold (T A) A
-
---------------------------------------------------------------------------------
--- Instances
---------------------------------------------------------------------------------
-
-instance
-  foldableList : Foldable List
-  foldableList .foldMap f = \ where
-    [] -> mempty
-    (a :: as) -> f a <> foldMap f as
-
-  foldStringChar : Fold String Char
-  foldStringChar .foldMap f = foldMap f <<< unpack
