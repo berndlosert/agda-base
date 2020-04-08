@@ -4,10 +4,10 @@ module Data.Pair where
 
 private variable A B C D : Set
 
-open import Data.Bool using (_&&_)
-open import Data.Eq using (Eq; _==_)
-open import Data.Function using (_<<<_; id; _$_)
-open import Data.Functor using (Functor; map)
+open import Data.Bool
+open import Data.Eq
+open import Data.Function
+open import Data.Functor
 
 infixr 4 _,_
 record Pair (A B : Set) : Set where

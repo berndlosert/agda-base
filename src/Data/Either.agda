@@ -2,16 +2,10 @@
 
 module Data.Either where
 
-open import Control.Applicative using (Applicative)
-open import Control.Applicative public using (_<*>_; pure)
-open import Control.Monad using (Monad)
-open import Control.Monad public using (_>>=_; return)
-open import Data.Bool using (Bool; true; false; not)
-open import Data.Eq using (Eq)
-open import Data.Eq public using (_==_; _/=_)
-open import Data.Function using (_<<<_; id; const)
-open import Data.Functor using (Functor)
-open import Data.Functor public using (map)
+open import Control.Monad
+open import Data.Bool
+open import Data.Eq
+open import Data.Function
 
 private variable A B C D : Set
 

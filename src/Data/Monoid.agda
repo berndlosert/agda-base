@@ -2,13 +2,10 @@
 
 module Data.Monoid where
 
-open import Data.Bool using (Bool; true; false; not)
-open import Data.Function using (const; id)
-open import Data.Semigroup using (Semigroup; Dual; toDual)
-open import Data.Semigroup using (First; toFirst)
-open import Data.Semigroup using (All; toAll; Any; toAny)
-open import Data.Semigroup using (Endo; toEndo)
-open import Data.Unit using (Unit; unit)
+open import Data.Bool
+open import Data.Function
+open import Data.Semigroup public
+open import Data.Unit
 
 private variable A B : Set
 

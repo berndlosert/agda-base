@@ -2,21 +2,13 @@
 
 module Data.Maybe where
 
-open import Control.Alternative using (Alternative)
-open import Control.Alternative public using (_<|>_; empty)
-open import Control.Applicative using (Applicative)
-open import Control.Applicative public using (_<*>_; pure)
-open import Control.Monad using (Monad)
-open import Control.Monad public using (_>>=_; return)
-open import Data.Bool using (Bool; true; false; not; if_then_else_)
-open import Data.Either using (Either; right; left; mirror; either)
-open import Data.Eq using (Eq)
-open import Data.Eq public using (_==_; _/=_)
-open import Data.Function using (_<<<_; flip; id; const)
-open import Data.Functor using (Functor)
-open import Data.Functor public using (map)
-open import Data.Monoid using (Monoid; mempty)
-open import Data.Semigroup using (Semigroup; _<>_)
+open import Control.Alternative public
+open import Control.Monad public
+open import Data.Bool
+open import Data.Either
+open import Data.Eq
+open import Data.Function
+open import Data.Monoid
 
 private variable A B : Set
 

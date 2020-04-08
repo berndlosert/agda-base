@@ -4,25 +4,14 @@ module Data.Nat where
 
 private variable A : Set
 
-module Nat where
-  open import Agda.Builtin.Nat public
-    using (Nat; suc; zero)
-    renaming (
-      _==_ to eq;
-      _<_ to lt;
-      _+_ to add;
-      _-_ to sub;
-      _*_ to mul
-    )
+open import Prelude
 
+module Nat where
+
+  import Agda.Builtin.Nat as Builtin
+  open Builtin using (Nat; suc) public
   open import Agda.Builtin.String public
     renaming (primShowNat to show)
-
-  open import Agda.Builtin.Nat
-    using (div-helper; mod-helper)
-
-  open import Prelude
-    using (const; Void; Unit)
 
   natrec : A -> (Nat -> A -> A) -> Nat -> A
   natrec a _ 0 = a
@@ -31,39 +20,28 @@ module Nat where
   applyN : (A -> A) -> Nat -> A -> A
   applyN f n a = natrec a (const f) n
 
-  Nonzero : Nat -> Set
-  Nonzero 0 = Void
-  Nonzero (suc _) = Unit
+  instance
+    eqNat : Eq Nat
+    eqNat ._==_ = Builtin._==_
 
-  div : (m n : Nat) {_ : Nonzero n} -> Nat
-  div m (suc n) = div-helper 0 n m n
+    ordNat : Ord Nat
+    ordNat ._<_ = Builtin._<_
 
-  mod : (m n : Nat) {_ : Nonzero n} -> Nat
-  mod m (suc n) = mod-helper 0 n m n
+    semiringNat : Semiring Nat
+    semiringNat .zero = 0
+    semiringNat .one = 1
+    semiringNat ._+_ = Builtin._+_
+    semiringNat ._*_ = Builtin._*_
+
+    ringNat : Ring Nat
+    ringNat ._-_ = Builtin._-_
+
+    numNat : Num Nat
+    numNat .Nonzero 0 = Void
+    numNat .Nonzero (suc _) = Unit
+    numNat ._/_ m (suc n) = Builtin.div-helper 0 n m n
+    numNat ._%_ m (suc n) = Builtin.mod-helper 0 n m n
 
 open Nat public
   using (Nat; suc)
   hiding (module Nat)
-
-open import Prelude
-
-instance
-  eqNat : Eq Nat
-  eqNat ._==_ = Nat.eq
-
-  ordNat : Ord Nat
-  ordNat ._<_ = Nat.lt
-
-  semiringNat : Semiring Nat
-  semiringNat .zero = 0
-  semiringNat .one = 1
-  semiringNat ._+_ = Nat.add
-  semiringNat ._*_ = Nat.mul
-
-  ringNat : Ring Nat
-  ringNat ._-_ = Nat.sub
-
-  numNat : Num Nat
-  numNat .Nonzero = Nat.Nonzero
-  numNat ._/_ = Nat.div
-  numNat ._%_ = Nat.mod

@@ -2,8 +2,8 @@
 
 module Control.Applicative where
 
-open import Data.Function using (const; flip)
-open import Data.Functor using (Functor)
+open import Data.Function
+open import Data.Functor public
 
 private variable A B C : Set
 
