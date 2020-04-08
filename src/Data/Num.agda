@@ -2,9 +2,9 @@
 
 module Data.Division where
 
-open import Data.Ring using (Ring)
+open import Data.Ring public
 
-record Division (A : Set) : Set where
+record Num (A : Set) : Set where
   infixr 7 _/_ _%_
   field
     overlap {{superRing}} : Ring A
