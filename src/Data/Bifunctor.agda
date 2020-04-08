@@ -26,8 +26,8 @@ instance
   bifunctorConst : Bifunctor Const
   bifunctorConst .bimap f g = toConst <<< f <<< fromConst
 
-  bifunctorPair : Bifunctor _*_
+  bifunctorPair : Bifunctor Pair
   bifunctorPair .bimap f g = cross f g
 
-  bifunctorEither : Bifunctor _+_
+  bifunctorEither : Bifunctor Either
   bifunctorEither .bimap f g = plus f g

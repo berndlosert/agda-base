@@ -2,7 +2,6 @@
 
 module Data.List where
 
-
 private variable A B C : Set
 
 module List where
@@ -14,7 +13,7 @@ module List where
     using (Nat; suc)
 
   open import Prelude
-    hiding (map)
+    hiding (map; fromMaybe)
 
   append : List A -> List A -> List A
   append [] ys = ys
@@ -251,11 +250,19 @@ module List where
   deleteAt _ [] | true = [] -- This case should never be reached.
   ... | false = xs
 
-open import Data.Foldable
+  fromMaybe : Maybe A -> List A
+  fromMaybe nothing = []
+  fromMaybe (just a) = singleton a
+
+  toMaybe : List A -> Maybe A
+  toMaybe [] = nothing
+  toMaybe (a :: _) = just a
 
 open List public
   using (List; []; _::_)
   hiding (module List)
+
+open import Data.Foldable
 
 open import Prelude
 

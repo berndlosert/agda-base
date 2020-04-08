@@ -15,10 +15,10 @@ open Const public
 
 instance
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ = on _==_ fromConst
+  eqConst ._==_ x y = fromConst x == fromConst y
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ = on _<_ fromConst
+  ordConst ._<_ x y = fromConst x < fromConst y
 
   semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
   semigroupConst ._<>_ x y = toConst $ fromConst x <> fromConst y
