@@ -30,10 +30,16 @@ instance
   showBool .show false = "false"
 
   showNat : Show Nat
-  showNat .show = Nat.show
+  showNat .show = show'
+    where
+      open import Agda.Builtin.String
+        renaming (primShowNat to show')
 
   showInt : Show Int
-  showInt .show = Int.show
+  showInt .show = show'
+    where
+      open import Agda.Builtin.Int public
+        renaming (primShowInteger to show')
 
   showFloat : Show Float
   showFloat .show = Float.show

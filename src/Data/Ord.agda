@@ -2,10 +2,10 @@
 
 module Data.Ord where
 
-open import Data.Bool using (Bool; false; if_then_else_; _||_)
-open import Data.Eq using (Eq; _==_; _/=_)
-open import Data.Unit using (Unit; unit)
-open import Data.Void using (Void)
+open import Data.Bool
+open import Data.Eq public
+open import Data.Unit
+open import Data.Void
 
 private variable B : Set
 

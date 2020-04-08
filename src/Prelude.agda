@@ -11,8 +11,10 @@ open import Data.Either public
 open import Data.Eq public
 open import Data.Function public
 open import Data.Functor public
+open import Data.Int public
 open import Data.Maybe public
 open import Data.Monoid public
+open import Data.Nat public
 open import Data.Num public
 open import Data.Ord public
 open import Data.Pair public
