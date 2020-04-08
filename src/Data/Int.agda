@@ -2,90 +2,100 @@
 
 module Data.Int where
 
---open import Agda.Builtin.FromNeg public using (Negative)
-open import Agda.Builtin.Int public using (Int; pos; negsuc)
-open import Agda.Builtin.Nat public using (Nat; suc)
-open import Data.Bool using (true; false)
-open import Data.Division public using (Division; Nonzero; _/_; _%_)
-open import Data.Eq using (Eq)
-open import Data.Eq public using (Eq; _==_; _/=_)
-open import Data.Nat using (Nat)
-open import Data.Ord using (Ord)
-open import Data.Ord public using (compare; LT; EQ; GT)
-open import Data.Ord public using (_<_; _<=_; _>_; _>=_)
-open import Data.Ord public using (min; max; comparing)
-open import Data.Ring using (Ring)
-open import Data.Ring public using (-_; _-_)
-open import Data.Semiring using (Semiring; zero; one)
-open import Data.Semiring public using (_+_; _*_)
-open import Data.Unit using (Unit)
-open import Data.Void using (Void)
-
 private variable A : Set
 
-foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
-foldZ f g (pos n) = f n
-foldZ f g (negsuc n) = g n
+module Int where
+  open import Agda.Builtin.Int public
+    using (Int; pos; negsuc)
+    renaming (primShowInteger to show)
+
+  open import Data.Nat
+
+  open import Prelude
+    hiding (Nonzero)
+
+  foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
+  foldZ f g (pos n) = f n
+  foldZ f g (negsuc n) = g n
+
+  eq : Int -> Int -> Bool
+  eq (pos m) (pos n) = m == n
+  eq (negsuc m) (negsuc n) = m == n
+  eq _ _ = false
+
+  lt : Int -> Int -> Bool
+  lt (pos m) (pos n) = m < n
+  lt (negsuc m) (negsuc n) = m > n
+  lt (negsuc _) (pos _) = true
+  lt (pos _) (negsuc _) = false
+
+  subNat : Nat -> Nat -> Int
+  subNat m 0 = pos m
+  subNat 0 (suc n) = negsuc n
+  subNat (suc m) (suc n) = subNat m n
+
+  negNat : Nat -> Int
+  negNat n = subNat 0 n
+
+  add : Int -> Int -> Int
+  add (negsuc m) (negsuc n) = negsuc (suc (m + n))
+  add (negsuc m) (pos n) = subNat n (suc m)
+  add (pos m) (negsuc n) = subNat m (suc n)
+  add (pos m) (pos n) = pos (m + n)
+
+  mul : Int -> Int -> Int
+  mul (pos n) (pos m) = pos (n * m)
+  mul (negsuc n) (negsuc m) = pos (suc n * suc m)
+  mul (pos n) (negsuc m) = negNat (n * suc m)
+  mul (negsuc n) (pos m) = negNat (suc n * m)
+
+  neg : Int -> Int
+  neg (pos 0) = pos zero
+  neg (pos (suc n)) = negsuc n
+  neg (negsuc n) = pos (suc n)
+
+  sub : Int -> Int -> Int
+  sub n m = add n (neg m)
+
+  Nonzero : Int -> Set
+  Nonzero (pos 0) = Void
+  Nonzero _ = Unit
+
+  div : (n m : Int) {_ : Nonzero m} -> Int
+  div (pos n) (pos m@(suc m-1)) = pos (n / m)
+  div (negsuc n) (negsuc m) = pos (suc n / suc m)
+  div (pos n) (negsuc m) = negNat (n / suc m)
+  div (negsuc n) (pos m@(suc m-1)) = negNat (suc n / m)
+
+  mod : (n m : Int) {_ : Nonzero m} -> Int
+  mod (pos n) (pos m@(suc m-1)) = pos (n % m)
+  mod (negsuc n) (negsuc m) = pos (suc n % suc m)
+  mod (pos n) (negsuc m) = negNat (n % suc m)
+  mod (negsuc n) (pos m@(suc m-1)) = negNat (suc n % m)
+
+open Int public
+  using (Int; pos; negsuc)
+  hiding (module Int)
+
+open import Prelude
 
 instance
   eqInt : Eq Int
-  eqInt ._==_ = \ where
-    (pos m) (pos n) -> m == n
-    (negsuc m) (negsuc n) -> m == n
-    _ _ -> false
+  eqInt ._==_ = Int.eq
 
   ordInt : Ord Int
-  ordInt ._<_ = \ where
-    (pos m) (pos n) -> m < n
-    (negsuc m) (negsuc n) -> m > n
-    (negsuc _) (pos _) -> true
-    (pos _) (negsuc _) -> false
+  ordInt ._<_ = Int.lt
 
   semiringInt : Semiring Int
-  ringInt : Ring Int
   semiringInt .zero = pos 0
   semiringInt .one = pos 1
-  semiringInt ._+_ = \ where
-      (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-      (negsuc m) (pos n) -> sub n (suc m)
-      (pos m) (negsuc n) -> sub m (suc n)
-      (pos m) (pos n) -> pos (m + n)
-    where
-      -- Subtracting two naturals to an integer result.
-      sub : Nat -> Nat -> Int
-      sub m 0 = pos m
-      sub 0 (suc n) = negsuc n
-      sub (suc m) (suc n) = sub m n
-  semiringInt ._*_ = \ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> - (pos (n * suc m))
-    (negsuc n) (pos m) -> - (pos (suc n * m))
-  ringInt .-_ = \ where
-    (pos 0) -> pos zero
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
-  ringInt ._-_ n m = n + (- m)
+  semiringInt ._+_ = Int.add
+  semiringInt ._*_ = Int.mul
 
-  --negativeInt : Negative Int
-  --negativeInt = record {
-  --    Constraint = \ _ -> Unit;
-  --    fromNeg = \ where
-  --      0 -> pos 0
-  --      (suc n) -> negsuc n
-  --  }
+  ringInt : Ring Int
+  ringInt ._-_ = Int.sub
 
-  divisionInt : Division Int
-  divisionInt .Nonzero = \ where
-    (pos 0) -> Void
-    _ -> Unit
-  divisionInt ._/_ = \ where
-    (pos n) (pos m@(suc m-1)) -> pos (n / m)
-    (negsuc n) (negsuc m) -> pos (suc n / suc m)
-    (pos n) (negsuc m) -> - (pos (n / suc m))
-    (negsuc n) (pos m@(suc m-1)) -> - (pos (suc n / m))
-  divisionInt ._%_ = \ where
-    (pos n) (pos m@(suc m-1)) -> pos (n % m)
-    (negsuc n) (negsuc m) -> pos (suc n % suc m)
-    (pos n) (negsuc m) -> - (pos (n % suc m))
-    (negsuc n) (pos m@(suc m-1)) -> - (pos (suc n % m))
+  numInt : Num Int
+  numInt .Nonzero = Int.Nonzero
+  numInt ._/_ = Int.div
+  numInt ._%_ = Int.mod

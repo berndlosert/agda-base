@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Division where
+module Data.Num where
 
 open import Data.Ring public
 
@@ -12,4 +12,4 @@ record Num (A : Set) : Set where
     _/_ : (x y : A) -> {_ : Nonzero y} -> A
     _%_ : (x y : A) -> {_ : Nonzero y} -> A
 
-open Division {{...}} public
+open Num {{...}} public

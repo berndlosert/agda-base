@@ -19,7 +19,7 @@ record Pair (A B : Set) : Set where
 open Pair public
 
 {-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Prelude.AgdaPair ((,)) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
 
 split : (A -> B) -> (A -> C) -> A -> Pair B C
 split f g a = (f a , g a)

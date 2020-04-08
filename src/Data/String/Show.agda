@@ -2,31 +2,19 @@
 
 module Data.String.Show where
 
-open import Agda.Builtin.String using (primShowNat)
-open import Agda.Builtin.Int using (primShowInteger)
-open import Agda.Builtin.Float using (primShowFloat)
-open import Control.Applicative using (pure)
-open import Data.Bool using (Bool; true; false)
-open import Data.Char using (Char)
-open import Data.Either using (Either; left; right)
-open import Data.Eq using (Eq)
-open import Data.Float using (Float)
-open import Data.Int using (Int)
-open import Data.List using (List; _::_; [])
-open import Data.Maybe using (Maybe; just; nothing)
-open import Data.Nat using (Nat)
-open import Data.Pair using (Pair; _,_)
-open import Data.Semigroup using (_<>_)
-open import Data.Semiring using (_+_)
-open import Data.String using (String; pack)
-open import Data.Unit using (Unit; unit)
-open import Data.Void using (Void)
-
 private variable A B : Set
 
+open import Data.Char
+open import Data.Float
+open import Data.Int
+open import Data.List
+open import Data.Nat
+open import Data.String
+
+open import Prelude
+
 record Show (A : Set) : Set where
-  field
-    show : A -> String
+  field show : A -> String
 
 open Show {{...}} public
 
@@ -38,18 +26,17 @@ instance
   showUnit .show unit = "unit"
 
   showBool : Show Bool
-  showBool .show = \ where
-    true -> "true"
-    false -> "false"
+  showBool .show true = "true"
+  showBool .show false = "false"
 
   showNat : Show Nat
-  showNat .show = primShowNat
+  showNat .show = Nat.show
 
   showInt : Show Int
-  showInt .show = primShowInteger
+  showInt .show = Int.show
 
   showFloat : Show Float
-  showFloat .show = primShowFloat
+  showFloat .show = Float.show
 
   showPair : {{_ : Show A}} {{_ : Show B}} -> Show (Pair A B)
   showPair .show (x , y) = "(" <> show x <> " , " <> show y <> ")"
@@ -73,9 +60,7 @@ instance
       show' (x :: xs) = show x <> " :: " <> show' xs
 
   showChar : Show Char
-  showChar .show c = "'" <> pack (pure c) <> "'"
+  showChar .show c = "'" <> String.fromChar c <> "'"
 
   showString : Show String
-  showString .show = Agda.Builtin.String.primShowString
-
-
+  showString .show = String.show

@@ -15,7 +15,7 @@ data Ordering : Set where
 record Ord (A : Set) : Set where
   infixl 4 _<_
   field
-    overlap {{eq}} : Eq A
+    overlap {{super}} : Eq A
     _<_ : A -> A -> Bool
 
   compare : A -> A -> Ordering
