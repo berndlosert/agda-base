@@ -16,9 +16,6 @@ const a _ = a
 flip : (A -> B -> C) -> B -> A -> C
 flip f b a = f a b
 
-on : (B -> B -> C) -> (A -> B) -> A -> A -> C
-on f g x y = f (g x) (g y)
-
 infixr 0 _$_
 _$_ : (A -> B) -> A -> B
 _$_ = id
