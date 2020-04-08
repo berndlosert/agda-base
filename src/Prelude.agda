@@ -7,6 +7,7 @@ open import Control.Applicative public
 open import Control.Monad public
 open import Data.Bool public
 open import Data.Boolean public
+open import Data.Char public
 open import Data.Either public
 open import Data.Eq public
 open import Data.Function public
@@ -21,5 +22,6 @@ open import Data.Pair public
 open import Data.Ring public
 open import Data.Semigroup public
 open import Data.Semiring public
+open import Data.Sequence public
 open import Data.Unit public
 open import Data.Void public

@@ -69,4 +69,4 @@ instance
   showChar .show c = "'" <> String.fromChar c <> "'"
 
   showString : Show String
-  showString .show = String.show
+  showString .show = Agda.Builtin.String.primShowString

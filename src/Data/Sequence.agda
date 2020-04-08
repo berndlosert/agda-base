@@ -2,9 +2,15 @@
 
 module Data.Sequence where
 
-open import Prelude
-
+open import Data.Bool
+open import Data.Either
 open import Data.Foldable public
+open import Data.Function
+open import Data.Maybe
+open import Data.Nat
+open import Data.Ord
+open import Data.Pair
+open import Data.Unit
 
 private variable A : Set
 
@@ -20,10 +26,10 @@ record Sequence (S A : Set) : Set where
   head : S -> Maybe A
   head = leftToMaybe <<< foldlM (const left) unit
 
-  uncons : S -> Maybe (A * S)
+  uncons : S -> Maybe (Pair A S)
   uncons = foldr f nothing
     where
-      f : A -> Maybe (A * S) -> Maybe (A * S)
+      f : A -> Maybe (Pair A S) -> Maybe (Pair A S)
       f a nothing = just (a , singleton a)
       f a (just (_ , s)) = just (a , cons a s)
 
@@ -36,17 +42,15 @@ record Sequence (S A : Set) : Set where
   replicate : Nat -> A -> S
   replicate n a = applyN (cons a) n nil
 
-  append : S -> S -> S
-  append s1 s2 = foldr f nil s1
+  infixr 5 _++_
+  _++_ : S -> S -> S
+  s1 ++ s2 = foldr f nil s1
     where
       f : A -> S -> S
       f a s = cons a (if null s then s2 else s)
 
   snoc : S -> A -> S
-  snoc s a = append s (singleton a)
-
-  concat : List S -> S
-  concat = foldr append nil
+  snoc s a = s ++ singleton a
 
   intersperse : A -> S -> S
   intersperse sep = foldr f nil
@@ -54,15 +58,10 @@ record Sequence (S A : Set) : Set where
       f : A -> S -> S
       f a s = if null s then cons a s else cons a (cons sep s)
 
-  intercalate : S -> List S -> S
-  intercalate sep [] = nil
-  intercalate sep (s :: []) = s
-  intercalate sep (s :: rest) = append (append s sep) (intercalate sep rest)
-
   takeWhile : (A -> Bool) -> S -> S
   takeWhile p = reverse <<< untag <<< foldlM f nil
     where
-      f : S -> A -> S + S
+      f : S -> A -> Either S S
       f s a = if p a then right (cons a s) else left s
 
   dropWhile : (A -> Bool) -> S -> S
@@ -74,32 +73,26 @@ record Sequence (S A : Set) : Set where
   take : Nat -> S -> S
   take n = reverse <<< snd <<< untag <<< foldlM f (0 , nil)
     where
-      f : Nat * S -> A -> Nat * S + Nat * S
+      f : Pair Nat S -> A -> Either (Pair Nat S) (Pair Nat S)
       f (k , s) a =
         if k < n then right (suc k , cons a s) else left (suc k , s)
 
   drop : Nat -> S -> S
   drop n = reverse <<< snd <<< foldl f (0 , nil)
     where
-      f : Nat * S -> A -> Nat * S
+      f : Pair Nat S -> A -> Pair Nat S
       f (k , s) a = if k < n then (suc k , s) else (suc k , cons a s)
-
-  inits : S -> List S
-  inits s = map (flip take s) $ til (length s + 1)
-
-  tails : S -> List S
-  tails s = map (flip drop s) $ til (length s + 1)
 
   deleteAt : Nat -> S -> S
   deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
     where
-      f : Nat * S -> A -> Nat * S
+      f : Pair Nat S -> A -> Pair Nat S
       f (k , s) a = (suc k , if k == n then s else cons a s)
 
   modifyAt : Nat -> (A -> A) -> S -> S
   modifyAt n f = reverse <<< snd <<< foldl g (0 , nil)
     where
-      g : Nat * S -> A -> Nat * S
+      g : Pair Nat S -> A -> Pair Nat S
       g (k , s) a = (suc k , if k == n then cons (f a) s else cons a s)
 
   setAt : Nat -> A -> S -> S
@@ -108,19 +101,10 @@ record Sequence (S A : Set) : Set where
   insertAt : Nat -> A -> S -> S
   insertAt n a' = reverse <<< snd <<< foldl f (0 , nil)
     where
-      f : Nat * S -> A -> Nat * S
+      f : Pair Nat S -> A -> Pair Nat S
       f (k , s) a = (suc k , if k == n then cons a' (cons a s) else cons a s)
 
 open Sequence {{...}} public
 
 Sequential : (Set -> Set) -> Set
 Sequential T = forall {A} -> Sequence (T A) A
-
-instance
-  sequentialList : Sequential List
-  sequentialList .nil = []
-  sequentialList .cons = _::_
-
-  sequenceStringChar : Sequence String Char
-  sequenceStringChar .nil = ""
-  sequenceStringChar .cons c s = pack (c :: unpack s)

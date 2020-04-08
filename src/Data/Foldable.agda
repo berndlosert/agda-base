@@ -2,19 +2,16 @@
 
 module Data.Foldable where
 
-open import Control.Applicative using (Applicative; _*>_; pure)
-open import Control.Monad using (Monad; _>>=_; return)
-open import Data.Function using (id; _<<<_; flip; const)
-open import Data.Boolean using (Boolean; tt; ff; _&&_; _||_)
-open import Data.Bool using (Bool; false; true; if_then_else_; not)
-open import Data.Either using (Either; left; right; untag)
-open import Data.Eq using (Eq; _==_)
-open import Data.Maybe using (Maybe; maybeToLeft; ensure; leftToMaybe; isJust)
-open import Data.Monoid using (Monoid)
-open import Data.Nat using (Nat; suc)
-open import Data.Semigroup using (fromEndo; toEndo)
-open import Data.Semigroup using (fromDual; toDual)
-open import Data.Unit using (Unit; unit)
+open import Control.Monad
+open import Data.Function
+open import Data.Boolean
+open import Data.Bool
+open import Data.Either
+open import Data.Eq
+open import Data.Maybe
+open import Data.Monoid public
+open import Data.Nat
+open import Data.Unit
 
 private
   variable
