@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.String.Show where
+module String.Show where
 
 private variable A B : Set
 

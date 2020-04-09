@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.String.Parser where
+module String.Parser where
 
 private variable A B : Set
 

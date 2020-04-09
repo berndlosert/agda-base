@@ -10,6 +10,7 @@ open import Data.Boolean public
 open import Data.Char public
 open import Data.Either public
 open import Data.Eq public
+open import Data.Foldable public
 open import Data.Function public
 open import Data.Functor public
 open import Data.Int public
@@ -25,7 +26,7 @@ open import Data.Semigroup public
 open import Data.Semiring public
 open import Data.Sequence public
 open import Data.String public
-open import Data.String.Show public
 open import Data.Unit public
 open import Data.Void public
+open import String.Show public
 open import System.IO public

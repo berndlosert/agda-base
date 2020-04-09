@@ -10,8 +10,8 @@ open import Agda.Builtin.IO public
 open import Control.Monad
 open import Data.Monoid
 open import Data.String
-open import Data.String.Show
 open import Data.Unit
+open import String.Show
 
 private
   postulate
