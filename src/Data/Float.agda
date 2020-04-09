@@ -22,9 +22,9 @@ open import Agda.Builtin.Float public
   )
 
 open import Data.Bool
+open import Data.Field
 open import Data.Ord
 open import Data.Int
-open import Data.Num
 open import Data.Unit
 open import Data.Void
 
@@ -42,12 +42,12 @@ instance
   semiringFloat ._*_ = Agda.Builtin.Float.primFloatTimes
 
   ringFloat : Ring Float
+  ringFloat .-_ = Agda.Builtin.Float.primFloatNegate
   ringFloat ._-_ = Agda.Builtin.Float.primFloatMinus
 
-  numFloat : Num Float
-  numFloat .Nonzero x = if x == 0.0 then Void else Unit
-  numFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
-  numFloat ._%_ _ _ = 0.0
+  fieldFloat : Field Float
+  fieldFloat .Nonzero x = if x == 0.0 then Void else Unit
+  fieldFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 intToFloat : Int -> Float
 intToFloat (pos n) = natToFloat n

@@ -117,11 +117,11 @@ til : Nat -> List Nat
 til 0 = []
 til (suc n) = til n ++ singleton n
 
-range : Nat -> Nat -> List Nat
-range m n with compare m n
-... | GT = []
-... | EQ = singleton n
-... | LT = map (_+ m) $ til $ suc (n - m)
+--range : Nat -> Nat -> List Nat
+--range m n with compare m n
+--... | GT = []
+--... | EQ = singleton n
+--... | LT = map (_+ m) $ til $ suc (n - m)
 
 --inits : {{_ : Fold S A}} -> S -> List S
 --inits s = map (flip take s) $ til (length s + 1)
