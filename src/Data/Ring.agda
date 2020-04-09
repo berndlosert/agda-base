@@ -2,6 +2,8 @@
 
 module Data.Ring where
 
+open import Data.Bool
+open import Data.Ord
 open import Data.Semiring public
 open import Data.Unit using (Unit; unit)
 
@@ -13,6 +15,9 @@ record Ring (A : Set) : Set where
     overlap {{super}} : Semiring A
     -_ : A -> A
     _-_ : A -> A -> A
+
+  abs : {{_ : Ord A}} -> A -> A
+  abs a = if a < zero then - a else a
 
 open Ring {{...}} public
 
