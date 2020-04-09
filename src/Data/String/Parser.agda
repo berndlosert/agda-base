@@ -1,18 +1,13 @@
 {-# OPTIONS --type-in-type #-}
 
-module Text.Parser where
+module Data.String.Parser where
 
 private variable A B : Set
 
 module Parser where
 
-  open import Data.List
-  open import Data.Char
-  open import Data.Nat
-  open import Data.String
-
   open import Prelude
-    hiding (plus)
+    hiding (plus; takeWhile)
 
   record Parser (A : Set) : Set where
     constructor toParser
@@ -26,7 +21,7 @@ module Parser where
       map (cross f id) $ fromParser p s
 
     applicativeParser : Applicative Parser
-    applicativeParser .pure x = toParser $ List.singleton <<< (x ,_)
+    applicativeParser .pure x = toParser $ singleton <<< (x ,_)
     applicativeParser ._<*>_ f p = toParser \ s0 -> do
       (g , s1) <- fromParser f s0
       (x , s2) <- fromParser p s1
@@ -45,14 +40,14 @@ module Parser where
   -- item is a parser that consumes the first character if the input string is
   -- nonempty, and fails otherwise.
   item : Parser Char
-  item = toParser (List.fromMaybe <<< String.uncons)
+  item = toParser (maybeToList <<< uncons)
 
   -- first p is the parser whose output contains only the first successful
   -- parse (if it has one at all).
   first : Parser A -> Parser A
   first p = toParser \ s -> case (fromParser p s) of \ where
     [] -> []
-    (x :: _) -> List.singleton x
+    (x :: _) -> singleton x
 
   -- plus p q is just <> wrapped in first.
   plus : Parser A -> Parser A -> Parser A
@@ -71,19 +66,19 @@ module Parser where
 
   -- Parse digits.
   digit : Parser Char
-  digit = satisfy Char.isDigit
+  digit = satisfy isDigit
 
   -- Parse letters.
   letter : Parser Char
-  letter = satisfy Char.isAlpha
+  letter = satisfy isAlpha
 
   -- Parse lower-case characters.
   lower : Parser Char
-  lower = satisfy Char.isLower
+  lower = satisfy isLower
 
   -- Parser upper-case characters.
   upper : Parser Char
-  upper = satisfy (\ c -> Char.isAlpha c && not (Char.isLower c))
+  upper = satisfy (\ c -> isAlpha c && not (isLower c))
 
   -- Parse alpha-numeric characters.
   alphanum : Parser Char
@@ -98,14 +93,14 @@ module Parser where
       neword = do
         c <- letter
         s <- word
-        return (String.cons c s)
+        return (cons c s)
 
   -- Produce string parsers.
   {-# TERMINATING #-}
   string : String -> Parser String
-  string s with String.uncons s
+  string s with uncons s
   ... | nothing = pure ""
-  ... | (just (c , s')) = char c >> string s' >> pure (String.cons c s')
+  ... | (just (c , s')) = char c >> string s' >> pure (cons c s')
 
   -- The combinator many (resp. many1) applies a parser p zero (resp. one) or
   -- more times to an input string. The results from each application of p are
@@ -134,13 +129,13 @@ module Parser where
   -- Parser for natural numbers.
   nat : Parser Nat
   nat = chainl1
-      (digit >>= \ x -> return (Char.ord x - Char.ord '0'))
+      (digit >>= \ x -> return (ord x - ord '0'))
       (return (\ m n -> 10 * m + n))
 
   -- Spaces parser.
   spaces : Parser Unit
   spaces = do
-    many1 (satisfy Char.isSpace)
+    many1 (satisfy isSpace)
     return unit
 
   -- Junk parser.
@@ -157,7 +152,7 @@ module Parser where
   -- consumed input.
   takeWhile : (Char -> Bool) -> Parser String
   takeWhile p = toParser \ s ->
-    List.singleton (String.takeWhile p s , String.dropWhile p s)
+    singleton (Prelude.takeWhile p s , dropWhile p s)
 
   -- Consumes the rest of the input.
   takeRest : Parser String
