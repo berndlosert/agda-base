@@ -90,7 +90,7 @@ private
 --{-# COMPILE GHC tail' = Text.tail #-}
 --{-# COMPILE GHC uncons' = Text.uncons #-}
 {-# COMPILE GHC reverse' = Text.reverse #-}
---{-# COMPILE GHC replicate' n c = Text.replicate (toInteger n) (Text.singleton c) #-}
+{-# COMPILE GHC replicate' = \ n c -> Text.replicate (toInteger n) (Text.singleton c) #-}
 {-# COMPILE GHC intersperse' = Text.intersperse #-}
 {-# COMPILE GHC takeWhile' = Text.takeWhile #-}
 {-# COMPILE GHC dropWhile' = Text.dropWhile #-}

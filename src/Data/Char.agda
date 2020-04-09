@@ -22,6 +22,20 @@ open import Agda.Builtin.Char public
     primNatToChar to chr
   )
 
+fromDecDigit : Char -> Nat
+fromDecDigit = \ where
+  '0' -> 0
+  '1' -> 1
+  '2' -> 2
+  '3' -> 3
+  '4' -> 4
+  '5' -> 5
+  '6' -> 6
+  '7' -> 7
+  '8' -> 8
+  '9' -> 9
+  _ -> 0
+
 instance
   eqChar : Eq Char
   eqChar ._==_ c d = ord c == ord d

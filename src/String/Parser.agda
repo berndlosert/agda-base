@@ -126,11 +126,11 @@ module Parser where
         (op >>= \ f -> p >>= \ y -> rest (f x y))
         (return x)
 
-  -- Parser for nonnegative integers.
-  nat : Parser Int
+  -- Parser for natural numbers.
+  nat : Parser Nat
   nat = chainl1
-      (digit >>= \ x -> return $ pos (ord x) - pos (ord '0'))
-      (return (\ m n -> pos 10 * m + n))
+      (digit >>= \ x -> return $ fromDecDigit x)
+      (return \ m n -> 10 * m + n)
 
   -- Spaces parser.
   spaces : Parser Unit
