@@ -2,8 +2,6 @@
 
 module Data.Nat where
 
---open import Data.Bool
---open import Data.Either
 open import Data.Ord
 open import Data.Function
 open import Data.Num
