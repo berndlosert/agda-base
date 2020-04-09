@@ -11,6 +11,8 @@ open import Agda.Builtin.List public
 open import Control.Alternative
 open import Control.Monad
 open import Data.Bool
+open import Data.Either
+open import Data.Foldable
 open import Data.Function
 open import Data.Maybe
 open import Data.Nat
@@ -27,6 +29,60 @@ instance
   sequentialList : Sequential List
   sequentialList .nil = []
   sequentialList .cons = _::_
+  sequentialList .singleton = _:: []
+  sequentialList ._++_ xs ys = foldr _::_ ys xs
+  sequentialList .snoc as a = as ++ singleton a
+  sequentialList .head [] = nothing
+  sequentialList .head (a :: _) = just a
+  sequentialList .tail [] = nothing
+  sequentialList .tail (_ :: as) = just as
+  sequentialList .uncons [] = nothing
+  sequentialList .uncons (a :: as) = just (a , as)
+  sequentialList .reverse = foldl (flip _::_) []
+  sequentialList .replicate n a = applyN (a ::_) n []
+  sequentialList .intersperse sep = foldr f []
+    where
+      -- f : A -> List A -> List A
+      f : _
+      f a [] = singleton a
+      f a as = a :: sep :: as
+  sequentialList .takeWhile p = reverse <<< untag <<< foldlM f []
+    where
+      -- f : List A -> A -> Either (List A) (List A)
+      f : _
+      f as a = if p a then right (a :: as) else left as
+  sequentialList .dropWhile p = reverse <<< foldl f []
+    where
+      -- f : List A -> A -> List A
+      f : _
+      f as a = if p a then as else (a :: as)
+  sequentialList .take n = reverse <<< snd <<< untag <<< foldlM f (0 , [])
+    where
+      -- f : Pair Nat S -> A -> Either (Pair Nat S) (Pair Nat S)
+      f : _
+      f (k , s) a =
+        if k < n then right (suc k , cons a s) else left (suc k , s)
+  sequentialList .drop n = reverse <<< snd <<< foldl f (0 , [])
+    where
+      f : _
+      -- f : Pair Nat S -> A -> Pair Nat S
+      f (k , as) a = if k < n then (suc k , as) else (suc k , a :: as)
+  sequentialList .deleteAt n = reverse <<< snd <<< foldl f (0 , nil)
+    where
+      -- f : Pair Nat S -> A -> Pair Nat S
+      f : _
+      f (k , as) a = (suc k , if k == n then as else (a :: as))
+  sequentialList .modifyAt n f = reverse <<< snd <<< foldl g (0 , nil)
+    where
+      -- g : Pair Nat S -> A -> Pair Nat S
+      g : _
+      g (k , as) a = (suc k , if k == n then f a :: as else (a :: as))
+  sequentialList .setAt n a = modifyAt n (const a)
+  sequentialList .insertAt n a' = reverse <<< snd <<< foldl f (0 , nil)
+    where
+      -- f : Pair Nat S -> A -> Pair Nat S
+      f : _
+      f (k , as) a = (suc k , if k == n then a' :: a :: as else (a :: as))
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ = _++_

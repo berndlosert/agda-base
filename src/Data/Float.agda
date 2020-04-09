@@ -2,59 +2,55 @@
 
 module Data.Float where
 
-module Float where
-  open import Agda.Builtin.Float public
-    using (Float)
-    renaming (
-      primFloatNumericalEquality to eq;
-      primFloatNumericalLess to lt;
-      primFloatPlus to add;
-      primFloatTimes to mul;
-      primFloatMinus to sub;
-      primFloatDiv to div;
-      primNatToFloat to fromNat;
-      primShowFloat to show;
-      primFloatSqrt to sqrt;
-      primRound to round;
-      primFloor to floor;
-      primCeiling to ceil;
-      primExp to exp;
-      primLog to log;
-      primSin to sin;
-      primCos to cos;
-      primTan to tan;
-      primASin to asin;
-      primACos to acos;
-      primATan to atan;
-      primATan2 to atan2
-    )
-
-  --fromInt : Int -> Float
-  --fromInt (pos n) = fromNat n
-  --fromInt (negsuc n) = - (fromNat n) - 1.0
-
-open Float public
+open import Agda.Builtin.Float public
   using (Float)
+  renaming (
+    primNatToFloat to natToFloat;
+    primFloatSqrt to sqrt;
+    primRound to round;
+    primFloor to floor;
+    primCeiling to ceil;
+    primExp to exp;
+    primLog to log;
+    primSin to sin;
+    primCos to cos;
+    primTan to tan;
+    primASin to asin;
+    primACos to acos;
+    primATan to atan;
+    primATan2 to atan2
+  )
 
-open import Prelude
+open import Data.Bool
+open import Data.Ord
+open import Data.Int
+open import Data.Num
+open import Data.Unit
+open import Data.Void
 
 instance
   eqFloat : Eq Float
-  eqFloat ._==_ = Float.eq
+  eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
   ordFloat : Ord Float
-  ordFloat ._<_ = Float.lt
+  ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
   semiringFloat : Semiring Float
   semiringFloat .zero = 0.0
   semiringFloat .one = 1.0
-  semiringFloat ._+_ = Float.add
-  semiringFloat ._*_ = Float.mul
+  semiringFloat ._+_ = Agda.Builtin.Float.primFloatPlus
+  semiringFloat ._*_ = Agda.Builtin.Float.primFloatTimes
 
   ringFloat : Ring Float
-  ringFloat ._-_ = Float.sub
+  ringFloat ._-_ = Agda.Builtin.Float.primFloatMinus
 
   numFloat : Num Float
   numFloat .Nonzero x = if x == 0.0 then Void else Unit
-  numFloat ._/_ x y = Float.div x y
+  numFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
   numFloat ._%_ _ _ = 0.0
+
+intToFloat : Int -> Float
+intToFloat (pos n) = natToFloat n
+intToFloat (negsuc n) = - (natToFloat n) - 1.0
+
+

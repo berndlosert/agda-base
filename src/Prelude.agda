@@ -23,5 +23,8 @@ open import Data.Ring public
 open import Data.Semigroup public
 open import Data.Semiring public
 open import Data.Sequence public
+open import Data.String public
+open import Data.String.Show public
 open import Data.Unit public
 open import Data.Void public
+open import System.IO public

@@ -4,14 +4,19 @@ module Data.String.Show where
 
 private variable A B : Set
 
+open import Data.Bool
 open import Data.Char
+open import Data.Either
 open import Data.Float
 open import Data.Int
 open import Data.List
+open import Data.Maybe
 open import Data.Nat
+open import Data.Pair
+open import Data.Sequence
 open import Data.String
-
-open import Prelude
+open import Data.Unit
+open import Data.Void
 
 record Show (A : Set) : Set where
   field show : A -> String
@@ -30,43 +35,41 @@ instance
   showBool .show false = "false"
 
   showNat : Show Nat
-  showNat .show = show'
-    where
-      open import Agda.Builtin.String
-        renaming (primShowNat to show')
+  showNat .show = primShowNat
+    where open import Agda.Builtin.String
 
   showInt : Show Int
-  showInt .show = show'
-    where
-      open import Agda.Builtin.Int public
-        renaming (primShowInteger to show')
+  showInt .show = primShowInteger
+    where open import Agda.Builtin.Int
 
   showFloat : Show Float
-  showFloat .show = Float.show
+  showFloat .show = primShowFloat
+    where open import Agda.Builtin.Float
 
   showPair : {{_ : Show A}} {{_ : Show B}} -> Show (Pair A B)
-  showPair .show (x , y) = "(" <> show x <> " , " <> show y <> ")"
+  showPair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = \ where
-    (left x) -> "left " <> show x
-    (right y) -> "right " <> show y
+    (left x) -> "left " ++ show x
+    (right y) -> "right " ++ show y
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
   showMaybe .show = \ where
-    (just x) -> "just " <> show x
+    (just x) -> "just " ++ show x
     nothing -> "nothing"
 
   showList : forall {A} {{_ : Show A}} -> Show (List A)
   showList .show [] = "[]"
-  showList {A} .show as = "(" <> show' as <> ")"
+  showList {A} .show as = "(" ++ show' as ++ ")"
     where
       show' : List A -> String
       show' [] = "[]"
-      show' (x :: xs) = show x <> " :: " <> show' xs
+      show' (x :: xs) = show x ++ " :: " ++ show' xs
 
   showChar : Show Char
-  showChar .show c = "'" <> String.fromChar c <> "'"
+  showChar .show c = "'" ++ singleton c ++ "'"
 
   showString : Show String
-  showString .show = Agda.Builtin.String.primShowString
+  showString .show = primShowString
+    where open import Agda.Builtin.String
