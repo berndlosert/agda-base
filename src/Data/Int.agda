@@ -22,6 +22,13 @@ neg : Nat -> Int
 neg 0 = pos 0
 neg (suc n) = negsuc n
 
+Nonneg : Int -> Set
+Nonneg (pos _) = Unit
+Nonneg _ = Void
+
+nonneg : (n : Int) {_ : Nonneg n} -> Nat
+nonneg (pos n) = n
+
 private
   sub : Nat -> Nat -> Int
   sub m 0 = pos m
