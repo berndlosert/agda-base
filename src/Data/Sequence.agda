@@ -41,6 +41,11 @@ record Sequence (S A : Set) : Set where
     modifyAt : Nat -> (A -> A) -> S -> S
     setAt : Nat -> A -> S -> S
     insertAt : Nat -> A -> S -> S
+    -- Predicates
+    isPrefixOf : {{eq : Eq A}} -> S -> S -> Bool
+    isSuffixOf : {{eq : Eq A}} -> S -> S -> Bool
+    isInfixOf : {{eq : Eq A}} -> S -> S -> Bool
+    isSubsequenceOf : {{eq : Eq A}} -> S -> S -> Bool
 
 open Sequence {{...}} public
 

@@ -83,6 +83,19 @@ instance
       -- f : Pair Nat S -> A -> Pair Nat S
       f : _
       f (k , as) a = (suc k , if k == n then a' :: a :: as else (a :: as))
+  sequentialList .isPrefixOf [] _ = true
+  sequentialList .isPrefixOf _ [] = false
+  sequentialList .isPrefixOf (x :: xs) (y :: ys) =
+    (x == y) && (isPrefixOf xs ys)
+  sequentialList .isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
+  sequentialList .isInfixOf [] _ = true
+  sequentialList .isInfixOf _ [] = false
+  sequentialList .isInfixOf as@(x :: xs) (y :: ys) =
+    if x == y then isPrefixOf xs ys else isInfixOf as ys
+  sequentialList .isSubsequenceOf [] _ = true
+  sequentialList .isSubsequenceOf _ [] = true
+  sequentialList .isSubsequenceOf as@(x :: xs) (y :: ys) =
+    if x == y then isSubsequenceOf xs ys else isSubsequenceOf as ys
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ = _++_
@@ -110,12 +123,19 @@ instance
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
---concat : {{_ : Fold S A}} -> List S -> S
---concat = foldr _++_ nil
-
 til : Nat -> List Nat
 til 0 = []
 til (suc n) = til n ++ singleton n
+
+inits : List A -> List (List  A)
+inits s = map (flip take s) $ til (length s + 1)
+
+tails : List A -> List (List A)
+tails s = map (flip drop s) $ til (length s + 1)
+
+
+--concat : {{_ : Fold S A}} -> List S -> S
+--concat = foldr _++_ nil
 
 --range : Nat -> Nat -> List Nat
 --range m n with compare m n
@@ -123,11 +143,6 @@ til (suc n) = til n ++ singleton n
 --... | EQ = singleton n
 --... | LT = map (_+ m) $ til $ suc (n - m)
 
---inits : {{_ : Fold S A}} -> S -> List S
---inits s = map (flip take s) $ til (length s + 1)
---
---tails : {{_ : Fold S A}} -> S -> List S
---tails s = map (flip drop s) $ til (length s + 1)
 --
 --intercalate : {{_ : Fold S A}} -> S -> List S -> S
 --intercalate sep [] = nil
@@ -224,17 +239,6 @@ zip = zipWith _,_
 --transpose : List (List A) -> List (List A)
 --transpose [] = []
 --transpose (heads :: tails) = zipCons heads (transpose tails)
-
-isPrefixOf : {{_ : Eq A}} -> List A -> List A -> Bool
-isPrefixOf [] _ = true
-isPrefixOf _ [] = false
-isPrefixOf (x :: xs) (y :: ys) = (x == y) && (isPrefixOf xs ys)
-
-isSuffixOf : {{_ : Eq A}} -> List A -> List A -> Bool
-isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
-
---isInfixOf : {{_ : Eq A}} -> List A -> List A -> Bool
---isInfixOf xs ys = any (isPrefixOf xs) (tails ys)
 
 indexed : List A -> List (Pair Nat A)
 indexed as = zip indices as

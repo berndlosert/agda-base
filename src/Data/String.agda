@@ -133,6 +133,10 @@ instance
   sequenceStringChar .modifyAt = modifyAt'
   sequenceStringChar .setAt = setAt'
   sequenceStringChar .insertAt = insertAt'
+  sequenceStringChar .isPrefixOf s s' = isPrefixOf {{eq = eqChar}} (unpack s) (unpack s')
+  sequenceStringChar .isSuffixOf s s' = isSuffixOf {{eq = eqChar}} (unpack s) (unpack s')
+  sequenceStringChar .isInfixOf s s' = isInfixOf {{eq = eqChar}} (unpack s) (unpack s')
+  sequenceStringChar .isSubsequenceOf s s' = isSubsequenceOf {{eq = eqChar}} (unpack s) (unpack s')
 
   --padRight : Nat -> Char -> String -> String
   --padRight desiredLength padChar s =
