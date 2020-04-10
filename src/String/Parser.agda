@@ -42,16 +42,16 @@ module Parser where
   item : Parser Char
   item = toParser (maybeToList <<< uncons)
 
-  -- pfirst p is the parser whose output contains only the first successful
+  -- cull p is the parser whose output contains only the first successful
   -- parse (if it has one at all).
-  pfirst : Parser A -> Parser A
-  pfirst p = toParser \ s -> case (fromParser p s) of \ where
+  cull : Parser A -> Parser A
+  cull p = toParser \ s -> case (fromParser p s) of \ where
     [] -> []
     (x :: _) -> singleton x
 
   -- plus p q is just <> wrapped in first.
   plus : Parser A -> Parser A -> Parser A
-  plus p q = pfirst (p <|> q)
+  plus p q = cull (p <|> q)
 
   -- satisfy takes a predicate, and yields a parser that consumes a single
   -- character if it satisfies the predicate, and fails otherwise.
