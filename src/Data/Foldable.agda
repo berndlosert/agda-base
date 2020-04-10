@@ -40,12 +40,6 @@ record Fold (S A : Set) : Set where
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
-  null : S -> Bool
-  null = untag <<< foldlM (\ _ _ -> left false) true
-
-  length : S -> Nat
-  length = foldr (const suc) 0
-
   find : (A -> Bool) -> S -> Maybe A
   find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
     leftToMaybe <<< foldlM (ensure' p) unit

@@ -94,13 +94,19 @@ private
   isSubsequenceOf' : String -> String -> Bool
   isSubsequenceOf' s s' = isSubsequenceOf {{eq = eqChar}} (unpack s) (unpack s')
 
+  null' : String -> Bool
+  null' = null <<< unpack
+
+  length' : String -> Nat
+  length' = length <<< unpack
+
+  filter' : (Char -> Bool) -> String -> String
+  filter' = repack <<< filter
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons' = Text.cons #-}
 {-# COMPILE GHC singleton' = Text.singleton #-}
 {-# COMPILE GHC snoc' = Text.snoc #-}
---{-# COMPILE GHC head' = Text.head #-}
---{-# COMPILE GHC tail' = Text.tail #-}
---{-# COMPILE GHC uncons' = Text.uncons #-}
 {-# COMPILE GHC reverse' = Text.reverse #-}
 {-# COMPILE GHC replicate' = \ n c -> Text.replicate (fromInteger n) (Text.singleton c) #-}
 {-# COMPILE GHC intersperse' = Text.intersperse #-}
@@ -108,11 +114,12 @@ private
 {-# COMPILE GHC dropWhile' = Text.dropWhile #-}
 {-# COMPILE GHC take' = Text.take . fromInteger #-}
 {-# COMPILE GHC drop' = Text.drop . fromInteger #-}
---{-# COMPILE GHC length = toInteger . Text.length #-}
 {-# COMPILE GHC isPrefixOf' = Text.isPrefixOf #-}
 {-# COMPILE GHC isSuffixOf' = Text.isSuffixOf #-}
 {-# COMPILE GHC isInfixOf' = Text.isInfixOf #-}
---{-# COMPILE GHC stripPrefix' = Text.stripPrefix #-}
+{-# COMPILE GHC null' = Text.null #-}
+{-# COMPILE GHC length' = toInteger. Text.length #-}
+{-# COMPILE GHC filter' = Text.filter #-}
 
 instance
   eqString : Eq String
@@ -152,6 +159,9 @@ instance
     .isSuffixOf -> isSuffixOf'
     .isInfixOf -> isInfixOf'
     .isSubsequenceOf -> isSubsequenceOf'
+    .null -> null'
+    .length -> length'
+    .filter -> filter'
 
   --padRight : Nat -> Char -> String -> String
   --padRight desiredLength padChar s =

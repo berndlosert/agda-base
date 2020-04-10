@@ -96,6 +96,12 @@ instance
   sequentialList .isSubsequenceOf _ [] = true
   sequentialList .isSubsequenceOf as@(x :: xs) (y :: ys) =
     if x == y then isSubsequenceOf xs ys else isSubsequenceOf as ys
+  sequentialList .null [] = true
+  sequentialList .null _ = false
+  sequentialList .length = foldr (const suc) 0
+  sequentialList .filter p [] = []
+  sequentialList .filter p (a :: as) =
+    if p a then a :: filter p as else filter p as
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ = _++_
@@ -158,10 +164,6 @@ scanr f b (a :: as) with scanr f b as
 scanl : (B -> A -> B) -> B -> List A -> List B
 scanl f b [] = singleton b
 scanl f b (a :: as) = b :: scanl f (f b a) as
-
-filter : (A -> Bool) -> List A -> List A
-filter p [] = []
-filter p (a :: as) = if p a then a :: filter p as else as
 
 partition : (A -> Bool) -> List A -> Pair (List A) (List A)
 partition p xs = foldr (select p) ([] , []) xs

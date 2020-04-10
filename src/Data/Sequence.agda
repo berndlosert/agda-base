@@ -46,6 +46,11 @@ record Sequence (S A : Set) : Set where
     isSuffixOf : {{eq : Eq A}} -> S -> S -> Bool
     isInfixOf : {{eq : Eq A}} -> S -> S -> Bool
     isSubsequenceOf : {{eq : Eq A}} -> S -> S -> Bool
+    -- Length
+    null : S -> Bool
+    length : S -> Nat
+    -- Filter
+    filter : (A -> Bool) -> S -> S
 
 open Sequence {{...}} public
 
