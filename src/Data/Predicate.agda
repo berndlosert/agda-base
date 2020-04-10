@@ -2,17 +2,15 @@
 
 module Data.Predicate where
 
-open import Data.Functor.Contravariant
 open import Prelude
 
-private
-  variable
-    A : Set
+private variable A : Set
 
 record Predicate (A : Set) : Set where
-  constructor Predicate:
-  field
-    get : A -> Bool
+  constructor toPredicate
+  field fromPredicate : A -> Bool
+
+open Predicate
 
 instance
   semigroupPredicate : Semigroup (Predicate A)

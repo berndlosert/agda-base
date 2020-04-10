@@ -90,15 +90,15 @@ private
 --{-# COMPILE GHC tail' = Text.tail #-}
 --{-# COMPILE GHC uncons' = Text.uncons #-}
 {-# COMPILE GHC reverse' = Text.reverse #-}
-{-# COMPILE GHC replicate' = \ n c -> Text.replicate (toInteger n) (Text.singleton c) #-}
+{-# COMPILE GHC replicate' = \ n c -> Text.replicate (fromInteger n) (Text.singleton c) #-}
 {-# COMPILE GHC intersperse' = Text.intersperse #-}
 {-# COMPILE GHC takeWhile' = Text.takeWhile #-}
 {-# COMPILE GHC dropWhile' = Text.dropWhile #-}
---{-# COMPILE GHC take' = Text.take #-}
---{-# COMPILE GHC drop' = Text.drop #-}
+{-# COMPILE GHC take' = Text.take . fromInteger #-}
+{-# COMPILE GHC drop' = Text.drop . fromInteger #-}
 --{-# COMPILE GHC length = toInteger . Text.length #-}
---{-# COMPILE GHC startsWith = Text.isPrefixOf #-}
---{-# COMPILE GHC stripPrefix = Text.stripPrefix #-}
+--{-# COMPILE GHC isPrefixOf' = Text.isPrefixOf #-}
+--{-# COMPILE GHC stripPrefix' = Text.stripPrefix #-}
 
 instance
   eqString : Eq String

@@ -3,13 +3,12 @@
 module Control.Optics.VL where
 
 open import Prelude
+  hiding (Fold)
 
-open import Data.Functor.Contravariant
 open import Data.Functor.Const
 open import Data.Functor.Id
 open import Data.List
 open import Data.Nat
-open import Data.Profunctor
 
 private
   variable

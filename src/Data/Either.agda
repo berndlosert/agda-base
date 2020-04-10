@@ -19,9 +19,6 @@ either : (A -> C) -> (B -> C) -> Either A B -> C
 either f g (left x) = f x
 either f g (right y) = g y
 
-plus : (A -> B) -> (C -> D) -> Either A C -> Either B D
-plus f g = either (left <<< f) (right <<< g)
-
 mirror : Either A B -> Either B A
 mirror = either right left
 
@@ -54,6 +51,9 @@ instance
   functorEither .map f = \ where
     (left a) -> left a
     (right x) -> right (f x)
+
+  bifunctorEither : Bifunctor Either
+  bifunctorEither .bimap f g = either (left <<< f) (right <<< g)
 
   applicativeEither : Applicative (Either A)
   applicativeEither .pure = right

@@ -3,8 +3,8 @@
 module Control.Optics.Profunctor where
 
 open import Prelude
+  hiding (Fold)
 
-open import Data.Profunctor
 open import Data.Functor.Const
 
 private
@@ -21,7 +21,7 @@ private
 record Strong (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    strong : P A B -> P (C * A) (C * B)
+    strong : P A B -> P (Pair C A) (Pair C B)
 
 open Strong {{...}} public
 
@@ -29,7 +29,7 @@ open Strong {{...}} public
 record Choice (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    choice : P A B -> P (C + A) (C + B)
+    choice : P A B -> P (Either C A) (Either C B)
 
 open Choice {{...}} public
 
@@ -129,7 +129,7 @@ record Market (A B S T : Set) : Set where
   constructor toMarket
   field
     build : B -> T
-    match : S -> T + A
+    match : S -> Either T A
 
 -- Corresponds to Grate
 record Grating (A B S T : Set) : Set where
@@ -159,7 +159,7 @@ adapter from to = dimap from to
 lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
 lens get put = dimap (split id get) (uncurry put) <<< strong
 
-prism : (B -> T) -> (S -> T + A) -> Prism A B S T
+prism : (B -> T) -> (S -> Either T A) -> Prism A B S T
 prism build match = dimap match untag <<< choice <<< rmap build
 
 grate : (((S -> A) -> B) -> T) -> Grate A B S T
@@ -283,7 +283,7 @@ put l = Shop.put $ l $ toShop id (flip const)
 
 build : Prism A B S T -> B -> T
 build p = Market.build $ p $ toMarket id right
-match : Prism A B S T -> S -> T + A
+match : Prism A B S T -> S -> Either T A
 match p = Market.match $ p $ toMarket id right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T

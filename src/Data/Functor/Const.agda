@@ -2,7 +2,6 @@
 
 module Data.Functor.Const where
 
-open import Data.Functor.Contravariant
 open import Prelude
 
 private variable A B : Set
@@ -32,9 +31,10 @@ instance
   contravariantConst : Contravariant (Const A)
   contravariantConst .contramap f = toConst <<< fromConst
 
+  bifunctorConst : Bifunctor Const
+  bifunctorConst .bimap f g = toConst <<< f <<< fromConst
+
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst = \ where
     .pure x -> toConst mempty
     ._<*>_ f x -> toConst $ fromConst f <> fromConst x
-
-

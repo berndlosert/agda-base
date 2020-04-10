@@ -24,9 +24,6 @@ open Pair public
 split : (A -> B) -> (A -> C) -> A -> Pair B C
 split f g a = (f a , g a)
 
-cross : (A -> B) -> (C -> D) -> Pair A C -> Pair B D
-cross f g = split (f <<< fst) (g <<< snd)
-
 swap : Pair A B -> Pair B A
 swap = split snd fst
 
@@ -48,3 +45,6 @@ instance
 
   functorPair : Functor (Pair A)
   functorPair .map f (a , x) = (a , f x)
+
+  bifunctorPair : Bifunctor Pair
+  bifunctorPair .bimap f g = split (f <<< fst) (g <<< snd)
