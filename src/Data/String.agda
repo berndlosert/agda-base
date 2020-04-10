@@ -103,6 +103,10 @@ private
   filter' : (Char -> Bool) -> String -> String
   filter' = repack <<< filter
 
+  partition' : (Char -> Bool) -> String -> Pair String String
+  partition' p s = let (l , r) = partition p (unpack s) in
+    (pack l , pack r)
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons' = Text.cons #-}
 {-# COMPILE GHC singleton' = Text.singleton #-}
@@ -120,6 +124,7 @@ private
 {-# COMPILE GHC null' = Text.null #-}
 {-# COMPILE GHC length' = toInteger. Text.length #-}
 {-# COMPILE GHC filter' = Text.filter #-}
+{-# COMPILE GHC partition' = Text.partition #-}
 
 instance
   eqString : Eq String
@@ -162,6 +167,7 @@ instance
     .null -> null'
     .length -> length'
     .filter -> filter'
+    .partition -> partition'
 
   --padRight : Nat -> Char -> String -> String
   --padRight desiredLength padChar s =

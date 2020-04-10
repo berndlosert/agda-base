@@ -129,7 +129,7 @@ module Parser where
   -- Parser for natural numbers.
   nat : Parser Nat
   nat = chainl1
-      (digit >>= fromDecDigit >>> return)
+      (digit >>= \ n -> return $ monus (ord n) (ord '0'))
       (return \ m n -> 10 * m + n)
 
   -- Spaces parser.

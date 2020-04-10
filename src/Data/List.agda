@@ -102,6 +102,10 @@ instance
   sequentialList .filter p [] = []
   sequentialList .filter p (a :: as) =
     if p a then a :: filter p as else filter p as
+  sequentialList .partition p xs = foldr select ([] , []) xs
+    where
+      select : _
+      select a (ts , fs) = if p a then (a :: ts , fs) else (ts , a :: fs)
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ = _++_
@@ -139,21 +143,19 @@ inits s = map (flip take s) $ til (length s + 1)
 tails : List A -> List (List A)
 tails s = map (flip drop s) $ til (length s + 1)
 
+concat : {{_ : Sequence S A}} -> List S -> S
+concat = foldr _++_ nil
 
---concat : {{_ : Fold S A}} -> List S -> S
---concat = foldr _++_ nil
+range : Nat -> Nat -> List Nat
+range m n with compare m n
+... | GT = []
+... | EQ = singleton n
+... | LT = map (_+ m) $ til $ suc (monus n m)
 
---range : Nat -> Nat -> List Nat
---range m n with compare m n
---... | GT = []
---... | EQ = singleton n
---... | LT = map (_+ m) $ til $ suc (n - m)
-
---
---intercalate : {{_ : Fold S A}} -> S -> List S -> S
---intercalate sep [] = nil
---intercalate sep (s :: []) = s
---intercalate sep (s :: rest) = s ++ sep ++ intercalate sep rest
+intercalate : {{_ : Sequence S A}} -> S -> List S -> S
+intercalate sep [] = nil
+intercalate sep (s :: []) = s
+intercalate sep (s :: rest) = s ++ sep ++ intercalate sep rest
 
 scanr : (A -> B -> B) -> B -> List A -> List B
 scanr f b [] = b :: []
@@ -164,14 +166,6 @@ scanr f b (a :: as) with scanr f b as
 scanl : (B -> A -> B) -> B -> List A -> List B
 scanl f b [] = singleton b
 scanl f b (a :: as) = b :: scanl f (f b a) as
-
-partition : (A -> Bool) -> List A -> Pair (List A) (List A)
-partition p xs = foldr (select p) ([] , []) xs
-  where
-    select : (A -> Bool) -> A -> Pair (List A) (List A) -> Pair (List A) (List A)
-    select p a (ts , fs) with p a
-    ... | true = (a :: ts , fs)
-    ... | false = (ts , a :: fs)
 
 break : (A -> Bool) -> List A -> Pair (List A) (List A)
 break p [] = ([] , [])
@@ -188,35 +182,35 @@ stripPrefix (x :: xs) (y :: ys) =
   if x == y then stripPrefix xs ys else nothing
 stripPrefix _ _ = nothing
 
---deleteBy : (A -> A -> Bool) -> A -> List A -> List A
---deleteBy _ _ [] = []
---deleteBy eq x (y :: ys) = if eq x y then ys else y :: deleteBy eq x ys
+deleteBy : (A -> A -> Bool) -> A -> List A -> List A
+deleteBy _ _ [] = []
+deleteBy eq x (y :: ys) = if eq x y then ys else (y :: deleteBy eq x ys)
 
---nubBy : (A -> A -> Bool) -> List A -> List A
---nubBy {A} eq l = nubBy' l []
---  where
---    elemBy : (A -> A -> Bool) -> A -> List A -> Bool
---    elemBy _ _ [] = false
---    elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
---
---    nubBy' : List A -> List A -> List A
---    nubBy' [] _ = []
---    nubBy' (y :: ys) xs =
---      if elemBy eq y xs
---      then nubBy' ys xs
---      else y :: nubBy' ys (y :: xs)
+nubBy : (A -> A -> Bool) -> List A -> List A
+nubBy {A} eq l = nubBy' l []
+  where
+    elemBy : (A -> A -> Bool) -> A -> List A -> Bool
+    elemBy _ _ [] = false
+    elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
 
---unionBy : (A -> A -> Bool) -> List A -> List A -> List A
---unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
+    nubBy' : List A -> List A -> List A
+    nubBy' [] _ = []
+    nubBy' (y :: ys) xs =
+      if elemBy eq y xs
+      then nubBy' ys xs
+      else (y :: nubBy' ys (y :: xs))
 
---delete : {{_ : Eq A}} -> A -> List A -> List A
---delete = deleteBy _==_
+unionBy : (A -> A -> Bool) -> List A -> List A -> List A
+unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
 
---nub : {{_ : Eq A}} -> List A -> List A
---nub = nubBy _==_
+delete : {{_ : Eq A}} -> A -> List A -> List A
+delete = deleteBy _==_
 
---union : {{_ : Eq A}} -> List A -> List A -> List A
---union = unionBy _==_
+nub : {{_ : Eq A}} -> List A -> List A
+nub = nubBy _==_
+
+union : {{_ : Eq A}} -> List A -> List A -> List A
+union = unionBy _==_
 
 zipWith : (A -> B -> C) -> List A -> List B -> List C
 zipWith f [] _ = []
@@ -227,20 +221,20 @@ zip : List A -> List B -> List (Pair A B)
 zip = zipWith _,_
 
 -- Zips together a list of heads and a list of tails.
---zipCons : List A -> List (List A) -> List (List A)
---zipCons heads tails =
---    (zipWith _::_ heads (tails <> padding)) <> excess
---  where
---    -- Extra tails that will be zipped with those heads that have no
---    -- corresponding tail in tails.
---    padding = replicate (length heads - length tails) []
---    -- The tails that cannot be zipped because they have no corresponding
---    -- head in heads.
---    excess = snd (splitAt (length heads) tails)
+zipCons : List A -> List (List A) -> List (List A)
+zipCons heads tails =
+    (zipWith _::_ heads (tails <> padding)) <> excess
+  where
+    -- Extra tails that will be zipped with those heads that have no
+    -- corresponding tail in tails.
+    padding = replicate (monus (length heads) (length tails)) []
+    -- The tails that cannot be zipped because they have no corresponding
+    -- head in heads.
+    excess = snd (splitAt (length heads) tails)
 
---transpose : List (List A) -> List (List A)
---transpose [] = []
---transpose (heads :: tails) = zipCons heads (transpose tails)
+transpose : List (List A) -> List (List A)
+transpose [] = []
+transpose (heads :: tails) = zipCons heads (transpose tails)
 
 indexed : List A -> List (Pair Nat A)
 indexed as = zip indices as

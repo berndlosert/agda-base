@@ -51,6 +51,7 @@ record Sequence (S A : Set) : Set where
     length : S -> Nat
     -- Filter
     filter : (A -> Bool) -> S -> S
+    partition : (A -> Bool) -> S -> Pair S S
 
 open Sequence {{...}} public
 

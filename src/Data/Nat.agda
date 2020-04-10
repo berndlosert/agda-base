@@ -20,6 +20,9 @@ natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 applyN : (A -> A) -> Nat -> A -> A
 applyN f n a = natrec a (const f) n
 
+monus : Nat -> Nat -> Nat
+monus = Agda.Builtin.Nat._-_
+
 instance
   eqNat : Eq Nat
   eqNat ._==_ = Agda.Builtin.Nat._==_
@@ -32,3 +35,5 @@ instance
   semiringNat .one = 1
   semiringNat ._+_ = Agda.Builtin.Nat._+_
   semiringNat ._*_ = Agda.Builtin.Nat._*_
+
+
