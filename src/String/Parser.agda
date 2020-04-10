@@ -7,7 +7,7 @@ private variable A B : Set
 module Parser where
 
   open import Prelude
-    hiding (plus; takeWhile)
+    hiding (takeWhile)
 
   record Parser (A : Set) : Set where
     constructor toParser
@@ -18,7 +18,7 @@ module Parser where
   instance
     functorParser : Functor Parser
     functorParser .map f p = toParser \ s ->
-      map (cross f id) $ fromParser p s
+      map (first f) $ fromParser p s
 
     applicativeParser : Applicative Parser
     applicativeParser .pure x = toParser $ singleton <<< (x ,_)
@@ -42,16 +42,16 @@ module Parser where
   item : Parser Char
   item = toParser (maybeToList <<< uncons)
 
-  -- first p is the parser whose output contains only the first successful
+  -- pfirst p is the parser whose output contains only the first successful
   -- parse (if it has one at all).
-  first : Parser A -> Parser A
-  first p = toParser \ s -> case (fromParser p s) of \ where
+  pfirst : Parser A -> Parser A
+  pfirst p = toParser \ s -> case (fromParser p s) of \ where
     [] -> []
     (x :: _) -> singleton x
 
   -- plus p q is just <> wrapped in first.
   plus : Parser A -> Parser A -> Parser A
-  plus p q = first (p <|> q)
+  plus p q = pfirst (p <|> q)
 
   -- satisfy takes a predicate, and yields a parser that consumes a single
   -- character if it satisfies the predicate, and fails otherwise.

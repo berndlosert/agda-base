@@ -82,6 +82,18 @@ private
   insertAt' : Nat -> Char -> String -> String
   insertAt' n = repack <<< insertAt n
 
+  isPrefixOf' : String -> String -> Bool
+  isPrefixOf' s s' = isPrefixOf {{eq = eqChar}} (unpack s) (unpack s')
+
+  isSuffixOf' : String -> String -> Bool
+  isSuffixOf' s s' = isSuffixOf {{eq = eqChar}} (unpack s) (unpack s')
+
+  isInfixOf' : String -> String -> Bool
+  isInfixOf' s s' = isInfixOf {{eq = eqChar}} (unpack s) (unpack s')
+
+  isSubsequenceOf' : String -> String -> Bool
+  isSubsequenceOf' s s' = isSubsequenceOf {{eq = eqChar}} (unpack s) (unpack s')
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons' = Text.cons #-}
 {-# COMPILE GHC singleton' = Text.singleton #-}
@@ -97,7 +109,9 @@ private
 {-# COMPILE GHC take' = Text.take . fromInteger #-}
 {-# COMPILE GHC drop' = Text.drop . fromInteger #-}
 --{-# COMPILE GHC length = toInteger . Text.length #-}
---{-# COMPILE GHC isPrefixOf' = Text.isPrefixOf #-}
+{-# COMPILE GHC isPrefixOf' = Text.isPrefixOf #-}
+{-# COMPILE GHC isSuffixOf' = Text.isSuffixOf #-}
+{-# COMPILE GHC isInfixOf' = Text.isInfixOf #-}
 --{-# COMPILE GHC stripPrefix' = Text.stripPrefix #-}
 
 instance
@@ -114,29 +128,30 @@ instance
   foldStringChar .foldMap f = foldMap f <<< unpack
 
   sequenceStringChar : Sequence String Char
-  sequenceStringChar .nil = ""
-  sequenceStringChar .cons = cons'
-  sequenceStringChar .singleton = singleton'
-  sequenceStringChar ._++_ = Agda.Builtin.String.primStringAppend
-  sequenceStringChar .snoc = snoc'
-  sequenceStringChar .head = head'
-  sequenceStringChar .tail = tail'
-  sequenceStringChar .uncons = uncons'
-  sequenceStringChar .reverse = reverse'
-  sequenceStringChar .replicate = replicate'
-  sequenceStringChar .intersperse = intersperse'
-  sequenceStringChar .takeWhile = takeWhile'
-  sequenceStringChar .dropWhile = dropWhile'
-  sequenceStringChar .take = take'
-  sequenceStringChar .drop = drop'
-  sequenceStringChar .deleteAt = deleteAt'
-  sequenceStringChar .modifyAt = modifyAt'
-  sequenceStringChar .setAt = setAt'
-  sequenceStringChar .insertAt = insertAt'
-  sequenceStringChar .isPrefixOf s s' = isPrefixOf {{eq = eqChar}} (unpack s) (unpack s')
-  sequenceStringChar .isSuffixOf s s' = isSuffixOf {{eq = eqChar}} (unpack s) (unpack s')
-  sequenceStringChar .isInfixOf s s' = isInfixOf {{eq = eqChar}} (unpack s) (unpack s')
-  sequenceStringChar .isSubsequenceOf s s' = isSubsequenceOf {{eq = eqChar}} (unpack s) (unpack s')
+  sequenceStringChar = \ where
+    .nil -> ""
+    .cons -> cons'
+    .singleton -> singleton'
+    ._++_ -> Agda.Builtin.String.primStringAppend
+    .snoc -> snoc'
+    .head -> head'
+    .tail -> tail'
+    .uncons -> uncons'
+    .reverse -> reverse'
+    .replicate -> replicate'
+    .intersperse -> intersperse'
+    .takeWhile -> takeWhile'
+    .dropWhile -> dropWhile'
+    .take -> take'
+    .drop -> drop'
+    .deleteAt -> deleteAt'
+    .modifyAt -> modifyAt'
+    .setAt -> setAt'
+    .insertAt -> insertAt'
+    .isPrefixOf -> isPrefixOf'
+    .isSuffixOf -> isSuffixOf'
+    .isInfixOf -> isInfixOf'
+    .isSubsequenceOf -> isSubsequenceOf'
 
   --padRight : Nat -> Char -> String -> String
   --padRight desiredLength padChar s =

@@ -12,8 +12,7 @@ _~>_ : (F G : Set -> Set) -> Set
 F ~> G  = forall {A} -> F A -> G A
 
 record Functor (F : Set -> Set) : Set where
-  field
-    map : (A -> B) -> F A -> F B
+  field map : (A -> B) -> F A -> F B
 
   infixl 4 _<$>_
   _<$>_ : (A -> B) -> F A -> F B
@@ -33,8 +32,7 @@ record Functor (F : Set -> Set) : Set where
 open Functor {{...}} public
 
 record Contravariant (F : Set -> Set) : Set where
-  field
-    contramap : (A -> B) -> F B -> F A
+  field contramap : (A -> B) -> F B -> F A
 
   phantom : {{_ : Functor F}} -> F A -> F B
   phantom x = contramap (const unit) $ map (const unit) x
@@ -42,8 +40,7 @@ record Contravariant (F : Set -> Set) : Set where
 open Contravariant {{...}} public
 
 record Bifunctor (P : Set -> Set -> Set) : Set where
-  field
-    bimap : (A -> B) -> (C -> D) -> P A C -> P B D
+  field bimap : (A -> B) -> (C -> D) -> P A C -> P B D
 
   first : (A -> B) -> P A C -> P B C
   first f = bimap f id
@@ -54,8 +51,7 @@ record Bifunctor (P : Set -> Set -> Set) : Set where
 open Bifunctor {{...}} public
 
 record Profunctor (P : Set -> Set -> Set) : Set where
-  field
-    dimap : (A -> B) -> (C -> D) -> P B C -> P A D
+  field dimap : (A -> B) -> (C -> D) -> P B C -> P A D
 
   lmap : (A -> B) -> P B C -> P A C
   lmap f = dimap f id
