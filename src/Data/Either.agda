@@ -6,6 +6,7 @@ open import Control.Monad
 open import Data.Bool
 open import Data.Eq
 open import Data.Function
+open import Data.Traversable
 
 private variable A B C D : Set
 
@@ -65,3 +66,12 @@ instance
   monadEither ._>>=_ = \ where
     (left a) k -> left a
     (right x) k -> k x
+
+  foldableEither : Foldable (Either A)
+  foldableEither .foldMap _ (left _) = mempty
+  foldableEither .foldMap f (right y) = f y
+
+  traversableEither : Traversable (Either A)
+  traversableEither .traverse f = \ where
+    (left x) -> pure (left x)
+    (right y) -> right <$> f y

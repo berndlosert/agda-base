@@ -6,9 +6,7 @@ open import Control.Monad
 open import Data.Function
 open import Data.Boolean
 open import Data.Bool
-open import Data.Either
 open import Data.Eq
-open import Data.Maybe
 open import Data.Monoid public
 open import Data.Nat
 open import Data.Unit
@@ -40,21 +38,21 @@ record Fold (S A : Set) : Set where
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
-  find : (A -> Bool) -> S -> Maybe A
-  find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
-    leftToMaybe <<< foldlM (ensure' p) unit
+  --find : (A -> Bool) -> S -> Maybe A
+  --find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
+  --  leftToMaybe <<< foldlM (ensure' p) unit
 
-  at : Nat -> S -> Maybe A
-  at n = leftToMaybe <<< foldlM f 0
-    where
-      f : Nat -> A -> Either A Nat
-      f k a = if k == n then left a else right (suc k)
+  --at : Nat -> S -> Maybe A
+  --at n = leftToMaybe <<< foldlM f 0
+  --  where
+  --    f : Nat -> A -> Either A Nat
+  --    f k a = if k == n then left a else right (suc k)
 
   any : (A -> Bool) -> S -> Bool
-  any p = isJust <<< find p
+  any p = fromAny <<< foldMap (toAny <<< p)
 
   all : (A -> Bool) -> S -> Bool
-  all p = not <<< any (not <<< p)
+  all p = fromAll <<< foldMap (toAll <<< p)
 
   module _ {{_ : Eq A}} where
 

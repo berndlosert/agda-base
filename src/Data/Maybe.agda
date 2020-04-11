@@ -9,6 +9,7 @@ open import Data.Either
 open import Data.Eq
 open import Data.Function
 open import Data.Monoid
+open import Data.Traversable
 
 private variable A B : Set
 
@@ -75,6 +76,14 @@ instance
   monadMaybe ._>>=_ = \ where
     nothing k -> nothing
     (just x) k -> k x
+
+  foldableMaybe : Foldable Maybe
+  foldableMaybe .foldMap = maybe mempty
+
+  traversableMaybe : Traversable Maybe
+  traversableMaybe .traverse f = \ where
+    nothing -> pure nothing
+    (just x) -> just <$> f x
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
   semigroupMaybe ._<>_ = \ where

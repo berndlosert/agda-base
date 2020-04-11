@@ -31,8 +31,8 @@ instance
   functorList .map f (a :: as) = f a :: map f as
 
   traversableList : Traversable List
-  traversableList .sequence [] = pure []
-  traversableList .sequence (a :: as) = (| _::_ a (sequence as) |)
+  traversableList .traverse f = foldr cons' (pure [])
+    where cons' : _; cons' x ys = (| _::_ (f x) ys |)
 
   sequentialList : Sequential List
   sequentialList .nil = []

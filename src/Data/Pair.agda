@@ -8,6 +8,7 @@ open import Data.Bool
 open import Data.Eq
 open import Data.Function
 open import Data.Functor
+open import Data.Traversable
 
 infixr 4 _,_
 record Pair (A B : Set) : Set where
@@ -48,3 +49,9 @@ instance
 
   bifunctorPair : Bifunctor Pair
   bifunctorPair .bimap f g = split (f <<< fst) (g <<< snd)
+
+  foldablePair : Foldable (Pair A)
+  foldablePair .foldMap f (_ , y) = f y
+
+  traversablePair : Traversable (Pair A)
+  traversablePair .traverse f (x , y) = _,_ x <$> f y
