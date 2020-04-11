@@ -12,7 +12,6 @@ open import Control.Alternative
 open import Control.Monad
 open import Data.Bool
 open import Data.Either
-open import Data.Foldable
 open import Data.Function
 open import Data.Maybe
 open import Data.Nat
@@ -20,11 +19,20 @@ open import Data.Ord
 open import Data.Pair
 open import Data.Ring
 open import Data.Sequence
+open import Data.Traversable
 
 instance
   foldableList : Foldable List
   foldableList .foldMap f [] = mempty
   foldableList .foldMap f (a :: as) = f a <> foldMap f as
+
+  functorList : Functor List
+  functorList .map f [] = []
+  functorList .map f (a :: as) = f a :: map f as
+
+  traversableList : Traversable List
+  traversableList .sequence [] = pure []
+  traversableList .sequence (a :: as) = (| _::_ a (sequence as) |)
 
   sequentialList : Sequential List
   sequentialList .nil = []
@@ -113,10 +121,6 @@ instance
   monoidList : Monoid (List A)
   monoidList .mempty = []
 
-  functorList : Functor List
-  functorList .map f [] = []
-  functorList .map f (a :: as) = f a :: map f as
-
   applicativeList : Applicative List
   applicativeList .pure = singleton
   applicativeList ._<*>_ = \ where
@@ -156,16 +160,6 @@ intercalate : {{_ : Sequence S A}} -> S -> List S -> S
 intercalate sep [] = nil
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s ++ sep ++ intercalate sep rest
-
-scanr : (A -> B -> B) -> B -> List A -> List B
-scanr f b [] = b :: []
-scanr f b (a :: as) with scanr f b as
-... | [] = []
-... | (x :: xs) = f a x :: x :: xs
-
-scanl : (B -> A -> B) -> B -> List A -> List B
-scanl f b [] = singleton b
-scanl f b (a :: as) = b :: scanl f (f b a) as
 
 break : (A -> Bool) -> List A -> Pair (List A) (List A)
 break p [] = ([] , [])
