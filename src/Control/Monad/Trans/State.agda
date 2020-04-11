@@ -66,7 +66,7 @@ withStateT f m = toStateT $ fromStateT m <<< f
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
   functorStateT .map f m = toStateT $ \ s0 ->
-    map (\ where (a , s) -> (f a , s)) $ fromStateT m s0
+    map (first f) $ fromStateT m s0
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = \ where
