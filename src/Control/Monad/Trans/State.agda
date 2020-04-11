@@ -71,9 +71,9 @@ instance
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = \ where
     .pure a -> toStateT $ \ s -> return (a , s)
-    ._<*>_ (toStateT mf) (toStateT mx) -> toStateT $ \ s0 -> do
-      (f , s1) <- mf s0
-      (x , s2) <- mx s1
+    ._<*>_ mf mx -> toStateT $ \ s0 -> do
+      (f , s1) <- fromStateT mf s0
+      (x , s2) <- fromStateT mx s1
       return (f x , s2)
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
