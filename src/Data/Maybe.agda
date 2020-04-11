@@ -5,6 +5,7 @@ module Data.Maybe where
 open import Control.Alternative public
 open import Control.Monad public
 open import Data.Bool
+open import Data.Boolean
 open import Data.Either
 open import Data.Eq
 open import Data.Function
@@ -24,7 +25,7 @@ isJust (just _) = true
 isJust _ = false
 
 isNothing : Maybe A -> Bool
-isNothing = not <<< isJust
+isNothing = not isJust
 
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b

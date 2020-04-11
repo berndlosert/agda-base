@@ -2,10 +2,9 @@
 
 module Data.Bool where
 
-open import Agda.Builtin.Bool public using (Bool; true; false)
-open import Data.Boolean public using (not; _&&_; _||_)
-open import Data.Boolean using (Boolean; tt; ff)
-open import Data.Type.Equality using (_===_)
+open import Agda.Builtin.Bool public
+open import Data.Boolean public
+open import Data.Type.Equality
 
 private variable A : Set
 

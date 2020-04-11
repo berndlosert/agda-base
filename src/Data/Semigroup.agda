@@ -2,10 +2,10 @@
 
 module Data.Semigroup where
 
-open import Data.Bool using (Bool; true; false; _&&_; _||_)
-open import Data.Function using (_<<<_)
-open import Data.Unit using (Unit; unit)
-open import Data.Void using (Void)
+open import Data.Bool
+open import Data.Function
+open import Data.Unit
+open import Data.Void
 
 private variable A B : Set
 
@@ -58,7 +58,7 @@ open Endo public
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (toDual x) (toDual y) = toDual (y <> x)
+  semigroupDual ._<>_ x y = toDual (fromDual y <> fromDual x)
 
   semigroupFirst : Semigroup (First A)
   semigroupFirst ._<>_ x y = x

@@ -3,10 +3,10 @@
 module Data.Foldable where
 
 open import Control.Monad
-open import Data.Function
-open import Data.Boolean
 open import Data.Bool
+open import Data.Boolean
 open import Data.Eq
+open import Data.Function
 open import Data.Monoid public
 open import Data.Nat
 open import Data.Unit
@@ -60,7 +60,7 @@ record Fold (S A : Set) : Set where
     elem = any <<< _==_
 
     notElem : A -> S -> Bool
-    notElem x = not <<< elem x
+    notElem = not elem
 
   module _ {{_ : Applicative F}} where
 

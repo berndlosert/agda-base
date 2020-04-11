@@ -78,7 +78,7 @@ module Parser where
 
   -- Parser upper-case characters.
   upper : Parser Char
-  upper = satisfy (\ c -> isAlpha c && not (isLower c))
+  upper = satisfy (isAlpha && not isLower)
 
   -- Parse alpha-numeric characters.
   alphanum : Parser Char

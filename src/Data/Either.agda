@@ -4,6 +4,7 @@ module Data.Either where
 
 open import Control.Monad
 open import Data.Bool
+open import Data.Boolean
 open import Data.Eq
 open import Data.Function
 open import Data.Traversable
@@ -30,7 +31,7 @@ isLeft : Either A B -> Bool
 isLeft = either (const true) (const false)
 
 isRight : Either A B -> Bool
-isRight = not <<< isLeft
+isRight = not isLeft
 
 fromLeft : A -> Either A B -> A
 fromLeft x = either id (const x)
