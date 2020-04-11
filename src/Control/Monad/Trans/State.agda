@@ -3,6 +3,7 @@
 module Control.Monad.Trans.State where
 
 open import Control.Monad.Trans.Class
+open import Data.Functor.Id
 open import Prelude
 
 private
@@ -20,11 +21,11 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
     get : M S
     put : S -> M Unit
 
-  state : (S -> A * S) -> M A
+  state : (S -> Pair A S) -> M A
   state f = do
-    s <- get
-    let (a , s') = f s
-    put s'
+    s0 <- get
+    let (a , s1) = f s0
+    put s1
     return a
 
   modify : (S -> S) -> M Unit
@@ -42,7 +43,7 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
 record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
   constructor toStateT
   field
-    fromStateT : S -> M (A * S)
+    fromStateT : S -> M (Pair A S)
 
 open StateT public
 
@@ -52,11 +53,11 @@ evalStateT m s = do
   return a
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
-execStateT m s = do
-  (_ , s') <- fromStateT m s
-  return s'
+execStateT m s0 = do
+  (_ , s1) <- fromStateT m s0
+  return s1
 
-mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
+mapStateT : (M (Pair A S) -> N (Pair B S)) -> StateT S M A -> StateT S N B
 mapStateT f m = toStateT $ f <<< fromStateT m
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A
@@ -64,21 +65,21 @@ withStateT f m = toStateT $ fromStateT m <<< f
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = toStateT $ \ s ->
-    map (\ where (a , s') -> (f a , s')) $ fromStateT m s
+  functorStateT .map f m = toStateT $ \ s0 ->
+    map (\ where (a , s) -> (f a , s)) $ fromStateT m s0
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = \ where
     .pure a -> toStateT $ \ s -> return (a , s)
-    ._<*>_ (toStateT mf) (toStateT mx) -> toStateT $ \ s -> do
-      (f , s') <- mf s
-      (x , s'') <- mx s'
-      return (f x , s'')
+    ._<*>_ (toStateT mf) (toStateT mx) -> toStateT $ \ s0 -> do
+      (f , s1) <- mf s0
+      (x , s2) <- mx s1
+      return (f x , s2)
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = toStateT $ \ s -> do
-    (a , s') <- fromStateT m s
-    fromStateT (k a) s'
+  monadStateT ._>>=_ m k = toStateT $ \ s0 -> do
+    (a , s1) <- fromStateT m s0
+    fromStateT (k a) s1
 
   monadTransStateT : MonadTrans (StateT S)
   monadTransStateT = \ where
@@ -94,10 +95,10 @@ instance
 State : Set -> Set -> Set
 State S = StateT S Id
 
-toState : (S -> A * S) -> State S A
+toState : (S -> Pair A S) -> State S A
 toState t = toStateT (t >>> toId)
 
-fromState : State S A -> S -> A * S
+fromState : State S A -> S -> Pair A S
 fromState m = fromId <<< fromStateT m
 
 evalState : State S A -> S -> A
@@ -106,7 +107,7 @@ evalState m s = fst (fromState m s)
 execState : State S A -> S -> S
 execState m s = snd (fromState m s)
 
-mapState : (A * S -> B * S) -> State S A -> State S B
+mapState : (Pair A S -> Pair B S) -> State S A -> State S B
 mapState = mapStateT <<< map
 
 withState : (S -> S) -> State S ~> State S
