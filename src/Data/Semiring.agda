@@ -2,10 +2,10 @@
 
 module Data.Semiring where
 
-open import Data.Eq using (Eq; _/=_)
-open import Data.Monoid using (Monoid; mempty)
-open import Data.Semigroup using (Semigroup; _<>_)
-open import Data.Unit using (Unit; unit)
+open import Data.Monoid
+open import Data.Type.Equality
+open import Data.Unit
+open import Data.Void
 
 private variable A B : Set
 
@@ -17,6 +17,7 @@ record Semiring (A : Set) : Set where
     one : A
     _+_ : A -> A -> A
     _*_ : A -> A -> A
+    Nonzero : A -> Set
 
 open Semiring {{...}} public
 
@@ -38,12 +39,14 @@ instance
   semiringUnit .one = unit
   semiringUnit ._+_ _ _ = unit
   semiringUnit ._*_ _ _ = unit
+  semiringUnit .Nonzero _ = Void
 
   semiringFunction : {{_ : Semiring B}} -> Semiring (A -> B)
   semiringFunction .zero _ = zero
   semiringFunction .one _ = one
   semiringFunction ._+_ f g x = f x + g x
   semiringFunction ._*_ f g x = f x * g x
+  semiringFunction .Nonzero f = Not (f === zero)
 
   semigroupSum : {{_ : Semiring A}} -> Semigroup (Sum A)
   semigroupSum ._<>_ x y = toSum (fromSum x + fromSum y)

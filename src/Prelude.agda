@@ -8,8 +8,10 @@ open import Control.Monad public
 open import Data.Bool public
 open import Data.Boolean public
 open import Data.Char public
+open import Data.Euclidean public
 open import Data.Either public
 open import Data.Eq public
+open import Data.Field public
 open import Data.Float public
 open import Data.Foldable public
 open import Data.Function public

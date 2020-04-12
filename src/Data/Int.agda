@@ -62,6 +62,8 @@ instance
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> neg (n * suc m)
     (negsuc n) (pos m) -> neg (suc n * m)
+  semiringInt .Nonzero (pos 0) = Void
+  semiringInt .Nonzero _ = Unit
 
   ringInt : Ring Int
   ringInt .-_ = \ where

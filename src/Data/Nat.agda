@@ -35,5 +35,5 @@ instance
   semiringNat .one = 1
   semiringNat ._+_ = Agda.Builtin.Nat._+_
   semiringNat ._*_ = Agda.Builtin.Nat._*_
-
-
+  semiringNat .Nonzero 0 = Void
+  semiringNat .Nonzero (suc _) = Unit

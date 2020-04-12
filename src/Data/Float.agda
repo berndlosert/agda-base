@@ -40,13 +40,13 @@ instance
   semiringFloat .one = 1.0
   semiringFloat ._+_ = Agda.Builtin.Float.primFloatPlus
   semiringFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+  semiringFloat .Nonzero x = if x == 0.0 then Void else Unit
 
   ringFloat : Ring Float
   ringFloat .-_ = Agda.Builtin.Float.primFloatNegate
   ringFloat ._-_ = Agda.Builtin.Float.primFloatMinus
 
   fieldFloat : Field Float
-  fieldFloat .Nonzero x = if x == 0.0 then Void else Unit
   fieldFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 intToFloat : Int -> Float

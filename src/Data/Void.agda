@@ -8,3 +8,6 @@ data Void : Set where
 
 absurd : Void -> A
 absurd ()
+
+Not : Set -> Set
+Not A = A -> Void
