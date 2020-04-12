@@ -6,8 +6,7 @@ private variable A B : Set
 
 module Parser where
 
-  open import Prelude
-    hiding (takeWhile)
+  open import Prelude hiding (takeWhile)
 
   record Parser (A : Set) : Set where
     constructor toParser
@@ -28,9 +27,9 @@ module Parser where
       return (g x , s2)
 
     monadParser : Monad Parser
-    monadParser ._>>=_ p f = toParser \ s -> join $ do
-      (v , s') <- (fromParser p s)
-      return $ fromParser (f v) s'
+    monadParser ._>>=_ p f = toParser \ s0 -> join $ do
+      (v , s1) <- (fromParser p s0)
+      return $ fromParser (f v) s1
 
     alternativeParser : Alternative Parser
     alternativeParser ._<|>_ p q =
@@ -106,8 +105,8 @@ module Parser where
   -- more times to an input string. The results from each application of p are
   -- returned in a list.
   {-# TERMINATING #-}
-  many : forall {x} -> Parser x -> Parser (List x)
-  many1 : forall {x} -> Parser x -> Parser (List x)
+  many : Parser A -> Parser (List A)
+  many1 : Parser A -> Parser (List A)
 
   many p = plus (many1 p) (return [])
   many1 p = do
