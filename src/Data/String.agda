@@ -169,12 +169,12 @@ instance
     .filter -> filter'
     .partition -> partition'
 
-  --padRight : Nat -> Char -> String -> String
-  --padRight desiredLength padChar s =
-  --  let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-  --  in s ++ (List.foldl _++_ "" replicated)
-  --
-  --padLeft : Nat -> Char -> String -> String
-  --padLeft desiredLength padChar s =
-  --  let replicated = List.replicate (desiredLength - length s) (fromChar padChar)
-  --  in (List.foldl _++_ "" replicated) ++ s
+padRight : Nat -> Char -> String -> String
+padRight l c s =
+  let replicated = replicate (monus l (length s)) c
+  in s ++ replicated
+
+padLeft : Nat -> Char -> String -> String
+padLeft l c s =
+  let replicated = replicate (monus l (length s)) c
+  in replicated ++ s
