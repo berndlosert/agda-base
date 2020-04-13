@@ -29,6 +29,7 @@ open import Data.Semiring public
 open import Data.Sequence public
 open import Data.String public
 open import Data.Traversable public
+open import Data.Type.Equality public
 open import Data.Unit public
 open import Data.Void public
 open import String.Show public
