@@ -2,9 +2,9 @@
 
 module Data.Eq where
 
-open import Data.Bool using (Bool; true; false; not)
-open import Data.Unit using (Unit; unit)
-open import Data.Void using (Void)
+open import Data.Bool
+open import Data.Unit
+open import Data.Void
 
 record Eq (A : Set) : Set where
   infix 4 _==_
