@@ -2,10 +2,9 @@
 
 module Data.Ring where
 
-open import Data.Bool
 open import Data.Ord
-open import Data.Semiring public
-open import Data.Unit using (Unit; unit)
+open import Data.Semiring
+open import Prim
 
 private variable A B : Set
 
@@ -20,12 +19,3 @@ record Ring (A : Set) : Set where
   abs a = if a < zero then - a else a
 
 open Ring {{...}} public
-
-instance
-  ringUnit : Ring Unit
-  ringUnit .-_ _ = unit
-  ringUnit ._-_ _ _ = unit
-
-  ringFunction : {{_ : Ring B}} -> Ring (A -> B)
-  ringFunction .-_ f x = - (f x)
-  ringFunction ._-_ f g x = f x - g x

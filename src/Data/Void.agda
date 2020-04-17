@@ -2,12 +2,25 @@
 
 module Data.Void where
 
-private variable A : Set
+open import Data.Eq
+open import Data.Ord
+open import Data.Semigroup
+open import Prim
 
-data Void : Set where
+private variable A : Set
 
 absurd : Void -> A
 absurd ()
 
 Not : Set -> Set
 Not A = A -> Void
+
+instance
+  eqVoid : Eq Void
+  eqVoid ._==_ = \ ()
+
+  ordVoid : Ord Void
+  ordVoid ._<_ = \ ()
+
+  semigroupVoid : Semigroup Void
+  semigroupVoid ._<>_ = \ ()

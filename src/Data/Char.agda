@@ -2,11 +2,7 @@
 
 module Data.Char where
 
-open import Data.Eq
-open import Data.Nat
-
 open import Agda.Builtin.Char public
-  using (Char)
   renaming (
     primIsLower to isLower;
     primIsDigit to isDigit;
@@ -21,6 +17,10 @@ open import Agda.Builtin.Char public
     primCharToNat to ord;
     primNatToChar to chr
   )
+
+open import Data.Eq
+open import Data.Nat
+open import Prim
 
 instance
   eqChar : Eq Char

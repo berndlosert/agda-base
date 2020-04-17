@@ -2,26 +2,40 @@
 
 module Data.Bool where
 
-open import Agda.Builtin.Bool public
-open import Data.Boolean public
+open import Data.Eq
+open import Data.Monoid
+open import Data.Semigroup
+open import Prim
 
-private variable A : Set
+-- Bool semigroup where x <> y = x && y.
+record All : Set where
+  constructor toAll
+  field fromAll : Bool
 
-infixr 10 if_then_else_
-if_then_else_ : Bool -> A -> A -> A
-if true then a else _ = a
-if false then _ else a = a
+open All public
+
+-- Bool semigroup where x <> y = x || y.
+record Any : Set where
+  constructor toAny
+  field fromAny : Bool
+
+open Any public
 
 instance
-  booleanBool : Boolean Bool
-  booleanBool .ff = false
-  booleanBool .tt = true
-  booleanBool .not = \ where
-    true -> false
-    false -> true
-  booleanBool ._&&_ = \ where
+  eqBool : Eq Bool
+  eqBool ._==_ = \ where
     true true -> true
-    _ _ -> false
-  booleanBool ._||_ = \ where
     false false -> false
-    _ _ -> true
+    _ _ -> false
+
+  semigroupAll : Semigroup All
+  semigroupAll ._<>_ x y = toAll (fromAll x && fromAll y)
+
+  semigroupAny : Semigroup Any
+  semigroupAny ._<>_ x y = toAny (fromAny x || fromAny y)
+
+  monoidAll : Monoid All
+  monoidAll .mempty = toAll true
+
+  monoidAny : Monoid Any
+  monoidAny .mempty = toAny false

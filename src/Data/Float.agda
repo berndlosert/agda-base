@@ -3,7 +3,6 @@
 module Data.Float where
 
 open import Agda.Builtin.Float public
-  using (Float)
   renaming (
     primNatToFloat to natToFloat;
     primFloatSqrt to sqrt;
@@ -21,12 +20,12 @@ open import Agda.Builtin.Float public
     primATan2 to atan2
   )
 
-open import Data.Bool
+open import Data.Eq
 open import Data.Field
 open import Data.Ord
-open import Data.Int
-open import Data.Unit
-open import Data.Void
+open import Data.Ring
+open import Data.Semiring
+open import Prim
 
 instance
   eqFloat : Eq Float
@@ -52,5 +51,3 @@ instance
 intToFloat : Int -> Float
 intToFloat (pos n) = natToFloat n
 intToFloat (negsuc n) = - (natToFloat n) - 1.0
-
-

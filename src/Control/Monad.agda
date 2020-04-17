@@ -2,8 +2,8 @@
 
 module Control.Monad where
 
-open import Control.Applicative public
-open import Data.Function
+open import Control.Applicative
+open import Prim
 
 private variable A B C : Set
 

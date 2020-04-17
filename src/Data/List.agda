@@ -2,24 +2,27 @@
 
 module Data.List where
 
-private variable A B C S : Set
-
-open import Agda.Builtin.List public
-  using (List; [])
-  renaming (_∷_ to _::_)
-
+open import Control.Applicative
 open import Control.Alternative
 open import Control.Monad
 open import Data.Bool
 open import Data.Either
+open import Data.Eq
+open import Data.Foldable
 open import Data.Function
-open import Data.Maybe
+open import Data.Functor
+open import Data.Monoid
 open import Data.Nat
 open import Data.Ord
 open import Data.Pair
 open import Data.Ring
+open import Data.Semigroup
+open import Data.Semiring
 open import Data.Sequence
 open import Data.Traversable
+open import Prim
+
+private variable A B C S : Set
 
 instance
   foldableList : Foldable List

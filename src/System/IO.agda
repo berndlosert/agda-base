@@ -4,13 +4,12 @@ module System.IO where
 
 private variable A B : Set
 
-open import Agda.Builtin.IO public
-  using (IO)
-
+open import Control.Applicative
 open import Control.Monad
+open import Data.Functor
 open import Data.Monoid
-open import Data.String
-open import Data.Unit
+open import Data.Semigroup
+open import Prim
 open import String.Show
 
 private

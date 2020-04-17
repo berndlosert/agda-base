@@ -2,9 +2,10 @@
 
 module Data.Traversable where
 
-open import Control.Applicative public
-open import Data.Foldable public
-open import Data.Function
+open import Control.Applicative
+open import Data.Foldable
+open import Data.Functor
+open import Prim
 
 private
   variable

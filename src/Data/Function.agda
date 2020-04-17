@@ -2,31 +2,46 @@
 
 module Data.Function where
 
-private variable A B C : Set
+open import Data.Functor
+open import Data.Monoid
+open import Data.Ring
+open import Data.Semigroup
+open import Data.Semiring
+open import Data.Type.Equality
+open import Data.Void
+open import Prim
 
-Function : Set -> Set -> Set
-Function A B = A -> B
+private variable A B : Set
 
-id : A -> A
-id a = a
+record Endo A : Set where
+  constructor toEndo
+  field fromEndo : A -> A
 
-const : A -> B -> A
-const a _ = a
+open Endo public
 
-flip : (A -> B -> C) -> B -> A -> C
-flip f b a = f a b
+instance
+  semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
+  semigroupFunction ._<>_ f g = \ a -> f a <> g a
 
-infixr 0 _$_
-_$_ : (A -> B) -> A -> B
-_$_ = id
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)
 
-case_of_ : A -> (A -> B) -> B
-case_of_ = flip _$_
+  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
+  monoidFunction .mempty = const mempty
 
-infixr 9 _<<<_
-_<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ a -> g (f a)
+  monoidEndo : Monoid (Endo A)
+  monoidEndo .mempty = toEndo id
 
-infixr 9 _>>>_
-_>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _<<<_
+  semiringFunction : {{_ : Semiring B}} -> Semiring (A -> B)
+  semiringFunction .zero _ = zero
+  semiringFunction .one _ = one
+  semiringFunction ._+_ f g x = f x + g x
+  semiringFunction ._*_ f g x = f x * g x
+  semiringFunction .Nonzero f = Not (f === zero)
+
+  ringFunction : {{_ : Ring B}} -> Ring (A -> B)
+  ringFunction .-_ f x = - (f x)
+  ringFunction ._-_ f g x = f x - g x
+
+  profunctorFunction : Profunctor Function
+  profunctorFunction .dimap f g h = g <<< h <<< f

@@ -2,14 +2,12 @@
 
 module Data.Nat where
 
-open import Agda.Builtin.Nat public
-  using (Nat; suc)
-
+import Agda.Builtin.Nat
+open import Data.Eq
+open import Data.Euclidean
 open import Data.Ord
-open import Data.Function
 open import Data.Semiring
-open import Data.Unit
-open import Data.Void
+open import Prim
 
 private variable A : Set
 
@@ -37,3 +35,12 @@ instance
   semiringNat ._*_ = Agda.Builtin.Nat._*_
   semiringNat .Nonzero 0 = Void
   semiringNat .Nonzero (suc _) = Unit
+
+  euclideanNat : Euclidean Nat
+  euclideanNat .degree n = n
+  euclideanNat .quot m 0 = 0 -- unreachable
+  euclideanNat .quot m (suc n) = div-helper 0 n m n
+    where open import Agda.Builtin.Nat using (div-helper)
+  euclideanNat .mod m 0 = 0 -- unreachable
+  euclideanNat .mod m (suc n) = mod-helper 0 n m n
+    where open import Agda.Builtin.Nat using (mod-helper)

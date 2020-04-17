@@ -2,14 +2,8 @@
 
 module Data.Sequence where
 
-open import Data.Bool
-open import Data.Either
-open import Data.Function
-open import Data.Maybe
-open import Data.Nat
-open import Data.Ord
-open import Data.Pair
-open import Data.Unit
+open import Data.Eq
+open import Prim
 
 private variable A : Set
 

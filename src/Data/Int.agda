@@ -2,15 +2,12 @@
 
 module Data.Int where
 
-open import Agda.Builtin.Int public
-  using (Int; pos; negsuc)
-
-open import Data.Bool
-open import Data.Ord
+open import Data.Eq
 open import Data.Nat
+open import Data.Ord
+open import Data.Semiring
 open import Data.Ring
-open import Data.Unit
-open import Data.Void
+open import Prim
 
 private variable A : Set
 

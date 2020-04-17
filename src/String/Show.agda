@@ -4,19 +4,9 @@ module String.Show where
 
 private variable A B : Set
 
-open import Data.Bool
-open import Data.Char
-open import Data.Either
-open import Data.Float
-open import Data.Int
-open import Data.List
-open import Data.Maybe
-open import Data.Nat
-open import Data.Pair
 open import Data.Sequence
 open import Data.String
-open import Data.Unit
-open import Data.Void
+open import Prim
 
 record Show (A : Set) : Set where
   field show : A -> String

@@ -2,25 +2,15 @@
 
 module Data.Pair where
 
-private variable A B C D : Set
-
 open import Data.Bool
 open import Data.Eq
+open import Data.Foldable
 open import Data.Function
 open import Data.Functor
 open import Data.Traversable
+open import Prim
 
-infixr 4 _,_
-record Pair (A B : Set) : Set where
-  constructor _,_
-  field
-    fst : A
-    snd : B
-
-open Pair public
-
-{-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
+private variable A B C D : Set
 
 split : (A -> B) -> (A -> C) -> A -> Pair B C
 split f g a = (f a , g a)

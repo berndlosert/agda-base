@@ -3,9 +3,9 @@
 module Data.Semiring where
 
 open import Data.Monoid
+open import Data.Semigroup
 open import Data.Type.Equality
-open import Data.Unit
-open import Data.Void
+open import Prim
 
 private variable A B : Set
 
@@ -34,20 +34,6 @@ record Product (A : Set) : Set where
 open Product public
 
 instance
-  semiringUnit : Semiring Unit
-  semiringUnit .zero = unit
-  semiringUnit .one = unit
-  semiringUnit ._+_ _ _ = unit
-  semiringUnit ._*_ _ _ = unit
-  semiringUnit .Nonzero _ = Void
-
-  semiringFunction : {{_ : Semiring B}} -> Semiring (A -> B)
-  semiringFunction .zero _ = zero
-  semiringFunction .one _ = one
-  semiringFunction ._+_ f g x = f x + g x
-  semiringFunction ._*_ f g x = f x * g x
-  semiringFunction .Nonzero f = Not (f === zero)
-
   semigroupSum : {{_ : Semiring A}} -> Semigroup (Sum A)
   semigroupSum ._<>_ x y = toSum (fromSum x + fromSum y)
 

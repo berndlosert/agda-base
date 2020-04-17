@@ -2,10 +2,8 @@
 
 module Data.Ord where
 
-open import Data.Bool
-open import Data.Eq public
-open import Data.Unit
-open import Data.Void
+open import Data.Eq
+open import Prim
 
 private variable B : Set
 
@@ -23,15 +21,15 @@ record Ord (A : Set) : Set where
 
   infixl 4 _<=_
   _<=_ : A -> A -> Bool
-  x <= y = (x < y) || (x == y)
+  x <= y = if x < y then true else if x == y then true else false
 
   infixl 4 _>_
   _>_ : A -> A -> Bool
-  x > y = y < x
+  _>_ = flip _<_
 
   infixl 4 _>=_
   _>=_ : A -> A -> Bool
-  x >= y = y <= x
+  _>=_ = flip _<=_
 
   min : A -> A -> A
   min x y = if x < y then x else y
@@ -43,10 +41,3 @@ record Ord (A : Set) : Set where
   comparing p x y = compare (p x) (p y)
 
 open Ord {{...}} public
-
-instance
-  ordVoid : Ord Void
-  ordVoid ._<_ = \ ()
-
-  ordUnit : Ord Unit
-  ordUnit ._<_ unit unit = false

@@ -2,30 +2,28 @@
 
 module Data.Maybe where
 
-open import Control.Alternative public
-open import Control.Monad public
+open import Control.Alternative
+open import Control.Applicative
+open import Control.Monad
 open import Data.Bool
-open import Data.Boolean
+open import Data.Foldable
+open import Data.Function
+open import Data.Functor
 open import Data.Either
 open import Data.Eq
-open import Data.Function
 open import Data.Monoid
+open import Data.Semigroup
 open import Data.Traversable
+open import Prim
 
 private variable A B : Set
-
-data Maybe (A : Set) : Set where
-  nothing : Maybe A
-  just : A -> Maybe A
-
-{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
 isJust : Maybe A -> Bool
 isJust (just _) = true
 isJust _ = false
 
 isNothing : Maybe A -> Bool
-isNothing = not isJust
+isNothing = not <<< isJust
 
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b

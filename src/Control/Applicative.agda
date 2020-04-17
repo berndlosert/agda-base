@@ -2,8 +2,8 @@
 
 module Control.Applicative where
 
-open import Data.Function
-open import Data.Functor public
+open import Data.Functor
+open import Prim
 
 private variable A B C : Set
 

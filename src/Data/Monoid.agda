@@ -2,12 +2,10 @@
 
 module Data.Monoid where
 
-open import Data.Bool
-open import Data.Function
-open import Data.Semigroup public
-open import Data.Unit
+open import Data.Semigroup
+open import Prim
 
-private variable A B : Set
+private variable A : Set
 
 record Monoid (A : Set) : Set where
   field
@@ -19,7 +17,8 @@ record Monoid (A : Set) : Set where
   when false _ = mempty
 
   unless : Bool -> A -> A
-  unless b = when (not b)
+  unless true _ = mempty
+  unless false x = x
 
 open Monoid {{...}} public
 
@@ -30,17 +29,5 @@ instance
   monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
   monoidFirst .mempty = toFirst mempty
 
-  monoidUnit : Monoid Unit
-  monoidUnit .mempty = unit
-
-  monoidAll : Monoid All
-  monoidAll .mempty = toAll true
-
-  monoidAny : Monoid Any
-  monoidAny .mempty = toAny false
-
-  monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .mempty = const mempty
-
-  monoidEndo : Monoid (Endo A)
-  monoidEndo .mempty = toEndo id
+  monoidLast : {{_ : Monoid A}} -> Monoid (Last A)
+  monoidLast .mempty = toLast mempty

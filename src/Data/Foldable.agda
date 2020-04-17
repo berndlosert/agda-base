@@ -2,14 +2,14 @@
 
 module Data.Foldable where
 
+open import Control.Applicative
 open import Control.Monad
 open import Data.Bool
-open import Data.Boolean
-open import Data.Eq
 open import Data.Function
-open import Data.Monoid public
-open import Data.Nat
-open import Data.Unit
+open import Data.Eq
+open import Data.Monoid
+open import Data.Semigroup
+open import Prim
 
 private
   variable
@@ -60,7 +60,7 @@ record Fold (S A : Set) : Set where
     elem = any <<< _==_
 
     notElem : A -> S -> Bool
-    notElem = not elem
+    notElem a s = not (elem a s)
 
   module _ {{_ : Applicative F}} where
 
@@ -70,18 +70,18 @@ record Fold (S A : Set) : Set where
     for! : S -> (A -> F B) -> F Unit
     for! = flip traverse!
 
-  module _ {{_ : Boolean A}} where
-
-    or : S -> A
-    or = foldr _||_ ff
-
-    and : S -> A
-    and = foldr _&&_ tt
-
 open Fold {{...}} public
 
 sequence! : {{_ : Applicative F}} {{_ : Fold S (F A)}} -> S -> F Unit
 sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
-Foldable T = forall {A} -> Fold (T A) A
+Foldable F = forall {A} -> Fold (F A) A
+
+module _ {{_ : Foldable F}} where
+
+  or : F Bool -> Bool
+  or = foldr _||_ false
+
+  and : F Bool -> Bool
+  and = foldr _&&_ true

@@ -3,23 +3,21 @@
 module Data.String where
 
 open import Agda.Builtin.String public
-  using (String)
   renaming (
     primStringToList to unpack;
     primStringFromList to pack
   )
 
-open import Data.Bool
-open import Data.Char public
+open import Data.Char
 open import Data.Foldable
-open import Data.Function
 open import Data.Eq
 open import Data.List
 open import Data.Maybe
-open import Data.Monoid
 open import Data.Nat
-open import Data.Pair
+open import Data.Monoid
+open import Data.Semigroup
 open import Data.Sequence
+open import Prim
 
 repack : (List Char -> List Char) -> String -> String
 repack f = pack <<< f <<< unpack

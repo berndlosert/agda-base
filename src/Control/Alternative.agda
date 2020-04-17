@@ -2,7 +2,7 @@
 
 module Control.Alternative where
 
-open import Control.Applicative using (Applicative)
+open import Control.Applicative
 
 private variable A : Set
 

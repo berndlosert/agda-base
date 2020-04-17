@@ -2,20 +2,18 @@
 
 module Data.Either where
 
+open import Control.Applicative
 open import Control.Monad
 open import Data.Bool
-open import Data.Boolean
+open import Data.Functor
 open import Data.Eq
+open import Data.Foldable
 open import Data.Function
+open import Data.Monoid
 open import Data.Traversable
+open import Prim
 
 private variable A B C D : Set
-
-data Either (A B : Set) : Set where
-  left : A -> Either A B
-  right : B -> Either A B
-
-{-# COMPILE GHC Either = data Either (Left | Right) #-}
 
 either : (A -> C) -> (B -> C) -> Either A B -> C
 either f g (left x) = f x
@@ -31,7 +29,7 @@ isLeft : Either A B -> Bool
 isLeft = either (const true) (const false)
 
 isRight : Either A B -> Bool
-isRight = not isLeft
+isRight = not <<< isLeft
 
 fromLeft : A -> Either A B -> A
 fromLeft x = either id (const x)

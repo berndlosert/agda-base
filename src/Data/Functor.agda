@@ -2,8 +2,7 @@
 
 module Data.Functor where
 
-open import Data.Function
-open import Data.Unit
+open import Prim
 
 private variable A B C D : Set
 
@@ -60,7 +59,3 @@ record Profunctor (P : Set -> Set -> Set) : Set where
   rmap f = dimap id f
 
 open Profunctor {{...}} public
-
-instance
-  profunctorFunction : Profunctor Function
-  profunctorFunction .dimap f g h = g <<< h <<< f
