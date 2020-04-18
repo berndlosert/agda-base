@@ -39,8 +39,6 @@ instance
   euclideanNat : Euclidean Nat
   euclideanNat .degree n = n
   euclideanNat .quot m 0 = 0 -- unreachable
-  euclideanNat .quot m (suc n) = div-helper 0 n m n
-    where open import Agda.Builtin.Nat using (div-helper)
+  euclideanNat .quot m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
   euclideanNat .mod m 0 = 0 -- unreachable
-  euclideanNat .mod m (suc n) = mod-helper 0 n m n
-    where open import Agda.Builtin.Nat using (mod-helper)
+  euclideanNat .mod m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n

@@ -25,6 +25,10 @@ open import Prim
 
 private variable A B C S : Set
 
+listrec : B -> (A -> List A -> B -> B) -> List A -> B
+listrec b f [] = b
+listrec b f (a :: as) = f a as (listrec b f as)
+
 instance
   foldableList : Foldable List
   foldableList .foldMap f [] = mempty
