@@ -8,7 +8,9 @@ open import Data.Bool
 open import Data.Function
 open import Data.Eq
 open import Data.Monoid
+open import Data.Nat
 open import Data.Semigroup
+open import Data.Semiring
 open import Prim
 
 private
@@ -38,6 +40,15 @@ record IsFoldable (S A : Set) : Set where
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
+  count : S -> Nat
+  count = fromSum <<< foldMap (const $ toSum 1)
+
+  any : (A -> Bool) -> S -> Bool
+  any p = fromAny <<< foldMap (toAny <<< p)
+
+  all : (A -> Bool) -> S -> Bool
+  all p = fromAll <<< foldMap (toAll <<< p)
+
   --find : (A -> Bool) -> S -> Maybe A
   --find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
   --  leftToMaybe <<< foldlM (ensure' p) unit
@@ -47,12 +58,6 @@ record IsFoldable (S A : Set) : Set where
   --  where
   --    f : Nat -> A -> Either A Nat
   --    f k a = if k == n then left a else right (suc k)
-
-  any : (A -> Bool) -> S -> Bool
-  any p = fromAny <<< foldMap (toAny <<< p)
-
-  all : (A -> Bool) -> S -> Bool
-  all p = fromAll <<< foldMap (toAll <<< p)
 
   module _ {{_ : Eq A}} where
 
@@ -83,10 +88,10 @@ sequence! = traverse! id
 Foldable : (Set -> Set) -> Set
 Foldable F = forall {A} -> IsFoldable (F A) A
 
-module _ {{_ : Foldable F}} where
+module _ {{_ : IsFoldable S Bool}} where
 
-  or : F Bool -> Bool
+  or : S -> Bool
   or = foldr _||_ false
 
-  and : F Bool -> Bool
+  and : S -> Bool
   and = foldr _&&_ true
