@@ -17,7 +17,7 @@ open import Data.Maybe
 open import Data.Nat
 open import Data.Monoid
 open import Data.Semigroup
-open import Data.Sequence
+open import Data.Sequential
 open import Prim
 
 repack : (List Char -> List Char) -> String -> String
@@ -141,8 +141,8 @@ instance
   isFoldableStringChar : IsFoldable String Char
   isFoldableStringChar .foldMap f = foldMap f <<< unpack
 
-  sequenceStringChar : Sequence String Char
-  sequenceStringChar = \ where
+  isSequentialStringChar : IsSequential String Char
+  isSequentialStringChar = \ where
     .cons -> cons'
     .snoc -> snoc'
     .head -> head'

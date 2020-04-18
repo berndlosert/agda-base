@@ -4,7 +4,7 @@ module String.Show where
 
 private variable A B : Set
 
-open import Data.Sequence
+open import Data.Buildable
 open import Data.String
 open import Prim
 

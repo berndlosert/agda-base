@@ -9,9 +9,10 @@ open import Control.Applicative public
 open import Control.Alternative public
 open import Control.Monad public
 
+open import Data.Buildable public
 open import Data.Foldable public
 open import Data.Traversable public
-open import Data.Sequence public
+open import Data.Sequential public
 
 open import Data.Type.Equality public
 open import Data.Eq public

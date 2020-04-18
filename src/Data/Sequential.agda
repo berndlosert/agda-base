@@ -1,13 +1,13 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Sequence where
+module Data.Sequential where
 
 open import Data.Eq
 open import Prim
 
 private variable A : Set
 
-record Sequence (S A : Set) : Set where
+record IsSequential (S A : Set) : Set where
   field
     -- Basic constructors
     cons : A -> S -> S
@@ -43,7 +43,7 @@ record Sequence (S A : Set) : Set where
     filter : (A -> Bool) -> S -> S
     partition : (A -> Bool) -> S -> Pair S S
 
-open Sequence {{...}} public
+open IsSequential {{...}} public
 
 Sequential : (Set -> Set) -> Set
-Sequential T = forall {A} -> Sequence (T A) A
+Sequential T = forall {A} -> IsSequential (T A) A

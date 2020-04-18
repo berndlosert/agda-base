@@ -19,7 +19,7 @@ open import Data.Pair
 open import Data.Ring
 open import Data.Semigroup
 open import Data.Semiring
-open import Data.Sequence
+open import Data.Sequential
 open import Data.Traversable
 open import Prim
 
