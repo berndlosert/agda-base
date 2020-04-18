@@ -31,8 +31,7 @@ listrec b f (a :: as) = f a as (listrec b f as)
 
 instance
   foldableList : Foldable List
-  foldableList .foldMap f [] = mempty
-  foldableList .foldMap f (a :: as) = f a <> foldMap f as
+  foldableList .foldMap f = listrec mempty (\ a _ b -> f a <> b)
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ xs ys = foldr _::_ ys xs
