@@ -10,6 +10,7 @@ open import Data.Eq
 open import Data.Foldable
 open import Data.Function
 open import Data.Monoid
+open import Data.Semigroup
 open import Data.Traversable
 open import Prim
 
@@ -74,3 +75,9 @@ instance
   traversableEither .traverse f = \ where
     (left x) -> pure (left x)
     (right y) -> right <$> f y
+
+  semigroupSumSet : Semigroup (Sum Set)
+  semigroupSumSet ._<>_ A B = toSum $ Either (fromSum A) (fromSum B)
+
+  monoidSumSet : Monoid (Sum Set)
+  monoidSumSet .mempty = toSum Void

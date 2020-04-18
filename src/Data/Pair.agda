@@ -7,6 +7,8 @@ open import Data.Eq
 open import Data.Foldable
 open import Data.Function
 open import Data.Functor
+open import Data.Monoid
+open import Data.Semigroup
 open import Data.Traversable
 open import Prim
 
@@ -45,3 +47,10 @@ instance
 
   traversablePair : Traversable (Pair A)
   traversablePair .traverse f (x , y) = _,_ x <$> f y
+
+  semigroupProductSet : Semigroup (Product Set)
+  semigroupProductSet ._<>_ A B =
+    toProduct $ Pair (fromProduct A) (fromProduct B)
+
+  monoidProductSet : Monoid (Product Set)
+  monoidProductSet .mempty = toProduct Unit
