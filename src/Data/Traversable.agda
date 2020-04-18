@@ -64,18 +64,18 @@ record Traversable (T : Set -> Set) : Set where
   for : {{_ : Applicative F}} -> T A -> (A -> F B) -> F (T B)
   for = flip traverse
 
-  mapPairL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapPairL f s t = fromStateL (traverse (toStateL <<< flip f) t) s
+  mapAccumL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
+  mapAccumL f s t = fromStateL (traverse (toStateL <<< flip f) t) s
 
-  mapPairR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapPairR f s t = fromStateR (traverse (toStateR <<< flip f) t) s
+  mapAccumR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
+  mapAccumR f s t = fromStateR (traverse (toStateR <<< flip f) t) s
 
   scanl : (B -> A -> B) -> B -> T A -> T B
   scanl f b0 xs = snd $
-    mapPairL (\ b a -> let b' = f b a in (b' , b')) b0 xs
+    mapAccumL (\ b a -> let b' = f b a in (b' , b')) b0 xs
 
   scanr : (A -> B -> B) -> B -> T A -> T B
   scanr f b0 xs = snd $
-    mapPairR (\ b a -> let b' = f a b in (b' , b')) b0 xs
+    mapAccumR (\ b a -> let b' = f a b in (b' , b')) b0 xs
 
 open Traversable {{...}} public
