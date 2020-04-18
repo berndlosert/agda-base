@@ -2,7 +2,7 @@
 
 module Prelude where
 
-open import Prim
+open import Prim public
 
 open import Data.Functor public
 open import Control.Applicative public

@@ -93,9 +93,6 @@ private
   isSubsequenceOf' : String -> String -> Bool
   isSubsequenceOf' s s' = isSubsequenceOf {{eq = eqChar}} (unpack s) (unpack s')
 
-  null' : String -> Bool
-  null' = null <<< unpack
-
   length' : String -> Nat
   length' = length <<< unpack
 
@@ -120,7 +117,6 @@ private
 {-# COMPILE GHC isPrefixOf' = Text.isPrefixOf #-}
 {-# COMPILE GHC isSuffixOf' = Text.isSuffixOf #-}
 {-# COMPILE GHC isInfixOf' = Text.isInfixOf #-}
-{-# COMPILE GHC null' = Text.null #-}
 {-# COMPILE GHC length' = toInteger. Text.length #-}
 {-# COMPILE GHC filter' = Text.filter #-}
 {-# COMPILE GHC partition' = Text.partition #-}
@@ -163,7 +159,6 @@ instance
     .isSuffixOf -> isSuffixOf'
     .isInfixOf -> isInfixOf'
     .isSubsequenceOf -> isSubsequenceOf'
-    .null -> null'
     .length -> length'
     .filter -> filter'
     .partition -> partition'

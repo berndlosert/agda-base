@@ -37,7 +37,6 @@ record IsSequential (S A : Set) : Set where
     isInfixOf : {{eq : Eq A}} -> S -> S -> Bool
     isSubsequenceOf : {{eq : Eq A}} -> S -> S -> Bool
     -- Length
-    null : S -> Bool
     length : S -> Nat
     -- Filter
     filter : (A -> Bool) -> S -> S

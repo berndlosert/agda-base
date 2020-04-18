@@ -114,8 +114,6 @@ instance
   sequentialList .isSubsequenceOf _ [] = true
   sequentialList .isSubsequenceOf as@(x :: xs) (y :: ys) =
     if x == y then isSubsequenceOf xs ys else isSubsequenceOf as ys
-  sequentialList .null [] = true
-  sequentialList .null _ = false
   sequentialList .length = foldr (const suc) 0
   sequentialList .filter p [] = []
   sequentialList .filter p (a :: as) =

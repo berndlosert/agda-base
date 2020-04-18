@@ -48,7 +48,7 @@ record Pair (A B : Set) : Set where
 open Pair public
 
 {-# FOREIGN GHC type AgdaPair a b = (a, b) #-}
-{-# COMPILE GHC Pair = data MAlonzo.Code.Data.Pair.AgdaPair ((,)) #-}
+{-# COMPILE GHC Pair = data MAlonzo.Code.Prim.AgdaPair ((,)) #-}
 
 data Maybe (A : Set) : Set where
   nothing : Maybe A

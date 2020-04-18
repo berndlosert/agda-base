@@ -43,11 +43,14 @@ record IsFoldable (S A : Set) : Set where
   count : S -> Nat
   count = fromSum <<< foldMap (const $ toSum 1)
 
+  all : (A -> Bool) -> S -> Bool
+  all p = fromAll <<< foldMap (toAll <<< p)
+
   any : (A -> Bool) -> S -> Bool
   any p = fromAny <<< foldMap (toAny <<< p)
 
-  all : (A -> Bool) -> S -> Bool
-  all p = fromAll <<< foldMap (toAll <<< p)
+  null : S -> Bool
+  null = not <<< any (const true)
 
   --find : (A -> Bool) -> S -> Maybe A
   --find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
