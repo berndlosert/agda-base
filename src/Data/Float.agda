@@ -22,8 +22,10 @@ open import Agda.Builtin.Float public
 
 open import Data.Eq
 open import Data.Field
+open import Data.Monoid
 open import Data.Ord
 open import Data.Ring
+open import Data.Semigroup
 open import Data.Semiring
 open import Prim
 
@@ -34,11 +36,21 @@ instance
   ordFloat : Ord Float
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
+  semigroupSumFloat : Semigroup (Sum Float)
+  semigroupSumFloat ._<>_ x y =
+    toSum $ Agda.Builtin.Float.primFloatPlus (fromSum x) (fromSum y)
+
+  semigroupProductFloat : Semigroup (Product Float)
+  semigroupProductFloat ._<>_ x y =
+    toProduct $ Agda.Builtin.Float.primFloatTimes (fromProduct x) (fromProduct y)
+
+  monoidSumFloat : Monoid (Sum Float)
+  monoidSumFloat .mempty = toSum 0.0
+
+  monoidProductFloat : Monoid (Product Float)
+  monoidProductFloat .mempty = toProduct 1.0
+
   semiringFloat : Semiring Float
-  semiringFloat .zero = 0.0
-  semiringFloat .one = 1.0
-  semiringFloat ._+_ = Agda.Builtin.Float.primFloatPlus
-  semiringFloat ._*_ = Agda.Builtin.Float.primFloatTimes
   semiringFloat .Nonzero x = if x == 0.0 then Void else Unit
 
   ringFloat : Ring Float

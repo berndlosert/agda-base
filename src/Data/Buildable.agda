@@ -6,16 +6,16 @@ open import Data.Monoid
 open import Data.Semigroup
 
 record IsBuildable (S A : Set) : Set where
-  infixr 5 _++_
   field
     {{monoid}} : Monoid S
     singleton : A -> S
 
-  nil : S
-  nil = mempty
-
+  infixr 5 _++_
   _++_ : S -> S -> S
   _++_ = _<>_
+
+  nil : S
+  nil = mempty
 
 open IsBuildable {{...}} public
 

@@ -3,6 +3,7 @@
 module Data.Ring where
 
 open import Data.Ord
+open import Data.Monoid
 open import Data.Semiring
 open import Prim
 

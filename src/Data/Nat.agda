@@ -5,7 +5,9 @@ module Data.Nat where
 import Agda.Builtin.Nat
 open import Data.Eq
 open import Data.Euclidean
+open import Data.Monoid
 open import Data.Ord
+open import Data.Semigroup
 open import Data.Semiring
 open import Prim
 
@@ -28,11 +30,21 @@ instance
   ordNat : Ord Nat
   ordNat ._<_ = Agda.Builtin.Nat._<_
 
+  semigroupSumNat : Semigroup (Sum Nat)
+  semigroupSumNat ._<>_ m n =
+    toSum $ Agda.Builtin.Nat._+_ (fromSum m) (fromSum n)
+
+  semigroupProductNat : Semigroup (Product Nat)
+  semigroupProductNat ._<>_ m n =
+    toProduct $ Agda.Builtin.Nat._*_ (fromProduct m) (fromProduct n)
+
+  monoidSumNat : Monoid (Sum Nat)
+  monoidSumNat .mempty = toSum 0
+
+  monoidProductNat : Monoid (Product Nat)
+  monoidProductNat .mempty = toProduct 1
+
   semiringNat : Semiring Nat
-  semiringNat .zero = 0
-  semiringNat .one = 1
-  semiringNat ._+_ = Agda.Builtin.Nat._+_
-  semiringNat ._*_ = Agda.Builtin.Nat._*_
   semiringNat .Nonzero 0 = Void
   semiringNat .Nonzero (suc _) = Unit
 

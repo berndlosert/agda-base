@@ -22,6 +22,14 @@ record Monoid (A : Set) : Set where
 
 open Monoid {{...}} public
 
+-- For additive monoids
+zero : {{_ : Monoid (Sum A)}} -> A
+zero = fromSum mempty
+
+-- For multiplicative monoids
+one : {{_ : Monoid (Product A)}} -> A
+one = fromProduct mempty
+
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
   monoidDual .mempty = toDual mempty

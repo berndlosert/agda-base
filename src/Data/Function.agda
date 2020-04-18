@@ -32,16 +32,5 @@ instance
   monoidEndo : Monoid (Endo A)
   monoidEndo .mempty = toEndo id
 
-  semiringFunction : {{_ : Semiring B}} -> Semiring (A -> B)
-  semiringFunction .zero _ = zero
-  semiringFunction .one _ = one
-  semiringFunction ._+_ f g x = f x + g x
-  semiringFunction ._*_ f g x = f x * g x
-  semiringFunction .Nonzero f = Not (f === zero)
-
-  ringFunction : {{_ : Ring B}} -> Ring (A -> B)
-  ringFunction .-_ f x = - (f x)
-  ringFunction ._-_ f g x = f x - g x
-
   profunctorFunction : Profunctor Function
   profunctorFunction .dimap f g h = g <<< h <<< f

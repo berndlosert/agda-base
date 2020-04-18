@@ -17,17 +17,6 @@ instance
   ordUnit : Ord Unit
   ordUnit ._<_ unit unit = false
 
-  semiringUnit : Semiring Unit
-  semiringUnit .zero = unit
-  semiringUnit .one = unit
-  semiringUnit ._+_ _ _ = unit
-  semiringUnit ._*_ _ _ = unit
-  semiringUnit .Nonzero _ = Void
-
-  ringUnit : Ring Unit
-  ringUnit .-_ _ = unit
-  ringUnit ._-_ _ _ = unit
-
   semigroupUnit : Semigroup Unit
   semigroupUnit ._<>_ unit unit = unit
 

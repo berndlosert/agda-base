@@ -3,8 +3,10 @@
 module Data.Int where
 
 open import Data.Eq
+open import Data.Monoid
 open import Data.Nat
 open import Data.Ord
+open import Data.Semigroup
 open import Data.Semiring
 open import Data.Ring
 open import Prim
@@ -46,19 +48,27 @@ instance
     (negsuc _) (pos _) -> true
     (pos _) (negsuc _) -> false
 
+  semigroupSumInt : Semigroup (Sum Int)
+  semigroupSumInt ._<>_ x y with fromSum x | fromSum y
+  ... | (negsuc m) | (negsuc n) = toSum $ negsuc (suc (m + n))
+  ... | (negsuc m) | (pos n) = toSum $ sub n (suc m)
+  ... | (pos m) | (negsuc n) = toSum $ sub m (suc n)
+  ... | (pos m) | (pos n) = toSum $ pos (m + n)
+
+  semigroupProductInt : Semigroup (Product Int)
+  semigroupProductInt ._<>_ x y with fromProduct x | fromProduct y
+  ... | (pos n) | (pos m) = toProduct $ pos (n * m)
+  ... | (negsuc n) | (negsuc m) = toProduct $ pos (suc n * suc m)
+  ... | (pos n) | (negsuc m) = toProduct $ neg (n * suc m)
+  ... | (negsuc n) | (pos m) = toProduct $ neg (suc n * m)
+
+  monoidSumInt : Monoid (Sum Int)
+  monoidSumInt .mempty = toSum (pos 0)
+
+  monoidProductInt : Monoid (Product Int)
+  monoidProductInt .mempty = toProduct (pos 1)
+
   semiringInt : Semiring Int
-  semiringInt .zero = pos 0
-  semiringInt .one = pos 1
-  semiringInt ._+_ = \ where
-    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-    (negsuc m) (pos n) -> sub n (suc m)
-    (pos m) (negsuc n) -> sub m (suc n)
-    (pos m) (pos n) -> pos (m + n)
-  semiringInt ._*_ = \ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> neg (n * suc m)
-    (negsuc n) (pos m) -> neg (suc n * m)
   semiringInt .Nonzero (pos 0) = Void
   semiringInt .Nonzero _ = Unit
 
