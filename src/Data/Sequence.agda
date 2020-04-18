@@ -8,13 +8,9 @@ open import Prim
 private variable A : Set
 
 record Sequence (S A : Set) : Set where
-  infixr 5 _++_
   field
     -- Basic constructors
-    nil : S
     cons : A -> S -> S
-    singleton : A -> S
-    _++_ : S -> S -> S
     snoc : S -> A -> S
     -- Destructors
     head : S -> Maybe A

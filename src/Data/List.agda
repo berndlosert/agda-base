@@ -6,6 +6,7 @@ open import Control.Applicative
 open import Control.Alternative
 open import Control.Monad
 open import Data.Bool
+open import Data.Buildable
 open import Data.Either
 open import Data.Eq
 open import Data.Foldable
@@ -29,6 +30,15 @@ instance
   foldableList .foldMap f [] = mempty
   foldableList .foldMap f (a :: as) = f a <> foldMap f as
 
+  semigroupList : Semigroup (List A)
+  semigroupList ._<>_ xs ys = foldr _::_ ys xs
+
+  monoidList : Monoid (List A)
+  monoidList .mempty = []
+
+  buildableList : Buildable List
+  buildableList .singleton = _:: []
+
   functorList : Functor List
   functorList .map f [] = []
   functorList .map f (a :: as) = f a :: map f as
@@ -38,10 +48,7 @@ instance
     where cons' : _; cons' x ys = (| _::_ (f x) ys |)
 
   sequentialList : Sequential List
-  sequentialList .nil = []
   sequentialList .cons = _::_
-  sequentialList .singleton = _:: []
-  sequentialList ._++_ xs ys = foldr _::_ ys xs
   sequentialList .snoc as a = as ++ singleton a
   sequentialList .head [] = nothing
   sequentialList .head (a :: _) = just a
@@ -118,12 +125,6 @@ instance
       select : _
       select a (ts , fs) = if p a then (a :: ts , fs) else (ts , a :: fs)
 
-  semigroupList : Semigroup (List A)
-  semigroupList ._<>_ = _++_
-
-  monoidList : Monoid (List A)
-  monoidList .mempty = []
-
   applicativeList : Applicative List
   applicativeList .pure = singleton
   applicativeList ._<*>_ = \ where
@@ -150,19 +151,16 @@ inits s = map (flip take s) $ til (length s + 1)
 tails : List A -> List (List A)
 tails s = map (flip drop s) $ til (length s + 1)
 
-concat : {{_ : Sequence S A}} -> List S -> S
-concat = foldr _++_ nil
-
 range : Nat -> Nat -> List Nat
 range m n with compare m n
 ... | GT = []
 ... | EQ = singleton n
 ... | LT = map (_+ m) $ til $ suc (monus n m)
 
-intercalate : {{_ : Sequence S A}} -> S -> List S -> S
-intercalate sep [] = nil
+intercalate : {{_ : Monoid S}} -> S -> List S -> S
+intercalate sep [] = mempty
 intercalate sep (s :: []) = s
-intercalate sep (s :: rest) = s ++ sep ++ intercalate sep rest
+intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
 break : (A -> Bool) -> List A -> Pair (List A) (List A)
 break p [] = ([] , [])

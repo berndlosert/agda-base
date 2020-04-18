@@ -16,7 +16,7 @@ private
     A B S : Set
     F M : Set -> Set
 
-record Fold (S A : Set) : Set where
+record IsFoldable (S A : Set) : Set where
   field
     foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
 
@@ -62,6 +62,11 @@ record Fold (S A : Set) : Set where
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
 
+  module _ {{_ : Monoid A}} where
+
+    concat : S -> A
+    concat = foldr _<>_ mempty
+
   module _ {{_ : Applicative F}} where
 
     traverse! : (A -> F B) -> S -> F Unit
@@ -70,13 +75,13 @@ record Fold (S A : Set) : Set where
     for! : S -> (A -> F B) -> F Unit
     for! = flip traverse!
 
-open Fold {{...}} public
+open IsFoldable {{...}} public
 
-sequence! : {{_ : Applicative F}} {{_ : Fold S (F A)}} -> S -> F Unit
+sequence! : {{_ : Applicative F}} {{_ : IsFoldable S (F A)}} -> S -> F Unit
 sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
-Foldable F = forall {A} -> Fold (F A) A
+Foldable F = forall {A} -> IsFoldable (F A) A
 
 module _ {{_ : Foldable F}} where
 

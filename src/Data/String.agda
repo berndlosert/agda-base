@@ -8,6 +8,7 @@ open import Agda.Builtin.String public
     primStringFromList to pack
   )
 
+open import Data.Buildable
 open import Data.Char
 open import Data.Foldable
 open import Data.Eq
@@ -134,15 +135,15 @@ instance
   monoidString : Monoid String
   monoidString .mempty = ""
 
-  foldStringChar : Fold String Char
-  foldStringChar .foldMap f = foldMap f <<< unpack
+  isBuildableStringChar : IsBuildable String Char
+  isBuildableStringChar .singleton = singleton'
+
+  isFoldableStringChar : IsFoldable String Char
+  isFoldableStringChar .foldMap f = foldMap f <<< unpack
 
   sequenceStringChar : Sequence String Char
   sequenceStringChar = \ where
-    .nil -> ""
     .cons -> cons'
-    .singleton -> singleton'
-    ._++_ -> Agda.Builtin.String.primStringAppend
     .snoc -> snoc'
     .head -> head'
     .tail -> tail'
