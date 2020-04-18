@@ -2,6 +2,7 @@
 
 module Control.Monad.Trans.Cont where
 
+open import Data.Functor.Id
 open import Control.Monad.Trans.Class
 open import Prelude
 

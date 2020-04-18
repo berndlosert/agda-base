@@ -32,9 +32,6 @@ open import Data.Void public
 open import Data.Unit public
 open import Data.Bool public
 
-open import Data.Either public
-open import Data.Pair public
-
 open import Data.Char public
 open import Data.String public
 
@@ -42,6 +39,8 @@ open import Data.Nat public
 open import Data.Int public
 open import Data.Float public
 
+open import Data.Either public
+open import Data.Pair public
 open import Data.Maybe public
 open import Data.List public
 
