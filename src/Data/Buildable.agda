@@ -17,6 +17,12 @@ record IsBuildable (S A : Set) : Set where
   nil : S
   nil = mempty
 
+  cons : A -> S -> S
+  cons a s = singleton a ++ s
+
+  snoc : S -> A -> S
+  snoc s a = s ++ singleton a
+
 open IsBuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
