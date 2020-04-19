@@ -6,7 +6,11 @@ open import Data.Buildable
 open import Data.Either
 open import Data.Eq
 open import Data.Foldable
+open import Data.Maybe
+open import Data.Monoid
 open import Data.Nat
+open import Data.Semigroup
+open import Data.Traversable
 open import Prim
 
 private variable A B : Set
@@ -23,7 +27,6 @@ record IsSequential (S A : Set) : Set where
 
   field
     -- Destructors
-    head : S -> Maybe A
     tail : S -> Maybe S
     uncons : S -> Maybe (Pair A S)
     ---- Subsequences
@@ -46,6 +49,10 @@ record IsSequential (S A : Set) : Set where
     ---- Filter
     --filter : (A -> Bool) -> S -> S
     --partition : (A -> Bool) -> S -> Pair S S
+
+  -- Destructors
+  head : S -> Maybe A
+  head = untag <<< foldlM (const $ left <<< just) nothing
 
   -- Generators
   replicate : Nat -> A -> S

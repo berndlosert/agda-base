@@ -139,7 +139,6 @@ instance
 
   isSequentialStringChar : IsSequential String Char
   isSequentialStringChar = \ where
-    .head -> head'
     .tail -> tail'
     .uncons -> uncons'
 --    .takeWhile -> takeWhile'

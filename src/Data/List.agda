@@ -64,8 +64,6 @@ instance
     (x :: xs) k -> k x ++ (xs >>= k)
 
   sequentialList : Sequential List
-  sequentialList .head [] = nothing
-  sequentialList .head (a :: _) = just a
   sequentialList .tail [] = nothing
   sequentialList .tail (_ :: as) = just as
   sequentialList .uncons [] = nothing
@@ -129,10 +127,10 @@ instance
   --    select : _
   --    select a (ts , fs) = if p a then (a :: ts , fs) else (ts , a :: fs)
 
---til : Nat -> List Nat
---til 0 = []
---til (suc n) = til n ++ singleton n
---
+til : Nat -> List Nat
+til 0 = []
+til (suc n) = til n ++ singleton n
+
 --inits : List A -> List (List  A)
 --inits s = map (flip take s) $ til (length s + 1)
 --
