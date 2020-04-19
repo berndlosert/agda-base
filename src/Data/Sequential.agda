@@ -2,16 +2,17 @@
 
 module Data.Sequential where
 
+open import Data.Buildable
 open import Data.Eq
+open import Data.Foldable
 open import Prim
 
 private variable A : Set
 
 record IsSequential (S A : Set) : Set where
   field
-    -- Basic constructors
-    cons : A -> S -> S
-    snoc : S -> A -> S
+    {{superIsBuildable}} : IsBuildable S A
+    {{superIsFoldable}} : IsFoldable S A
     -- Destructors
     head : S -> Maybe A
     tail : S -> Maybe S

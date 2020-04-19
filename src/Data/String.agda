@@ -139,8 +139,6 @@ instance
 
   isSequentialStringChar : IsSequential String Char
   isSequentialStringChar = \ where
-    .cons -> cons'
-    .snoc -> snoc'
     .head -> head'
     .tail -> tail'
     .uncons -> uncons'

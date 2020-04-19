@@ -25,13 +25,14 @@ open import Prim
 
 private variable A B C S : Set
 
-listrec : B -> (A -> List A -> B -> B) -> List A -> B
-listrec b f [] = b
-listrec b f (a :: as) = f a as (listrec b f as)
+--listrec : B -> (A -> List A -> B -> B) -> List A -> B
+--listrec b f [] = b
+--listrec b f (a :: as) = f a as (listrec b f as)
 
 instance
   foldableList : Foldable List
-  foldableList .foldMap f = listrec mempty (\ a _ b -> f a <> b)
+  foldableList .foldMap f [] = mempty
+  foldableList .foldMap f (a :: as) = f a <> foldMap f as
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ xs ys = foldr _::_ ys xs
@@ -50,9 +51,23 @@ instance
   traversableList .traverse f = foldr cons' (pure [])
     where cons' : _; cons' x ys = (| _::_ (f x) ys |)
 
+  applicativeList : Applicative List
+  applicativeList .pure = singleton
+  applicativeList ._<*>_ = \ where
+    [] _ -> []
+    _ [] -> []
+    (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
+
+  alternativeList : Alternative List
+  alternativeList .empty = mempty
+  alternativeList ._<|>_ = _<>_
+
+  monadList : Monad List
+  monadList ._>>=_ = \ where
+    [] k -> []
+    (x :: xs) k -> k x ++ (xs >>= k)
+
   sequentialList : Sequential List
-  sequentialList .cons = _::_
-  sequentialList .snoc as a = as ++ singleton a
   sequentialList .head [] = nothing
   sequentialList .head (a :: _) = just a
   sequentialList .tail [] = nothing
@@ -126,21 +141,9 @@ instance
       select : _
       select a (ts , fs) = if p a then (a :: ts , fs) else (ts , a :: fs)
 
-  applicativeList : Applicative List
-  applicativeList .pure = singleton
-  applicativeList ._<*>_ = \ where
-    [] _ -> []
-    _ [] -> []
-    (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
-
-  alternativeList : Alternative List
-  alternativeList .empty = mempty
-  alternativeList ._<|>_ = _<>_
-
-  monadList : Monad List
-  monadList ._>>=_ = \ where
-    [] k -> []
-    (x :: xs) k -> k x ++ (xs >>= k)
+listrec' : B -> (A -> List A -> B -> B) -> List A -> B
+listrec' b f = snd <<< foldr (\ where
+  a (as , b') -> (a :: as , f a as b')) ([] , b)
 
 til : Nat -> List Nat
 til 0 = []
