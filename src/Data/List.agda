@@ -71,7 +71,6 @@ instance
   sequentialList .uncons [] = nothing
   sequentialList .uncons (a :: as) = just (a , as)
   sequentialList .reverse = foldl (flip _::_) []
-  sequentialList .replicate n a = applyN (a ::_) n []
   sequentialList .intersperse sep = foldr f []
     where
       -- f : A -> List A -> List A

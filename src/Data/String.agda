@@ -143,7 +143,6 @@ instance
     .tail -> tail'
     .uncons -> uncons'
     .reverse -> reverse'
-    .replicate -> replicate'
     .intersperse -> intersperse'
     .takeWhile -> takeWhile'
     .dropWhile -> dropWhile'

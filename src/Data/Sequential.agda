@@ -5,6 +5,7 @@ module Data.Sequential where
 open import Data.Buildable
 open import Data.Eq
 open import Data.Foldable
+open import Data.Nat
 open import Prim
 
 private variable A B : Set
@@ -17,8 +18,6 @@ record IsSequential (S A : Set) : Set where
     head : S -> Maybe A
     tail : S -> Maybe S
     uncons : S -> Maybe (Pair A S)
-    -- Generators
-    replicate : Nat -> A -> S
     -- Transformations
     reverse : S -> S
     intersperse : A -> S -> S
@@ -47,6 +46,10 @@ record IsSequential (S A : Set) : Set where
   recurse : (A -> S -> B -> B) -> B -> S -> B
   recurse f b = snd <<< flip foldr (nil , b) \ where
     a (as , b') -> (cons a as , f a as b')
+
+  -- Generators
+  replicate : Nat -> A -> S
+  replicate n a = applyN (cons a) n nil
 
 open IsSequential {{...}} public
 
