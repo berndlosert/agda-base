@@ -25,10 +25,6 @@ open import Prim
 
 private variable A B C S : Set
 
---listrec : B -> (A -> List A -> B -> B) -> List A -> B
---listrec b f [] = b
---listrec b f (a :: as) = f a as (listrec b f as)
-
 instance
   foldableList : Foldable List
   foldableList .foldMap f [] = mempty
@@ -140,10 +136,6 @@ instance
     where
       select : _
       select a (ts , fs) = if p a then (a :: ts , fs) else (ts , a :: fs)
-
-listrec' : B -> (A -> List A -> B -> B) -> List A -> B
-listrec' b f = snd <<< foldr (\ where
-  a (as , b') -> (a :: as , f a as b')) ([] , b)
 
 til : Nat -> List Nat
 til 0 = []
