@@ -6,6 +6,7 @@ open import Control.Applicative
 open import Control.Monad
 open import Data.Bool
 open import Data.Function
+open import Data.Functor
 open import Data.Eq
 open import Data.Monoid
 open import Data.Nat
@@ -17,6 +18,35 @@ private
   variable
     A B S : Set
     F M : Set -> Set
+
+--------------------------------------------------------------------------------
+-- Step (used for short-circuiting)
+--------------------------------------------------------------------------------
+
+data Step (A B : Set) : Set where
+  break : A -> Step A B
+  continue : B -> Step A B
+
+instance
+  functorStep : Functor (Step A)
+  functorStep .map f = \ where
+    (break a) -> break a
+    (continue x) -> continue (f x)
+
+  applicativeStep : Applicative (Step A)
+  applicativeStep .pure = continue
+  applicativeStep ._<*>_ = \ where
+    (break a) _ -> break a
+    (continue f) x -> map f x
+
+  monadStep : Monad (Step A)
+  monadStep ._>>=_ = \ where
+    (break a) k -> break a
+    (continue x) k -> k x
+
+--------------------------------------------------------------------------------
+-- IsFoldable
+--------------------------------------------------------------------------------
 
 record IsFoldable (S A : Set) : Set where
   field
@@ -39,6 +69,18 @@ record IsFoldable (S A : Set) : Set where
   foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> S -> M B
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
+
+  -- Short-circuiting version of foldr'
+  foldr' : (A -> B -> Step B B) -> B -> S -> B
+  foldr' f b s with foldrM f b s
+  ... | (break b') = b'
+  ... | (continue b') = b'
+
+  -- Short-circuiting version of foldl'
+  foldl' : (B -> A -> Step B B) -> B -> S -> B
+  foldl' f b s with foldlM f b s
+  ... | (break b') = b'
+  ... | (continue b') = b'
 
   count : S -> Nat
   count = fromSum <<< foldMap (const $ toSum 1)
@@ -88,9 +130,6 @@ open IsFoldable {{...}} public
 sequence! : {{_ : Applicative F}} {{_ : IsFoldable S (F A)}} -> S -> F Unit
 sequence! = traverse! id
 
-Foldable : (Set -> Set) -> Set
-Foldable F = forall {A} -> IsFoldable (F A) A
-
 module _ {{_ : IsFoldable S Bool}} where
 
   or : S -> Bool
@@ -98,3 +137,10 @@ module _ {{_ : IsFoldable S Bool}} where
 
   and : S -> Bool
   and = foldr _&&_ true
+
+--------------------------------------------------------------------------------
+-- Foldable
+--------------------------------------------------------------------------------
+
+Foldable : (Set -> Set) -> Set
+Foldable F = forall {A} -> IsFoldable (F A) A

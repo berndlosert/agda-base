@@ -60,7 +60,7 @@ instance
   applicativeEither .pure = right
   applicativeEither ._<*>_ = \ where
     (left a) _ -> left a
-    (right f) r -> map f r
+    (right f) x -> map f x
 
   monadEither : Monad (Either A)
   monadEither ._>>=_ = \ where
