@@ -7,7 +7,7 @@ open import Data.Eq
 open import Data.Foldable
 open import Prim
 
-private variable A : Set
+private variable A B : Set
 
 record IsSequential (S A : Set) : Set where
   field
@@ -42,6 +42,11 @@ record IsSequential (S A : Set) : Set where
     -- Filter
     filter : (A -> Bool) -> S -> S
     partition : (A -> Bool) -> S -> Pair S S
+
+  -- Primitive recursor.
+  recurse : (A -> S -> B -> B) -> B -> S -> B
+  recurse f b = snd <<< flip foldr (nil , b) \ where
+    a (as , b') -> (cons a as , f a as b')
 
 open IsSequential {{...}} public
 
