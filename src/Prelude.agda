@@ -1158,16 +1158,6 @@ record IsFoldable (S A : Set) : Set where
   null : S -> Bool
   null = not <<< any (const true)
 
-  --find : (A -> Bool) -> S -> Maybe A
-  --find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
-  --  leftToMaybe <<< foldlM (ensure' p) unit
-
-  --at : Nat -> S -> Maybe A
-  --at n = leftToMaybe <<< foldlM f 0
-  --  where
-  --    f : Nat -> A -> Either A Nat
-  --    f k a = if k == n then left a else right (suc k)
-
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool
