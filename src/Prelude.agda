@@ -1220,6 +1220,7 @@ instance
 record IsFoldable (S A : Set) : Set where
   field
     foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
+    Nonempty : S -> Set
 
   fold : {{_ : Monoid A}} -> S -> A
   fold = foldMap id
@@ -1298,18 +1299,31 @@ instance
   foldableEither : Foldable (Either A)
   foldableEither .foldMap _ (left _) = mempty
   foldableEither .foldMap f (right y) = f y
+  foldableEither .Nonempty = \ where
+    (left _) -> Void
+    _ -> Unit
 
   foldablePair : Foldable (Pair A)
   foldablePair .foldMap f (_ , y) = f y
+  foldablePair .Nonempty _ = Unit
 
   foldableMaybe : Foldable Maybe
   foldableMaybe .foldMap = maybe mempty
+  foldableMaybe .Nonempty = \ where
+    nothing -> Void
+    _ -> Unit
 
   foldableList : Foldable List
   foldableList .foldMap f = listrec mempty \ a _ b -> f a <> b
+  foldableList .Nonempty = \ where
+    [] -> Void
+    _ -> Unit
 
   isFoldableStringChar : IsFoldable String Char
   isFoldableStringChar .foldMap f = foldMap f <<< unpack
+  isFoldableStringChar .Nonempty = \ where
+    "" -> Void
+    _ -> Unit
 
 --------------------------------------------------------------------------------
 -- Traversable
