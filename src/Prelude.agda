@@ -65,10 +65,15 @@ open import Agda.Builtin.List public
 open import Agda.Builtin.IO public
   using (IO)
 
-
 --------------------------------------------------------------------------------
 -- Wrappers
 --------------------------------------------------------------------------------
+
+record Id (A : Set) : Set where
+  constructor toId
+  field fromId : A
+
+open Id public
 
 -- For additive semigroups, monoids, etc.
 record Sum (A : Set) : Set where
@@ -466,6 +471,9 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> false
 
+  eqId : {{_ : Eq A}} -> Eq (Id A)
+  eqId ._==_ x y = fromId x == fromId y
+
 --------------------------------------------------------------------------------
 -- Ord
 --------------------------------------------------------------------------------
@@ -552,6 +560,9 @@ instance
     _ nothing -> false
     nothing _ -> true
     (just a) (just a') -> a < a'
+
+  ordId : {{_ : Ord A}} -> Ord (Id A)
+  ordId ._<_ x y = fromId x < fromId y
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -659,6 +670,9 @@ instance
   semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
+  semigroupId : {{_ : Semigroup A}} -> Semigroup (Id A)
+  semigroupId ._<>_ x y = toId $ fromId x <> fromId y
+
 --------------------------------------------------------------------------------
 -- Monoid
 --------------------------------------------------------------------------------
@@ -746,6 +760,9 @@ instance
 
   monoidIO : {{_ : Monoid A}} -> Monoid (IO A)
   monoidIO .mempty = pureIO mempty
+
+  monoidId : {{_ : Monoid A}} -> Monoid (Id A)
+  monoidId .mempty = toId mempty
 
 --------------------------------------------------------------------------------
 -- Semiring
@@ -952,6 +969,9 @@ instance
   functorIO : Functor IO
   functorIO .map = mapIO
 
+  functorId : Functor Id
+  functorId .map f = toId <<< f <<< fromId
+
   functorSum : Functor Sum
   functorSum .map f = toSum <<< f <<< fromSum
 
@@ -1023,6 +1043,10 @@ instance
   applicativeIO : Applicative IO
   applicativeIO .pure = pureIO
   applicativeIO ._<*>_ = apIO
+
+  applicativeId : Applicative Id
+  applicativeId .pure = toId
+  applicativeId ._<*>_ = map <<< fromId
 
   applicativeSum : Applicative Sum
   applicativeSum .pure = toSum
@@ -1133,6 +1157,9 @@ instance
   monadIO : Monad IO
   monadIO ._>>=_ = bindIO
 
+  monadId : Monad Id
+  monadId ._>>=_ a k = k (fromId a)
+
   monadSum : Monad Sum
   monadSum ._>>=_ m k = k (fromSum m)
 
@@ -1205,10 +1232,6 @@ record IsFoldable (S A : Set) : Set where
 
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
-
-  module _ {{_ : Ord A}} where
-
-    foldr
 
   module _ {{_ : Monoid A}} where
 

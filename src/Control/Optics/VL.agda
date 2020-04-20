@@ -5,7 +5,6 @@ module Control.Optics.VL where
 open import Prelude
 
 open import Data.Functor.Const using (Const; toConst; fromConst)
-open import Data.Functor.Id using (Id; toId; fromId)
 
 private
   variable
