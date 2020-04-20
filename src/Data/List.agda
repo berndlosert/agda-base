@@ -96,6 +96,10 @@ indexed = reverse <<< flip foldl [] \ where
   [] a -> (0 , a) :: []
   xs@(h :: t) a' -> (suc (fst h) , a') :: xs
 
+at : Nat -> List A -> Maybe A
+at n = leftToMaybe <<< flip foldlM 0 \
+  k a -> if k == n then left a else right (suc k)
+
 deleteAt : Nat -> List A -> List A
 deleteAt n = reverse <<< snd <<< flip foldl (0 , nil) \ where
   (k , as) a -> (suc k , if k == n then as else (a :: as))
