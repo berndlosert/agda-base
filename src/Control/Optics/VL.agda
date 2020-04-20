@@ -3,12 +3,9 @@
 module Control.Optics.VL where
 
 open import Prelude
-  hiding (Fold)
 
-open import Data.Functor.Const
-open import Data.Functor.Id
-open import Data.List
-open import Data.Nat
+open import Data.Functor.Const using (Const; toConst; fromConst)
+open import Data.Functor.Id using (Id; toId; fromId)
 
 private
   variable
@@ -129,7 +126,7 @@ open Each {{...}} public
 
 instance
   eachList : Each (List A) (List B) A B
-  eachList .each = List.traverse
+  eachList .each = traverse
 
 --------------------------------------------------------------------------------
 -- Basic lens and traversals
