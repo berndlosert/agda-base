@@ -115,6 +115,3 @@ padLeft l c s =
 {-# COMPILE GHC isInfixOf = Text.isInfixOf #-}
 {-# COMPILE GHC length = toInteger. Text.length #-}
 {-# COMPILE GHC filter = Text.filter #-}
-{-# COMPILE GHC partition = Text.partition #-}
-
-
