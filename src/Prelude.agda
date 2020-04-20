@@ -1166,6 +1166,12 @@ record IsFoldable (S A : Set) : Set where
   null : S -> Bool
   null = not <<< any (const true)
 
+  sum : {{ _ : Monoid (Sum A)}} -> S -> A
+  sum = foldl _+_ zero
+
+  product : {{ _ : Monoid (Product A)}} -> S -> A
+  product = foldl _*_ one
+
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool
