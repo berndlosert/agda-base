@@ -179,20 +179,6 @@ if_then_else_ : Bool -> A -> A -> A
 if true then a else _ = a
 if false then _ else a = a
 
-not : Bool -> Bool
-not false = true
-not true = false
-
-infixr 2 _||_
-_||_ : Bool -> Bool -> Bool
-false || x = x
-true || x = true
-
-infixr 3 _&&_
-_&&_ : Bool -> Bool -> Bool
-false && _ = false
-true && x = x
-
 natrec : A -> (Nat -> A -> A) -> Nat -> A
 natrec a _ 0 = a
 natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
@@ -278,10 +264,12 @@ untag : Either A A -> A
 untag = either id id
 
 isLeft : Either A B -> Bool
-isLeft = either (const true) (const false)
+isLeft (left _) = true
+isLeft _ = false
 
 isRight : Either A B -> Bool
-isRight = not <<< isLeft
+isRight (left _) = false
+isRight _ = true
 
 fromLeft : A -> Either A B -> A
 fromLeft x = either id (const x)
@@ -315,7 +303,8 @@ isJust (just _) = true
 isJust _ = false
 
 isNothing : Maybe A -> Bool
-isNothing = not <<< isJust
+isNothing (just _) = false
+isNothing _ = true
 
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b
@@ -373,6 +362,43 @@ postulate
 {-# COMPILE GHC putStrLn = Text.putStrLn #-}
 {-# COMPILE GHC getLine = Text.getLine #-}
 {-# COMPILE GHC getContents = Text.getContents #-}
+
+--------------------------------------------------------------------------------
+-- BooleanAlgebra
+--------------------------------------------------------------------------------
+
+record BooleanAlgebra (B : Set) : Set where
+  infixr 2 _||_
+  infixr 3 _&&_
+  field
+    ff : B
+    tt : B
+    not : B -> B
+    _||_ : B -> B -> B
+    _&&_ : B -> B -> B
+
+open BooleanAlgebra {{...}} public
+
+instance
+  booleanAlgebraBool : BooleanAlgebra Bool
+  booleanAlgebraBool .ff = false
+  booleanAlgebraBool .tt = true
+  booleanAlgebraBool .not = \ where
+    false -> true
+    true -> false
+  booleanAlgebraBool ._||_ = \ where
+    false b -> b
+    true _ -> true
+  booleanAlgebraBool ._&&_ = \ where
+    false _ -> false
+    true b -> b
+
+  booleanAlgebraFunction : {{_ : BooleanAlgebra B}} -> BooleanAlgebra (A -> B)
+  booleanAlgebraFunction .ff = const ff
+  booleanAlgebraFunction .tt = const tt
+  booleanAlgebraFunction .not f = not <<< f
+  booleanAlgebraFunction ._||_ f g x = f x || g x
+  booleanAlgebraFunction ._&&_ f g x = f x && g x
 
 --------------------------------------------------------------------------------
 -- Eq
@@ -1180,6 +1206,10 @@ record IsFoldable (S A : Set) : Set where
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
 
+  module _ {{_ : Ord A}} where
+
+    foldr
+
   module _ {{_ : Monoid A}} where
 
     concat : S -> A
@@ -1193,18 +1223,18 @@ record IsFoldable (S A : Set) : Set where
     for! : S -> (A -> F B) -> F Unit
     for! = flip traverse!
 
+  module _ {{_ : BooleanAlgebra A}} where
+
+    or : S -> A
+    or = foldr _||_ ff
+
+    and : S -> A
+    and = foldr _&&_ tt
+
 open IsFoldable {{...}} public
 
 sequence! : {{_ : Applicative F}} {{_ : IsFoldable S (F A)}} -> S -> F Unit
 sequence! = traverse! id
-
-module _ {{_ : IsFoldable S Bool}} where
-
-  or : S -> Bool
-  or = foldr _||_ false
-
-  and : S -> Bool
-  and = foldr _&&_ true
 
 Foldable : (Set -> Set) -> Set
 Foldable F = forall {A} -> IsFoldable (F A) A

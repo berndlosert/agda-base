@@ -3,9 +3,12 @@
 module Control.Optics.Profunctor where
 
 open import Prelude
-  hiding (Fold)
 
 open import Data.Functor.Const
+  using (Const; toConst; fromConst)
+
+open Data.Functor.Const public
+  using (functorConst; contravariantConst; applicativeConst)
 
 private
   variable
