@@ -650,8 +650,8 @@ instance
     toSum $ Agda.Builtin.Float.primFloatPlus (fromSum x) (fromSum y)
 
   semigroupProductFloat : Semigroup (Product Float)
-  semigroupProductFloat ._<>_ x y =
-    toProduct $ Agda.Builtin.Float.primFloatTimes (fromProduct x) (fromProduct y)
+  semigroupProductFloat ._<>_ x y = toProduct $
+    Agda.Builtin.Float.primFloatTimes (fromProduct x) (fromProduct y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
@@ -659,14 +659,24 @@ instance
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
   semigroupFunction ._<>_ f g = \ a -> f a <> g a
 
+  semigroupFunctionSum : {{_ : Semigroup (Sum B)}} -> Semigroup $ Sum (A -> B)
+  semigroupFunctionSum ._<>_ f g = toSum $ \ a -> fromSum f a + fromSum g a
+
+  semigroupFunctionProduct : {{_ : Semigroup (Product B)}}
+    -> Semigroup $ Product (A -> B)
+  semigroupFunctionProduct ._<>_ f g =
+    toProduct $ \ a -> fromProduct f a * fromProduct g a
+
   semigroupEndo : Semigroup (Endo A)
   semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)
 
-  semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}} -> Semigroup (Either A B)
+  semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}}
+    -> Semigroup (Either A B)
   semigroupEither ._<>_ (left _) b = b
   semigroupEither ._<>_ a _ = a
 
-  semigroupPair : {{_ : Semigroup A}} {{_ : Semigroup B}} -> Semigroup (Pair A B)
+  semigroupPair : {{_ : Semigroup A}} {{_ : Semigroup B}}
+    -> Semigroup (Pair A B)
   semigroupPair ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
@@ -763,6 +773,13 @@ instance
 
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
   monoidFunction .mempty = const mempty
+
+  monoidFunctionSum : {{_ : Monoid (Sum B)}} -> Monoid $ Sum (A -> B)
+  monoidFunctionSum .mempty = toSum (const zero)
+
+  monoidFunctionProduct : {{_ : Monoid (Product B)}}
+    -> Monoid $ Product (A -> B)
+  monoidFunctionProduct .mempty = toProduct (const one)
 
   monoidEndo : Monoid (Endo A)
   monoidEndo .mempty = toEndo id
@@ -1405,8 +1422,7 @@ instance
 --------------------------------------------------------------------------------
 
 record Show (A : Set) : Set where
-  field
-    show : A -> String
+  field show : A -> String
 
   print : A -> IO Unit
   print x = putStrLn (show x)
