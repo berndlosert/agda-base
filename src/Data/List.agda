@@ -240,15 +240,3 @@ nub = nubBy _==_
 
 union : {{_ : Eq A}} -> List A -> List A -> List A
 union = unionBy _==_
-
---------------------------------------------------------------------------------
--- Converting to/from Maybe
---------------------------------------------------------------------------------
-
-maybeToList : Maybe A -> List A
-maybeToList nothing = []
-maybeToList (just a) = singleton a
-
-listToMaybe : List A -> Maybe A
-listToMaybe [] = nothing
-listToMaybe (a :: _) = just a
