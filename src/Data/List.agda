@@ -190,6 +190,11 @@ intercalate sep [] = mempty
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
+intersperse : A -> List A -> List A
+intersperse sep = flip foldr [] \ where
+  a [] -> singleton a
+  a as -> a :: sep :: as
+
 transpose : List (List A) -> List (List A)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)

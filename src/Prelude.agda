@@ -144,6 +144,9 @@ open Endo public
 -- Primitive functions and operations
 --------------------------------------------------------------------------------
 
+open import Agda.Builtin.TrustMe public
+  renaming (primTrustMe to trustMe)
+
 id : A -> A
 id a = a
 
@@ -167,6 +170,9 @@ g <<< f = \ a -> g (f a)
 infixr 9 _>>>_
 _>>>_ : (A -> B) -> (B -> C) -> A -> C
 _>>>_ = flip _<<<_
+
+absurd : Void -> A
+absurd ()
 
 infixr 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
@@ -196,6 +202,10 @@ applyN f n a = natrec a (const f) n
 
 monus : Nat -> Nat -> Nat
 monus = Agda.Builtin.Nat._-_
+
+pred : Nat -> Nat
+pred 0 = 0
+pred (suc n) = n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
