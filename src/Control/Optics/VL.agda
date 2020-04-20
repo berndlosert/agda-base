@@ -4,8 +4,6 @@ module Control.Optics.VL where
 
 open import Prelude
 
-open import Data.Functor.Const using (Const; toConst; fromConst)
-
 private
   variable
     A B C R S T : Set

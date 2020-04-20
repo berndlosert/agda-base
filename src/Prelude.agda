@@ -75,6 +75,12 @@ record Id (A : Set) : Set where
 
 open Id public
 
+record Const (A B : Set) : Set where
+  constructor toConst
+  field fromConst : A
+
+open Const public
+
 -- For additive semigroups, monoids, etc.
 record Sum (A : Set) : Set where
   constructor toSum
@@ -474,6 +480,9 @@ instance
   eqId : {{_ : Eq A}} -> Eq (Id A)
   eqId ._==_ x y = fromId x == fromId y
 
+  eqConst : {{_ : Eq A}} -> Eq (Const A B)
+  eqConst ._==_ x y = fromConst x == fromConst y
+
 --------------------------------------------------------------------------------
 -- Ord
 --------------------------------------------------------------------------------
@@ -563,6 +572,9 @@ instance
 
   ordId : {{_ : Ord A}} -> Ord (Id A)
   ordId ._<_ x y = fromId x < fromId y
+
+  ordConst : {{_ : Ord A}} -> Ord (Const A B)
+  ordConst ._<_ x y = fromConst x < fromConst y
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -673,6 +685,9 @@ instance
   semigroupId : {{_ : Semigroup A}} -> Semigroup (Id A)
   semigroupId ._<>_ x y = toId $ fromId x <> fromId y
 
+  semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
+  semigroupConst ._<>_ x y = toConst $ fromConst x <> fromConst y
+
 --------------------------------------------------------------------------------
 -- Monoid
 --------------------------------------------------------------------------------
@@ -763,6 +778,9 @@ instance
 
   monoidId : {{_ : Monoid A}} -> Monoid (Id A)
   monoidId .mempty = toId mempty
+
+  monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
+  monoidConst .mempty = toConst mempty
 
 --------------------------------------------------------------------------------
 -- Semiring
@@ -972,6 +990,15 @@ instance
   functorId : Functor Id
   functorId .map f = toId <<< f <<< fromId
 
+  bifunctorConst : Bifunctor Const
+  bifunctorConst .bimap f g = toConst <<< f <<< fromConst
+
+  functorConst : Functor (Const A)
+  functorConst .map = second
+
+  contravariantConst : Contravariant (Const A)
+  contravariantConst .contramap f = toConst <<< fromConst
+
   functorSum : Functor Sum
   functorSum .map f = toSum <<< f <<< fromSum
 
@@ -1047,6 +1074,11 @@ instance
   applicativeId : Applicative Id
   applicativeId .pure = toId
   applicativeId ._<*>_ = map <<< fromId
+
+  applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
+  applicativeConst = \ where
+    .pure x -> toConst mempty
+    ._<*>_ f x -> toConst $ fromConst f <> fromConst x
 
   applicativeSum : Applicative Sum
   applicativeSum .pure = toSum

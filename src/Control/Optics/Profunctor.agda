@@ -4,12 +4,6 @@ module Control.Optics.Profunctor where
 
 open import Prelude
 
-open import Data.Functor.Const
-  using (Const; toConst; fromConst)
-
-open Data.Functor.Const public
-  using (functorConst; contravariantConst; applicativeConst)
-
 private
   variable
     A B C R S T : Set
