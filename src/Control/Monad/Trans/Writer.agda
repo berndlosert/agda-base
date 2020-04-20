@@ -2,8 +2,15 @@
 
 module Control.Monad.Trans.Writer where
 
-open import Control.Monad.Trans.Class
 open import Prelude
+
+open import Control.Monad.Trans.Class
+  using (MonadTrans; lift; transform)
+open import Data.Functor.Id
+  using (Id; fromId; toId)
+
+open Data.Functor.Id public
+  using (functorId; applicativeId; monadId)
 
 private
   variable
