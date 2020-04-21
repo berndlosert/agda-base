@@ -1281,11 +1281,6 @@ record IsFoldable (S A : Set) : Set where
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
 
-  module _ {{_ : Monoid A}} where
-
-    concat : S -> A
-    concat = foldr _<>_ mempty
-
   module _ {{_ : Applicative F}} where
 
     traverse! : (A -> F B) -> S -> F Unit
