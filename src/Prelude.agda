@@ -1268,10 +1268,10 @@ record IsFoldable (S A : Set) : Set where
   null = not <<< any (const true)
 
   sum : {{ _ : Monoid (Sum A)}} -> S -> A
-  sum = foldl _+_ zero
+  sum = fromSum <<< foldMap toSum
 
   product : {{ _ : Monoid (Product A)}} -> S -> A
-  product = foldl _*_ one
+  product = fromProduct <<< foldMap toProduct
 
   module _ {{_ : Eq A}} where
 
