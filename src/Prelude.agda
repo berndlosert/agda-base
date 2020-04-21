@@ -1231,7 +1231,7 @@ instance
   monadMax ._>>=_ m k = k (fromMax m)
 
 --------------------------------------------------------------------------------
--- Foldable, IsFoldable
+-- IsFoldable, Foldable
 --------------------------------------------------------------------------------
 
 record IsFoldable (S A : Set) : Set where
