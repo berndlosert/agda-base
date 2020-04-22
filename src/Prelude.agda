@@ -725,6 +725,11 @@ zero = fromSum mempty
 one : {{_ : Monoid (Product A)}} -> A
 one = fromProduct mempty
 
+infixr 8 _^_
+_^_ : {{_ : Monoid (Product A)}} -> A -> Nat -> A
+a ^ 0 = one
+a ^ (suc n) = a * a ^ n
+
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
   monoidDual .mempty = toDual mempty
@@ -808,11 +813,6 @@ record Semiring (A : Set) : Set where
     {{monoidSum}} : Monoid (Sum A)
     {{monoidProduct}} : Monoid (Product A)
     Nonzero : A -> Set
-
-  infixr 8 _^_
-  _^_ : A -> Nat -> A
-  a ^ 0 = one
-  a ^ (suc n) = a * a ^ n
 
 open Semiring {{...}} public
 
