@@ -1457,11 +1457,11 @@ instance
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 
-  showList : forall {A} {{_ : Show A}} -> Show (List A)
+  showList : {{_ : Show A}} -> Show (List A)
   showList .show [] = "[]"
-  showList {A} .show as = "(" ++ show' as ++ ")"
+  showList .show as = "(" ++ show' as ++ ")"
     where
-      show' : List A -> String
+      show' : {{_ : Show A}} -> List A -> String
       show' [] = "[]"
       show' (x :: xs) = show x ++ " :: " ++ show' xs
 
