@@ -240,3 +240,23 @@ nub = nubBy _==_
 
 union : {{_ : Eq A}} -> List A -> List A -> List A
 union = unionBy _==_
+
+--------------------------------------------------------------------------------
+-- Sorting
+--------------------------------------------------------------------------------
+
+insertBy : (A -> A -> Ordering) -> A -> List A -> List A
+insertBy cmp x [] = x :: []
+insertBy cmp x (y :: xs) with cmp x y
+... | LT = x :: y :: xs
+... | _ = y :: insertBy cmp x xs
+
+sortBy : (A -> A -> Ordering) -> List A -> List A
+sortBy cmp [] = []
+sortBy cmp (x :: xs) = insertBy cmp x (sortBy cmp xs)
+
+insert : {{_ : Ord A}} -> A -> List A -> List A
+insert = insertBy compare
+
+sort : {{_ : Ord A}} -> List A -> List A
+sort = sortBy compare
