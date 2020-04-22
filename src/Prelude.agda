@@ -451,7 +451,7 @@ instance
   eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
 
   eqChar : Eq Char
-  eqChar ._==_ c d = ord c == ord d
+  eqChar ._==_ = Agda.Builtin.Char.primCharEquality
 
   eqString : Eq String
   eqString ._==_ = Agda.Builtin.String.primStringEquality
@@ -1466,8 +1466,7 @@ instance
       show' (x :: xs) = show x ++ " :: " ++ show' xs
 
   showChar : Show Char
-  showChar .show c = "'" ++ singleton c ++ "'"
+  showChar .show = Agda.Builtin.String.primShowChar
 
   showString : Show String
-  showString .show = primShowString
-    where open import Agda.Builtin.String
+  showString .show = Agda.Builtin.String.primShowString
