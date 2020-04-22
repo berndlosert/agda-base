@@ -809,6 +809,11 @@ record Semiring (A : Set) : Set where
     {{monoidProduct}} : Monoid (Product A)
     Nonzero : A -> Set
 
+  infixr 8 _^_
+  _^_ : A -> Nat -> A
+  a ^ 0 = one
+  a ^ (suc n) = a * a ^ n
+
 open Semiring {{...}} public
 
 instance
