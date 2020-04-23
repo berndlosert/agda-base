@@ -125,6 +125,9 @@ skipWhile p = do
   c <- anyChar
   if p c then pure unit else empty
 
+skipAll : Parser Unit
+skipAll = skipWhile (const true)
+
 char : Char -> Parser Char
 char c = satisfy (c ==_)
 
@@ -190,12 +193,12 @@ word = neword <|> (pure "")
       s <- word
       return (cons c s)
 
-takeWhileP : (Char -> Bool) -> Parser String
-takeWhileP p = toParser \ s ->
+takeWhile : (Char -> Bool) -> Parser String
+takeWhile p = toParser \ s ->
   singleton (String.takeWhile p s , String.dropWhile p s)
 
-takeRest : Parser String
-takeRest = takeWhileP (const true)
+takeAll : Parser String
+takeAll = takeWhile (const true)
 
 --------------------------------------------------------------------------------
 -- Parsers for numbers
