@@ -1146,9 +1146,9 @@ open Alternative {{...}} public
 module _ {{_ : Alternative F}} where
 
   {-# NON_TERMINATING #-}
-  some many : F A -> F (List A)
-  some v = (| _::_ v (many v) |)
-  many v = some v <|> pure []
+  many1 many : F A -> F (List A)
+  many1 v = (| _::_ v (many v) |)
+  many v = many1 v <|> pure []
 
   optional : F A -> F (Maybe A)
   optional v = just <$> v <|> pure nothing
