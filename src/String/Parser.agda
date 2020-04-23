@@ -11,7 +11,7 @@ open Prelude
 
 record Parser (A : Set) : Set where
   constructor toParser
-  field fromParser : String -> List (Pair A String)
+  field fromParser : String -> List (A * String)
 
 open Parser public
 
@@ -101,19 +101,6 @@ string : String -> Parser String
 string s with String.uncons s
 ... | nothing = pure ""
 ... | (just (c , s')) = char c >> string s' >> pure (cons c s')
-
--- The combinator many (resp. many1) applies a parser p zero (resp. one) or
--- more times to an input string. The results from each application of p are
--- returned in a list.
-{-# TERMINATING #-}
-many : Parser A -> Parser (List A)
-many1 : Parser A -> Parser (List A)
-
-many p = plus (many1 p) (return [])
-many1 p = do
-  x <- p
-  xs <- many p
-  return (x :: xs)
 
 -- This parses nonempty sequences of items separated by operators that
 -- associate to the left.
