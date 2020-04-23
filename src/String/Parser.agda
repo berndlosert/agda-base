@@ -2,89 +2,184 @@
 
 module String.Parser where
 
-private variable A B : Set
+open import Prelude
+  hiding (count)
 
+open import Control.Monad.Trans.State
+import Data.List as List
 import Data.String as String
-import Prelude
 
-open Prelude
+private variable A B C : Set
 
-record Parser (A : Set) : Set where
-  constructor toParser
-  field fromParser : String -> List (A * String)
+--------------------------------------------------------------------------------
+-- Parser (definition and instances)
+--------------------------------------------------------------------------------
 
-open Parser public
+abstract
+  Parser = StateT String List
 
-instance
-  functorParser : Functor Parser
-  functorParser .map f p = toParser \ s ->
-    map (first f) $ fromParser p s
+  toParser : (String -> List (A * String)) -> Parser A
+  toParser = toStateT
 
-  applicativeParser : Applicative Parser
-  applicativeParser .pure x = toParser $ singleton <<< (x ,_)
-  applicativeParser ._<*>_ f p = toParser \ s0 -> do
-    (g , s1) <- fromParser f s0
-    (x , s2) <- fromParser p s1
-    return (g x , s2)
+  fromParser : Parser A -> String -> List (A * String)
+  fromParser = fromStateT
 
-  monadParser : Monad Parser
-  monadParser ._>>=_ p f = toParser \ s0 -> join $ do
-    (v , s1) <- (fromParser p s0)
-    return $ fromParser (f v) s1
+  instance
+    functorParser : Functor Parser
+    functorParser = functorStateT
 
-  alternativeParser : Alternative Parser
-  alternativeParser ._<|>_ p q =
-    toParser \ s -> fromParser p s <> fromParser q s
-  alternativeParser .empty = toParser $ const []
+    applicativeParser : Applicative Parser
+    applicativeParser = applicativeStateT
 
--- item is a parser that consumes the first character if the input string is
--- nonempty, and fails otherwise.
-item : Parser Char
-item = toParser (maybeToList <<< String.uncons)
+    alternativeParser : Alternative Parser
+    alternativeParser = alternativeStateT
 
--- cull p is the parser whose output contains only the first successful
--- parse (if it has one at all).
-cull : Parser A -> Parser A
-cull p = toParser \ s -> case (fromParser p s) of \ where
-  [] -> []
-  (x :: _) -> singleton x
+    monadParser : Monad Parser
+    monadParser = monadStateT
 
--- plus p q is just <> wrapped in first.
-plus : Parser A -> Parser A -> Parser A
-plus p q = cull (p <|> q)
+--------------------------------------------------------------------------------
+-- Combinators
+--------------------------------------------------------------------------------
 
--- satisfy takes a predicate, and yields a parser that consumes a single
--- character if it satisfies the predicate, and fails otherwise.
+choice : List (Parser A) -> Parser A
+choice ps = foldr _<|>_ empty ps
+
+count : Nat -> Parser A -> Parser (List A)
+count 0 p = pure []
+count n p = sequence (List.replicate n p)
+
+between : Parser A -> Parser B -> Parser C -> Parser C
+between p p' q = p *> (q <* p')
+
+option : A -> Parser A -> Parser A
+option a p = p <|> pure a
+
+optionMaybe : Parser A -> Parser (Maybe A)
+optionMaybe p = option nothing (map just p)
+
+skipMany : Parser A -> Parser Unit
+skipMany p = many p *> pure unit
+
+skipMany1 : Parser A -> Parser Unit
+skipMany1 p = many1 p *> pure unit
+
+sepBy1 : Parser A -> Parser B -> Parser (List A)
+sepBy1 p sep = (| _::_ p (many $ sep *> p) |)
+
+sepBy : Parser A -> Parser B -> Parser (List A)
+sepBy p sep = sepBy1 p sep <|> pure []
+
+endBy : Parser A -> Parser B -> Parser (List A)
+endBy p sep = many (p <* sep)
+
+endBy1 : Parser A -> Parser B -> Parser (List A)
+endBy1 p sep = many1 (p <* sep)
+
+{-# TERMINATING #-}
+chainl1 : Parser A -> Parser (A -> A -> A) -> Parser A
+chainl1 p op = p >>= rest
+  where
+    rest : _
+    rest x = (do
+      f <- op
+      y <- p
+      rest (f x y)) <|> return x
+
+chainl : Parser A -> Parser (A -> A -> A) -> A -> Parser A
+chainl p op a = chainl1 p op <|> pure a
+
+{-# TERMINATING #-}
+chainr1 : Parser A -> Parser (A -> A -> A) -> Parser A
+chainr1 p op = scan
+  where
+    scan rest : _
+    scan = p >>= rest
+    rest x = (do
+      f <- op
+      y <- scan
+      rest (f x y)) <|> return x
+
+chainr : Parser A -> Parser (A -> A -> A) -> A -> Parser A
+chainr p op a = chainr1 p op <|> pure a
+
+-- Run a parser on a string and get the first result.
+parse : Parser A -> String -> Maybe A
+parse p s with fromParser p s
+... | [] = nothing
+... | ((a , _) :: _) = just a
+
+--------------------------------------------------------------------------------
+-- Char parsers
+--------------------------------------------------------------------------------
+
+anyChar : Parser Char
+anyChar = toParser (maybeToList <<< String.uncons)
+
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
-  c <- item
+  c <- anyChar
   if p c then pure c else empty
 
--- This combinator is used for creating single character parsers.
+skipWhile : (Char -> Bool) -> Parser Unit
+skipWhile p = do
+  c <- anyChar
+  if p c then pure unit else empty
+
 char : Char -> Parser Char
 char c = satisfy (c ==_)
 
--- Parse digits.
-digit : Parser Char
-digit = satisfy isDigit
+oneOf : List Char -> Parser Char
+oneOf cs = satisfy (\ c -> elem c cs)
 
--- Parse letters.
+noneOf : List Char -> Parser Char
+noneOf cs = satisfy (\ c -> notElem c cs)
+
 letter : Parser Char
 letter = satisfy isAlpha
 
--- Parse lower-case characters.
 lower : Parser Char
 lower = satisfy isLower
 
--- Parser upper-case characters.
 upper : Parser Char
 upper = satisfy (\ c -> isAlpha c && not (isLower c))
 
--- Parse alpha-numeric characters.
-alphanum : Parser Char
-alphanum = letter <|> digit
+digit : Parser Char
+digit = satisfy isDigit
 
--- Parse words.
+hexDigit : Parser Char
+hexDigit = satisfy isHexDigit
+
+alphaNum : Parser Char
+alphaNum = letter <|> digit
+
+space : Parser Char
+space = satisfy isSpace
+
+skipSpaces : Parser Unit
+skipSpaces = skipMany space
+
+newline : Parser Char
+newline = char '\n'
+
+crlf : Parser Char
+crlf = char '\r' *> newline
+
+endOfLine : Parser Char
+endOfLine = newline <|> crlf
+
+tab : Parser Char
+tab = char '\t'
+
+--------------------------------------------------------------------------------
+-- String parsers
+--------------------------------------------------------------------------------
+
+{-# TERMINATING #-}
+string : String -> Parser String
+string s with String.uncons s
+... | nothing = pure ""
+... | (just (c , s')) = char c *> string s' *> pure (cons c s')
+
 {-# TERMINATING #-}
 word : Parser String
 word = neword <|> (pure "")
@@ -95,58 +190,23 @@ word = neword <|> (pure "")
       s <- word
       return (cons c s)
 
--- Produce string parsers.
-{-# TERMINATING #-}
-string : String -> Parser String
-string s with String.uncons s
-... | nothing = pure ""
-... | (just (c , s')) = char c >> string s' >> pure (cons c s')
+takeWhileP : (Char -> Bool) -> Parser String
+takeWhileP p = toParser \ s ->
+  singleton (String.takeWhile p s , String.dropWhile p s)
 
--- This parses nonempty sequences of items separated by operators that
--- associate to the left.
-{-# TERMINATING #-}
-chainl1 : Parser A -> Parser (A -> A -> A) -> Parser A
-chainl1 p op = p >>= rest
-  where
-    rest : _
-    rest x = plus
-      (op >>= \ f -> p >>= \ y -> rest (f x y))
-      (return x)
+takeRest : Parser String
+takeRest = takeWhileP (const true)
 
--- Parser for natural numbers.
+--------------------------------------------------------------------------------
+-- Parsers for numbers
+--------------------------------------------------------------------------------
+
 nat : Parser Nat
 nat = chainl1
     (digit >>= \ n -> return $ monus (ord n) (ord '0'))
     (return \ m n -> 10 * m + n)
 
--- Spaces parser.
-spaces : Parser Unit
-spaces = do
-  many1 (satisfy isSpace)
-  return unit
-
--- Junk parser.
-junk : Parser Unit
-junk = do
-  many spaces
-  return unit
-
--- Parser that skips junk.
-skip : Parser A -> Parser A
-skip p = junk >> p
-
--- Consumes input as long as the predicate returns true, and return the
--- consumed input.
-takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s ->
-  singleton (String.takeWhile p s , String.dropWhile p s)
-
--- Consumes the rest of the input.
-takeRest : Parser String
-takeRest = takeWhile (const true)
-
--- Run a parser on a string and get the first result.
-parse : Parser A -> String -> Maybe A
-parse p s with fromParser p s
-... | [] = nothing
-... | ((a , _) :: _) = just a
+int : Parser Int
+int = (neg <$> (char '-' *> nat))
+  <|> (pos <$> (char '+' *> nat))
+  <|> (pos <$> nat)
