@@ -1143,6 +1143,11 @@ record Alternative (F : Set -> Set) : Set where
 
 open Alternative {{...}} public
 
+{-# NON_TERMINATING #-}
+some many : {{_ : Alternative F}} -> F A -> F (List A)
+some v = (| _::_ v (many v) |)
+many v = some v <|> pure []
+
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing
