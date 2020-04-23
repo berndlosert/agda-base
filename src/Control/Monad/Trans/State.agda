@@ -78,6 +78,12 @@ instance
       (x , s2) <- fromStateT mx s1
       return (f x , s2)
 
+  alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
+    Alternative (StateT S M)
+  alternativeStateT .empty = toStateT (const empty)
+  alternativeStateT ._<|>_ m n = toStateT $ \ s ->
+    fromStateT m s <|> fromStateT n s
+
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
   monadStateT ._>>=_ m k = toStateT $ \ s0 -> do
     (a , s1) <- fromStateT m s0
