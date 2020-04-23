@@ -1148,6 +1148,9 @@ some many : {{_ : Alternative F}} -> F A -> F (List A)
 some v = (| _::_ v (many v) |)
 many v = some v <|> pure []
 
+optional : {{_ : Alternative F}} -> F A -> F (Maybe A)
+optional v = just <$> v <|> pure nothing
+
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing
