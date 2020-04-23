@@ -1143,13 +1143,15 @@ record Alternative (F : Set -> Set) : Set where
 
 open Alternative {{...}} public
 
-{-# NON_TERMINATING #-}
-some many : {{_ : Alternative F}} -> F A -> F (List A)
-some v = (| _::_ v (many v) |)
-many v = some v <|> pure []
+module _ {{_ : Alternative F}} where
 
-optional : {{_ : Alternative F}} -> F A -> F (Maybe A)
-optional v = just <$> v <|> pure nothing
+  {-# NON_TERMINATING #-}
+  some many : F A -> F (List A)
+  some v = (| _::_ v (many v) |)
+  many v = some v <|> pure []
+
+  optional : F A -> F (Maybe A)
+  optional v = just <$> v <|> pure nothing
 
 instance
   alternativeMaybe : Alternative Maybe
