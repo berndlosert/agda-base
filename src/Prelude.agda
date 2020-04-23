@@ -1153,6 +1153,9 @@ module _ {{_ : Alternative F}} where
   optional : F A -> F (Maybe A)
   optional v = just <$> v <|> pure nothing
 
+  eitherA : F A -> F B -> F (Either A B)
+  eitherA a b = (left <$> a) <|> (right <$> b)
+
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing
