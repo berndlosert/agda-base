@@ -945,7 +945,7 @@ record Functor (F : Set -> Set) : Set where
   _$>_ = flip _<$_
 
   void : F A -> F Unit
-  void = unit <$_
+  void = map (const unit)
 
 open Functor {{...}} public
 
@@ -1144,7 +1144,8 @@ module _ {{_ : Alternative F}} where
   many a = many1 a <|> pure []
 
   optional : F A -> F (Maybe A)
-  optional a = just <$> a <|> pure nothing
+  --optional a = map just a <|> pure nothing
+  optional a = (| just a | nothing |)
 
   eitherA : F A -> F B -> F (Either A B)
   eitherA a b = (map left a) <|> (map right b)
