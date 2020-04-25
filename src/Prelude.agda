@@ -130,17 +130,17 @@ record Max (A : Set) : Set where
 
 open Max public
 
+-- Bool semigroup where x <> y = x || y.
+record Any : Set where
+  constructor anAny
+  field getAny : Bool
+
 -- Bool semigroup where x <> y = x && y.
 record All : Set where
   constructor anAll
   field getAll : Bool
 
 open All public
-
--- Bool semigroup where x <> y = x || y.
-record Any : Set where
-  constructor anAny
-  field getAny : Bool
 
 open Any public
 
@@ -177,9 +177,6 @@ case_of_ = flip _$_
 infixr 9 _∘_
 _∘_ : (B -> C) -> (A -> B) -> A -> C
 g ∘ f = λ a -> g (f a)
-
-absurd : Void -> A
-absurd ()
 
 infixr 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
@@ -261,8 +258,8 @@ open Agda.Builtin.String public
   )
 
 either : (A -> C) -> (B -> C) -> Either A B -> C
-either f g (left x) = f x
-either f g (right y) = g y
+either f g (left a) = f a
+either f g (right b) = g b
 
 mirror : Either A B -> Either B A
 mirror = either right left
@@ -279,10 +276,10 @@ isRight (left _) = false
 isRight _ = true
 
 fromLeft : A -> Either A B -> A
-fromLeft x = either id (const x)
+fromLeft a = either id (const a)
 
 fromRight : B -> Either A B -> B
-fromRight y = either (const y) id
+fromRight b = either (const b) id
 
 fromEither : (A -> B) -> Either A B -> B
 fromEither f = either f id
@@ -404,8 +401,8 @@ instance
   booleanAlgebraFunction .ff = const ff
   booleanAlgebraFunction .tt = const tt
   booleanAlgebraFunction .not f = not ∘ f
-  booleanAlgebraFunction ._||_ f g x = f x || g x
-  booleanAlgebraFunction ._&&_ f g x = f x && g x
+  booleanAlgebraFunction ._||_ f g a = f a || g a
+  booleanAlgebraFunction ._&&_ f g a = f a && g a
 
 --------------------------------------------------------------------------------
 -- Eq
@@ -417,7 +414,7 @@ record Eq (A : Set) : Set where
 
   infix 4 _/=_
   _/=_ : A -> A -> Bool
-  x /= y = if x == y then false else true
+  a /= a' = if a == a' then false else true
 
 open Eq {{...}} public
 
@@ -454,30 +451,30 @@ instance
 
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Either A B)
   eqEither ._==_ = λ where
-    (left x) (left y) -> x == y
-    (right x) (right y) -> x == y
+    (left a) (left a') -> a == a'
+    (right b) (right b') -> b == b'
     _ _ -> false
 
   eqPair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  eqPair ._==_ (a , b) (c , d) = (a == c) && (b == d)
+  eqPair ._==_ (a , b) (a' , b') = (a == a') && (b == b')
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = λ where
     nothing nothing -> true
-    (just x) (just y) -> x == y
+    (just a) (just a') -> a == a'
     _ _ -> false
 
   eqList : {{_ : Eq A}} -> Eq (List A)
   eqList ._==_ = λ where
     [] [] -> true
-    (x :: xs) (y :: ys) -> x == y && xs == ys
+    (a :: as) (a' :: as') -> a == a' && as == as'
     _ _ -> false
 
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ x y = runIdentity x == runIdentity y
+  eqIdentity ._==_ (anIdentity a) (anIdentity a') = a == a'
 
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ x y = getConst x == getConst y
+  eqConst ._==_ (aConst a) (aConst a') = a == a'
 
 --------------------------------------------------------------------------------
 -- Ord
@@ -493,19 +490,19 @@ record Ord (A : Set) : Set where
     _<_ : A -> A -> Bool
 
   compare : A -> A -> Ordering
-  compare x y = if x < y then LT else if x == y then EQ else GT
+  compare a a' = if a < a' then LT else if a == a' then EQ else GT
 
-  infixl 4 _<=_
-  _<=_ : A -> A -> Bool
-  x <= y = if x < y then true else if x == y then true else false
+  infixl 4 _≤_
+  _≤_ : A -> A -> Bool
+  a ≤ a' = if a < a' then true else if a == a' then true else false
 
   infixl 4 _>_
   _>_ : A -> A -> Bool
   _>_ = flip _<_
 
-  infixl 4 _>=_
-  _>=_ : A -> A -> Bool
-  _>=_ = flip _<=_
+  infixl 4 _≥_
+  _≥_ : A -> A -> Bool
+  _≥_ = flip _≤_
 
   min : A -> A -> A
   min x y = if x < y then x else y
@@ -514,7 +511,7 @@ record Ord (A : Set) : Set where
   max x y = if x < y then y else x
 
   comparing : (B -> A) -> B -> B -> Ordering
-  comparing p x y = compare (p x) (p y)
+  comparing p b b' = compare (p b) (p b')
 
 open Ord {{...}} public
 
@@ -548,7 +545,7 @@ instance
 
   ordList : {{_ : Ord A}} -> Ord (List A)
   ordList ._<_ = λ where
-    (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
+    (a :: as) (a' :: as') -> a < a' || (a == a' && as < as')
     [] [] -> true
     _ _ -> false
 
@@ -567,10 +564,10 @@ instance
     (just a) (just a') -> a < a'
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ x y = runIdentity x < runIdentity y
+  ordIdentity ._<_ (anIdentity a) (anIdentity a') = a < a'
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ x y = getConst x < getConst y
+  ordConst ._<_ (aConst a) (aConst a') = a < a'
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -584,48 +581,46 @@ open Semigroup {{...}} public
 
 infixr 6 _+_
 _+_ : {{_ : Semigroup (Sum A)}} -> A -> A -> A
-x + y = getSum (aSum x <> aSum y)
+a + a' = getSum (aSum a <> aSum a')
 
 infixr 7 _*_
 _*_ : {{_ : Semigroup (Product A)}} -> A -> A -> A
-x * y = getProduct (aProduct x <> aProduct y)
+a * a' = getProduct (aProduct a <> aProduct a')
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ x y = aDual $ getDual y <> getDual x
+  semigroupDual ._<>_ (aDual a) (aDual a') = aDual (a' <> a)
 
   semigroupFirst : Semigroup (First A)
-  semigroupFirst ._<>_ x y = x
+  semigroupFirst ._<>_ a _ = a
 
   semigroupLast : Semigroup (Last A)
-  semigroupLast ._<>_ x y = y
+  semigroupLast ._<>_ _ a = a
 
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = λ ()
 
   semigroupSumSet : Semigroup (Sum Set)
-  semigroupSumSet ._<>_ A B = aSum $ Either (getSum A) (getSum B)
+  semigroupSumSet ._<>_ (aSum A) (aSum B) = aSum (Either A B)
 
   semigroupProductSet : Semigroup (Product Set)
-  semigroupProductSet ._<>_ A B =
-    aProduct $ Pair (getProduct A) (getProduct B)
+  semigroupProductSet ._<>_ (aProduct A) (aProduct B) = aProduct (Pair A B)
 
   semigroupUnit : Semigroup Unit
   semigroupUnit ._<>_ unit unit = unit
 
-  semigroupAll : Semigroup All
-  semigroupAll ._<>_ x y = anAll (getAll x && getAll y)
-
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ x y = anAny (getAny x || getAny y)
+  semigroupAny ._<>_ (anAny b) (anAny b') = anAny (b || b')
+
+  semigroupAll : Semigroup All
+  semigroupAll ._<>_ (anAll b) (anAll b') = anAll (b && b')
 
   semigroupSumNat : Semigroup (Sum Nat)
-  semigroupSumNat ._<>_ m n =
-    aSum $ Agda.Builtin.Nat._+_ (getSum m) (getSum n)
+  semigroupSumNat ._<>_ (aSum m) (aSum n) = aSum (Agda.Builtin.Nat._+_ m n)
 
   semigroupProductNat : Semigroup (Product Nat)
-  semigroupProductNat ._<>_ m n =
-    aProduct $ Agda.Builtin.Nat._*_ (getProduct m) (getProduct n)
+  semigroupProductNat ._<>_ (aProduct m) (aProduct n) =
+    aProduct (Agda.Builtin.Nat._*_ m n)
 
   semigroupSumInt : Semigroup (Sum Int)
   semigroupSumInt ._<>_ x y with getSum x | getSum y
