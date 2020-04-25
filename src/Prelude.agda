@@ -1117,11 +1117,11 @@ instance
 
   applicativeMin : Applicative Min
   applicativeMin .pure = aMin
-  applicativeMin ._<*>_ f x = aMin $ getMin f (getMin x)
+  applicativeMin ._<*>_ (aMin f) (aMin x) = aMin (f x)
 
   applicativeMax : Applicative Max
   applicativeMax .pure = aMax
-  applicativeMax ._<*>_ f x = aMax $ getMax f (getMax x)
+  applicativeMax ._<*>_ (aMax f) (aMax x) = aMax (f x)
 
 --------------------------------------------------------------------------------
 -- Alternative
@@ -1140,14 +1140,14 @@ module _ {{_ : Alternative F}} where
 
   {-# NON_TERMINATING #-}
   many1 many : F A -> F (List A)
-  many1 v = (| _::_ v (many v) |)
-  many v = many1 v <|> pure []
+  many1 a = (| _::_ a (many a) |)
+  many a = many1 a <|> pure []
 
   optional : F A -> F (Maybe A)
-  optional v = just <$> v <|> pure nothing
+  optional a = just <$> a <|> pure nothing
 
   eitherA : F A -> F B -> F (Either A B)
-  eitherA a b = (left <$> a) <|> (right <$> b)
+  eitherA a b = (map left a) <|> (map right b)
 
 instance
   alternativeMaybe : Alternative Maybe
@@ -1173,20 +1173,12 @@ record Monad (M : Set -> Set) : Set where
   return : A -> M A
   return = pure
 
-  infixr 1 _=<<_
-  _=<<_ : (A -> M B) -> M A -> M B
-  _=<<_ = flip _>>=_
-
   join : M (M A) -> M A
-  join = _=<<_ id
+  join = _>>= id
 
   infixl 1 _>>_
   _>>_ : M A -> M B -> M B
   _>>_ = _*>_
-
-  infixr 1 _<<_
-  _<<_ : M A -> M B -> M A
-  _<<_ = _<*_
 
 open Monad {{...}} public
 
@@ -1210,28 +1202,28 @@ instance
   monadIO ._>>=_ = bindIO
 
   monadIdentity : Monad Identity
-  monadIdentity ._>>=_ a k = k (runIdentity a)
+  monadIdentity ._>>=_ (anIdentity x) k = k x
 
   monadSum : Monad Sum
-  monadSum ._>>=_ m k = k (getSum m)
+  monadSum ._>>=_ (aSum x) k = k x
 
   monadProduct : Monad Product
-  monadProduct ._>>=_ m k = k (getProduct m)
+  monadProduct ._>>=_ (aProduct x) k = k x
 
   monadDual : Monad Dual
-  monadDual ._>>=_ m k = k (getDual m)
+  monadDual ._>>=_ (aDual x) k = k x
 
   monadFirst : Monad First
-  monadFirst ._>>=_ m k = k (getFirst m)
+  monadFirst ._>>=_ (aFirst x) k = k x
 
   monadLast : Monad Last
-  monadLast ._>>=_ m k = k (getLast m)
+  monadLast ._>>=_ (aLast x) k = k x
 
   monadMin : Monad Min
-  monadMin ._>>=_ m k = k (getMin m)
+  monadMin ._>>=_ (aMin x) k = k x
 
   monadMax : Monad Max
-  monadMax ._>>=_ m k = k (getMax m)
+  monadMax ._>>=_ (aMax x) k = k x
 
 --------------------------------------------------------------------------------
 -- IsFoldable, Foldable
@@ -1311,16 +1303,16 @@ Foldable F = ∀ {A} -> IsFoldable (F A) A
 instance
   foldableEither : Foldable (Either A)
   foldableEither .foldMap _ (left _) = neutral
-  foldableEither .foldMap f (right y) = f y
+  foldableEither .foldMap f (right x) = f x
 
   foldablePair : Foldable (Pair A)
-  foldablePair .foldMap f (_ , y) = f y
+  foldablePair .foldMap f (_ , x) = f x
 
   foldableMaybe : Foldable Maybe
   foldableMaybe .foldMap = maybe neutral
 
   foldableList : Foldable List
-  foldableList .foldMap f = listrec neutral λ a _ b -> f a <> b
+  foldableList .foldMap f = listrec neutral λ x _ y -> f x <> y
 
   isFoldableStringChar : IsFoldable String Char
   isFoldableStringChar .foldMap f = foldMap f ∘ unpack
@@ -1344,24 +1336,21 @@ private
 
   instance
     functorStateL : Functor (StateL S)
-    functorStateL .map f mk = aStateL $ λ s0 ->
-      let (s1 , v) = runStateL mk s0 in (s1 , f v)
+    functorStateL .map f (aStateL t) = aStateL λ s₀ ->
+      let (s₁ , x) = t s₀ in (s₁ , f x)
 
     functorStateR : Functor (StateR S)
-    functorStateR .map f mk = aStateR $ λ s0 ->
-      let (s1 , v) = runStateR mk s0 in (s1 , f v)
+    functorStateR .map f (aStateR t) = aStateR λ s₀ ->
+      let (s₁ , x) = t s₀ in (s₁ , f x)
 
     applicativeStateL : Applicative (StateL S)
-    applicativeStateL .pure x = aStateL $ λ s -> (s , x)
-    applicativeStateL ._<*>_ kf kv = aStateL $ λ s0 ->
-      let
-        (s1 , f) = runStateL kf s0
-        (s2 , v) = runStateL kv s1
-      in
-        (s2 , f v)
+    applicativeStateL .pure x = aStateL λ s -> (s , x)
+    applicativeStateL ._<*>_ (aStateL f) (aStateL t) = aStateL λ s₀ ->
+      let (s₁ , f') = f s₀; (s₂ , x) = t s₁
+      in (s₂ , f' x)
 
     applicativeStateR : Applicative (StateR S)
-    applicativeStateR .pure x = aStateR $ λ s -> (s , x)
+    applicativeStateR .pure x = aStateR λ s -> (s , x)
     applicativeStateR ._<*>_ kf kv = aStateR $ λ s0 ->
       let
         (s1 , v) = runStateR kv s0
