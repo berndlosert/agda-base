@@ -1346,17 +1346,12 @@ private
     applicativeStateL : Applicative (StateL S)
     applicativeStateL .pure x = aStateL λ s -> (s , x)
     applicativeStateL ._<*>_ (aStateL f) (aStateL t) = aStateL λ s₀ ->
-      let (s₁ , f') = f s₀; (s₂ , x) = t s₁
-      in (s₂ , f' x)
+      let (s₁ , f') = f s₀; (s₂ , x) = t s₁ in (s₂ , f' x)
 
     applicativeStateR : Applicative (StateR S)
     applicativeStateR .pure x = aStateR λ s -> (s , x)
-    applicativeStateR ._<*>_ kf kv = aStateR $ λ s0 ->
-      let
-        (s1 , v) = runStateR kv s0
-        (s2 , f) = runStateR kf s1
-      in
-        (s2 , f v)
+    applicativeStateR ._<*>_ (aStateR f) (aStateR t) = aStateR λ s₀ ->
+      let (s₁ , x) = t s₀; (s₂ , f') = f s₁ in (s₂ , f' x)
 
 record Traversable (T : Set -> Set) : Set where
   field
@@ -1371,18 +1366,18 @@ record Traversable (T : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumL f s t = runStateL (traverse (aStateL ∘ flip f) t) s
+  mapAccumL f a b = runStateL (traverse (aStateL ∘ flip f) b) a
 
   mapAccumR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumR f s t = runStateR (traverse (aStateR ∘ flip f) t) s
+  mapAccumR f a b = runStateR (traverse (aStateR ∘ flip f) b) a
 
   scanl : (B -> A -> B) -> B -> T A -> T B
-  scanl f b0 xs = snd $
-    mapAccumL (λ b a -> let b' = f b a in (b' , b')) b0 xs
+  scanl f b₀ xs = snd $
+    mapAccumL (λ b a -> let b' = f b a in (b' , b')) b₀ xs
 
   scanr : (A -> B -> B) -> B -> T A -> T B
-  scanr f b0 xs = snd $
-    mapAccumR (λ b a -> let b' = f a b in (b' , b')) b0 xs
+  scanr f b₀ xs = snd $
+    mapAccumR (λ b a -> let b' = f a b in (b' , b')) b₀ xs
 
 open Traversable {{...}} public
 
