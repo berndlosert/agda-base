@@ -1144,11 +1144,11 @@ module _ {{_ : Alternative F}} where
   many a = many1 a <|> pure []
 
   optional : F A -> F (Maybe A)
-  --optional a = map just a <|> pure nothing
   optional a = (| just a | nothing |)
 
   eitherA : F A -> F B -> F (Either A B)
-  eitherA a b = (map left a) <|> (map right b)
+  --eitherA a b = (map left a) <|> (map right b)
+  eitherA a b = (| left a | right b |)
 
 instance
   alternativeMaybe : Alternative Maybe
