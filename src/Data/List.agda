@@ -50,7 +50,7 @@ range m n with compare m n
 ... | LT = map (_+ m) $ til $ suc (monus n m)
 
 --------------------------------------------------------------------------------
--- Functions producing sublists
+-- Sublists
 --------------------------------------------------------------------------------
 
 takeWhile : (A -> Bool) -> List A -> List A
