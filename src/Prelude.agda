@@ -1448,7 +1448,7 @@ instance
     where
       show' : {{_ : Show A}} -> List A -> String
       show' [] = "[]"
-      show' (x :: xs) = show x ++ " :: " ++ show' xs
+      show' (a :: as) = show a ++ " :: " ++ show' as
 
   showChar : Show Char
   showChar .show = Agda.Builtin.String.primShowChar
