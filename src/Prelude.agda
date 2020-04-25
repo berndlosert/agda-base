@@ -358,10 +358,10 @@ postulate
   getContents : IO String
 
 {-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC mapIO = λ _ _ f io -> fmap f io #-}
-{-# COMPILE GHC pureIO = λ _ a -> pure a #-}
-{-# COMPILE GHC apIO = λ _ _ f x -> f <*> x #-}
-{-# COMPILE GHC bindIO = λ _ _ io f -> io >>= f #-}
+{-# COMPILE GHC mapIO = \ _ _ f io -> fmap f io #-}
+{-# COMPILE GHC pureIO = \ _ a -> pure a #-}
+{-# COMPILE GHC apIO = \ _ _ f x -> f <*> x #-}
+{-# COMPILE GHC bindIO = \ _ _ io f -> io >>= f #-}
 {-# COMPILE GHC putStr = Text.putStr #-}
 {-# COMPILE GHC putStrLn = Text.putStrLn #-}
 {-# COMPILE GHC getLine = Text.getLine #-}
@@ -1147,7 +1147,6 @@ module _ {{_ : Alternative F}} where
   optional a = (| just a | nothing |)
 
   eitherA : F A -> F B -> F (Either A B)
-  --eitherA a b = (map left a) <|> (map right b)
   eitherA a b = (| left a | right b |)
 
 instance
