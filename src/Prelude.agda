@@ -118,15 +118,15 @@ open Last public
 
 -- For semigroups, monoids, etc. where x <> y = min x y
 record Min (A : Set) : Set where
-  constructor toMin
-  field fromMin : A
+  constructor aMin
+  field getMin : A
 
 open Min public
 
 -- For Semigroups, monoids, etc. where x <> y = max x y
 record Max (A : Set) : Set where
-  constructor toMax
-  field fromMax : A
+  constructor aMax
+  field getMax : A
 
 open Max public
 
@@ -1031,10 +1031,10 @@ instance
   functorLast .map f = aLast ∘ f ∘ getLast
 
   functorMin : Functor Min
-  functorMin .map f = toMin ∘ f ∘ fromMin
+  functorMin .map f = aMin ∘ f ∘ getMin
 
   functorMax : Functor Max
-  functorMax .map f = toMax ∘ f ∘ fromMax
+  functorMax .map f = aMax ∘ f ∘ getMax
 
   profunctorFunction : Profunctor Function
   profunctorFunction .dimap f g h = g ∘ h ∘ f
@@ -1116,12 +1116,12 @@ instance
   applicativeLast ._<*>_ (aLast f) (aLast x) = aLast (f x)
 
   applicativeMin : Applicative Min
-  applicativeMin .pure = toMin
-  applicativeMin ._<*>_ f x = toMin $ fromMin f (fromMin x)
+  applicativeMin .pure = aMin
+  applicativeMin ._<*>_ f x = aMin $ getMin f (getMin x)
 
   applicativeMax : Applicative Max
-  applicativeMax .pure = toMax
-  applicativeMax ._<*>_ f x = toMax $ fromMax f (fromMax x)
+  applicativeMax .pure = aMax
+  applicativeMax ._<*>_ f x = aMax $ getMax f (getMax x)
 
 --------------------------------------------------------------------------------
 -- Alternative
@@ -1228,10 +1228,10 @@ instance
   monadLast ._>>=_ m k = k (getLast m)
 
   monadMin : Monad Min
-  monadMin ._>>=_ m k = k (fromMin m)
+  monadMin ._>>=_ m k = k (getMin m)
 
   monadMax : Monad Max
-  monadMax ._>>=_ m k = k (fromMax m)
+  monadMax ._>>=_ m k = k (getMax m)
 
 --------------------------------------------------------------------------------
 -- IsFoldable, Foldable
