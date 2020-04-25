@@ -6,10 +6,10 @@ open import Prelude
 
 instance
   Add:Functor : Add (Set -> Set)
-  Add:Functor ._+_ F G = \ A -> F A + G A
+  Add:Functor ._+_ F G = λ A -> F A + G A
 
 instance
-  functorCoproduct : forall {F G}
+  functorCoproduct : ∀ {F G}
     -> {{_ : Functor F}}
     -> {{_ : Functor G}}
     -> Functor (F + G)

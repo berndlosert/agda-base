@@ -52,7 +52,7 @@ open import Agda.Builtin.Sigma public
   renaming (Σ to Sigma)
 
 Pair : Set -> Set -> Set
-Pair A B = Sigma A (\ _ -> B)
+Pair A B = Sigma A (λ _ -> B)
 
 data Maybe (A : Set) : Set where
   nothing : Maybe A
@@ -69,50 +69,50 @@ open import Agda.Builtin.IO public
 -- Wrappers
 --------------------------------------------------------------------------------
 
-record Id (A : Set) : Set where
-  constructor toId
-  field fromId : A
+record Identity (A : Set) : Set where
+  constructor anIdentity
+  field runIdentity : A
 
-open Id public
+open Identity public
 
 record Const (A B : Set) : Set where
-  constructor toConst
-  field fromConst : A
+  constructor aConst
+  field getConst : A
 
 open Const public
 
 -- For additive semigroups, monoids, etc.
 record Sum (A : Set) : Set where
-  constructor toSum
-  field fromSum : A
+  constructor aSum
+  field getSum : A
 
 open Sum public
 
 -- For multiplicative semigroups, monoids, etc.
 record Product (A : Set) : Set where
-  constructor toProduct
-  field fromProduct : A
+  constructor aProduct
+  field getProduct : A
 
 open Product public
 
 -- For dual semigroups, orders, etc.
 record Dual (A : Set) : Set where
-  constructor toDual
-  field fromDual : A
+  constructor aDual
+  field getDual : A
 
 open Dual public
 
 -- Semigroup where x <> y = x
 record First (A : Set) : Set where
-  constructor toFirst
-  field fromFirst : A
+  constructor aFirst
+  field getFirst : A
 
 open First public
 
 -- Semigroup where x <> y = y
 record Last (A : Set) : Set where
-  constructor toLast
-  field fromLast : A
+  constructor aLast
+  field getLast : A
 
 open Last public
 
@@ -132,22 +132,22 @@ open Max public
 
 -- Bool semigroup where x <> y = x && y.
 record All : Set where
-  constructor toAll
-  field fromAll : Bool
+  constructor anAll
+  field getAll : Bool
 
 open All public
 
 -- Bool semigroup where x <> y = x || y.
 record Any : Set where
-  constructor toAny
-  field fromAny : Bool
+  constructor anAny
+  field getAny : Bool
 
 open Any public
 
 -- Endofunctions
 record Endo A : Set where
-  constructor toEndo
-  field fromEndo : A -> A
+  constructor anEndo
+  field appEndo : A -> A
 
 open Endo public
 
@@ -174,13 +174,9 @@ _$_ = id
 case_of_ : A -> (A -> B) -> B
 case_of_ = flip _$_
 
-infixr 9 _<<<_
-_<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ a -> g (f a)
-
-infixr 9 _>>>_
-_>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _<<<_
+infixr 9 _∘_
+_∘_ : (B -> C) -> (A -> B) -> A -> C
+g ∘ f = λ a -> g (f a)
 
 absurd : Void -> A
 absurd ()
@@ -328,13 +324,13 @@ maybeToLeft : B -> Maybe A -> Either A B
 maybeToLeft b = maybe (right b) left
 
 maybeToRight : B -> Maybe A -> Either B A
-maybeToRight b = mirror <<< maybeToLeft b
+maybeToRight b = mirror ∘ maybeToLeft b
 
 leftToMaybe : Either A B -> Maybe A
 leftToMaybe = either just (const nothing)
 
 rightToMaybe : Either A B -> Maybe B
-rightToMaybe = leftToMaybe <<< mirror
+rightToMaybe = leftToMaybe ∘ mirror
 
 ensure : (A -> Bool) -> A -> Maybe A
 ensure p a = if p a then just a else nothing
@@ -365,10 +361,10 @@ postulate
   getContents : IO String
 
 {-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC mapIO = \ _ _ f io -> fmap f io #-}
-{-# COMPILE GHC pureIO = \ _ a -> pure a #-}
-{-# COMPILE GHC apIO = \ _ _ f x -> f <*> x #-}
-{-# COMPILE GHC bindIO = \ _ _ io f -> io >>= f #-}
+{-# COMPILE GHC mapIO = λ _ _ f io -> fmap f io #-}
+{-# COMPILE GHC pureIO = λ _ a -> pure a #-}
+{-# COMPILE GHC apIO = λ _ _ f x -> f <*> x #-}
+{-# COMPILE GHC bindIO = λ _ _ io f -> io >>= f #-}
 {-# COMPILE GHC putStr = Text.putStr #-}
 {-# COMPILE GHC putStrLn = Text.putStrLn #-}
 {-# COMPILE GHC getLine = Text.getLine #-}
@@ -394,20 +390,20 @@ instance
   booleanAlgebraBool : BooleanAlgebra Bool
   booleanAlgebraBool .ff = false
   booleanAlgebraBool .tt = true
-  booleanAlgebraBool .not = \ where
+  booleanAlgebraBool .not = λ where
     false -> true
     true -> false
-  booleanAlgebraBool ._||_ = \ where
+  booleanAlgebraBool ._||_ = λ where
     false b -> b
     true _ -> true
-  booleanAlgebraBool ._&&_ = \ where
+  booleanAlgebraBool ._&&_ = λ where
     false _ -> false
     true b -> b
 
   booleanAlgebraFunction : {{_ : BooleanAlgebra B}} -> BooleanAlgebra (A -> B)
   booleanAlgebraFunction .ff = const ff
   booleanAlgebraFunction .tt = const tt
-  booleanAlgebraFunction .not f = not <<< f
+  booleanAlgebraFunction .not f = not ∘ f
   booleanAlgebraFunction ._||_ f g x = f x || g x
   booleanAlgebraFunction ._&&_ f g x = f x && g x
 
@@ -427,13 +423,13 @@ open Eq {{...}} public
 
 instance
   eqVoid : Eq Void
-  eqVoid ._==_ = \ ()
+  eqVoid ._==_ = λ ()
 
   eqUnit : Eq Unit
   eqUnit ._==_ unit unit = true
 
   eqBool : Eq Bool
-  eqBool ._==_ = \ where
+  eqBool ._==_ = λ where
     true true -> true
     false false -> false
     _ _ -> false
@@ -442,7 +438,7 @@ instance
   eqNat ._==_ = Agda.Builtin.Nat._==_
 
   eqInt : Eq Int
-  eqInt ._==_ = \ where
+  eqInt ._==_ = λ where
     (pos m) (pos n) -> m == n
     (negsuc m) (negsuc n) -> m == n
     _ _ -> false
@@ -457,7 +453,7 @@ instance
   eqString ._==_ = Agda.Builtin.String.primStringEquality
 
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Either A B)
-  eqEither ._==_ = \ where
+  eqEither ._==_ = λ where
     (left x) (left y) -> x == y
     (right x) (right y) -> x == y
     _ _ -> false
@@ -466,22 +462,22 @@ instance
   eqPair ._==_ (a , b) (c , d) = (a == c) && (b == d)
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
-  eqMaybe ._==_ = \ where
+  eqMaybe ._==_ = λ where
     nothing nothing -> true
     (just x) (just y) -> x == y
     _ _ -> false
 
   eqList : {{_ : Eq A}} -> Eq (List A)
-  eqList ._==_ = \ where
+  eqList ._==_ = λ where
     [] [] -> true
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> false
 
-  eqId : {{_ : Eq A}} -> Eq (Id A)
-  eqId ._==_ x y = fromId x == fromId y
+  eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
+  eqIdentity ._==_ x y = runIdentity x == runIdentity y
 
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ x y = fromConst x == fromConst y
+  eqConst ._==_ x y = getConst x == getConst y
 
 --------------------------------------------------------------------------------
 -- Ord
@@ -524,13 +520,13 @@ open Ord {{...}} public
 
 instance
   ordVoid : Ord Void
-  ordVoid ._<_ = \ ()
+  ordVoid ._<_ = λ ()
 
   ordUnit : Ord Unit
   ordUnit ._<_ unit unit = false
 
   ordBool : Ord Bool
-  ordBool ._<_ = \ where
+  ordBool ._<_ = λ where
     false true -> true
     _ _ -> false
 
@@ -538,7 +534,7 @@ instance
   ordNat ._<_ = Agda.Builtin.Nat._<_
 
   ordInt : Ord Int
-  ordInt ._<_ = \ where
+  ordInt ._<_ = λ where
     (pos m) (pos n) -> m < n
     (negsuc m) (negsuc n) -> m > n
     (negsuc _) (pos _) -> true
@@ -551,7 +547,7 @@ instance
   ordChar ._<_ c c' = ord c < ord c'
 
   ordList : {{_ : Ord A}} -> Ord (List A)
-  ordList ._<_ = \ where
+  ordList ._<_ = λ where
     (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
     [] [] -> true
     _ _ -> false
@@ -565,16 +561,16 @@ instance
   ordPair ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
 
   ordMaybe : {{_ : Ord A}} -> Ord (Maybe A)
-  ordMaybe ._<_ = \ where
+  ordMaybe ._<_ = λ where
     _ nothing -> false
     nothing _ -> true
     (just a) (just a') -> a < a'
 
-  ordId : {{_ : Ord A}} -> Ord (Id A)
-  ordId ._<_ x y = fromId x < fromId y
+  ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
+  ordIdentity ._<_ x y = runIdentity x < runIdentity y
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ x y = fromConst x < fromConst y
+  ordConst ._<_ x y = getConst x < getConst y
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -588,15 +584,15 @@ open Semigroup {{...}} public
 
 infixr 6 _+_
 _+_ : {{_ : Semigroup (Sum A)}} -> A -> A -> A
-x + y = fromSum (toSum x <> toSum y)
+x + y = getSum (aSum x <> aSum y)
 
 infixr 7 _*_
 _*_ : {{_ : Semigroup (Product A)}} -> A -> A -> A
-x * y = fromProduct (toProduct x <> toProduct y)
+x * y = getProduct (aProduct x <> aProduct y)
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ x y = toDual $ fromDual y <> fromDual x
+  semigroupDual ._<>_ x y = aDual $ getDual y <> getDual x
 
   semigroupFirst : Semigroup (First A)
   semigroupFirst ._<>_ x y = x
@@ -605,70 +601,70 @@ instance
   semigroupLast ._<>_ x y = y
 
   semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = \ ()
+  semigroupVoid ._<>_ = λ ()
 
   semigroupSumSet : Semigroup (Sum Set)
-  semigroupSumSet ._<>_ A B = toSum $ Either (fromSum A) (fromSum B)
+  semigroupSumSet ._<>_ A B = aSum $ Either (getSum A) (getSum B)
 
   semigroupProductSet : Semigroup (Product Set)
   semigroupProductSet ._<>_ A B =
-    toProduct $ Pair (fromProduct A) (fromProduct B)
+    aProduct $ Pair (getProduct A) (getProduct B)
 
   semigroupUnit : Semigroup Unit
   semigroupUnit ._<>_ unit unit = unit
 
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ x y = toAll (fromAll x && fromAll y)
+  semigroupAll ._<>_ x y = anAll (getAll x && getAll y)
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ x y = toAny (fromAny x || fromAny y)
+  semigroupAny ._<>_ x y = anAny (getAny x || getAny y)
 
   semigroupSumNat : Semigroup (Sum Nat)
   semigroupSumNat ._<>_ m n =
-    toSum $ Agda.Builtin.Nat._+_ (fromSum m) (fromSum n)
+    aSum $ Agda.Builtin.Nat._+_ (getSum m) (getSum n)
 
   semigroupProductNat : Semigroup (Product Nat)
   semigroupProductNat ._<>_ m n =
-    toProduct $ Agda.Builtin.Nat._*_ (fromProduct m) (fromProduct n)
+    aProduct $ Agda.Builtin.Nat._*_ (getProduct m) (getProduct n)
 
   semigroupSumInt : Semigroup (Sum Int)
-  semigroupSumInt ._<>_ x y with fromSum x | fromSum y
-  ... | (negsuc m) | (negsuc n) = toSum $ negsuc (suc (m + n))
-  ... | (negsuc m) | (pos n) = toSum $ sub n (suc m)
-  ... | (pos m) | (negsuc n) = toSum $ sub m (suc n)
-  ... | (pos m) | (pos n) = toSum $ pos (m + n)
+  semigroupSumInt ._<>_ x y with getSum x | getSum y
+  ... | (negsuc m) | (negsuc n) = aSum $ negsuc (suc (m + n))
+  ... | (negsuc m) | (pos n) = aSum $ sub n (suc m)
+  ... | (pos m) | (negsuc n) = aSum $ sub m (suc n)
+  ... | (pos m) | (pos n) = aSum $ pos (m + n)
 
   semigroupProductInt : Semigroup (Product Int)
-  semigroupProductInt ._<>_ x y with fromProduct x | fromProduct y
-  ... | (pos n) | (pos m) = toProduct $ pos (n * m)
-  ... | (negsuc n) | (negsuc m) = toProduct $ pos (suc n * suc m)
-  ... | (pos n) | (negsuc m) = toProduct $ neg (n * suc m)
-  ... | (negsuc n) | (pos m) = toProduct $ neg (suc n * m)
+  semigroupProductInt ._<>_ x y with getProduct x | getProduct y
+  ... | (pos n) | (pos m) = aProduct $ pos (n * m)
+  ... | (negsuc n) | (negsuc m) = aProduct $ pos (suc n * suc m)
+  ... | (pos n) | (negsuc m) = aProduct $ neg (n * suc m)
+  ... | (negsuc n) | (pos m) = aProduct $ neg (suc n * m)
 
   semigroupSumFloat : Semigroup (Sum Float)
   semigroupSumFloat ._<>_ x y =
-    toSum $ Agda.Builtin.Float.primFloatPlus (fromSum x) (fromSum y)
+    aSum $ Agda.Builtin.Float.primFloatPlus (getSum x) (getSum y)
 
   semigroupProductFloat : Semigroup (Product Float)
-  semigroupProductFloat ._<>_ x y = toProduct $
-    Agda.Builtin.Float.primFloatTimes (fromProduct x) (fromProduct y)
+  semigroupProductFloat ._<>_ x y = aProduct $
+    Agda.Builtin.Float.primFloatTimes (getProduct x) (getProduct y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
 
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  semigroupFunction ._<>_ f g = \ a -> f a <> g a
+  semigroupFunction ._<>_ f g = λ a -> f a <> g a
 
   semigroupFunctionSum : {{_ : Semigroup (Sum B)}} -> Semigroup $ Sum (A -> B)
-  semigroupFunctionSum ._<>_ f g = toSum $ \ a -> fromSum f a + fromSum g a
+  semigroupFunctionSum ._<>_ f g = aSum $ λ a -> getSum f a + getSum g a
 
   semigroupFunctionProduct : {{_ : Semigroup (Product B)}}
     -> Semigroup $ Product (A -> B)
   semigroupFunctionProduct ._<>_ f g =
-    toProduct $ \ a -> fromProduct f a * fromProduct g a
+    aProduct $ λ a -> getProduct f a * getProduct g a
 
   semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = toEndo (fromEndo g <<< fromEndo f)
+  semigroupEndo ._<>_ g f = anEndo (appEndo g ∘ appEndo f)
 
   semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}}
     -> Semigroup (Either A B)
@@ -680,23 +676,23 @@ instance
   semigroupPair ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
-  semigroupMaybe ._<>_ = \ where
+  semigroupMaybe ._<>_ = λ where
     nothing m -> m
     m nothing -> m
     (just x) (just y) -> just (x <> y)
 
   semigroupList : Semigroup (List A)
-  semigroupList ._<>_ xs ys = listrec ys (\ a _ as -> a :: as) xs
+  semigroupList ._<>_ xs ys = listrec ys (λ a _ as -> a :: as) xs
 
   semigroupIO : {{_ : Semigroup A}} -> Semigroup (IO A)
   semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
-  semigroupId : {{_ : Semigroup A}} -> Semigroup (Id A)
-  semigroupId ._<>_ x y = toId $ fromId x <> fromId y
+  semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
+  semigroupIdentity ._<>_ x y = anIdentity $ runIdentity x <> runIdentity y
 
   semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
-  semigroupConst ._<>_ x y = toConst $ fromConst x <> fromConst y
+  semigroupConst ._<>_ x y = aConst $ getConst x <> getConst y
 
 --------------------------------------------------------------------------------
 -- Monoid
@@ -705,25 +701,25 @@ instance
 record Monoid (A : Set) : Set where
   field
     overlap {{super}} : Semigroup A
-    mempty : A
+    neutral : A
 
   when : Bool -> A -> A
   when true x = x
-  when false _ = mempty
+  when false _ = neutral
 
   unless : Bool -> A -> A
-  unless true _ = mempty
+  unless true _ = neutral
   unless false x = x
 
 open Monoid {{...}} public
 
 -- For additive monoids
 zero : {{_ : Monoid (Sum A)}} -> A
-zero = fromSum mempty
+zero = getSum neutral
 
 -- For multiplicative monoids
 one : {{_ : Monoid (Product A)}} -> A
-one = fromProduct mempty
+one = getProduct neutral
 
 infixr 8 _^_
 _^_ : {{_ : Monoid (Product A)}} -> A -> Nat -> A
@@ -732,77 +728,77 @@ a ^ (suc n) = a * a ^ n
 
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .mempty = toDual mempty
+  monoidDual .neutral = aDual neutral
 
   monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
-  monoidFirst .mempty = toFirst mempty
+  monoidFirst .neutral = aFirst neutral
 
   monoidLast : {{_ : Monoid A}} -> Monoid (Last A)
-  monoidLast .mempty = toLast mempty
+  monoidLast .neutral = aLast neutral
 
   monoidSumSet : Monoid (Sum Set)
-  monoidSumSet .mempty = toSum Void
+  monoidSumSet .neutral = aSum Void
 
   monoidProductSet : Monoid (Product Set)
-  monoidProductSet .mempty = toProduct Unit
+  monoidProductSet .neutral = aProduct Unit
 
   monoidUnit : Monoid Unit
-  monoidUnit .mempty = unit
+  monoidUnit .neutral = unit
 
   monoidAll : Monoid All
-  monoidAll .mempty = toAll true
+  monoidAll .neutral = anAll true
 
   monoidAny : Monoid Any
-  monoidAny .mempty = toAny false
+  monoidAny .neutral = anAny false
 
   monoidSumNat : Monoid (Sum Nat)
-  monoidSumNat .mempty = toSum 0
+  monoidSumNat .neutral = aSum 0
 
   monoidProductNat : Monoid (Product Nat)
-  monoidProductNat .mempty = toProduct 1
+  monoidProductNat .neutral = aProduct 1
 
   monoidSumInt : Monoid (Sum Int)
-  monoidSumInt .mempty = toSum (pos 0)
+  monoidSumInt .neutral = aSum (pos 0)
 
   monoidProductInt : Monoid (Product Int)
-  monoidProductInt .mempty = toProduct (pos 1)
+  monoidProductInt .neutral = aProduct (pos 1)
 
   monoidSumFloat : Monoid (Sum Float)
-  monoidSumFloat .mempty = toSum 0.0
+  monoidSumFloat .neutral = aSum 0.0
 
   monoidProductFloat : Monoid (Product Float)
-  monoidProductFloat .mempty = toProduct 1.0
+  monoidProductFloat .neutral = aProduct 1.0
 
   monoidString : Monoid String
-  monoidString .mempty = ""
+  monoidString .neutral = ""
 
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
-  monoidFunction .mempty = const mempty
+  monoidFunction .neutral = const neutral
 
   monoidFunctionSum : {{_ : Monoid (Sum B)}} -> Monoid $ Sum (A -> B)
-  monoidFunctionSum .mempty = toSum (const zero)
+  monoidFunctionSum .neutral = aSum (const zero)
 
   monoidFunctionProduct : {{_ : Monoid (Product B)}}
     -> Monoid $ Product (A -> B)
-  monoidFunctionProduct .mempty = toProduct (const one)
+  monoidFunctionProduct .neutral = aProduct (const one)
 
   monoidEndo : Monoid (Endo A)
-  monoidEndo .mempty = toEndo id
+  monoidEndo .neutral = anEndo id
 
   monoidMaybe : {{_ : Semigroup A}} -> Monoid (Maybe A)
-  monoidMaybe .mempty = nothing
+  monoidMaybe .neutral = nothing
 
   monoidList : Monoid (List A)
-  monoidList .mempty = []
+  monoidList .neutral = []
 
   monoidIO : {{_ : Monoid A}} -> Monoid (IO A)
-  monoidIO .mempty = pureIO mempty
+  monoidIO .neutral = pureIO neutral
 
-  monoidId : {{_ : Monoid A}} -> Monoid (Id A)
-  monoidId .mempty = toId mempty
+  monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
+  monoidIdentity .neutral = anIdentity neutral
 
   monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
-  monoidConst .mempty = toConst mempty
+  monoidConst .neutral = aConst neutral
 
 --------------------------------------------------------------------------------
 -- Semiring
@@ -867,7 +863,7 @@ open Ring {{...}} public
 
 instance
   ringInt : Ring Int
-  ringInt .-_ = \ where
+  ringInt .-_ = λ where
     (pos 0) -> pos 0
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
@@ -907,7 +903,7 @@ record IsBuildable (S A : Set) : Set where
   _++_ = _<>_
 
   nil : S
-  nil = mempty
+  nil = neutral
 
   cons : A -> S -> S
   cons a s = singleton a ++ s
@@ -918,14 +914,14 @@ record IsBuildable (S A : Set) : Set where
 open IsBuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
-Buildable F = forall {A} -> IsBuildable (F A) A
+Buildable F = ∀ {A} -> IsBuildable (F A) A
 
 instance
   buildableList : Buildable List
   buildableList .singleton = _:: []
 
   isBuildableStringChar : IsBuildable String Char
-  isBuildableStringChar .singleton = pack <<< singleton
+  isBuildableStringChar .singleton = pack ∘ singleton
 
 --------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
@@ -933,7 +929,7 @@ instance
 
 infixr 0 _~>_
 _~>_ : (F G : Set -> Set) -> Set
-F ~> G  = forall {A} -> F A -> G A
+F ~> G  = ∀ {A} -> F A -> G A
 
 record Functor (F : Set -> Set) : Set where
   field map : (A -> B) -> F A -> F B
@@ -944,7 +940,7 @@ record Functor (F : Set -> Set) : Set where
 
   infixl 4 _<$_
   _<$_ : B -> F A -> F B
-  _<$_ = map <<< const
+  _<$_ = map ∘ const
 
   infixl 4 _$>_
   _$>_ : F A -> B -> F B
@@ -987,63 +983,63 @@ open Profunctor {{...}} public
 
 instance
   bifunctorEither : Bifunctor Either
-  bifunctorEither .bimap f g = either (left <<< f) (right <<< g)
+  bifunctorEither .bimap f g = either (left ∘ f) (right ∘ g)
 
   functorEither : Functor (Either A)
   functorEither .map = second
 
   bifunctorPair : Bifunctor Pair
-  bifunctorPair .bimap f g = split (f <<< fst) (g <<< snd)
+  bifunctorPair .bimap f g = split (f ∘ fst) (g ∘ snd)
 
   functorPair : Functor (Pair A)
   functorPair .map = second
 
   functorMaybe : Functor Maybe
-  functorMaybe .map f = \ where
+  functorMaybe .map f = λ where
     nothing -> nothing
     (just a) -> just (f a)
 
   functorList : Functor List
-  functorList .map f = listrec [] \ a _ bs -> f a :: bs
+  functorList .map f = listrec [] λ a _ bs -> f a :: bs
 
   functorIO : Functor IO
   functorIO .map = mapIO
 
-  functorId : Functor Id
-  functorId .map f = toId <<< f <<< fromId
+  functorIdentity : Functor Identity
+  functorIdentity .map f = anIdentity ∘ f ∘ runIdentity
 
   bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g = toConst <<< f <<< fromConst
+  bifunctorConst .bimap f g = aConst ∘ f ∘ getConst
 
   functorConst : Functor (Const A)
   functorConst .map = second
 
   contravariantConst : Contravariant (Const A)
-  contravariantConst .contramap f = toConst <<< fromConst
+  contravariantConst .contramap f = aConst ∘ getConst
 
   functorSum : Functor Sum
-  functorSum .map f = toSum <<< f <<< fromSum
+  functorSum .map f = aSum ∘ f ∘ getSum
 
   functorProduct : Functor Product
-  functorProduct .map f = toProduct <<< f <<< fromProduct
+  functorProduct .map f = aProduct ∘ f ∘ getProduct
 
   functorDual : Functor Dual
-  functorDual .map f = toDual <<< f <<< fromDual
+  functorDual .map f = aDual ∘ f ∘ getDual
 
   functorFirst : Functor First
-  functorFirst .map f = toFirst <<< f <<< fromFirst
+  functorFirst .map f = aFirst ∘ f ∘ getFirst
 
   functorLast : Functor Last
-  functorLast .map f = toLast <<< f <<< fromLast
+  functorLast .map f = aLast ∘ f ∘ getLast
 
   functorMin : Functor Min
-  functorMin .map f = toMin <<< f <<< fromMin
+  functorMin .map f = toMin ∘ f ∘ fromMin
 
   functorMax : Functor Max
-  functorMax .map f = toMax <<< f <<< fromMax
+  functorMax .map f = toMax ∘ f ∘ fromMax
 
   profunctorFunction : Profunctor Function
-  profunctorFunction .dimap f g h = g <<< h <<< f
+  profunctorFunction .dimap f g h = g ∘ h ∘ f
 
 --------------------------------------------------------------------------------
 -- Applicative
@@ -1072,19 +1068,19 @@ open Applicative {{...}} public
 instance
   applicativeEither : Applicative (Either A)
   applicativeEither .pure = right
-  applicativeEither ._<*>_ = \ where
+  applicativeEither ._<*>_ = λ where
     (left a) _ -> left a
     (right f) x -> map f x
 
   applicativeMaybe : Applicative Maybe
   applicativeMaybe .pure = just
-  applicativeMaybe ._<*>_ = \ where
+  applicativeMaybe ._<*>_ = λ where
     (just f) m -> map f m
     nothing _ -> nothing
 
   applicativeList : Applicative List
   applicativeList .pure = singleton
-  applicativeList ._<*>_ = \ where
+  applicativeList ._<*>_ = λ where
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
@@ -1093,34 +1089,34 @@ instance
   applicativeIO .pure = pureIO
   applicativeIO ._<*>_ = apIO
 
-  applicativeId : Applicative Id
-  applicativeId .pure = toId
-  applicativeId ._<*>_ = map <<< fromId
+  applicativeIdentity : Applicative Identity
+  applicativeIdentity .pure = anIdentity
+  applicativeIdentity ._<*>_ = map ∘ runIdentity
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
-  applicativeConst = \ where
-    .pure x -> toConst mempty
-    ._<*>_ f x -> toConst $ fromConst f <> fromConst x
+  applicativeConst = λ where
+    .pure x -> aConst neutral
+    ._<*>_ f x -> aConst $ getConst f <> getConst x
 
   applicativeSum : Applicative Sum
-  applicativeSum .pure = toSum
-  applicativeSum ._<*>_ f x = toSum $ fromSum f (fromSum x)
+  applicativeSum .pure = aSum
+  applicativeSum ._<*>_ f x = aSum $ getSum f (getSum x)
 
   applicativeProduct : Applicative Product
-  applicativeProduct .pure = toProduct
-  applicativeProduct ._<*>_ f x = toProduct $ fromProduct f (fromProduct x)
+  applicativeProduct .pure = aProduct
+  applicativeProduct ._<*>_ f x = aProduct $ getProduct f (getProduct x)
 
   applicativeDual : Applicative Dual
-  applicativeDual .pure = toDual
-  applicativeDual ._<*>_ f x = toDual $ fromDual f (fromDual x)
+  applicativeDual .pure = aDual
+  applicativeDual ._<*>_ f x = aDual $ getDual f (getDual x)
 
   applicativeFirst : Applicative First
-  applicativeFirst .pure = toFirst
-  applicativeFirst ._<*>_ f x = toFirst $ fromFirst f (fromFirst x)
+  applicativeFirst .pure = aFirst
+  applicativeFirst ._<*>_ f x = aFirst $ getFirst f (getFirst x)
 
   applicativeLast : Applicative Last
-  applicativeLast .pure = toLast
-  applicativeLast ._<*>_ f x = toLast $ fromLast f (fromLast x)
+  applicativeLast .pure = aLast
+  applicativeLast ._<*>_ f x = aLast $ getLast f (getLast x)
 
   applicativeMin : Applicative Min
   applicativeMin .pure = toMin
@@ -1159,12 +1155,12 @@ module _ {{_ : Alternative F}} where
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing
-  alternativeMaybe ._<|>_ = \ where
+  alternativeMaybe ._<|>_ = λ where
     nothing r -> r
     l _ -> l
 
   alternativeList : Alternative List
-  alternativeList .empty = mempty
+  alternativeList .empty = neutral
   alternativeList ._<|>_ = _<>_
 
 --------------------------------------------------------------------------------
@@ -1195,52 +1191,44 @@ record Monad (M : Set -> Set) : Set where
   _<<_ : M A -> M B -> M A
   _<<_ = _<*_
 
-  infixr 1 _<=<_
-  _<=<_ : (B -> M C) -> (A -> M B) -> A -> M C
-  g <=< f = f >>> (_>>= g)
-
-  infixr 1 _>=>_
-  _>=>_ : (A -> M B) -> (B -> M C) -> A -> M C
-  _>=>_ = flip _<=<_
-
 open Monad {{...}} public
 
 instance
   monadEither : Monad (Either A)
-  monadEither ._>>=_ = \ where
+  monadEither ._>>=_ = λ where
     (left a) k -> left a
     (right x) k -> k x
 
   monadMaybe : Monad Maybe
-  monadMaybe ._>>=_ = \ where
+  monadMaybe ._>>=_ = λ where
     nothing k -> nothing
     (just x) k -> k x
 
   monadList : Monad List
-  monadList ._>>=_ = \ where
+  monadList ._>>=_ = λ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
   monadIO : Monad IO
   monadIO ._>>=_ = bindIO
 
-  monadId : Monad Id
-  monadId ._>>=_ a k = k (fromId a)
+  monadIdentity : Monad Identity
+  monadIdentity ._>>=_ a k = k (runIdentity a)
 
   monadSum : Monad Sum
-  monadSum ._>>=_ m k = k (fromSum m)
+  monadSum ._>>=_ m k = k (getSum m)
 
   monadProduct : Monad Product
-  monadProduct ._>>=_ m k = k (fromProduct m)
+  monadProduct ._>>=_ m k = k (getProduct m)
 
   monadDual : Monad Dual
-  monadDual ._>>=_ m k = k (fromDual m)
+  monadDual ._>>=_ m k = k (getDual m)
 
   monadFirst : Monad First
-  monadFirst ._>>=_ m k = k (fromFirst m)
+  monadFirst ._>>=_ m k = k (getFirst m)
 
   monadLast : Monad Last
-  monadLast ._>>=_ m k = k (fromLast m)
+  monadLast ._>>=_ m k = k (getLast m)
 
   monadMin : Monad Min
   monadMin ._>>=_ m k = k (fromMin m)
@@ -1259,11 +1247,11 @@ record IsFoldable (S A : Set) : Set where
   fold = foldMap id
 
   foldr : (A -> B -> B) -> B -> S -> B
-  foldr f b as = fromEndo (foldMap (toEndo <<< f) as) b
+  foldr f b as = appEndo (foldMap (anEndo ∘ f) as) b
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
-    (fromEndo <<< fromDual) (foldMap (toDual <<< toEndo <<< flip f) as) b
+    (appEndo ∘ getDual) (foldMap (aDual ∘ anEndo ∘ flip f) as) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -1274,27 +1262,27 @@ record IsFoldable (S A : Set) : Set where
     foldr g return as b
 
   count : S -> Nat
-  count = fromSum <<< foldMap (const $ toSum 1)
+  count = getSum ∘ foldMap (const $ aSum 1)
 
   all : (A -> Bool) -> S -> Bool
-  all p = fromAll <<< foldMap (toAll <<< p)
+  all p = getAll ∘ foldMap (anAll ∘ p)
 
   any : (A -> Bool) -> S -> Bool
-  any p = fromAny <<< foldMap (toAny <<< p)
+  any p = getAny ∘ foldMap (anAny ∘ p)
 
   null : S -> Bool
-  null = not <<< any (const true)
+  null = not ∘ any (const true)
 
   sum : {{ _ : Monoid (Sum A)}} -> S -> A
-  sum = fromSum <<< foldMap toSum
+  sum = getSum ∘ foldMap aSum
 
   product : {{ _ : Monoid (Product A)}} -> S -> A
-  product = fromProduct <<< foldMap toProduct
+  product = getProduct ∘ foldMap aProduct
 
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool
-    elem = any <<< _==_
+    elem = any ∘ _==_
 
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
@@ -1302,7 +1290,7 @@ record IsFoldable (S A : Set) : Set where
   module _ {{_ : Applicative F}} where
 
     traverse! : (A -> F B) -> S -> F Unit
-    traverse! f = foldr (_*>_ <<< f) (pure unit)
+    traverse! f = foldr (_*>_ ∘ f) (pure unit)
 
     for! : S -> (A -> F B) -> F Unit
     for! = flip traverse!
@@ -1321,24 +1309,24 @@ sequence! : {{_ : Applicative F}} {{_ : IsFoldable S (F A)}} -> S -> F Unit
 sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
-Foldable F = forall {A} -> IsFoldable (F A) A
+Foldable F = ∀ {A} -> IsFoldable (F A) A
 
 instance
   foldableEither : Foldable (Either A)
-  foldableEither .foldMap _ (left _) = mempty
+  foldableEither .foldMap _ (left _) = neutral
   foldableEither .foldMap f (right y) = f y
 
   foldablePair : Foldable (Pair A)
   foldablePair .foldMap f (_ , y) = f y
 
   foldableMaybe : Foldable Maybe
-  foldableMaybe .foldMap = maybe mempty
+  foldableMaybe .foldMap = maybe neutral
 
   foldableList : Foldable List
-  foldableList .foldMap f = listrec mempty \ a _ b -> f a <> b
+  foldableList .foldMap f = listrec neutral λ a _ b -> f a <> b
 
   isFoldableStringChar : IsFoldable String Char
-  isFoldableStringChar .foldMap f = foldMap f <<< unpack
+  isFoldableStringChar .foldMap f = foldMap f ∘ unpack
 
 --------------------------------------------------------------------------------
 -- Traversable
@@ -1346,41 +1334,41 @@ instance
 
 private
   record StateL (S A : Set) : Set where
-    constructor toStateL
-    field fromStateL : S -> Pair S A
+    constructor aStateL
+    field runStateL : S -> Pair S A
 
   open StateL
 
   record StateR (S A : Set) : Set where
-    constructor toStateR
-    field fromStateR : S -> Pair S A
+    constructor aStateR
+    field runStateR : S -> Pair S A
 
   open StateR
 
   instance
     functorStateL : Functor (StateL S)
-    functorStateL .map f mk = toStateL $ \ s0 ->
-      let (s1 , v) = fromStateL mk s0 in (s1 , f v)
+    functorStateL .map f mk = aStateL $ λ s0 ->
+      let (s1 , v) = runStateL mk s0 in (s1 , f v)
 
     functorStateR : Functor (StateR S)
-    functorStateR .map f mk = toStateR $ \ s0 ->
-      let (s1 , v) = fromStateR mk s0 in (s1 , f v)
+    functorStateR .map f mk = aStateR $ λ s0 ->
+      let (s1 , v) = runStateR mk s0 in (s1 , f v)
 
     applicativeStateL : Applicative (StateL S)
-    applicativeStateL .pure x = toStateL $ \ s -> (s , x)
-    applicativeStateL ._<*>_ kf kv = toStateL $ \ s0 ->
+    applicativeStateL .pure x = aStateL $ λ s -> (s , x)
+    applicativeStateL ._<*>_ kf kv = aStateL $ λ s0 ->
       let
-        (s1 , f) = fromStateL kf s0
-        (s2 , v) = fromStateL kv s1
+        (s1 , f) = runStateL kf s0
+        (s2 , v) = runStateL kv s1
       in
         (s2 , f v)
 
     applicativeStateR : Applicative (StateR S)
-    applicativeStateR .pure x = toStateR $ \ s -> (s , x)
-    applicativeStateR ._<*>_ kf kv = toStateR $ \ s0 ->
+    applicativeStateR .pure x = aStateR $ λ s -> (s , x)
+    applicativeStateR ._<*>_ kf kv = aStateR $ λ s0 ->
       let
-        (s1 , v) = fromStateR kv s0
-        (s2 , f) = fromStateR kf s1
+        (s1 , v) = runStateR kv s0
+        (s2 , f) = runStateR kf s1
       in
         (s2 , f v)
 
@@ -1397,24 +1385,24 @@ record Traversable (T : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumL f s t = fromStateL (traverse (toStateL <<< flip f) t) s
+  mapAccumL f s t = runStateL (traverse (aStateL ∘ flip f) t) s
 
   mapAccumR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumR f s t = fromStateR (traverse (toStateR <<< flip f) t) s
+  mapAccumR f s t = runStateR (traverse (aStateR ∘ flip f) t) s
 
   scanl : (B -> A -> B) -> B -> T A -> T B
   scanl f b0 xs = snd $
-    mapAccumL (\ b a -> let b' = f b a in (b' , b')) b0 xs
+    mapAccumL (λ b a -> let b' = f b a in (b' , b')) b0 xs
 
   scanr : (A -> B -> B) -> B -> T A -> T B
   scanr f b0 xs = snd $
-    mapAccumR (\ b a -> let b' = f a b in (b' , b')) b0 xs
+    mapAccumR (λ b a -> let b' = f a b in (b' , b')) b0 xs
 
 open Traversable {{...}} public
 
 instance
   traversableEither : Traversable (Either A)
-  traversableEither .traverse f = \ where
+  traversableEither .traverse f = λ where
     (left x) -> pure (left x)
     (right y) -> right <$> f y
 
@@ -1422,12 +1410,12 @@ instance
   traversablePair .traverse f (x , y) = _,_ x <$> f y
 
   traversableMaybe : Traversable Maybe
-  traversableMaybe .traverse f = \ where
+  traversableMaybe .traverse f = λ where
     nothing -> pure nothing
     (just x) -> just <$> f x
 
   traversableList : Traversable List
-  traversableList .traverse f = listrec (pure []) \ where
+  traversableList .traverse f = listrec (pure []) λ where
     x _ ys -> (| _::_ (f x) ys |)
 
 --------------------------------------------------------------------------------
@@ -1466,12 +1454,12 @@ instance
   showPair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
-  showEither .show = \ where
+  showEither .show = λ where
     (left x) -> "left " ++ show x
     (right y) -> "right " ++ show y
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
-  showMaybe .show = \ where
+  showMaybe .show = λ where
     (just x) -> "just " ++ show x
     nothing -> "nothing"
 

@@ -18,11 +18,11 @@ private variable A B C : Set
 abstract
   Parser = StateT String List
 
-  toParser : (String -> List (A * String)) -> Parser A
-  toParser = toStateT
+  aParser : (String -> List (A * String)) -> Parser A
+  aParser = aStateT
 
-  fromParser : Parser A -> String -> List (A * String)
-  fromParser = fromStateT
+  runParser : Parser A -> String -> List (A * String)
+  runParser = runStateT
 
   instance
     functorParser : Functor Parser
@@ -104,7 +104,7 @@ chainr p op a = chainr1 p op <|> pure a
 
 -- Run a parser on a string and get the first result.
 parse : Parser A -> String -> Maybe A
-parse p s with fromParser p s
+parse p s with runParser p s
 ... | [] = nothing
 ... | ((a , _) :: _) = just a
 
@@ -113,7 +113,7 @@ parse p s with fromParser p s
 --------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = toParser (maybeToList <<< String.uncons)
+anyChar = aParser (maybeToList ∘ String.uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -132,10 +132,10 @@ char : Char -> Parser Char
 char c = satisfy (c ==_)
 
 oneOf : List Char -> Parser Char
-oneOf cs = satisfy (\ c -> elem c cs)
+oneOf cs = satisfy (λ c -> elem c cs)
 
 noneOf : List Char -> Parser Char
-noneOf cs = satisfy (\ c -> notElem c cs)
+noneOf cs = satisfy (λ c -> notElem c cs)
 
 letter : Parser Char
 letter = satisfy isAlpha
@@ -144,7 +144,7 @@ lower : Parser Char
 lower = satisfy isLower
 
 upper : Parser Char
-upper = satisfy (\ c -> isAlpha c && not (isLower c))
+upper = satisfy (λ c -> isAlpha c && not (isLower c))
 
 digit : Parser Char
 digit = satisfy isDigit
@@ -194,7 +194,7 @@ word = neword <|> (pure "")
       return (cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s ->
+takeWhile p = aParser λ s ->
   singleton (String.takeWhile p s , String.dropWhile p s)
 
 takeAll : Parser String
@@ -206,8 +206,8 @@ takeAll = takeWhile (const true)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= \ n -> return $ monus (ord n) (ord '0'))
-    (return \ m n -> 10 * m + n)
+    (digit >>= λ n -> return $ monus (ord n) (ord '0'))
+    (return λ m n -> 10 * m + n)
 
 int : Parser Int
 int = (neg <$> (char '-' *> nat))

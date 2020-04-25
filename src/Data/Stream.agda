@@ -38,22 +38,22 @@ instance
   comonadStream .extract as = head as
 
 -- iterate f a creates the stream [ a # f a # f (f a) # ... ].
-iterate : forall {A} -> (A -> A) -> A -> Stream A
+iterate : ∀ {A} -> (A -> A) -> A -> Stream A
 iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
 -- repeat a is the infinite list [ a # a # a # ... ].
-repeat : forall {A} -> A -> Stream A
+repeat : ∀ {A} -> A -> Stream A
 repeat a .head = a
 repeat a .tail = repeat a
 
 -- Preprend a list to a stream.
-prepend : forall {A} -> List A -> Stream A -> Stream A
+prepend : ∀ {A} -> List A -> Stream A -> Stream A
 prepend [] ys = ys
 prepend (a :: as) ys .head = a
 prepend (a :: as) ys .tail = prepend as ys
 
 -- Take the first n elements of a stream.
-take : forall {A} -> Nat -> Stream A -> List A
+take : ∀ {A} -> Nat -> Stream A -> List A
 take 0 _ = []
 take (suc n) as = head as :: take n (tail as)

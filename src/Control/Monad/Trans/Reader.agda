@@ -34,37 +34,37 @@ open MonadReader {{...}} public
 --------------------------------------------------------------------------------
 
 record ReaderT (R : Set) (M : Set -> Set) (A : Set) : Set where
-  constructor toReaderT
-  field fromReaderT : R -> M A
+  constructor aReaderT
+  field runReaderT : R -> M A
 
 open ReaderT public
 
 mapReaderT : (M A -> N B) -> ReaderT R M A -> ReaderT R N B
-mapReaderT f m = toReaderT $ f <<< fromReaderT m
+mapReaderT f m = aReaderT $ f ∘ runReaderT m
 
 withReaderT : (R' -> R) -> ReaderT R M ~> ReaderT R' M
-withReaderT f m = toReaderT $ fromReaderT m <<< f
+withReaderT f m = aReaderT $ runReaderT m ∘ f
 
 instance
   functorReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
   functorReaderT .map f = mapReaderT (map f)
 
   applicativeReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
-  applicativeReaderT .pure = toReaderT <<< const <<< pure
-  applicativeReaderT ._<*>_ f v = toReaderT $ \ r ->
-    fromReaderT f r <*> fromReaderT v r
+  applicativeReaderT .pure = aReaderT ∘ const ∘ pure
+  applicativeReaderT ._<*>_ f v = aReaderT $ λ r ->
+    runReaderT f r <*> runReaderT v r
 
   monadReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
-  monadReaderT ._>>=_ m k = toReaderT $ \ r -> do
-    a <- fromReaderT m r
-    fromReaderT (k a) r
+  monadReaderT ._>>=_ m k = aReaderT $ λ r -> do
+    a <- runReaderT m r
+    runReaderT (k a) r
 
   monadReaderReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
-  monadReaderReaderT .ask = toReaderT return
+  monadReaderReaderT .ask = aReaderT return
   monadReaderReaderT .local f = withReaderT f
 
   monadTransReaderT : MonadTrans (ReaderT R)
-  monadTransReaderT .lift = toReaderT <<< const
+  monadTransReaderT .lift = aReaderT ∘ const
   monadTransReaderT .transform = monadReaderT
 
 --------------------------------------------------------------------------------
@@ -72,16 +72,16 @@ instance
 --------------------------------------------------------------------------------
 
 Reader : Set -> Set -> Set
-Reader R = ReaderT R Id
+Reader R = ReaderT R Identity
 
-toReader : (R -> A) -> Reader R A
-toReader f = toReaderT (f >>> toId)
+aReader : (R -> A) -> Reader R A
+aReader f = aReaderT (anIdentity ∘ f)
 
-fromReader : Reader R A -> R -> A
-fromReader m = fromId <<< fromReaderT m
+runReader : Reader R A -> R -> A
+runReader m = runIdentity ∘ runReaderT m
 
 mapReader : (A -> B) -> Reader R A -> Reader R B
-mapReader f = mapReaderT (toId <<< f <<< fromId)
+mapReader f = mapReaderT (anIdentity ∘ f ∘ runIdentity)
 
 withReader : (R' -> R) -> Reader R A -> Reader R' A
 withReader f m = withReaderT f m

@@ -22,7 +22,7 @@ open Eff using (Eff)
 open import Data.Functor.Union
 open import Data.Unit
 
-tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
+tell : ∀ {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
 tell w = Eff.send (tt , w)
 
 -- Simple handler of Writer W effects.
@@ -32,11 +32,11 @@ open import Control.Monad
 open import Control.Monad.Free
 open import Data.Monoid
 
-run : forall {W Fs X} {{_ : Monoid W}}
+run : ∀ {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
-  (return <<< (_, empty))
-  (\ { k (x , w) -> map (second (w <>_)) (k x) })
+  (return ∘ (_, empty))
+  (λ { k (x , w) -> map (second (w <>_)) (k x) })
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores empty. The bind operation
@@ -44,9 +44,9 @@ run = Eff.fold
 -- using the monoid operation.
 
 --instance
---  monadWriter : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
+--  monadWriter : ∀ {W} {{_ : Monoid W}} -> Monad (Writer W)
 --  monadWriter = record {
 --      instance:Functor = functorWriter;
---      join = \ { ((x , w) , w') -> (x , w <> w') };
---      return = \ x -> (x , empty)
+--      join = λ { ((x , w) , w') -> (x , w <> w') };
+--      return = λ x -> (x , empty)
 --    }

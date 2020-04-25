@@ -11,10 +11,10 @@ private
 
 data Vector (A : Set) : Nat -> Set where
   [] : Vector A zero
-  _::_ : forall {n} -> A -> Vector A n -> Vector A (suc n)
+  _::_ : ∀ {n} -> A -> Vector A n -> Vector A (suc n)
 
 instance
-  appendVector : forall {m n A}
+  appendVector : ∀ {m n A}
     -> Append (Vector A m) (Vector A n) (Vector A (m + n))
   appendVector ._++_ [] ys = ys
   appendVector ._++_ (x :: xs) ys = x :: xs ++ ys

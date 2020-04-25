@@ -14,8 +14,8 @@ open import Control.Category
 open import Data.Functor
 
 instance
-  functorReader : forall {R} -> Functor (Reader R)
-  functorReader .map = _<<<_
+  functorReader : ∀ {R} -> Functor (Reader R)
+  functorReader .map = _∘_
 
 -- The function ask returns the config. value.
 
@@ -23,7 +23,7 @@ import Control.Monad.Eff as Eff
 open Eff using (Eff)
 open import Data.Functor.Union
 
-ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
+ask : ∀ {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
 ask = Eff.send id
 
 -- Run a Reader computation with a given config. value to get an actual value.
@@ -31,7 +31,7 @@ ask = Eff.send id
 open import Control.Monad
 open import Data.List
 
-run : forall {R Fs X} -> R -> Eff (Reader R :: Fs) X -> Eff Fs X
+run : ∀ {R Fs X} -> R -> Eff (Reader R :: Fs) X -> Eff Fs X
 run {R} {Fs} r eff = Eff.interpret t eff
   where
     t : Union (Reader R :: Fs) ~> Eff Fs
@@ -45,6 +45,6 @@ run {R} {Fs} r eff = Eff.interpret t eff
 open import Data.Function
 
 instance
-  monadReader : forall {R} -> Monad (Reader R)
+  monadReader : ∀ {R} -> Monad (Reader R)
   monadReader .return x = const x
-  monadReader .extend f m = \ r -> f (m r) r
+  monadReader .extend f m = λ r -> f (m r) r

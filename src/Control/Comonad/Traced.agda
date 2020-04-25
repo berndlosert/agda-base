@@ -15,8 +15,8 @@ Traced M X = M -> X
 
 instance
   functorTraced : Functor (Traced M)
-  functorTraced .map f g = g >>> f
+  functorTraced .map f g = f ∘ g
 
   comonadTraced : {{_ : Monoid M}} -> Comonad (Traced M)
-  comonadTraced .extend h t m = h $ \ m' -> t (m <> m')
+  comonadTraced .extend h t m = h $ λ m' -> t (m <> m')
   comonadTraced .extract f = f empty

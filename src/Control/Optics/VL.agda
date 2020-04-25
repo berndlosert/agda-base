@@ -19,31 +19,31 @@ record Copointed (F : Set -> Set) : Set where
 open Copointed {{...}}
 
 instance
-  copointedId : Copointed Id
-  copointedId .extract = fromId
+  copointedIdentity : Copointed Identity
+  copointedIdentity .extract = runIdentity
 
 --------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
 --------------------------------------------------------------------------------
 
 Traversal : (S T A B : Set) -> Set
-Traversal S T A B = forall {F} {{_ : Applicative F}}
+Traversal S T A B = ∀ {F} {{_ : Applicative F}}
   -> (A -> F B) -> S -> F T
 
 Setter : (S T A B : Set) -> Set
-Setter S T A B = forall {F} {{_ : Applicative F}} {{_ : Copointed F}}
+Setter S T A B = ∀ {F} {{_ : Applicative F}} {{_ : Copointed F}}
   -> (A -> F B) -> S -> F T
 
 Fold : (S T A B : Set) -> Set
-Fold S T A B = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
+Fold S T A B = ∀ {F} {{_ : Applicative F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
 Lens : (S T A B : Set) -> Set
-Lens S T A B = forall {F} {{_ : Functor F}}
+Lens S T A B = ∀ {F} {{_ : Functor F}}
   -> (A -> F B) -> S -> F T
 
 Getter : (S T A B : Set) -> Set
-Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
+Getter S T A B = ∀ {F} {{_ : Functor F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
@@ -57,52 +57,52 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = toConst <<< fromConst <<< k <<< f
+to f k = aConst ∘ getConst ∘ k ∘ f
 
 view : Getting A S A -> S -> A
-view g = fromConst <<< g toConst
+view g = getConst ∘ g aConst
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = g (k >>> toConst) >>> fromConst
+foldMapOf g k = getConst ∘ g (aConst ∘ k)
 
 foldrOf : Getting (Endo R) S A -> (A -> R -> R) -> R -> S -> R
-foldrOf l f z = flip fromEndo z <<< foldMapOf l (toEndo <<< f)
+foldrOf l f z = flip appEndo z ∘ foldMapOf l (anEndo ∘ f)
 
 foldlOf : Getting (Dual (Endo R)) S A -> (R -> A -> R) -> R -> S -> R
-foldlOf l f z = rmap (flip fromEndo z <<< fromDual) (foldMapOf l (toDual <<< toEndo <<< flip f))
+foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (aDual ∘ anEndo ∘ flip f))
 
 toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
 lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
-lengthOf l = foldlOf l (\ a _ -> a + 1) 0
+lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
 --preview : Getting (First A) S A -> S -> Maybe A
---preview l = getFirst <<< foldMapOf l (first: <<< just)
+--preview l = getFirst ∘ foldMapOf l (first: ∘ just)
 
 traverseOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
-traverseOf' l f = map (const unit) <<< foldMapOf l f
+traverseOf' l f = map (const unit) ∘ foldMapOf l f
 
 forOf' : {{_ : Functor F}}
   -> Getting (F R) S A -> S -> (A -> F R) -> F Unit
-forOf' = flip <<< traverseOf'
+forOf' = flip ∘ traverseOf'
 
 --------------------------------------------------------------------------------
 -- ASetter operations
 --------------------------------------------------------------------------------
 
 ASetter : (S T A B : Set) -> Set
-ASetter S T A B = (A -> Id B) -> S -> Id T
+ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = g (k >>> toId) >>> fromId
+over g k = runIdentity ∘ g (anIdentity ∘ k)
 
 set : ASetter S T A B -> B -> S -> T
-set l y = l (\ _ -> toId y) >>> fromId
+set l y = runIdentity ∘ l (λ _ -> anIdentity y)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = f (k >>> fromId) >>> toId
+sets f k = anIdentity ∘ f (runIdentity ∘ k)
 
 --------------------------------------------------------------------------------
 -- Lens operations
