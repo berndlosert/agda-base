@@ -623,26 +623,28 @@ instance
     aProduct (Agda.Builtin.Nat._*_ m n)
 
   semigroupSumInt : Semigroup (Sum Int)
-  semigroupSumInt ._<>_ x y with getSum x | getSum y
-  ... | (negsuc m) | (negsuc n) = aSum $ negsuc (suc (m + n))
-  ... | (negsuc m) | (pos n) = aSum $ sub n (suc m)
-  ... | (pos m) | (negsuc n) = aSum $ sub m (suc n)
-  ... | (pos m) | (pos n) = aSum $ pos (m + n)
+  semigroupSumInt ._<>_ (aSum m') (aSum n') =
+    aSum $ case (m' , n') of λ where
+      (negsuc m , negsuc n) -> negsuc (suc (m + n))
+      (negsuc m , pos n) -> sub n (suc m)
+      (pos m , negsuc n) -> sub m (suc n)
+      (pos m , pos n) -> pos (m + n)
 
   semigroupProductInt : Semigroup (Product Int)
-  semigroupProductInt ._<>_ x y with getProduct x | getProduct y
-  ... | (pos n) | (pos m) = aProduct $ pos (n * m)
-  ... | (negsuc n) | (negsuc m) = aProduct $ pos (suc n * suc m)
-  ... | (pos n) | (negsuc m) = aProduct $ neg (n * suc m)
-  ... | (negsuc n) | (pos m) = aProduct $ neg (suc n * m)
+  semigroupProductInt ._<>_ (aProduct n') (aProduct m') =
+    aProduct $ case (n' , m') of λ where
+      (pos n , pos m) -> pos (n * m)
+      (negsuc n , negsuc m) -> pos (suc n * suc m)
+      (pos n , negsuc m) -> neg (n * suc m)
+      (negsuc n , pos m) -> neg (suc n * m)
 
   semigroupSumFloat : Semigroup (Sum Float)
-  semigroupSumFloat ._<>_ x y =
-    aSum $ Agda.Builtin.Float.primFloatPlus (getSum x) (getSum y)
+  semigroupSumFloat ._<>_ (aSum x) (aSum y) =
+    aSum (Agda.Builtin.Float.primFloatPlus x y)
 
   semigroupProductFloat : Semigroup (Product Float)
-  semigroupProductFloat ._<>_ x y = aProduct $
-    Agda.Builtin.Float.primFloatTimes (getProduct x) (getProduct y)
+  semigroupProductFloat ._<>_ (aProduct x) (aProduct y) =
+    aProduct (Agda.Builtin.Float.primFloatTimes x y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
@@ -650,13 +652,13 @@ instance
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
   semigroupFunction ._<>_ f g = λ a -> f a <> g a
 
-  semigroupFunctionSum : {{_ : Semigroup (Sum B)}} -> Semigroup $ Sum (A -> B)
-  semigroupFunctionSum ._<>_ f g = aSum $ λ a -> getSum f a + getSum g a
+  semigroupFunctionSum : {{_ : Semigroup (Sum B)}} -> Semigroup (Sum (A -> B))
+  semigroupFunctionSum ._<>_ (aSum f) (aSum g) = aSum (λ a -> f a + g a)
 
   semigroupFunctionProduct : {{_ : Semigroup (Product B)}}
-    -> Semigroup $ Product (A -> B)
-  semigroupFunctionProduct ._<>_ f g =
-    aProduct $ λ a -> getProduct f a * getProduct g a
+    -> Semigroup (Product (A -> B))
+  semigroupFunctionProduct ._<>_ (aProduct f) (aProduct g) =
+    aProduct (λ a -> f a * g a)
 
   semigroupEndo : Semigroup (Endo A)
   semigroupEndo ._<>_ g f = anEndo (appEndo g ∘ appEndo f)
@@ -674,20 +676,21 @@ instance
   semigroupMaybe ._<>_ = λ where
     nothing m -> m
     m nothing -> m
-    (just x) (just y) -> just (x <> y)
+    (just a) (just a') -> just (a <> a')
 
   semigroupList : Semigroup (List A)
-  semigroupList ._<>_ xs ys = listrec ys (λ a _ as -> a :: as) xs
+  semigroupList ._<>_ as as' = listrec as' (λ x _ xs -> x :: xs) as
 
   semigroupIO : {{_ : Semigroup A}} -> Semigroup (IO A)
   semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
   semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ x y = anIdentity $ runIdentity x <> runIdentity y
+  semigroupIdentity ._<>_ (anIdentity a) (anIdentity a') =
+    anIdentity (a <> a')
 
   semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
-  semigroupConst ._<>_ x y = aConst $ getConst x <> getConst y
+  semigroupConst ._<>_ (aConst a) (aConst a') = aConst (a <> a')
 
 --------------------------------------------------------------------------------
 -- Monoid
@@ -699,12 +702,12 @@ record Monoid (A : Set) : Set where
     neutral : A
 
   when : Bool -> A -> A
-  when true x = x
+  when true a = a
   when false _ = neutral
 
   unless : Bool -> A -> A
   unless true _ = neutral
-  unless false x = x
+  unless false a = a
 
 open Monoid {{...}} public
 
@@ -827,8 +830,8 @@ record EuclideanSemiring (A : Set) : Set where
   field
     {{super}} : Semiring A
     degree : A -> Nat
-    quot : (a b : A) {_ : Nonzero b} -> A
-    mod : (a b : A) {_ : Nonzero b} -> A
+    quot : (a a' : A) {_ : Nonzero a'} -> A
+    mod : (a a' : A) {_ : Nonzero a'} -> A
 
 open EuclideanSemiring {{...}} public
 
@@ -876,7 +879,7 @@ record Field (A : Set) : Set where
   infixr 7 _/_
   field
     overlap {{super}} : Ring A
-    _/_ : (x y : A) -> {_ : Nonzero y} -> A
+    _/_ : (a a' : A) -> {_ : Nonzero a'} -> A
 
 open Field {{...}} public
 
@@ -1056,7 +1059,7 @@ record Applicative (F : Set -> Set) : Set where
   a <* b = (| const a b |)
 
   map2 : (A -> B -> C) -> F A -> F B -> F C
-  map2 f x y = (| f x y |)
+  map2 f a b = (| f a b |)
 
 open Applicative {{...}} public
 
@@ -1065,12 +1068,12 @@ instance
   applicativeEither .pure = right
   applicativeEither ._<*>_ = λ where
     (left a) _ -> left a
-    (right f) x -> map f x
+    (right f) -> map f
 
   applicativeMaybe : Applicative Maybe
   applicativeMaybe .pure = just
   applicativeMaybe ._<*>_ = λ where
-    (just f) m -> map f m
+    (just f) -> map f
     nothing _ -> nothing
 
   applicativeList : Applicative List
@@ -1089,29 +1092,28 @@ instance
   applicativeIdentity ._<*>_ = map ∘ runIdentity
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
-  applicativeConst = λ where
-    .pure x -> aConst neutral
-    ._<*>_ f x -> aConst $ getConst f <> getConst x
+  applicativeConst .pure _ = aConst neutral
+  applicativeConst ._<*>_ (aConst f) (aConst a) = aConst (f <> a)
 
   applicativeSum : Applicative Sum
   applicativeSum .pure = aSum
-  applicativeSum ._<*>_ f x = aSum $ getSum f (getSum x)
+  applicativeSum ._<*>_ (aSum f) (aSum x) = aSum (f x)
 
   applicativeProduct : Applicative Product
   applicativeProduct .pure = aProduct
-  applicativeProduct ._<*>_ f x = aProduct $ getProduct f (getProduct x)
+  applicativeProduct ._<*>_ (aProduct f) (aProduct x) = aProduct (f x)
 
   applicativeDual : Applicative Dual
   applicativeDual .pure = aDual
-  applicativeDual ._<*>_ f x = aDual $ getDual f (getDual x)
+  applicativeDual ._<*>_ (aDual f) (aDual x) = aDual (f x)
 
   applicativeFirst : Applicative First
   applicativeFirst .pure = aFirst
-  applicativeFirst ._<*>_ f x = aFirst $ getFirst f (getFirst x)
+  applicativeFirst ._<*>_ (aFirst f) (aFirst x) = aFirst (f x)
 
   applicativeLast : Applicative Last
   applicativeLast .pure = aLast
-  applicativeLast ._<*>_ f x = aLast $ getLast f (getLast x)
+  applicativeLast ._<*>_ (aLast f) (aLast x) = aLast (f x)
 
   applicativeMin : Applicative Min
   applicativeMin .pure = toMin
