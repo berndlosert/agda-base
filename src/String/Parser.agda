@@ -54,9 +54,6 @@ between p p' q = p *> (q <* p')
 option : A -> Parser A -> Parser A
 option a p = p <|> pure a
 
-optionMaybe : Parser A -> Parser (Maybe A)
-optionMaybe p = option nothing (map just p)
-
 skipMany : Parser A -> Parser Unit
 skipMany p = many p *> pure unit
 
@@ -144,7 +141,7 @@ lower : Parser Char
 lower = satisfy isLower
 
 upper : Parser Char
-upper = satisfy (λ c -> isAlpha c && not (isLower c))
+upper = satisfy (isAlpha && not isLower)
 
 digit : Parser Char
 digit = satisfy isDigit
@@ -210,6 +207,4 @@ nat = chainl1
     (return λ m n -> 10 * m + n)
 
 int : Parser Int
-int = (neg <$> (char '-' *> nat))
-  <|> (pos <$> (char '+' *> nat))
-  <|> (pos <$> nat)
+int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
