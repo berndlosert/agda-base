@@ -358,10 +358,10 @@ postulate
   getContents : IO String
 
 {-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC mapIO = \ _ _ f io -> fmap f io #-}
-{-# COMPILE GHC pureIO = \ _ a -> pure a #-}
-{-# COMPILE GHC apIO = \ _ _ f x -> f <*> x #-}
-{-# COMPILE GHC bindIO = \ _ _ io f -> io >>= f #-}
+{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
+{-# COMPILE GHC pureIO = \ _ -> pure #-}
+{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
+{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
 {-# COMPILE GHC putStr = Text.putStr #-}
 {-# COMPILE GHC putStrLn = Text.putStrLn #-}
 {-# COMPILE GHC getLine = Text.getLine #-}
