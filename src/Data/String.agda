@@ -86,8 +86,7 @@ filter : (Char -> Bool) -> String -> String
 filter = repack ∘ List.filter
 
 partition : (Char -> Bool) -> String -> String * String
-partition p s = let (l , r) = List.partition p (unpack s) in
-  (pack l , pack r)
+partition p s = bimap pack pack (List.partition p (unpack s))
 
 padRight : Nat -> Char -> String -> String
 padRight l c s =
