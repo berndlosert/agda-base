@@ -1366,26 +1366,24 @@ record Traversable (T : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumL f a b = runStateL (traverse (aStateL ∘ flip f) b) a
+  mapAccumL f a xs = runStateL (traverse (aStateL ∘ flip f) xs) a
 
   mapAccumR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
-  mapAccumR f a b = runStateR (traverse (aStateR ∘ flip f) b) a
+  mapAccumR f a xs = runStateR (traverse (aStateR ∘ flip f) xs) a
 
   scanl : (B -> A -> B) -> B -> T A -> T B
-  scanl f b₀ xs = snd $
-    mapAccumL (λ b a -> let b' = f b a in (b' , b')) b₀ xs
+  scanl f b₀ xs = snd (mapAccumL (λ b a -> dupe (f b a)) b₀ xs)
 
   scanr : (A -> B -> B) -> B -> T A -> T B
-  scanr f b₀ xs = snd $
-    mapAccumR (λ b a -> let b' = f a b in (b' , b')) b₀ xs
+  scanr f b₀ xs = snd (mapAccumR (λ b a -> dupe (f a b)) b₀ xs)
 
 open Traversable {{...}} public
 
 instance
   traversableEither : Traversable (Either A)
   traversableEither .traverse f = λ where
-    (left x) -> pure (left x)
-    (right y) -> right <$> f y
+    (left a) -> pure (left a)
+    (right x) -> map right (f x)
 
   traversablePair : Traversable (Pair A)
   traversablePair .traverse f (x , y) = _,_ x <$> f y
