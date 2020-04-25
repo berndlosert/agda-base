@@ -1386,12 +1386,12 @@ instance
     (right x) -> map right (f x)
 
   traversablePair : Traversable (Pair A)
-  traversablePair .traverse f (x , y) = _,_ x <$> f y
+  traversablePair .traverse f (a , x) = map (a ,_) (f x)
 
   traversableMaybe : Traversable Maybe
   traversableMaybe .traverse f = λ where
     nothing -> pure nothing
-    (just x) -> just <$> f x
+    (just x) -> map just (f x)
 
   traversableList : Traversable List
   traversableList .traverse f = listrec (pure []) λ where
@@ -1405,7 +1405,7 @@ record Show (A : Set) : Set where
   field show : A -> String
 
   print : A -> IO Unit
-  print x = putStrLn (show x)
+  print a = putStrLn (show a)
 
 open Show {{...}} public
 
@@ -1430,16 +1430,16 @@ instance
   showFloat .show = Agda.Builtin.Float.primShowFloat
 
   showPair : {{_ : Show A}} {{_ : Show B}} -> Show (Pair A B)
-  showPair .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
+  showPair .show (a , b) = "(" ++ show a ++ " , " ++ show b ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = λ where
-    (left x) -> "left " ++ show x
-    (right y) -> "right " ++ show y
+    (left a) -> "left " ++ show a
+    (right b) -> "right " ++ show b
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
   showMaybe .show = λ where
-    (just x) -> "just " ++ show x
+    (just a) -> "just " ++ show a
     nothing -> "nothing"
 
   showList : {{_ : Show A}} -> Show (List A)
