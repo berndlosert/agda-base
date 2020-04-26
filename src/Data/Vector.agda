@@ -10,7 +10,7 @@ private
     m n : Nat
 
 data Vector (A : Set) : Nat -> Set where
-  [] : Vector A zero
+  [] : Vector A 0
   _::_ : ∀ {n} -> A -> Vector A n -> Vector A (suc n)
 
 append : Vector A m -> Vector A n -> Vector A (m + n)
