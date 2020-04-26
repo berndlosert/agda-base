@@ -36,18 +36,16 @@ length = foldr (const suc) 0
 -- Generators
 --------------------------------------------------------------------------------
 
-til : Nat -> List Nat
-til 0 = []
-til (suc n) = til n ++ singleton n
-
 replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
 
 range : Nat -> Nat -> List Nat
-range m n with compare m n
-... | GT = []
-... | EQ = singleton n
-... | LT = map (_+ m) $ til $ suc (monus n m)
+range m n = if m > n then [] else go (suc (monus n m)) []
+  where
+    go : Nat -> List Nat -> List Nat
+    go 0 ns = ns
+    go (suc m) [] = go m (n :: [])
+    go (suc m) (n :: ns) = go m (pred n :: n :: ns)
 
 --------------------------------------------------------------------------------
 -- Sublists

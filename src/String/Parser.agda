@@ -165,7 +165,7 @@ crlf : Parser Char
 crlf = char '\r' *> newline
 
 endOfLine : Parser Char
-endOfLine = newline <|> crlf
+endOfLine = (| newline | crlf |)
 
 tab : Parser Char
 tab = char '\t'
