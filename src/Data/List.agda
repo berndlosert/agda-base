@@ -68,10 +68,10 @@ drop n = reverse ∘ snd ∘ flip foldl (0 , []) λ where
   (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
 
 inits : List A -> List (List  A)
-inits s = map (flip take s) $ til (length s + 1)
+inits s = map (flip take s) $ range 0 (length s)
 
 tails : List A -> List (List A)
-tails s = map (flip drop s) $ til (length s + 1)
+tails s = map (flip drop s) $ range 0 (length s)
 
 break : (A -> Bool) -> List A -> List A * List A
 break p [] = ([] , [])
