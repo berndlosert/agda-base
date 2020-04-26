@@ -98,6 +98,9 @@ padLeft l c s =
   let replicated = replicate (monus l (length s)) c
   in replicated ++ s
 
+concat : List String -> String
+concat = foldr _++_ ""
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
