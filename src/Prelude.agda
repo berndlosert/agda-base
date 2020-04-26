@@ -1140,6 +1140,10 @@ open Alternative {{...}} public
 
 module _ {{_ : Alternative F}} where
 
+  guard : Bool -> F Unit
+  guard true = pure unit
+  guard false = empty
+
   {-# NON_TERMINATING #-}
   many1 many : F A -> F (List A)
   many1 a = (| _::_ a (many a) |)
