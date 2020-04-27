@@ -61,7 +61,7 @@ abstract
     -> Eff Fs Y
   fold {F} {Fs} {_} {Y} ret ext = Free.fold ret ext'
     where
-      ext' : ∀ {A} -> (A -> Eff Fs Y) -> sum (F :: Fs) A -> Eff Fs Y
+      ext' : ∀ {A} -> (A -> Eff Fs Y) -> Union (F :: Fs) A -> Eff Fs Y
       ext' ret (left x) = ext ret x
       ext' ret (right u) = Free.lift u >>= ret
 
