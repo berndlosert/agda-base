@@ -56,14 +56,11 @@ abstract
 
   -- A fold operation for Eff. This is handleRelay from freer-simple.y
 
-  fold : ∀ {F Fs A B}
-    -> (A -> Eff Fs B)
-    -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
-    -> Eff (F :: Fs) A
-    -> Eff Fs B
-  fold {F} {Fs} {_} {B} ret ext = Free.fold ret ext'
+  fold : (A -> Eff Fs B) -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
+    -> Eff (F :: Fs) A -> Eff Fs B
+  fold ret ext = Free.fold ret ext'
     where
-      ext' : ∀ {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
+      ext' : (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
       ext' ret (left x) = ext ret x
       ext' ret (right u) = Free.lift u >>= ret
 
