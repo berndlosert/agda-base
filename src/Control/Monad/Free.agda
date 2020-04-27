@@ -12,14 +12,13 @@ open import Prelude
 -- the property that t = interpret t ∘ lift. When C = Sets, we define
 -- Free F, lift and interpret as follows:
 record Free (F : Set -> Set) (A : Set) : Set where
-  constructor Free:
-  field
-    run : ∀ {M} {{_ : Monad M}} -> (F ~> M) -> M A
+  constructor aFree
+  field run : ∀ {M} {{_ : Monad M}} -> (F ~> M) -> M A
 
 open Free
 
 lift : ∀ {F} -> F ~> Free F
-lift x = Free: λ t -> t x
+lift x = aFree λ t -> t x
 
 interpret : ∀ {F M} {{_ : Monad M}} -> (F ~> M) -> Free F ~> M
 interpret t free = run free t
@@ -30,14 +29,14 @@ lower = interpret id
 
 instance
   functorFree : ∀ {F} -> Functor (Free F)
-  functorFree .map f free = Free: (map f ∘ run free)
+  functorFree .map f free = aFree (map f ∘ run free)
 
   applicativeFree : ∀ {F} -> Applicative (Free F)
-  applicativeFree .pure x = Free: λ _ -> return x
-  applicativeFree ._<*>_ f x = Free: λ t -> run f t <*> run x t
+  applicativeFree .pure x = aFree λ _ -> return x
+  applicativeFree ._<*>_ f x = aFree λ t -> run f t <*> run x t
 
   monadFree : ∀ {F} -> Monad (Free F)
-  monadFree ._>>=_ m f = Free: λ t ->
+  monadFree ._>>=_ m f = aFree λ t ->
     join (map (interpret t ∘ f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
