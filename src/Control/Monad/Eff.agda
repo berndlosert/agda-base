@@ -39,35 +39,31 @@ abstract
   Eff : Effects -> Effect
   Eff = Free ∘ Union
 
-  anEff : ∀ {Fs A}
-    -> (∀ {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A)
-    -> Eff Fs A
+  anEff : (∀ {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A) -> Eff Fs A
   anEff eff = aFree eff
 
-  lift : ∀ {Fs} -> Union Fs ~> Eff Fs
+  lift : Union Fs ~> Eff Fs
   lift = Free.lift
 
-  interpret : ∀ {M Fs} {{_ : Monad M}}
-    -> (Union Fs ~> M) -> Eff Fs ~> M
+  interpret : {{_ : Monad M}} -> (Union Fs ~> M) -> Eff Fs ~> M
   interpret = Free.interpret
 
   -- “Sends” an effect, which should be a value defined as part of an effect
   -- algebra, to an effectful computation. This is used to connect the definition
   -- of an effect to the 'Eff' monad so that it can be used and handled.
-
-  send : ∀ {F Fs} {{_ : Member F Fs}} -> F ~> Eff Fs
+  send : {{_ : Member F Fs}} -> F ~> Eff Fs
   send = Free.lift ∘ inj
 
   -- A fold operation for Eff. This is handleRelay from freer-simple.y
 
-  fold : ∀ {F Fs A Y}
-    -> (A -> Eff Fs Y)
-    -> (∀ {A} -> (A -> Eff Fs Y) -> F A -> Eff Fs Y)
+  fold : ∀ {F Fs A B}
+    -> (A -> Eff Fs B)
+    -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
     -> Eff (F :: Fs) A
-    -> Eff Fs Y
-  fold {F} {Fs} {_} {Y} ret ext = Free.fold ret ext'
+    -> Eff Fs B
+  fold {F} {Fs} {_} {B} ret ext = Free.fold ret ext'
     where
-      ext' : ∀ {A} -> (A -> Eff Fs Y) -> Union (F :: Fs) A -> Eff Fs Y
+      ext' : ∀ {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
       ext' ret (left x) = ext ret x
       ext' ret (right u) = Free.lift u >>= ret
 
