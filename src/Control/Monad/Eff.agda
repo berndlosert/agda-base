@@ -17,6 +17,12 @@ Union : Effects -> Effect
 Union [] _ = Void
 Union (F :: Fs) A = Either (F A) (Union Fs A)
 
+private
+  variable
+    A B : Set
+    F M : Effect
+    Fs : Effects
+
 record Member (F : Effect) (Fs : Effects) : Set where
   field
     inj : F ~> Union Fs
@@ -25,13 +31,13 @@ record Member (F : Effect) (Fs : Effects) : Set where
 open Member {{...}}
 
 instance
-  memberSingleton : ∀ {F} {Fs} -> Member F (F :: Fs)
+  memberSingleton : Member F (F :: Fs)
   memberSingleton .inj = left
   memberSingleton .prj = leftToMaybe
 
 abstract
   Eff : Effects -> Effect
-  Eff Fs A = Free (Union Fs) A
+  Eff = Free ∘ Union
 
   anEff : ∀ {Fs A}
     -> (∀ {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A)
