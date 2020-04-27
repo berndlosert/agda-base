@@ -56,22 +56,22 @@ abstract
 
   -- A fold operation for Eff. This is handleRelay from freer-simple.y
 
-  fold : (A -> Eff Fs B) -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
-    -> Eff (F :: Fs) A -> Eff Fs B
-  fold ret ext = Free.fold ret ext'
+  fold : ∀ {F Fs A B}
+    -> (A -> Eff Fs B)
+    -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
+    -> Eff (F :: Fs) A
+    -> Eff Fs B
+  fold {F} {Fs} {_} {B} ret ext = Free.fold ret ext'
     where
-      ext' : (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
+      ext' : ∀ {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
       ext' ret (left x) = ext ret x
       ext' ret (right u) = Free.lift u >>= ret
 
   -- Eff [] A and A are isomorphic. This means that Eff [] A describes a pure
   -- computation.
-
-  run : ∀ {A} -> Eff [] A -> A
+  run : Eff [] A -> A
   run = runIdentity ∘ (interpret λ ())
 
-  -- This Monad instance is for exporting purposes only.
-
   instance
-    monadEff : ∀ {Fs} -> Monad (Eff Fs)
+    monadEff : Monad (Eff Fs)
     monadEff = monadFree
