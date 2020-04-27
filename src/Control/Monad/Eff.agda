@@ -25,7 +25,7 @@ record Member (F : Effect) (Fs : Effects) : Set where
 open Member {{...}}
 
 instance
-  memberSingleton : ∀ {F} -> Member F [ F ]
+  memberSingleton : ∀ {F} {Fs} -> Member F (F :: Fs)
   memberSingleton .inj = left
   memberSingleton .prj = leftToMaybe
 
@@ -69,8 +69,7 @@ abstract
   -- computation.
 
   run : ∀ {A} -> Eff [] A -> A
-  run eff = let absurd = λ () in
-    runIdentity (interpret (anIdentity ∘ absurd) eff)
+  run = runIdentity ∘ (interpret λ ())
 
   -- This Monad instance is for exporting purposes only.
 
