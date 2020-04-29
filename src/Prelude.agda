@@ -1341,6 +1341,10 @@ Foldable : (Set -> Set) -> Set
 Foldable F = ∀ {A} -> IsFoldable (F A) A
 
 instance
+  isFoldableNatUnit : IsFoldable Nat Unit
+  isFoldableNatUnit .foldMap b 0 = neutral
+  isFoldableNatUnit .foldMap b (suc n) = b unit <> foldMap b n
+
   foldableEither : Foldable (Either A)
   foldableEither .foldMap _ (left _) = neutral
   foldableEither .foldMap f (right x) = f x

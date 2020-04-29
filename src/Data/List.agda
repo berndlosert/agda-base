@@ -40,15 +40,15 @@ replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
 
 range : Nat -> Nat -> List Nat
-range m n = case compare m n of λ where
-    EQ -> [ m ]
-    LT -> go pred (suc (monus n m)) []
-    GT -> go suc (suc (monus m n)) []
+range m n =
+    if m < n
+    then go pred m (monus n m + 1)
+    else go suc n (monus m n + 1)
   where
-    go : (Nat -> Nat) -> Nat -> List Nat -> List Nat
-    go _ 0 ks = ks
-    go next (suc i) [] = go next i (n :: [])
-    go next (suc i) (k :: ks) = go next i (next k :: k :: ks)
+    go : (Nat -> Nat) -> Nat -> Nat -> List Nat
+    go next last = flip foldr [] λ where
+      _ [] -> [ last ]
+      _ (k :: ks) -> next k :: k :: ks
 
 --------------------------------------------------------------------------------
 -- Sublists
