@@ -40,11 +40,15 @@ replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
 
 range : Nat -> Nat -> List Nat
-range m n = if m == n then [ m ] else
-  let step a b = (suc a , a + b) in
-  snd $ if m < n
-  then mapAccumL step m (replicate (suc (monus n m)) 0)
-  else mapAccumR step n (replicate (suc (monus m n)) 0)
+range m n = case compare m n of λ where
+    EQ -> [ m ]
+    LT -> go pred (suc (monus n m)) []
+    GT -> go suc (suc (monus m n)) []
+  where
+    go : (Nat -> Nat) -> Nat -> List Nat -> List Nat
+    go _ 0 ks = ks
+    go next (suc i) [] = go next i (n :: [])
+    go next (suc i) (k :: ks) = go next i (next k :: k :: ks)
 
 --------------------------------------------------------------------------------
 -- Sublists
