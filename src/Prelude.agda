@@ -1286,6 +1286,18 @@ record IsFoldable (S A : Set) : Set where
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
 
+  module _ {{_ : Ord A}} where
+
+    minimum : S -> Maybe A
+    minimum = flip foldr nothing λ where
+      a nothing -> just a
+      a (just a') -> just (min a a')
+
+    maximum : S -> Maybe A
+    maximum = flip foldr nothing λ where
+      a nothing -> just a
+      a (just a') -> just (max a a')
+
   module _ {{_ : Applicative F}} where
 
     traverse! : (A -> F B) -> S -> F Unit
