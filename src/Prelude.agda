@@ -1311,14 +1311,10 @@ record IsFoldable (S A : Set) : Set where
   module _ {{_ : Ord A}} where
 
     minimum : S -> Maybe A
-    minimum = flip foldr nothing λ where
-      a nothing -> just a
-      a (just a') -> just (min a a')
+    minimum = foldr1 min
 
     maximum : S -> Maybe A
-    maximum = flip foldr nothing λ where
-      a nothing -> just a
-      a (just a') -> just (max a a')
+    maximum = foldr1 max
 
   module _ {{_ : Applicative F}} where
 
