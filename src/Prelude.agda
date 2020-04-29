@@ -265,7 +265,8 @@ mirror : Either A B -> Either B A
 mirror = either right left
 
 untag : Either A A -> A
-untag = either id id
+untag (left a) = a
+untag (right a) = a
 
 isLeft : Either A B -> Bool
 isLeft (left _) = true
@@ -276,13 +277,16 @@ isRight (left _) = false
 isRight _ = true
 
 fromLeft : A -> Either A B -> A
-fromLeft a = either id (const a)
+fromLeft _ (left a) = a
+fromLeft a (right _) = a
 
 fromRight : B -> Either A B -> B
-fromRight b = either (const b) id
+fromRight b (left _) = b
+fromRight _ (right b) = b
 
 fromEither : (A -> B) -> Either A B -> B
-fromEither f = either f id
+fromEither f (left a) = f a
+fromEither _ (right b) = b
 
 split : (A -> B) -> (A -> C) -> A -> Pair B C
 split f g a = (f a , g a)
@@ -291,7 +295,7 @@ swap : Pair A B -> Pair B A
 swap = split snd fst
 
 dupe : A -> Pair A A
-dupe = split id id
+dupe a = (a , a)
 
 uncurry : (A -> B -> C) -> Pair A B -> C
 uncurry f (a , b) = f a b
