@@ -1260,19 +1260,19 @@ record IsFoldable (S A : Set) : Set where
   foldr : (A -> B -> B) -> B -> S -> B
   foldr f b as = appEndo (foldMap (anEndo ∘ f) as) b
 
-  foldr1 : (A -> B -> B) -> S -> Maybe B
+  foldr1 : (A -> A -> A) -> S -> Maybe A
   foldr1 f = flip foldr nothing λ where
-    _ nothing -> nothing
-    a (just b) -> just (f a b)
+    a nothing -> just a
+    a (just a') -> just (f a a')
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
     (appEndo ∘ getDual) (foldMap (aDual ∘ anEndo ∘ flip f) as) b
 
-  foldl1 : (B -> A -> B) -> S -> Maybe B
+  foldl1 : (A -> A -> A) -> S -> Maybe A
   foldl1 f = flip foldl nothing λ where
-    nothing _ -> nothing
-    (just b) a -> just (f b a)
+    nothing a -> just a
+    (just a) a' -> just (f a a')
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
