@@ -135,14 +135,14 @@ record Any : Set where
   constructor anAny
   field getAny : Bool
 
+open Any public
+
 -- Bool semigroup where x <> y = x && y.
 record All : Set where
   constructor anAll
   field getAll : Bool
 
 open All public
-
-open Any public
 
 -- Endofunctions
 record Endo A : Set where
