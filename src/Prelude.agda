@@ -49,10 +49,10 @@ data Either (A B : Set) : Set where
   right : B -> Either A B
 
 open import Agda.Builtin.Sigma public
-  renaming (Σ to Sigma)
+  using (Σ; _,_; fst; snd)
 
 Pair : Set -> Set -> Set
-Pair A B = Sigma A (λ _ -> B)
+Pair A B = Σ A (λ _ -> B)
 
 data Maybe (A : Set) : Set where
   nothing : Maybe A
