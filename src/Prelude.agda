@@ -603,6 +603,12 @@ instance
   semigroupLast : Semigroup (Last A)
   semigroupLast ._<>_ _ a = a
 
+  semigroupMin : {{_ : Ord A}} -> Semigroup (Min A)
+  semigroupMin ._<>_ (aMin a) (aMin a') = aMin (min a a')
+
+  semigroupMax : {{_ : Ord A}} -> Semigroup (Max A)
+  semigroupMax ._<>_ (aMax a) (aMax a') = aMax (max a a')
+
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = λ ()
 
