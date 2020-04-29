@@ -15,7 +15,7 @@ Effects = List Effect
 
 Union : Effects -> Effect
 Union [] _ = Void
-Union (F :: Fs) A = Either (F A) (Union Fs A)
+Union (F :: Fs) A = (F + Union Fs) A
 
 private
   variable
