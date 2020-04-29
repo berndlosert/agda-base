@@ -41,7 +41,7 @@ replicate n a = applyN (a ::_) n []
 
 range : Nat -> Nat -> List Nat
 range m n = if m == n then [ m ] else
-  let step a b = (a + 1 , a + b) in
+  let step a b = (suc a , a + b) in
   snd $ if m < n
   then mapAccumL step m (replicate (suc (monus n m)) 0)
   else mapAccumR step n (replicate (suc (monus m n)) 0)
