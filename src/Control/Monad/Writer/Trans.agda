@@ -33,10 +33,10 @@ instance
   applicativeWriterT : {{_ : Monoid W}} {{_ : Applicative M}}
     -> Applicative (WriterT W M)
   applicativeWriterT .pure a = writerT: $ pure (a , neutral)
-  applicativeWriterT ._<*>_ (writerT: f) (writerT: v) = writerT: (| k f v |)
+  applicativeWriterT ._<*>_ (writerT: f) (writerT: x) = writerT: (| k f x |)
     where
       k : _
-      k (a , w) (b , w') = (a b , w <> w')
+      k (f , w) (x , w') = (f x , w <> w')
 
   monadWriterT : {{_ : Monoid W}} {{_ : Monad M}} -> Monad (WriterT W M)
   monadWriterT ._>>=_ m k = writerT: do
