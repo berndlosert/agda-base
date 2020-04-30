@@ -178,6 +178,10 @@ module _ {{_ : Eq A}} where
 -- Filtering functions
 --------------------------------------------------------------------------------
 
+find : (A -> Bool) -> List A -> Maybe A
+find p = let ensure' p = (λ _ -> maybeToLeft unit ∘ ensure p) in
+  leftToMaybe ∘ foldlM (ensure' p) unit
+
 filter : (A -> Bool) -> List A -> List A
 filter p [] = []
 filter p (a :: as) = if p a then a :: filter p as else filter p as
