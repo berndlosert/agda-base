@@ -1300,6 +1300,13 @@ record IsFoldable (S A : Set) : Set where
   product : {{ _ : Monoid (Product A)}} -> S -> A
   product = getProduct ∘ foldMap product:
 
+  find : (A -> Bool) -> S -> Maybe A
+  find p = foldl go nothing
+    where
+      go : Maybe A -> A -> Maybe A
+      go nothing a = if p a then just a else nothing
+      go m _ = m
+
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool

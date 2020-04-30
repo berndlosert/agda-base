@@ -3,6 +3,7 @@
 module Data.List where
 
 open import Prelude
+  hiding (find)
 
 private variable A B C : Set
 
