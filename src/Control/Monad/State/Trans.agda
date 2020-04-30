@@ -1,47 +1,16 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.State where
+module Control.Monad.State.Trans where
 
 open import Prelude
 
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
-  using (MonadTrans; lift; transform)
 
 private
   variable
     A B S : Set
     M N : Set -> Set
-
---------------------------------------------------------------------------------
--- MonadState
---------------------------------------------------------------------------------
-
-record MonadState (S : Set) (M : Set -> Set) : Set where
-  field
-    {{monad}} : Monad M
-    get : M S
-    put : S -> M Unit
-
-  state : (S -> A * S) -> M A
-  state f = do
-    s0 <- get
-    let (a , s1) = f s0
-    put s1
-    return a
-
-  modify : (S -> S) -> M Unit
-  modify f = state $ (λ s -> (unit , f s))
-
-  gets : (S -> A) -> M A
-  gets f = do
-    s <- get
-    return (f s)
-
-open MonadState {{...}} public
-
---------------------------------------------------------------------------------
--- StateT
---------------------------------------------------------------------------------
 
 record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
   constructor aStateT
@@ -100,27 +69,4 @@ instance
   monadStateStateT .get = aStateT $ return ∘ dupe
   monadStateStateT .put s = aStateT $ const $ return (unit , s)
 
---------------------------------------------------------------------------------
--- State
---------------------------------------------------------------------------------
 
-State : Set -> Set -> Set
-State S = StateT S Identity
-
-aState : (S -> A * S) -> State S A
-aState t = aStateT (anIdentity ∘ t)
-
-runState : State S A -> S -> A * S
-runState m = runIdentity ∘ runStateT m
-
-evalState : State S A -> S -> A
-evalState m s = fst (runState m s)
-
-execState : State S A -> S -> S
-execState m s = snd (runState m s)
-
-mapState : (A * S -> B * S) -> State S A -> State S B
-mapState = mapStateT ∘ map
-
-withState : (S -> S) -> State S ~> State S
-withState f = withStateT f
