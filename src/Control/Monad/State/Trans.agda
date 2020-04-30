@@ -24,8 +24,8 @@ evalStateT m s = do
   return a
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
-execStateT m s0 = do
-  (_ , s1) <- runStateT m s0
+execStateT m s₀ = do
+  (_ , s1) <- runStateT m s₀
   return s1
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
@@ -36,14 +36,14 @@ withStateT f m = stateT: $ runStateT m ∘ f
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = stateT: λ s0 ->
-    map (first f) $ runStateT m s0
+  functorStateT .map f m = stateT: λ s₀ ->
+    map (first f) $ runStateT m s₀
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = λ where
     .pure a -> stateT: λ s -> return (a , s)
-    ._<*>_ mf mx -> stateT: $ λ s0 -> do
-      (f , s1) <- runStateT mf s0
+    ._<*>_ mf mx -> stateT: λ s₀ -> do
+      (f , s1) <- runStateT mf s₀
       (x , s2) <- runStateT mx s1
       return (f x , s2)
 
@@ -54,8 +54,8 @@ instance
     runStateT m s <|> runStateT n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = stateT: λ s0 -> do
-    (a , s1) <- runStateT m s0
+  monadStateT ._>>=_ m k = stateT: λ s₀ -> do
+    (a , s1) <- runStateT m s₀
     runStateT (k a) s1
 
   monadTransStateT : MonadTrans (StateT S)
@@ -66,7 +66,5 @@ instance
     .transform -> monadStateT
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
-  monadStateStateT .get = stateT: $ return ∘ dupe
-  monadStateStateT .put s = stateT: $ const $ return (unit , s)
-
-
+  monadStateStateT .get = stateT: (return ∘ dupe)
+  monadStateStateT .put s = stateT: (const (return (unit , s)))
