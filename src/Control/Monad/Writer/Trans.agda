@@ -52,7 +52,7 @@ instance
 
   monadWriterWriterT : {{_ : Monoid W}} {{_ : Monad M}}
     -> MonadWriter W (WriterT W M)
-  monadWriterWriterT .tell w = writerT: $ return (unit , w)
+  monadWriterWriterT .tell w = writerT: (return (unit , w))
   monadWriterWriterT .listen m = writerT: do
     (a , w) <- runWriterT m
     return ((a , w) , w)
