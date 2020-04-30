@@ -42,12 +42,12 @@ replicate n a = applyN (a ::_) n []
 range : Nat -> Nat -> List Nat
 range m n =
     if m < n
-    then go pred m (monus n m + 1)
-    else go suc n (monus m n + 1)
+    then go pred (monus n m + 1)
+    else go suc (monus m n + 1)
   where
-    go : (Nat -> Nat) -> Nat -> Nat -> List Nat
-    go next last = flip foldr [] λ where
-      _ [] -> [ last ]
+    go : (Nat -> Nat) -> Nat -> List Nat
+    go next = flip foldr [] λ where
+      _ [] -> [ n ]
       _ (k :: ks) -> next k :: k :: ks
 
 --------------------------------------------------------------------------------
@@ -177,10 +177,6 @@ module _ {{_ : Eq A}} where
 --------------------------------------------------------------------------------
 -- Filtering functions
 --------------------------------------------------------------------------------
-
-find : (A -> Bool) -> List A -> Maybe A
-find p = let ensure' p = (λ _ -> maybeToLeft unit ∘ ensure p) in
-  leftToMaybe ∘ foldlM (ensure' p) unit
 
 filter : (A -> Bool) -> List A -> List A
 filter p [] = []
