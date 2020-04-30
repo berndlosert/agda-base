@@ -19,5 +19,4 @@ git ls-files | xargs -n 1 sed -i '' \
 	-e 's/aContT/contT:/g' \
 	-e 's/aReader/reader:/g' \
 	-e 's/aWriter/writer:/g' \
-	-e 's/aState/state:/g' \
 	-e 's/aCont/cont:/g'
