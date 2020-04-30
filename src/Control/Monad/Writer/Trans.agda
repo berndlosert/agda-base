@@ -1,49 +1,16 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.Writer where
+module Control.Monad.Writer.Trans where
 
 open import Prelude
 
 open import Control.Monad.Trans.Class
-  using (MonadTrans; lift; transform)
+open import Control.Monad.Writer.Class
 
 private
   variable
     A B W W' : Set
     M N : Set -> Set
-
---------------------------------------------------------------------------------
--- MonadWriter
---------------------------------------------------------------------------------
-
-record MonadWriter (W : Set) (M : Set -> Set) : Set where
-  field
-    {{monoid}} : Monoid W
-    {{monad}} : Monad M
-    tell : W -> M Unit
-    listen : M A -> M (A * W)
-    pass : M (A * (W -> W)) -> M A
-
-  writer : A * W -> M A
-  writer (a , w) = do
-    tell w
-    return a
-
-  listens : (W -> B) -> M A -> M (A * B)
-  listens f m = do
-    (a , w) <- listen m
-    return (a , f w)
-
-  censor : (W -> W) -> M ~> M
-  censor f m = pass $ do
-    a <- m
-    return (a , f)
-
-open MonadWriter {{...}} public
-
---------------------------------------------------------------------------------
--- WriterT
---------------------------------------------------------------------------------
 
 record WriterT (W : Set) (M : Set -> Set) (A : Set) : Set where
   constructor aWriterT
@@ -92,22 +59,3 @@ instance
   monadWriterWriterT .pass m = aWriterT $ do
     ((a , f) , w) <- runWriterT m
     return (a , f w)
-
---------------------------------------------------------------------------------
--- Writer
---------------------------------------------------------------------------------
-
-Writer : Set -> Set -> Set
-Writer W = WriterT W Identity
-
-aWriter : A * W -> Writer W A
-aWriter = aWriterT ∘ anIdentity
-
-runWriter : Writer W A -> A * W
-runWriter = runIdentity ∘ runWriterT
-
-execWriter : Writer W A -> W
-execWriter m = snd (runWriter m)
-
-mapWriter : (A * W -> B * W') -> Writer W A -> Writer W' B
-mapWriter = mapWriterT ∘ map
