@@ -57,19 +57,19 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = aConst ∘ getConst ∘ k ∘ f
+to f k = const: ∘ getConst ∘ k ∘ f
 
 view : Getting A S A -> S -> A
-view g = getConst ∘ g aConst
+view g = getConst ∘ g const:
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = getConst ∘ g (aConst ∘ k)
+foldMapOf g k = getConst ∘ g (const: ∘ k)
 
 foldrOf : Getting (Endo R) S A -> (A -> R -> R) -> R -> S -> R
-foldrOf l f z = flip appEndo z ∘ foldMapOf l (anEndo ∘ f)
+foldrOf l f z = flip appEndo z ∘ foldMapOf l (endo: ∘ f)
 
 foldlOf : Getting (Dual (Endo R)) S A -> (R -> A -> R) -> R -> S -> R
-foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (aDual ∘ anEndo ∘ flip f))
+foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (dual: ∘ endo: ∘ flip f))
 
 toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
@@ -96,13 +96,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = runIdentity ∘ g (anIdentity ∘ k)
+over g k = runIdentity ∘ g (identity: ∘ k)
 
 set : ASetter S T A B -> B -> S -> T
-set l y = runIdentity ∘ l (λ _ -> anIdentity y)
+set l y = runIdentity ∘ l (λ _ -> identity: y)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = anIdentity ∘ f (runIdentity ∘ k)
+sets f k = identity: ∘ f (runIdentity ∘ k)
 
 --------------------------------------------------------------------------------
 -- Lens operations

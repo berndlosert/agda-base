@@ -11,8 +11,8 @@ private variable A B W W' : Set
 Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
-aWriter : A * W -> Writer W A
-aWriter = aWriterT ∘ anIdentity
+writer: : A * W -> Writer W A
+writer: = writerT: ∘ identity:
 
 runWriter : Writer W A -> A * W
 runWriter = runIdentity ∘ runWriterT

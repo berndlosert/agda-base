@@ -13,7 +13,7 @@ private
     M N : Set -> Set
 
 record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
-  constructor aStateT
+  constructor stateT:
   field runStateT : S -> M (A * S)
 
 open StateT public
@@ -29,44 +29,44 @@ execStateT m s0 = do
   return s1
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
-mapStateT f m = aStateT $ f ∘ runStateT m
+mapStateT f m = stateT: $ f ∘ runStateT m
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A
-withStateT f m = aStateT $ runStateT m ∘ f
+withStateT f m = stateT: $ runStateT m ∘ f
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = aStateT $ λ s0 ->
+  functorStateT .map f m = stateT: $ λ s0 ->
     map (first f) $ runStateT m s0
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = λ where
-    .pure a -> aStateT $ λ s -> return (a , s)
-    ._<*>_ mf mx -> aStateT $ λ s0 -> do
+    .pure a -> stateT: $ λ s -> return (a , s)
+    ._<*>_ mf mx -> stateT: $ λ s0 -> do
       (f , s1) <- runStateT mf s0
       (x , s2) <- runStateT mx s1
       return (f x , s2)
 
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
-  alternativeStateT .empty = aStateT (const empty)
-  alternativeStateT ._<|>_ m n = aStateT $ λ s ->
+  alternativeStateT .empty = stateT: (const empty)
+  alternativeStateT ._<|>_ m n = stateT: $ λ s ->
     runStateT m s <|> runStateT n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = aStateT $ λ s0 -> do
+  monadStateT ._>>=_ m k = stateT: $ λ s0 -> do
     (a , s1) <- runStateT m s0
     runStateT (k a) s1
 
   monadTransStateT : MonadTrans (StateT S)
   monadTransStateT = λ where
-    .lift m -> aStateT λ s -> do
+    .lift m -> stateT: λ s -> do
       a <- m
       return (a , s)
     .transform -> monadStateT
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
-  monadStateStateT .get = aStateT $ return ∘ dupe
-  monadStateStateT .put s = aStateT $ const $ return (unit , s)
+  monadStateStateT .get = stateT: $ return ∘ dupe
+  monadStateStateT .put s = stateT: $ const $ return (unit , s)
 
 

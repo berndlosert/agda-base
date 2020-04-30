@@ -11,8 +11,8 @@ private variable A B S : Set
 State : Set -> Set -> Set
 State S = StateT S Identity
 
-aState : (S -> A * S) -> State S A
-aState t = aStateT (anIdentity ∘ t)
+state : (S -> A * S) -> State S A
+state t = stateT: (identity: ∘ t)
 
 runState : State S A -> S -> A * S
 runState m = runIdentity ∘ runStateT m

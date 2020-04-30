@@ -13,7 +13,7 @@ private
     F M : Set -> Set
 
 record ContT (R : Set) (M : Set -> Set) (A : Set) : Set where
-  constructor aContT
+  constructor contT:
   field runContT : (A -> M R) -> M R
 
 open ContT public
@@ -22,40 +22,40 @@ evalContT : {{_ : Monad M}} -> ContT R M R -> M R
 evalContT m = runContT m return
 
 mapContT : (M R -> M R) -> ContT R M ~> ContT R M
-mapContT f m = aContT (f ∘ runContT m)
+mapContT f m = contT: (f ∘ runContT m)
 
 withContT : ((B -> M R) -> (A -> M R)) -> ContT R M A -> ContT R M B
-withContT f m = aContT (runContT m ∘ f)
+withContT f m = contT: (runContT m ∘ f)
 
 instance
   functorContT : Functor (ContT R M)
-  functorContT .map f m = aContT λ c -> runContT m (c ∘ f)
+  functorContT .map f m = contT: λ c -> runContT m (c ∘ f)
 
   applicativeContT : Applicative (ContT R M)
-  applicativeContT .pure x = aContT (_$ x)
+  applicativeContT .pure x = contT: (_$ x)
   applicativeContT ._<*>_ f v =
-    aContT λ c -> runContT f λ g -> runContT v (c ∘ g)
+    contT: λ c -> runContT f λ g -> runContT v (c ∘ g)
 
   monadContT : Monad (ContT R M)
-  monadContT ._>>=_ m k = aContT λ c -> runContT m (λ x -> runContT (k x) c)
+  monadContT ._>>=_ m k = contT: λ c -> runContT m (λ x -> runContT (k x) c)
 
   monadTransContT : MonadTrans (ContT R)
-  monadTransContT .lift m = aContT (m >>=_)
+  monadTransContT .lift m = contT: (m >>=_)
   monadTransContT .transform = monadContT
 
   monadContContT : MonadCont (ContT R M)
   monadContContT .callCC f =
-    aContT λ c -> runContT (f (λ x -> aContT λ _ -> c x)) c
+    contT: λ c -> runContT (f (λ x -> contT: λ _ -> c x)) c
 
 resetT : {{_ : Monad M}} -> ContT R M R -> ContT R' M R
 resetT = lift ∘ evalContT
 
 shiftT : {{_ : Monad M}} -> ((A -> M R) -> ContT R M R) -> ContT R M A
-shiftT f = aContT (evalContT ∘ f)
+shiftT f = contT: (evalContT ∘ f)
 
 liftLocal : {{_ : Monad M}}
   -> M R' -> ((R' -> R') -> M R -> M R)
   -> (R' -> R') -> ContT R M ~> ContT R M
-liftLocal ask local f m = aContT λ c -> do
+liftLocal ask local f m = contT: λ c -> do
     r <- ask
     local f (runContT m (local (const r) ∘ c))

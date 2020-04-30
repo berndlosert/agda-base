@@ -185,7 +185,7 @@ instance
 
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
   wanderForget .wander t f =
-    toForget $ getConst ∘ t (aConst ∘ fromForget f)
+    toForget $ getConst ∘ t (const: ∘ fromForget f)
 
   profunctorTagged : Profunctor Tagged
   profunctorTagged .dimap _ g x = toTagged (g $ fromTagged x)
