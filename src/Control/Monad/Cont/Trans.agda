@@ -1,36 +1,20 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.Cont where
+module Control.Monad.Cont.Trans where
 
 open import Prelude
 
+open import Control.Monad.Cont.Class
 open import Control.Monad.Trans.Class
-  using (MonadTrans; lift; transform)
 
 private
   variable
     A B R R' : Set
     F M : Set -> Set
 
---------------------------------------------------------------------------------
--- MonadCont
---------------------------------------------------------------------------------
-
-record MonadCont (M : Set -> Set) : Set where
-  field
-    {{monad}} : Monad M
-    callCC : ((A -> M B) -> M A) -> M A
-
-open MonadCont {{...}} public
-
---------------------------------------------------------------------------------
--- ContT
---------------------------------------------------------------------------------
-
 record ContT (R : Set) (M : Set -> Set) (A : Set) : Set where
   constructor aContT
-  field
-    runContT : (A -> M R) -> M R
+  field runContT : (A -> M R) -> M R
 
 open ContT public
 
@@ -75,31 +59,3 @@ liftLocal : {{_ : Monad M}}
 liftLocal ask local f m = aContT $ λ c -> do
     r <- ask
     local f (runContT m (local (const r) ∘ c))
-
---------------------------------------------------------------------------------
--- Cont
---------------------------------------------------------------------------------
-
-Cont : Set -> Set -> Set
-Cont R A = ContT R Identity A
-
-aCont : ((A -> R) -> R) -> Cont R A
-aCont f = aContT (λ c -> anIdentity (f (runIdentity ∘ c)))
-
-runCont : Cont R A -> (A -> R) -> R
-runCont m k = runIdentity (runContT m (anIdentity ∘ k))
-
-evalCont : Cont R R -> R
-evalCont m = runIdentity (evalContT m)
-
-mapCont : (R -> R) -> Cont R A -> Cont R A
-mapCont f = mapContT (map f)
-
-withCont : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
-withCont f = withContT ((anIdentity ∘_) ∘ f ∘ (runIdentity ∘_))
-
-reset : Cont R R -> Cont R' R
-reset = resetT
-
-shift : ((A -> R) -> Cont R R) -> Cont R A
-shift f = shiftT (f ∘ (runIdentity ∘_))
