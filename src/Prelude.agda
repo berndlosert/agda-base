@@ -1480,17 +1480,23 @@ instance
   showFloat : Show Float
   showFloat .show = Agda.Builtin.Float.primShowFloat
 
+  showChar : Show Char
+  showChar .show = Agda.Builtin.String.primShowChar
+
+  showString : Show String
+  showString .show = Agda.Builtin.String.primShowString
+
   showPair : {{_ : Show A}} {{_ : Show B}} -> Show (Pair A B)
   showPair .show (a , b) = "(" ++ show a ++ " , " ++ show b ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = λ where
-    (left a) -> "left " ++ show a
-    (right b) -> "right " ++ show b
+    (left a) -> "(left " ++ show a ++ ")"
+    (right b) -> "right " ++ show b ++ ")"
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
   showMaybe .show = λ where
-    (just a) -> "just " ++ show a
+    (just a) -> "(just " ++ show a ++ ")"
     nothing -> "nothing"
 
   showList : {{_ : Show A}} -> Show (List A)
@@ -1501,8 +1507,35 @@ instance
       show' [] = "[]"
       show' (a :: as) = show a ++ " :: " ++ show' as
 
-  showChar : Show Char
-  showChar .show = Agda.Builtin.String.primShowChar
+  showIdentity : {{_ : Show A}} -> Show (Identity A)
+  showIdentity .show (identity: a) = "(identity: " ++ show a ++ ")"
 
-  showString : Show String
-  showString .show = Agda.Builtin.String.primShowString
+  showConst : {{_ : Show A}} -> Show (Const A B)
+  showConst .show (const: a) = "(const: " ++ show a ++ ")"
+
+  showSum : {{_ : Show A}} -> Show (Sum A)
+  showSum .show (sum: a) = "(sum: " ++ show a ++ ")"
+
+  showProduct : {{_ : Show A}} -> Show (Product A)
+  showProduct .show (product: a) = "(product: " ++ show a ++ ")"
+
+  showDual : {{_ : Show A}} -> Show (Dual A)
+  showDual .show (dual: a) = "(dual: " ++ show a ++ ")"
+
+  showFirst : {{_ : Show A}} -> Show (First A)
+  showFirst .show (first: a) = "(first: " ++ show a ++ ")"
+
+  showLast : {{_ : Show A}} -> Show (Last A)
+  showLast .show (last: a) = "(last: " ++ show a ++ ")"
+
+  showMin : {{_ : Show A}} -> Show (Min A)
+  showMin .show (min: a) = "(min: " ++ show a ++ ")"
+
+  showMax : {{_ : Show A}} -> Show (Max A)
+  showMax .show (max: a) = "(max: " ++ show a ++ ")"
+
+  showAny : Show Any
+  showAny .show (any: a) = "(any: " ++ show a ++ ")"
+
+  showAll : Show All
+  showAll .show (all: a) = "(all: " ++ show a ++ ")"
