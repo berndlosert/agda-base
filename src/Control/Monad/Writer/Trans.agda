@@ -24,28 +24,28 @@ execWriterT m = do
   return w
 
 mapWriterT : (M (A * W) -> N (B * W')) -> WriterT W M A -> WriterT W' N B
-mapWriterT f m = writerT: $ f (runWriterT m)
+mapWriterT f m = writerT: (f (runWriterT m))
 
 instance
   functorWriterT : {{_ : Functor M}} -> Functor (WriterT W M)
-  functorWriterT .map f = mapWriterT $ map λ where (a , w) -> (f a , w)
+  functorWriterT .map f = mapWriterT (map (first f))
 
   applicativeWriterT : {{_ : Monoid W}} {{_ : Applicative M}}
     -> Applicative (WriterT W M)
   applicativeWriterT .pure a = writerT: $ pure (a , neutral)
-  applicativeWriterT ._<*>_ (writerT: f) (writerT: v) = writerT: $ (| k f v |)
+  applicativeWriterT ._<*>_ (writerT: f) (writerT: v) = writerT: (| k f v |)
     where
       k : _
       k (a , w) (b , w') = (a b , w <> w')
 
   monadWriterT : {{_ : Monoid W}} {{_ : Monad M}} -> Monad (WriterT W M)
-  monadWriterT ._>>=_ m k = writerT: $ do
+  monadWriterT ._>>=_ m k = writerT: do
     (a , w) <- runWriterT m
     (b , w') <- runWriterT (k a)
     return (b , w <> w')
 
   monadTransWriterT : {{_ : Monoid W}} -> MonadTrans (WriterT W)
-  monadTransWriterT .lift m = writerT: $ do
+  monadTransWriterT .lift m = writerT: do
     a <- m
     return (a , neutral)
   monadTransWriterT .transform = monadWriterT
@@ -53,9 +53,9 @@ instance
   monadWriterWriterT : {{_ : Monoid W}} {{_ : Monad M}}
     -> MonadWriter W (WriterT W M)
   monadWriterWriterT .tell w = writerT: $ return (unit , w)
-  monadWriterWriterT .listen m = writerT: $ do
+  monadWriterWriterT .listen m = writerT: do
     (a , w) <- runWriterT m
     return ((a , w) , w)
-  monadWriterWriterT .pass m = writerT: $ do
+  monadWriterWriterT .pass m = writerT: do
     ((a , f) , w) <- runWriterT m
     return (a , f w)
