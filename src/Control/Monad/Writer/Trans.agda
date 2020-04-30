@@ -28,7 +28,7 @@ mapWriterT f m = writerT: $ f (runWriterT m)
 
 instance
   functorWriterT : {{_ : Functor M}} -> Functor (WriterT W M)
-  functorWriterT .map f = mapWriterT $ map $ λ where (a , w) -> (f a , w)
+  functorWriterT .map f = mapWriterT $ map λ where (a , w) -> (f a , w)
 
   applicativeWriterT : {{_ : Monoid W}} {{_ : Applicative M}}
     -> Applicative (WriterT W M)
