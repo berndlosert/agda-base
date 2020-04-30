@@ -36,12 +36,12 @@ withStateT f m = stateT: $ runStateT m ∘ f
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = stateT: $ λ s0 ->
+  functorStateT .map f m = stateT: λ s0 ->
     map (first f) $ runStateT m s0
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT = λ where
-    .pure a -> stateT: $ λ s -> return (a , s)
+    .pure a -> stateT: λ s -> return (a , s)
     ._<*>_ mf mx -> stateT: $ λ s0 -> do
       (f , s1) <- runStateT mf s0
       (x , s2) <- runStateT mx s1
@@ -50,11 +50,11 @@ instance
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
   alternativeStateT .empty = stateT: (const empty)
-  alternativeStateT ._<|>_ m n = stateT: $ λ s ->
+  alternativeStateT ._<|>_ m n = stateT: λ s ->
     runStateT m s <|> runStateT n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = stateT: $ λ s0 -> do
+  monadStateT ._>>=_ m k = stateT: λ s0 -> do
     (a , s1) <- runStateT m s0
     runStateT (k a) s1
 
