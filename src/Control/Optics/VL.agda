@@ -77,16 +77,18 @@ toListOf l = foldrOf l _::_ []
 lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
 lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
---preview : Getting (First A) S A -> S -> Maybe A
---preview l = getFirst ∘ foldMapOf l (first: ∘ just)
+preview : Getting (Maybe (First A)) S A -> S -> Maybe A
+preview l s with foldMapOf l (just ∘ first:) s
+... | nothing = nothing
+... | (just (first: a)) = just a
 
-traverseOf' : {{_ : Functor F}}
+traverseOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
-traverseOf' l f = map (const unit) ∘ foldMapOf l f
+traverseOf! l f = map (const unit) ∘ foldMapOf l f
 
-forOf' : {{_ : Functor F}}
+forOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> S -> (A -> F R) -> F Unit
-forOf' = flip ∘ traverseOf'
+forOf! = flip ∘ traverseOf!
 
 --------------------------------------------------------------------------------
 -- ASetter operations
