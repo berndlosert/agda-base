@@ -18,7 +18,7 @@ private
 record Strong (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    strong : P A B -> P (Pair C A) (Pair C B)
+    strong : P A B -> P (C * A) (C * B)
 
 open Strong {{...}} public
 
@@ -26,7 +26,7 @@ open Strong {{...}} public
 record Choice (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    choice : P A B -> P (Either C A) (Either C B)
+    choice : P A B -> P (C + A) (C + B)
 
 open Choice {{...}} public
 
@@ -264,6 +264,12 @@ instance
   wanderBazaar .wander w (toBazaar b) = toBazaar λ where
     h s -> w (b h) s
 
+  profunctorSetter : Profunctor (Setter A B)
+  profunctorSetter .dimap f g h k = g ∘ h k ∘ f
+
+  strongSetter : Strong (Setter A B)
+  strongSetter .strong f g (c , a) = (c , f g a)
+
 --------------------------------------------------------------------------------
 -- Deconstructors
 --------------------------------------------------------------------------------
@@ -293,8 +299,14 @@ traverseOf {A} {B} t = Bazaar.traverseOf (t b)
     b : Bazaar Function A B A B
     b = toBazaar id
 
+to : (S -> A) -> Getter A B S T
+to f (forget: g) = forget: (g ∘ f)
+
 view : Getter A B S T -> S -> A
 view g = runForget $ g (forget: id)
+
+foldMapOf : Getter A B S T -> (A -> R) -> S -> R
+foldMapOf g f = runForget $ g (forget: f)
 
 review : Review A B S T -> B -> T
 review r b = unTagged $ r (tagged: b)
@@ -307,3 +319,31 @@ set f b = f (const b)
 
 sets : ((A -> B) -> S -> T) -> Setter A B S T
 sets = id
+
+--------------------------------------------------------------------------------
+-- Basic lens and traversals
+--------------------------------------------------------------------------------
+
+--#fst : Lens A B (A * C) (B * C)
+--  -- : P A B -> P (A * C) (B * C)
+--#fst =
+
+--#snd : Lens B C (A * B) (A * C)
+#snd : Simple Lens B (A * B)
+#snd = strong
+--
+--#left : Traversal (A + C) (B + C) A B
+--#left f (left x) = left <$> f x
+--#left _ (right y) = pure (right y)
+--
+--#right : Traversal (A + B) (A + C) B C
+--#right f (right y) = right <$> f y
+--#right _ (left x) = pure (left x)
+--
+--#just : Traversal (Maybe A) (Maybe B) A B
+--#just f (just x) = just <$> f x
+--#just _ nothing = pure nothing
+--
+--#nothing : Simple Traversal (Maybe A) Unit
+--#nothing f nothing = const nothing <$> f unit
+--#nothing _ j = pure j
