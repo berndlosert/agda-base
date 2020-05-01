@@ -61,8 +61,8 @@ open Forget
 
 -- Characaterizes Review
 record Tagged (A B : Set) : Set where
-  constructor toTagged
-  field fromTagged : B
+  constructor tagged:
+  field unTagged : B
 
 open Tagged
 
@@ -188,13 +188,13 @@ instance
     forget: $ getConst ∘ t (const: ∘ runForget f)
 
   profunctorTagged : Profunctor Tagged
-  profunctorTagged .dimap _ g x = toTagged (g $ fromTagged x)
+  profunctorTagged .dimap _ g x = tagged: (g $ unTagged x)
 
   choiceTagged : Choice Tagged
-  choiceTagged .choice x = toTagged (right $ fromTagged x)
+  choiceTagged .choice x = tagged: (right $ unTagged x)
 
   closedTagged : Closed Tagged
-  closedTagged .closed x = toTagged (const $ fromTagged x)
+  closedTagged .closed x = tagged: (const $ unTagged x)
 
   profunctorAdapter : Profunctor (Adapter A B)
   profunctorAdapter .dimap f g a = dimap f g ∘ a
@@ -297,7 +297,7 @@ view : Getter A B S T -> S -> A
 view g = runForget $ g (forget: id)
 
 review : Review A B S T -> B -> T
-review r b = fromTagged $ r (toTagged b)
+review r b = unTagged $ r (tagged: b)
 
 over : Setter A B S T -> (A -> B) -> S -> T
 over = id
