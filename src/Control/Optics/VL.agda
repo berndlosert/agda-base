@@ -78,9 +78,7 @@ lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
 lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First A)) S A -> S -> Maybe A
-preview l s with foldMapOf l (just ∘ first:) s
-... | nothing = nothing
-... | (just (first: a)) = just a
+preview l = map getFirst ∘ foldMapOf l (just ∘ first:)
 
 traverseOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
