@@ -57,5 +57,5 @@ liftLocal : {{_ : Monad M}}
   -> M R' -> ((R' -> R') -> M R -> M R)
   -> (R' -> R') -> ContT R M ~> ContT R M
 liftLocal ask local f (contT: m) = contT: λ c -> do
-    r <- ask
-    local f (m (local (const r) ∘ c))
+  r <- ask
+  local f (m (local (const r) ∘ c))
