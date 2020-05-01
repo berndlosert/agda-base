@@ -109,28 +109,28 @@ Setter A B S T = Function A B -> Function S T
 
 -- Corresponds to Adapter
 record Exchange (A B S T : Set) : Set where
-  constructor toExchange
+  constructor exchange:
   field
     from : S -> A
     to : B -> T
 
 -- Corresponds to Lens
 record Shop (A B S T : Set) : Set where
-  constructor toShop
+  constructor shop:
   field
     get : S -> A
     put : S -> B -> T
 
 -- Corresponds to Prism
 record Market (A B S T : Set) : Set where
-  constructor toMarket
+  constructor market:
   field
     build : B -> T
     match : S -> Either T A
 
 -- Corresponds to Grate
 record Grating (A B S T : Set) : Set where
-  constructor toGrating
+  constructor grate:
   field
     degrating : ((S -> A) -> B) -> T
 
@@ -200,18 +200,18 @@ instance
   profunctorAdapter .dimap f g a = dimap f g ∘ a
 
   profunctorExchange : Profunctor (Exchange A B)
-  profunctorExchange .dimap f g (toExchange from to) =
-    toExchange (from ∘ f) (g ∘ to)
+  profunctorExchange .dimap f g (exchange: from to) =
+    exchange: (from ∘ f) (g ∘ to)
 
   profunctorLens : Profunctor (Lens A B)
   profunctorLens .dimap f g l = dimap f g ∘ l
 
   profunctorShop : Profunctor (Shop A B)
-  profunctorShop .dimap f g (toShop get put) =
-    toShop (get ∘ f) (λ s -> g ∘ put (f s))
+  profunctorShop .dimap f g (shop: get put) =
+    shop: (get ∘ f) (λ s -> g ∘ put (f s))
 
   strongShop : Strong (Shop A B)
-  strongShop .strong (toShop get put) = toShop get' put'
+  strongShop .strong (shop: get put) = shop: get' put'
     where
       get' put' : _
       get' (u , s) = get s
@@ -221,11 +221,11 @@ instance
   profunctorPrism .dimap f g p = dimap f g ∘ p
 
   profunctorMarket : Profunctor (Market A B)
-  profunctorMarket .dimap f g (toMarket build match) =
-      toMarket (g ∘ build) (first g ∘ match ∘ f)
+  profunctorMarket .dimap f g (market: build match) =
+      market: (g ∘ build) (first g ∘ match ∘ f)
 
   choiceMarket : Choice (Market A B)
-  choiceMarket .choice (toMarket build match) = toMarket build' match'
+  choiceMarket .choice (market: build match) = market: build' match'
     where
       build' match' : _
       build' y = right (build y)
@@ -238,12 +238,12 @@ instance
   profunctorGrate .dimap f g r = dimap f g ∘ r
 
   profunctorGrating : Profunctor (Grating A B)
-  profunctorGrating .dimap f g (toGrating r) =
-    toGrating λ d -> g (r λ k -> d (k ∘ f))
+  profunctorGrating .dimap f g (grate: r) =
+    grate: λ d -> g (r λ k -> d (k ∘ f))
 
   closedGrating : Closed (Grating A B)
-  closedGrating .closed (toGrating degrating) =
-    toGrating λ f x -> degrating λ k -> f λ g -> k (g x)
+  closedGrating .closed (grate: degrating) =
+    grate: λ f x -> degrating λ k -> f λ g -> k (g x)
 
   profunctorTraversal : Profunctor (Traversal A B)
   profunctorTraversal .dimap f g t = dimap f g ∘ t
@@ -269,22 +269,22 @@ instance
 --------------------------------------------------------------------------------
 
 from : Adapter A B S T -> S -> A
-from a = Exchange.from $ a $ toExchange id id
+from a = Exchange.from $ a $ exchange: id id
 to : Adapter A B S T -> B -> T
-to a = Exchange.to $ a $ toExchange id id
+to a = Exchange.to $ a $ exchange: id id
 
 get : Lens A B S T -> S -> A
-get l = Shop.get $ l $ toShop id (flip const)
+get l = Shop.get $ l $ shop: id (flip const)
 put : Lens A B S T -> S -> B -> T
-put l = Shop.put $ l $ toShop id (flip const)
+put l = Shop.put $ l $ shop: id (flip const)
 
 build : Prism A B S T -> B -> T
-build p = Market.build $ p $ toMarket id right
+build p = Market.build $ p $ market: id right
 match : Prism A B S T -> S -> Either T A
-match p = Market.match $ p $ toMarket id right
+match p = Market.match $ p $ market: id right
 
 degrating : Grate A B S T -> ((S -> A) -> B) -> T
-degrating g = Grating.degrating $ g $ toGrating λ f -> f id
+degrating g = Grating.degrating $ g $ grate: λ f -> f id
 
 traverseOf : Traversal A B S T
   -> (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
