@@ -99,7 +99,7 @@ over : ASetter S T A B -> (A -> B) -> S -> T
 over g k = runIdentity ∘ g (identity: ∘ k)
 
 set : ASetter S T A B -> B -> S -> T
-set l y = runIdentity ∘ l (λ _ -> identity: y)
+set f b = runIdentity ∘ f (λ _ -> identity: b)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
 sets f k = identity: ∘ f (runIdentity ∘ k)
