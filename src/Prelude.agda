@@ -1301,9 +1301,6 @@ record IsFoldable (S A : Set) : Set where
   product = getProduct ∘ foldMap product:
 
   find : (A -> Bool) -> S -> Maybe A
---  find p s with foldMap (λ a -> if p a then just (first: a) else nothing) s
---  ... | nothing = nothing
---  ... | (just (first: a)) = just a
   find p = map getFirst ∘ foldMap (map first: ∘ ensure p)
 
   module _ {{_ : Eq A}} where
@@ -1491,7 +1488,7 @@ instance
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = λ where
     (left a) -> "(left " ++ show a ++ ")"
-    (right b) -> "right " ++ show b ++ ")"
+    (right b) -> "(right " ++ show b ++ ")"
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
   showMaybe .show = λ where
