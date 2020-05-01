@@ -129,17 +129,17 @@ instance
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-#fst : Lens (Pair A C) (Pair B C) A B
+#fst : Lens (A * C) (B * C) A B
 #fst k (a , c) = (_, c) <$> k a
 
-#snd : Lens (Pair A B) (Pair A C) B C
+#snd : Lens (A * B) (A * C) B C
 #snd k (x , y) = (x ,_) <$> k y
 
-#left : Traversal (Either A C) (Either B C) A B
+#left : Traversal (A + C) (B + C) A B
 #left f (left x) = left <$> f x
 #left _ (right y) = pure (right y)
 
-#right : Traversal (Either A B) (Either A C) B C
+#right : Traversal (A + B) (A + C) B C
 #right f (right y) = right <$> f y
 #right _ (left x) = pure (left x)
 
