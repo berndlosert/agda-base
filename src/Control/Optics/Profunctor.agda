@@ -54,8 +54,8 @@ open Wander {{...}}
 
 -- Characterizes Fold
 record Forget (R A B : Set) : Set where
-  constructor toForget
-  field fromForget : A -> R
+  constructor forget:
+  field runForget : A -> R
 
 open Forget
 
@@ -167,7 +167,7 @@ traversal : (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
 traversal traverse = wander traverse
 
 getter : (S -> A) -> Simple Getter A S
-getter g f = toForget (fromForget f ∘ g)
+getter g f = forget: (runForget f ∘ g)
 
 --------------------------------------------------------------------------------
 -- Instances
@@ -175,17 +175,17 @@ getter g f = toForget (fromForget f ∘ g)
 
 instance
   profunctorForget : Profunctor (Forget R)
-  profunctorForget .dimap f g h = toForget (fromForget h ∘ f)
+  profunctorForget .dimap f g h = forget: (runForget h ∘ f)
 
   strongForget : Strong (Forget R)
-  strongForget .strong z = toForget (fromForget z ∘ snd)
+  strongForget .strong z = forget: (runForget z ∘ snd)
 
   choiceForget : {{_ : Monoid R}} -> Choice (Forget R)
-  choiceForget .choice z = toForget $ either neutral (fromForget z)
+  choiceForget .choice z = forget: $ either neutral (runForget z)
 
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
   wanderForget .wander t f =
-    toForget $ getConst ∘ t (const: ∘ fromForget f)
+    forget: $ getConst ∘ t (const: ∘ runForget f)
 
   profunctorTagged : Profunctor Tagged
   profunctorTagged .dimap _ g x = toTagged (g $ fromTagged x)
@@ -294,7 +294,7 @@ traverseOf {A} {B} t = Bazaar.traverseOf (t b)
     b = toBazaar id
 
 view : Getter A B S T -> S -> A
-view g = fromForget $ g (toForget id)
+view g = runForget $ g (forget: id)
 
 review : Review A B S T -> B -> T
 review r b = fromTagged $ r (toTagged b)
