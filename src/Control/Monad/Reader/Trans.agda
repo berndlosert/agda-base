@@ -19,10 +19,10 @@ record ReaderT (R : Set) (M : Set -> Set) (A : Set) : Set where
 open ReaderT public
 
 mapReaderT : (M A -> N B) -> ReaderT R M A -> ReaderT R N B
-mapReaderT f m = readerT: (f ∘ runReaderT m)
+mapReaderT f (readerT: m) = readerT: (f ∘ m)
 
 withReaderT : (R' -> R) -> ReaderT R M ~> ReaderT R' M
-withReaderT f m = readerT: (runReaderT m ∘ f)
+withReaderT f (readerT: m) = readerT: (m ∘ f)
 
 instance
   functorReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
@@ -30,12 +30,12 @@ instance
 
   applicativeReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
   applicativeReaderT .pure = readerT: ∘ const ∘ pure
-  applicativeReaderT ._<*>_ f v = readerT: λ r ->
-    runReaderT f r <*> runReaderT v r
+  applicativeReaderT ._<*>_ (readerT: f) (readerT: x) = readerT: λ r ->
+    f r <*> x r
 
   monadReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
-  monadReaderT ._>>=_ m k = readerT: λ r -> do
-    a <- runReaderT m r
+  monadReaderT ._>>=_ (readerT: m) k = readerT: λ r -> do
+    a <- m r
     runReaderT (k a) r
 
   monadReaderReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
