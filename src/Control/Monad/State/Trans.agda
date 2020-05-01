@@ -19,51 +19,48 @@ record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
 open StateT public
 
 evalStateT : {{_ : Monad M}} -> StateT S M A -> S -> M A
-evalStateT m s = do
-  (a , _) <- runStateT m s
+evalStateT (stateT: m) s = do
+  (a , _) <- m s
   return a
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
-execStateT m s₀ = do
-  (_ , s1) <- runStateT m s₀
+execStateT (stateT: m) s₀ = do
+  (_ , s1) <- m s₀
   return s1
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
-mapStateT f m = stateT: $ f ∘ runStateT m
+mapStateT f (stateT: m) = stateT: (f ∘ m)
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A
-withStateT f m = stateT: $ runStateT m ∘ f
+withStateT f (stateT: m) = stateT: (m ∘ f)
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f m = stateT: λ s₀ ->
-    map (first f) $ runStateT m s₀
+  functorStateT .map f (stateT: m) = stateT: λ s₀ -> map (first f) (m s₀)
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
-  applicativeStateT = λ where
-    .pure a -> stateT: λ s -> return (a , s)
-    ._<*>_ mf mx -> stateT: λ s₀ -> do
-      (f , s1) <- runStateT mf s₀
-      (x , s2) <- runStateT mx s1
+  applicativeStateT .pure a = stateT: λ s -> return (a , s)
+  applicativeStateT ._<*>_ (stateT: mf) (stateT: mx) = stateT: λ s₀ -> do
+      (f , s1) <- mf s₀
+      (x , s2) <- mx s1
       return (f x , s2)
 
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
   alternativeStateT .empty = stateT: (const empty)
-  alternativeStateT ._<|>_ m n = stateT: λ s ->
-    runStateT m s <|> runStateT n s
+  alternativeStateT ._<|>_ (stateT: m) (stateT: n) = stateT: λ s ->
+    m s <|> n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ m k = stateT: λ s₀ -> do
-    (a , s1) <- runStateT m s₀
+  monadStateT ._>>=_ (stateT: m) k = stateT: λ s₀ -> do
+    (a , s1) <- m s₀
     runStateT (k a) s1
 
   monadTransStateT : MonadTrans (StateT S)
-  monadTransStateT = λ where
-    .lift m -> stateT: λ s -> do
-      a <- m
-      return (a , s)
-    .transform -> monadStateT
+  monadTransStateT .lift m = stateT: λ s -> do
+    a <- m
+    return (a , s)
+  monadTransStateT .transform = monadStateT
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
   monadStateStateT .get = stateT: (return ∘ dupe)
