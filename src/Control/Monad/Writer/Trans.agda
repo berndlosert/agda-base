@@ -19,12 +19,12 @@ record WriterT (W : Set) (M : Set -> Set) (A : Set) : Set where
 open WriterT public
 
 execWriterT : {{_ : Monad M}} -> WriterT W M A -> M W
-execWriterT m = do
-  (_ , w) <- runWriterT m
+execWriterT (writerT: m) = do
+  (_ , w) <- m
   return w
 
 mapWriterT : (M (A * W) -> N (B * W')) -> WriterT W M A -> WriterT W' N B
-mapWriterT f m = writerT: (f (runWriterT m))
+mapWriterT f (writerT: m) = writerT: (f m)
 
 instance
   functorWriterT : {{_ : Functor M}} -> Functor (WriterT W M)
@@ -39,8 +39,8 @@ instance
       k (f , w) (x , w') = (f x , w <> w')
 
   monadWriterT : {{_ : Monoid W}} {{_ : Monad M}} -> Monad (WriterT W M)
-  monadWriterT ._>>=_ m k = writerT: do
-    (a , w) <- runWriterT m
+  monadWriterT ._>>=_ (writerT: m) k = writerT: do
+    (a , w) <- m
     (b , w') <- runWriterT (k a)
     return (b , w <> w')
 
@@ -53,9 +53,9 @@ instance
   monadWriterWriterT : {{_ : Monoid W}} {{_ : Monad M}}
     -> MonadWriter W (WriterT W M)
   monadWriterWriterT .tell w = writerT: (return (unit , w))
-  monadWriterWriterT .listen m = writerT: do
-    (a , w) <- runWriterT m
+  monadWriterWriterT .listen (writerT: m) = writerT: do
+    (a , w) <- m
     return ((a , w) , w)
-  monadWriterWriterT .pass m = writerT: do
-    ((a , f) , w) <- runWriterT m
+  monadWriterWriterT .pass (writerT: m) = writerT: do
+    ((a , f) , w) <- m
     return (a , f w)
