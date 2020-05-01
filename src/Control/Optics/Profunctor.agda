@@ -268,23 +268,23 @@ instance
 -- Deconstructors
 --------------------------------------------------------------------------------
 
-from : Adapter A B S T -> S -> A
-from a = Exchange.from $ a $ exchange: id id
-to : Adapter A B S T -> B -> T
-to a = Exchange.to $ a $ exchange: id id
+--from : Adapter A B S T -> S -> A
+--from a = Exchange.from $ a $ exchange: id id
+--to : Adapter A B S T -> B -> T
+--to a = Exchange.to $ a $ exchange: id id
 
-get : Lens A B S T -> S -> A
-get l = Shop.get $ l $ shop: id (flip const)
-put : Lens A B S T -> S -> B -> T
-put l = Shop.put $ l $ shop: id (flip const)
+--get : Lens A B S T -> S -> A
+--get l = Shop.get $ l $ shop: id (flip const)
+--put : Lens A B S T -> S -> B -> T
+--put l = Shop.put $ l $ shop: id (flip const)
 
-build : Prism A B S T -> B -> T
-build p = Market.build $ p $ market: id right
-match : Prism A B S T -> S -> Either T A
-match p = Market.match $ p $ market: id right
+--build : Prism A B S T -> B -> T
+--build p = Market.build $ p $ market: id right
+--match : Prism A B S T -> S -> Either T A
+--match p = Market.match $ p $ market: id right
 
-degrating : Grate A B S T -> ((S -> A) -> B) -> T
-degrating g = Grating.degrating $ g $ grate: λ f -> f id
+--degrating : Grate A B S T -> ((S -> A) -> B) -> T
+--degrating g = Grating.degrating $ g $ grate: λ f -> f id
 
 traverseOf : Traversal A B S T
   -> (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
@@ -301,3 +301,9 @@ review r b = unTagged $ r (tagged: b)
 
 over : Setter A B S T -> (A -> B) -> S -> T
 over = id
+
+set : Setter A B S T -> B -> S -> T
+set f b = f (const b)
+
+sets : ((A -> B) -> S -> T) -> Setter A B S T
+sets = id
