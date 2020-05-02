@@ -4,7 +4,7 @@ module Prelude where
 
 private
   variable
-    A B C D S : Set
+    A B C D R S : Set
     F M : Set -> Set
 
 --------------------------------------------------------------------------------
@@ -138,21 +138,12 @@ foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
 foldZ f g (negsuc n) = g n
 
-neg : Nat -> Int
-neg 0 = pos 0
-neg (suc n) = negsuc n
-
 Nonneg : Int -> Set
 Nonneg (pos _) = Unit
 Nonneg _ = Void
 
 nonneg : (n : Int) {_ : Nonneg n} -> Nat
 nonneg (pos n) = n
-
-private sub : Nat -> Nat -> Int
-sub m 0 = pos m
-sub 0 (suc n) = negsuc n
-sub (suc m) (suc n) = sub m n
 
 open Agda.Builtin.Float public
   renaming (
@@ -513,7 +504,7 @@ instance
   ordConst ._<_ (const: a) (const: a') = a < a'
 
 --------------------------------------------------------------------------------
--- Plus
+-- Overloadable arithmetic operators
 --------------------------------------------------------------------------------
 
 record Plus (A : Set) : Set where
@@ -522,111 +513,110 @@ record Plus (A : Set) : Set where
 
 open Plus {{...}} public
 
-instance
-  plusSet : Plus Set
-  plusSet ._+_ = Either
-
-  plusNat : Plus Nat
-  plusNat ._+_ = Agda.Builtin.Nat._+_
-
-  plusInt : Plus Int
-  plusInt ._+_ = λ where
-    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-    (negsuc m) (pos n) -> sub n (suc m)
-    (pos m) (negsuc n) -> sub m (suc n)
-    (pos m) (pos n) -> pos (m + n)
-
-  plusFloat : Plus Float
-  plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
-
-  plusFunction : {{_ : Plus B}} -> Plus (A -> B)
-  plusFunction ._+_ f g x = f x + g x
-
---------------------------------------------------------------------------------
--- Times
---------------------------------------------------------------------------------
-
 record Times (A : Set) : Set where
   infixr 7 _*_
   field _*_ : A -> A -> A
 
 open Times {{...}} public
 
+record Negative (A R : Set) : Set where
+  field -_ : A -> R
+
+open Negative {{...}} public
+
+record Minus (A R : Set) : Set where
+  infixr 6 _-_
+  field _-_ : A -> A -> R
+
+open Minus {{...}} public
+
+record Division (A R : Set) : Set where
+  infixr 7 _/_
+  field _/_ : A -> A -> R
+
+open Division {{...}} public
+
 instance
+  plusSet : Plus Set
+  plusSet ._+_ = Either
+
   timesSet : Times Set
   timesSet ._*_ = Either
 
+  plusFloat : Plus Float
+  plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
+
+  timesFloat : Times Float
+  timesFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+
+  negativeFloat : Negative Float Float
+  negativeFloat .-_ = Agda.Builtin.Float.primFloatNegate
+
+  minusFloat : Minus Float Float
+  minusFloat ._-_ = Agda.Builtin.Float.primFloatMinus
+
+  divisionFloat : Division Float Float
+  divisionFloat ._/_ = Agda.Builtin.Float.primFloatDiv
+
+  plusNat : Plus Nat
+  plusNat ._+_ = Agda.Builtin.Nat._+_
+
   timesNat : Times Nat
   timesNat ._*_ = Agda.Builtin.Nat._*_
+
+  negativeNatInt : Negative Nat Int
+  negativeNatInt .-_ = λ { 0 -> pos 0;  (suc n) -> negsuc n }
+
+  minusNatInt : Minus Nat Int
+  minusNatInt ._-_ = λ where
+    m 0 -> pos m
+    0 (suc n) -> negsuc n
+    (suc m) (suc n) -> m - n
+
+  divisionNatFloat : Division Nat Float
+  divisionNatFloat ._/_ m n = (natToFloat m) / (natToFloat n)
+
+  plusInt : Plus Int
+  plusInt ._+_ = λ where
+    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
+    (negsuc m) (pos n) -> n - suc m
+    (pos m) (negsuc n) -> m - suc n
+    (pos m) (pos n) -> pos (m + n)
 
   timesInt : Times Int
   timesInt ._*_ = λ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> neg (n * suc m)
-    (negsuc n) (pos m) -> neg (suc n * m)
+    (pos n) (negsuc m) -> - (n * suc m)
+    (negsuc n) (pos m) -> - (suc n * m)
 
-  timesFloat : Times Float
-  timesFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+  negativeInt : Negative Int Int
+  negativeInt .-_ = λ where
+    (pos 0) -> pos 0
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
+
+  minusInt : Minus Int Int
+  minusInt ._-_ m n = m + (- n)
+
+  divisionIntFloat : Division Int Float
+  divisionIntFloat ._/_ = λ where
+    (pos m) (pos n) -> m / n
+    (pos m) (negsuc n) -> - (m / suc n)
+    (negsuc m) (pos n) -> - (suc m / n)
+    (negsuc m) (negsuc n) -> (suc m) / (suc n)
+
+  plusFunction : {{_ : Plus B}} -> Plus (A -> B)
+  plusFunction ._+_ f g x = f x + g x
 
   timesFunction : {{_ : Times B}} -> Times (A -> B)
   timesFunction ._*_ f g x = f x * g x
 
---------------------------------------------------------------------------------
--- Minus
---------------------------------------------------------------------------------
+  negativeFunction : {{_ : Negative B R}} -> Negative (A -> B) (A -> R)
+  negativeFunction .-_ f x = - (f x)
 
-record Minus (A : Set) : Set where
-  infixr 6 _-_
-  field
-    -_ : A -> A
-    _-_ : A -> A -> A
-
-open Minus {{...}} public
-
-instance
-  minusInt : Minus Int
-  minusInt .-_ = λ where
-    (pos 0) -> pos 0
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
-  minusInt ._-_ m n = m + (- n)
-
-  minusFloat : Minus Float
-  minusFloat .-_ = Agda.Builtin.Float.primFloatNegate
-  minusFloat ._-_ = Agda.Builtin.Float.primFloatMinus
-
-  minusFunction : {{_ : Minus B}} -> Minus (A -> B)
-  minusFunction .-_ f x = - (f x)
+  minusFunction : {{_ : Minus B R}} -> Minus (A -> B) (A -> R)
   minusFunction ._-_ f g x = f x - g x
-
---------------------------------------------------------------------------------
--- Division
---------------------------------------------------------------------------------
-
-record Division (A : Set) : Set where
-  infixr 7 _/_
-  field
-    Nonzero : A -> Set
-    _/_ : A -> A -> A
-
-open Division {{...}} public
-  hiding (Nonzero)
-
-instance
-  divisionNat : Division Nat
-  divisionNat = record {
-      Nonzero = λ { 0 -> Void; (suc _) -> Unit } ;
-      _/_ = λ where
-        m (suc n) -> Agda.Builtin.Nat.div-helper 0 n m n
-        _ _ -> 0 -- impossible
-    }
-
-  divisionFloat : Division Float
-  divisionFloat = record {
-      Nonzero = λ x -> if x == 0.0 then Void else Unit;
-      _/_ = λ x y -> Agda.Builtin.Float.primFloatDiv x y
-    }
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -946,6 +936,9 @@ record Profunctor (P : Set -> Set -> Set) : Set where
 open Profunctor {{...}} public
 
 instance
+  profunctorFunction : Profunctor Function
+  profunctorFunction .dimap f g h = g ∘ h ∘ f
+
   bifunctorEither : Bifunctor Either
   bifunctorEither .bimap f g = either (left ∘ f) (right ∘ g)
 
@@ -1001,9 +994,6 @@ instance
 
   functorMax : Functor Max
   functorMax .map f = max: ∘ f ∘ getMax
-
-  profunctorFunction : Profunctor Function
-  profunctorFunction .dimap f g h = g ∘ h ∘ f
 
 --------------------------------------------------------------------------------
 -- Applicative
