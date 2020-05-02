@@ -81,69 +81,6 @@ record Const (A B : Set) : Set where
 
 open Const public
 
--- For additive semigroups, monoids, etc.
-record Sum (A : Set) : Set where
-  constructor sum:
-  field getSum : A
-
-open Sum public
-
--- For multiplicative semigroups, monoids, etc.
-record Product (A : Set) : Set where
-  constructor product:
-  field getProduct : A
-
-open Product public
-
--- For dual semigroups, orders, etc.
-record Dual (A : Set) : Set where
-  constructor dual:
-  field getDual : A
-
-open Dual public
-
--- Semigroup where x <> y = x
-record First (A : Set) : Set where
-  constructor first:
-  field getFirst : A
-
-open First public
-
--- Semigroup where x <> y = y
-record Last (A : Set) : Set where
-  constructor last:
-  field getLast : A
-
-open Last public
-
--- For semigroups, monoids, etc. where x <> y = min x y
-record Min (A : Set) : Set where
-  constructor min:
-  field getMin : A
-
-open Min public
-
--- For Semigroups, monoids, etc. where x <> y = max x y
-record Max (A : Set) : Set where
-  constructor max:
-  field getMax : A
-
-open Max public
-
--- Bool semigroup where x <> y = x || y.
-record Any : Set where
-  constructor any:
-  field getAny : Bool
-
-open Any public
-
--- Bool semigroup where x <> y = x && y.
-record All : Set where
-  constructor all:
-  field getAll : Bool
-
-open All public
-
 -- Endofunctions
 record Endo A : Set where
   constructor endo:
@@ -576,6 +513,122 @@ instance
   ordConst ._<_ (const: a) (const: a') = a < a'
 
 --------------------------------------------------------------------------------
+-- Plus
+--------------------------------------------------------------------------------
+
+record Plus (A : Set) : Set where
+  infixr 6 _+_
+  field _+_ : A -> A -> A
+
+open Plus {{...}} public
+
+instance
+  plusSet : Plus Set
+  plusSet ._+_ = Either
+
+  plusNat : Plus Nat
+  plusNat ._+_ = Agda.Builtin.Nat._+_
+
+  plusInt : Plus Int
+  plusInt ._+_ = λ where
+    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
+    (negsuc m) (pos n) -> sub n (suc m)
+    (pos m) (negsuc n) -> sub m (suc n)
+    (pos m) (pos n) -> pos (m + n)
+
+  plusFloat : Plus Float
+  plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
+
+  plusFunction : {{_ : Plus B}} -> Plus (A -> B)
+  plusFunction ._+_ f g x = f x + g x
+
+--------------------------------------------------------------------------------
+-- Times
+--------------------------------------------------------------------------------
+
+record Times (A : Set) : Set where
+  infixr 7 _*_
+  field _*_ : A -> A -> A
+
+open Times {{...}} public
+
+instance
+  timesSet : Times Set
+  timesSet ._*_ = Either
+
+  timesNat : Times Nat
+  timesNat ._*_ = Agda.Builtin.Nat._*_
+
+  timesInt : Times Int
+  timesInt ._*_ = λ where
+    (pos n) (pos m) -> pos (n * m)
+    (negsuc n) (negsuc m) -> pos (suc n * suc m)
+    (pos n) (negsuc m) -> neg (n * suc m)
+    (negsuc n) (pos m) -> neg (suc n * m)
+
+  timesFloat : Times Float
+  timesFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+
+  timesFunction : {{_ : Times B}} -> Times (A -> B)
+  timesFunction ._*_ f g x = f x * g x
+
+--------------------------------------------------------------------------------
+-- Minus
+--------------------------------------------------------------------------------
+
+record Minus (A : Set) : Set where
+  infixr 6 _-_
+  field
+    -_ : A -> A
+    _-_ : A -> A -> A
+
+open Minus {{...}} public
+
+instance
+  minusInt : Minus Int
+  minusInt .-_ = λ where
+    (pos 0) -> pos 0
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
+  minusInt ._-_ m n = m + (- n)
+
+  minusFloat : Minus Float
+  minusFloat .-_ = Agda.Builtin.Float.primFloatNegate
+  minusFloat ._-_ = Agda.Builtin.Float.primFloatMinus
+
+  minusFunction : {{_ : Minus B}} -> Minus (A -> B)
+  minusFunction .-_ f x = - (f x)
+  minusFunction ._-_ f g x = f x - g x
+
+--------------------------------------------------------------------------------
+-- Division
+--------------------------------------------------------------------------------
+
+record Division (A : Set) : Set where
+  infixr 7 _/_
+  field
+    Nonzero : A -> Set
+    _/_ : A -> A -> A
+
+open Division {{...}} public
+  hiding (Nonzero)
+
+instance
+  divisionNat : Division Nat
+  divisionNat = record {
+      Nonzero = λ { 0 -> Void; (suc _) -> Unit } ;
+      _/_ = λ where
+        m (suc n) -> Agda.Builtin.Nat.div-helper 0 n m n
+        _ _ -> 0 -- impossible
+    }
+
+  divisionFloat : Division Float
+  divisionFloat = record {
+      Nonzero = λ x -> if x == 0.0 then Void else Unit;
+      _/_ = λ x y -> Agda.Builtin.Float.primFloatDiv x y
+    }
+
+--------------------------------------------------------------------------------
 -- Semigroup
 --------------------------------------------------------------------------------
 
@@ -585,13 +638,68 @@ record Semigroup (A : Set) : Set where
 
 open Semigroup {{...}} public
 
-infixr 6 _+_
-_+_ : {{_ : Semigroup (Sum A)}} -> A -> A -> A
-a + a' = getSum (sum: a <> sum: a')
+-- For additive semigroups, monoids, etc.
+record Sum (A : Set) : Set where
+  constructor sum:
+  field getSum : A
 
-infixr 7 _*_
-_*_ : {{_ : Semigroup (Product A)}} -> A -> A -> A
-a * a' = getProduct (product: a <> product: a')
+open Sum public
+
+-- For multiplicative semigroups, monoids, etc.
+record Product (A : Set) : Set where
+  constructor product:
+  field getProduct : A
+
+open Product public
+
+-- For dual semigroups, orders, etc.
+record Dual (A : Set) : Set where
+  constructor dual:
+  field getDual : A
+
+open Dual public
+
+-- Semigroup where x <> y = x
+record First (A : Set) : Set where
+  constructor first:
+  field getFirst : A
+
+open First public
+
+-- Semigroup where x <> y = y
+record Last (A : Set) : Set where
+  constructor last:
+  field getLast : A
+
+open Last public
+
+-- For semigroups, monoids, etc. where x <> y = min x y
+record Min (A : Set) : Set where
+  constructor min:
+  field getMin : A
+
+open Min public
+
+-- For Semigroups, monoids, etc. where x <> y = max x y
+record Max (A : Set) : Set where
+  constructor max:
+  field getMax : A
+
+open Max public
+
+-- Bool semigroup where x <> y = x || y.
+record Any : Set where
+  constructor any:
+  field getAny : Bool
+
+open Any public
+
+-- Bool semigroup where x <> y = x && y.
+record All : Set where
+  constructor all:
+  field getAll : Bool
+
+open All public
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
@@ -609,71 +717,35 @@ instance
   semigroupMax : {{_ : Ord A}} -> Semigroup (Max A)
   semigroupMax ._<>_ (max: a) (max: a') = max: (max a a')
 
-  semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = λ ()
-
-  semigroupSumSet : Semigroup (Sum Set)
-  semigroupSumSet ._<>_ (sum: A) (sum: B) = sum: (Either A B)
-
-  semigroupProductSet : Semigroup (Product Set)
-  semigroupProductSet ._<>_ (product: A) (product: B) = product: (Pair A B)
-
-  semigroupUnit : Semigroup Unit
-  semigroupUnit ._<>_ unit unit = unit
-
   semigroupAny : Semigroup Any
   semigroupAny ._<>_ (any: b) (any: b') = any: (b || b')
 
   semigroupAll : Semigroup All
   semigroupAll ._<>_ (all: b) (all: b') = all: (b && b')
 
+  semigroupVoid : Semigroup Void
+  semigroupVoid ._<>_ = λ ()
+
+  semigroupUnit : Semigroup Unit
+  semigroupUnit ._<>_ unit unit = unit
+
   semigroupSumNat : Semigroup (Sum Nat)
-  semigroupSumNat ._<>_ (sum: m) (sum: n) = sum: (Agda.Builtin.Nat._+_ m n)
+  semigroupSumNat ._<>_ (sum: m) (sum: n) = sum: (m + n)
 
   semigroupProductNat : Semigroup (Product Nat)
-  semigroupProductNat ._<>_ (product: m) (product: n) =
-    product: (Agda.Builtin.Nat._*_ m n)
+  semigroupProductNat ._<>_ (product: x) (product: y) = product: (x * y)
 
   semigroupSumInt : Semigroup (Sum Int)
-  semigroupSumInt ._<>_ (sum: m') (sum: n') =
-    sum: $ case (m' , n') of λ where
-      (negsuc m , negsuc n) -> negsuc (suc (m + n))
-      (negsuc m , pos n) -> sub n (suc m)
-      (pos m , negsuc n) -> sub m (suc n)
-      (pos m , pos n) -> pos (m + n)
+  semigroupSumInt ._<>_ (sum: m) (sum: n) = sum: (m + n)
 
   semigroupProductInt : Semigroup (Product Int)
-  semigroupProductInt ._<>_ (product: n') (product: m') =
-    product: $ case (n' , m') of λ where
-      (pos n , pos m) -> pos (n * m)
-      (negsuc n , negsuc m) -> pos (suc n * suc m)
-      (pos n , negsuc m) -> neg (n * suc m)
-      (negsuc n , pos m) -> neg (suc n * m)
-
-  semigroupSumFloat : Semigroup (Sum Float)
-  semigroupSumFloat ._<>_ (sum: x) (sum: y) =
-    sum: (Agda.Builtin.Float.primFloatPlus x y)
-
-  semigroupProductFloat : Semigroup (Product Float)
-  semigroupProductFloat ._<>_ (product: x) (product: y) =
-    product: (Agda.Builtin.Float.primFloatTimes x y)
+  semigroupProductInt ._<>_ (product: x) (product: y) = product: (x * y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
 
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
   semigroupFunction ._<>_ f g = λ a -> f a <> g a
-
-  semigroupFunctionSum : {{_ : Semigroup (Sum B)}} -> Semigroup (Sum (A -> B))
-  semigroupFunctionSum ._<>_ (sum: f) (sum: g) = sum: (λ a -> f a + g a)
-
-  semigroupFunctionProduct : {{_ : Semigroup (Product B)}}
-    -> Semigroup (Product (A -> B))
-  semigroupFunctionProduct ._<>_ (product: f) (product: g) =
-    product: (λ a -> f a * g a)
-
-  semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g ∘ appEndo f)
 
   semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}}
     -> Semigroup (Either A B)
@@ -704,6 +776,9 @@ instance
   semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
   semigroupConst ._<>_ (const: a) (const: a') = const: (a <> a')
 
+  semigroupEndo : Semigroup (Endo A)
+  semigroupEndo ._<>_ g f = endo: (appEndo g ∘ appEndo f)
+
 --------------------------------------------------------------------------------
 -- Monoid
 --------------------------------------------------------------------------------
@@ -723,19 +798,6 @@ record Monoid (A : Set) : Set where
 
 open Monoid {{...}} public
 
--- For additive monoids
-zero : {{_ : Monoid (Sum A)}} -> A
-zero = getSum neutral
-
--- For multiplicative monoids
-one : {{_ : Monoid (Product A)}} -> A
-one = getProduct neutral
-
-infixr 8 _^_
-_^_ : {{_ : Monoid (Product A)}} -> A -> Nat -> A
-a ^ 0 = one
-a ^ (suc n) = a * a ^ n
-
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
   monoidDual .neutral = dual: neutral
@@ -745,12 +807,6 @@ instance
 
   monoidLast : {{_ : Monoid A}} -> Monoid (Last A)
   monoidLast .neutral = last: neutral
-
-  monoidSumSet : Monoid (Sum Set)
-  monoidSumSet .neutral = sum: Void
-
-  monoidProductSet : Monoid (Product Set)
-  monoidProductSet .neutral = product: Unit
 
   monoidUnit : Monoid Unit
   monoidUnit .neutral = unit
@@ -773,24 +829,11 @@ instance
   monoidProductInt : Monoid (Product Int)
   monoidProductInt .neutral = product: (pos 1)
 
-  monoidSumFloat : Monoid (Sum Float)
-  monoidSumFloat .neutral = sum: 0.0
-
-  monoidProductFloat : Monoid (Product Float)
-  monoidProductFloat .neutral = product: 1.0
-
   monoidString : Monoid String
   monoidString .neutral = ""
 
   monoidFunction : {{_ : Monoid B}} -> Monoid (A -> B)
   monoidFunction .neutral = const neutral
-
-  monoidFunctionSum : {{_ : Monoid (Sum B)}} -> Monoid $ Sum (A -> B)
-  monoidFunctionSum .neutral = sum: (const zero)
-
-  monoidFunctionProduct : {{_ : Monoid (Product B)}}
-    -> Monoid $ Product (A -> B)
-  monoidFunctionProduct .neutral = product: (const one)
 
   monoidEndo : Monoid (Endo A)
   monoidEndo .neutral = endo: id
@@ -809,95 +852,6 @@ instance
 
   monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
   monoidConst .neutral = const: neutral
-
---------------------------------------------------------------------------------
--- Semiring
---------------------------------------------------------------------------------
-
-record Semiring (A : Set) : Set where
-  field
-    {{monoidSum}} : Monoid (Sum A)
-    {{monoidProduct}} : Monoid (Product A)
-    Nonzero : A -> Set
-
-open Semiring {{...}} public
-
-instance
-  semiringNat : Semiring Nat
-  semiringNat .Nonzero 0 = Void
-  semiringNat .Nonzero (suc _) = Unit
-
-  semiringInt : Semiring Int
-  semiringInt .Nonzero (pos 0) = Void
-  semiringInt .Nonzero _ = Unit
-
-  semiringFloat : Semiring Float
-  semiringFloat .Nonzero x = if x == 0.0 then Void else Unit
-
---------------------------------------------------------------------------------
--- EuclideanSemiring
---------------------------------------------------------------------------------
-
-record EuclideanSemiring (A : Set) : Set where
-  field
-    {{super}} : Semiring A
-    degree : A -> Nat
-    quot : (a a' : A) {_ : Nonzero a'} -> A
-    mod : (a a' : A) {_ : Nonzero a'} -> A
-
-open EuclideanSemiring {{...}} public
-
-instance
-  euclideanSemiringNat : EuclideanSemiring Nat
-  euclideanSemiringNat .degree n = n
-  euclideanSemiringNat .quot m 0 = 0 -- unreachable
-  euclideanSemiringNat .quot m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
-  euclideanSemiringNat .mod m 0 = 0 -- unreachable
-  euclideanSemiringNat .mod m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
-
---------------------------------------------------------------------------------
--- Ring
---------------------------------------------------------------------------------
-
-record Ring (A : Set) : Set where
-  infixr 6 _-_
-  field
-    overlap {{super}} : Semiring A
-    -_ : A -> A
-    _-_ : A -> A -> A
-
-  abs : {{_ : Ord A}} -> A -> A
-  abs a = if a < zero then - a else a
-
-open Ring {{...}} public
-
-instance
-  ringInt : Ring Int
-  ringInt .-_ = λ where
-    (pos 0) -> pos 0
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
-  ringInt ._-_ n m = n + (- m)
-
-  ringFloat : Ring Float
-  ringFloat .-_ = Agda.Builtin.Float.primFloatNegate
-  ringFloat ._-_ = Agda.Builtin.Float.primFloatMinus
-
---------------------------------------------------------------------------------
--- Field
---------------------------------------------------------------------------------
-
-record Field (A : Set) : Set where
-  infixr 7 _/_
-  field
-    overlap {{super}} : Ring A
-    _/_ : (a a' : A) -> {_ : Nonzero a'} -> A
-
-open Field {{...}} public
-
-instance
-  fieldFloat : Field Float
-  fieldFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 --------------------------------------------------------------------------------
 -- IsBuildable, Buildable
