@@ -18,7 +18,7 @@ private
 record Strong (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    strong : P A B -> P (C * A) (C * B)
+    strong : P A B -> P (Tuple C A) (Tuple C B)
 
 open Strong {{...}} public
 
@@ -26,7 +26,7 @@ open Strong {{...}} public
 record Choice (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    choice : P A B -> P (C + A) (C + B)
+    choice : P A B -> P (Either C A) (Either C B)
 
 open Choice {{...}} public
 
@@ -329,7 +329,7 @@ sets = id
 --#fst =
 
 --#snd : Lens B C (A * B) (A * C)
-#snd : Simple Lens B (A * B)
+#snd : Simple Lens B (Tuple A B)
 #snd = strong
 --
 --#left : Traversal (A + C) (B + C) A B

@@ -74,7 +74,7 @@ foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (dual: ∘ endo: 
 toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
-lengthOf : Getting (Dual (Endo Nat)) S A -> S -> Nat
+lengthOf : Getting (Dual (Endo Int)) S A -> S -> Int
 lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First A)) S A -> S -> Maybe A
@@ -129,17 +129,17 @@ instance
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
-#fst : Lens (A * C) (B * C) A B
+#fst : Lens (Tuple A C) (Tuple B C) A B
 #fst k (a , c) = (_, c) <$> k a
 
-#snd : Lens (A * B) (A * C) B C
+#snd : Lens (Tuple A B) (Tuple A C) B C
 #snd k (x , y) = (x ,_) <$> k y
 
-#left : Traversal (A + C) (B + C) A B
+#left : Traversal (Either A C) (Either B C) A B
 #left f (left x) = left <$> f x
 #left _ (right y) = pure (right y)
 
-#right : Traversal (A + B) (A + C) B C
+#right : Traversal (Either A B) (Either A C) B C
 #right f (right y) = right <$> f y
 #right _ (left x) = pure (left x)
 

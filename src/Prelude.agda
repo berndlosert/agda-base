@@ -51,8 +51,8 @@ data Either (A B : Set) : Set where
 open import Agda.Builtin.Sigma public
   using (Σ; _,_; fst; snd)
 
-Pair : Set -> Set -> Set
-Pair A B = Σ A (λ _ -> B)
+Tuple : Set -> Set -> Set
+Tuple A B = Σ A (λ _ -> B)
 
 data Maybe (A : Set) : Set where
   nothing : Maybe A
@@ -216,22 +216,22 @@ fromEither : (A -> B) -> Either A B -> B
 fromEither f (left a) = f a
 fromEither _ (right b) = b
 
-split : (A -> B) -> (A -> C) -> A -> Pair B C
+split : (A -> B) -> (A -> C) -> A -> Tuple B C
 split f g a = (f a , g a)
 
-swap : Pair A B -> Pair B A
+swap : Tuple A B -> Tuple B A
 swap = split snd fst
 
-dupe : A -> Pair A A
+dupe : A -> Tuple A A
 dupe a = (a , a)
 
-uncurry : (A -> B -> C) -> Pair A B -> C
+uncurry : (A -> B -> C) -> Tuple A B -> C
 uncurry f (a , b) = f a b
 
-curry : (Pair A B -> C) -> A -> B -> C
+curry : (Tuple A B -> C) -> A -> B -> C
 curry f a b = f (a , b)
 
-apply : Pair (A -> B) A -> B
+apply : Tuple (A -> B) A -> B
 apply = uncurry _$_
 
 isJust : Maybe A -> Bool
@@ -389,8 +389,8 @@ instance
     (right b) (right b') -> b == b'
     _ _ -> false
 
-  eqPair : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Pair A B)
-  eqPair ._==_ (a , b) (a' , b') = (a == a') && (b == b')
+  eqTuple : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Tuple A B)
+  eqTuple ._==_ (a , b) (a' , b') = (a == a') && (b == b')
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = λ where
@@ -488,8 +488,8 @@ instance
   ... | (c :: cs) | (c' :: cs') = c < c' || (c == c' && cs < cs')
   ... | _ | _ = false
 
-  ordPair : {{_ : Ord A}} {{_ : Ord B}} -> Ord (Pair A B)
-  ordPair ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
+  ordTuple : {{_ : Ord A}} {{_ : Ord B}} -> Ord (Tuple A B)
+  ordTuple ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
 
   ordMaybe : {{_ : Ord A}} -> Ord (Maybe A)
   ordMaybe ._<_ = λ where
@@ -535,13 +535,13 @@ instance
 --------------------------------------------------------------------------------
 
 record Plus (A : Set) : Set where
-  infixr 6 _+_
+  infixl 6 _+_
   field _+_ : A -> A -> A
 
 open Plus {{...}} public
 
 record Times (A : Set) : Set where
-  infixr 7 _*_
+  infixl 7 _*_
   field _*_ : A -> A -> A
 
 open Times {{...}} public
@@ -552,24 +552,18 @@ record Negative (A R : Set) : Set where
 open Negative {{...}} public
 
 record Minus (A R : Set) : Set where
-  infixr 6 _-_
+  infixl 6 _-_
   field _-_ : A -> A -> R
 
 open Minus {{...}} public
 
 record Division (A R : Set) : Set where
-  infixr 7 _/_
+  infixl 7 _/_
   field _/_ : A -> A -> R
 
 open Division {{...}} public
 
 instance
-  plusSet : Plus Set
-  plusSet ._+_ = Either
-
-  timesSet : Times Set
-  timesSet ._*_ = Pair
-
   plusFloat : Plus Float
   plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
 
@@ -769,9 +763,9 @@ instance
   semigroupEither ._<>_ (left _) b = b
   semigroupEither ._<>_ a _ = a
 
-  semigroupPair : {{_ : Semigroup A}} {{_ : Semigroup B}}
-    -> Semigroup (Pair A B)
-  semigroupPair ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
+  semigroupTuple : {{_ : Semigroup A}} {{_ : Semigroup B}}
+    -> Semigroup (Tuple A B)
+  semigroupTuple ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
   semigroupMaybe ._<>_ = λ where
@@ -972,11 +966,11 @@ instance
   functorEither : Functor (Either A)
   functorEither .map = second
 
-  bifunctorPair : Bifunctor Pair
-  bifunctorPair .bimap f g = split (f ∘ fst) (g ∘ snd)
+  bifunctorTuple : Bifunctor Tuple
+  bifunctorTuple .bimap f g = split (f ∘ fst) (g ∘ snd)
 
-  functorPair : Functor (Pair A)
-  functorPair .map = second
+  functorTuple : Functor (Tuple A)
+  functorTuple .map = second
 
   functorMaybe : Functor Maybe
   functorMaybe .map f = λ where
@@ -1323,8 +1317,8 @@ instance
   foldableEither .foldMap _ (left _) = neutral
   foldableEither .foldMap f (right x) = f x
 
-  foldablePair : Foldable (Pair A)
-  foldablePair .foldMap f (_ , x) = f x
+  foldableTuple : Foldable (Tuple A)
+  foldableTuple .foldMap f (_ , x) = f x
 
   foldableMaybe : Foldable Maybe
   foldableMaybe .foldMap = maybe neutral
@@ -1342,13 +1336,13 @@ instance
 private
   record StateL (S A : Set) : Set where
     constructor stateL:
-    field runStateL : S -> Pair S A
+    field runStateL : S -> Tuple S A
 
   open StateL
 
   record StateR (S A : Set) : Set where
     constructor stateR:
-    field runStateR : S -> Pair S A
+    field runStateR : S -> Tuple S A
 
   open StateR
 
@@ -1383,10 +1377,10 @@ record Traversable (T : Set -> Set) : Set where
   for : {{_ : Applicative F}} -> T A -> (A -> F B) -> F (T B)
   for = flip traverse
 
-  mapAccumL : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
+  mapAccumL : (A -> B -> Tuple A C) -> A -> T B -> Tuple A (T C)
   mapAccumL f a xs = runStateL (traverse (stateL: ∘ flip f) xs) a
 
-  mapAccumR : (A -> B -> Pair A C) -> A -> T B -> Pair A (T C)
+  mapAccumR : (A -> B -> Tuple A C) -> A -> T B -> Tuple A (T C)
   mapAccumR f a xs = runStateR (traverse (stateR: ∘ flip f) xs) a
 
   scanl : (B -> A -> B) -> B -> T A -> T B
@@ -1403,8 +1397,8 @@ instance
     (left a) -> pure (left a)
     (right x) -> map right (f x)
 
-  traversablePair : Traversable (Pair A)
-  traversablePair .traverse f (a , x) = map (a ,_) (f x)
+  traversableTuple : Traversable (Tuple A)
+  traversableTuple .traverse f (a , x) = map (a ,_) (f x)
 
   traversableMaybe : Traversable Maybe
   traversableMaybe .traverse f = λ where
@@ -1453,8 +1447,8 @@ instance
   showString : Show String
   showString .show = Agda.Builtin.String.primShowString
 
-  showPair : {{_ : Show A}} {{_ : Show B}} -> Show (Pair A B)
-  showPair .show (a , b) = "(" ++ show a ++ " , " ++ show b ++ ")"
+  showTuple : {{_ : Show A}} {{_ : Show B}} -> Show (Tuple A B)
+  showTuple .show (a , b) = "(" ++ show a ++ " , " ++ show b ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = λ where
@@ -1468,11 +1462,12 @@ instance
 
   showList : {{_ : Show A}} -> Show (List A)
   showList .show [] = "[]"
-  showList .show as = "(" ++ show' as ++ ")"
+  showList .show as = "[ " ++ show' as ++ " ]"
     where
       show' : {{_ : Show A}} -> List A -> String
-      show' [] = "[]"
-      show' (a :: as) = show a ++ " :: " ++ show' as
+      show' [] = ""
+      show' (a :: []) = show a
+      show' (a :: as) = show a ++ " , " ++ show' as
 
   showIdentity : {{_ : Show A}} -> Show (Identity A)
   showIdentity .show (identity: a) = "(identity: " ++ show a ++ ")"

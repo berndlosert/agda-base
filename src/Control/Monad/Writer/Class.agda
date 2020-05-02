@@ -11,21 +11,21 @@ record MonadWriter (W : Set) (M : Set -> Set) : Set where
     {{monoid}} : Monoid W
     {{monad}} : Monad M
     tell : W -> M Unit
-    listen : M A -> M (A * W)
-    pass : M (A * (W -> W)) -> M A
+    listen : M A -> M (Tuple A W)
+    pass : M (Tuple A (W -> W)) -> M A
 
-  writer : A * W -> M A
+  writer : Tuple A W -> M A
   writer (a , w) = do
     tell w
     return a
 
-  listens : (W -> B) -> M A -> M (A * B)
+  listens : (W -> B) -> M A -> M (Tuple A B)
   listens f m = do
     (a , w) <- listen m
     return (a , f w)
 
   censor : (W -> W) -> M ~> M
-  censor f m = pass $ do
+  censor f m = pass do
     a <- m
     return (a , f)
 

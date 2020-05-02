@@ -14,7 +14,7 @@ private
 
 record StateT (S : Set) (M : Set -> Set) (A : Set) : Set where
   constructor stateT:
-  field runStateT : S -> M (A * S)
+  field runStateT : S -> M (Tuple A S)
 
 open StateT public
 
@@ -28,7 +28,7 @@ execStateT (stateT: m) s₀ = do
   (_ , s1) <- m s₀
   return s1
 
-mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
+mapStateT : (M (Tuple A S) -> N (Tuple B S)) -> StateT S M A -> StateT S N B
 mapStateT f (stateT: m) = stateT: (f ∘ m)
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A

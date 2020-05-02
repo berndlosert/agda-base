@@ -2,11 +2,13 @@
 
 module Control.Monad.Delay where
 
--- Delay represents processes which must always eventually yield. It is the
--- final coalgebra of the functor X +_.
+open import Prelude
 
 open import Control.Size
 open import Control.Thunk
+
+-- Delay represents processes which must always eventually yield. It is the
+-- final coalgebra of the functor X +_.
 
 data Delay (i : Size) (X : Set) : Set where
   now : X -> Delay i X
@@ -14,14 +16,8 @@ data Delay (i : Size) (X : Set) : Set where
 
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
-open import Data.Either
-open import Data.Function
-
-unfold : ∀ {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
+unfold : ∀ {i X Y} -> (Y -> Either X Y) -> Y -> Delay i X
 unfold f y = either now (λ x -> later λ where .force -> unfold f x) $ f y
-
-open import Data.Maybe
-open import Data.Nat
 
 -- Run a Delay process for at most n steps.
 
@@ -50,10 +46,6 @@ open import Data.Bool
 
 minimize : (Nat -> Bool) -> Delay _ Nat
 minimize test = tryMore (λ n -> if test n then just n else nothing)
-
-open import Control.Category
-open import Control.Monad
-open import Data.Functor
 
 instance
   functorDelay : {i : Size} -> Functor (Delay i)

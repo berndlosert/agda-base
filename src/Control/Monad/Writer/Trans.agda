@@ -14,7 +14,7 @@ private
 
 record WriterT (W : Set) (M : Set -> Set) (A : Set) : Set where
   constructor writerT:
-  field runWriterT : M (A * W)
+  field runWriterT : M (Tuple A W)
 
 open WriterT public
 

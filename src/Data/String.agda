@@ -29,7 +29,7 @@ tail s with unpack s
 ... | [] = nothing
 ... | (_ :: cs) = just (pack cs)
 
-uncons : String -> Maybe (Char * String)
+uncons : String -> Maybe (Tuple Char String)
 uncons s with unpack s
 ... | [] = nothing
 ... | (c :: cs) = just (c , pack cs)
@@ -37,7 +37,7 @@ uncons s with unpack s
 reverse : String -> String
 reverse = repack List.reverse
 
-replicate : Nat -> Char -> String
+replicate : Int -> Char -> String
 replicate n = pack ∘ List.replicate n
 
 intersperse : Char -> String -> String
@@ -49,22 +49,22 @@ takeWhile = repack ∘ List.takeWhile
 dropWhile : (Char -> Bool) -> String -> String
 dropWhile = repack ∘ List.dropWhile
 
-take : Nat -> String -> String
+take : Int -> String -> String
 take = repack ∘ List.take
 
-drop : Nat -> String -> String
+drop : Int -> String -> String
 drop = repack ∘ List.drop
 
-deleteAt : Nat -> String -> String
+deleteAt : Int -> String -> String
 deleteAt = repack ∘ List.deleteAt
 
-modifyAt : Nat -> (Char -> Char) -> String -> String
+modifyAt : Int -> (Char -> Char) -> String -> String
 modifyAt n = repack ∘ List.modifyAt n
 
-setAt : Nat -> Char -> String -> String
+setAt : Int -> Char -> String -> String
 setAt n = repack ∘ List.setAt n
 
-insertAt : Nat -> Char -> String -> String
+insertAt : Int -> Char -> String -> String
 insertAt n = repack ∘ List.insertAt n
 
 isPrefixOf : String -> String -> Bool
@@ -79,24 +79,26 @@ isInfixOf s s' = List.isInfixOf (unpack s) (unpack s')
 isSubsequenceOf : String -> String -> Bool
 isSubsequenceOf s s' = List.isSubsequenceOf (unpack s) (unpack s')
 
-length : String -> Nat
+length : String -> Int
 length = List.length ∘ unpack
 
 filter : (Char -> Bool) -> String -> String
 filter = repack ∘ List.filter
 
-partition : (Char -> Bool) -> String -> String * String
+partition : (Char -> Bool) -> String -> Tuple String String
 partition p s = bimap pack pack (List.partition p (unpack s))
 
-padRight : Nat -> Char -> String -> String
-padRight l c s =
-  let replicated = replicate (monus l (length s)) c
+padRight : Int -> Char -> String -> String
+padRight l@(pos _) c s =
+  let replicated = replicate (l - length s) c
   in s ++ replicated
+padRight _ _ s = s
 
-padLeft : Nat -> Char -> String -> String
-padLeft l c s =
-  let replicated = replicate (monus l (length s)) c
+padLeft : Int -> Char -> String -> String
+padLeft l@(pos _) c s =
+  let replicated = replicate (l - length s) c
   in replicated ++ s
+padLeft _ c s = s
 
 concat : List String -> String
 concat = foldr _++_ ""

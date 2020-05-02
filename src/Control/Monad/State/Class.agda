@@ -12,15 +12,15 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
     get : M S
     put : S -> M Unit
 
-  state : (S -> A * S) -> M A
+  state : (S -> Tuple A S) -> M A
   state f = do
-    s0 <- get
-    let (a , s1) = f s0
-    put s1
+    s₀ <- get
+    let (a , s₁) = f s₀
+    put s₁
     return a
 
   modify : (S -> S) -> M Unit
-  modify f = state $ (λ s -> (unit , f s))
+  modify f = state (λ s -> (unit , f s))
 
   gets : (S -> A) -> M A
   gets f = do
