@@ -20,7 +20,7 @@ open import Agda.Builtin.Bool public
   using (Bool; true; false)
 
 open import Agda.Builtin.Nat public
-  using (Nat; suc)
+  using (Nat; suc; zero)
 
 open import Agda.Builtin.Int public
   using (Int; pos; negsuc)
@@ -121,7 +121,7 @@ if true then a else _ = a
 if false then _ else a = a
 
 natrec : A -> (Nat -> A -> A) -> Nat -> A
-natrec a _ 0 = a
+natrec a _ zero = a
 natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 
 applyN : (A -> A) -> Nat -> A -> A
@@ -131,7 +131,7 @@ monus : Nat -> Nat -> Nat
 monus = Agda.Builtin.Nat._-_
 
 pred : Nat -> Nat
-pred 0 = 0
+pred zero = zero
 pred (suc n) = n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
@@ -504,6 +504,33 @@ instance
   ordConst ._<_ (const: a) (const: a') = a < a'
 
 --------------------------------------------------------------------------------
+-- FromNat and FromNeg
+--------------------------------------------------------------------------------
+
+open import Agda.Builtin.FromNat public
+  renaming (Number to FromNat)
+  using (fromNat)
+
+open import Agda.Builtin.FromNeg public
+  renaming (Negative to FromNeg)
+  using (fromNeg)
+
+instance
+  fromNatInt : FromNat Int
+  fromNatInt = record {
+      Constraint = const Unit;
+      fromNat = λ n -> pos n
+    }
+
+  fromNegInt : FromNeg Int
+  fromNegInt = record {
+      Constraint = const Unit;
+      fromNeg = λ where
+        zero -> pos zero
+        (suc n) -> negsuc n
+    }
+
+--------------------------------------------------------------------------------
 -- Overloadable arithmetic operators
 --------------------------------------------------------------------------------
 
@@ -565,12 +592,12 @@ instance
   timesNat ._*_ = Agda.Builtin.Nat._*_
 
   negativeNatInt : Negative Nat Int
-  negativeNatInt .-_ = λ { 0 -> pos 0;  (suc n) -> negsuc n }
+  negativeNatInt .-_ = λ { zero -> pos zero;  (suc n) -> negsuc n }
 
   minusNatInt : Minus Nat Int
   minusNatInt ._-_ = λ where
-    m 0 -> pos m
-    0 (suc n) -> negsuc n
+    m zero -> pos m
+    zero (suc n) -> negsuc n
     (suc m) (suc n) -> m - n
 
   divisionNatFloat : Division Nat Float
@@ -592,7 +619,7 @@ instance
 
   negativeInt : Negative Int Int
   negativeInt .-_ = λ where
-    (pos 0) -> pos 0
+    (pos zero) -> pos zero
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
 
@@ -808,16 +835,16 @@ instance
   monoidAny .neutral = any: false
 
   monoidSumNat : Monoid (Sum Nat)
-  monoidSumNat .neutral = sum: 0
+  monoidSumNat .neutral = sum: zero
 
   monoidProductNat : Monoid (Product Nat)
-  monoidProductNat .neutral = product: 1
+  monoidProductNat .neutral = product: (suc zero)
 
   monoidSumInt : Monoid (Sum Int)
-  monoidSumInt .neutral = sum: (pos 0)
+  monoidSumInt .neutral = sum: 0
 
   monoidProductInt : Monoid (Product Int)
-  monoidProductInt .neutral = product: (pos 1)
+  monoidProductInt .neutral = product: 1
 
   monoidString : Monoid String
   monoidString .neutral = ""
@@ -1226,7 +1253,7 @@ record IsFoldable (S A : Set) : Set where
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
-  count : S -> Nat
+  count : S -> Int
   count = getSum ∘ foldMap (const $ sum: 1)
 
   all : (A -> Bool) -> S -> Bool
@@ -1289,7 +1316,7 @@ Foldable F = ∀ {A} -> IsFoldable (F A) A
 
 instance
   isFoldableNatUnit : IsFoldable Nat Unit
-  isFoldableNatUnit .foldMap b 0 = neutral
+  isFoldableNatUnit .foldMap b zero = neutral
   isFoldableNatUnit .foldMap b (suc n) = b unit <> foldMap b n
 
   foldableEither : Foldable (Either A)
