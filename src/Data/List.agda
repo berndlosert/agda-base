@@ -30,26 +30,30 @@ uncons (a :: as) = just (a , as)
 reverse : List A -> List A
 reverse = foldl (flip _::_) []
 
-length : List A -> Nat
-length = foldr (const suc) 0
+length : List A -> Int
+length = foldr (const (_+ 1)) 0
 
 --------------------------------------------------------------------------------
 -- Generators
 --------------------------------------------------------------------------------
 
-replicate : Nat -> A -> List A
-replicate n a = applyN (a ::_) n []
+replicate : Int -> A -> List A
+replicate (pos n) a = applyN (a ::_) n []
+replicate _ _ = []
 
-range : Nat -> Nat -> List Nat
+range : Int -> Int -> List Int
 range m n =
     if m < n
-    then go pred (monus n m + 1)
-    else go suc (monus m n + 1)
+    then go (_- 1) (n - m + 1)
+    else go (_+ 1) (m - n + 1)
   where
-    go : (Nat -> Nat) -> Nat -> List Nat
-    go next = flip foldr [] λ where
-      _ [] -> [ n ]
-      _ (k :: ks) -> next k :: k :: ks
+    go : (Int -> Int) -> Int -> List Int
+    go _ (negsuc _) = []
+    go next (pos j) = foldr f [] j
+      where
+        f : Unit -> List Int -> List Int
+        f _ [] = [ n ]
+        f _ (k :: ks) = next k :: k :: ks
 
 --------------------------------------------------------------------------------
 -- Sublists
@@ -63,13 +67,15 @@ dropWhile : (A -> Bool) -> List A -> List A
 dropWhile p = reverse ∘ flip foldl [] λ where
   as a -> if p a then as else (a :: as)
 
-take : Nat -> List A -> List A
-take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) λ where
+take : Int -> List A -> List A
+take (pos n) = reverse ∘ snd ∘ untag ∘ flip foldlM (zero , []) λ where
   (k , s) a -> if k < n then right (suc k , cons a s) else left (suc k , s)
+take _ _ = []
 
-drop : Nat -> List A -> List A
-drop n = reverse ∘ snd ∘ flip foldl (0 , []) λ where
+drop : Int -> List A -> List A
+drop (pos n) = reverse ∘ snd ∘ flip foldl (zero , []) λ where
   (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
+drop _ _ = []
 
 inits : List A -> List (List  A)
 inits s = map (flip take s) $ range 0 (length s)
@@ -93,37 +99,42 @@ stripPrefix _ _ = nothing
 -- Index-based operations
 --------------------------------------------------------------------------------
 
-indexed : List A -> List (Nat * A)
+indexed : List A -> List (Int * A)
 indexed = reverse ∘ flip foldl [] λ where
   [] a -> (0 , a) :: []
-  xs@(h :: t) a' -> (suc (fst h) , a') :: xs
+  xs@(h :: t) a' -> (fst h + 1 , a') :: xs
 
-at : Nat -> List A -> Maybe A
-at n = leftToMaybe ∘ flip foldlM 0 λ
+at : Int -> List A -> Maybe A
+at (pos n) = leftToMaybe ∘ flip foldlM zero λ
   k a -> if k == n then left a else right (suc k)
+at _ _ = nothing
 
-deleteAt : Nat -> List A -> List A
-deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
+deleteAt : Int -> List A -> List A
+deleteAt (pos n) = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then as else (a :: as))
+deleteAt _ as = as
 
-modifyAt : Nat -> (A -> A) -> List A -> List A
-modifyAt n f = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
+modifyAt : Int -> (A -> A) -> List A -> List A
+modifyAt (pos n) f = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then f a :: as else (a :: as))
+modifyAt  _ _ as = as
 
-setAt : Nat -> A -> List A -> List A
+setAt : Int -> A -> List A -> List A
 setAt n a = modifyAt n (const a)
 
-insertAt : Nat -> A -> List A -> List A
-insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
+insertAt : Int -> A -> List A -> List A
+insertAt (pos n) a' = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then a' :: a :: as else (a :: as))
+insertAt _ _ as = as
 
-splitAt : Nat -> List A -> Pair (List A) (List A)
+splitAt : Int -> List A -> Pair (List A) (List A)
 splitAt n as = (take n as , drop n as)
 
-elemAt : Nat -> List A -> Maybe A
+elemAt : Int -> List A -> Maybe A
 elemAt _ [] = nothing
-elemAt 0 (a :: _) = just a
-elemAt (suc i) (_ :: as) = elemAt i as
+elemAt (pos zero) (a :: _) = just a
+elemAt (pos (suc i)) (_ :: as) = elemAt (pos i) as
+elemAt _ _ = nothing
 
 --------------------------------------------------------------------------------
 -- Zipping functions
@@ -144,7 +155,7 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (monus (length heads) (length tails)) []
+    padding = replicate (length heads - length tails) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
