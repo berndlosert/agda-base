@@ -568,7 +568,7 @@ instance
   plusSet ._+_ = Either
 
   timesSet : Times Set
-  timesSet ._*_ = Either
+  timesSet ._*_ = Pair
 
   plusFloat : Plus Float
   plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
