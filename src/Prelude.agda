@@ -138,13 +138,6 @@ foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
 foldZ f g (negsuc n) = g n
 
-Nonneg : Int -> Set
-Nonneg (pos _) = Unit
-Nonneg _ = Void
-
-nonneg : (n : Int) {_ : Nonneg n} -> Nat
-nonneg (pos n) = n
-
 open Agda.Builtin.Float public
   renaming (
     primNatToFloat to natToFloat;
