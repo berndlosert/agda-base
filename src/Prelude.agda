@@ -95,6 +95,8 @@ open Endo public
 open import Agda.Builtin.TrustMe public
   renaming (primTrustMe to trustMe)
 
+postulate believeMe : A
+
 id : A -> A
 id a = a
 
@@ -231,9 +233,16 @@ isJust : Maybe A -> Bool
 isJust (just _) = true
 isJust _ = false
 
+IsJust : Maybe A -> Set
+IsJust (just _) = Unit
+IsJust _ = Void
+
 isNothing : Maybe A -> Bool
 isNothing (just _) = false
 isNothing _ = true
+
+fromJust : (x : Maybe A) {_ : IsJust x} -> A
+fromJust (just a) = a
 
 maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b
