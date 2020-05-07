@@ -88,10 +88,10 @@ drop n = reverse ∘ snd ∘ flip foldl (zero , []) λ where
   (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
 
 inits : List A -> List (List  A)
-inits s = map (flip take s) $ rangeN zero (length s)
+inits = scanl snoc []
 
 tails : List A -> List (List A)
-tails s = map (flip drop s) $ rangeN zero (length s)
+tails = scanr cons []
 
 break : (A -> Bool) -> List A -> Tuple (List A) (List A)
 break p [] = ([] , [])

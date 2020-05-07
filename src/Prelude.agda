@@ -1400,11 +1400,11 @@ record Traversable (T : Set -> Set) : Set where
   mapAccumR : (A -> B -> Tuple A C) -> A -> T B -> Tuple A (T C)
   mapAccumR f a xs = runStateR (traverse (stateR: ∘ flip f) xs) a
 
-  scanl : (B -> A -> B) -> B -> T A -> T B
-  scanl f b₀ xs = snd (mapAccumL (λ b a -> dupe (f b a)) b₀ xs)
+  scanl : {{_ : Buildable T}} -> (B -> A -> B) -> B -> T A -> T B
+  scanl f b₀ xs = uncurry (flip snoc) (mapAccumL (λ b a -> (f b a , b)) b₀ xs)
 
-  scanr : (A -> B -> B) -> B -> T A -> T B
-  scanr f b₀ xs = snd (mapAccumR (λ b a -> dupe (f a b)) b₀ xs)
+  scanr : {{_ : Buildable T}} -> (A -> B -> B) -> B -> T A -> T B
+  scanr f b₀ xs = uncurry cons (mapAccumR (λ b a -> (f a b , b)) b₀ xs)
 
 open Traversable {{...}} public
 
