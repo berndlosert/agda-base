@@ -534,7 +534,8 @@ open Enum {{...}} public
 
 {-# TERMINATING #-}
 range : {{_ : Enum A}} -> A -> A -> List A
-range a a' = a :: maybe [] (flip range a') (case compare a a' of λ where
+range a a' = a :: maybe [] (flip range a') (
+  case compare a a' of λ where
     EQ -> nothing
     LT -> next a
     GT -> prev a

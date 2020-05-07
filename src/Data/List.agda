@@ -40,33 +40,6 @@ length = foldr (const suc) zero
 replicate : Nat -> A -> List A
 replicate n a = applyN (a ::_) n []
 
-rangeZ : Int -> Int -> List Int
-rangeZ m n =
-    if m < n
-    then go (_- 1) (n - m + 1)
-    else go (_+ 1) (m - n + 1)
-  where
-    go : (Int -> Int) -> Int -> List Int
-    go _ (negsuc _) = []
-    go next (pos j) = foldr f [] j
-      where
-        f : Unit -> List Int -> List Int
-        f _ [] = [ n ]
-        f _ (k :: ks) = next k :: k :: ks
-
-rangeN : Nat -> Nat -> List Nat
-rangeN m n =
-    if m < n
-    then go pred (suc $ monus n m)
-    else go suc (suc $ monus m n)
-  where
-    go : (Nat -> Nat) -> Nat -> List Nat
-    go next j = foldr f [] j
-      where
-        f : Unit -> List Nat -> List Nat
-        f _ [] = [ n ]
-        f _ (k :: ks) = next k :: k :: ks
-
 --------------------------------------------------------------------------------
 -- Sublists
 --------------------------------------------------------------------------------
