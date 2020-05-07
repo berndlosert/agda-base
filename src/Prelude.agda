@@ -536,12 +536,8 @@ open Enum {{...}} public
 range : {{_ : Enum A}} -> A -> A -> List A
 range a a' with compare a a'
 ... | EQ = [ a ]
-... | LT = a :: case next a of λ where
-  nothing -> []
-  (just x) -> range x a'
-... | GT = a :: case prev a of λ where
-  nothing -> []
-  (just x) -> range x a'
+... | LT = a :: maybe [] (flip range a') (next a)
+... | GT = a :: maybe [] (flip range a') (prev a)
 
 
 instance
