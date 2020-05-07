@@ -521,6 +521,44 @@ instance
   ordConst ._<_ (const: a) (const: a') = a < a'
 
 --------------------------------------------------------------------------------
+-- Enum
+--------------------------------------------------------------------------------
+
+record Enum (A : Set) : Set where
+  field
+    {{super}} : Ord A
+    next : A -> Maybe A
+    prev : A -> Maybe A
+
+open Enum {{...}} public
+
+{-# TERMINATING #-}
+range : {{_ : Enum A}} -> A -> A -> List A
+range a a' with compare a a'
+... | EQ = [ a ]
+... | LT = a :: case next a of λ where
+  nothing -> []
+  (just x) -> range x a'
+... | GT = a :: case prev a of λ where
+  nothing -> []
+  (just x) -> range x a'
+
+
+instance
+  enumNat : Enum Nat
+  enumNat .next n = just (suc n)
+  enumNat .prev zero = nothing
+  enumNat .prev (suc n) = just n
+
+  enumInt : Enum Int
+  enumInt .next (pos n) = just (pos (suc n))
+  enumInt .next (negsuc zero) = just (pos zero)
+  enumInt .next (negsuc (suc n)) = just (negsuc n)
+  enumInt .prev (pos zero) = just (negsuc zero)
+  enumInt .prev (pos (suc n)) = just (pos n)
+  enumInt .prev (negsuc n) = just (negsuc (suc n))
+
+--------------------------------------------------------------------------------
 -- FromNat and FromNeg
 --------------------------------------------------------------------------------
 
