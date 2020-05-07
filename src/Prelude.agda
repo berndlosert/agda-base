@@ -110,8 +110,12 @@ infixr 0 _$_
 _$_ : (A -> B) -> A -> B
 _$_ = id
 
+infixl 1 _#_
+_#_ : A -> (A -> B) -> B
+_#_ = flip _$_
+
 case_of_ : A -> (A -> B) -> B
-case_of_ = flip _$_
+case_of_ = _#_
 
 infixr 9 _∘_
 _∘_ : (B -> C) -> (A -> B) -> A -> C
@@ -135,6 +139,17 @@ monus = Agda.Builtin.Nat._-_
 pred : Nat -> Nat
 pred zero = zero
 pred (suc n) = n
+
+isPos : Int -> Bool
+isPos (pos _) = true
+isPos _ = false
+
+IsPos : Int -> Set
+IsPos (pos _) = Unit
+IsPos _ = Void
+
+fromPos : (n : Int) {_ : IsPos n} -> Nat
+fromPos (pos n) = n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
@@ -1249,8 +1264,8 @@ record IsFoldable (S A : Set) : Set where
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
-  count : S -> Int
-  count = getSum ∘ foldMap (const $ sum: 1)
+  count : S -> Nat
+  count = getSum ∘ foldMap (const $ sum: (suc zero))
 
   all : (A -> Bool) -> S -> Bool
   all p = getAll ∘ foldMap (all: ∘ p)

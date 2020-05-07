@@ -30,19 +30,18 @@ uncons (a :: as) = just (a , as)
 reverse : List A -> List A
 reverse = foldl (flip _::_) []
 
-length : List A -> Int
-length = foldr (const (_+ 1)) 0
+length : List A -> Nat
+length = foldr (const suc) zero
 
 --------------------------------------------------------------------------------
 -- Generators
 --------------------------------------------------------------------------------
 
-replicate : Int -> A -> List A
-replicate (pos n) a = applyN (a ::_) n []
-replicate _ _ = []
+replicate : Nat -> A -> List A
+replicate n a = applyN (a ::_) n []
 
-range : Int -> Int -> List Int
-range m n =
+rangeZ : Int -> Int -> List Int
+rangeZ m n =
     if m < n
     then go (_- 1) (n - m + 1)
     else go (_+ 1) (m - n + 1)
@@ -52,6 +51,19 @@ range m n =
     go next (pos j) = foldr f [] j
       where
         f : Unit -> List Int -> List Int
+        f _ [] = [ n ]
+        f _ (k :: ks) = next k :: k :: ks
+
+rangeN : Nat -> Nat -> List Nat
+rangeN m n =
+    if m < n
+    then go pred (suc $ monus n m)
+    else go suc (suc $ monus m n)
+  where
+    go : (Nat -> Nat) -> Nat -> List Nat
+    go next j = foldr f [] j
+      where
+        f : Unit -> List Nat -> List Nat
         f _ [] = [ n ]
         f _ (k :: ks) = next k :: k :: ks
 
@@ -67,21 +79,19 @@ dropWhile : (A -> Bool) -> List A -> List A
 dropWhile p = reverse ∘ flip foldl [] λ where
   as a -> if p a then as else (a :: as)
 
-take : Int -> List A -> List A
-take (pos n) = reverse ∘ snd ∘ untag ∘ flip foldlM (zero , []) λ where
+take : Nat -> List A -> List A
+take n = reverse ∘ snd ∘ untag ∘ flip foldlM (zero , []) λ where
   (k , s) a -> if k < n then right (suc k , cons a s) else left (suc k , s)
-take _ _ = []
 
-drop : Int -> List A -> List A
-drop (pos n) = reverse ∘ snd ∘ flip foldl (zero , []) λ where
+drop : Nat -> List A -> List A
+drop n = reverse ∘ snd ∘ flip foldl (zero , []) λ where
   (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
-drop _ _ = []
 
 inits : List A -> List (List  A)
-inits s = map (flip take s) $ range 0 (length s)
+inits s = map (flip take s) $ rangeN zero (length s)
 
 tails : List A -> List (List A)
-tails s = map (flip drop s) $ range 0 (length s)
+tails s = map (flip drop s) $ rangeN zero (length s)
 
 break : (A -> Bool) -> List A -> Tuple (List A) (List A)
 break p [] = ([] , [])
@@ -99,42 +109,37 @@ stripPrefix _ _ = nothing
 -- Index-based operations
 --------------------------------------------------------------------------------
 
-indexed : List A -> List (Tuple Int A)
+indexed : List A -> List (Tuple Nat A)
 indexed = reverse ∘ flip foldl [] λ where
-  [] a -> (0 , a) :: []
-  xs@(h :: t) a' -> (fst h + 1 , a') :: xs
+  [] a -> (zero , a) :: []
+  xs@(h :: t) a' -> (suc (fst h) , a') :: xs
 
-at : Int -> List A -> Maybe A
-at (pos n) = leftToMaybe ∘ flip foldlM zero λ
+at : Nat -> List A -> Maybe A
+at n = leftToMaybe ∘ flip foldlM zero λ
   k a -> if k == n then left a else right (suc k)
-at _ _ = nothing
 
-deleteAt : Int -> List A -> List A
-deleteAt (pos n) = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
+deleteAt : Nat -> List A -> List A
+deleteAt n = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then as else (a :: as))
-deleteAt _ as = as
 
-modifyAt : Int -> (A -> A) -> List A -> List A
-modifyAt (pos n) f = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
+modifyAt : Nat -> (A -> A) -> List A -> List A
+modifyAt n f = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then f a :: as else (a :: as))
-modifyAt  _ _ as = as
 
-setAt : Int -> A -> List A -> List A
+setAt : Nat -> A -> List A -> List A
 setAt n a = modifyAt n (const a)
 
-insertAt : Int -> A -> List A -> List A
-insertAt (pos n) a' = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
+insertAt : Nat -> A -> List A -> List A
+insertAt n a' = reverse ∘ snd ∘ flip foldl (zero , nil) λ where
   (k , as) a -> (suc k , if k == n then a' :: a :: as else (a :: as))
-insertAt _ _ as = as
 
-splitAt : Int -> List A -> Tuple (List A) (List A)
+splitAt : Nat -> List A -> Tuple (List A) (List A)
 splitAt n as = (take n as , drop n as)
 
-elemAt : Int -> List A -> Maybe A
+elemAt : Nat -> List A -> Maybe A
 elemAt _ [] = nothing
-elemAt (pos zero) (a :: _) = just a
-elemAt (pos (suc i)) (_ :: as) = elemAt (pos i) as
-elemAt _ _ = nothing
+elemAt zero (a :: _) = just a
+elemAt (suc n) (_ :: as) = elemAt n as
 
 --------------------------------------------------------------------------------
 -- Zipping functions
@@ -155,7 +160,7 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (length heads - length tails) []
+    padding = replicate (monus (length heads) (length tails)) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
