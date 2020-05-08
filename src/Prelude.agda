@@ -968,6 +968,10 @@ record IsBuildable (S A : Set) : Set where
   snoc : S -> A -> S
   snoc s a = s ++ singleton a
 
+  fromList : List A -> S
+  fromList [] = nil
+  fromList (a :: as) = cons a (fromList as)
+
 open IsBuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
@@ -1332,6 +1336,9 @@ record IsFoldable (S A : Set) : Set where
   foldlM : {{_ : Monad M}} -> (B -> A -> M B) -> B -> S -> M B
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
+
+  toList : S -> List A
+  toList = foldMap [_]
 
   count : S -> Nat
   count = getSum ∘ foldMap (const $ sum: (suc 0))
