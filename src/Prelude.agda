@@ -1215,17 +1215,6 @@ module _ {{_ : Alternative F}} where
   guard true = pure unit
   guard false = empty
 
-  {-# NON_TERMINATING #-}
-  many1 many : F A -> F (List A)
-  many1 a = (| _::_ a (many a) |)
-  many a = many1 a <|> pure []
-
-  optional : F A -> F (Maybe A)
-  optional a = (| just a | nothing |)
-
-  eitherA : F A -> F B -> F (Either A B)
-  eitherA a b = (| left a | right b |)
-
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing

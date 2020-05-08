@@ -41,12 +41,23 @@ abstract
 -- Combinators
 --------------------------------------------------------------------------------
 
+{-# NON_TERMINATING #-}
+many1 many : Parser A -> Parser (List A)
+many1 a = (| _::_ a (many a) |)
+many a = many1 a <|> pure []
+
+optional : Parser A -> Parser (Maybe A)
+optional a = (| just a | nothing |)
+
+eitherP : Parser A -> Parser B -> Parser (Either A B)
+eitherP a b = (| left a | right b |)
+
 choice : List (Parser A) -> Parser A
 choice ps = foldr _<|>_ empty ps
 
 count : Nat -> Parser A -> Parser (List A)
 count 0 p = pure []
-count n p = sequence (List.replicate n p)
+count n p = sequence (replicate n p)
 
 between : Parser A -> Parser B -> Parser C -> Parser C
 between p p' q = p *> (q <* p')

@@ -37,9 +37,6 @@ uncons s with unpack s
 reverse : String -> String
 reverse = repack List.reverse
 
-replicate : Nat -> Char -> String
-replicate n = pack ∘ List.replicate n
-
 intersperse : Char -> String -> String
 intersperse = repack ∘ List.intersperse
 
@@ -106,7 +103,6 @@ concat = foldr _++_ ""
 {-# COMPILE GHC singleton = Text.singleton #-}
 {-# COMPILE GHC snoc = Text.snoc #-}
 {-# COMPILE GHC reverse = Text.reverse #-}
-{-# COMPILE GHC replicate = \ n c -> Text.replicate (fromInteger n) (Text.singleton c) #-}
 {-# COMPILE GHC intersperse = Text.intersperse #-}
 {-# COMPILE GHC takeWhile = Text.takeWhile #-}
 {-# COMPILE GHC dropWhile = Text.dropWhile #-}
