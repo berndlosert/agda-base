@@ -127,7 +127,7 @@ if true then a else _ = a
 if false then _ else a = a
 
 natrec : A -> (Nat -> A -> A) -> Nat -> A
-natrec a _ zero = a
+natrec a _ 0 = a
 natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 
 applyN : (A -> A) -> Nat -> A -> A
@@ -137,11 +137,11 @@ monus : Nat -> Nat -> Nat
 monus = Agda.Builtin.Nat._-_
 
 pred : Nat -> Nat
-pred zero = zero
+pred 0 = 0
 pred (suc n) = n
 
 neg : Nat -> Int
-neg zero = pos zero
+neg 0 = pos 0
 neg (suc n) = negsuc n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
@@ -537,14 +537,14 @@ range a a' = a :: maybe [] (flip range a') (
 instance
   enumNat : Enum Nat
   enumNat .next n = just (suc n)
-  enumNat .prev zero = nothing
+  enumNat .prev 0 = nothing
   enumNat .prev (suc n) = just n
 
   enumInt : Enum Int
   enumInt .next (pos n) = just (pos (suc n))
-  enumInt .next (negsuc zero) = just (pos zero)
+  enumInt .next (negsuc 0) = just (pos 0)
   enumInt .next (negsuc (suc n)) = just (negsuc n)
-  enumInt .prev (pos zero) = just (negsuc zero)
+  enumInt .prev (pos 0) = just (negsuc 0)
   enumInt .prev (pos (suc n)) = just (pos n)
   enumInt .prev (negsuc n) = just (negsuc (suc n))
 
@@ -607,8 +607,8 @@ open Subtraction {{...}} public
 record Division (A : Set) : Set where
   infixl 7 _/_
   field
-    Nonzero : A -> Set
-    _/_ : (a a' : A) {_ : Nonzero a'} -> A
+    Non0 : A -> Set
+    _/_ : (a a' : A) {_ : Non0 a'} -> A
 
 open Division {{...}} public
   using (_/_)
@@ -616,9 +616,9 @@ open Division {{...}} public
 record QuotMod (A : Set) : Set where
   infixl 7 _%_
   field
-    Nonzero : A -> Set
-    quot : (a a' : A) {_ : Nonzero a'} -> A
-    _%_ : (a a' : A) {_ : Nonzero a'} -> A
+    Non0 : A -> Set
+    quot : (a a' : A) {_ : Non0 a'} -> A
+    _%_ : (a a' : A) {_ : Non0 a'} -> A
 
 open QuotMod {{...}} public
   using (quot; _%_)
@@ -636,17 +636,17 @@ instance
       divAux = Agda.Builtin.Nat.div-helper
       modAux = Agda.Builtin.Nat.mod-helper
     in record {
-        Nonzero = λ { zero -> Void; _ -> Unit };
-        quot = λ { m (suc n) -> divAux zero m n m };
-        _%_ = λ { m (suc n) -> modAux zero m n m }
+        Non0 = λ { 0 -> Void; _ -> Unit };
+        quot = λ { m (suc n) -> divAux 0 m n m };
+        _%_ = λ { m (suc n) -> modAux 0 m n m }
       }
 
   additionInt : Addition Int
   additionInt ._+_ = sub
     where
       sub' : Nat -> Nat -> Int
-      sub' m zero = pos m
-      sub' zero (suc n) = negsuc n
+      sub' m 0 = pos m
+      sub' 0 (suc n) = negsuc n
       sub' (suc m) (suc n) = sub' m n
 
       sub : Int -> Int -> Int
@@ -664,7 +664,7 @@ instance
 
   negationInt : Negation Int
   negationInt .-_ = λ where
-    (pos zero) -> pos zero
+    (pos 0) -> pos 0
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
 
@@ -673,7 +673,7 @@ instance
 
   quotModInt : QuotMod Int
   quotModInt = record {
-      Nonzero = λ { (pos 0) -> Void; _ -> Unit };
+      Non0 = λ { (pos 0) -> Void; _ -> Unit };
       quot = λ {
         (pos m) (pos (suc n)) -> pos (quot m (suc n));
         (negsuc m) (pos (suc n)) -> neg (quot (suc m) (suc n));
@@ -702,7 +702,7 @@ instance
 
   divisionFloat : Division Float
   divisionFloat = record {
-      Nonzero = λ { 0.0 -> Void; _ -> Unit };
+      Non0 = λ { 0.0 -> Void; _ -> Unit };
       _/_ = λ x y -> Agda.Builtin.Float.primFloatDiv x y
     }
 
@@ -908,10 +908,10 @@ instance
   monoidAny .neutral = any: false
 
   monoidSumNat : Monoid (Sum Nat)
-  monoidSumNat .neutral = sum: zero
+  monoidSumNat .neutral = sum: 0
 
   monoidProductNat : Monoid (Product Nat)
-  monoidProductNat .neutral = product: (suc zero)
+  monoidProductNat .neutral = product: (suc 0)
 
   monoidSumInt : Monoid (Sum Int)
   monoidSumInt .neutral = sum: 0
@@ -1327,7 +1327,7 @@ record IsFoldable (S A : Set) : Set where
     foldr g return as b
 
   count : S -> Nat
-  count = getSum ∘ foldMap (const $ sum: (suc zero))
+  count = getSum ∘ foldMap (const $ sum: (suc 0))
 
   all : (A -> Bool) -> S -> Bool
   all p = getAll ∘ foldMap (all: ∘ p)
@@ -1389,7 +1389,7 @@ Foldable F = ∀ {A} -> IsFoldable (F A) A
 
 instance
   isFoldableNatUnit : IsFoldable Nat Unit
-  isFoldableNatUnit .foldMap b zero = neutral
+  isFoldableNatUnit .foldMap b 0 = neutral
   isFoldableNatUnit .foldMap b (suc n) = b unit <> foldMap b n
 
   foldableEither : Foldable (Either A)
