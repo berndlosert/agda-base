@@ -23,7 +23,8 @@ execWriterT (writerT: m) = do
   (_ , w) <- m
   return w
 
-mapWriterT : (M (A * W) -> N (B * W')) -> WriterT W M A -> WriterT W' N B
+mapWriterT : (M (Tuple A W) -> N (Tuple B W'))
+  -> WriterT W M A -> WriterT W' N B
 mapWriterT f (writerT: m) = writerT: (f m)
 
 instance

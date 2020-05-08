@@ -166,6 +166,10 @@ open Agda.Builtin.Float public
     primATan2 to atan2
   )
 
+intToFloat : Int -> Float
+intToFloat (pos n) = natToFloat n
+intToFloat (negsuc n) = Agda.Builtin.Float.primFloatMinus -1.0 (natToFloat n)
+
 open Agda.Builtin.Char public
   renaming (
     primIsLower to isLower;
@@ -574,8 +578,14 @@ instance
       fromNeg = λ n -> neg n
     }
 
+  negativeFloat : Negative Float
+  negativeFloat = record {
+      Constraint = const Unit;
+      fromNeg = λ x -> Agda.Builtin.Float.primFloatNegate (natToFloat x)
+    }
+
 --------------------------------------------------------------------------------
--- Arithmetic operators
+-- Arithmetic operations
 --------------------------------------------------------------------------------
 
 record Addition (A : Set) : Set where
@@ -589,6 +599,18 @@ record Multiplication (A : Set) : Set where
   field _*_ : A -> A -> A
 
 open Multiplication {{...}} public
+
+record Power (A : Set) : Set where
+  infixr 8 _^_
+  field _^_ : A -> Nat -> A
+
+open Power {{...}} public
+
+record Exponentiation (A : Set) : Set where
+  infixr 8 _**_
+  field _**_ : A -> A -> A
+
+open Exponentiation {{...}} public
 
 record Negation (A : Set) : Set where
   field -_ : A -> A
@@ -604,8 +626,8 @@ open Subtraction {{...}} public
 record Division (A : Set) : Set where
   infixl 7 _/_
   field
-    Non0 : A -> Set
-    _/_ : (a a' : A) {_ : Non0 a'} -> A
+    Nonzero : A -> Set
+    _/_ : (a a' : A) {_ : Nonzero a'} -> A
 
 open Division {{...}} public
   using (_/_)
@@ -613,12 +635,19 @@ open Division {{...}} public
 record QuotMod (A : Set) : Set where
   infixl 7 _%_
   field
-    Non0 : A -> Set
-    quot : (a a' : A) {_ : Non0 a'} -> A
-    _%_ : (a a' : A) {_ : Non0 a'} -> A
+    Nonzero : A -> Set
+    quot : (a a' : A) {_ : Nonzero a'} -> A
+    _%_ : (a a' : A) {_ : Nonzero a'} -> A
 
 open QuotMod {{...}} public
   using (quot; _%_)
+
+record Signed (A : Set) : Set where
+  field
+    abs : A -> A
+    signum : A -> A
+
+open Signed {{...}} public
 
 instance
   additionNat : Addition Nat
@@ -627,13 +656,21 @@ instance
   multiplicationNat : Multiplication Nat
   multiplicationNat ._*_ = Agda.Builtin.Nat._*_
 
+  powerNat : Power Nat
+  powerNat ._^_ a = λ where
+    0 -> 1
+    (suc n) -> a * a ^ n
+
+  exponentiationNat : Exponentiation Nat
+  exponentiationNat ._**_ = _^_
+
   quotModNat : QuotMod Nat
   quotModNat =
     let
       divAux = Agda.Builtin.Nat.div-helper
       modAux = Agda.Builtin.Nat.mod-helper
     in record {
-        Non0 = λ { 0 -> Void; _ -> Unit };
+        Nonzero = λ { 0 -> Void; _ -> Unit };
         quot = λ { m (suc n) -> divAux 0 m n m };
         _%_ = λ { m (suc n) -> modAux 0 m n m }
       }
@@ -659,6 +696,11 @@ instance
     (pos n) (negsuc m) -> neg (n * suc m)
     (negsuc n) (pos m) -> neg (suc n * m)
 
+  powerInt : Power Int
+  powerInt ._^_ a = λ where
+    0 -> 1
+    (suc n) -> a * a ^ n
+
   negationInt : Negation Int
   negationInt .-_ = λ where
     (pos 0) -> pos 0
@@ -670,7 +712,7 @@ instance
 
   quotModInt : QuotMod Int
   quotModInt = record {
-      Non0 = λ { (pos 0) -> Void; _ -> Unit };
+      Nonzero = λ { (pos 0) -> Void; _ -> Unit };
       quot = λ {
         (pos m) (pos (suc n)) -> pos (quot m (suc n));
         (negsuc m) (pos (suc n)) -> neg (quot (suc m) (suc n));
@@ -685,11 +727,28 @@ instance
       }
     }
 
+  signedInt : Signed Int
+  signedInt .abs = λ where
+    (pos n) -> pos n
+    (negsuc n) -> pos (suc n)
+  signedInt .signum = λ where
+    (pos 0) -> pos 0
+    (pos (suc _)) -> pos 1
+    (negsuc _) -> negsuc 0
+
   additionFloat : Addition Float
   additionFloat ._+_ = Agda.Builtin.Float.primFloatPlus
 
   multiplicationFloat : Multiplication Float
   multiplicationFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+
+  powerFloat : Power Float
+  powerFloat ._^_ a = λ where
+    0 -> 1.0
+    (suc n) -> a * a ^ n
+
+  exponentiationFloat : Exponentiation Float
+  exponentiationFloat ._**_ x y = exp (y * log x)
 
   negationFloat : Negation Float
   negationFloat .-_ = Agda.Builtin.Float.primFloatNegate
@@ -699,9 +758,16 @@ instance
 
   divisionFloat : Division Float
   divisionFloat = record {
-      Non0 = λ { 0.0 -> Void; _ -> Unit };
+      Nonzero = λ { 0.0 -> Void; _ -> Unit };
       _/_ = λ x y -> Agda.Builtin.Float.primFloatDiv x y
     }
+
+  signedFloat : Signed Float
+  signedFloat .abs x = if x < 0.0 then - x else x
+  signedFloat .signum x with compare x 0.0
+  ... | EQ = 0.0
+  ... | LT = -1.0
+  ... | GT = 1.0
 
   additionFunction : {{_ : Addition B}} -> Addition (A -> B)
   additionFunction ._+_ f g x = f x + g x
@@ -714,6 +780,11 @@ instance
 
   subtractionFunction : {{_ : Subtraction B}} -> Subtraction (A -> B)
   subtractionFunction ._-_ f g x = f x - g x
+
+  powerFunction : Power (A -> A)
+  powerFunction ._^_ f = λ where
+    0 -> id
+    (suc n) -> f ∘ f ^ n
 
 --------------------------------------------------------------------------------
 -- Semigroup

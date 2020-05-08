@@ -6,6 +6,9 @@ open import Prelude
 
 open import Control.Monad.State.Trans
 
+open Control.Monad.State.Trans public
+  using (functorStateT; applicativeStateT; monadStateT)
+
 private variable A B S : Set
 
 State : Set -> Set -> Set

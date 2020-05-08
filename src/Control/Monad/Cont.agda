@@ -14,8 +14,8 @@ private variable A B R R' : Set
 Cont : Set -> Set -> Set
 Cont R A = ContT R Identity A
 
-cont: : ((A -> R) -> R) -> Cont R A
-cont: f = contT: (λ c -> identity: (f (runIdentity ∘ c)))
+cont : ((A -> R) -> R) -> Cont R A
+cont f = contT: (λ c -> identity: (f (runIdentity ∘ c)))
 
 runCont : Cont R A -> (A -> R) -> R
 runCont m k = runIdentity (runContT m (identity: ∘ k))

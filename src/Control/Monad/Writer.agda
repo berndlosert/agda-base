@@ -6,13 +6,16 @@ open import Prelude
 
 open import Control.Monad.Writer.Trans
 
+open Control.Monad.Writer.Trans public
+  using (functorWriterT; applicativeWriterT; monadWriterT)
+
 private variable A B W W' : Set
 
 Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
-writer: : Tuple A W -> Writer W A
-writer: = writerT: ∘ identity:
+writer : Tuple A W -> Writer W A
+writer = writerT: ∘ identity:
 
 runWriter : Writer W A -> Tuple A W
 runWriter = runIdentity ∘ runWriterT
