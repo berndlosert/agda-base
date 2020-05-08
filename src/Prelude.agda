@@ -280,6 +280,9 @@ listrec : B -> (A -> List A -> B -> B) -> List A -> B
 listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
 
+replicate : Nat -> A -> List A
+replicate n a = applyN (a ::_) n []
+
 maybeToList : Maybe A -> List A
 maybeToList nothing = []
 maybeToList (just a) = a :: []
@@ -1117,6 +1120,10 @@ record Applicative (F : Set -> Set) : Set where
   map2 : (A -> B -> C) -> F A -> F B -> F C
   map2 f a b = (| f a b |)
 
+  replicateA : Nat -> F A -> F (List A)
+  replicateA 0 _ = pure []
+  replicateA (suc n) a = (| _::_ a (replicateA n a) |)
+
 open Applicative {{...}} public
 
 instance
@@ -1230,9 +1237,6 @@ record Monad (M : Set -> Set) : Set where
     overlap {{super}} : Applicative M
     _>>=_ : M A -> (A -> M B) -> M B
 
-  return : A -> M A
-  return = pure
-
   join : M (M A) -> M A
   join = _>>= id
 
@@ -1241,6 +1245,9 @@ record Monad (M : Set -> Set) : Set where
   _>>_ = _*>_
 
 open Monad {{...}} public
+
+return : ∀ {A M} {{_ : Monad M}} -> A -> M A
+return = pure
 
 instance
   monadEither : Monad (Either A)
