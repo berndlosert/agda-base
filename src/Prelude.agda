@@ -256,9 +256,6 @@ maybe : B -> (A -> B) -> Maybe A -> B
 maybe b f nothing = b
 maybe b f (just a) = f a
 
-fromMaybe : A -> Maybe A -> A
-fromMaybe = flip maybe id
-
 maybeToLeft : B -> Maybe A -> Either A B
 maybeToLeft b = maybe (right b) left
 
@@ -279,9 +276,6 @@ pattern [_] x = x :: []
 listrec : B -> (A -> List A -> B -> B) -> List A -> B
 listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
-
-replicate : Nat -> A -> List A
-replicate n a = applyN (a ::_) n []
 
 maybeToList : Maybe A -> List A
 maybeToList nothing = []
@@ -972,10 +966,29 @@ record IsBuildable (S A : Set) : Set where
   fromList [] = nil
   fromList (a :: as) = cons a (fromList as)
 
+  fromMaybe : Maybe A -> S
+  fromMaybe nothing = nil
+  fromMaybe (just a) = singleton a
+
+  replicate : Nat -> A -> S
+  replicate n a = applyN (cons a) n nil
+
 open IsBuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
 Buildable F = ∀ {A} -> IsBuildable (F A) A
+
+{-# TERMINATING #-}
+unfoldr : {{_ : IsBuildable S A}} -> (B -> Maybe (Tuple A B)) -> B -> S
+unfoldr f b with f b
+... | nothing = nil
+... | (just (a , b')) = cons a (unfoldr f b')
+
+{-# TERMINATING #-}
+unfoldl : {{_ : IsBuildable S A}} -> (B -> Maybe (Tuple B A)) -> B -> S
+unfoldl f b with f b
+... | nothing = nil
+... | (just (b' , a)) = snoc (unfoldl f b') a
 
 instance
   buildableList : Buildable List
@@ -1120,13 +1133,6 @@ record Applicative (F : Set -> Set) : Set where
   infixl 4 _<*_
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
-
-  map2 : (A -> B -> C) -> F A -> F B -> F C
-  map2 f a b = (| f a b |)
-
-  replicateA : Nat -> F A -> F (List A)
-  replicateA 0 _ = pure []
-  replicateA (suc n) a = (| _::_ a (replicateA n a) |)
 
 open Applicative {{...}} public
 
