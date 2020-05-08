@@ -6,6 +6,9 @@ open import Prelude
 
 open import Control.Monad.Cont.Trans
 
+open Control.Monad.Cont.Trans public
+  using (functorContT; applicativeContT; monadContT)
+
 private variable A B R R' : Set
 
 Cont : Set -> Set -> Set
