@@ -140,16 +140,9 @@ pred : Nat -> Nat
 pred zero = zero
 pred (suc n) = n
 
-isPos : Int -> Bool
-isPos (pos _) = true
-isPos _ = false
-
-IsPos : Int -> Set
-IsPos (pos _) = Unit
-IsPos _ = Void
-
-fromPos : (n : Int) {_ : IsPos n} -> Nat
-fromPos (pos n) = n
+neg : Nat -> Int
+neg zero = pos zero
+neg (suc n) = negsuc n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
@@ -541,7 +534,6 @@ range a a' = a :: maybe [] (flip range a') (
     GT -> prev a
   )
 
-
 instance
   enumNat : Enum Nat
   enumNat .next n = just (suc n)
@@ -557,140 +549,174 @@ instance
   enumInt .prev (negsuc n) = just (negsuc (suc n))
 
 --------------------------------------------------------------------------------
--- FromNat and FromNeg
+-- Number and Negative
 --------------------------------------------------------------------------------
 
 open import Agda.Builtin.FromNat public
-  renaming (Number to FromNat)
-  using (fromNat)
+  using (Number; fromNat)
 
 open import Agda.Builtin.FromNeg public
-  renaming (Negative to FromNeg)
-  using (fromNeg)
+  using (Negative; fromNeg)
 
 instance
-  fromNatInt : FromNat Int
-  fromNatInt = record {
+  numberNat : Number Nat
+  numberNat = record {
+      Constraint = const Unit;
+      fromNat = λ n -> n
+    }
+
+  numberInt : Number Int
+  numberInt = record {
       Constraint = const Unit;
       fromNat = λ n -> pos n
     }
 
-  fromNegInt : FromNeg Int
-  fromNegInt = record {
+  negativeInt : Negative Int
+  negativeInt = record {
       Constraint = const Unit;
-      fromNeg = λ where
-        zero -> pos zero
-        (suc n) -> negsuc n
+      fromNeg = λ n -> neg n
     }
 
 --------------------------------------------------------------------------------
--- Overloadable arithmetic operators
+-- Arithmetic operators
 --------------------------------------------------------------------------------
 
-record Plus (A : Set) : Set where
+record Addition (A : Set) : Set where
   infixl 6 _+_
   field _+_ : A -> A -> A
 
-open Plus {{...}} public
+open Addition {{...}} public
 
-record Times (A : Set) : Set where
+record Multiplication (A : Set) : Set where
   infixl 7 _*_
   field _*_ : A -> A -> A
 
-open Times {{...}} public
+open Multiplication {{...}} public
 
-record Negative (A R : Set) : Set where
-  field -_ : A -> R
+record Negation (A : Set) : Set where
+  field -_ : A -> A
 
-open Negative {{...}} public
+open Negation {{...}} public
 
-record Minus (A R : Set) : Set where
+record Subtraction (A : Set) : Set where
   infixl 6 _-_
-  field _-_ : A -> A -> R
+  field _-_ : A -> A -> A
 
-open Minus {{...}} public
+open Subtraction {{...}} public
 
-record Division (A R : Set) : Set where
+record Division (A : Set) : Set where
   infixl 7 _/_
-  field _/_ : A -> A -> R
+  field
+    Nonzero : A -> Set
+    _/_ : (a a' : A) {_ : Nonzero a'} -> A
 
 open Division {{...}} public
+  using (_/_)
+
+record QuotMod (A : Set) : Set where
+  infixl 7 _%_
+  field
+    Nonzero : A -> Set
+    quot : (a a' : A) {_ : Nonzero a'} -> A
+    _%_ : (a a' : A) {_ : Nonzero a'} -> A
+
+open QuotMod {{...}} public
+  using (quot; _%_)
 
 instance
-  plusFloat : Plus Float
-  plusFloat ._+_ = Agda.Builtin.Float.primFloatPlus
+  additionNat : Addition Nat
+  additionNat ._+_ = Agda.Builtin.Nat._+_
 
-  timesFloat : Times Float
-  timesFloat ._*_ = Agda.Builtin.Float.primFloatTimes
+  multiplicationNat : Multiplication Nat
+  multiplicationNat ._*_ = Agda.Builtin.Nat._*_
 
-  negativeFloat : Negative Float Float
-  negativeFloat .-_ = Agda.Builtin.Float.primFloatNegate
+  quotModNat : QuotMod Nat
+  quotModNat =
+    let
+      divAux = Agda.Builtin.Nat.div-helper
+      modAux = Agda.Builtin.Nat.mod-helper
+    in record {
+        Nonzero = λ { zero -> Void; _ -> Unit };
+        quot = λ { m (suc n) -> divAux zero m n m };
+        _%_ = λ { m (suc n) -> modAux zero m n m }
+      }
 
-  minusFloat : Minus Float Float
-  minusFloat ._-_ = Agda.Builtin.Float.primFloatMinus
+  additionInt : Addition Int
+  additionInt ._+_ = sub
+    where
+      sub' : Nat -> Nat -> Int
+      sub' m zero = pos m
+      sub' zero (suc n) = negsuc n
+      sub' (suc m) (suc n) = sub' m n
 
-  divisionFloat : Division Float Float
-  divisionFloat ._/_ = Agda.Builtin.Float.primFloatDiv
+      sub : Int -> Int -> Int
+      sub (negsuc m) (negsuc n) = negsuc (suc (m + n))
+      sub (negsuc m) (pos n) = sub' n (suc m)
+      sub (pos m) (negsuc n) = sub' m (suc n)
+      sub (pos m) (pos n) = pos (m + n)
 
-  plusNat : Plus Nat
-  plusNat ._+_ = Agda.Builtin.Nat._+_
-
-  timesNat : Times Nat
-  timesNat ._*_ = Agda.Builtin.Nat._*_
-
-  negativeNatInt : Negative Nat Int
-  negativeNatInt .-_ = λ { zero -> pos zero;  (suc n) -> negsuc n }
-
-  minusNatInt : Minus Nat Int
-  minusNatInt ._-_ = λ where
-    m zero -> pos m
-    zero (suc n) -> negsuc n
-    (suc m) (suc n) -> m - n
-
-  divisionNatFloat : Division Nat Float
-  divisionNatFloat ._/_ m n = (natToFloat m) / (natToFloat n)
-
-  plusInt : Plus Int
-  plusInt ._+_ = λ where
-    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-    (negsuc m) (pos n) -> n - suc m
-    (pos m) (negsuc n) -> m - suc n
-    (pos m) (pos n) -> pos (m + n)
-
-  timesInt : Times Int
-  timesInt ._*_ = λ where
+  multiplicationInt : Multiplication Int
+  multiplicationInt ._*_ = λ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> - (n * suc m)
-    (negsuc n) (pos m) -> - (suc n * m)
+    (pos n) (negsuc m) -> neg (n * suc m)
+    (negsuc n) (pos m) -> neg (suc n * m)
 
-  negativeInt : Negative Int Int
-  negativeInt .-_ = λ where
+  negationInt : Negation Int
+  negationInt .-_ = λ where
     (pos zero) -> pos zero
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
 
-  minusInt : Minus Int Int
-  minusInt ._-_ m n = m + (- n)
+  subtractionInt : Subtraction Int
+  subtractionInt ._-_ m n = m + (- n)
 
-  divisionIntFloat : Division Int Float
-  divisionIntFloat ._/_ = λ where
-    (pos m) (pos n) -> m / n
-    (pos m) (negsuc n) -> - (m / suc n)
-    (negsuc m) (pos n) -> - (suc m / n)
-    (negsuc m) (negsuc n) -> (suc m) / (suc n)
+  quotModInt : QuotMod Int
+  quotModInt = record {
+      Nonzero = λ { (pos 0) -> Void; _ -> Unit };
+      quot = λ {
+        (pos m) (pos (suc n)) -> pos (quot m (suc n));
+        (negsuc m) (pos (suc n)) -> neg (quot (suc m) (suc n));
+        (pos m) (negsuc n) -> neg (quot m (suc n));
+        (negsuc m) (negsuc n) -> pos (quot (suc m) (suc n))
+      };
+      _%_ = λ {
+        (pos m) (pos (suc n)) -> pos (m % (suc n));
+        (negsuc m) (pos (suc n)) -> neg ((suc m) % (suc n));
+        (pos m) (negsuc n) -> neg (m % (suc n));
+        (negsuc m) (negsuc n) -> pos ((suc m) % (suc n))
+      }
+    }
 
-  plusFunction : {{_ : Plus B}} -> Plus (A -> B)
-  plusFunction ._+_ f g x = f x + g x
+  additionFloat : Addition Float
+  additionFloat ._+_ = Agda.Builtin.Float.primFloatPlus
 
-  timesFunction : {{_ : Times B}} -> Times (A -> B)
-  timesFunction ._*_ f g x = f x * g x
+  multiplicationFloat : Multiplication Float
+  multiplicationFloat ._*_ = Agda.Builtin.Float.primFloatTimes
 
-  negativeFunction : {{_ : Negative B R}} -> Negative (A -> B) (A -> R)
-  negativeFunction .-_ f x = - (f x)
+  negationFloat : Negation Float
+  negationFloat .-_ = Agda.Builtin.Float.primFloatNegate
 
-  minusFunction : {{_ : Minus B R}} -> Minus (A -> B) (A -> R)
-  minusFunction ._-_ f g x = f x - g x
+  subtractionFloat : Subtraction Float
+  subtractionFloat ._-_ = Agda.Builtin.Float.primFloatMinus
+
+  divisionFloat : Division Float
+  divisionFloat = record {
+      Nonzero = λ { 0.0 -> Void; _ -> Unit };
+      _/_ = λ x y -> Agda.Builtin.Float.primFloatDiv x y
+    }
+
+  additionFunction : {{_ : Addition B}} -> Addition (A -> B)
+  additionFunction ._+_ f g x = f x + g x
+
+  multiplicationFunction : {{_ : Multiplication B}} -> Multiplication (A -> B)
+  multiplicationFunction ._*_ f g x = f x * g x
+
+  negationFunction : {{_ : Negation B}} -> Negation (A -> B)
+  negationFunction .-_ f x = - (f x)
+
+  subtractionFunction : {{_ : Subtraction B}} -> Subtraction (A -> B)
+  subtractionFunction ._-_ f g x = f x - g x
 
 --------------------------------------------------------------------------------
 -- Semigroup
