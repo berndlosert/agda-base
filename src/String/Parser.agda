@@ -18,10 +18,10 @@ private variable A B C : Set
 abstract
   Parser = StateT String List
 
-  parser : (String -> List (A * String)) -> Parser A
+  parser : (String -> List (Tuple A String)) -> Parser A
   parser = stateT:
 
-  runParser : Parser A -> String -> List (A * String)
+  runParser : Parser A -> String -> List (Tuple A String)
   runParser = runStateT
 
   instance
@@ -204,7 +204,7 @@ takeAll = takeWhile (const true)
 nat : Parser Nat
 nat = chainl1
     (digit >>= λ n -> return $ monus (ord n) (ord '0'))
-    (return λ m n -> 10 * m + n)
+    (return λ m n -> fromPos 10 * m + n)
 
 int : Parser Int
-int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
+int = (| - (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
