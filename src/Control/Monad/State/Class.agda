@@ -12,7 +12,7 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
     get : M S
     put : S -> M Unit
 
-  state : (S -> Tuple A S) -> M A
+  state : (S -> A * S) -> M A
   state f = do
     s₀ <- get
     let (a , s₁) = f s₀

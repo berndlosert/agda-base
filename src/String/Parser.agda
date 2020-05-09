@@ -18,10 +18,10 @@ private variable A B C : Set
 abstract
   Parser = StateT String List
 
-  parser : (String -> List (Tuple A String)) -> Parser A
+  parser : (String -> List (A * String)) -> Parser A
   parser = stateT:
 
-  runParser : Parser A -> String -> List (Tuple A String)
+  runParser : Parser A -> String -> List (A * String)
   runParser = runStateT
 
   instance
@@ -49,7 +49,7 @@ many a = many1 a <|> pure []
 optional : Parser A -> Parser (Maybe A)
 optional a = (| just a | nothing |)
 
-eitherP : Parser A -> Parser B -> Parser (Either A B)
+eitherP : Parser A -> Parser B -> Parser (A + B)
 eitherP a b = (| left a | right b |)
 
 choice : List (Parser A) -> Parser A

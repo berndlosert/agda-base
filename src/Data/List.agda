@@ -19,7 +19,7 @@ tail : List A -> Maybe (List A)
 tail [] = nothing
 tail (_ :: as) = just as
 
-uncons : List A -> Maybe (Tuple A (List A))
+uncons : List A -> Maybe (A * List A)
 uncons [] = nothing
 uncons (a :: as) = just (a , as)
 
@@ -59,7 +59,7 @@ inits = scanl snoc []
 tails : List A -> List (List A)
 tails = scanr cons []
 
-break : (A -> Bool) -> List A -> Tuple (List A) (List A)
+break : (A -> Bool) -> List A -> List A * List A
 break p [] = ([] , [])
 break p as@(x :: xs) =
   if p x then ([] , as)
@@ -75,7 +75,7 @@ stripPrefix _ _ = nothing
 -- Index-based operations
 --------------------------------------------------------------------------------
 
-indexed : List A -> List (Tuple Nat A)
+indexed : List A -> List (Nat * A)
 indexed = reverse ∘ flip foldl [] λ where
   [] a -> (0 , a) :: []
   xs@(h :: t) a' -> (suc (fst h) , a') :: xs
@@ -99,7 +99,7 @@ insertAt : Nat -> A -> List A -> List A
 insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
   (k , as) a -> (suc k , if k == n then a' :: a :: as else (a :: as))
 
-splitAt : Nat -> List A -> Tuple (List A) (List A)
+splitAt : Nat -> List A -> List A * List A
 splitAt n as = (take n as , drop n as)
 
 elemAt : Nat -> List A -> Maybe A
@@ -116,7 +116,7 @@ zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
-zip : List A -> List B -> List (Tuple A B)
+zip : List A -> List B -> List (A * B)
 zip = zipWith _,_
 
 -- Zips together a list of heads and a list of tails.
@@ -169,7 +169,7 @@ filter : (A -> Bool) -> List A -> List A
 filter p [] = []
 filter p (a :: as) = if p a then a :: filter p as else filter p as
 
-partition : (A -> Bool) -> List A -> Tuple (List A) (List A)
+partition : (A -> Bool) -> List A -> List A * List A
 partition p = flip foldr ([] , []) λ where
   a (ts , fs) -> if p a then (a :: ts , fs) else (ts , a :: fs)
 

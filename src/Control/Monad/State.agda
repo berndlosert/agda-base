@@ -14,10 +14,10 @@ private variable A B S : Set
 State : Set -> Set -> Set
 State S = StateT S Identity
 
-state : (S -> Tuple A S) -> State S A
+state : (S -> A * S) -> State S A
 state t = stateT: (identity: ∘ t)
 
-runState : State S A -> S -> Tuple A S
+runState : State S A -> S -> A * S
 runState m = runIdentity ∘ runStateT m
 
 evalState : State S A -> S -> A
@@ -26,7 +26,7 @@ evalState m s = fst (runState m s)
 execState : State S A -> S -> S
 execState m s = snd (runState m s)
 
-mapState : (Tuple A S -> Tuple B S) -> State S A -> State S B
+mapState : (A * S -> B * S) -> State S A -> State S B
 mapState = mapStateT ∘ map
 
 withState : (S -> S) -> State S ~> State S

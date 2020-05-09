@@ -14,7 +14,7 @@ private
 
 record WriterT (W : Set) (M : Set -> Set) (A : Set) : Set where
   constructor writerT:
-  field runWriterT : M (Tuple A W)
+  field runWriterT : M (A * W)
 
 open WriterT public
 
@@ -23,7 +23,7 @@ execWriterT (writerT: m) = do
   (_ , w) <- m
   return w
 
-mapWriterT : (M (Tuple A W) -> N (Tuple B W'))
+mapWriterT : (M (A * W) -> N (B * W'))
   -> WriterT W M A -> WriterT W' N B
 mapWriterT f (writerT: m) = writerT: (f m)
 

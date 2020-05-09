@@ -14,14 +14,14 @@ private variable A B W W' : Set
 Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
-writer : Tuple A W -> Writer W A
+writer : A * W -> Writer W A
 writer = writerT: ∘ identity:
 
-runWriter : Writer W A -> Tuple A W
+runWriter : Writer W A -> A * W
 runWriter = runIdentity ∘ runWriterT
 
 execWriter : Writer W A -> W
 execWriter m = snd (runWriter m)
 
-mapWriter : (Tuple A W -> Tuple B W') -> Writer W A -> Writer W' B
+mapWriter : (A * W -> B * W') -> Writer W A -> Writer W' B
 mapWriter = mapWriterT ∘ map

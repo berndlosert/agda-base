@@ -18,7 +18,7 @@ private
 record Strong (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    strong : P A B -> P (Tuple C A) (Tuple C B)
+    strong : P A B -> P (C * A) (C * B)
 
 open Strong {{...}} public
 
@@ -26,7 +26,7 @@ open Strong {{...}} public
 record Choice (P : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor P
-    choice : P A B -> P (Either C A) (Either C B)
+    choice : P A B -> P (C + A) (C + B)
 
 open Choice {{...}} public
 
@@ -126,7 +126,7 @@ record Market (A B S T : Set) : Set where
   constructor market:
   field
     build : B -> T
-    match : S -> Either T A
+    match : S -> T + A
 
 -- Corresponds to Grate
 record Grating (A B S T : Set) : Set where
@@ -156,7 +156,7 @@ adapter from to = dimap from to
 lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
 lens get put = dimap (split id get) (uncurry put) ∘ strong
 
-prism : (B -> T) -> (S -> Either T A) -> Prism A B S T
+prism : (B -> T) -> (S -> T + A) -> Prism A B S T
 prism build match = dimap match untag ∘ choice ∘ rmap build
 
 grate : (((S -> A) -> B) -> T) -> Grate A B S T
@@ -286,7 +286,7 @@ instance
 
 --build : Prism A B S T -> B -> T
 --build p = Market.build $ p $ market: id right
---match : Prism A B S T -> S -> Either T A
+--match : Prism A B S T -> S -> T + A
 --match p = Market.match $ p $ market: id right
 
 --degrating : Grate A B S T -> ((S -> A) -> B) -> T
@@ -329,7 +329,7 @@ sets = id
 --#fst =
 
 --#snd : Lens B C (A * B) (A * C)
-#snd : Simple Lens B (Tuple A B)
+#snd : Simple Lens B (A * B)
 #snd = strong
 --
 --#left : Traversal (A + C) (B + C) A B

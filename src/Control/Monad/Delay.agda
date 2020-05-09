@@ -16,7 +16,7 @@ data Delay (i : Size) (X : Set) : Set where
 
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
-unfold : ∀ {i X Y} -> (Y -> Either X Y) -> Y -> Delay i X
+unfold : ∀ {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
 unfold f y = either now (λ x -> later λ where .force -> unfold f x) $ f y
 
 -- Run a Delay process for at most n steps.

@@ -29,7 +29,7 @@ tail s with unpack s
 ... | [] = nothing
 ... | (_ :: cs) = just (pack cs)
 
-uncons : String -> Maybe (Tuple Char String)
+uncons : String -> Maybe (Char * String)
 uncons s with unpack s
 ... | [] = nothing
 ... | (c :: cs) = just (c , pack cs)
@@ -82,7 +82,7 @@ length = List.length ∘ unpack
 filter : (Char -> Bool) -> String -> String
 filter = repack ∘ List.filter
 
-partition : (Char -> Bool) -> String -> Tuple String String
+partition : (Char -> Bool) -> String -> String * String
 partition p s = bimap pack pack (List.partition p (unpack s))
 
 padRight : Nat -> Char -> String -> String
