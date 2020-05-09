@@ -49,7 +49,8 @@ data Either (A B : Set) : Set where
   right : B -> Either A B
 
 open import Agda.Builtin.Sigma public
-  using (Σ; _,_; fst; snd)
+  using (Σ; fst; snd)
+  renaming (_,_ to infixl 4 _,_)
 
 Tuple : Set -> Set -> Set
 Tuple A B = Σ A (λ _ -> B)
@@ -601,7 +602,7 @@ record Multiplication (A : Set) : Set where
 open Multiplication {{...}} public
 
 record Power (A : Set) : Set where
-  infixr 8 _^_
+  infixr 10 _^_
   field _^_ : A -> Nat -> A
 
 open Power {{...}} public
@@ -650,6 +651,18 @@ record Signed (A : Set) : Set where
 open Signed {{...}} public
 
 instance
+  additionSet : Addition Set
+  additionSet ._+_ = Either
+
+  multiplicationSet : Multiplication Set
+  multiplicationSet ._*_ = Tuple
+
+  powerSet : Power Set
+  powerSet ._^_ A = λ where
+    0 -> Unit
+    1 -> A
+    (suc n) -> A ^ n * A
+
   additionNat : Addition Nat
   additionNat ._+_ = Agda.Builtin.Nat._+_
 
@@ -659,7 +672,8 @@ instance
   powerNat : Power Nat
   powerNat ._^_ a = λ where
     0 -> 1
-    (suc n) -> a * a ^ n
+    1 -> a
+    (suc n) -> a ^ n * a
 
   exponentiationNat : Exponentiation Nat
   exponentiationNat ._**_ = _^_
@@ -699,7 +713,8 @@ instance
   powerInt : Power Int
   powerInt ._^_ a = λ where
     0 -> 1
-    (suc n) -> a * a ^ n
+    1 -> a
+    (suc n) -> a ^ n * a
 
   negationInt : Negation Int
   negationInt .-_ = λ where
@@ -745,7 +760,8 @@ instance
   powerFloat : Power Float
   powerFloat ._^_ a = λ where
     0 -> 1.0
-    (suc n) -> a * a ^ n
+    1 -> a
+    (suc n) -> a ^ n * a
 
   exponentiationFloat : Exponentiation Float
   exponentiationFloat ._**_ x y = exp (y * log x)
@@ -784,7 +800,8 @@ instance
   powerFunction : Power (A -> A)
   powerFunction ._^_ f = λ where
     0 -> id
-    (suc n) -> f ∘ f ^ n
+    1 -> f
+    (suc n) -> f ^ n ∘ f
 
 --------------------------------------------------------------------------------
 -- Semigroup
