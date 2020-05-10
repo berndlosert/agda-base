@@ -50,7 +50,7 @@ data Either (A B : Set) : Set where
 
 open import Agda.Builtin.Sigma public
   using (Σ; fst; snd)
-  renaming (_,_ to infixl 4 _,_)
+  renaming (_,_ to infixl 1 _,_)
 
 Tuple : Set -> Set -> Set
 Tuple A B = Σ A (λ _ -> B)

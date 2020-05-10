@@ -247,3 +247,11 @@ sort = sortBy compare
 
 sortOn : {{_ : Ord B}} -> (A -> B) -> List A -> List A
 sortOn f = map snd ∘ sortBy (comparing fst) ∘ map (split f id)
+
+--------------------------------------------------------------------------------
+-- Searching
+--------------------------------------------------------------------------------
+
+lookup : {{_ : Eq A}} -> A -> List (A * B) -> Maybe B
+lookup a [] = nothing
+lookup a ((a' , b) :: xs) = if a == a' then just b else lookup a xs
