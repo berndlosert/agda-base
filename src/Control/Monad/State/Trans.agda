@@ -25,8 +25,8 @@ evalStateT (stateT: m) s = do
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
 execStateT (stateT: m) s₀ = do
-  (_ , s1) <- m s₀
-  return s1
+  (_ , s₁) <- m s₀
+  return s₁
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
 mapStateT f (stateT: m) = stateT: (f ∘ m)
@@ -41,9 +41,9 @@ instance
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT .pure a = stateT: λ s -> return (a , s)
   applicativeStateT ._<*>_ (stateT: mf) (stateT: mx) = stateT: λ s₀ -> do
-      (f , s1) <- mf s₀
-      (x , s2) <- mx s1
-      return (f x , s2)
+      (f , s₁) <- mf s₀
+      (x , s₂) <- mx s₁
+      return (f x , s₂)
 
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
@@ -53,8 +53,8 @@ instance
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
   monadStateT ._>>=_ (stateT: m) k = stateT: λ s₀ -> do
-    (a , s1) <- m s₀
-    runStateT (k a) s1
+    (a , s₁) <- m s₀
+    runStateT (k a) s₁
 
   monadTransStateT : MonadTrans (StateT S)
   monadTransStateT .lift m = stateT: λ s -> do
