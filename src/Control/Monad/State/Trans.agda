@@ -40,10 +40,10 @@ instance
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT .pure a = stateT: λ s -> return (a , s)
-  applicativeStateT ._<*>_ (stateT: mf) (stateT: mx) = stateT: λ s₀ -> do
-      (f , s₁) <- mf s₀
-      (x , s₂) <- mx s₁
-      return (f x , s₂)
+  applicativeStateT ._<*>_ (stateT: f) (stateT: x) = stateT: λ s₀ -> do
+      (g , s₁) <- f s₀
+      (y , s₂) <- x s₁
+      return (g y , s₂)
 
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
