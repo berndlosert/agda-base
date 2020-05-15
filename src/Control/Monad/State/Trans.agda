@@ -65,7 +65,6 @@ instance
   monadTransStateT .lift m = stateT: λ s -> do
     a <- m
     return (a , s)
-  monadTransStateT .transform = monadStateT
   monadTransStateT .tmap f _ = hoist f
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
