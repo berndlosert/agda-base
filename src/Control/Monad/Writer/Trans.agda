@@ -54,7 +54,6 @@ instance
   monadTransWriterT .lift m = writerT: do
     a <- m
     return (a , neutral)
-  monadTransWriterT .transform = monadWriterT
   monadTransWriterT .tmap f _ = hoist f
 
   mmonadWriterT : {{_ : Monoid W}} -> MMonad (WriterT W)
