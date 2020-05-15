@@ -4,6 +4,7 @@ module Control.Monad.Reader.Trans where
 
 open import Prelude
 
+open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.Trans.Class
 
@@ -42,7 +43,10 @@ instance
   monadReaderReaderT .ask = readerT: return
   monadReaderReaderT .local f = withReaderT f
 
+  mfunctorReaderT : MFunctor (ReaderT R)
+  mfunctorReaderT .hoist t (readerT: f) = readerT: (t ∘ f)
+
   monadTransReaderT : MonadTrans (ReaderT R)
   monadTransReaderT .lift = readerT: ∘ const
   monadTransReaderT .transform = monadReaderT
-  monadTransReaderT .tmap f g (readerT: h) = readerT: λ r -> f (h r)
+  monadTransReaderT .tmap f g = hoist f
