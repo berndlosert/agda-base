@@ -71,3 +71,7 @@ instance
   monadWriterWriterT .pass (writerT: m) = writerT: do
     ((a , f) , w) <- m
     return (a , f w)
+
+  monadBaseWriterT : {{_ : Monad M}} {{_ : Monad N}} {{_ : MonadBase M N}}
+    -> {{_ : Monoid W}} -> MonadBase M (WriterT W N)
+  monadBaseWriterT .liftBase m = lift (liftBase m)
