@@ -4,6 +4,8 @@ module Control.Monad.Writer.Trans where
 
 open import Prelude
 
+open import Control.Monad.Base
+open import Control.Monad.Morph
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
 
@@ -45,11 +47,20 @@ instance
     (b , w') <- runWriterT (k a)
     return (b , w <> w')
 
+  mfunctorWriterT : MFunctor (WriterT W)
+  mfunctorWriterT .hoist f = mapWriterT f
+
   monadTransWriterT : {{_ : Monoid W}} -> MonadTrans (WriterT W)
   monadTransWriterT .lift m = writerT: do
     a <- m
     return (a , neutral)
   monadTransWriterT .transform = monadWriterT
+  monadTransWriterT .tmap f _ = hoist f
+
+  mmonadWriterT : {{_ : Monoid W}} -> MMonad (WriterT W)
+  mmonadWriterT .embed k (writerT: m) = writerT: do
+    ((a , w) , w') <- runWriterT (k m)
+    return (a , w <> w')
 
   monadWriterWriterT : {{_ : Monoid W}} {{_ : Monad M}}
     -> MonadWriter W (WriterT W M)
