@@ -50,7 +50,7 @@ instance
   monadTransReaderT : MonadTrans (ReaderT R)
   monadTransReaderT .lift = readerT: ∘ const
   monadTransReaderT .transform = monadReaderT
-  monadTransReaderT .tmap f g = hoist f
+  monadTransReaderT .tmap f _ = hoist f
 
   mmonadReaderT : MMonad (ReaderT R)
   mmonadReaderT .embed k (readerT: f) = readerT: λ r -> runReaderT (k (f r)) r
