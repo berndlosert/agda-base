@@ -4,13 +4,14 @@ module Control.Monad.Cont.Trans where
 
 open import Prelude
 
+open import Control.Monad.Base
 open import Control.Monad.Cont.Class
 open import Control.Monad.Trans.Class
 
 private
   variable
     A B R R' : Set
-    F M : Set -> Set
+    F M N : Set -> Set
 
 record ContT (R : Set) (M : Set -> Set) (A : Set) : Set where
   constructor contT:
@@ -47,6 +48,10 @@ instance
   monadContContT : MonadCont (ContT R M)
   monadContContT .callCC f =
     contT: λ c -> runContT (f λ x -> contT: λ _ -> c x) c
+
+  monadBaseContT : {{_ : Monad M}} {{_ : Monad N}} {{_ : MonadBase M N}}
+    -> MonadBase M (ContT R N)
+  monadBaseContT .liftBase m = lift (liftBase m)
 
 resetT : {{_ : Monad M}} -> ContT R M R -> ContT R' M R
 resetT = lift ∘ evalContT
