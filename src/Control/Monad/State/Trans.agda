@@ -4,6 +4,8 @@ module Control.Monad.State.Trans where
 
 open import Prelude
 
+open import Control.Monad.Base
+open import Control.Monad.Morph
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
@@ -56,11 +58,15 @@ instance
     (a , s₁) <- m s₀
     runStateT (k a) s₁
 
+  mfunctorStateT : MFunctor (StateT S)
+  mfunctorStateT .hoist f = mapStateT f
+
   monadTransStateT : MonadTrans (StateT S)
   monadTransStateT .lift m = stateT: λ s -> do
     a <- m
     return (a , s)
   monadTransStateT .transform = monadStateT
+  monadTransStateT .tmap f _ = hoist f
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
   monadStateStateT .get = stateT: (return ∘ dupe)
