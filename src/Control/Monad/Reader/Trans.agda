@@ -45,3 +45,4 @@ instance
   monadTransReaderT : MonadTrans (ReaderT R)
   monadTransReaderT .lift = readerT: ∘ const
   monadTransReaderT .transform = monadReaderT
+  monadTransReaderT .tmap f g (readerT: h) = readerT: λ r -> f (h r)
