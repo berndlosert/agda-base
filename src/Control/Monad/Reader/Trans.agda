@@ -57,4 +57,4 @@ instance
 
   monadBaseReaderT : {{_ : Monad M}} {{_ : Monad N}} {{_ : MonadBase M N}}
     -> MonadBase M (ReaderT R N)
-  monadBaseReaderT .liftBase m = readerT: λ r -> liftBase m
+  monadBaseReaderT .liftBase m = lift (liftBase m)
