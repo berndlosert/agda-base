@@ -49,7 +49,6 @@ instance
 
   monadTransReaderT : MonadTrans (ReaderT R)
   monadTransReaderT .lift = readerT: ∘ const
-  monadTransReaderT .transform = monadReaderT
   monadTransReaderT .tmap f _ = hoist f
 
   mmonadReaderT : MMonad (ReaderT R)
