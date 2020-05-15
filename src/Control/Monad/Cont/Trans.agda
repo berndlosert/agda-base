@@ -42,6 +42,7 @@ instance
   monadTransContT : MonadTrans (ContT R)
   monadTransContT .lift m = contT: (m >>=_)
   monadTransContT .transform = monadContT
+  monadTransContT .tmap f g (contT: h) = contT: λ k -> f (h (g ∘ k))
 
   monadContContT : MonadCont (ContT R M)
   monadContContT .callCC f =
