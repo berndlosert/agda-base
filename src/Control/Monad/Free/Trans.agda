@@ -4,6 +4,7 @@ module Control.Monad.Free.Trans where
 
 open import Prelude
 
+open import Control.Monad.Base
 open import Control.Monad.Free.Class
 open import Control.Monad.Morph
 open import Control.Monad.Trans.Class
@@ -49,3 +50,7 @@ instance
   monadFreeFreeT : MonadFree F (FreeT F M)
   monadFreeFreeT .wrap x = freeT: λ ret bnd ->
     bnd x (λ f -> runFreeT f ret bnd)
+
+  monadBaseReaderT : {{_ : Monad N}} {{_ : MonadBase M N}}
+    -> MonadBase M (FreeT F N)
+  monadBaseReaderT .liftBase m = lift (liftBase m)
