@@ -45,7 +45,7 @@ instance
   monadReaderReaderT .local f = withReaderT f
 
   mfunctorReaderT : MFunctor (ReaderT R)
-  mfunctorReaderT .hoist t (readerT: f) = readerT: (t ∘ f)
+  mfunctorReaderT .hoist t = mapReaderT t
 
   monadTransReaderT : MonadTrans (ReaderT R)
   monadTransReaderT .lift = readerT: ∘ const
