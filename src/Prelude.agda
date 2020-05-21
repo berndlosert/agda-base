@@ -96,7 +96,15 @@ open Endo public
 open import Agda.Builtin.TrustMe public
   renaming (primTrustMe to trustMe)
 
-postulate believeMe : A
+postulate
+  believeMe : A
+  error : String -> A
+
+{-# FOREIGN GHC import qualified Data.Text #-}
+{-# COMPILE GHC error = \ _ s -> error (Data.Text.unpack s) #-}
+
+undefined : A
+undefined = error "Prelude.undefined"
 
 id : A -> A
 id a = a
