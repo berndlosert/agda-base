@@ -1401,37 +1401,70 @@ instance
   monadMax ._>>=_ (max: x) k = k x
 
 --------------------------------------------------------------------------------
+-- IsNonempty, Nonempty
+--------------------------------------------------------------------------------
+
+record NonemptyConstraint (S : Set) : Set where
+  field IsNonempty : S -> Set
+
+open NonemptyConstraint {{...}} public
+
+abstract
+  Nonempty : Set -> Set
+  Nonempty S = S
+
+  nonempty : {{_ : NonemptyConstraint S}} (s : S) {_ : IsNonempty s}
+    -> Nonempty S
+  nonempty s = s
+
+  getNonempty : Nonempty S -> S
+  getNonempty s = s
+
+instance
+  nonemptyConstraintString : NonemptyConstraint String
+  nonemptyConstraintString .IsNonempty "" = Void
+  nonemptyConstraintString .IsNonempty _ = Unit
+
+  nonemptyConstraintList : NonemptyConstraint (List A)
+  nonemptyConstraintList .IsNonempty [] = Void
+  nonemptyConstraintList .IsNonempty _ = Unit
+
+--------------------------------------------------------------------------------
 -- IsFoldable, Foldable
 --------------------------------------------------------------------------------
 
 record IsFoldable (S A : Set) : Set where
   field foldMap : {{_ : Monoid B}} -> (A -> B) -> S -> B
 
-  foldMap1 : {{_ : Semigroup B}} -> (A -> B) -> S -> Maybe B
-  foldMap1 f = foldMap (just ∘ f)
+  foldMap1 : {{_ : Semigroup B}} -> (A -> B) -> Nonempty S -> B
+  foldMap1 f s = fromJust (foldMap (just ∘ f) (getNonempty s)) {believeMe}
 
   fold : {{_ : Monoid A}} -> S -> A
   fold = foldMap id
 
-  fold1 : {{_ : Semigroup A}} -> S -> Maybe A
-  fold1 = foldMap just
+  fold1 : {{_ : Semigroup A}} -> Nonempty S -> A
+  fold1 s = fromJust (foldMap just (getNonempty s)) {believeMe}
 
   foldr : (A -> B -> B) -> B -> S -> B
   foldr f b as = appEndo (foldMap (endo: ∘ f) as) b
 
-  foldr1 : (A -> A -> A) -> S -> Maybe A
-  foldr1 f = flip foldr nothing λ where
-    a nothing -> just a
-    a (just a') -> just (f a a')
+  foldr1 : (A -> A -> A) -> Nonempty S -> A
+  foldr1 f s = fromJust (foldr g nothing (getNonempty s)) {believeMe}
+    where
+      g : A -> Maybe A -> Maybe A
+      g a nothing = just a
+      g a (just a') = just (f a a')
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
     (appEndo ∘ getDual) (foldMap (dual: ∘ endo: ∘ flip f) as) b
 
-  foldl1 : (A -> A -> A) -> S -> Maybe A
-  foldl1 f = flip foldl nothing λ where
-    nothing a -> just a
-    (just a) a' -> just (f a a')
+  foldl1 : (A -> A -> A) -> Nonempty S -> A
+  foldl1 f s = fromJust (foldl g nothing (getNonempty s)) {believeMe}
+    where
+      g : Maybe A -> A -> Maybe A
+      g nothing a = just a
+      g (just a) a' = just (f a a')
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -1475,10 +1508,10 @@ record IsFoldable (S A : Set) : Set where
 
   module _ {{_ : Ord A}} where
 
-    minimum : S -> Maybe A
+    minimum : Nonempty S -> A
     minimum = foldr1 min
 
-    maximum : S -> Maybe A
+    maximum : Nonempty S -> A
     maximum = foldr1 max
 
   module _ {{_ : Applicative F}} where
