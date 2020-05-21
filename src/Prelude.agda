@@ -142,9 +142,6 @@ natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
 applyN : (A -> A) -> Nat -> A -> A
 applyN f n a = natrec a (const f) n
 
-monus : Nat -> Nat -> Nat
-monus = Agda.Builtin.Nat._-_
-
 pred : Nat -> Nat
 pred 0 = 0
 pred (suc n) = n
@@ -653,13 +650,11 @@ record Division (A : Set) : Set where
 
 open Division {{...}} public
 
-record QuotMod (A : Set) : Set where
+record Modulus (A : Set) : Set where
   infixl 7 _%_
-  field
-    quot : A -> Nonzero A -> A
-    _%_ : A -> Nonzero A -> A
+  field _%_ : A -> Nonzero A -> A
 
-open QuotMod {{...}} public
+open Modulus {{...}} public
 
 record Signed (A : Set) : Set where
   field
@@ -696,32 +691,34 @@ instance
   exponentiationNat : Exponentiation Nat
   exponentiationNat ._**_ = _^_
 
+  subtractionNat : Subtraction Nat
+  subtractionNat ._-_ = Agda.Builtin.Nat._-_
+
   nonzeroConstraintNat : NonzeroConstraint Nat
   nonzeroConstraintNat .IsNonzero 0 = Void
   nonzeroConstraintNat .IsNonzero _ = Unit
 
-  quotModNat : QuotMod Nat
-  quotModNat =
-    let
-      divAux = Agda.Builtin.Nat.div-helper
-      modAux = Agda.Builtin.Nat.mod-helper
-    in λ where
-      .quot m n -> divAux 0 m (pred $ getNonzero n) m
-      ._%_ m n -> modAux 0 m (pred $ getNonzero n) m
+  divisionNat : Division Nat
+  divisionNat ._/_ m n = divAux 0 m (pred $ getNonzero n) m
+    where divAux = Agda.Builtin.Nat.div-helper
+
+  modulusNat : Modulus Nat
+  modulusNat ._%_ m n = modAux 0 m (pred $ getNonzero n) m
+    where modAux = Agda.Builtin.Nat.mod-helper
 
   additionInt : Addition Int
-  additionInt ._+_ = sub
+  additionInt ._+_ = add
     where
       sub' : Nat -> Nat -> Int
       sub' m 0 = pos m
       sub' 0 (suc n) = negsuc n
       sub' (suc m) (suc n) = sub' m n
 
-      sub : Int -> Int -> Int
-      sub (negsuc m) (negsuc n) = negsuc (suc (m + n))
-      sub (negsuc m) (pos n) = sub' n (suc m)
-      sub (pos m) (negsuc n) = sub' m (suc n)
-      sub (pos m) (pos n) = pos (m + n)
+      add : Int -> Int -> Int
+      add (negsuc m) (negsuc n) = negsuc (suc (m + n))
+      add (negsuc m) (pos n) = sub' n (suc m)
+      add (pos m) (negsuc n) = sub' m (suc n)
+      add (pos m) (pos n) = pos (m + n)
 
   multiplicationInt : Multiplication Int
   multiplicationInt ._*_ = λ where
@@ -749,19 +746,21 @@ instance
   nonzeroConstraintInt .IsNonzero (pos 0) = Void
   nonzeroConstraintInt .IsNonzero _ = Unit
 
-  quotModInt : QuotMod Int
-  quotModInt .quot x y with x | getNonzero y
-  ... | pos m | pos (suc n) = pos $ quot m (nonzero (suc n))
-  ... | negsuc m | pos (suc n) = neg $ quot (suc m) (nonzero (suc n))
-  ... | pos m | negsuc n = neg $ quot m (nonzero (suc n))
-  ... | negsuc m | negsuc n = pos $ quot (suc m) (nonzero (suc n))
-  ... | _ | _ = error "quot {{quotModInt}} undefined"
-  quotModInt ._%_ x y with x | getNonzero y
-  ... | pos m | pos (suc n) = pos $ m % (nonzero (suc n))
-  ... | negsuc m | pos (suc n) = neg $ (suc m) % (nonzero (suc n))
-  ... | pos m | negsuc n = neg $ m % (nonzero (suc n))
-  ... | negsuc m | negsuc n = pos $ (suc m) % (nonzero (suc n))
-  ... | _ | _ = error "_%_ {{quotModInt}} undefined"
+  divisionInt : Division Int
+  divisionInt ._/_ x y with x | getNonzero y
+  ... | pos m | pos (suc n) = pos (m / nonzero (suc n))
+  ... | negsuc m | pos (suc n) = neg (suc m / nonzero (suc n))
+  ... | pos m | negsuc n = neg (m / nonzero (suc n))
+  ... | negsuc m | negsuc n = pos (suc m / nonzero (suc n))
+  ... | _ | _ = error "quot {{divisionInt}} undefined"
+
+  modulusInt : Modulus Int
+  modulusInt ._%_ x y with x | getNonzero y
+  ... | pos m | pos (suc n) = pos (m % nonzero (suc n))
+  ... | negsuc m | pos (suc n) = neg (suc m % nonzero (suc n))
+  ... | pos m | negsuc n = neg (m % nonzero (suc n))
+  ... | negsuc m | negsuc n = pos (suc m % nonzero (suc n))
+  ... | _ | _ = error "_%_ {{modulusInt}} undefined"
 
   signedInt : Signed Int
   signedInt .abs = λ where
