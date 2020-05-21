@@ -632,11 +632,20 @@ record Subtraction (A : Set) : Set where
 
 open Subtraction {{...}} public
 
-record Nonzero (A : Set) : Set where
-  constructor nonzero:
-  field getNonzero : A
+record NonzeroConstraint (A : Set) : Set where
+  field IsNonzero : A -> Set
 
-open Nonzero public
+open NonzeroConstraint {{...}}
+
+abstract
+  Nonzero : Set -> Set
+  Nonzero A = A
+
+  nonzero : {{_ : NonzeroConstraint A}} (a : A) {_ : IsNonzero a} -> Nonzero A
+  nonzero a = a
+
+  getNonzero : Nonzero A -> A
+  getNonzero a = a
 
 record Division (A : Set) : Set where
   infixl 7 _/_
@@ -687,16 +696,18 @@ instance
   exponentiationNat : Exponentiation Nat
   exponentiationNat ._**_ = _^_
 
+  nonzeroConstraintNat : NonzeroConstraint Nat
+  nonzeroConstraintNat .IsNonzero 0 = Void
+  nonzeroConstraintNat .IsNonzero _ = Unit
+
   quotModNat : QuotMod Nat
   quotModNat =
     let
       divAux = Agda.Builtin.Nat.div-helper
       modAux = Agda.Builtin.Nat.mod-helper
     in λ where
-      .quot m (nonzero: (suc n)) -> divAux 0 m n m
-      .quot _ _ -> error "quote {{quotModNat}} undefined"
-      ._%_ m (nonzero: (suc n)) -> modAux 0 m n m
-      ._%_ _ _ -> error "_%_ {{quotModNat}} undefined"
+      .quot m n -> divAux 0 m (pred $ getNonzero n) m
+      ._%_ m n -> modAux 0 m (pred $ getNonzero n) m
 
   additionInt : Addition Int
   additionInt ._+_ = sub
@@ -734,18 +745,22 @@ instance
   subtractionInt : Subtraction Int
   subtractionInt ._-_ m n = m + (- n)
 
+  nonzeroConstraintInt : NonzeroConstraint Int
+  nonzeroConstraintInt .IsNonzero (pos 0) = Void
+  nonzeroConstraintInt .IsNonzero _ = Unit
+
   quotModInt : QuotMod Int
-  quotModInt .quot x (nonzero: y) with x | y
-  ... | pos m | pos (suc n) = pos $ quot m (nonzero: $ suc n)
-  ... | negsuc m | pos (suc n) = neg $ quot (suc m) (nonzero: $ suc n)
-  ... | pos m | negsuc n = neg $ quot m (nonzero: $ suc n)
-  ... | negsuc m | negsuc n = pos $ quot (suc m) (nonzero: $ suc n)
+  quotModInt .quot x y with x | getNonzero y
+  ... | pos m | pos (suc n) = pos $ quot m (nonzero (suc n))
+  ... | negsuc m | pos (suc n) = neg $ quot (suc m) (nonzero (suc n))
+  ... | pos m | negsuc n = neg $ quot m (nonzero (suc n))
+  ... | negsuc m | negsuc n = pos $ quot (suc m) (nonzero (suc n))
   ... | _ | _ = error "quot {{quotModInt}} undefined"
-  quotModInt ._%_ x (nonzero: y) with x | y
-  ... | pos m | pos (suc n) = pos $ m % (nonzero: $ suc n)
-  ... | negsuc m | pos (suc n) = neg $ (suc m) % (nonzero: $ suc n)
-  ... | pos m | negsuc n = neg $ m % (nonzero: $ suc n)
-  ... | negsuc m | negsuc n = pos $ (suc m) % (nonzero: $ suc n)
+  quotModInt ._%_ x y with x | getNonzero y
+  ... | pos m | pos (suc n) = pos $ m % (nonzero (suc n))
+  ... | negsuc m | pos (suc n) = neg $ (suc m) % (nonzero (suc n))
+  ... | pos m | negsuc n = neg $ m % (nonzero (suc n))
+  ... | negsuc m | negsuc n = pos $ (suc m) % (nonzero (suc n))
   ... | _ | _ = error "_%_ {{quotModInt}} undefined"
 
   signedInt : Signed Int
@@ -778,8 +793,12 @@ instance
   subtractionFloat : Subtraction Float
   subtractionFloat ._-_ = Agda.Builtin.Float.primFloatMinus
 
+  nonzeroConstraintFloat : NonzeroConstraint Float
+  nonzeroConstraintFloat .IsNonzero 0.0 = Void
+  nonzeroConstraintFloat .IsNonzero _ = Unit
+
   divisionFloat : Division Float
-  divisionFloat ._/_ x (nonzero: y) = Agda.Builtin.Float.primFloatDiv x y
+  divisionFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x (getNonzero y)
 
   signedFloat : Signed Float
   signedFloat .abs x = if x < 0.0 then - x else x
