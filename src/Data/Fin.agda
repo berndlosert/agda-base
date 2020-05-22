@@ -21,8 +21,8 @@ toNat (suc n) = suc (toNat n)
 --instance
 --  Number:Fin : ∀ {n} -> Number (Fin (suc n))
 --  Number:Fin {n} = record {
---      Constraint = λ m -> Assert (m <= n);
---      fromNat = λ m {{p}} -> go m n {p}
+--      Constraint = \ m -> Assert (m <= n);
+--      fromNat = \ m {{p}} -> go m n {p}
 --    }
 --    where
 --      go : ∀ m n -> {_ : Assert (m <= n)} -> Fin (suc n)

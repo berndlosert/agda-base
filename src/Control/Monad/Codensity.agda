@@ -14,8 +14,8 @@ Codensity F X = ∀ {Y} -> (X -> F Y) -> F Y
 
 instance
   monadCodensity : ∀ {F} -> Monad (Codensity F)
-  monadCodensity .return x = λ k -> k x
-  monadCodensity .extend f m = λ k1 -> m (λ k2 -> (f k2) k1)
+  monadCodensity .return x = \ k -> k x
+  monadCodensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
 
 -- And just like any monoid M is a submonoid of X -> X, any monad M is a
 -- "submonad" of Codensity M. The embedding of X in X -> X assigns to each x :
