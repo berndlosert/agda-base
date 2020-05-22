@@ -138,6 +138,10 @@ infixr 9 _<<<_
 _<<<_ : (B -> C) -> (A -> B) -> A -> C
 g <<< f = \ a -> g (f a)
 
+infixr 9 _>>>_
+_>>>_ : (A -> B) -> (B -> C) -> A -> C
+_>>>_ = flip _<<<_
+
 infixr 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
 if true then a else _ = a
