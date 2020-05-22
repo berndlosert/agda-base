@@ -35,7 +35,7 @@ open import Data.Monoid
 run : ∀ {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
-  (return ∘ (_, empty))
+  (return <<< (_, empty))
   (\ { k (x , w) -> map (second (w <>_)) (k x) })
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case

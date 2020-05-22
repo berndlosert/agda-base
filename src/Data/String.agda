@@ -8,13 +8,13 @@ import Prelude
 open Prelude hiding (cons; singleton; snoc)
 
 repack : (List Char -> List Char) -> String -> String
-repack f = pack ∘ f ∘ unpack
+repack f = pack <<< f <<< unpack
 
 cons : Char -> String -> String
 cons c = repack (c ::_)
 
 singleton : Char -> String
-singleton = pack ∘ Prelude.singleton
+singleton = pack <<< Prelude.singleton
 
 snoc : String -> Char -> String
 snoc s c = repack (_++ Prelude.singleton c) s
@@ -38,31 +38,31 @@ reverse : String -> String
 reverse = repack List.reverse
 
 intersperse : Char -> String -> String
-intersperse = repack ∘ List.intersperse
+intersperse = repack <<< List.intersperse
 
 takeWhile : (Char -> Bool) -> String -> String
-takeWhile = repack ∘ List.takeWhile
+takeWhile = repack <<< List.takeWhile
 
 dropWhile : (Char -> Bool) -> String -> String
-dropWhile = repack ∘ List.dropWhile
+dropWhile = repack <<< List.dropWhile
 
 take : Nat -> String -> String
-take = repack ∘ List.take
+take = repack <<< List.take
 
 drop : Nat -> String -> String
-drop = repack ∘ List.drop
+drop = repack <<< List.drop
 
 deleteAt : Nat -> String -> String
-deleteAt = repack ∘ List.deleteAt
+deleteAt = repack <<< List.deleteAt
 
 modifyAt : Nat -> (Char -> Char) -> String -> String
-modifyAt n = repack ∘ List.modifyAt n
+modifyAt n = repack <<< List.modifyAt n
 
 setAt : Nat -> Char -> String -> String
-setAt n = repack ∘ List.setAt n
+setAt n = repack <<< List.setAt n
 
 insertAt : Nat -> Char -> String -> String
-insertAt n = repack ∘ List.insertAt n
+insertAt n = repack <<< List.insertAt n
 
 isPrefixOf : String -> String -> Bool
 isPrefixOf s s' = List.isPrefixOf (unpack s) (unpack s')
@@ -77,10 +77,10 @@ isSubsequenceOf : String -> String -> Bool
 isSubsequenceOf s s' = List.isSubsequenceOf (unpack s) (unpack s')
 
 length : String -> Nat
-length = List.length ∘ unpack
+length = List.length <<< unpack
 
 filter : (Char -> Bool) -> String -> String
-filter = repack ∘ List.filter
+filter = repack <<< List.filter
 
 partition : (Char -> Bool) -> String -> String * String
 partition p s = bimap pack pack (List.partition p (unpack s))

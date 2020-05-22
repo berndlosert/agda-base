@@ -17,7 +17,7 @@ Yoneda F A = ∀ {B} -> (A -> B) -> F B
 -- Yoneda F is a functor.
 instance
   functorYoneda : Functor (Yoneda F)
-  functorYoneda .map f t g = t (g ∘ f)
+  functorYoneda .map f t g = t (g <<< f)
 
 -- The Yoneda lemma states that F A ~= Yoneda C F A. The -> direction
 -- of this isomorphism is called lift.

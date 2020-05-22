@@ -57,19 +57,19 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = const: ∘ getConst ∘ k ∘ f
+to f k = const: <<< getConst <<< k <<< f
 
 view : Getting A S A -> S -> A
-view g = getConst ∘ g const:
+view g = getConst <<< g const:
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = getConst ∘ g (const: ∘ k)
+foldMapOf g k = getConst <<< g (const: <<< k)
 
 foldrOf : Getting (Endo R) S A -> (A -> R -> R) -> R -> S -> R
-foldrOf l f z = flip appEndo z ∘ foldMapOf l (endo: ∘ f)
+foldrOf l f z = flip appEndo z <<< foldMapOf l (endo: <<< f)
 
 foldlOf : Getting (Dual (Endo R)) S A -> (R -> A -> R) -> R -> S -> R
-foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (dual: ∘ endo: ∘ flip f))
+foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (dual: <<< endo: <<< flip f))
 
 toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
@@ -78,15 +78,15 @@ lengthOf : Getting (Dual (Endo Int)) S A -> S -> Int
 lengthOf l = foldlOf l (\ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First A)) S A -> S -> Maybe A
-preview l = map getFirst ∘ foldMapOf l (just ∘ first:)
+preview l = map getFirst <<< foldMapOf l (just <<< first:)
 
 traverseOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
-traverseOf! l f = map (const unit) ∘ foldMapOf l f
+traverseOf! l f = map (const unit) <<< foldMapOf l f
 
 forOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> S -> (A -> F R) -> F Unit
-forOf! = flip ∘ traverseOf!
+forOf! = flip <<< traverseOf!
 
 --------------------------------------------------------------------------------
 -- ASetter operations
@@ -96,13 +96,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = runIdentity ∘ g (identity: ∘ k)
+over g k = runIdentity <<< g (identity: <<< k)
 
 set : ASetter S T A B -> B -> S -> T
-set f b = runIdentity ∘ f (\ _ -> identity: b)
+set f b = runIdentity <<< f (\ _ -> identity: b)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = identity: ∘ f (runIdentity ∘ k)
+sets f k = identity: <<< f (runIdentity <<< k)
 
 --------------------------------------------------------------------------------
 -- Lens operations

@@ -154,20 +154,20 @@ adapter : (S -> A) -> (B -> T) -> Adapter A B S T
 adapter from to = dimap from to
 
 lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
-lens get put = dimap (split id get) (uncurry put) ∘ strong
+lens get put = dimap (split id get) (uncurry put) <<< strong
 
 prism : (B -> T) -> (S -> T + A) -> Prism A B S T
-prism build match = dimap match untag ∘ choice ∘ rmap build
+prism build match = dimap match untag <<< choice <<< rmap build
 
 grate : (((S -> A) -> B) -> T) -> Grate A B S T
-grate degrating = dimap (flip _$_) degrating ∘ closed
+grate degrating = dimap (flip _$_) degrating <<< closed
 
 traversal : (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
   -> Traversal A B S T
 traversal traverse = wander traverse
 
 getter : (S -> A) -> Simple Getter A S
-getter g f = forget: (runForget f ∘ g)
+getter g f = forget: (runForget f <<< g)
 
 --------------------------------------------------------------------------------
 -- Instances
@@ -175,17 +175,17 @@ getter g f = forget: (runForget f ∘ g)
 
 instance
   profunctorForget : Profunctor (Forget R)
-  profunctorForget .dimap f g h = forget: (runForget h ∘ f)
+  profunctorForget .dimap f g h = forget: (runForget h <<< f)
 
   strongForget : Strong (Forget R)
-  strongForget .strong z = forget: (runForget z ∘ snd)
+  strongForget .strong z = forget: (runForget z <<< snd)
 
   choiceForget : {{_ : Monoid R}} -> Choice (Forget R)
   choiceForget .choice z = forget: $ either neutral (runForget z)
 
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
   wanderForget .wander t f =
-    forget: $ getConst ∘ t (const: ∘ runForget f)
+    forget: $ getConst <<< t (const: <<< runForget f)
 
   profunctorTagged : Profunctor Tagged
   profunctorTagged .dimap _ g x = tagged: (g $ unTagged x)
@@ -197,18 +197,18 @@ instance
   closedTagged .closed x = tagged: (const $ unTagged x)
 
   profunctorAdapter : Profunctor (Adapter A B)
-  profunctorAdapter .dimap f g a = dimap f g ∘ a
+  profunctorAdapter .dimap f g a = dimap f g <<< a
 
   profunctorExchange : Profunctor (Exchange A B)
   profunctorExchange .dimap f g (exchange: from to) =
-    exchange: (from ∘ f) (g ∘ to)
+    exchange: (from <<< f) (g <<< to)
 
   profunctorLens : Profunctor (Lens A B)
-  profunctorLens .dimap f g l = dimap f g ∘ l
+  profunctorLens .dimap f g l = dimap f g <<< l
 
   profunctorShop : Profunctor (Shop A B)
   profunctorShop .dimap f g (shop: get put) =
-    shop: (get ∘ f) (\ s -> g ∘ put (f s))
+    shop: (get <<< f) (\ s -> g <<< put (f s))
 
   strongShop : Strong (Shop A B)
   strongShop .strong (shop: get put) = shop: get' put'
@@ -218,11 +218,11 @@ instance
       put' (u , s) y = (u , put s y)
 
   profunctorPrism : Profunctor (Prism A B)
-  profunctorPrism .dimap f g p = dimap f g ∘ p
+  profunctorPrism .dimap f g p = dimap f g <<< p
 
   profunctorMarket : Profunctor (Market A B)
   profunctorMarket .dimap f g (market: build match) =
-      market: (g ∘ build) (first g ∘ match ∘ f)
+      market: (g <<< build) (first g <<< match <<< f)
 
   choiceMarket : Choice (Market A B)
   choiceMarket .choice (market: build match) = market: build' match'
@@ -235,18 +235,18 @@ instance
       ... | right x = right x
 
   profunctorGrate : Profunctor (Grate A B)
-  profunctorGrate .dimap f g r = dimap f g ∘ r
+  profunctorGrate .dimap f g r = dimap f g <<< r
 
   profunctorGrating : Profunctor (Grating A B)
   profunctorGrating .dimap f g (grate: r) =
-    grate: \ d -> g (r \ k -> d (k ∘ f))
+    grate: \ d -> g (r \ k -> d (k <<< f))
 
   closedGrating : Closed (Grating A B)
   closedGrating .closed (grate: degrating) =
     grate: \ f x -> degrating \ k -> f \ g -> k (g x)
 
   profunctorTraversal : Profunctor (Traversal A B)
-  profunctorTraversal .dimap f g t = dimap f g ∘ t
+  profunctorTraversal .dimap f g t = dimap f g <<< t
 
   profunctorBazaar : Profunctor (Bazaar P A B)
   profunctorBazaar .dimap f g (toBazaar b) = toBazaar \ h s -> g <$> b h (f s)
@@ -265,7 +265,7 @@ instance
     h s -> w (b h) s
 
   profunctorSetter : Profunctor (Setter A B)
-  profunctorSetter .dimap f g h k = g ∘ h k ∘ f
+  profunctorSetter .dimap f g h k = g <<< h k <<< f
 
   strongSetter : Strong (Setter A B)
   strongSetter .strong f g (c , a) = (c , f g a)
@@ -300,7 +300,7 @@ traverseOf {A} {B} t = Bazaar.traverseOf (t b)
     b = toBazaar id
 
 to : (S -> A) -> Getter A B S T
-to f (forget: g) = forget: (g ∘ f)
+to f (forget: g) = forget: (g <<< f)
 
 view : Getter A B S T -> S -> A
 view g = runForget $ g (forget: id)

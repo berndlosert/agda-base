@@ -21,4 +21,4 @@ instance
   monoidPredicate .neutral = aPredicate (const true)
 
   functorPredicate : Contravariant Predicate
-  functorPredicate .contramap f (aPredicate p) = aPredicate (p ∘ f)
+  functorPredicate .contramap f (aPredicate p) = aPredicate (p <<< f)
