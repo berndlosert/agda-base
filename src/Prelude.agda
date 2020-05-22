@@ -142,6 +142,10 @@ infixr 9 _>>>_
 _>>>_ : (A -> B) -> (B -> C) -> A -> C
 _>>>_ = flip _<<<_
 
+So : Bool -> Set
+So false = Void
+So true = Unit
+
 infixr 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
 if true then a else _ = a
