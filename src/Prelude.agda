@@ -48,16 +48,24 @@ data Either (A B : Set) : Set where
   left : A -> Either A B
   right : B -> Either A B
 
-open import Agda.Builtin.Sigma public
-  using (Σ; fst; snd)
-  renaming (_,_ to infixl 1 _,_)
+{-# COMPILE GHC Either = data Either (Left | Right) #-}
 
-Tuple : Set -> Set -> Set
-Tuple A B = Σ A (λ _ -> B)
+infixl 1 _,_
+record Tuple (A B : Set) : Set where
+  constructor _,_
+  field
+    fst : A
+    snd : B
+
+open Tuple public
+
+{-# COMPILE GHC Tuple = data (,) ((,)) #-}
 
 data Maybe (A : Set) : Set where
   nothing : Maybe A
   just : A -> Maybe A
+
+{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
 open import Agda.Builtin.List public
   using (List; [])
