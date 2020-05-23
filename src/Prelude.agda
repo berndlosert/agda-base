@@ -645,7 +645,7 @@ instance
   fromNatNonzeroInt : FromNat (Nonzero Int)
   fromNatNonzeroInt = record {
       Constraint = IsNonzero;
-      fromNat = \ { 0 -> undefined; n -> nonzero (pos n) {believeMe} }
+      fromNat = \ n -> nonzero (pos n) {believeMe}
     }
 
   fromNegNonzeroInt : FromNeg (Nonzero Int)
