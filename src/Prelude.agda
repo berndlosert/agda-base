@@ -715,12 +715,16 @@ instance
   nonzeroConstraintNat .IsNonzero _ = Unit
 
   divisionNat : Division Nat
-  divisionNat ._/_ m n = divAux 0 m (pred $ getNonzero n) m
-    where divAux = Agda.Builtin.Nat.div-helper
+  divisionNat ._/_ m n = divAux 0 n-1 m n-1
+    where
+      n-1 = pred (getNonzero n)
+      divAux = Agda.Builtin.Nat.div-helper
 
   modulusNat : Modulus Nat
-  modulusNat ._%_ m n = modAux 0 m (pred $ getNonzero n) m
-    where modAux = Agda.Builtin.Nat.mod-helper
+  modulusNat ._%_ m n = modAux 0 n-1 m n-1
+    where
+      n-1 = pred (getNonzero n)
+      modAux = Agda.Builtin.Nat.mod-helper
 
   additionInt : Addition Int
   additionInt ._+_ = add
