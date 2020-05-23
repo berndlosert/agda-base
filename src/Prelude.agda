@@ -609,7 +609,7 @@ instance
     }
 
 --------------------------------------------------------------------------------
--- Nonzero
+-- IsNonzero, IsPositive, IsNegative
 --------------------------------------------------------------------------------
 
 record NonzeroConstraint (A : Set) : Set where
@@ -617,39 +617,48 @@ record NonzeroConstraint (A : Set) : Set where
 
 open NonzeroConstraint {{...}} public
 
-data Nonzero (A : Set) : Set where
-  nonzero: : {{_ : NonzeroConstraint A}}
-    (a : A) {_ : IsNonzero a} -> Nonzero A
+record PositiveConstraint (A : Set) : Set where
+  field IsPositive : A -> Set
 
-getNonzero : Nonzero A -> A
-getNonzero (nonzero: a) = a
+open PositiveConstraint {{...}} public
+
+record NegativeConstraint (A : Set) : Set where
+  field IsNegative : A -> Set
+
+open NegativeConstraint {{...}} public
 
 instance
   nonzeroConstraintNat : NonzeroConstraint Nat
   nonzeroConstraintNat .IsNonzero 0 = Void
   nonzeroConstraintNat .IsNonzero _ = Unit
 
+  positiveConstraintNat : PositiveConstraint Nat
+  positiveConstraintNat .IsPositive = IsNonzero
+
   nonzeroConstraintInt : NonzeroConstraint Int
   nonzeroConstraintInt .IsNonzero (pos 0) = Void
   nonzeroConstraintInt .IsNonzero _ = Unit
 
-  fromNatNonzeroNat : FromNat (Nonzero Nat)
-  fromNatNonzeroNat = record {
-      Constraint = IsNonzero;
-      fromNat = \ { 0 -> undefined; (suc n) -> nonzero: (suc n) }
-    }
+  positiveConstraintInt : PositiveConstraint Int
+  positiveConstraintInt .IsPositive n with n
+  ... | pos 0 = Void
+  ... | negsuc _ = Void
+  ... | _ = Unit
 
-  fromNatNonzeroInt : FromNat (Nonzero Int)
-  fromNatNonzeroInt = record {
-      Constraint = IsNonzero;
-      fromNat = \ n -> nonzero: (pos n) {believeMe}
-    }
+  negativeConstraintInt : NegativeConstraint Int
+  negativeConstraintInt .IsNegative n with n
+  ... | pos _ = Void
+  ... | _ = Unit
 
-  fromNegNonzeroInt : FromNeg (Nonzero Int)
-  fromNegNonzeroInt = record {
-      Constraint = IsNonzero;
-      fromNeg = \ n -> nonzero: (neg n) {believeMe}
-    }
+  nonzeroConstraintFloat : NonzeroConstraint Float
+  nonzeroConstraintFloat .IsNonzero 0.0 = Void
+  nonzeroConstraintFloat .IsNonzero _ = Unit
+
+  positiveConstraintFloat : PositiveConstraint Float
+  positiveConstraintFloat .IsPositive x = So (x > 0.0)
+
+  negativeConstraintFloat : NegativeConstraint Float
+  negativeConstraintFloat .IsNegative x = So (x < 0.0)
 
 --------------------------------------------------------------------------------
 -- Arithmetic operations
@@ -834,10 +843,6 @@ instance
 
   subtractionFloat : Subtraction Float
   subtractionFloat ._-_ = Agda.Builtin.Float.primFloatMinus
-
-  nonzeroConstraintFloat : NonzeroConstraint Float
-  nonzeroConstraintFloat .IsNonzero 0.0 = Void
-  nonzeroConstraintFloat .IsNonzero _ = Unit
 
   divisionFloat : Division Float
   divisionFloat .DivisionConstraint = const Unit
