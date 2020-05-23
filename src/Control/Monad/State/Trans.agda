@@ -26,9 +26,9 @@ evalStateT (stateT: m) s = do
   return a
 
 execStateT : {{_ : Monad M}} -> StateT S M A -> S -> M S
-execStateT (stateT: m) s₀ = do
-  (_ , s₁) <- m s₀
-  return s₁
+execStateT (stateT: m) s0 = do
+  (_ , s1) <- m s0
+  return s1
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
 mapStateT f (stateT: m) = stateT: (f <<< m)
@@ -38,14 +38,14 @@ withStateT f (stateT: m) = stateT: (m <<< f)
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f (stateT: m) = stateT: \ s₀ -> map (first f) (m s₀)
+  functorStateT .map f (stateT: m) = stateT: \ s0 -> map (first f) (m s0)
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
   applicativeStateT .pure a = stateT: \ s -> return (a , s)
-  applicativeStateT ._<*>_ (stateT: f) (stateT: x) = stateT: \ s₀ -> do
-      (g , s₁) <- f s₀
-      (y , s₂) <- x s₁
-      return (g y , s₂)
+  applicativeStateT ._<*>_ (stateT: f) (stateT: x) = stateT: \ s0 -> do
+      (g , s1) <- f s0
+      (y , s2) <- x s1
+      return (g y , s2)
 
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
@@ -54,9 +54,9 @@ instance
     m s <|> n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ (stateT: m) k = stateT: \ s₀ -> do
-    (a , s₁) <- m s₀
-    runStateT (k a) s₁
+  monadStateT ._>>=_ (stateT: m) k = stateT: \ s0 -> do
+    (a , s1) <- m s0
+    runStateT (k a) s1
 
   mfunctorStateT : MFunctor (StateT S)
   mfunctorStateT .hoist f = mapStateT f

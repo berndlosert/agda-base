@@ -14,9 +14,9 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
 
   state : (S -> A * S) -> M A
   state f = do
-    s₀ <- get
-    let (a , s₁) = f s₀
-    put s₁
+    s0 <- get
+    let (a , s1) = f s0
+    put s1
     return a
 
   modify : (S -> S) -> M Unit

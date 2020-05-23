@@ -1594,22 +1594,22 @@ private
 
   instance
     functorStateL : Functor (StateL S)
-    functorStateL .map f (stateL: t) = stateL: \ s₀ ->
-      let (s₁ , x) = t s₀ in (s₁ , f x)
+    functorStateL .map f (stateL: t) = stateL: \ s0 ->
+      let (s1 , x) = t s0 in (s1 , f x)
 
     functorStateR : Functor (StateR S)
-    functorStateR .map f (stateR: t) = stateR: \ s₀ ->
-      let (s₁ , x) = t s₀ in (s₁ , f x)
+    functorStateR .map f (stateR: t) = stateR: \ s0 ->
+      let (s1 , x) = t s0 in (s1 , f x)
 
     applicativeStateL : Applicative (StateL S)
     applicativeStateL .pure x = stateL: \ s -> (s , x)
-    applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: \ s₀ ->
-      let (s₁ , f') = f s₀; (s₂ , x) = t s₁ in (s₂ , f' x)
+    applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: \ s0 ->
+      let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
     applicativeStateR : Applicative (StateR S)
     applicativeStateR .pure x = stateR: \ s -> (s , x)
-    applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: \ s₀ ->
-      let (s₁ , x) = t s₀; (s₂ , f') = f s₁ in (s₂ , f' x)
+    applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: \ s0 ->
+      let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
 
 record Traversable (T : Set -> Set) : Set where
   field
@@ -1630,10 +1630,10 @@ record Traversable (T : Set -> Set) : Set where
   mapAccumR f a xs = runStateR (traverse (stateR: <<< flip f) xs) a
 
   scanl : {{_ : Buildable T}} -> (B -> A -> B) -> B -> T A -> T B
-  scanl f b₀ xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b₀ xs)
+  scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)
 
   scanr : {{_ : Buildable T}} -> (A -> B -> B) -> B -> T A -> T B
-  scanr f b₀ xs = uncurry cons (mapAccumR (\ b a -> (f a b , b)) b₀ xs)
+  scanr f b0 xs = uncurry cons (mapAccumR (\ b a -> (f a b , b)) b0 xs)
 
 open Traversable {{...}} public
 
