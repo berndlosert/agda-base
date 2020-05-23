@@ -572,7 +572,7 @@ instance
   enumInt .prev (negsuc n) = just (negsuc (suc n))
 
 --------------------------------------------------------------------------------
--- FromNat and Negative
+-- FromNat and FromNeg
 --------------------------------------------------------------------------------
 
 open import Agda.Builtin.FromNat public
@@ -580,7 +580,8 @@ open import Agda.Builtin.FromNat public
   using (fromNat)
 
 open import Agda.Builtin.FromNeg public
-  using (Negative; fromNeg)
+  renaming (Negative to FromNeg)
+  using (fromNeg)
 
 instance
   fromNatNat : FromNat Nat
@@ -595,14 +596,14 @@ instance
       fromNat = \ n -> pos n
     }
 
-  negativeInt : Negative Int
-  negativeInt = record {
+  fromNegInt : FromNeg Int
+  fromNegInt = record {
       Constraint = const Unit;
       fromNeg = \ n -> neg n
     }
 
-  negativeFloat : Negative Float
-  negativeFloat = record {
+  fromNegFloat : FromNeg Float
+  fromNegFloat = record {
       Constraint = const Unit;
       fromNeg = \ x -> Agda.Builtin.Float.primFloatNegate (natToFloat x)
     }
@@ -647,8 +648,8 @@ instance
       fromNat = \ { 0 -> undefined; n -> nonzero (pos n) {believeMe} }
     }
 
-  negativeNonzeroInt : Negative (Nonzero Int)
-  negativeNonzeroInt = record {
+  fromNegNonzeroInt : FromNeg (Nonzero Int)
+  fromNegNonzeroInt = record {
       Constraint = IsNonzero;
       fromNeg = \ n -> nonzero (neg n) {believeMe}
     }
