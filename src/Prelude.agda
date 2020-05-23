@@ -459,17 +459,17 @@ record Ord (A : Set) : Set where
   compare : A -> A -> Ordering
   compare a a' = if a < a' then LT else if a == a' then EQ else GT
 
-  infixl 4 _≤_
-  _≤_ : A -> A -> Bool
-  a ≤ a' = if a < a' then true else if a == a' then true else false
+  infixl 4 _<=_
+  _<=_ : A -> A -> Bool
+  a <= a' = if a < a' then true else if a == a' then true else false
 
   infixl 4 _>_
   _>_ : A -> A -> Bool
   _>_ = flip _<_
 
-  infixl 4 _≥_
-  _≥_ : A -> A -> Bool
-  _≥_ = flip _≤_
+  infixl 4 _>=_
+  _>=_ : A -> A -> Bool
+  _>=_ = flip _<=_
 
   min : A -> A -> A
   min x y = if x < y then x else y
