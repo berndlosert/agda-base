@@ -5,7 +5,6 @@ module System.Random where
 open import Prelude
 
 open import Data.Ref using (Ref; new; read; write; atomicModify)
-open import System.IO.Unsafe using (unsafePerformIO)
 open import System.Time using (getTime)
 
 private variable A G : Set
@@ -29,17 +28,13 @@ record LCG : Set where
   field
     modulus : Nat
     {{isNonzeroModulus}} : IsNonzero modulus
-    multiplier : Nonzero Nat
+    multiplier : Nat
+    {{isNonzeroMultiplier}} : IsNonzero multiplier
     increment : Nat
     seed : Nat
 
   generate : Nat
-  generate = (a * x + c) % m
-    where
-      a = getNonzero multiplier
-      c = increment
-      m = modulus
-      x = seed
+  generate = (multiplier * seed + increment) % modulus
 
 instance
   genLCG : RandomGen LCG
