@@ -796,7 +796,6 @@ instance
   ... | negsuc m | pos (suc n) = neg (suc m / suc n)
   ... | pos m | negsuc n = neg (m / suc n)
   ... | negsuc m | negsuc n = pos (suc m / suc n)
-  ... | _ | _ = error "quot {{divisionInt}} undefined"
 
   modulusInt : Modulus Int
   modulusInt .ModulusConstraint = IsNonzero
@@ -805,7 +804,6 @@ instance
   ... | negsuc m | pos (suc n) = neg (suc m % suc n)
   ... | pos m | negsuc n = pos (m % suc n)
   ... | negsuc m | negsuc n = neg (suc m % suc n)
-  ... | _ | _ = error "_%_ {{modulusInt}} undefined"
 
   signedInt : Signed Int
   signedInt .abs = \ where
