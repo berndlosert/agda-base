@@ -4,6 +4,10 @@ module System.Random where
 
 open import Prelude
 
+open import Data.Ref using (Ref; new; read; write)
+open import System.IO.Unsafe using (unsafePerformIO)
+open import System.Time using (getTime)
+
 private variable A G : Set
 
 --------------------------------------------------------------------------------
@@ -18,7 +22,7 @@ record RandomGen (G : Set) : Set where
 open RandomGen {{...}} public
 
 --------------------------------------------------------------------------------
--- LCG (Linear congruential generator)
+-- LCG
 --------------------------------------------------------------------------------
 
 record LCG : Set where
@@ -44,13 +48,33 @@ instance
       n = LCG.generate g
       g' = record g { seed = n }
 
-StdGen : LCG
-StdGen = record {
+--------------------------------------------------------------------------------
+-- StdGen
+--------------------------------------------------------------------------------
+
+mkStdGen : Nat -> LCG
+mkStdGen n = record {
     modulus = nonzero (2 ** 48);
     multiplier = nonzero 25214903917;
     increment = 11;
-    seed = 1
+    seed = n
   }
+
+private
+  theStdGen : IO (Ref LCG)
+  theStdGen = do
+    t <- getTime
+    new (mkStdGen t)
+
+getStdGen : IO LCG
+getStdGen = do
+  g <- theStdGen
+  read g
+
+setStdGen : LCG -> IO Unit
+setStdGen g = do
+  g' <- theStdGen
+  write g' g
 
 --------------------------------------------------------------------------------
 -- Random
