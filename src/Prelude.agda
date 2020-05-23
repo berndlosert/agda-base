@@ -607,6 +607,52 @@ instance
     }
 
 --------------------------------------------------------------------------------
+-- Nonzero
+--------------------------------------------------------------------------------
+
+record NonzeroConstraint (A : Set) : Set where
+  field IsNonzero : A -> Set
+
+open NonzeroConstraint {{...}}
+
+abstract
+  Nonzero : Set -> Set
+  Nonzero A = A
+
+  nonzero : {{_ : NonzeroConstraint A}} (a : A) {_ : IsNonzero a} -> Nonzero A
+  nonzero a = a
+
+  getNonzero : Nonzero A -> A
+  getNonzero a = a
+
+instance
+  nonzeroConstraintNat : NonzeroConstraint Nat
+  nonzeroConstraintNat .IsNonzero 0 = Void
+  nonzeroConstraintNat .IsNonzero _ = Unit
+
+  nonzeroConstraintInt : NonzeroConstraint Int
+  nonzeroConstraintInt .IsNonzero (pos 0) = Void
+  nonzeroConstraintInt .IsNonzero _ = Unit
+
+  numberNonzeroNat : Number (Nonzero Nat)
+  numberNonzeroNat = record {
+      Constraint = IsNonzero;
+      fromNat = \ { 0 -> undefined; (suc n) -> nonzero (suc n) }
+    }
+
+  numberNonzeroInt : Number (Nonzero Int)
+  numberNonzeroInt = record {
+      Constraint = IsNonzero;
+      fromNat = \ { 0 -> undefined; n -> nonzero (pos n) {believeMe} }
+    }
+
+  negativeNonzeroInt : Negative (Nonzero Int)
+  negativeNonzeroInt = record {
+      Constraint = IsNonzero;
+      fromNeg = \ n -> nonzero (neg n) {believeMe}
+    }
+
+--------------------------------------------------------------------------------
 -- Arithmetic operations
 --------------------------------------------------------------------------------
 
@@ -645,30 +691,19 @@ record Subtraction (A : Set) : Set where
 
 open Subtraction {{...}} public
 
-record NonzeroConstraint (A : Set) : Set where
-  field IsNonzero : A -> Set
-
-open NonzeroConstraint {{...}}
-
-abstract
-  Nonzero : Set -> Set
-  Nonzero A = A
-
-  nonzero : {{_ : NonzeroConstraint A}} (a : A) {_ : IsNonzero a} -> Nonzero A
-  nonzero a = a
-
-  getNonzero : Nonzero A -> A
-  getNonzero a = a
-
 record Division (A : Set) : Set where
   infixl 7 _/_
-  field _/_ : A -> Nonzero A -> A
+  field
+    DivisionConstraint : A -> Set
+    _/_ : (a a' : A) {_ : DivisionConstraint a'} -> A
 
 open Division {{...}} public
 
 record Modulus (A : Set) : Set where
   infixl 7 _%_
-  field _%_ : A -> Nonzero A -> A
+  field
+    ModulusConstraint : A -> Set
+    _%_ : (a a' : A) {_ : ModulusConstraint a'} -> A
 
 open Modulus {{...}} public
 
@@ -676,7 +711,6 @@ record Signed (A : Set) : Set where
   field
     abs : A -> A
     signum : A -> A
-
 open Signed {{...}} public
 
 instance
@@ -710,21 +744,15 @@ instance
   subtractionNat : Subtraction Nat
   subtractionNat ._-_ = Agda.Builtin.Nat._-_
 
-  nonzeroConstraintNat : NonzeroConstraint Nat
-  nonzeroConstraintNat .IsNonzero 0 = Void
-  nonzeroConstraintNat .IsNonzero _ = Unit
-
   divisionNat : Division Nat
-  divisionNat ._/_ m n = divAux 0 n-1 m n-1
-    where
-      n-1 = pred (getNonzero n)
-      divAux = Agda.Builtin.Nat.div-helper
+  divisionNat .DivisionConstraint = IsNonzero
+  divisionNat ._/_ m (suc n) = divAux 0 n m n
+    where divAux = Agda.Builtin.Nat.div-helper
 
   modulusNat : Modulus Nat
-  modulusNat ._%_ m n = modAux 0 n-1 m n-1
-    where
-      n-1 = pred (getNonzero n)
-      modAux = Agda.Builtin.Nat.mod-helper
+  modulusNat .ModulusConstraint = IsNonzero
+  modulusNat ._%_ m (suc n) = modAux 0 n m n
+    where modAux = Agda.Builtin.Nat.mod-helper
 
   additionInt : Addition Int
   additionInt ._+_ = add
@@ -762,24 +790,22 @@ instance
   subtractionInt : Subtraction Int
   subtractionInt ._-_ m n = m + (- n)
 
-  nonzeroConstraintInt : NonzeroConstraint Int
-  nonzeroConstraintInt .IsNonzero (pos 0) = Void
-  nonzeroConstraintInt .IsNonzero _ = Unit
-
   divisionInt : Division Int
-  divisionInt ._/_ x y with x | getNonzero y
-  ... | pos m | pos (suc n) = pos (m / nonzero (suc n))
-  ... | negsuc m | pos (suc n) = neg (suc m / nonzero (suc n))
-  ... | pos m | negsuc n = neg (m / nonzero (suc n))
-  ... | negsuc m | negsuc n = pos (suc m / nonzero (suc n))
+  divisionInt .DivisionConstraint = IsNonzero
+  divisionInt ._/_ x y with x | y
+  ... | pos m | pos (suc n) = pos (m / suc n)
+  ... | negsuc m | pos (suc n) = neg (suc m / suc n)
+  ... | pos m | negsuc n = neg (m / suc n)
+  ... | negsuc m | negsuc n = pos (suc m / suc n)
   ... | _ | _ = error "quot {{divisionInt}} undefined"
 
   modulusInt : Modulus Int
-  modulusInt ._%_ x y with x | getNonzero y
-  ... | pos m | pos (suc n) = pos (m % nonzero (suc n))
-  ... | negsuc m | pos (suc n) = neg (suc m % nonzero (suc n))
-  ... | pos m | negsuc n = neg (m % nonzero (suc n))
-  ... | negsuc m | negsuc n = pos (suc m % nonzero (suc n))
+  modulusInt .ModulusConstraint = IsNonzero
+  modulusInt ._%_ x y with x | y
+  ... | pos m | pos (suc n) = pos (m % suc n)
+  ... | negsuc m | pos (suc n) = neg (suc m % suc n)
+  ... | pos m | negsuc n = pos (m % suc n)
+  ... | negsuc m | negsuc n = neg (suc m % suc n)
   ... | _ | _ = error "_%_ {{modulusInt}} undefined"
 
   signedInt : Signed Int
@@ -817,7 +843,8 @@ instance
   nonzeroConstraintFloat .IsNonzero _ = Unit
 
   divisionFloat : Division Float
-  divisionFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x (getNonzero y)
+  divisionFloat .DivisionConstraint = const Unit
+  divisionFloat ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
   signedFloat : Signed Float
   signedFloat .abs x = if x < 0.0 then - x else x
