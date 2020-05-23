@@ -615,17 +615,14 @@ instance
 record NonzeroConstraint (A : Set) : Set where
   field IsNonzero : A -> Set
 
-open NonzeroConstraint {{...}}
+open NonzeroConstraint {{...}} public
 
-abstract
-  Nonzero : Set -> Set
-  Nonzero A = A
+data Nonzero (A : Set) : Set where
+  nonzero: : {{_ : NonzeroConstraint A}}
+    (a : A) {_ : IsNonzero a} -> Nonzero A
 
-  nonzero : {{_ : NonzeroConstraint A}} (a : A) {_ : IsNonzero a} -> Nonzero A
-  nonzero a = a
-
-  getNonzero : Nonzero A -> A
-  getNonzero a = a
+getNonzero : Nonzero A -> A
+getNonzero (nonzero: a) = a
 
 instance
   nonzeroConstraintNat : NonzeroConstraint Nat
@@ -639,19 +636,19 @@ instance
   fromNatNonzeroNat : FromNat (Nonzero Nat)
   fromNatNonzeroNat = record {
       Constraint = IsNonzero;
-      fromNat = \ { 0 -> undefined; (suc n) -> nonzero (suc n) }
+      fromNat = \ { 0 -> undefined; (suc n) -> nonzero: (suc n) }
     }
 
   fromNatNonzeroInt : FromNat (Nonzero Int)
   fromNatNonzeroInt = record {
       Constraint = IsNonzero;
-      fromNat = \ n -> nonzero (pos n) {believeMe}
+      fromNat = \ n -> nonzero: (pos n) {believeMe}
     }
 
   fromNegNonzeroInt : FromNeg (Nonzero Int)
   fromNegNonzeroInt = record {
       Constraint = IsNonzero;
-      fromNeg = \ n -> nonzero (neg n) {believeMe}
+      fromNeg = \ n -> nonzero: (neg n) {believeMe}
     }
 
 --------------------------------------------------------------------------------
@@ -705,7 +702,7 @@ record Modulus (A : Set) : Set where
   infixl 7 _%_
   field
     ModulusConstraint : A -> Set
-    _%_ : (a a' : A) {_ : ModulusConstraint a'} -> A
+    _%_ : (a a' : A) {{_ : ModulusConstraint a'}} -> A
 
 open Modulus {{...}} public
 

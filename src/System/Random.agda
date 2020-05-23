@@ -27,7 +27,8 @@ open RandomGen {{...}} public
 
 record LCG : Set where
   field
-    modulus : Nonzero Nat
+    modulus : Nat
+    {{isNonzeroModulus}} : IsNonzero modulus
     multiplier : Nonzero Nat
     increment : Nat
     seed : Nat
@@ -42,7 +43,7 @@ record LCG : Set where
 
 instance
   genLCG : RandomGen LCG
-  genLCG .genRange g = (0 , getNonzero (LCG.modulus g) - 1)
+  genLCG .genRange g = (0 , LCG.modulus g - 1)
   genLCG .genNext g = (n , g')
     where
       n = LCG.generate g
@@ -54,8 +55,8 @@ instance
 
 mkStdGen : Nat -> LCG
 mkStdGen n = record {
-    modulus = nonzero (2 ** 48);
-    multiplier = nonzero 25214903917;
+    modulus = 2 ** 48;
+    multiplier = 25214903917;
     increment = 11;
     seed = n
   }
@@ -92,7 +93,7 @@ instance
 
   randomBool : Random Bool
   randomBool .random g = let (n , g') = genNext g in
-    ((n % nonzero 2) == 0 , g')
+    ((n % 2) == 0 , g')
 
   randomNat : Random Nat
   randomNat .random g = genNext g
