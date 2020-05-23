@@ -4,7 +4,7 @@ module System.Random where
 
 open import Prelude
 
-open import Data.Ref using (Ref; new; read; write)
+open import Data.Ref using (Ref; new; read; write; atomicModify)
 open import System.IO.Unsafe using (unsafePerformIO)
 open import System.Time using (getTime)
 
@@ -62,26 +62,27 @@ mkStdGen n = record {
 
 private
   theStdGen : IO (Ref LCG)
-  theStdGen = do
-    t <- getTime
-    new (mkStdGen t)
+  theStdGen = getTime >>= mkStdGen >>> new
 
 getStdGen : IO LCG
-getStdGen = do
-  g <- theStdGen
-  read g
+getStdGen = theStdGen >>= read
 
 setStdGen : LCG -> IO Unit
-setStdGen g = do
-  g' <- theStdGen
-  write g' g
+setStdGen g = theStdGen >>= flip write g
+
+getStdRandom : (LCG -> A * LCG) -> IO A
+getStdRandom f = theStdGen >>= flip atomicModify (swap <<< f)
 
 --------------------------------------------------------------------------------
 -- Random
 --------------------------------------------------------------------------------
 
 record Random (A : Set) : Set where
-  field random : {{_ : RandomGen G}} -> G -> A * G
+  field
+    random : {{_ : RandomGen G}} -> G -> A * G
+
+  randomIO : IO A
+  randomIO = getStdRandom random
 
 open Random {{...}} public
 
