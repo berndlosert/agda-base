@@ -694,7 +694,7 @@ record Division (A : Set) : Set where
   infixl 7 _/_
   field
     DivisionConstraint : A -> Set
-    _/_ : (a a' : A) {_ : DivisionConstraint a'} -> A
+    _/_ : (a a' : A) {{_ : DivisionConstraint a'}} -> A
 
 open Division {{...}} public
 
