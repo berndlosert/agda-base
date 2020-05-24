@@ -214,7 +214,7 @@ takeAll = takeWhile (const true)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= \ n -> return $ monus (ord n) (ord '0'))
+    (digit >>= \ n -> return $ ord n - ord '0')
     (return \ m n -> 10 * m + n)
 
 int : Parser Int

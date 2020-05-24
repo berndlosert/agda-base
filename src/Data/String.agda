@@ -87,12 +87,12 @@ partition p s = bimap pack pack (List.partition p (unpack s))
 
 padRight : Nat -> Char -> String -> String
 padRight l c s =
-  let replicated = replicate (monus l (length s)) c
+  let replicated = replicate (l - length s) c
   in s ++ replicated
 
 padLeft : Nat -> Char -> String -> String
 padLeft l c s =
-  let replicated = replicate (monus l (length s)) c
+  let replicated = replicate (l - length s) c
   in replicated ++ s
 
 concat : List String -> String
