@@ -22,7 +22,7 @@ open Eff using (Eff)
 open import Data.Functor.Union
 open import Data.Unit
 
-tell : ∀ {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
+tell : forall {W Fs} {{_ : Member (Writer W) Fs}} -> W -> Eff Fs Unit
 tell w = Eff.send (tt , w)
 
 -- Simple handler of Writer W effects.
@@ -32,7 +32,7 @@ open import Control.Monad
 open import Control.Monad.Free
 open import Data.Monoid
 
-run : ∀ {W Fs X} {{_ : Monoid W}}
+run : forall {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
   (return <<< (_, empty))
@@ -44,7 +44,7 @@ run = Eff.fold
 -- using the monoid operation.
 
 --instance
---  monadWriter : ∀ {W} {{_ : Monoid W}} -> Monad (Writer W)
+--  monadWriter : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
 --  monadWriter = record {
 --      instance:Functor = functorWriter;
 --      join = \ { ((x , w) , w') -> (x , w <> w') };

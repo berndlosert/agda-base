@@ -43,7 +43,7 @@ record Wander (P : Set -> Set -> Set) : Set where
   field
     overlap {{superStrong}} : Strong P
     overlap {{superChoice}} : Choice P
-    wander : (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
+    wander : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
       -> P A B -> P S T
 
 open Wander {{...}}
@@ -77,25 +77,25 @@ Simple : Optic -> Set -> Set -> Set
 Simple O A S = O A A S S
 
 Adapter : Optic
-Adapter A B S T = ∀ {P} {{_ : Profunctor P}} -> P A B -> P S T
+Adapter A B S T = forall {P} {{_ : Profunctor P}} -> P A B -> P S T
 
 Lens : Optic
-Lens A B S T = ∀ {P} {{_ : Strong P}} -> P A B -> P S T
+Lens A B S T = forall {P} {{_ : Strong P}} -> P A B -> P S T
 
 Prism : Optic
-Prism A B S T = ∀ {P} {{_ : Choice P}} -> P A B -> P S T
+Prism A B S T = forall {P} {{_ : Choice P}} -> P A B -> P S T
 
 Grate : Optic
-Grate A B S T = ∀ {P} {{_ : Closed P}} -> P A B -> P S T
+Grate A B S T = forall {P} {{_ : Closed P}} -> P A B -> P S T
 
 Traversal : Optic
-Traversal A B S T = ∀ {P} {{_ : Wander P}} -> P A B -> P S T
+Traversal A B S T = forall {P} {{_ : Wander P}} -> P A B -> P S T
 
 Fold : Set -> Optic
 Fold R A B S T = Forget R A B -> Forget R S T
 
 Getter : Optic
-Getter A B S T = ∀ {R} -> Fold R A B S T
+Getter A B S T = forall {R} -> Fold R A B S T
 
 Review : Optic
 Review A B S T = Tagged A B -> Tagged S T
@@ -162,7 +162,7 @@ prism build match = dimap match untag <<< choice <<< rmap build
 grate : (((S -> A) -> B) -> T) -> Grate A B S T
 grate degrating = dimap (flip _$_) degrating <<< closed
 
-traversal : (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
+traversal : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
   -> Traversal A B S T
 traversal traverse = wander traverse
 
@@ -293,7 +293,7 @@ instance
 --degrating g = Grating.degrating $ g $ grate: \ f -> f id
 
 traverseOf : Traversal A B S T
-  -> (∀ {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
+  -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
 traverseOf {A} {B} t = Bazaar.traverseOf (t b)
   where
     b : Bazaar Function A B A B

@@ -1134,7 +1134,7 @@ record IsBuildable (S A : Set) : Set where
 open IsBuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
-Buildable F = ∀ {A} -> IsBuildable (F A) A
+Buildable F = forall {A} -> IsBuildable (F A) A
 
 {-# TERMINATING #-}
 unfoldr : {{_ : IsBuildable S A}} -> (B -> Maybe (Tuple A B)) -> B -> S
@@ -1161,7 +1161,7 @@ instance
 
 infixr 0 _~>_
 _~>_ : (F G : Set -> Set) -> Set
-F ~> G  = ∀ {A} -> F A -> G A
+F ~> G  = forall {A} -> F A -> G A
 
 record Functor (F : Set -> Set) : Set where
   field map : (A -> B) -> F A -> F B
@@ -1403,7 +1403,7 @@ record Monad (M : Set -> Set) : Set where
 
 open Monad {{...}} public
 
-return : ∀ {A M} {{_ : Monad M}} -> A -> M A
+return : forall {A M} {{_ : Monad M}} -> A -> M A
 return = pure
 
 instance
@@ -1528,7 +1528,7 @@ sequence! : {{_ : Applicative F}} {{_ : IsFoldable S (F A)}} -> S -> F Unit
 sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
-Foldable F = ∀ {A} -> IsFoldable (F A) A
+Foldable F = forall {A} -> IsFoldable (F A) A
 
 instance
   isFoldableNatUnit : IsFoldable Nat Unit
@@ -1610,7 +1610,7 @@ record IsFoldable1 (S A : Set) : Set where
 open IsFoldable1 {{...}} public
 
 Foldable1 : (Set -> Set) -> Set
-Foldable1 F = ∀ {A} -> IsFoldable1 (F A) A
+Foldable1 F = forall {A} -> IsFoldable1 (F A) A
 
 instance
   isFoldable1 : {{_ : NonemptyConstraint S}} {{_ : IsFoldable S A}}

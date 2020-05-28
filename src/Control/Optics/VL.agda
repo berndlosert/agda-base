@@ -27,23 +27,23 @@ instance
 --------------------------------------------------------------------------------
 
 Traversal : (S T A B : Set) -> Set
-Traversal S T A B = ∀ {F} {{_ : Applicative F}}
+Traversal S T A B = forall {F} {{_ : Applicative F}}
   -> (A -> F B) -> S -> F T
 
 Setter : (S T A B : Set) -> Set
-Setter S T A B = ∀ {F} {{_ : Applicative F}} {{_ : Copointed F}}
+Setter S T A B = forall {F} {{_ : Applicative F}} {{_ : Copointed F}}
   -> (A -> F B) -> S -> F T
 
 Fold : (S T A B : Set) -> Set
-Fold S T A B = ∀ {F} {{_ : Applicative F}} {{_ : Contravariant F}}
+Fold S T A B = forall {F} {{_ : Applicative F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
 Lens : (S T A B : Set) -> Set
-Lens S T A B = ∀ {F} {{_ : Functor F}}
+Lens S T A B = forall {F} {{_ : Functor F}}
   -> (A -> F B) -> S -> F T
 
 Getter : (S T A B : Set) -> Set
-Getter S T A B = ∀ {F} {{_ : Functor F}} {{_ : Contravariant F}}
+Getter S T A B = forall {F} {{_ : Functor F}} {{_ : Contravariant F}}
   -> (A -> F B) -> S -> F T
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set

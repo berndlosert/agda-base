@@ -17,7 +17,7 @@ private
 record FreeT (F : Set -> Set) (M : Set -> Set) (A : Set) : Set where
   constructor freeT:
   field
-    runFreeT : (A -> M R) -> (∀ {X} -> F X -> (X -> M R) -> M R) -> M R
+    runFreeT : (A -> M R) -> (forall {X} -> F X -> (X -> M R) -> M R) -> M R
 
 open FreeT
 

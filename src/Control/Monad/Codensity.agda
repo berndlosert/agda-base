@@ -10,10 +10,10 @@ open import Control.Monad
 open import Data.Functor
 
 Codensity : (Set -> Set) -> Set -> Set
-Codensity F X = ∀ {Y} -> (X -> F Y) -> F Y
+Codensity F X = forall {Y} -> (X -> F Y) -> F Y
 
 instance
-  monadCodensity : ∀ {F} -> Monad (Codensity F)
+  monadCodensity : forall {F} -> Monad (Codensity F)
   monadCodensity .return x = \ k -> k x
   monadCodensity .extend f m = \ k1 -> m (\ k2 -> (f k2) k1)
 
@@ -22,12 +22,12 @@ instance
 -- X the function x <>_ : X -> X; in the monad case, the embedding assings each
 -- x : M X to x >>=_ : Codensity M X.
 
-rep : ∀ {M} {{_ : Monad M}} -> M ~> Codensity M
+rep : forall {M} {{_ : Monad M}} -> M ~> Codensity M
 rep x = x >>=_
 
 -- The left-inverse (retract) of rep for the monoid case assigns f : X -> X to
 -- f empty. The monad version assigns each f : Codensity M X the value
 -- f return.
 
-abs : ∀ {M} {{_ : Monad M}} -> Codensity M ~> M
+abs : forall {M} {{_ : Monad M}} -> Codensity M ~> M
 abs f = f return

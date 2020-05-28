@@ -19,12 +19,12 @@ toNat (suc n) = suc (toNat n)
 -- The Number:Fin instance allows us to write Fin n values using natural
 -- number literals.
 --instance
---  Number:Fin : ∀ {n} -> Number (Fin (suc n))
+--  Number:Fin : forall {n} -> Number (Fin (suc n))
 --  Number:Fin {n} = record {
 --      Constraint = \ m -> Assert (m <= n);
 --      fromNat = \ m {{p}} -> go m n {p}
 --    }
 --    where
---      go : ∀ m n -> {_ : Assert (m <= n)} -> Fin (suc n)
+--      go : forall m n -> {_ : Assert (m <= n)} -> Fin (suc n)
 --      go zero _ = zero
 --      go (suc m) (suc n) {p} = suc (go m n {p})

@@ -39,7 +39,7 @@ abstract
   Eff : Effects -> Effect
   Eff = Free <<< Union
 
-  anEff : (∀ {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A) -> Eff Fs A
+  anEff : (forall {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A) -> Eff Fs A
   anEff eff = aFree eff
 
   lift : Union Fs ~> Eff Fs
@@ -56,14 +56,14 @@ abstract
 
   -- A fold operation for Eff. This is handleRelay from freer-simple.y
 
-  fold : ∀ {F Fs A B}
+  fold : forall {F Fs A B}
     -> (A -> Eff Fs B)
-    -> (∀ {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
+    -> (forall {A} -> (A -> Eff Fs B) -> F A -> Eff Fs B)
     -> Eff (F :: Fs) A
     -> Eff Fs B
   fold {F} {Fs} {_} {B} ret ext = Free.fold ret ext'
     where
-      ext' : ∀ {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
+      ext' : forall {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
       ext' ret (left x) = ext ret x
       ext' ret (right u) = Free.lift u >>= ret
 

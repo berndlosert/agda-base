@@ -11,7 +11,7 @@ private
 
 data Vector (A : Set) : Nat -> Set where
   [] : Vector A 0
-  _::_ : ∀ {n} -> A -> Vector A n -> Vector A (suc n)
+  _::_ : forall {n} -> A -> Vector A n -> Vector A (suc n)
 
 append : Vector A m -> Vector A n -> Vector A (m + n)
 append [] as = as

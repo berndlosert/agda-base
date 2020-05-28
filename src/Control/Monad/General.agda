@@ -17,7 +17,7 @@ record Interaction (Req : Set) (Resp : Req -> Set) (X : Set) : Set where
 General : (Req : Set) -> (Resp : Req -> Set) -> Set -> Set
 General Req Resp = Free (Interaction Req Resp)
 
-call : ∀ {Req Resp} -> (req : Req) -> General Req Resp (Resp req)
+call : forall {Req Resp} -> (req : Req) -> General Req Resp (Resp req)
 call req = Free: \ t -> t (Interaction: req id)
 
 -- Dependent function type of general recursive functions.
@@ -29,5 +29,5 @@ Fun : (X Y : Set) -> Set
 Fun X Y = Pi X (const Y)
 
 instance
-  monadGeneral : ∀ {Req Resp} -> Monad (General Req Resp)
+  monadGeneral : forall {Req Resp} -> Monad (General Req Resp)
   monadGeneral = monadFree

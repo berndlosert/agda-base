@@ -16,12 +16,12 @@ data Delay (i : Size) (X : Set) : Set where
 
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
-unfold : ∀ {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
+unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
 unfold f y = either now (\ x -> later \ where .force -> unfold f x) $ f y
 
 -- Run a Delay process for at most n steps.
 
-runFor : Nat -> ∀ {X} -> Delay _ X -> Maybe X
+runFor : Nat -> forall {X} -> Delay _ X -> Maybe X
 runFor _ (now x) = just x
 runFor zero (later _) = nothing
 runFor (suc n) (later thunk) = runFor n (force thunk)
@@ -31,7 +31,7 @@ runFor (suc n) (later thunk) = runFor n (force thunk)
 -- element of the stream is a (just x) value, tryMore will produce a Delay
 -- value d such that runFor n d = just x.
 
-tryMore : ∀ {i X} -> (Nat -> Maybe X) -> Delay i X
+tryMore : forall {i X} -> (Nat -> Maybe X) -> Delay i X
 tryMore {_} {X} f = unfold try zero
   where
     try : Nat -> X + Nat

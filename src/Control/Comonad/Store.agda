@@ -18,6 +18,6 @@ instance
   functorStore : Functor (Store S)
   functorStore .map f (g , s) = (f <<< g , s)
 
-  comonadStore : ∀ {S} -> Comonad (Store S)
+  comonadStore : forall {S} -> Comonad (Store S)
   comonadStore {S} .extend f (g , s) = ((\ _ -> f (g , s)) , s)
   comonadStore .extract (g , s) = g s

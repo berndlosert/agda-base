@@ -12,7 +12,7 @@ private
 -- The type Yoneda F A can be viewed as the partial application of map to
 -- its second argument (assuming F is a functor).
 Yoneda : (Set -> Set) -> Set -> Set
-Yoneda F A = ∀ {B} -> (A -> B) -> F B
+Yoneda F A = forall {B} -> (A -> B) -> F B
 
 -- Yoneda F is a functor.
 instance
