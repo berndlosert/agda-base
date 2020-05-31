@@ -4,8 +4,10 @@ module System.Random where
 
 open import Prelude
 
+open import Data.Bits using (_:|:_; shiftL; shiftR)
 open import Data.Ref using (Ref; new; read; write; atomicModify)
-open import System.Time using (getTime)
+open import Data.Word using (Word64; natToWord64; word64ToNat)
+open import System.Time using (getTime; getCPUTime)
 
 private variable A G : Set
 
@@ -57,8 +59,29 @@ mkStdGen n = record {
   }
 
 private
+  -- Squares: A Fast Counter-Based RNG
+  -- https://arxiv.org/pdf/2004.06278v2.pdf
+  squares : Word64 -> Word64 -> Word64
+  squares ctr key =
+    let
+      x0 = ctr * key
+      y = x0
+      z = y + key
+      -- Round 1
+      x1 = x0 * x0 + y
+      x2 = (shiftR x1 32) :|: (shiftL x1 32)
+      -- Round 2
+      x3 = x2 * x2 + z
+      x4 = (shiftR x3 32) :|: (shiftL x3 32)
+    in
+      shiftR (x4 * x4 + y) 32
+
   theStdGen : IO (Ref LCG)
-  theStdGen = getTime >>= mkStdGen >>> new
+  theStdGen = do
+    ctr <- getTime
+    key <- getCPUTime
+    let seed = squares (natToWord64 ctr) (natToWord64 key)
+    new (mkStdGen $ word64ToNat seed)
 
 getStdGen : IO LCG
 getStdGen = theStdGen >>= read

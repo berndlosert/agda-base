@@ -9,6 +9,7 @@ record Bits (A : Set) : Set where
   infixl 6 _xor_
   infixl 7 _:&:_
   field
+    bitSize : A -> Nat
     zeroBits : A
     oneBits : A
     _:|:_ : A -> A -> A
@@ -18,7 +19,6 @@ record Bits (A : Set) : Set where
     rotate : A -> Int -> A
     bit : Nat -> A
     testBit : A -> Nat -> Bool
-    bitSize : A -> Nat
     isSigned : A -> Bool
     popCount : A -> Nat
 
@@ -30,6 +30,10 @@ record Bits (A : Set) : Set where
 
   setBit : A -> Nat -> A
   setBit x i = x :|: bit i
+
+  assignBit : A -> Nat -> Bool -> A
+  assignBit b n true = setBit b n
+  assignBit b n false = clearBit b n
 
   notBit : A -> Nat -> A
   notBit x i = x xor (bit i)

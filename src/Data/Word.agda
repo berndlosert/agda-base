@@ -4,7 +4,65 @@ module Data.Word where
 
 open import Prelude
 
-open import Data.Bits public
+open import Data.Bits
+
+--------------------------------------------------------------------------------
+-- Word32
+--------------------------------------------------------------------------------
+
+postulate
+  Word32 : Set
+  word32ToNat : Word32 -> Nat
+  natToWord32 : Nat -> Word32
+
+private
+  2^32 : Nat
+  2^32 = 4294967296
+
+  postulate
+    primOrWord32 : Word32 -> Word32 -> Word32
+    primXorWord32 : Word32 -> Word32 -> Word32
+    primAndWord32 : Word32 -> Word32 -> Word32
+    primShiftWord32 : Word32 -> Int -> Word32
+    primRotateWord32 : Word32 -> Int -> Word32
+    primBitWord32 : Nat -> Word32
+    primTestBitWord32 : Word32 -> Nat -> Bool
+    primIsSignedWord32 : Word32 -> Bool
+    primPopCountWord32 : Word32 -> Nat
+
+instance
+  fromNatWord32 : FromNat Word32
+  fromNatWord32 = record {
+      Constraint = const Unit;
+      fromNat = \ n -> natToWord32 n
+    }
+
+  bitsWord32 : Bits Word32
+  bitsWord32 .bitSize _ = 32
+  bitsWord32 .zeroBits = 0x0
+  bitsWord32 .oneBits = 0xFFFFFFFF
+  bitsWord32 ._:|:_ = primOrWord32
+  bitsWord32 ._xor_ = primXorWord32
+  bitsWord32 ._:&:_ = primAndWord32
+  bitsWord32 .shift = primShiftWord32
+  bitsWord32 .rotate = primRotateWord32
+  bitsWord32 .bit = primBitWord32
+  bitsWord32 .testBit = primTestBitWord32
+  bitsWord32 .isSigned = primIsSignedWord32
+  bitsWord32 .popCount = primPopCountWord32
+
+  additionWord32 : Addition Word32
+  additionWord32 ._+_ x y = natToWord32 $
+    (word32ToNat x + word32ToNat y) % 2^32
+
+  multiplicationWord32 : Multiplication Word32
+  multiplicationWord32 ._*_ x y = natToWord32 $
+    (word32ToNat x * word32ToNat y) % 2^32
+
+
+--------------------------------------------------------------------------------
+-- Word64
+--------------------------------------------------------------------------------
 
 open import Agda.Builtin.Word public
   using (Word64)
@@ -14,6 +72,9 @@ open import Agda.Builtin.Word public
   )
 
 private
+  2^64 : Nat
+  2^64 = 18446744073709551616
+
   postulate
     primOrWord64 : Word64 -> Word64 -> Word64
     primXorWord64 : Word64 -> Word64 -> Word64
@@ -46,14 +107,38 @@ instance
   bitsWord64 .isSigned = primIsSignedWord64
   bitsWord64 .popCount = primPopCountWord64
 
+  additionWord64 : Addition Word64
+  additionWord64 ._+_ x y = natToWord64 $
+    (word64ToNat x + word64ToNat y) % 2^64
+
+  multiplicationWord64 : Multiplication Word64
+  multiplicationWord64 ._*_ x y = natToWord64 $
+    (word64ToNat x * word64ToNat y) % 2^64
+
+--------------------------------------------------------------------------------
+-- FFI
+--------------------------------------------------------------------------------
+
 {-# FOREIGN GHC import Data.Word #-}
 {-# FOREIGN GHC import Data.Bits #-}
+
+{-# COMPILE GHC Word32 = type Word32 #-}
+{-# COMPILE GHC primOrWord32 = \ x y -> x .|. y #-}
+{-# COMPILE GHC primXorWord32 = \ x y -> x `xor` y #-}
+{-# COMPILE GHC primAndWord32 = \ x y -> x .&. y #-}
+{-# COMPILE GHC primShiftWord32 = \ x i -> shift x (fromIntegral i) #-}
+{-# COMPILE GHC primRotateWord32 = \ x i -> rotate x (fromIntegral i) #-}
+{-# COMPILE GHC primBitWord32 = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC primTestBitWord32 = \ x i -> testBit x (fromIntegral i) #-}
+{-# COMPILE GHC primIsSignedWord32 = isSigned #-}
+{-# COMPILE GHC primPopCountWord32 = toInteger . popCount #-}
+
 {-# COMPILE GHC primOrWord64 = \ x y -> x .|. y #-}
 {-# COMPILE GHC primXorWord64 = \ x y -> x `xor` y #-}
 {-# COMPILE GHC primAndWord64 = \ x y -> x .&. y #-}
 {-# COMPILE GHC primShiftWord64 = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC primRotateWord64 = \ x i -> rotate x (fromIntegral i) #-}
 {-# COMPILE GHC primBitWord64 = \ i -> bit (fromIntegral i) #-}
-{-# COMPILE GHC primTestBitWord64 = \ x i -> testBit (fromIntegral i) #-}
+{-# COMPILE GHC primTestBitWord64 = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC primIsSignedWord64 = isSigned #-}
 {-# COMPILE GHC primPopCountWord64 = toInteger . popCount #-}
