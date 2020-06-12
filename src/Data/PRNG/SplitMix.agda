@@ -4,9 +4,9 @@ module Data.PRNG.SplitMix where
 
 open import Prelude
 
-open import Data.Bits using (_xor_; _:|:_; shiftR; popCount)
-open import Data.PRNG public
-open import Data.Word using (Word64; word64ToNat)
+open import Data.Bits
+open import Data.PRNG
+open import Data.Word
 
 -- Fast Splittable Pseudorandom Number Generators
 -- https://dl.acm.org/doi/10.1145/2660193.2660195

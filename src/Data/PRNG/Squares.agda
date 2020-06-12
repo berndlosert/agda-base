@@ -3,9 +3,10 @@
 module Data.PRNG.Squares where
 
 open import Prelude
-open import Data.Bits using (_:|:_; shiftR; shiftL)
-open import Data.PRNG public
-open import Data.Word using (Word64; word64ToNat)
+
+open import Data.Bits
+open import Data.PRNG
+open import Data.Word
 
 -- Squares: A Fast Counter-Based RNG
 -- https://arxiv.org/pdf/2004.06278v2.pdf

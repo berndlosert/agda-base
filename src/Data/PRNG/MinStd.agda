@@ -4,8 +4,8 @@ module Data.PRNG.MinStd where
 
 open import Prelude
 
-open import Data.PRNG public
-open import Data.Word using (Word32; natToWord32; word32ToNat)
+open import Data.PRNG
+open import Data.Word
 
 record MinStd : Set where
   constructor minStd:
