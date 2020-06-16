@@ -20,6 +20,8 @@ private
   2^32 = 4294967296
 
   postulate
+    primEqWord32 : Word32 -> Word32 -> Bool
+    primLessThanWord32 : Word32 -> Word32 -> Bool
     primOrWord32 : Word32 -> Word32 -> Word32
     primXorWord32 : Word32 -> Word32 -> Word32
     primAndWord32 : Word32 -> Word32 -> Word32
@@ -36,6 +38,12 @@ instance
       Constraint = const Unit;
       fromNat = \ n -> natToWord32 n
     }
+
+  eqWord32 : Eq Word32
+  eqWord32 ._==_ = primEqWord32
+
+  ordWord32 : Ord Word32
+  ordWord32 ._<_ = primLessThanWord32
 
   bitsWord32 : Bits Word32
   bitsWord32 .bitSize _ = 32
@@ -75,6 +83,8 @@ private
   2^64 = 18446744073709551616
 
   postulate
+    primEqWord64 : Word64 -> Word64 -> Bool
+    primLessThanWord64 : Word64 -> Word64 -> Bool
     primOrWord64 : Word64 -> Word64 -> Word64
     primXorWord64 : Word64 -> Word64 -> Word64
     primAndWord64 : Word64 -> Word64 -> Word64
@@ -91,6 +101,12 @@ instance
       Constraint = const Unit;
       fromNat = \ n -> natToWord64 n
     }
+
+  eqWord64 : Eq Word64
+  eqWord64 ._==_ = primEqWord64
+
+  ordWord64 : Ord Word64
+  ordWord64 ._<_ = primLessThanWord64
 
   bitsWord64 : Bits Word64
   bitsWord64 .bitSize _ = 64
@@ -122,6 +138,8 @@ instance
 {-# FOREIGN GHC import Data.Bits #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
+{-# COMPILE GHC primEqWord32 = \ x y -> x == y #-}
+{-# COMPILE GHC primLessThanWord32 = \ x y -> x < y #-}
 {-# COMPILE GHC primOrWord32 = \ x y -> x .|. y #-}
 {-# COMPILE GHC primXorWord32 = \ x y -> x `xor` y #-}
 {-# COMPILE GHC primAndWord32 = \ x y -> x .&. y #-}
@@ -132,6 +150,8 @@ instance
 {-# COMPILE GHC primIsSignedWord32 = isSigned #-}
 {-# COMPILE GHC primPopCountWord32 = toInteger . popCount #-}
 
+{-# COMPILE GHC primEqWord64 = \ x y -> x == y #-}
+{-# COMPILE GHC primLessThanWord64 = \ x y -> x < y #-}
 {-# COMPILE GHC primOrWord64 = \ x y -> x .|. y #-}
 {-# COMPILE GHC primXorWord64 = \ x y -> x `xor` y #-}
 {-# COMPILE GHC primAndWord64 = \ x y -> x .&. y #-}
