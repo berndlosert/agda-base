@@ -18,10 +18,47 @@ private variable A As G : Set
 
 record RandomGen (G : Set) : Set where
   field
-    genNext : G -> Word64 * G
-    genSplit : G -> G * G
+    genWord64 : G -> Word64 * G
+    splitGen : G -> G * G
 
 open RandomGen {{...}} public
+
+-- genBits n generates a random n-bit number.
+genBits : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
+genBits {G} n g0 =
+    fst $ foldr accum (first word64ToNat (genWord64' g0) , 1) q
+  where
+    q = n / 64
+    r = n % 64
+    mask = shiftR oneBits (64 - r)
+
+    -- This will generate a Word64 value in the range [0, 2 ^ r).
+    genWord64' : G -> Word64 * G
+    genWord64' g = first (_:&: mask) (genWord64 g)
+
+    -- We use this to build up the random number in the foldr expression.
+    accum : Unit -> (Nat * G) * Nat -> (Nat * G) * Nat
+    accum _ ((m , g) , i) =
+      let
+        (w , g') = genWord64 g
+        m' = m + 2 ^ (64 * i) * word64ToNat w
+      in
+        (m' , g' , i + 1)
+
+-- genNat n generates a Nat in the range [0 , n].
+{-# TERMINATING #-}
+genNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
+genNat {G} n g0 = loop g0
+  where
+    log2 : Nat -> Nat
+    log2 0 = 1
+    log2 m = 1 + log2 (m / 2)
+
+    k = log2 n
+
+    loop : G -> Nat * G
+    loop g = let (m , g') = genBits k g in
+      if m > n then loop g' else (m , g')
 
 --------------------------------------------------------------------------------
 -- StdGen (SplitMix version)
@@ -78,11 +115,11 @@ private
 
 instance
   randomGenStdGen : RandomGen StdGen
-  randomGenStdGen .genNext (stdGen: seed gamma) =
+  randomGenStdGen .genWord64 (stdGen: seed gamma) =
       (mix64 seed' , stdGen: seed' gamma)
     where
       seed' = seed + gamma
-  randomGenStdGen .genSplit (stdGen: seed gamma) =
+  randomGenStdGen .splitGen (stdGen: seed gamma) =
       (stdGen: seed'' gamma , stdGen: (mix64 seed') (mixGamma seed''))
     where
       seed' = seed + gamma
@@ -100,7 +137,7 @@ theStdGen = unsafePerformIO $ do
 {-# NOINLINE theStdGen #-}
 
 newStdGen : IO StdGen
-newStdGen = atomicModify theStdGen genSplit
+newStdGen = atomicModify theStdGen splitGen
 
 getStdGen : IO StdGen
 getStdGen = read theStdGen
@@ -134,7 +171,7 @@ open RandomR {{...}} public
 
 instance
   randomBool : Random Bool
-  randomBool .random g = let (n , g') = genNext g in
+  randomBool .random g = let (n , g') = genWord64 g in
     (testBit n 0 , g')
 
   {-# TERMINATING #-}
@@ -142,33 +179,4 @@ instance
   randomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT = let (n , g') = nextNat (to - from) g in (n + to , g')
-    where
-      nextNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
-      nextNat {G} r = loop
-        where
-          aux : Nat -> Nat -> Word64 * Nat
-          aux n x =
-            if x < 2 ^ 64
-            then (shiftR oneBits (countLeadingZeros (natToWord64 x)) , n)
-            else aux (n + 1) (x / 2 ^ 64)
-
-          generate : G -> Nat * G
-          generate gen0 =
-            let
-              (leadMask , restDigits) = aux 0 r
-              (x , g') = genNext gen0
-              x' = x :&: leadMask
-            in
-              go (word64ToNat x') restDigits g'
-            where
-              go : Nat -> Nat -> G -> Nat * G
-              go acc 0 gen = (acc , gen)
-              go acc n g =
-                let (x , g') = genNext g
-                in go (acc * 2 ^ 64 + word64ToNat x) (n - 1) g'
-
-          loop : G -> Nat * G
-          loop gen =
-            let (x , gen') = generate gen in
-            if x > r then loop gen' else (x , gen')
+  ... | LT = first (_+ from) $ genNat (to - from) g
