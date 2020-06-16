@@ -50,4 +50,26 @@ record Bits (A : Set) : Set where
   rotateR : A -> Nat -> A
   rotateR x i = rotate x (neg i)
 
+  countLeadingZeros : A -> Nat
+  countLeadingZeros x = bitSize-1 - go bitSize-1
+    where
+      bitSize-1 : Nat
+      bitSize-1 = bitSize x - 1
+
+      go : Nat -> Nat
+      go 0 = 0
+      go n@(suc n-1) = if testBit x n then n else go n-1
+
+  countTrailingZeros : A -> Nat
+  countTrailingZeros x = go bitSize-1 0
+    where
+      bitSize-1 : Nat
+      bitSize-1 = bitSize x - 1
+
+      go : Nat -> Nat -> Nat
+      go 0 n = n
+      go (suc m) n =
+        if testBit x n then n
+        else go m (n + 1)
+
 open Bits {{...}} public
