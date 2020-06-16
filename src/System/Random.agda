@@ -7,6 +7,7 @@ open import Prelude
 open import Data.Bits
 open import Data.Ref
 open import Data.Word
+open import System.IO.Unsafe
 open import System.Time
 
 private variable A As G : Set
@@ -17,8 +18,7 @@ private variable A As G : Set
 
 record RandomGen (G : Set) : Set where
   field
-    genRange : G -> Nat * Nat
-    genNext : G -> Nat * G
+    genNext : G -> Word64 * G
     genSplit : G -> G * G
 
 open RandomGen {{...}} public
@@ -78,9 +78,8 @@ private
 
 instance
   randomGenStdGen : RandomGen StdGen
-  randomGenStdGen .genRange _ = (0 , 2 ^ 64)
   randomGenStdGen .genNext (stdGen: seed gamma) =
-      (word64ToNat (mix64 seed') , stdGen: seed' gamma)
+      (mix64 seed' , stdGen: seed' gamma)
     where
       seed' = seed + gamma
   randomGenStdGen .genSplit (stdGen: seed gamma) =
@@ -92,26 +91,25 @@ instance
 mkStdGen : Word64 -> StdGen
 mkStdGen s = stdGen: (mix64 s) (mixGamma (s + goldenGamma))
 
-theStdGen : IO (Ref StdGen)
-theStdGen = do
+theStdGen : Ref StdGen
+theStdGen = unsafePerformIO $ do
   ctr <- getTime
   key <- getCPUTime
   let seed = squares (natToWord64 ctr) (natToWord64 key)
   new (mkStdGen seed)
+{-# NOINLINE theStdGen #-}
 
 newStdGen : IO StdGen
-newStdGen = do
-  ref <- theStdGen
-  atomicModify ref genSplit
+newStdGen = atomicModify theStdGen genSplit
 
 getStdGen : IO StdGen
-getStdGen = theStdGen >>= read
+getStdGen = read theStdGen
 
 setStdGen : StdGen -> IO Unit
-setStdGen g = theStdGen >>= flip write g
+setStdGen = write theStdGen
 
 getStdRandom : (StdGen -> A * StdGen) -> IO A
-getStdRandom f = theStdGen >>= flip atomicModify (swap <<< f)
+getStdRandom f = atomicModify theStdGen (swap <<< f)
 
 --------------------------------------------------------------------------------
 -- Random and RandomR
@@ -135,24 +133,42 @@ record RandomR (A : Set) : Set where
 open RandomR {{...}} public
 
 instance
-  randomUnit : Random Unit
-  randomUnit .random g = (unit , g)
-
   randomBool : Random Bool
   randomBool .random g = let (n , g') = genNext g in
-    ((n % 2) == 0 , g')
+    (testBit n 0 , g')
 
   {-# TERMINATING #-}
   randomRNat : RandomR Nat
   randomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT =
-    let
-      (lo , hi) = genRange g
-      diff = hi - lo
-      instance diffNonzero : IsNonzero diff
-      diffNonzero = believeMe
-      (r , g') = genNext g
-    in
-      (r * (to - from) / diff , g')
+  ... | LT = let (n , g') = nextNat (to - from) g in (n + to , g')
+    where
+      nextNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
+      nextNat {G} r = loop
+        where
+          aux : Nat -> Nat -> Word64 * Nat
+          aux n x =
+            if x < 2 ^ 64
+            then (shiftR oneBits (countLeadingZeros (natToWord64 x)) , n)
+            else aux (n + 1) (x / 2 ^ 64)
+
+          generate : G -> Nat * G
+          generate gen0 =
+            let
+              (leadMask , restDigits) = aux 0 r
+              (x , g') = genNext gen0
+              x' = x :&: leadMask
+            in
+              go (word64ToNat x') restDigits g'
+            where
+              go : Nat -> Nat -> G -> Nat * G
+              go acc 0 gen = (acc , gen)
+              go acc n g =
+                let (x , g') = genNext g
+                in go (acc * 2 ^ 64 + word64ToNat x) (n - 1) g'
+
+          loop : G -> Nat * G
+          loop gen =
+            let (x , gen') = generate gen in
+            if x > r then loop gen' else (x , gen')
