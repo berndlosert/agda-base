@@ -620,58 +620,6 @@ instance
     }
 
 --------------------------------------------------------------------------------
--- IsNonzero, IsPositive, IsNegative
---------------------------------------------------------------------------------
-
-record NonzeroConstraint (A : Set) : Set where
-  field IsNonzero : A -> Set
-
-open NonzeroConstraint {{...}} public
-
-record PositiveConstraint (A : Set) : Set where
-  field IsPositive : A -> Set
-
-open PositiveConstraint {{...}} public
-
-record NegativeConstraint (A : Set) : Set where
-  field IsNegative : A -> Set
-
-open NegativeConstraint {{...}} public
-
-instance
-  nonzeroConstraintNat : NonzeroConstraint Nat
-  nonzeroConstraintNat .IsNonzero 0 = Void
-  nonzeroConstraintNat .IsNonzero _ = Unit
-
-  positiveConstraintNat : PositiveConstraint Nat
-  positiveConstraintNat .IsPositive = IsNonzero
-
-  nonzeroConstraintInt : NonzeroConstraint Int
-  nonzeroConstraintInt .IsNonzero (pos 0) = Void
-  nonzeroConstraintInt .IsNonzero _ = Unit
-
-  positiveConstraintInt : PositiveConstraint Int
-  positiveConstraintInt .IsPositive n with n
-  ... | pos 0 = Void
-  ... | negsuc _ = Void
-  ... | _ = Unit
-
-  negativeConstraintInt : NegativeConstraint Int
-  negativeConstraintInt .IsNegative n with n
-  ... | pos _ = Void
-  ... | _ = Unit
-
-  nonzeroConstraintFloat : NonzeroConstraint Float
-  nonzeroConstraintFloat .IsNonzero 0.0 = Void
-  nonzeroConstraintFloat .IsNonzero _ = Unit
-
-  positiveConstraintFloat : PositiveConstraint Float
-  positiveConstraintFloat .IsPositive x = So (x > 0.0)
-
-  negativeConstraintFloat : NegativeConstraint Float
-  negativeConstraintFloat .IsNegative x = So (x < 0.0)
-
---------------------------------------------------------------------------------
 -- Arithmetic operations
 --------------------------------------------------------------------------------
 
@@ -764,12 +712,12 @@ instance
   subtractionNat ._-_ = Agda.Builtin.Nat._-_
 
   divisionNat : Division Nat
-  divisionNat .DivisionConstraint = IsNonzero
+  divisionNat .DivisionConstraint n = So (n > 0)
   divisionNat ._/_ m (suc n) = divAux 0 n m n
     where divAux = Agda.Builtin.Nat.div-helper
 
   modulusNat : Modulus Nat
-  modulusNat .ModulusConstraint = IsNonzero
+  modulusNat .ModulusConstraint n = So (n > 0)
   modulusNat ._%_ m (suc n) = modAux 0 n m n
     where modAux = Agda.Builtin.Nat.mod-helper
 
@@ -810,7 +758,7 @@ instance
   subtractionInt ._-_ m n = m + (- n)
 
   divisionInt : Division Int
-  divisionInt .DivisionConstraint = IsNonzero
+  divisionInt .DivisionConstraint n = So (n > 0)
   divisionInt ._/_ x y with x | y
   ... | pos m | pos (suc n) = pos (m / suc n)
   ... | negsuc m | pos (suc n) = neg (suc m / suc n)
@@ -818,7 +766,7 @@ instance
   ... | negsuc m | negsuc n = pos (suc m / suc n)
 
   modulusInt : Modulus Int
-  modulusInt .ModulusConstraint = IsNonzero
+  modulusInt .ModulusConstraint n = So (n > 0)
   modulusInt ._%_ x y with x | y
   ... | pos m | pos (suc n) = pos (m % suc n)
   ... | negsuc m | pos (suc n) = neg (suc m % suc n)
@@ -1497,8 +1445,14 @@ record IsFoldable (S A : Set) : Set where
   any : (A -> Bool) -> S -> Bool
   any p = getAny <<< foldMap (any: <<< p)
 
+  notNull : S -> Bool
+  notNull = any (const true)
+
+  Nonempty : S -> Set
+  Nonempty = So <<< notNull
+
   null : S -> Bool
-  null = not <<< any (const true)
+  null = not <<< notNull
 
   sum : {{ _ : Monoid (Sum A)}} -> S -> A
   sum = getSum <<< foldMap sum:
@@ -1563,47 +1517,27 @@ instance
   isFoldableStringChar .foldMap f = foldMap f <<< unpack
 
 --------------------------------------------------------------------------------
--- IsNonempty
---------------------------------------------------------------------------------
-
-record NonemptyConstraint (S : Set) : Set where
-  field IsNonempty : S -> Set
-
-open NonemptyConstraint {{...}} public
-
-instance
-  nonemptyConstraintString : NonemptyConstraint String
-  nonemptyConstraintString .IsNonempty "" = Void
-  nonemptyConstraintString .IsNonempty _ = Unit
-
-  nonemptyConstraintList : NonemptyConstraint (List A)
-  nonemptyConstraintList .IsNonempty [] = Void
-  nonemptyConstraintList .IsNonempty _ = Unit
-
---------------------------------------------------------------------------------
 -- IsFoldable1, Foldable1
 --------------------------------------------------------------------------------
 
 record IsFoldable1 (S A : Set) : Set where
-  field
-    {{nonemptyConstraint}} : NonemptyConstraint S
-    {{isFoldable}} : IsFoldable S A
+  field {{isFoldable}} : IsFoldable S A
 
   foldMap1 : {{_ : Semigroup B}}
-    -> (A -> B) -> (s : S) {{_ : IsNonempty s}} -> B
+    -> (A -> B) -> (s : S) {{_ : Nonempty s}} -> B
   foldMap1 f s = fromJust (foldMap (just <<< f) s) {believeMe}
 
-  fold1 : {{_ : Semigroup A}} (s : S) {{_ : IsNonempty s}} -> A
+  fold1 : {{_ : Semigroup A}} (s : S) {{_ : Nonempty s}} -> A
   fold1 s = fromJust (foldMap just s) {believeMe}
 
-  foldr1 : (A -> A -> A) -> (s : S) {{_ : IsNonempty s}} -> A
+  foldr1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
   foldr1 f s = fromJust (foldr g nothing s) {believeMe}
     where
       g : A -> Maybe A -> Maybe A
       g a nothing = just a
       g a (just a') = just (f a a')
 
-  foldl1 : (A -> A -> A) -> (s : S) {{_ : IsNonempty s}} -> A
+  foldl1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
   foldl1 f s = fromJust (foldl g nothing s) {believeMe}
     where
       g : Maybe A -> A -> Maybe A
@@ -1612,10 +1546,10 @@ record IsFoldable1 (S A : Set) : Set where
 
   module _ {{_ : Ord A}} where
 
-    minimum : (s : S) {{_ : IsNonempty s}} -> A
+    minimum : (s : S) {{_ : Nonempty s}} -> A
     minimum = foldr1 min
 
-    maximum : (s : S) {{_ : IsNonempty s}} -> A
+    maximum : (s : S) {{_ : Nonempty s}} -> A
     maximum = foldr1 max
 
 open IsFoldable1 {{...}} public
@@ -1624,8 +1558,7 @@ Foldable1 : (Set -> Set) -> Set
 Foldable1 F = forall {A} -> IsFoldable1 (F A) A
 
 instance
-  isFoldable1 : {{_ : NonemptyConstraint S}} {{_ : IsFoldable S A}}
-    -> IsFoldable1 S A
+  isFoldable1 : {{_ : IsFoldable S A}} -> IsFoldable1 S A
   isFoldable1 = record {}
 
 --------------------------------------------------------------------------------

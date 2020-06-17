@@ -93,16 +93,17 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen A)) {_ : IsNonempty gs} -> Gen A
+oneof : (gs : List (Gen A)) {{_ : Nonempty gs}} -> Gen A
 oneof gs = do
   n <- choose (0 , count gs - 1)
   fromJust (at n gs) {believeMe}
 
-frequency : (xs : List (Nat * Gen A)) {_ : So (sum (map fst xs) > 0)} -> Gen A
+frequency : (xs : List (Nat * Gen A)) {{_ : So (sum (map fst xs) > 0)}}
+  -> Gen A
 frequency {A} xs = choose (1 , tot) >>= (\ x -> pick x xs)
   where
     tot = sum (map fst xs)
 
     pick : Nat -> List (Nat * Gen A) -> Gen A
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
-    pick n [] = undefined
+    pick n [] = undefined -- No worries. We'll never see this case.
