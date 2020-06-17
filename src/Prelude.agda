@@ -170,6 +170,10 @@ foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
 foldZ f g (negsuc n) = g n
 
+intToNat : Int -> Nat
+intToNat (negsuc _) = 0
+intToNat (pos n) = n
+
 open Agda.Builtin.Float public
   renaming (
     primNatToFloat to natToFloat;
