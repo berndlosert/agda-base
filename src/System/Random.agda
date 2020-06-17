@@ -7,7 +7,6 @@ open import Prelude
 open import Data.Bits
 open import Data.Ref
 open import Data.Word
-open import System.IO.Unsafe
 open import System.Time
 
 private variable A As G : Set
@@ -128,25 +127,32 @@ instance
 mkStdGen : Word64 -> StdGen
 mkStdGen s = stdGen: (mix64 s) (mixGamma (s + goldenGamma))
 
-theStdGen : Ref StdGen
-theStdGen = unsafePerformIO $ do
+theStdGen : IO (Ref StdGen)
+theStdGen = do
   ctr <- getTime
   key <- getCPUTime
   let seed = squares (natToWord64 ctr) (natToWord64 key)
   new (mkStdGen seed)
-{-# NOINLINE theStdGen #-}
 
 newStdGen : IO StdGen
-newStdGen = atomicModify theStdGen splitGen
+newStdGen = do
+  ref <- theStdGen
+  atomicModify ref splitGen
 
 getStdGen : IO StdGen
-getStdGen = read theStdGen
+getStdGen = do
+  ref <- theStdGen
+  read ref
 
 setStdGen : StdGen -> IO Unit
-setStdGen = write theStdGen
+setStdGen gen = do
+  ref <- theStdGen
+  write ref gen
 
 getStdRandom : (StdGen -> A * StdGen) -> IO A
-getStdRandom f = atomicModify theStdGen (swap <<< f)
+getStdRandom f = do
+  ref <- theStdGen
+  atomicModify ref (swap <<< f)
 
 --------------------------------------------------------------------------------
 -- Random and RandomR
