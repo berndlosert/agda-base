@@ -112,3 +112,6 @@ elements : (xs : List A) {{_ : Nonempty xs}} -> Gen A
 elements xs = map
   (\ n -> fromJust (at n xs) {{believeMe}})
   (choose {Nat} (0 , length xs - 1))
+
+sublistOf : List A -> Gen (List A)
+sublistOf xs = filterA (\ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs

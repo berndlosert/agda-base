@@ -5,7 +5,10 @@ module Data.List where
 open import Prelude
   hiding (find)
 
-private variable A B C : Set
+private
+  variable
+    A B C : Set
+    F : Set -> Set
 
 --------------------------------------------------------------------------------
 -- Destructors
@@ -168,6 +171,12 @@ find p = let ensure' p = (\ _ -> maybeToLeft unit <<< ensure p) in
 filter : (A -> Bool) -> List A -> List A
 filter p [] = []
 filter p (a :: as) = if p a then a :: filter p as else filter p as
+
+filterA : {{_ : Applicative F}} -> (A -> F Bool) -> List A -> F (List A)
+filterA {F} {A} p = foldr f (pure [])
+  where
+    f : A -> F (List A) -> F (List A)
+    f a as = (| if_then_else_ (p a) (| (a ::_) as |) as |)
 
 partition : (A -> Bool) -> List A -> List A * List A
 partition p = flip foldr ([] , []) \ where
