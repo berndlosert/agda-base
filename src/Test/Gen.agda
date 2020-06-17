@@ -107,3 +107,8 @@ frequency {A} xs = choose (1 , tot) >>= (\ x -> pick x xs)
     pick : Nat -> List (Nat * Gen A) -> Gen A
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
+
+elements : (xs : List A) {{_ : Nonempty xs}} -> Gen A
+elements xs = map
+  (\ n -> fromJust (at n xs) {believeMe})
+  (choose {Nat} (0 , length xs - 1))
