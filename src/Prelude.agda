@@ -1247,6 +1247,20 @@ record Applicative (F : Set -> Set) : Set where
   _<*_ : F A -> F B -> F A
   a <* b = (| const a b |)
 
+  replicateA : {{_ : IsBuildable S A}} -> Nat -> F A -> F S
+  replicateA {S} {A} n0 f = loop n0
+    where
+      loop : Nat -> F S
+      loop 0 = pure nil
+      loop (suc n) = (| cons f (loop n) |)
+
+  replicateA! : Nat -> F A -> F Unit
+  replicateA! n0 f = loop n0
+    where
+      loop : Nat -> F Unit
+      loop 0 = pure unit
+      loop (suc n) = f *> loop n
+
 open Applicative {{...}} public
 
 instance
