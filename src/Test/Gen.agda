@@ -96,9 +96,9 @@ sample g = do
 oneof : (gs : List (Gen A)) {{_ : Nonempty gs}} -> Gen A
 oneof gs = do
   n <- choose (0 , count gs - 1)
-  fromJust (at n gs) {believeMe}
+  fromJust (at n gs) {{believeMe}}
 
-frequency : (xs : List (Nat * Gen A)) {{_ : So (sum (map fst xs) > 0)}}
+frequency : (xs : List (Nat * Gen A)) {{_ : So $ sum (map fst xs) > 0}}
   -> Gen A
 frequency {A} xs = choose (1 , tot) >>= (\ x -> pick x xs)
   where
@@ -110,5 +110,5 @@ frequency {A} xs = choose (1 , tot) >>= (\ x -> pick x xs)
 
 elements : (xs : List A) {{_ : Nonempty xs}} -> Gen A
 elements xs = map
-  (\ n -> fromJust (at n xs) {believeMe})
+  (\ n -> fromJust (at n xs) {{believeMe}})
   (choose {Nat} (0 , length xs - 1))

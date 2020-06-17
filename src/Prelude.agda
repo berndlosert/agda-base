@@ -278,15 +278,11 @@ isJust : Maybe A -> Bool
 isJust (just _) = true
 isJust _ = false
 
-IsJust : Maybe A -> Set
-IsJust (just _) = Unit
-IsJust _ = Void
-
 isNothing : Maybe A -> Bool
 isNothing (just _) = false
 isNothing _ = true
 
-fromJust : (x : Maybe A) {_ : IsJust x} -> A
+fromJust : (x : Maybe A) {{_ : So $ isJust x}} -> A
 fromJust (just a) = a
 
 maybe : B -> (A -> B) -> Maybe A -> B
@@ -1525,20 +1521,20 @@ record IsFoldable1 (S A : Set) : Set where
 
   foldMap1 : {{_ : Semigroup B}}
     -> (A -> B) -> (s : S) {{_ : Nonempty s}} -> B
-  foldMap1 f s = fromJust (foldMap (just <<< f) s) {believeMe}
+  foldMap1 f s = fromJust (foldMap (just <<< f) s) {{believeMe}}
 
   fold1 : {{_ : Semigroup A}} (s : S) {{_ : Nonempty s}} -> A
-  fold1 s = fromJust (foldMap just s) {believeMe}
+  fold1 s = fromJust (foldMap just s) {{believeMe}}
 
   foldr1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
-  foldr1 f s = fromJust (foldr g nothing s) {believeMe}
+  foldr1 f s = fromJust (foldr g nothing s) {{believeMe}}
     where
       g : A -> Maybe A -> Maybe A
       g a nothing = just a
       g a (just a') = just (f a a')
 
   foldl1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
-  foldl1 f s = fromJust (foldl g nothing s) {believeMe}
+  foldl1 f s = fromJust (foldl g nothing s) {{believeMe}}
     where
       g : Maybe A -> A -> Maybe A
       g nothing a = just a
