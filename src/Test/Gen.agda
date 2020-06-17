@@ -113,5 +113,18 @@ elements xs = map
   (\ n -> fromJust (at n xs) {{believeMe}})
   (choose {Nat} (0 , length xs - 1))
 
+vectorOf : Nat -> Gen A -> Gen (List A)
+vectorOf = replicateA
+
+listOf : Gen A -> Gen (List A)
+listOf gen = sized \ n -> do
+  k <- choose (0 , n)
+  vectorOf k gen
+
 sublistOf : List A -> Gen (List A)
 sublistOf xs = filterA (\ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs
+
+shuffle : List A -> Gen (List A)
+shuffle xs = do
+  ns <- vectorOf (length xs) (choose {Nat} (0 , 2 ^ 32))
+  return (map snd (sortBy (comparing fst) (zip ns xs)))
