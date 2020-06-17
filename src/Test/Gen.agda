@@ -24,14 +24,14 @@ instance
 
   monadGen : Monad Gen
   monadGen ._>>=_ (gen: m) k = gen: \ r n ->
-    case genSplit r of \ where
+    case splitGen r of \ where
       (r1 , r2) -> let gen: m' = k (m r1 n) in m' r2 n
 
 {-
 private
   integerVariant : forall {G} {{_ : RandomGen G}} -> Int -> G -> G
   integerVariant {G} n g =
-      let (l , r) = genSplit g in
+      let (l , r) = splitGen g in
       if n >= 1
       then gamma n l
       else gamma (1 - n) r
@@ -46,7 +46,7 @@ private
           encode : Int -> G -> G
           encode (negsuc 0) g = g
           encode k g =
-            let (l , r) = genSplit g in
+            let (l , r) = splitGen g in
             if testBit n k
             then encode (k - 1) r
             else encode (k - 1) l
@@ -54,7 +54,7 @@ private
           zeroes : Int -> G -> G
           zeroes 0 g = g
           zeroes k g =
-            let (l , _) = genSplit g in
+            let (l , _) = splitGen g in
             zeroes (k - 1) l
 -}
 --variant : Nat -> Gen A -> Gen A
@@ -84,10 +84,9 @@ generate (gen: g) = do
   return (g r 30)
 
 sample' : Gen A -> IO (List A)
-sample' g = generate (sequence $ do
-    n <- 0 :: (range 2 20)
-    return (resize n g)
-  )
+sample' g = traverse generate $ do
+  n <- 0 :: (range 2 20)
+  return (resize n g)
 
 sample : {{_ : Show A}} -> Gen A -> IO Unit
 sample g = do
