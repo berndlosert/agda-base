@@ -192,4 +192,5 @@ instance
   randomRInt .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT = first (\ n -> fromNat n + from) $ genNat (intToNat $ to - from) g
+  ... | LT =
+    first (\ n -> fromNat n + from) $ genNat (fromPos (to - from) {believeMe}) g

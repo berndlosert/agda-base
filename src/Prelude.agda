@@ -170,9 +170,16 @@ foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
 foldZ f g (pos n) = f n
 foldZ f g (negsuc n) = g n
 
-intToNat : Int -> Nat
-intToNat (negsuc _) = 0
-intToNat (pos n) = n
+isPos : Int -> Bool
+isPos (pos _) = true
+isPos _ = false
+
+IsPos : Int -> Set
+IsPos (pos _) = Unit
+IsPos _ = Void
+
+fromPos : (i : Int) {_ : IsPos i} -> Nat
+fromPos (pos n) = n
 
 open Agda.Builtin.Float public
   renaming (
