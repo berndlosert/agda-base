@@ -7,6 +7,7 @@ open import Prelude
 open import Data.Bits
 open import Data.List
 open import Data.Stream as Stream using (Stream)
+open import Data.String as String using ()
 open import System.Random public
 
 private variable A B G : Set
@@ -32,12 +33,20 @@ instance
     case splitGen r of \ where
       (r1 , r2) -> let gen: m' = k (m r1 n) in m' r2 n
 
+--------------------------------------------------------------------------------
+-- Gen combinators
+--------------------------------------------------------------------------------
+
 variant : Nat -> Gen A -> Gen A
 variant v (gen: m) =
     gen: \ r n -> m (Stream.at (suc v) (rands r)) n
   where
     rands : {{_ : RandomGen G}} -> G -> Stream G
     rands g = Stream.generate splitGen g
+
+generate' : Nat -> StdGen -> Gen A -> A
+generate' n rnd (gen: m) = let (size , rnd') = randomR (0 , n) rnd in
+  m rnd' size
 
 sized : (Nat -> Gen A) -> Gen A
 sized f = gen: \ r n -> let gen: m = f n in m r n
@@ -233,7 +242,7 @@ instance
   testableFunction .property f = forAll arbitrary f
 
 --------------------------------------------------------------------------------
--- Config & quickCheck
+-- Config
 --------------------------------------------------------------------------------
 
 record Config : Set where
@@ -248,8 +257,80 @@ quick = record {
     maxTest = 100;
     maxFail = 1000;
     size = \ n -> n / 2 + 3;
-    every = \ n args -> let s = show n in s
+    every = \ n args ->
+      let s = show n in
+      s ++ pack (replicate (String.length s) '\b')
   }
 
 verbose : Config
-verbose = record quick { every = \n args -> show n ++ ":\n" ++ unlines args }
+verbose = record quick {
+    every = \n args -> show n ++ ":\n" ++ String.unlines args
+  }
+
+--------------------------------------------------------------------------------
+-- check
+--------------------------------------------------------------------------------
+
+private
+  done : String -> Nat -> List (List String) -> IO Unit
+  done mesg ntest stamps =
+      do putStr (mesg ++ " " ++ show ntest ++ " tests" ++ table)
+    where
+      display : List String -> String
+      display [] = ".\n"
+      display [ x ] = " (" ++ x ++ ").\n"
+      display xs = ".\n" ++ String.unlines (map (_++ ".") xs)
+
+      pairLength : List (List String) -> Nat * List String
+      pairLength [] = (0 , [])
+      pairLength xss@(xs :: _) = (length xss , xs)
+
+      percentage : Nat -> Nat -> String
+      percentage n 0 = undefined -- No worries; we'll never use this case
+      percentage n m@(suc _) = show ((100 * n) / m) ++ "%"
+
+      entry : Nat * (List String) -> String
+      entry (n , s) = percentage n ntest
+        ++ " "
+        ++ String.concat (intersperse ", " s)
+
+      table : String
+      table = display
+        <<< map entry
+        <<< reverse
+        <<< sort
+        <<< map pairLength
+        <<< group
+        <<< sort
+        <<< filter (not <<< null)
+        $ stamps
+
+  {-# TERMINATING #-}
+  tests : Config -> Gen Result -> StdGen -> Nat -> Nat
+    -> List (List String) -> IO Unit
+  tests config gen rnd0 ntest nfail stamps =
+    if ntest == Config.maxTest config
+    then (do done "OK, passed" ntest stamps)
+    else if nfail == Config.maxFail config
+    then (do done "Arguments exhausted after" ntest stamps)
+    else (
+      let
+        (rnd1 , rnd2) = splitGen rnd0
+        result = generate' (Config.size config ntest) rnd2 gen
+      in do
+        putStr (Config.every config ntest (Result.arguments result))
+        case Result.ok result of \ where
+          nothing -> tests
+            config gen rnd1 ntest (nfail + 1) stamps
+          (just true) -> tests
+            config gen rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
+          (just false) -> putStr ("Falsifiable, after "
+            ++ show ntest
+            ++ " tests:\n"
+            ++ String.unlines (Result.arguments result))
+      )
+
+_check_ : {{_ : Testable A}} -> Config -> A -> IO Unit
+config check a = do
+  rnd <- newStdGen
+  tests config (evaluate a) rnd 0 0 []
