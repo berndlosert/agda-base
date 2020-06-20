@@ -4,7 +4,7 @@ module Data.Stream where
 
 open import Prelude
 
-private variable A : Set
+private variable A B : Set
 
 record Stream (A : Set) : Set where
   coinductive
@@ -40,10 +40,10 @@ iterate : (A -> A) -> A -> Stream A
 iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
-generate : (A -> A * A) -> A -> Stream A
-generate split a0 = let (a1 , a2) = split a0 in \ where
-  .head -> a1
-  .tail -> generate split a2
+unfold : (B -> A * B) -> B -> Stream A
+unfold f b = let (a , b') = f b in \ where
+  .head -> a
+  .tail -> unfold f b'
 
 repeat : A -> Stream A
 repeat a .head = a
