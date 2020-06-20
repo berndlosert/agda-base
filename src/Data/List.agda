@@ -255,7 +255,7 @@ sort : {{_ : Ord A}} -> List A -> List A
 sort = sortBy compare
 
 sortOn : {{_ : Ord B}} -> (A -> B) -> List A -> List A
-sortOn f = map snd <<< sortBy (comparing fst) <<< map (split f id)
+sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
 
 --------------------------------------------------------------------------------
 -- Searching
