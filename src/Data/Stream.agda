@@ -8,7 +8,6 @@ private variable A : Set
 
 record Stream (A : Set) : Set where
   coinductive
-  constructor stream:
   field
     head : A
     tail : Stream A
@@ -41,6 +40,11 @@ iterate : (A -> A) -> A -> Stream A
 iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
+generate : (A -> A * A) -> A -> Stream A
+generate split a0 = let (a1 , a2) = split a0 in \ where
+  .head -> a1
+  .tail -> generate split a2
+
 repeat : A -> Stream A
 repeat a .head = a
 repeat a .tail = repeat a
@@ -53,3 +57,7 @@ prepend (a :: as) ys .tail = prepend as ys
 take : Nat -> Stream A -> List A
 take 0 _ = []
 take (suc n) as = head as :: take n (tail as)
+
+at : Nat -> Stream A -> A
+at 0 as = head as
+at (suc n) as = at n (tail as)
