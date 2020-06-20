@@ -98,6 +98,9 @@ padLeft l c s =
 concat : List String -> String
 concat = foldr _++_ ""
 
+unlines : List String -> String
+unlines = concat <<< map (flip snoc '\n')
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
