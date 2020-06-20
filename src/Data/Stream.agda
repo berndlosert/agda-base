@@ -8,6 +8,7 @@ private variable A : Set
 
 record Stream (A : Set) : Set where
   coinductive
+  constructor stream:
   field
     head : A
     tail : Stream A
