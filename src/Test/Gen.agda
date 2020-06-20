@@ -6,9 +6,10 @@ open import Prelude
 
 open import Data.Bits
 open import Data.List
+open import Data.Stream as Stream using (Stream)
 open import System.Random public
 
-private variable A : Set
+private variable A G : Set
 
 record Gen (A : Set) : Set where
   constructor gen:
@@ -27,38 +28,12 @@ instance
     case splitGen r of \ where
       (r1 , r2) -> let gen: m' = k (m r1 n) in m' r2 n
 
-{-
-private
-  integerVariant : forall {G} {{_ : RandomGen G}} -> Int -> G -> G
-  integerVariant {G} n g =
-      let (l , r) = splitGen g in
-      if n >= 1
-      then gamma n l
-      else gamma (1 - n) r
-    where
-      ilog2 : Int -> Int
-      ilog2 (pos 1) = 0
-      ilog2 n = 1 + ilog2 (n / 2)
-
-      gamma : Int -> G -> G
-      gamma n = let k = ilog2 n in encode k <<< zeroes k
-        where
-          encode : Int -> G -> G
-          encode (negsuc 0) g = g
-          encode k g =
-            let (l , r) = splitGen g in
-            if testBit n k
-            then encode (k - 1) r
-            else encode (k - 1) l
-
-          zeroes : Int -> G -> G
-          zeroes 0 g = g
-          zeroes k g =
-            let (l , _) = splitGen g in
-            zeroes (k - 1) l
--}
---variant : Nat -> Gen A -> Gen A
---variant k (gen: g) = gen: \ r n -> g (k $ r) n
+variant : Nat -> Gen A -> Gen A
+variant v (gen: m) =
+    gen: \ r n -> m (Stream.at (suc v) (rands r)) n
+  where
+    rands : {{_ : RandomGen G}} -> G -> Stream G
+    rands g = Stream.generate splitGen g
 
 sized : (Nat -> Gen A) -> Gen A
 sized f = gen: \ r n -> let gen: m = f n in m r n
