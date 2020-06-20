@@ -62,10 +62,18 @@ inits = scanl snoc []
 tails : List A -> List (List A)
 tails = scanr cons []
 
+span : (A -> Bool) -> List A -> List A * List A
+span _ as@[] = (as , as)
+span p as@(x :: xs) =
+  if p x
+  then (let (ys , zs) = span p xs in (x :: ys , zs))
+  else ([] , xs)
+
 break : (A -> Bool) -> List A -> List A * List A
 break p [] = ([] , [])
 break p as@(x :: xs) =
-  if p x then ([] , as)
+  if p x
+  then ([] , as)
   else let (ys , zs) = break p xs in (x :: ys , zs)
 
 stripPrefix : {{_ : Eq A}} -> List A -> List A -> Maybe (List A)
@@ -73,6 +81,16 @@ stripPrefix [] as = just as
 stripPrefix (x :: xs) (y :: ys) =
   if x == y then stripPrefix xs ys else nothing
 stripPrefix _ _ = nothing
+
+{-# TERMINATING #-}
+groupBy : (A -> A -> Bool) -> List A -> List (List A)
+groupBy _ [] = []
+groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
+  (x :: ys) :: groupBy eq zs
+
+{-# TERMINATING #-}
+group : {{_ : Eq A}} -> List A -> List (List A)
+group = groupBy _==_
 
 --------------------------------------------------------------------------------
 -- Index-based operations
