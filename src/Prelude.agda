@@ -256,11 +256,11 @@ fromEither : (A -> B) -> Either A B -> B
 fromEither f (left a) = f a
 fromEither _ (right b) = b
 
-split : (A -> B) -> (A -> C) -> A -> Tuple B C
-split f g a = (f a , g a)
+tuple : (A -> B) -> (A -> C) -> A -> Tuple B C
+tuple f g a = (f a , g a)
 
 swap : Tuple A B -> Tuple B A
-swap = split snd fst
+swap = tuple snd fst
 
 dupe : A -> Tuple A A
 dupe a = (a , a)
@@ -1179,7 +1179,7 @@ instance
   functorEither .map = second
 
   bifunctorTuple : Bifunctor Tuple
-  bifunctorTuple .bimap f g = split (f <<< fst) (g <<< snd)
+  bifunctorTuple .bimap f g = tuple (f <<< fst) (g <<< snd)
 
   functorTuple : Functor (Tuple A)
   functorTuple .map = second
