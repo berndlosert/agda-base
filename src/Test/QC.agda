@@ -42,7 +42,7 @@ variant v (gen: m) =
     gen: \ r n -> m (Stream.at (suc v) (rands r)) n
   where
     rands : {{_ : RandomGen G}} -> G -> Stream G
-    rands g = Stream.generate splitGen g
+    rands g = Stream.unfold splitGen g
 
 generate' : Nat -> StdGen -> Gen A -> A
 generate' n rnd (gen: m) = let (size , rnd') = randomR (0 , n) rnd in
@@ -213,6 +213,7 @@ forAll gen body = property: do
   res <- evaluate (body a)
   return (record res { arguments = show a :: Result.arguments res })
 
+infixr 0 _==>_
 _==>_ : {{_ : Testable A}} -> Bool -> A -> Property
 true ==> a = property a
 false ==> a = result none
