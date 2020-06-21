@@ -269,7 +269,7 @@ verbose = record quick {
   }
 
 --------------------------------------------------------------------------------
--- check
+-- check, quickCheck & verboseCheck
 --------------------------------------------------------------------------------
 
 private
@@ -331,7 +331,13 @@ private
             ++ String.unlines (Result.arguments result))
       )
 
-_check_ : {{_ : Testable A}} -> Config -> A -> IO Unit
-config check a = do
+check : {{_ : Testable A}} -> Config -> A -> IO Unit
+check config a = do
   rnd <- newStdGen
   tests config (evaluate a) rnd 0 0 []
+
+quickCheck : {{_ : Testable A}} -> A -> IO Unit
+quickCheck = check quick
+
+verboseCheck : {{_ : Testable A}} -> A -> IO Unit
+verboseCheck = check verbose
