@@ -22,7 +22,7 @@ record RandomGen (G : Set) : Set where
 
 open RandomGen {{...}} public
 
--- genBits n generates a random n-bit number.
+-- genBits n generates a random Nat in the range [0, 2 ^ n)
 genBits : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
 genBits {G} n g0 =
     fst $ foldr accum (first word64ToNat (genWord64' g0) , 1) q
