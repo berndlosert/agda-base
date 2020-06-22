@@ -31,7 +31,7 @@ instance
 
   monadGen : Monad Gen
   monadGen ._>>=_ (gen: m) k = gen: \ r n ->
-    case splitGen r of \ where
+    case split r of \ where
       (r1 , r2) -> let gen: m' = k (m r1 n) in m' r2 n
 
 --------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ variant v (gen: m) =
     gen: \ r n -> m (Stream.at (suc v) (rands r)) n
   where
     rands : {{_ : RandomGen G}} -> G -> Stream G
-    rands g = Stream.unfold splitGen g
+    rands g = Stream.unfold split g
 
 generate' : Nat -> StdGen -> Gen A -> A
 generate' n rnd (gen: m) = let (size , rnd') = randomR (0 , n) rnd in
@@ -317,7 +317,7 @@ private
     then (do done "Arguments exhausted after" ntest stamps)
     else (
       let
-        (rnd1 , rnd2) = splitGen rnd0
+        (rnd1 , rnd2) = split rnd0
         result = generate' (Config.size config ntest) rnd2 gen
       in do
         putStr (Config.every config ntest (Result.arguments result))

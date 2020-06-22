@@ -17,47 +17,49 @@ private variable A As G : Set
 
 record RandomGen (G : Set) : Set where
   field
-    genWord64 : G -> Word64 * G
-    splitGen : G -> G * G
+    next : G -> Word64 * G
+    genRange : G -> Nat * Nat
+    split : G -> G * G
 
 open RandomGen {{...}} public
 
--- genBits n generates a random Nat in the range [0, 2 ^ n)
-genBits : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
-genBits {G} n g0 =
-    fst $ foldr accum (first word64ToNat (genWord64' g0) , 1) q
-  where
-    q = n / 64
-    r = n % 64
-    mask = shiftR oneBits (64 - r)
+private
+  -- nextNat n generates a random Nat in the range [0, 2 ^ n)
+  nextNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
+  nextNat {G} n g0 =
+      fst $ foldr accum (first word64ToNat (next' g0) , 1) q
+    where
+      q = n / 64
+      r = n % 64
+      mask = shiftR oneBits (64 - r)
 
-    -- This will generate a Word64 value in the range [0, 2 ^ r).
-    genWord64' : G -> Word64 * G
-    genWord64' g = first (_:&: mask) (genWord64 g)
+      -- This will generate a Word64 value in the range [0, 2 ^ r).
+      next' : G -> Word64 * G
+      next' g = first (_:&: mask) (next g)
 
-    -- We use this to build up the random number in the foldr expression.
-    accum : Unit -> (Nat * G) * Nat -> (Nat * G) * Nat
-    accum _ ((m , g) , i) =
-      let
-        (w , g') = genWord64 g
-        m' = m + 2 ^ (64 * i) * word64ToNat w
-      in
-        (m' , g' , i + 1)
+      -- We use this to build up the random number in the foldr expression.
+      accum : Unit -> (Nat * G) * Nat -> (Nat * G) * Nat
+      accum _ ((m , g) , i) =
+        let
+          (w , g') = next g
+          m' = m + 2 ^ (64 * i) * word64ToNat w
+        in
+          (m' , g' , i + 1)
 
--- genNat n generates a Nat in the range [0 , n].
-{-# TERMINATING #-}
-genNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
-genNat {G} n g0 = loop g0
-  where
-    log2 : Nat -> Nat
-    log2 0 = 1
-    log2 m = 1 + log2 (m / 2)
+  -- nextNat' n generates a Nat in the range [0 , n].
+  {-# TERMINATING #-}
+  nextNat' : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
+  nextNat' {G} n g0 = loop g0
+    where
+      log2 : Nat -> Nat
+      log2 0 = 1
+      log2 m = 1 + log2 (m / 2)
 
-    k = log2 n
+      k = log2 n
 
-    loop : G -> Nat * G
-    loop g = let (m , g') = genBits k g in
-      if m > n then loop g' else (m , g')
+      loop : G -> Nat * G
+      loop g = let (m , g') = nextNat k g in
+        if m > n then loop g' else (m , g')
 
 --------------------------------------------------------------------------------
 -- StdGen (SplitMix version)
@@ -114,11 +116,12 @@ private
 
 instance
   randomGenStdGen : RandomGen StdGen
-  randomGenStdGen .genWord64 (stdGen: seed gamma) =
+  randomGenStdGen .next (stdGen: seed gamma) =
       (mix64 seed' , stdGen: seed' gamma)
     where
       seed' = seed + gamma
-  randomGenStdGen .splitGen (stdGen: seed gamma) =
+  randomGenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
+  randomGenStdGen .split (stdGen: seed gamma) =
       (stdGen: seed'' gamma , stdGen: (mix64 seed') (mixGamma seed''))
     where
       seed' = seed + gamma
@@ -137,7 +140,7 @@ theStdGen = do
 newStdGen : IO StdGen
 newStdGen = do
   ref <- theStdGen
-  atomicModify ref splitGen
+  atomicModify ref split
 
 getStdGen : IO StdGen
 getStdGen = do
@@ -167,8 +170,7 @@ record Random (A : Set) : Set where
 open Random {{...}} public
 
 record RandomR (A : Set) : Set where
-  field
-    randomR : {{_ : RandomGen G}} -> A * A -> G -> A * G
+  field randomR : {{_ : RandomGen G}} -> A * A -> G -> A * G
 
   randomRIO : A * A -> IO A
   randomRIO = getStdRandom <<< randomR
@@ -177,7 +179,7 @@ open RandomR {{...}} public
 
 instance
   randomBool : Random Bool
-  randomBool .random g = let (n , g') = genWord64 g in
+  randomBool .random g = let (n , g') = next g in
     (testBit n 0 , g')
 
   {-# TERMINATING #-}
@@ -185,7 +187,7 @@ instance
   randomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT = first (_+ from) $ genNat (to - from) g
+  ... | LT = first (_+ from) $ nextNat' (to - from) g
 
   {-# TERMINATING #-}
   randomRInt : RandomR Int
@@ -193,4 +195,4 @@ instance
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =
-    first (\ n -> fromNat n + from) $ genNat (fromPos (to - from) {believeMe}) g
+    first (\ n -> fromNat n + from) $ nextNat' (fromPos (to - from) {believeMe}) g
