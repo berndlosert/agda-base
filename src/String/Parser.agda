@@ -6,8 +6,13 @@ open import Prelude
   hiding (count)
 
 open import Control.Monad.State.Trans
-import Data.List as List
-import Data.String as String
+  using (
+    StateT; stateT:; runStateT;
+    functorStateT; applicativeStateT;
+    alternativeStateT; monadStateT
+  )
+
+open import Data.String as String using ()
 
 private variable A B C : Set
 
