@@ -61,3 +61,11 @@ take (suc n) as = head as :: take n (tail as)
 at : Nat -> Stream A -> A
 at 0 as = head as
 at (suc n) as = at n (tail as)
+
+cycle : (as : List A) {{_ : Nonempty as}} -> Stream A
+cycle {A} as = unfold f as
+  where
+    f : List A -> A * List A
+    f [] = undefined -- We never use this case anyways.
+    f [ x ] = (x , as)
+    f (x :: xs) = (x , xs)
