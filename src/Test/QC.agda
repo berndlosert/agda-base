@@ -5,6 +5,7 @@ module Test.QC where
 open import Prelude
 
 open import Data.Bits
+open import Data.Ix
 open import Data.List
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
@@ -73,7 +74,7 @@ generate (gen: g) = do
 
 sample' : Gen A -> IO (List A)
 sample' g = traverse generate $ do
-  n <- 0 :: (range 2 20)
+  n <- 0 :: range (2 , 20)
   return (resize n g)
 
 sample : {{_ : Show A}} -> Gen A -> IO Unit
