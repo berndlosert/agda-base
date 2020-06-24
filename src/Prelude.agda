@@ -1343,12 +1343,12 @@ return = pure
 instance
   monadEither : Monad (Either A)
   monadEither ._>>=_ = \ where
-    (left a) k -> left a
+    (left a) _ -> left a
     (right x) k -> k x
 
   monadMaybe : Monad Maybe
   monadMaybe ._>>=_ = \ where
-    nothing k -> nothing
+    nothing _ -> nothing
     (just x) k -> k x
 
   monadList : Monad List
@@ -1436,7 +1436,8 @@ record IsFoldable (S A : Set) : Set where
   product = getProduct <<< foldMap product:
 
   find : (A -> Bool) -> S -> Maybe A
-  find p = map getFirst <<< foldMap (map first: <<< ensure p)
+  find p = leftToMaybe <<<
+    foldlM (\ _ a ->  if p a then left a else right unit) unit
 
   module _ {{_ : Eq A}} where
 
