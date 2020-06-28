@@ -4,23 +4,23 @@ module Control.Monad.Random.Class where
 
 open import Prelude
 
-private variable A : Set
+private variable a : Set
 
 abstract
   Range : Set -> Set
-  Range A = A * A
+  Range a = a * a
 
-  getRange : Range A -> A * A
+  getRange : Range a -> a * a
   getRange = id
 
-  mkRange : {{_ : Ord A}} (a a' : A) {_ : (a < a') === True} -> Range A
-  mkRange a a' = (a , a')
+  mkRange : {{_ : Ord a}} (l u : a) {{_ : Assert $ l < u}} -> Range a
+  mkRange l u = (l , u)
 
-record MonadRandom (M : Set -> Set) : Set where
+record MonadRandom (m : Set -> Set) : Set where
   field
-    getRandom : M A
-    getRandoms : M (List A)
-    getRandomR : Range A -> M A
-    getRandomRs : Range A -> M (List A)
+    getRandom : m a
+    getRandoms : m (List a)
+    getRandomR : Range a -> m a
+    getRandomRs : Range a -> m (List a)
 
 open MonadRandom {{...}} public

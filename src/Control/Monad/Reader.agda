@@ -4,7 +4,7 @@ module Control.Monad.Reader where
 
 open import Prelude
 
-private variable A B R R' : Set
+private variable a b r r' : Set
 
 open import Control.Monad.Reader.Trans
 
@@ -12,16 +12,16 @@ open Control.Monad.Reader.Trans public
   using (functorReaderT; applicativeReaderT; monadReaderT)
 
 Reader : Set -> Set -> Set
-Reader R = ReaderT R Identity
+Reader r = ReaderT r Identity
 
-reader: : (R -> A) -> Reader R A
-reader: f = ReaderT: (Identity: ∘ f)
+reader : (r -> a) -> Reader r a
+reader f = ReaderT: (Identity: ∘ f)
 
-runReader : Reader R A -> R -> A
+runReader : Reader r a -> r -> a
 runReader m = runIdentity ∘ runReaderT m
 
-mapReader : (A -> B) -> Reader R A -> Reader R B
+mapReader : (a -> b) -> Reader r a -> Reader r b
 mapReader f = mapReaderT (Identity: ∘ f ∘ runIdentity)
 
-withReader : (R' -> R) -> Reader R A -> Reader R' A
+withReader : (r' -> r) -> Reader r a -> Reader r' a
 withReader f m = withReaderT f m

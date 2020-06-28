@@ -4,22 +4,22 @@ module Control.Comonad where
 
 open import Prelude
 
-private variable A B C : Set
+private variable a b c : Set
 
-record Comonad (W : Set -> Set) : Set where
+record Comonad (w : Set -> Set) : Set where
   infixl 1 _=>>_ _=>=_
   field
-    {{functor}} : Functor W
-    extend : (W A -> B) -> W A -> W B
-    extract : W A -> A
+    {{functor}} : Functor w
+    extend : (w a -> b) -> w a -> w b
+    extract : w a -> a
 
-  duplicate : W A -> W (W A)
+  duplicate : w a -> w (w a)
   duplicate = extend id
 
-  _=>>_ : W A -> (W A -> B) -> W B
+  _=>>_ : w a -> (w a -> b) -> w b
   _=>>_ = flip extend
 
-  _=>=_ : (W A -> B) -> (W B -> C) -> (W A -> C)
+  _=>=_ : (w a -> b) -> (w b -> c) -> (w a -> c)
   f =>= g = g ∘ extend f
 
 open Comonad {{...}} public

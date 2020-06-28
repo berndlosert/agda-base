@@ -6,18 +6,18 @@ open import Prelude
 
 private
   variable
-    A : Set
+    a : Set
     m n : Nat
 
-data Vector (A : Set) : Nat -> Set where
-  [] : Vector A 0
-  _::_ : forall {n} -> A -> Vector A n -> Vector A (Suc n)
+data Vector (a : Set) : Nat -> Set where
+  [] : Vector a 0
+  _::_ : forall {n} -> a -> Vector a n -> Vector a (Suc n)
 
-append : Vector A m -> Vector A n -> Vector A (m + n)
+append : Vector a m -> Vector a n -> Vector a (m + n)
 append [] as = as
 append (a :: as) as' = a :: append as as'
 
-splitAt : (m : Nat) -> Vector A (m + n) -> Vector A m * Vector A n
+splitAt : (m : Nat) -> Vector a (m + n) -> Vector a m * Vector a n
 splitAt 0 as = ([] , as)
 splitAt (Suc k) (a :: as) with (splitAt k as)
 ... | (l , r) = (a :: l , r)

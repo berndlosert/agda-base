@@ -4,12 +4,12 @@ module Data.Ix where
 
 open import Prelude
 
-record Ix (A : Set) : Set where
+record Ix (a : Set) : Set where
   field
-    range : A * A -> List A
-    inRange : A * A -> A -> Bool
-    rangeSize : A * A -> Nat
-    index : A * A -> A -> Maybe Nat
+    range : a * a -> List a
+    inRange : a * a -> a -> Bool
+    rangeSize : a * a -> Nat
+    index : a * a -> a -> Maybe Nat
 
 open Ix {{...}} public
 
@@ -31,8 +31,8 @@ instance
       else if m < n then m :: range (m + 1 , n)
       else (m :: range (m - 1 , n))
   ixInt .inRange (m , n) k = m <= k && k <= n
-  ixInt .rangeSize (m , n) = fromPos (abs (m - n)) {believeMe}
+  ixInt .rangeSize (m , n) = fromPos (abs (m - n)) {{believeMe}}
   ixInt .index (m , n) k =
     if inRange (m , n) k
-    then Just $ fromPos (abs $ k - m) {believeMe}
+    then Just $ fromPos (abs $ k - m) {{believeMe}}
     else Nothing

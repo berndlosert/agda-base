@@ -4,15 +4,15 @@ module Control.Monad.Reader.Class where
 
 open import Prelude
 
-private variable A : Set
+private variable a : Set
 
-record MonadReader (R : Set) (M : Set -> Set) : Set where
+record MonadReader (r : Set) (m : Set -> Set) : Set where
   field
-    {{monad}} : Monad M
-    ask : M R
-    local : (R -> R) -> M ~> M
+    {{monad}} : Monad m
+    ask : m r
+    local : (r -> r) -> m ~> m
 
-  asks : (R -> A) -> M A
+  asks : (r -> a) -> m a
   asks f = do
     r <- ask
     return (f r)

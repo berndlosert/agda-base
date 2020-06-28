@@ -4,9 +4,8 @@ module Control.Thunk where
 
 open import Control.Size
 
-record Thunk (i : Size) (F : Size -> Set -> Set) (X : Set) : Set where
+record Thunk (i : Size) (f : Size -> Set -> Set) (a : Set) : Set where
   coinductive
-  field
-    force : {j : Size< i} -> F j X
+  field force : {j : Size< i} -> f j a
 
 open Thunk public

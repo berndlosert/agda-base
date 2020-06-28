@@ -4,21 +4,22 @@ module Data.Result where
 
 open import Prelude
 
-data Result (E X : Set) : Set where
-  error : E -> Result E X
-  ok : X -> Result E X
+private variable e : Set
+
+data Result (e a : Set) : Set where
+  Error : e -> Result e a
+  Ok : a -> Result e a
 
 instance
-  functorResult : forall {E} -> Functor (Result E)
+  functorResult : Functor (Result e)
   functorResult .map f = λ where
-    (ok x) -> ok (f x)
-    (error e) -> error e
+    (Ok x) -> Ok (f x)
+    (Error e) -> Error e
 
-  applicativeResult : forall {E} {{_ : Semigroup E}}
-    -> Applicative (Result E)
-  applicativeResult .pure = ok
+  applicativeResult : {{_ : Semigroup e}} -> Applicative (Result e)
+  applicativeResult .pure = Ok
   applicativeResult ._<*>_ = λ where
-    (ok f) (ok x) -> ok (f x)
-    (ok _) (error e) -> error e
-    (error e) (error e') -> error (e <> e')
-    (error e) (ok _) -> error e
+    (Ok f) (Ok x) -> Ok (f x)
+    (Ok _) (Error e) -> Error e
+    (Error e) (Error e') -> Error (e <> e')
+    (Error e) (Ok _) -> Error e

@@ -8,14 +8,12 @@ open import Control.Monad.Eff as Eff
   using (Effect; Union; Member; Eff)
 
 Reader : Set -> Effect
-Reader R A = R -> A
+Reader r a = r -> a
 
-ask : forall {R Fs} {{_ : Member (Reader R) Fs}} -> Eff Fs R
+ask : forall {r fs} {{_ : Member (Reader r) fs}} -> Eff fs r
 ask = Eff.send id
 
-run : forall {R Fs X} -> R -> Eff (Reader R :: Fs) X -> Eff Fs X
-run {R} {Fs} r eff = Eff.interpret t eff
-  where
-    t : Union (Reader R :: Fs) ~> Eff Fs
-    t (Left k) = return (k r)
-    t (Right u) = Eff.lift u
+run : forall {r fs a} -> r -> Eff (Reader r :: fs) a -> Eff fs a
+run r = Eff.interpret λ where
+  (Left k) -> return (k r)
+  (Right u) -> Eff.lift u

@@ -2,23 +2,26 @@
 
 module Control.Monad.Codensity where
 
--- Codensity F is a monad for any F in the same sense that X -> X is a monoid
--- for any X.
+open import Prelude
 
-open import Control.Category
-open import Control.Monad
-open import Data.Functor
+private variable f m : Set -> Set
 
 Codensity : (Set -> Set) -> Set -> Set
-Codensity F X = forall {Y} -> (X -> F Y) -> F Y
+Codensity f a = forall {b} -> (a -> f b) -> f b
 
 instance
-  monadCodensity : forall {F} -> Monad (Codensity F)
-  monadCodensity .return x = λ k -> k x
-  monadCodensity .extend f m = λ k1 -> m (λ k2 -> (f k2) k1)
+  functorCodensity : Functor (Codensity f)
+  functorCodensity .map f x =  λ k -> x (k ∘ f)
 
-rep : forall {M} {{_ : Monad M}} -> M ~> Codensity M
-rep x = x >>=_
+  applicativeCodensity : Applicative (Codensity f)
+  applicativeCodensity .pure x = λ k -> k x
+  applicativeCodensity ._<*>_ f x = λ k -> f (λ g -> x (λ a -> k (g a)))
 
-abs : forall {M} {{_ : Monad M}} -> Codensity M ~> M
-abs f = f return
+  monadCodensity : Monad (Codensity f)
+  monadCodensity ._>>=_ m f = λ k1 -> m (λ k2 -> (f k2) k1)
+
+toCodensity : {{_ : Monad m}} -> m ~> Codensity m
+toCodensity x = x >>=_
+
+fromCodensity : {{_ : Monad m}} -> Codensity m ~> m
+fromCodensity f = f return

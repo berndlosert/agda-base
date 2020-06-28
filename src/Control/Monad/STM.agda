@@ -4,21 +4,21 @@ module Control.Monad.STM where
 
 open import Prelude
 
-private variable A B : Set
+private variable a b : Set
 
 postulate
   STM : Set -> Set
-  atomically : STM A -> IO A
-  retry : STM A
-  orElse : STM A -> STM A -> STM A
+  atomically : STM a -> IO a
+  retry : STM a
+  orElse : STM a -> STM a -> STM a
   check : Bool -> STM Unit
 
 private
   postulate
-    mapSTM : (A -> B) -> STM A -> STM B
-    pureSTM : A -> STM A
-    apSTM : STM (A -> B) -> STM A -> STM B
-    bindSTM : STM A -> (A -> STM B) -> STM B
+    mapSTM : (a -> b) -> STM a -> STM b
+    pureSTM : a -> STM a
+    apSTM : STM (a -> b) -> STM a -> STM b
+    bindSTM : STM a -> (a -> STM b) -> STM b
 
 instance
   functorSTM : Functor STM

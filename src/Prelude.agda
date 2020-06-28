@@ -1189,7 +1189,7 @@ instance
 -- applicative
 --------------------------------------------------------------------------------
 
-record applicative (f : Set -> Set) : Set where
+record Applicative (f : Set -> Set) : Set where
   infixl 4 _<*>_
   field
     overlap {{super}} : Functor f
@@ -1218,65 +1218,65 @@ record applicative (f : Set -> Set) : Set where
       loop 0 = pure unit
       loop (Suc n) = fa *> loop n
 
-open applicative {{...}} public
+open Applicative {{...}} public
 
 instance
-  applicativeEither : applicative (Either a)
+  applicativeEither : Applicative (Either a)
   applicativeEither .pure = Right
   applicativeEither ._<*>_ = λ where
     (Left a) _ -> Left a
     (Right f) -> map f
 
-  applicativeMaybe : applicative Maybe
+  applicativeMaybe : Applicative Maybe
   applicativeMaybe .pure = Just
   applicativeMaybe ._<*>_ = λ where
     (Just f) -> map f
     Nothing _ -> Nothing
 
-  applicativeList : applicative List
+  applicativeList : Applicative List
   applicativeList .pure = singleton
   applicativeList ._<*>_ = λ where
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
 
-  applicativeIO : applicative IO
+  applicativeIO : Applicative IO
   applicativeIO .pure = pureIO
   applicativeIO ._<*>_ = apIO
 
-  applicativeIdentity : applicative Identity
+  applicativeIdentity : Applicative Identity
   applicativeIdentity .pure = Identity:
   applicativeIdentity ._<*>_ = map ∘ runIdentity
 
-  applicativeConst : {{_ : Monoid a}} -> applicative (Const a)
+  applicativeConst : {{_ : Monoid a}} -> Applicative (Const a)
   applicativeConst .pure _ = Const: neutral
   applicativeConst ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
-  applicativeSum : applicative Sum
+  applicativeSum : Applicative Sum
   applicativeSum .pure = Sum:
   applicativeSum ._<*>_ (Sum: f) (Sum: x) = Sum: (f x)
 
-  applicativeProduct : applicative Product
+  applicativeProduct : Applicative Product
   applicativeProduct .pure = Product:
   applicativeProduct ._<*>_ (Product: f) (Product: x) = Product: (f x)
 
-  applicativeDual : applicative Dual
+  applicativeDual : Applicative Dual
   applicativeDual .pure = Dual:
   applicativeDual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
 
-  applicativeFirst : applicative First
+  applicativeFirst : Applicative First
   applicativeFirst .pure = First:
   applicativeFirst ._<*>_ (First: f) (First: x) = First: (f x)
 
-  applicativeLast : applicative Last
+  applicativeLast : Applicative Last
   applicativeLast .pure = Last:
   applicativeLast ._<*>_ (Last: f) (Last: x) = Last: (f x)
 
-  applicativeMin : applicative Min
+  applicativeMin : Applicative Min
   applicativeMin .pure = Min:
   applicativeMin ._<*>_ (Min: f) (Min: x) = Min: (f x)
 
-  applicativeMax : applicative Max
+  applicativeMax : Applicative Max
   applicativeMax .pure = Max:
   applicativeMax ._<*>_ (Max: f) (Max: x) = Max: (f x)
 
@@ -1284,10 +1284,10 @@ instance
 -- alternative
 --------------------------------------------------------------------------------
 
-record alternative (f : Set -> Set) : Set where
+record Alternative (f : Set -> Set) : Set where
   infixl 3 _<|>_
   field
-    overlap {{super}} : applicative f
+    overlap {{super}} : Applicative f
     _<|>_ : f a -> f a -> f a
     empty : f a
 
@@ -1295,16 +1295,16 @@ record alternative (f : Set -> Set) : Set where
   guard True = pure unit
   guard False = empty
 
-open alternative {{...}} public
+open Alternative {{...}} public
 
 instance
-  alternativeMaybe : alternative Maybe
+  alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = Nothing
   alternativeMaybe ._<|>_ = λ where
     Nothing r -> r
     l _ -> l
 
-  alternativeList : alternative List
+  alternativeList : Alternative List
   alternativeList .empty = neutral
   alternativeList ._<|>_ = _<>_
 
@@ -1315,7 +1315,7 @@ instance
 record Monad (M : Set -> Set) : Set where
   infixl 1 _>>=_
   field
-    overlap {{super}} : applicative M
+    overlap {{super}} : Applicative M
     _>>=_ : M a -> (a -> M b) -> M b
 
   join : M (M a) -> M a
@@ -1437,7 +1437,7 @@ record IsFoldable (s a : Set) : Set where
     notElem : a -> s -> Bool
     notElem a s = not (elem a s)
 
-  module _ {{_ : applicative f}} where
+  module _ {{_ : Applicative f}} where
 
     traverse! : (a -> f b) -> s -> f Unit
     traverse! f = foldr (_*>_ ∘ f) (pure unit)
@@ -1455,7 +1455,7 @@ record IsFoldable (s a : Set) : Set where
 
 open IsFoldable {{...}} public
 
-sequence! : {{_ : applicative f}} {{_ : IsFoldable s (f a)}} -> s -> f Unit
+sequence! : {{_ : Applicative f}} {{_ : IsFoldable s (f a)}} -> s -> f Unit
 sequence! = traverse! id
 
 Foldable : (Set -> Set) -> Set
@@ -1553,12 +1553,12 @@ private
     functorStateR .map f (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
-    applicativeStateL : applicative (StateL s)
+    applicativeStateL : Applicative (StateL s)
     applicativeStateL .pure x = stateL: λ s -> (s , x)
     applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
       let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
-    applicativeStateR : applicative (StateR s)
+    applicativeStateR : Applicative (StateR s)
     applicativeStateR .pure x = stateR: λ s -> (s , x)
     applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
@@ -1567,12 +1567,12 @@ record Traversable (t : Set -> Set) : Set where
   field
     {{superFunctor}} : Functor t
     {{superFoldable}} : Foldable t
-    traverse : {{_ : applicative f}} -> (a -> f b) -> t a -> f (t b)
+    traverse : {{_ : Applicative f}} -> (a -> f b) -> t a -> f (t b)
 
-  sequence : {{_ : applicative f}} -> t (f a) -> f (t a)
+  sequence : {{_ : Applicative f}} -> t (f a) -> f (t a)
   sequence = traverse id
 
-  for : {{_ : applicative f}} -> t a -> (a -> f b) -> f (t b)
+  for : {{_ : Applicative f}} -> t a -> (a -> f b) -> f (t b)
   for = flip traverse
 
   mapAccumL : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)

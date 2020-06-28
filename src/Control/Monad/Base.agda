@@ -4,7 +4,7 @@ module Control.Monad.Base where
 
 open import Prelude
 
-record MonadBase (M N : Set -> Set) : Set where
-  field liftBase : M ~> N
+record MonadBase (m n : Set -> Set) : Set where
+  field liftBase : m ~> n
 
 open MonadBase {{...}} public

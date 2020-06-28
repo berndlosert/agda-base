@@ -4,16 +4,16 @@ module Data.Ref where
 
 open import Prelude
 
-private variable A B : Set
+private variable a b : Set
 
 postulate
   Ref : Set -> Set
-  new : A -> IO (Ref A)
-  read : Ref A -> IO A
-  write : Ref A -> A -> IO Unit
-  modify : Ref A -> (A -> A) -> IO Unit
-  atomicModify : Ref A -> (A -> A * B) -> IO B
-  atomicWrite : Ref A -> A -> IO Unit
+  new : a -> IO (Ref a)
+  read : Ref a -> IO a
+  write : Ref a -> a -> IO Unit
+  modify : Ref a -> (a -> a) -> IO Unit
+  atomicModify : Ref a -> (a -> a * b) -> IO b
+  atomicWrite : Ref a -> a -> IO Unit
 
 {-# FOREIGN GHC import Data.IORef #-}
 {-# COMPILE GHC Ref = type IORef #-}

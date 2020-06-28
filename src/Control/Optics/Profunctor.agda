@@ -6,45 +6,45 @@ open import Prelude
 
 private
   variable
-    A B C R S T : Set
-    F : Set -> Set
-    P : Set -> Set -> Set
+    a b c r s t : Set
+    f : Set -> Set
+    p : Set -> Set -> Set
 
 --------------------------------------------------------------------------------
 -- Types classes for characterizing optics
 --------------------------------------------------------------------------------
 
 -- Characterizes Lens
-record Strong (P : Set -> Set -> Set) : Set where
+record Strong (p : Set -> Set -> Set) : Set where
   field
-    overlap {{super}} : Profunctor P
-    strong : P A B -> P (C * A) (C * B)
+    overlap {{super}} : Profunctor p
+    strong : p a b -> p (c * a) (c * b)
 
 open Strong {{...}} public
 
 -- Characterizes Prism
-record Choice (P : Set -> Set -> Set) : Set where
+record Choice (p : Set -> Set -> Set) : Set where
   field
-    overlap {{super}} : Profunctor P
-    choice : P A B -> P (C + A) (C + B)
+    overlap {{super}} : Profunctor p
+    choice : p a b -> p (c + a) (c + b)
 
 open Choice {{...}} public
 
 -- Characterizes Grate
-record Closed (P : Set -> Set -> Set) : Set where
+record Closed (p : Set -> Set -> Set) : Set where
   field
-    overlap {{super}} : Profunctor P
-    closed : P A B -> P (C -> A) (C -> B)
+    overlap {{super}} : Profunctor p
+    closed : p a b -> p (c -> a) (c -> b)
 
 open Closed {{...}} public
 
--- Characterizes Traversal
-record Wander (P : Set -> Set -> Set) : Set where
+-- Characterizes traversal
+record Wander (p : Set -> Set -> Set) : Set where
   field
-    overlap {{superStrong}} : Strong P
-    overlap {{superChoice}} : Choice P
-    wander : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
-      -> P A B -> P S T
+    overlap {{superStrong}} : Strong p
+    overlap {{superChoice}} : Choice p
+    wander : (forall {f} {{_ : Applicative f}} -> (a -> f b) -> s -> f t)
+      -> p a b -> p s t
 
 open Wander {{...}}
 
@@ -53,16 +53,16 @@ open Wander {{...}}
 --------------------------------------------------------------------------------
 
 -- Characterizes Fold
-record Forget (R A B : Set) : Set where
-  constructor forget:
-  field runForget : A -> R
+record Forget (r a b : Set) : Set where
+  constructor Forget:
+  field runForget : a -> r
 
 open Forget
 
 -- Characaterizes Review
-record Tagged (A B : Set) : Set where
-  constructor tagged:
-  field unTagged : B
+record Tagged (a b : Set) : Set where
+  constructor Tagged:
+  field unTagged : b
 
 open Tagged
 
@@ -71,161 +71,161 @@ open Tagged
 --------------------------------------------------------------------------------
 
 Optic : Set
-Optic = (A B S T : Set) -> Set
+Optic = (a b s t : Set) -> Set
 
 Simple : Optic -> Set -> Set -> Set
-Simple O A S = O A A S S
+Simple o a s = o a a s s
 
 Adapter : Optic
-Adapter A B S T = forall {P} {{_ : Profunctor P}} -> P A B -> P S T
+Adapter a b s t = forall {p} {{_ : Profunctor p}} -> p a b -> p s t
 
 Lens : Optic
-Lens A B S T = forall {P} {{_ : Strong P}} -> P A B -> P S T
+Lens a b s t = forall {p} {{_ : Strong p}} -> p a b -> p s t
 
 Prism : Optic
-Prism A B S T = forall {P} {{_ : Choice P}} -> P A B -> P S T
+Prism a b s t = forall {p} {{_ : Choice p}} -> p a b -> p s t
 
 Grate : Optic
-Grate A B S T = forall {P} {{_ : Closed P}} -> P A B -> P S T
+Grate a b s t = forall {p} {{_ : Closed p}} -> p a b -> p s t
 
 Traversal : Optic
-Traversal A B S T = forall {P} {{_ : Wander P}} -> P A B -> P S T
+Traversal a b s t = forall {p} {{_ : Wander p}} -> p a b -> p s t
 
 Fold : Set -> Optic
-Fold R A B S T = Forget R A B -> Forget R S T
+Fold r a b s t = Forget r a b -> Forget r s t
 
 Getter : Optic
-Getter A B S T = forall {R} -> Fold R A B S T
+Getter a b s t = forall {r} -> Fold r a b s t
 
 Review : Optic
-Review A B S T = Tagged A B -> Tagged S T
+Review a b s t = Tagged a b -> Tagged s t
 
 Setter : Optic
-Setter A B S T = Function A B -> Function S T
+Setter a b s t = Function a b -> Function s t
 
 --------------------------------------------------------------------------------
 -- Concrete optics
 --------------------------------------------------------------------------------
 
 -- Corresponds to Adapter
-record Exchange (A B S T : Set) : Set where
-  constructor exchange:
+record Exchange (a b s t : Set) : Set where
+  constructor Exchange:
   field
-    from : S -> A
-    to : B -> T
+    from : s -> a
+    to : b -> t
 
 -- Corresponds to Lens
-record Shop (A B S T : Set) : Set where
-  constructor shop:
+record Shop (a b s t : Set) : Set where
+  constructor Shop:
   field
-    get : S -> A
-    put : S -> B -> T
+    get : s -> a
+    put : s -> b -> t
 
 -- Corresponds to Prism
-record Market (A B S T : Set) : Set where
-  constructor market:
+record Market (a b s t : Set) : Set where
+  constructor Market:
   field
-    build : B -> T
-    match : S -> T + A
+    build : b -> t
+    match : s -> t + a
 
 -- Corresponds to Grate
-record Grating (A B S T : Set) : Set where
-  constructor grate:
+record Grating (a b s t : Set) : Set where
+  constructor Grate:
   field
-    degrating : ((S -> A) -> B) -> T
+    degrating : ((s -> a) -> b) -> t
 
 -- Corresponds to Traversal
-record Bazaar (P : Set -> Set -> Set) (A B S T : Set) : Set where
-  constructor toBazaar
+record Bazaar (p : Set -> Set -> Set) (a b s t : Set) : Set where
+  constructor Bazaar:
   field
-    traverseOf : {{_ : Applicative F}} -> P A (F B) -> S -> F T
+    traverseOf : {{_ : Applicative f}} -> p a (f b) -> s -> f t
 
 -- Corresponds to Setter
-record Mapping (A B S T : Set) : Set where
-  constructor toMapping
+record Mapping (a b s t : Set) : Set where
+  constructor Mapping:
   field
-    mapOf : (A -> B) -> S -> T
+    mapOf : (a -> b) -> s -> t
 
 --------------------------------------------------------------------------------
 -- Constructors
 --------------------------------------------------------------------------------
 
-adapter : (S -> A) -> (B -> T) -> Adapter A B S T
+adapter : (s -> a) -> (b -> t) -> Adapter a b s t
 adapter from to = dimap from to
 
-lens : (S -> A) -> (S -> B -> T) -> Lens A B S T
-lens get put = dimap (split id get) (uncurry put) ∘ strong
+lens : (s -> a) -> (s -> b -> t) -> Lens a b s t
+lens get put = dimap (tuple id get) (uncurry put) ∘ strong
 
-prism : (B -> T) -> (S -> T + A) -> Prism A B S T
+prism : (b -> t) -> (s -> t + a) -> Prism a b s t
 prism build match = dimap match untag ∘ choice ∘ rmap build
 
-grate : (((S -> A) -> B) -> T) -> Grate A B S T
+grate : (((s -> a) -> b) -> t) -> Grate a b s t
 grate degrating = dimap (flip _$_) degrating ∘ closed
 
-traversal : (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
-  -> Traversal A B S T
+traversal : (forall {f} {{_ : Applicative f}} -> (a -> f b) -> s -> f t)
+  -> Traversal a b s t
 traversal traverse = wander traverse
 
-getter : (S -> A) -> Simple Getter A S
-getter g f = forget: (runForget f ∘ g)
+getter : (s -> a) -> Simple Getter a s
+getter g f = Forget: (runForget f ∘ g)
 
 --------------------------------------------------------------------------------
 -- Instances
 --------------------------------------------------------------------------------
 
 instance
-  profunctorForget : Profunctor (Forget R)
-  profunctorForget .dimap f g h = forget: (runForget h ∘ f)
+  profunctorForget : Profunctor (Forget r)
+  profunctorForget .dimap f g h = Forget: (runForget h ∘ f)
 
-  strongForget : Strong (Forget R)
-  strongForget .strong z = forget: (runForget z ∘ snd)
+  strongForget : Strong (Forget r)
+  strongForget .strong z = Forget: (runForget z ∘ snd)
 
-  choiceForget : {{_ : Monoid R}} -> Choice (Forget R)
-  choiceForget .choice z = forget: $ either neutral (runForget z)
+  choiceForget : {{_ : Monoid r}} -> Choice (Forget r)
+  choiceForget .choice z = Forget: $ either neutral (runForget z)
 
-  wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
+  wanderForget : {{_ : Monoid r}} -> Wander (Forget r)
   wanderForget .wander t f =
-    forget: $ getConst ∘ t (Const: ∘ runForget f)
+    Forget: $ getConst ∘ t (Const: ∘ runForget f)
 
   profunctorTagged : Profunctor Tagged
-  profunctorTagged .dimap _ g x = tagged: (g $ unTagged x)
+  profunctorTagged .dimap _ g x = Tagged: (g $ unTagged x)
 
   choiceTagged : Choice Tagged
-  choiceTagged .choice x = tagged: (Right $ unTagged x)
+  choiceTagged .choice x = Tagged: (Right $ unTagged x)
 
   closedTagged : Closed Tagged
-  closedTagged .closed x = tagged: (const $ unTagged x)
+  closedTagged .closed x = Tagged: (const $ unTagged x)
 
-  profunctorAdapter : Profunctor (Adapter A B)
+  profunctorAdapter : Profunctor (Adapter a b)
   profunctorAdapter .dimap f g a = dimap f g ∘ a
 
-  profunctorExchange : Profunctor (Exchange A B)
-  profunctorExchange .dimap f g (exchange: from to) =
-    exchange: (from ∘ f) (g ∘ to)
+  profunctorExchange : Profunctor (Exchange a b)
+  profunctorExchange .dimap f g (Exchange: from to) =
+    Exchange: (from ∘ f) (g ∘ to)
 
-  profunctorLens : Profunctor (Lens A B)
+  profunctorLens : Profunctor (Lens a b)
   profunctorLens .dimap f g l = dimap f g ∘ l
 
-  profunctorShop : Profunctor (Shop A B)
-  profunctorShop .dimap f g (shop: get put) =
-    shop: (get ∘ f) (λ s -> g ∘ put (f s))
+  profunctorShop : Profunctor (Shop a b)
+  profunctorShop .dimap f g (Shop: get put) =
+    Shop: (get ∘ f) (λ s -> g ∘ put (f s))
 
-  strongShop : Strong (Shop A B)
-  strongShop .strong (shop: get put) = shop: get' put'
+  strongShop : Strong (Shop a b)
+  strongShop .strong (Shop: get put) = Shop: get' put'
     where
       get' put' : _
       get' (u , s) = get s
       put' (u , s) y = (u , put s y)
 
-  profunctorPrism : Profunctor (Prism A B)
+  profunctorPrism : Profunctor (Prism a b)
   profunctorPrism .dimap f g p = dimap f g ∘ p
 
-  profunctorMarket : Profunctor (Market A B)
-  profunctorMarket .dimap f g (market: build match) =
-      market: (g ∘ build) (first g ∘ match ∘ f)
+  profunctorMarket : Profunctor (Market a b)
+  profunctorMarket .dimap f g (Market: build match) =
+      Market: (g ∘ build) (first g ∘ match ∘ f)
 
-  choiceMarket : Choice (Market A B)
-  choiceMarket .choice (market: build match) = market: build' match'
+  choiceMarket : Choice (Market a b)
+  choiceMarket .choice (Market: build match) = Market: build' match'
     where
       build' match' : _
       build' y = Right (build y)
@@ -234,116 +234,116 @@ instance
       ... | Left t = Left (Right t)
       ... | Right x = Right x
 
-  profunctorGrate : Profunctor (Grate A B)
+  profunctorGrate : Profunctor (Grate a b)
   profunctorGrate .dimap f g r = dimap f g ∘ r
 
-  profunctorGrating : Profunctor (Grating A B)
-  profunctorGrating .dimap f g (grate: r) =
-    grate: λ d -> g (r λ k -> d (k ∘ f))
+  profunctorGrating : Profunctor (Grating a b)
+  profunctorGrating .dimap f g (Grate: r) =
+    Grate: λ d -> g (r λ k -> d (k ∘ f))
 
-  closedGrating : Closed (Grating A B)
-  closedGrating .closed (grate: degrating) =
-    grate: λ f x -> degrating λ k -> f λ g -> k (g x)
+  closedGrating : Closed (Grating a b)
+  closedGrating .closed (Grate: degrating) =
+    Grate: λ f x -> degrating λ k -> f λ g -> k (g x)
 
-  profunctorTraversal : Profunctor (Traversal A B)
+  profunctorTraversal : Profunctor (Traversal a b)
   profunctorTraversal .dimap f g t = dimap f g ∘ t
 
-  profunctorBazaar : Profunctor (Bazaar P A B)
-  profunctorBazaar .dimap f g (toBazaar b) = toBazaar λ h s -> g <$> b h (f s)
+  profunctorBazaar : Profunctor (Bazaar p a b)
+  profunctorBazaar .dimap f g (Bazaar: b) = Bazaar: λ h s -> g <$> b h (f s)
 
-  strongBazaar : Strong (Bazaar P A B)
-  strongBazaar .strong (toBazaar b) = toBazaar λ where
+  strongBazaar : Strong (Bazaar p a b)
+  strongBazaar .strong (Bazaar: b) = Bazaar: λ where
     h (u , s) -> _,_ u <$> b h s
 
-  choiceBazaar : Choice (Bazaar P A B)
-  choiceBazaar .choice (toBazaar b) = toBazaar λ where
+  choiceBazaar : Choice (Bazaar p a b)
+  choiceBazaar .choice (Bazaar: b) = Bazaar: λ where
     h (Right s) -> Right <$> b h s
     h (Left u) -> Left <$> pure u
 
-  wanderBazaar : Wander (Bazaar P A B)
-  wanderBazaar .wander w (toBazaar b) = toBazaar λ where
+  wanderBazaar : Wander (Bazaar p a b)
+  wanderBazaar .wander w (Bazaar: b) = Bazaar: λ where
     h s -> w (b h) s
 
-  profunctorSetter : Profunctor (Setter A B)
+  profunctorSetter : Profunctor (Setter a b)
   profunctorSetter .dimap f g h k = g ∘ h k ∘ f
 
-  strongSetter : Strong (Setter A B)
+  strongSetter : Strong (Setter a b)
   strongSetter .strong f g (c , a) = (c , f g a)
 
 --------------------------------------------------------------------------------
 -- Deconstructors
 --------------------------------------------------------------------------------
 
---from : Adapter A B S T -> S -> A
---from a = Exchange.from $ a $ exchange: id id
---to : Adapter A B S T -> B -> T
---to a = Exchange.to $ a $ exchange: id id
+--from : Adapter a b s t -> s -> a
+--from a = Exchange.from $ a $ Exchange: id id
+--to : Adapter a b s t -> b -> t
+--to a = Exchange.to $ a $ Exchange: id id
 
---get : Lens A B S T -> S -> A
---get l = Shop.get $ l $ shop: id (flip const)
---put : Lens A B S T -> S -> B -> T
---put l = Shop.put $ l $ shop: id (flip const)
+--get : Lens a b s t -> s -> a
+--get l = Shop.get $ l $ Shop: id (flip const)
+--put : Lens a b s t -> s -> b -> t
+--put l = Shop.put $ l $ Shop: id (flip const)
 
---build : Prism A B S T -> B -> T
---build p = Market.build $ p $ market: id Right
---match : Prism A B S T -> S -> T + A
---match p = Market.match $ p $ market: id Right
+--build : Prism a b s t -> b -> t
+--build p = Market.build $ p $ Market: id Right
+--match : Prism a b s t -> s -> t + A
+--match p = Market.match $ p $ Market: id Right
 
---degrating : Grate A B S T -> ((S -> A) -> B) -> T
---degrating g = Grating.degrating $ g $ grate: λ f -> f id
+--degrating : Grate a b s t -> ((s -> a) -> b) -> t
+--degrating g = Grating.degrating $ g $ Grate: λ f -> f id
 
-traverseOf : Traversal A B S T
-  -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)
-traverseOf {A} {B} t = Bazaar.traverseOf (t b)
+traverseOf : Traversal a b s t
+  -> (forall {f} {{_ : Applicative f}} -> (a -> f b) -> s -> f t)
+traverseOf {a} {b} t = Bazaar.traverseOf (t x)
   where
-    b : Bazaar Function A B A B
-    b = toBazaar id
+    x : Bazaar Function a b a b
+    x = Bazaar: id
 
-to : (S -> A) -> Getter A B S T
-to f (forget: g) = forget: (g ∘ f)
+to : (s -> a) -> Getter a b s t
+to f (Forget: g) = Forget: (g ∘ f)
 
-view : Getter A B S T -> S -> A
-view g = runForget $ g (forget: id)
+view : Getter a b s t -> s -> a
+view g = runForget $ g (Forget: id)
 
-foldMapOf : Getter A B S T -> (A -> R) -> S -> R
-foldMapOf g f = runForget $ g (forget: f)
+foldMapOf : Getter a b s t -> (a -> r) -> s -> r
+foldMapOf g f = runForget $ g (Forget: f)
 
-review : Review A B S T -> B -> T
-review r b = unTagged $ r (tagged: b)
+review : Review a b s t -> b -> t
+review r b = unTagged $ r (Tagged: b)
 
-over : Setter A B S T -> (A -> B) -> S -> T
+over : Setter a b s t -> (a -> b) -> s -> t
 over = id
 
-set : Setter A B S T -> B -> S -> T
+set : Setter a b s t -> b -> s -> t
 set f b = f (const b)
 
-sets : ((A -> B) -> S -> T) -> Setter A B S T
+sets : ((a -> b) -> s -> t) -> Setter a b s t
 sets = id
 
 --------------------------------------------------------------------------------
 -- Basic lens and traversals
 --------------------------------------------------------------------------------
 
---#fst : Lens A B (A * C) (B * C)
---  -- : P A B -> P (A * C) (B * C)
+--#fst : Lens a b (a * c) (b * c)
+--  -- : p a b -> p (a * c) (b * c)
 --#fst =
 
---#snd : Lens B C (A * B) (A * C)
-#snd : Simple Lens B (A * B)
+--#snd : Lens b c (a * b) (a * c)
+#snd : Simple Lens b (a * b)
 #snd = strong
 --
---#Left : Traversal (A + C) (B + C) A B
+--#Left : Traversal (a + c) (b + c) a b
 --#Left f (Left x) = Left <$> f x
 --#Left _ (Right y) = pure (Right y)
 --
---#Right : Traversal (A + B) (A + C) B C
+--#Right : Traversal (a + b) (a + c) b C
 --#Right f (Right y) = Right <$> f y
 --#Right _ (Left x) = pure (Left x)
 --
---#Just : Traversal (Maybe A) (Maybe B) A B
+--#Just : Traversal (Maybe a) (Maybe b) a b
 --#Just f (Just x) = Just <$> f x
 --#Just _ Nothing = pure Nothing
 --
---#Nothing : Simple Traversal (Maybe A) Unit
+--#Nothing : Simple Traversal (Maybe a) Unit
 --#Nothing f Nothing = const Nothing <$> f unit
 --#Nothing _ j = pure j

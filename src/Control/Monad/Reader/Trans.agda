@@ -11,49 +11,49 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    A B R R' : Set
-    M N : Set -> Set
+    a b r r' : Set
+    m n : Set -> Set
 
-record ReaderT (R : Set) (M : Set -> Set) (A : Set) : Set where
+record ReaderT (r : Set) (m : Set -> Set) (a : Set) : Set where
   constructor ReaderT:
-  field runReaderT : R -> M A
+  field runReaderT : r -> m a
 
 open ReaderT public
 
-mapReaderT : (M A -> N B) -> ReaderT R M A -> ReaderT R N B
+mapReaderT : (m a -> n b) -> ReaderT r m a -> ReaderT r n b
 mapReaderT f (ReaderT: m) = ReaderT: (f ∘ m)
 
-withReaderT : (R' -> R) -> ReaderT R M ~> ReaderT R' M
+withReaderT : (r' -> r) -> ReaderT r m ~> ReaderT r' m
 withReaderT f (ReaderT: m) = ReaderT: (m ∘ f)
 
 instance
-  functorReaderT : {{_ : Functor M}} -> Functor (ReaderT R M)
+  functorReaderT : {{_ : Functor m}} -> Functor (ReaderT r m)
   functorReaderT .map f = mapReaderT (map f)
 
-  applicativeReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
+  applicativeReaderT : {{_ : Applicative m}} -> Applicative (ReaderT r m)
   applicativeReaderT .pure = ReaderT: ∘ const ∘ pure
   applicativeReaderT ._<*>_ (ReaderT: f) (ReaderT: x) = ReaderT: λ r ->
     f r <*> x r
 
-  monadReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
+  monadReaderT : {{_ : Monad m}} -> Monad (ReaderT r m)
   monadReaderT ._>>=_ (ReaderT: m) k = ReaderT: λ r -> do
     a <- m r
     runReaderT (k a) r
 
-  monadReaderReaderT : {{_ : Monad M}} -> MonadReader R (ReaderT R M)
+  monadReaderReaderT : {{_ : Monad m}} -> MonadReader r (ReaderT r m)
   monadReaderReaderT .ask = ReaderT: return
   monadReaderReaderT .local f = withReaderT f
 
-  mfunctorReaderT : MFunctor (ReaderT R)
+  mfunctorReaderT : MFunctor (ReaderT r)
   mfunctorReaderT .hoist t = mapReaderT t
 
-  monadTransReaderT : MonadTrans (ReaderT R)
+  monadTransReaderT : MonadTrans (ReaderT r)
   monadTransReaderT .lift = ReaderT: ∘ const
   monadTransReaderT .tmap f _ = hoist f
 
-  mmonadReaderT : MMonad (ReaderT R)
+  mmonadReaderT : MMonad (ReaderT r)
   mmonadReaderT .embed k (ReaderT: f) = ReaderT: λ r -> runReaderT (k (f r)) r
 
-  monadBaseReaderT : {{_ : Monad M}} {{_ : Monad N}} {{_ : MonadBase M N}}
-    -> MonadBase M (ReaderT R N)
+  monadBaseReaderT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
+    -> MonadBase m (ReaderT r n)
   monadBaseReaderT .liftBase m = lift (liftBase m)

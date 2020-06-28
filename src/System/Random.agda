@@ -9,24 +9,24 @@ open import Data.Ref
 open import Data.Word
 open import System.Time
 
-private variable A As G : Set
+private variable a as g : Set
 
 --------------------------------------------------------------------------------
 -- RandomGen
 --------------------------------------------------------------------------------
 
-record RandomGen (G : Set) : Set where
+record RandomGen (g : Set) : Set where
   field
-    next : G -> Word64 * G
-    genRange : G -> Nat * Nat
-    split : G -> G * G
+    next : g -> Word64 * g
+    genRange : g -> Nat * Nat
+    split : g -> g * g
 
 open RandomGen {{...}} public
 
 private
   -- nextNat n generates a random Nat in the range [0, 2 ^ n)
-  nextNat : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
-  nextNat {G} n g0 =
+  nextNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+  nextNat {g} n g0 =
       fst $ foldr accum (first word64ToNat (next' g0) , 1) q
     where
       q = n / 64
@@ -34,11 +34,11 @@ private
       mask = shiftR oneBits (64 - r)
 
       -- This will generate a Word64 value in the range [0, 2 ^ r).
-      next' : G -> Word64 * G
+      next' : g -> Word64 * g
       next' g = first (_:&: mask) (next g)
 
       -- We use this to build up the random number in the foldr expression.
-      accum : Unit -> (Nat * G) * Nat -> (Nat * G) * Nat
+      accum : Unit -> (Nat * g) * Nat -> (Nat * g) * Nat
       accum _ ((m , g) , i) =
         let
           (w , g') = next g
@@ -48,8 +48,8 @@ private
 
   -- nextNat' n generates a Nat in the range [0 , n].
   {-# TERMINATING #-}
-  nextNat' : {{_ : RandomGen G}} -> Nat -> G -> Nat * G
-  nextNat' {G} n g0 = loop g0
+  nextNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+  nextNat' {g} n g0 = loop g0
     where
       log2 : Nat -> Nat
       log2 0 = 1
@@ -57,7 +57,7 @@ private
 
       k = log2 n
 
-      loop : G -> Nat * G
+      loop : g -> Nat * g
       loop g = let (m , g') = nextNat k g in
         if m > n then loop g' else (m , g')
 
@@ -66,14 +66,14 @@ private
 --------------------------------------------------------------------------------
 
 record StdGen : Set where
-  constructor stdGen:
+  constructor stdgen:
   field
     seed : Word64
     gamma : Word64 -- must be odd
 
 private
-  goldenGamma : Word64
-  goldenGamma = 0x9e3779b97f4a7c15
+  goldengamma : Word64
+  goldengamma = 0x9e3779b97f4a7c15
 
   mix64 : Word64 -> Word64
   mix64 z0 = z3
@@ -89,15 +89,15 @@ private
       z2 = (z1 xor (shiftR z1 27)) * 0x94d049bb133111eb
       z3 = z2 xor (shiftR z2 31)
 
-  mixGamma : Word64 -> Word64
-  mixGamma z0 =
+  mixgamma : Word64 -> Word64
+  mixgamma z0 =
     let
       z1 = mix64variant13 z0 :|: 1
       n = popCount (z1 xor (shiftR z1 1))
     in
       if n >= 24 then z1 else z1 xor 0xaaaaaaaaaaaaaaaa
 
-  -- Squares: A Fast Counter-Based RNG
+  -- Squares: a Fast Counter-Based RNg
   -- https://arxiv.org/pdf/2004.06278v2.pdf
   squares : Word64 -> Word64 -> Word64
   squares ctr key =
@@ -115,20 +115,20 @@ private
       shiftR (x4 * x4 + y) 32
 
 instance
-  randomGenStdGen : RandomGen StdGen
-  randomGenStdGen .next (stdGen: seed gamma) =
-      (mix64 seed' , stdGen: seed' gamma)
+  randomgenStdGen : RandomGen StdGen
+  randomgenStdGen .next (stdgen: seed gamma) =
+      (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
-  randomGenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
-  randomGenStdGen .split (stdGen: seed gamma) =
-      (stdGen: seed'' gamma , stdGen: (mix64 seed') (mixGamma seed''))
+  randomgenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
+  randomgenStdGen .split (stdgen: seed gamma) =
+      (stdgen: seed'' gamma , stdgen: (mix64 seed') (mixgamma seed''))
     where
       seed' = seed + gamma
       seed'' = seed' + gamma
 
 mkStdGen : Word64 -> StdGen
-mkStdGen s = stdGen: (mix64 s) (mixGamma (s + goldenGamma))
+mkStdGen s = stdgen: (mix64 s) (mixgamma (s + goldengamma))
 
 theStdGen : IO (Ref StdGen)
 theStdGen = do
@@ -152,7 +152,7 @@ setStdGen gen = do
   ref <- theStdGen
   write ref gen
 
-getStdRandom : (StdGen -> A * StdGen) -> IO A
+getStdRandom : (StdGen -> a * StdGen) -> IO a
 getStdRandom f = do
   ref <- theStdGen
   atomicModify ref (swap ∘ f)
@@ -161,18 +161,18 @@ getStdRandom f = do
 -- Random and RandomR
 --------------------------------------------------------------------------------
 
-record Random (A : Set) : Set where
-  field random : {{_ : RandomGen G}} -> G -> A * G
+record Random (a : Set) : Set where
+  field random : {{_ : RandomGen g}} -> g -> a * g
 
-  randomIO : IO A
+  randomIO : IO a
   randomIO = getStdRandom random
 
 open Random {{...}} public
 
-record RandomR (A : Set) : Set where
-  field randomR : {{_ : RandomGen G}} -> A * A -> G -> A * G
+record RandomR (a : Set) : Set where
+  field randomR : {{_ : RandomGen g}} -> a * a -> g -> a * g
 
-  randomRIO : A * A -> IO A
+  randomRIO : a * a -> IO a
   randomRIO = getStdRandom ∘ randomR
 
 open RandomR {{...}} public
@@ -195,4 +195,5 @@ instance
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =
-    first (λ n -> fromNat n + from) $ nextNat' (fromPos (to - from) {believeMe}) g
+    first (λ n -> fromNat n + from)
+      $ nextNat' (fromPos (to - from) {{believeMe}}) g

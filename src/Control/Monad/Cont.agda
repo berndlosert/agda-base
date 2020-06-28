@@ -9,28 +9,28 @@ open import Control.Monad.Cont.Trans
 open Control.Monad.Cont.Trans public
   using (functorContT; applicativeContT; monadContT)
 
-private variable A B R R' : Set
+private variable a b r r' : Set
 
 Cont : Set -> Set -> Set
-Cont R A = ContT R Identity A
+Cont r a = ContT r Identity a
 
-cont: : ((A -> R) -> R) -> Cont R A
+cont: : ((a -> r) -> r) -> Cont r a
 cont: f = ContT: λ c -> Identity: (f (runIdentity ∘ c))
 
-runCont : Cont R A -> (A -> R) -> R
+runCont : Cont r a -> (a -> r) -> r
 runCont m k = runIdentity (runContT m (Identity: ∘ k))
 
-evalCont : Cont R R -> R
+evalCont : Cont r r -> r
 evalCont m = runIdentity (evalContT m)
 
-mapCont : (R -> R) -> Cont R A -> Cont R A
+mapCont : (r -> r) -> Cont r a -> Cont r a
 mapCont f = mapContT (map f)
 
-withCont : ((B -> R) -> (A -> R)) -> Cont R A -> Cont R B
+withCont : ((b -> r) -> (a -> r)) -> Cont r a -> Cont r b
 withCont f = withContT ((Identity: ∘_) ∘ f ∘ (runIdentity ∘_))
 
-reset : Cont R R -> Cont R' R
+reset : Cont r r -> Cont r' r
 reset = resetT
 
-shift : ((A -> R) -> Cont R R) -> Cont R A
+shift : ((a -> r) -> Cont r r) -> Cont r a
 shift f = shiftT (f ∘ (runIdentity ∘_))

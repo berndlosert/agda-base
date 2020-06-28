@@ -5,6 +5,6 @@ module Data.Colist where
 open import Control.Size
 open import Control.Thunk
 
-data Colist (i : Size) (X : Set) : Set where
-  [] : Colist i X
-  _::_ : X -> Thunk i Colist X -> Colist i X
+data Colist (i : Size) (a : Set) : Set where
+  [] : Colist i a
+  _::_ : a -> Thunk i Colist a -> Colist i a

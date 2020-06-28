@@ -4,11 +4,11 @@ module Control.Monad.Cont.Class where
 
 open import Prelude
 
-private variable A B : Set
+private variable a b : Set
 
-record MonadCont (M : Set -> Set) : Set where
+record MonadCont (m : Set -> Set) : Set where
   field
-    {{monad}} : Monad M
-    callCC : ((A -> M B) -> M A) -> M A
+    {{monad}} : Monad m
+    callCC : ((a -> m b) -> m a) -> m a
 
 open MonadCont {{...}} public

@@ -9,25 +9,25 @@ open import Control.Monad.State.Trans
 open Control.Monad.State.Trans public
   using (functorStateT; applicativeStateT; monadStateT)
 
-private variable A B S : Set
+private variable a b s : Set
 
 State : Set -> Set -> Set
-State S = StateT S Identity
+State s = StateT s Identity
 
-state: : (S -> A * S) -> State S A
-state: t = StateT: (Identity: ∘ t)
+state : (s -> a * s) -> State s a
+state t = StateT: (Identity: ∘ t)
 
-runState : State S A -> S -> A * S
+runState : State s a -> s -> a * s
 runState m = runIdentity ∘ runStateT m
 
-evalState : State S A -> S -> A
+evalState : State s a -> s -> a
 evalState m s = fst (runState m s)
 
-execState : State S A -> S -> S
+execState : State s a -> s -> s
 execState m s = snd (runState m s)
 
-mapState : (A * S -> B * S) -> State S A -> State S B
+mapState : (a * s -> b * s) -> State s a -> State s b
 mapState = mapStateT ∘ map
 
-withState : (S -> S) -> State S ~> State S
+withState : (s -> s) -> State s ~> State s
 withState f = withStateT f

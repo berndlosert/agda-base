@@ -4,53 +4,53 @@ module Data.Bits where
 
 open import Prelude
 
-record Bits (A : Set) : Set where
+record Bits (a : Set) : Set where
   infixl 5 _:|:_
   infixl 6 _xor_
   infixl 7 _:&:_
   field
-    bitSize : A -> Nat
-    zeroBits : A
-    oneBits : A
-    _:|:_ : A -> A -> A
-    _xor_ : A -> A -> A
-    _:&:_ : A -> A -> A
-    shift : A -> Int -> A
-    rotate : A -> Int -> A
-    bit : Nat -> A
-    testBit : A -> Nat -> Bool
-    isSigned : A -> Bool
-    popCount : A -> Nat
+    bitSize : a -> Nat
+    zeroBits : a
+    oneBits : a
+    _:|:_ : a -> a -> a
+    _xor_ : a -> a -> a
+    _:&:_ : a -> a -> a
+    shift : a -> Int -> a
+    rotate : a -> Int -> a
+    bit : Nat -> a
+    testBit : a -> Nat -> Bool
+    isSigned : a -> Bool
+    popCount : a -> Nat
 
-  complement : A -> A
+  complement : a -> a
   complement x = x xor oneBits
 
-  clearBit : A -> Nat -> A
+  clearBit : a -> Nat -> a
   clearBit x i = x :&: complement (bit i)
 
-  setBit : A -> Nat -> A
+  setBit : a -> Nat -> a
   setBit x i = x :|: bit i
 
-  assignBit : A -> Nat -> Bool -> A
+  assignBit : a -> Nat -> Bool -> a
   assignBit b n True = setBit b n
   assignBit b n False = clearBit b n
 
-  notBit : A -> Nat -> A
+  notBit : a -> Nat -> a
   notBit x i = x xor (bit i)
 
-  shiftL : A -> Nat -> A
+  shiftL : a -> Nat -> a
   shiftL x i = shift x (Pos i)
 
-  shiftR : A -> Nat -> A
+  shiftR : a -> Nat -> a
   shiftR x i = shift x (neg i)
 
-  rotateL : A -> Nat -> A
+  rotateL : a -> Nat -> a
   rotateL x i = rotate x (Pos i)
 
-  rotateR : A -> Nat -> A
+  rotateR : a -> Nat -> a
   rotateR x i = rotate x (neg i)
 
-  countLeadingZeros : A -> Nat
+  countLeadingZeros : a -> Nat
   countLeadingZeros x = bitSize-1 - go bitSize-1
     where
       bitSize-1 : Nat
@@ -60,7 +60,7 @@ record Bits (A : Set) : Set where
       go 0 = 0
       go n@(Suc n-1) = if testBit x n then n else go n-1
 
-  countTrailingZeros : A -> Nat
+  countTrailingZeros : a -> Nat
   countTrailingZeros x = go bitSize-1 0
     where
       bitSize-1 : Nat

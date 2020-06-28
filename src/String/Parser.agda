@@ -14,7 +14,7 @@ open import Control.Monad.State.Trans
 
 open import Data.String as String using ()
 
-private variable A B C : Set
+private variable a b c : Set
 
 --------------------------------------------------------------------------------
 -- Parser (definition and instances)
@@ -23,10 +23,10 @@ private variable A B C : Set
 abstract
   Parser = StateT String List
 
-  parser: : (String -> List (A * String)) -> Parser A
+  parser: : (String -> List (a * String)) -> Parser a
   parser: = StateT:
 
-  runParser : Parser A -> String -> List (A * String)
+  runParser : Parser a -> String -> List (a * String)
   runParser = runStateT
 
   instance
@@ -47,49 +47,49 @@ abstract
 --------------------------------------------------------------------------------
 
 {-# NON_TERMINATING #-}
-many1 many : Parser A -> Parser (List A)
+many1 many : Parser a -> Parser (List a)
 many1 a = (| _::_ a (many a) |)
 many a = many1 a <|> pure []
 
-optional : Parser A -> Parser (Maybe A)
+optional : Parser a -> Parser (Maybe a)
 optional a = (| Just a | Nothing |)
 
-eitherP : Parser A -> Parser B -> Parser (A + B)
+eitherP : Parser a -> Parser b -> Parser (a + b)
 eitherP a b = (| Left a | Right b |)
 
-choice : List (Parser A) -> Parser A
+choice : List (Parser a) -> Parser a
 choice ps = foldr _<|>_ empty ps
 
-count : Nat -> Parser A -> Parser (List A)
+count : Nat -> Parser a -> Parser (List a)
 count 0 p = pure []
 count n p = sequence (replicate n p)
 
-between : Parser A -> Parser B -> Parser C -> Parser C
+between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> (q <* p')
 
-option : A -> Parser A -> Parser A
+option : a -> Parser a -> Parser a
 option a p = p <|> pure a
 
-skipMany : Parser A -> Parser Unit
+skipMany : Parser a -> Parser Unit
 skipMany p = many p *> pure unit
 
-skipMany1 : Parser A -> Parser Unit
+skipMany1 : Parser a -> Parser Unit
 skipMany1 p = many1 p *> pure unit
 
-sepBy1 : Parser A -> Parser B -> Parser (List A)
+sepBy1 : Parser a -> Parser b -> Parser (List a)
 sepBy1 p sep = (| _::_ p (many $ sep *> p) |)
 
-sepBy : Parser A -> Parser B -> Parser (List A)
+sepBy : Parser a -> Parser b -> Parser (List a)
 sepBy p sep = sepBy1 p sep <|> pure []
 
-endBy : Parser A -> Parser B -> Parser (List A)
+endBy : Parser a -> Parser b -> Parser (List a)
 endBy p sep = many (p <* sep)
 
-endBy1 : Parser A -> Parser B -> Parser (List A)
+endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
 {-# TERMINATING #-}
-chainl1 : Parser A -> Parser (A -> A -> A) -> Parser A
+chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p op = p >>= rest
   where
     rest : _
@@ -98,11 +98,11 @@ chainl1 p op = p >>= rest
       y <- p
       rest (f x y)) <|> return x
 
-chainl : Parser A -> Parser (A -> A -> A) -> A -> Parser A
+chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op a = chainl1 p op <|> pure a
 
 {-# TERMINATING #-}
-chainr1 : Parser A -> Parser (A -> A -> A) -> Parser A
+chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainr1 p op = scan
   where
     scan rest : _
@@ -112,11 +112,11 @@ chainr1 p op = scan
       y <- scan
       rest (f x y)) <|> return x
 
-chainr : Parser A -> Parser (A -> A -> A) -> A -> Parser A
+chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
 
 -- Run a parser on a string and get the first result.
-parse : Parser A -> String -> Maybe A
+parse : Parser a -> String -> Maybe a
 parse p s with runParser p s
 ... | [] = Nothing
 ... | ((a , _) :: _) = Just a

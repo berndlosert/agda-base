@@ -6,14 +6,14 @@ open import Prelude
 
 private
   variable
-    Ctx M N : Set -> Set
+    ctx m n : Set -> Set
 
 --------------------------------------------------------------------------------
 -- HFunctor
 --------------------------------------------------------------------------------
 
-record HFunctor (H : (Set -> Set) -> Set -> Set) : Set where
-  field hmap : {{_ : Functor M}} -> (M ~> N) -> H M ~> H N
+record HFunctor (h : (Set -> Set) -> Set -> Set) : Set where
+  field hmap : {{_ : Functor m}} -> (m ~> n) -> h m ~> h n
 
 open HFunctor {{...}} public
 
@@ -21,9 +21,9 @@ open HFunctor {{...}} public
 -- Effect
 --------------------------------------------------------------------------------
 
-record Effect (Sig : (Set -> Set) -> Set -> Set) : Set where
+record Effect (sig : (Set -> Set) -> Set -> Set) : Set where
   field
-    thread : {{_ : Functor Ctx}} {{_ : Monad M}}
-      -> (Ctx ∘ M ~> N ∘ Ctx) -> Sig M ~> Sig N ∘ Ctx
+    thread : {{_ : Functor ctx}} {{_ : Monad m}}
+      -> (ctx ∘ m ~> n ∘ ctx) -> sig m ~> sig n ∘ ctx
 
 open Effect {{...}} public

@@ -11,127 +11,127 @@ open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
 open import System.Random public
 
-private variable A B G : Set
+private variable a b g : Set
 
 --------------------------------------------------------------------------------
 -- Gen
 --------------------------------------------------------------------------------
 
-record Gen (A : Set) : Set where
-  constructor gen:
-  field unGen : StdGen -> Nat -> A
+record Gen (a : Set) : Set where
+  constructor Gen:
+  field unGen : StdGen -> Nat -> a
 
 instance
   functorGen : Functor Gen
-  functorGen .map f (gen: h) = gen: λ r n -> f (h r n)
+  functorGen .map f (Gen: h) = Gen: λ r n -> f (h r n)
 
   applicativeGen : Applicative Gen
-  applicativeGen .pure x = gen: λ _ _ -> x
-  applicativeGen ._<*>_ (gen: f) (gen: x) = gen: λ r n -> f r n (x r n)
+  applicativeGen .pure x = Gen: λ _ _ -> x
+  applicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n -> f r n (x r n)
 
   monadGen : Monad Gen
-  monadGen ._>>=_ (gen: m) k = gen: λ r n ->
+  monadGen ._>>=_ (Gen: m) k = Gen: λ r n ->
     case split r of λ where
-      (r1 , r2) -> let gen: m' = k (m r1 n) in m' r2 n
+      (r1 , r2) -> let Gen: m' = k (m r1 n) in m' r2 n
 
 --------------------------------------------------------------------------------
 -- Gen combinators
 --------------------------------------------------------------------------------
 
-variant : Nat -> Gen A -> Gen A
-variant v (gen: m) =
-    gen: λ r n -> m (Stream.at (Suc v) (rands r)) n
+variant : Nat -> Gen a -> Gen a
+variant v (Gen: m) =
+    Gen: λ r n -> m (Stream.at (Suc v) (rands r)) n
   where
-    rands : {{_ : RandomGen G}} -> G -> Stream G
+    rands : {{_ : RandomGen g}} -> g -> Stream g
     rands g = Stream.unfold split g
 
-generate' : Nat -> StdGen -> Gen A -> A
-generate' n rnd (gen: m) = let (size , rnd') = randomR (0 , n) rnd in
+generate' : Nat -> StdGen -> Gen a -> a
+generate' n rnd (Gen: m) = let (size , rnd') = randomR (0 , n) rnd in
   m rnd' size
 
-sized : (Nat -> Gen A) -> Gen A
-sized f = gen: λ r n -> let gen: m = f n in m r n
+sized : (Nat -> Gen a) -> Gen a
+sized f = Gen: λ r n -> let Gen: m = f n in m r n
 
 getSize : Gen Nat
 getSize = sized pure
 
-resize : Nat -> Gen A -> Gen A
-resize n (gen: g) = gen: λ r _ -> g r n
+resize : Nat -> Gen a -> Gen a
+resize n (Gen: g) = Gen: λ r _ -> g r n
 
-scale : (Nat -> Nat) -> Gen A -> Gen A
+scale : (Nat -> Nat) -> Gen a -> Gen a
 scale f g = sized (λ n -> resize (f n) g)
 
-choose : {{_ : RandomR A}} -> A * A -> Gen A
-choose rng = gen: λ r _ -> let (x , _) = randomR rng r in x
+choose : {{_ : RandomR a}} -> a * a -> Gen a
+choose rng = Gen: λ r _ -> let (x , _) = randomR rng r in x
 
-chooseAny : {{_ : Random A}} -> Gen A
-chooseAny = gen: λ r _ -> let (x , _) = random r in x
+chooseAny : {{_ : Random a}} -> Gen a
+chooseAny = Gen: λ r _ -> let (x , _) = random r in x
 
-generate : Gen A -> IO A
-generate (gen: g) = do
+generate : Gen a -> IO a
+generate (Gen: g) = do
   r <- newStdGen
   return (g r 30)
 
-sample' : Gen A -> IO (List A)
+sample' : Gen a -> IO (List a)
 sample' g = traverse generate $ do
   n <- 0 :: range (2 , 20)
   return (resize n g)
 
-sample : {{_ : Show A}} -> Gen A -> IO Unit
+sample : {{_ : Show a}} -> Gen a -> IO Unit
 sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen A)) {{_ : Nonempty gs}} -> Gen A
+oneof : (gs : List (Gen a)) {{_ : Nonempty gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , count gs - 1)
   fromJust (at n gs) {{believeMe}}
 
-frequency : (xs : List (Nat * Gen A)) {{_ : So $ sum (map fst xs) > 0}}
-  -> Gen A
-frequency {A} xs = choose (1 , tot) >>= (λ x -> pick x xs)
+frequency : (xs : List (Nat * Gen a)) {{_ : Assert $ sum (map fst xs) > 0}}
+  -> Gen a
+frequency {a} xs = choose (1 , tot) >>= (λ x -> pick x xs)
   where
     tot = sum (map fst xs)
 
-    pick : Nat -> List (Nat * Gen A) -> Gen A
+    pick : Nat -> List (Nat * Gen a) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
-elements : (xs : List A) {{_ : Nonempty xs}} -> Gen A
+elements : (xs : List a) {{_ : Nonempty xs}} -> Gen a
 elements xs = map
   (λ n -> fromJust (at n xs) {{believeMe}})
   (choose {Nat} (0 , length xs - 1))
 
-vectorOf : Nat -> Gen A -> Gen (List A)
+vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = replicateA
 
-listOf : Gen A -> Gen (List A)
+listOf : Gen a -> Gen (List a)
 listOf gen = sized λ n -> do
   k <- choose (0 , n)
   vectorOf k gen
 
-sublistOf : List A -> Gen (List A)
+sublistOf : List a -> Gen (List a)
 sublistOf xs = filterA (λ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs
 
-shuffle : List A -> Gen (List A)
+shuffle : List a -> Gen (List a)
 shuffle xs = do
   ns <- vectorOf (length xs) (choose {Nat} (0 , 2 ^ 32))
   return (map snd (sortBy (comparing fst) (zip ns xs)))
 
-promote : (A -> Gen B) -> Gen (A -> B)
-promote f = gen: λ r n a -> let (gen: m) = f a in m r n
+promote : (a -> Gen b) -> Gen (a -> b)
+promote f = Gen: λ r n a -> let (Gen: m) = f a in m r n
 
 --------------------------------------------------------------------------------
 -- Arbitrary & Coarbitrary
 --------------------------------------------------------------------------------
 
-record Arbitrary (A : Set) : Set where
-  field arbitrary : Gen A
+record Arbitrary (a : Set) : Set where
+  field arbitrary : Gen a
 
 open Arbitrary {{...}} public
 
-record Coarbitrary (A : Set) : Set where
-  field coarbitrary : A -> Gen B -> Gen B
+record Coarbitrary (a : Set) : Set where
+  field coarbitrary : a -> Gen b -> Gen b
 
 open Coarbitrary {{...}} public
 
@@ -147,10 +147,10 @@ instance
     0 -> choose (0 , 0)
     (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
-  arbitraryTuple : {{_ : Arbitrary A}} {{_ : Arbitrary B}} -> Arbitrary (A * B)
+  arbitraryTuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
   arbitraryTuple .arbitrary = (| _,_ arbitrary arbitrary |)
 
-  arbitraryList : {{_ : Arbitrary A}} -> Arbitrary (List A)
+  arbitraryList : {{_ : Arbitrary a}} -> Arbitrary (List a)
   arbitraryList .arbitrary = sized λ n -> do
     m <- choose (0 , n)
     vectorOf m arbitrary
@@ -158,22 +158,22 @@ instance
   coarbitraryBool : Coarbitrary Bool
   coarbitraryBool .coarbitrary b = variant (if b then 0 else 1)
 
-  coarbitraryTuple : {{_ : Coarbitrary A}} {{_ : Coarbitrary B}}
-    -> Coarbitrary (A * B)
+  coarbitraryTuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
+    -> Coarbitrary (a * b)
   coarbitraryTuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
 
-  coarbitraryList : {{_ : Coarbitrary A}} -> Coarbitrary (List A)
+  coarbitraryList : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
   coarbitraryList .coarbitrary [] = variant 0
   coarbitraryList .coarbitrary (a :: as) =
     variant 1 ∘ coarbitrary a ∘ coarbitrary as
 
-  coarbitraryFunction : {{_ : Arbitrary A}} {{_ : Coarbitrary B}}
-    -> Coarbitrary (A -> B)
+  coarbitraryFunction : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
+    -> Coarbitrary (a -> b)
   coarbitraryFunction .coarbitrary f gen =
     arbitrary >>= (flip coarbitrary gen ∘ f)
 
-  arbitraryFunction : {{_ : Coarbitrary A}} {{_ : Arbitrary B}}
-    -> Arbitrary (A -> B)
+  arbitraryFunction : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
+    -> Arbitrary (a -> b)
   arbitraryFunction .arbitrary = promote (flip coarbitrary arbitrary)
 
 --------------------------------------------------------------------------------
@@ -200,36 +200,36 @@ result res = property: (return res)
 -- Testable
 --------------------------------------------------------------------------------
 
-record Testable (A : Set) : Set where
-  field property : A -> Property
+record Testable (a : Set) : Set where
+  field property : a -> Property
 
 open Testable {{...}}
 
-evaluate : {{_ : Testable A}} -> A -> Gen Result
+evaluate : {{_ : Testable a}} -> a -> Gen Result
 evaluate a = let (property: gen) = property a in gen
 
-forAll : {{_ : Show A}} {{_ : Testable B}} -> Gen A -> (A -> B) -> Property
+forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
 forAll gen body = property: do
   a <- gen
   res <- evaluate (body a)
   return (record res { arguments = show a :: Result.arguments res })
 
 infixr 0 _==>_
-_==>_ : {{_ : Testable A}} -> Bool -> A -> Property
+_==>_ : {{_ : Testable a}} -> Bool -> a -> Property
 True ==> a = property a
 False ==> a = result none
 
-label : {{_ : Testable A}} -> String -> A -> Property
+label : {{_ : Testable a}} -> String -> a -> Property
 label s a = property: (add <$> evaluate a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
 
-classify : {{_ : Testable A}} -> Bool -> String -> A -> Property
+classify : {{_ : Testable a}} -> Bool -> String -> a -> Property
 classify True name = label name
 classify False _ = property
 
-collect : {{_ : Show A}} {{_ : Testable B}} -> A -> B -> Property
+collect : {{_ : Show a}} {{_ : Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
 instance
@@ -239,8 +239,8 @@ instance
   testableProperty : Testable Property
   testableProperty .property prop = prop
 
-  testableFunction : {{_ : Arbitrary A}} {{_ : Show A}} {{_ : Testable B}}
-    -> Testable (A -> B)
+  testableFunction : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
+    -> Testable (a -> b)
   testableFunction .property f = forAll arbitrary f
 
 --------------------------------------------------------------------------------
@@ -332,13 +332,13 @@ private
             ++ String.unlines (Result.arguments result))
       )
 
-check : {{_ : Testable A}} -> Config -> A -> IO Unit
+check : {{_ : Testable a}} -> Config -> a -> IO Unit
 check config a = do
   rnd <- newStdGen
   tests config (evaluate a) rnd 0 0 []
 
-quickCheck : {{_ : Testable A}} -> A -> IO Unit
+quickCheck : {{_ : Testable a}} -> a -> IO Unit
 quickCheck = check quick
 
-verboseCheck : {{_ : Testable A}} -> A -> IO Unit
+verboseCheck : {{_ : Testable a}} -> a -> IO Unit
 verboseCheck = check verbose

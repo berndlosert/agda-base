@@ -6,23 +6,27 @@ open import Prelude
 
 open import Control.Monad.STM
 
-private variable A S : Set
+private variable a s : Set
 
 postulate
   TVar : Set -> Set
-  newSTM : A -> STM (TVar A)
-  newIO : A -> IO (TVar A)
-  readSTM : TVar A -> STM A
-  readIO : TVar A -> IO A
-  write : TVar A -> A -> STM Unit
-  modify : TVar A -> (A -> A) -> STM Unit
-  state : TVar S -> (S -> A * S) -> STM A
-  switch : TVar A -> A -> STM A
+  newSTM : a -> STM (TVar a)
+  newIO : a -> IO (TVar a)
+  readSTM : TVar a -> STM a
+  readIO : TVar a -> IO a
+  write : TVar a -> a -> STM Unit
+  modify : TVar a -> (a -> a) -> STM Unit
+  state : TVar s -> (s -> a * s) -> STM a
+  switch : TVar a -> a -> STM a
   registerDelay : Nat -> IO (TVar Bool)
 
 private
   postulate
-    primEqTVar : TVar A -> TVar A -> Bool
+    primEqTVar : TVar a -> TVar a -> Bool
+
+instance
+  eqTVar : Eq (TVar a)
+  eqTVar ._==_ = primEqTVar
 
 {-# FOREIGN GHC import Control.Concurrent.STM.TVar #-}
 {-# COMPILE GHC TVar = type TVar #-}

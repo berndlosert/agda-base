@@ -8,15 +8,15 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    M N : Set -> Set
-    T : (Set -> Set) -> Set -> Set
+    m n : Set -> Set
+    t : (Set -> Set) -> Set -> Set
 
 --------------------------------------------------------------------------------
 -- MFunctor
 --------------------------------------------------------------------------------
 
-record MFunctor (T : (Set -> Set) -> Set -> Set) : Set where
-  field hoist : {{_ : Monad M}} {{_ : Monad N}} -> (M ~> N) -> T M ~> T N
+record MFunctor (t : (Set -> Set) -> Set -> Set) : Set where
+  field hoist : {{_ : Monad m}} {{_ : Monad n}} -> (m ~> n) -> t m ~> t n
 
 open MFunctor {{...}} public
 
@@ -24,16 +24,16 @@ open MFunctor {{...}} public
 -- MMonad
 --------------------------------------------------------------------------------
 
-record MMonad (T : (Set -> Set) -> Set -> Set) : Set where
+record MMonad (t : (Set -> Set) -> Set -> Set) : Set where
   field
-    {{mfunctor}} : MFunctor T
-    {{monadtrans}} : MonadTrans T
-    embed : {{_ : Monad M}} {{_ : Monad N}} -> (M ~> T N) -> T M ~> T N
+    {{mfunctor}} : MFunctor t
+    {{monadtrans}} : MonadTrans t
+    embed : {{_ : Monad m}} {{_ : Monad n}} -> (m ~> t n) -> t m ~> t n
 
 open MMonad {{...}} public
 
-generalize : {{_ : Monad M}} -> Identity ~> M
+generalize : {{_ : Monad m}} -> Identity ~> m
 generalize (Identity: x) = return x
 
-squash : {{_ : Monad M}} {{_ : MMonad T}} -> T (T M) ~> T M
+squash : {{_ : Monad m}} {{_ : MMonad t}} -> t (t m) ~> t m
 squash = embed id

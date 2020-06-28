@@ -10,38 +10,38 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    M N : Set -> Set
+    m n : Set -> Set
 
-record IdentityT (M : Set -> Set) (A : Set) : Set where
-  constructor identityT:
-  field runIdentityT : M A
+record IdentityT (m : Set -> Set) (a : Set) : Set where
+  constructor IdentityT:
+  field runIdentityT : m a
 
 open IdentityT public
 
 instance
-  functorIdentityT : {{_ : Functor M}} -> Functor (IdentityT M)
-  functorIdentityT .map f (identityT: m) = identityT: (map f m)
+  functorIdentityT : {{_ : Functor m}} -> Functor (IdentityT m)
+  functorIdentityT .map f (IdentityT: m) = IdentityT: (map f m)
 
-  applicativeIdentityT : {{_ : Applicative M}} -> Applicative (IdentityT M)
-  applicativeIdentityT .pure x = identityT: (pure x)
-  applicativeIdentityT ._<*>_ (identityT: f) (identityT: x) =
-    identityT: (f <*> x)
+  applicativeIdentityT : {{_ : Applicative m}} -> Applicative (IdentityT m)
+  applicativeIdentityT .pure x = IdentityT: (pure x)
+  applicativeIdentityT ._<*>_ (IdentityT: f) (IdentityT: x) =
+    IdentityT: (f <*> x)
 
-  monadIdentityT : {{_ : Monad M}} -> Monad (IdentityT M)
-  monadIdentityT ._>>=_ (identityT: m) k = identityT: do
+  monadIdentityT : {{_ : Monad m}} -> Monad (IdentityT m)
+  monadIdentityT ._>>=_ (IdentityT: m) k = IdentityT: do
     a <- m
     runIdentityT (k a)
 
   mfunctorIdentityT : MFunctor IdentityT
-  mfunctorIdentityT .hoist t (identityT: m) = identityT: (t m)
+  mfunctorIdentityT .hoist t (IdentityT: m) = IdentityT: (t m)
 
   monadTransIdentityT : MonadTrans IdentityT
-  monadTransIdentityT .lift = identityT:
+  monadTransIdentityT .lift = IdentityT:
   monadTransIdentityT .tmap f _ = hoist f
 
   mmonadIdentityT : MMonad IdentityT
-  mmonadIdentityT .embed k (identityT: m) = k m
+  mmonadIdentityT .embed k (IdentityT: m) = k m
 
-  monadBaseIdentityT : {{_ : Monad N}} {{_ : MonadBase M N}}
-    -> MonadBase M (IdentityT N)
+  monadBaseIdentityT : {{_ : Monad n}} {{_ : MonadBase m n}}
+    -> MonadBase m (IdentityT n)
   monadBaseIdentityT .liftBase m = lift (liftBase m)

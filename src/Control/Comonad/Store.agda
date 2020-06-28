@@ -5,19 +5,17 @@ module Control.Comonad.Store where
 open import Control.Comonad
 open import Prelude
 
-private
-  variable
-    S : Set
+private variable s : Set
 
 -- Store S is the dual of State S.
 Store : Set -> Set -> Set
-Store S X = (S -> X) * S
+Store s a = (s -> a) * s
 
 -- Store S is a functor.
 instance
-  functorStore : Functor (Store S)
+  functorStore : Functor (Store s)
   functorStore .map f (g , s) = (f ∘ g , s)
 
-  comonadStore : forall {S} -> Comonad (Store S)
-  comonadStore {S} .extend f (g , s) = ((λ _ -> f (g , s)) , s)
+  comonadStore : Comonad (Store s)
+  comonadStore .extend f (g , s) = ((λ _ -> f (g , s)) , s)
   comonadStore .extract (g , s) = g s

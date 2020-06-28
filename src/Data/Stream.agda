@@ -6,13 +6,13 @@ open import Prelude
 
 open import Control.Comonad
 
-private variable A B : Set
+private variable a b : Set
 
-record Stream (A : Set) : Set where
+record Stream (a : Set) : Set where
   coinductive
   field
-    head : A
-    tail : Stream A
+    head : a
+    tail : Stream a
 
 open Stream public
 
@@ -31,36 +31,34 @@ instance
   comonadStream .extend f as = pure (f as)
   comonadStream .extract as = head as
 
-iterate : (A -> A) -> A -> Stream A
+iterate : (a -> a) -> a -> Stream a
 iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
-unfold : (B -> A * B) -> B -> Stream A
+unfold : (b -> a * b) -> b -> Stream a
 unfold f b = let (a , b') = f b in λ where
   .head -> a
   .tail -> unfold f b'
 
-repeat : A -> Stream A
+repeat : a -> Stream a
 repeat a .head = a
 repeat a .tail = repeat a
 
-prepend : List A -> Stream A -> Stream A
+prepend : List a -> Stream a -> Stream a
 prepend [] ys = ys
 prepend (a :: as) ys .head = a
 prepend (a :: as) ys .tail = prepend as ys
 
-take : Nat -> Stream A -> List A
+take : Nat -> Stream a -> List a
 take 0 _ = []
 take (Suc n) as = head as :: take n (tail as)
 
-at : Nat -> Stream A -> A
+at : Nat -> Stream a -> a
 at 0 as = head as
 at (Suc n) as = at n (tail as)
 
-cycle : (as : List A) {{_ : Nonempty as}} -> Stream A
-cycle {A} as = unfold f as
-  where
-    f : List A -> A * List A
-    f [] = undefined -- We never use this case anyways.
-    f [ x ] = (x , as)
-    f (x :: xs) = (x , xs)
+cycle : (as : List a) {{_ : Nonempty as}} -> Stream a
+cycle as = flip unfold as λ where
+  [] -> undefined -- We never use this case anyways.
+  [ x ] -> (x , as)
+  (x :: xs) -> (x , xs)

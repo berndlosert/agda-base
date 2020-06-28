@@ -4,25 +4,25 @@ module Control.Monad.State.Class where
 
 open import Prelude
 
-private variable A : Set
+private variable a : Set
 
-record MonadState (S : Set) (M : Set -> Set) : Set where
+record MonadState (s : Set) (m : Set -> Set) : Set where
   field
-    {{monad}} : Monad M
-    get : M S
-    put : S -> M Unit
+    {{monad}} : Monad m
+    get : m s
+    put : s -> m Unit
 
-  state : (S -> A * S) -> M A
+  state : (s -> a * s) -> m a
   state f = do
     s0 <- get
     let (a , s1) = f s0
     put s1
     return a
 
-  modify : (S -> S) -> M Unit
+  modify : (s -> s) -> m Unit
   modify f = state (λ s -> (unit , f s))
 
-  gets : (S -> A) -> M A
+  gets : (s -> a) -> m a
   gets f = do
     s <- get
     return (f s)

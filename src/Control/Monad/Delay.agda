@@ -8,38 +8,36 @@ open import Control.Size
 open import Control.Thunk
 
 -- Delay represents processes which must always eventually yield. It is the
--- final coalgebra of the functor X +_.
+-- final coalgebra of the functor a +_.
 
-data Delay (i : Size) (X : Set) : Set where
-  Now : X -> Delay i X
-  Later : Thunk i Delay X -> Delay i X
+data Delay (i : Size) (a : Set) : Set where
+  Now : a -> Delay i a
+  Later : Thunk i Delay a -> Delay i a
 
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
-unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
+unfold : forall {i a b} -> (b -> a + b) -> b -> Delay i a
 unfold f y = either Now (λ x -> Later λ where .force -> unfold f x) $ f y
 
 -- Run a Delay process for at most n steps.
 
-runFor : Nat -> forall {X} -> Delay _ X -> Maybe X
+runFor : Nat -> forall {a} -> Delay _ a -> Maybe a
 runFor _ (Now x) = Just x
 runFor Zero (Later _) = Nothing
 runFor (Suc n) (Later thunk) = runFor n (force thunk)
 
--- Imagine a stream of Maybe X values. We model the stream as a function of
--- type Nat -> Maybe X. Assuming there is a least n : Nat such that the nth
+-- Imagine a stream of Maybe a values. We model the stream as a function of
+-- type Nat -> Maybe a. Assuming there is a least n : Nat such that the nth
 -- element of the stream is a (Just x) value, tryMore will produce a Delay
 -- value d such that runFor n d = Just x.
 
-tryMore : forall {i X} -> (Nat -> Maybe X) -> Delay i X
-tryMore {_} {X} f = unfold try Zero
+tryMore : forall {i a} -> (Nat -> Maybe a) -> Delay i a
+tryMore {_} {a} f = unfold try Zero
   where
-    try : Nat -> X + Nat
+    try : Nat -> a + Nat
     try n with f n
     ... | Just x = Left x
     ... | Nothing = Right (Suc n)
-
-open import Data.Bool
 
 -- This is Just like tryMore, except that now we have a stream of Bool values,
 -- modelled using a function of type Nat -> Bool.
@@ -50,11 +48,18 @@ minimize test = tryMore (λ n -> if test n then Just n else Nothing)
 instance
   functorDelay : {i : Size} -> Functor (Delay i)
   functorDelay .map f (Now x) = Now (f x)
-  functorDelay .map f (Later thunk) =
-    Later λ where .force -> map f (force thunk)
+  functorDelay .map f (Later x) =
+    Later λ where .force -> map f (force x)
+
+  applicativeDelay : {i : Size} -> Applicative (Delay i)
+  applicativeDelay .pure = Now
+  applicativeDelay ._<*>_ = λ where
+    (Now f) (Now x) -> Now (f x)
+    (Now f) x@(Later _) -> map f x
+    (Later f) x@(Now _) -> Later λ where .force -> force f <*> x
+    (Later f) (Later x) -> Later λ where .force -> force f <*> force x
 
   monadDelay : {i : Size} -> Monad (Delay i)
-  monadDelay .return = Now
-  monadDelay .extend f (Now x) = f x
-  monadDelay .extend f (Later thunk) = Later λ where
-    .force -> extend f (force thunk)
+  monadDelay ._>>=_ (Now x) f = f x
+  monadDelay ._>>=_ (Later x) f = Later λ where
+    .force -> _>>=_ (force x) f

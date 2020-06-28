@@ -9,19 +9,19 @@ open import Control.Monad.Writer.Trans
 open Control.Monad.Writer.Trans public
   using (functorWriterT; applicativeWriterT; monadWriterT)
 
-private variable A B W W' : Set
+private variable a b w w' : Set
 
 Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
-writer: : A * W -> Writer W A
+writer: : a * w -> Writer w a
 writer: = WriterT: ∘ Identity:
 
-runWriter : Writer W A -> A * W
+runWriter : Writer w a -> a * w
 runWriter = runIdentity ∘ runWriterT
 
-execWriter : Writer W A -> W
+execWriter : Writer w a -> w
 execWriter m = snd (runWriter m)
 
-mapWriter : (A * W -> B * W') -> Writer W A -> Writer W' B
+mapWriter : (a * w -> b * w') -> Writer w a -> Writer w' b
 mapWriter = mapWriterT ∘ map
