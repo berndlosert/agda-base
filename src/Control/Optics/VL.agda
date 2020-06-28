@@ -57,19 +57,19 @@ Getting : (R S A : Set) -> Set
 Getting R S A = (A -> Const R A) -> S -> Const R S
 
 to : (S -> A) -> Getting R S A
-to f k = const: ∘ getConst ∘ k ∘ f
+to f k = Const: ∘ getConst ∘ k ∘ f
 
 view : Getting A S A -> S -> A
-view g = getConst ∘ g const:
+view g = getConst ∘ g Const:
 
 foldMapOf : Getting R S A -> (A -> R) -> S -> R
-foldMapOf g k = getConst ∘ g (const: ∘ k)
+foldMapOf g k = getConst ∘ g (Const: ∘ k)
 
 foldrOf : Getting (Endo R) S A -> (A -> R -> R) -> R -> S -> R
-foldrOf l f z = flip appEndo z ∘ foldMapOf l (endo: ∘ f)
+foldrOf l f z = flip appEndo z ∘ foldMapOf l (Endo: ∘ f)
 
 foldlOf : Getting (Dual (Endo R)) S A -> (R -> A -> R) -> R -> S -> R
-foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (dual: ∘ endo: ∘ flip f))
+foldlOf l f z = rmap (flip appEndo z ∘ getDual) (foldMapOf l (Dual: ∘ Endo: ∘ flip f))
 
 toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
@@ -78,7 +78,7 @@ lengthOf : Getting (Dual (Endo Int)) S A -> S -> Int
 lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First A)) S A -> S -> Maybe A
-preview l = map getFirst ∘ foldMapOf l (just ∘ first:)
+preview l = map getFirst ∘ foldMapOf l (Just ∘ First:)
 
 traverseOf! : {{_ : Functor F}}
   -> Getting (F R) S A -> (A -> F R) -> S -> F Unit
@@ -96,13 +96,13 @@ ASetter : (S T A B : Set) -> Set
 ASetter S T A B = (A -> Identity B) -> S -> Identity T
 
 over : ASetter S T A B -> (A -> B) -> S -> T
-over g k = runIdentity ∘ g (identity: ∘ k)
+over g k = runIdentity ∘ g (Identity: ∘ k)
 
 set : ASetter S T A B -> B -> S -> T
-set f b = runIdentity ∘ f (λ _ -> identity: b)
+set f b = runIdentity ∘ f (λ _ -> Identity: b)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
-sets f k = identity: ∘ f (runIdentity ∘ k)
+sets f k = Identity: ∘ f (runIdentity ∘ k)
 
 --------------------------------------------------------------------------------
 -- Lens operations
@@ -135,18 +135,18 @@ instance
 #snd : Lens (A * B) (A * C) B C
 #snd k (x , y) = (x ,_) <$> k y
 
-#left : Traversal (A + C) (B + C) A B
-#left f (left x) = left <$> f x
-#left _ (right y) = pure (right y)
+#Left : Traversal (A + C) (B + C) A B
+#Left f (Left x) = Left <$> f x
+#Left _ (Right y) = pure (Right y)
 
-#right : Traversal (A + B) (A + C) B C
-#right f (right y) = right <$> f y
-#right _ (left x) = pure (left x)
+#Right : Traversal (A + B) (A + C) B C
+#Right f (Right y) = Right <$> f y
+#Right _ (Left x) = pure (Left x)
 
-#just : Traversal (Maybe A) (Maybe B) A B
-#just f (just x) = just <$> f x
-#just _ nothing = pure nothing
+#Just : Traversal (Maybe A) (Maybe B) A B
+#Just f (Just x) = Just <$> f x
+#Just _ Nothing = pure Nothing
 
-#nothing : Simple Traversal (Maybe A) Unit
-#nothing f nothing = const nothing <$> f unit
-#nothing _ j = pure j
+#Nothing : Simple Traversal (Maybe A) Unit
+#Nothing f Nothing = const Nothing <$> f unit
+#Nothing _ j = pure j

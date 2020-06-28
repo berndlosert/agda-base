@@ -52,10 +52,10 @@ many1 a = (| _::_ a (many a) |)
 many a = many1 a <|> pure []
 
 optional : Parser A -> Parser (Maybe A)
-optional a = (| just a | nothing |)
+optional a = (| Just a | Nothing |)
 
 eitherP : Parser A -> Parser B -> Parser (A + B)
-eitherP a b = (| left a | right b |)
+eitherP a b = (| Left a | Right b |)
 
 choice : List (Parser A) -> Parser A
 choice ps = foldr _<|>_ empty ps
@@ -118,8 +118,8 @@ chainr p op a = chainr1 p op <|> pure a
 -- Run a parser on a string and get the first result.
 parse : Parser A -> String -> Maybe A
 parse p s with runParser p s
-... | [] = nothing
-... | ((a , _) :: _) = just a
+... | [] = Nothing
+... | ((a , _) :: _) = Just a
 
 --------------------------------------------------------------------------------
 -- Char parsers
@@ -193,8 +193,8 @@ tab = char '\t'
 {-# TERMINATING #-}
 string : String -> Parser String
 string s with String.uncons s
-... | nothing = pure ""
-... | (just (c , s')) = char c *> string s' *> pure (cons c s')
+... | Nothing = pure ""
+... | (Just (c , s')) = char c *> string s' *> pure (cons c s')
 
 {-# TERMINATING #-}
 word : Parser String

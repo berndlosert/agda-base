@@ -185,13 +185,13 @@ instance
 
   wanderForget : {{_ : Monoid R}} -> Wander (Forget R)
   wanderForget .wander t f =
-    forget: $ getConst ∘ t (const: ∘ runForget f)
+    forget: $ getConst ∘ t (Const: ∘ runForget f)
 
   profunctorTagged : Profunctor Tagged
   profunctorTagged .dimap _ g x = tagged: (g $ unTagged x)
 
   choiceTagged : Choice Tagged
-  choiceTagged .choice x = tagged: (right $ unTagged x)
+  choiceTagged .choice x = tagged: (Right $ unTagged x)
 
   closedTagged : Closed Tagged
   closedTagged .closed x = tagged: (const $ unTagged x)
@@ -228,11 +228,11 @@ instance
   choiceMarket .choice (market: build match) = market: build' match'
     where
       build' match' : _
-      build' y = right (build y)
-      match' (left u) = left (left u)
-      match' (right s) with match s
-      ... | left t = left (right t)
-      ... | right x = right x
+      build' y = Right (build y)
+      match' (Left u) = Left (Left u)
+      match' (Right s) with match s
+      ... | Left t = Left (Right t)
+      ... | Right x = Right x
 
   profunctorGrate : Profunctor (Grate A B)
   profunctorGrate .dimap f g r = dimap f g ∘ r
@@ -257,8 +257,8 @@ instance
 
   choiceBazaar : Choice (Bazaar P A B)
   choiceBazaar .choice (toBazaar b) = toBazaar λ where
-    h (right s) -> right <$> b h s
-    h (left u) -> left <$> pure u
+    h (Right s) -> Right <$> b h s
+    h (Left u) -> Left <$> pure u
 
   wanderBazaar : Wander (Bazaar P A B)
   wanderBazaar .wander w (toBazaar b) = toBazaar λ where
@@ -285,9 +285,9 @@ instance
 --put l = Shop.put $ l $ shop: id (flip const)
 
 --build : Prism A B S T -> B -> T
---build p = Market.build $ p $ market: id right
+--build p = Market.build $ p $ market: id Right
 --match : Prism A B S T -> S -> T + A
---match p = Market.match $ p $ market: id right
+--match p = Market.match $ p $ market: id Right
 
 --degrating : Grate A B S T -> ((S -> A) -> B) -> T
 --degrating g = Grating.degrating $ g $ grate: λ f -> f id
@@ -332,18 +332,18 @@ sets = id
 #snd : Simple Lens B (A * B)
 #snd = strong
 --
---#left : Traversal (A + C) (B + C) A B
---#left f (left x) = left <$> f x
---#left _ (right y) = pure (right y)
+--#Left : Traversal (A + C) (B + C) A B
+--#Left f (Left x) = Left <$> f x
+--#Left _ (Right y) = pure (Right y)
 --
---#right : Traversal (A + B) (A + C) B C
---#right f (right y) = right <$> f y
---#right _ (left x) = pure (left x)
+--#Right : Traversal (A + B) (A + C) B C
+--#Right f (Right y) = Right <$> f y
+--#Right _ (Left x) = pure (Left x)
 --
---#just : Traversal (Maybe A) (Maybe B) A B
---#just f (just x) = just <$> f x
---#just _ nothing = pure nothing
+--#Just : Traversal (Maybe A) (Maybe B) A B
+--#Just f (Just x) = Just <$> f x
+--#Just _ Nothing = pure Nothing
 --
---#nothing : Simple Traversal (Maybe A) Unit
---#nothing f nothing = const nothing <$> f unit
---#nothing _ j = pure j
+--#Nothing : Simple Traversal (Maybe A) Unit
+--#Nothing f Nothing = const Nothing <$> f unit
+--#Nothing _ j = pure j

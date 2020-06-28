@@ -32,7 +32,7 @@ open Member {{...}}
 
 instance
   memberSingleton : Member F (F :: Fs)
-  memberSingleton .inj = left
+  memberSingleton .inj = Left
   memberSingleton .prj = leftToMaybe
 
 abstract
@@ -64,8 +64,8 @@ abstract
   fold {F} {Fs} {_} {B} ret ext = Free.fold ret ext'
     where
       ext' : forall {A} -> (A -> Eff Fs B) -> Union (F :: Fs) A -> Eff Fs B
-      ext' ret (left x) = ext ret x
-      ext' ret (right u) = Free.lift u >>= ret
+      ext' ret (Left x) = ext ret x
+      ext' ret (Right u) = Free.lift u >>= ret
 
   -- Eff [] A and A are isomorphic. This means that Eff [] A describes a pure
   -- computation.

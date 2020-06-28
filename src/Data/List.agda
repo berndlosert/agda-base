@@ -15,16 +15,16 @@ private
 --------------------------------------------------------------------------------
 
 head : List A -> Maybe A
-head [] = nothing
-head (a :: _) = just a
+head [] = Nothing
+head (a :: _) = Just a
 
 tail : List A -> Maybe (List A)
-tail [] = nothing
-tail (_ :: as) = just as
+tail [] = Nothing
+tail (_ :: as) = Just as
 
 uncons : List A -> Maybe (A * List A)
-uncons [] = nothing
-uncons (a :: as) = just (a , as)
+uncons [] = Nothing
+uncons (a :: as) = Just (a , as)
 
 --------------------------------------------------------------------------------
 -- Basic functions
@@ -42,7 +42,7 @@ length = foldr (const suc) 0
 
 takeWhile : (A -> Bool) -> List A -> List A
 takeWhile p = reverse ∘ untag ∘ flip foldlM [] λ where
-  as a -> if p a then right (a :: as) else left as
+  as a -> if p a then Right (a :: as) else Left as
 
 dropWhile : (A -> Bool) -> List A -> List A
 dropWhile p = reverse ∘ flip foldl [] λ where
@@ -50,7 +50,7 @@ dropWhile p = reverse ∘ flip foldl [] λ where
 
 take : Nat -> List A -> List A
 take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) λ where
-  (k , s) a -> if k < n then right (suc k , cons a s) else left (suc k , s)
+  (k , s) a -> if k < n then Right (suc k , cons a s) else Left (suc k , s)
 
 drop : Nat -> List A -> List A
 drop n = reverse ∘ snd ∘ flip foldl (0 , []) λ where
@@ -77,10 +77,10 @@ break p as@(x :: xs) =
   else let (ys , zs) = break p xs in (x :: ys , zs)
 
 stripPrefix : {{_ : Eq A}} -> List A -> List A -> Maybe (List A)
-stripPrefix [] as = just as
+stripPrefix [] as = Just as
 stripPrefix (x :: xs) (y :: ys) =
-  if x == y then stripPrefix xs ys else nothing
-stripPrefix _ _ = nothing
+  if x == y then stripPrefix xs ys else Nothing
+stripPrefix _ _ = Nothing
 
 {-# TERMINATING #-}
 groupBy : (A -> A -> Bool) -> List A -> List (List A)
@@ -103,7 +103,7 @@ indexed = reverse ∘ flip foldl [] λ where
 
 at : Nat -> List A -> Maybe A
 at n = leftToMaybe ∘ flip foldlM 0 λ
-  k a -> if k == n then left a else right (suc k)
+  k a -> if k == n then Left a else Right (suc k)
 
 deleteAt : Nat -> List A -> List A
 deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
@@ -124,8 +124,8 @@ splitAt : Nat -> List A -> List A * List A
 splitAt n as = (take n as , drop n as)
 
 elemAt : Nat -> List A -> Maybe A
-elemAt _ [] = nothing
-elemAt 0 (a :: _) = just a
+elemAt _ [] = Nothing
+elemAt 0 (a :: _) = Just a
 elemAt (suc n) (_ :: as) = elemAt n as
 
 --------------------------------------------------------------------------------
@@ -276,5 +276,5 @@ sortOn f = map snd ∘ sortBy (comparing fst) ∘ map (tuple f id)
 --------------------------------------------------------------------------------
 
 lookup : {{_ : Eq A}} -> A -> List (A * B) -> Maybe B
-lookup a [] = nothing
-lookup a ((a' , b) :: xs) = if a == a' then just b else lookup a xs
+lookup a [] = Nothing
+lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs

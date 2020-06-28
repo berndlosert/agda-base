@@ -191,7 +191,7 @@ record Property : Set where
   field result : Gen Result
 
 none : Result
-none = record { ok = nothing; stamp = []; arguments = [] }
+none = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
 result res = property: (return res)
@@ -234,7 +234,7 @@ collect v = label (show v)
 
 instance
   testableBool : Testable Bool
-  testableBool .property b = result (record none { ok = just b })
+  testableBool .property b = result (record none { ok = Just b })
 
   testableProperty : Testable Property
   testableProperty .property prop = prop
@@ -322,11 +322,11 @@ private
       in do
         putStr (Config.every config ntest (Result.arguments result))
         case Result.ok result of λ where
-          nothing -> tests
+          Nothing -> tests
             config gen rnd1 ntest (nfail + 1) stamps
-          (just True) -> tests
+          (Just True) -> tests
             config gen rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
-          (just False) -> putStr ("Falsifiable, after "
+          (Just False) -> putStr ("Falsifiable, after "
             ++ show ntest
             ++ " tests:\n"
             ++ String.unlines (Result.arguments result))

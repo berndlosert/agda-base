@@ -22,7 +22,7 @@ instance
       else (m :: range (m - 1 , n))
   ixNat .inRange (m , n) k = m <= k && k <= n
   ixNat .rangeSize (m , n) = max (m - n) (n - m) + 1
-  ixNat .index (m , n) k = if inRange (m , n) k then just (k - m) else nothing
+  ixNat .index (m , n) k = if inRange (m , n) k then Just (k - m) else Nothing
 
   {-# TERMINATING #-}
   ixInt : Ix Int
@@ -34,5 +34,5 @@ instance
   ixInt .rangeSize (m , n) = fromPos (abs (m - n)) {believeMe}
   ixInt .index (m , n) k =
     if inRange (m , n) k
-    then just $ fromPos (abs $ k - m) {believeMe}
-    else nothing
+    then Just $ fromPos (abs $ k - m) {believeMe}
+    else Nothing

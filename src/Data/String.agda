@@ -21,18 +21,18 @@ snoc s c = repack (_++ Prelude.singleton c) s
 
 head : String -> Maybe Char
 head s with unpack s
-... | [] = nothing
-... | (c :: _) = just c
+... | [] = Nothing
+... | (c :: _) = Just c
 
 tail : String -> Maybe String
 tail s with unpack s
-... | [] = nothing
-... | (_ :: cs) = just (pack cs)
+... | [] = Nothing
+... | (_ :: cs) = Just (pack cs)
 
 uncons : String -> Maybe (Char * String)
 uncons s with unpack s
-... | [] = nothing
-... | (c :: cs) = just (c , pack cs)
+... | [] = Nothing
+... | (c :: cs) = Just (c , pack cs)
 
 reverse : String -> String
 reverse = repack List.reverse

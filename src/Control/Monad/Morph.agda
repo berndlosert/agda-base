@@ -33,7 +33,7 @@ record MMonad (T : (Set -> Set) -> Set -> Set) : Set where
 open MMonad {{...}} public
 
 generalize : {{_ : Monad M}} -> Identity ~> M
-generalize (identity: x) = return x
+generalize (Identity: x) = return x
 
 squash : {{_ : Monad M}} {{_ : MMonad T}} -> T (T M) ~> T M
 squash = embed id

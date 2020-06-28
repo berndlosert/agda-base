@@ -46,8 +46,8 @@ Function : Set -> Set -> Set
 Function A B = A -> B
 
 data Either (A B : Set) : Set where
-  left : A -> Either A B
-  right : B -> Either A B
+  Left : A -> Either A B
+  Right : B -> Either A B
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
@@ -63,8 +63,8 @@ open Tuple public
 {-# COMPILE GHC Tuple = data (,) ((,)) #-}
 
 data Maybe (A : Set) : Set where
-  nothing : Maybe A
-  just : A -> Maybe A
+  Nothing : Maybe A
+  Just : A -> Maybe A
 
 {-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
 
@@ -80,20 +80,20 @@ open import Agda.Builtin.IO public
 --------------------------------------------------------------------------------
 
 record Identity (A : Set) : Set where
-  constructor identity:
+  constructor Identity:
   field runIdentity : A
 
 open Identity public
 
 record Const (A B : Set) : Set where
-  constructor const:
+  constructor Const:
   field getConst : A
 
 open Const public
 
 -- Endofunctions
 record Endo A : Set where
-  constructor endo:
+  constructor Endo:
   field appEndo : A -> A
 
 open Endo public
@@ -223,35 +223,35 @@ open Agda.Builtin.String public
   )
 
 either : (A -> C) -> (B -> C) -> Either A B -> C
-either f g (left a) = f a
-either f g (right b) = g b
+either f g (Left a) = f a
+either f g (Right b) = g b
 
 mirror : Either A B -> Either B A
-mirror = either right left
+mirror = either Right Left
 
 untag : Either A A -> A
-untag (left a) = a
-untag (right a) = a
+untag (Left a) = a
+untag (Right a) = a
 
 isLeft : Either A B -> Bool
-isLeft (left _) = True
+isLeft (Left _) = True
 isLeft _ = False
 
 isRight : Either A B -> Bool
-isRight (left _) = False
+isRight (Left _) = False
 isRight _ = True
 
 fromLeft : A -> Either A B -> A
-fromLeft _ (left a) = a
-fromLeft a (right _) = a
+fromLeft _ (Left a) = a
+fromLeft a (Right _) = a
 
 fromRight : B -> Either A B -> B
-fromRight b (left _) = b
-fromRight _ (right b) = b
+fromRight b (Left _) = b
+fromRight _ (Right b) = b
 
 fromEither : (A -> B) -> Either A B -> B
-fromEither f (left a) = f a
-fromEither _ (right b) = b
+fromEither f (Left a) = f a
+fromEither _ (Right b) = b
 
 tuple : (A -> B) -> (A -> C) -> A -> Tuple B C
 tuple f g a = (f a , g a)
@@ -272,31 +272,31 @@ apply : Tuple (A -> B) A -> B
 apply = uncurry _$_
 
 isJust : Maybe A -> Bool
-isJust (just _) = True
+isJust (Just _) = True
 isJust _ = False
 
 isNothing : Maybe A -> Bool
-isNothing (just _) = False
+isNothing (Just _) = False
 isNothing _ = True
 
 fromJust : (x : Maybe A) {{_ : So $ isJust x}} -> A
-fromJust (just a) = a
+fromJust (Just a) = a
 
 maybe : B -> (A -> B) -> Maybe A -> B
-maybe b f nothing = b
-maybe b f (just a) = f a
+maybe b f Nothing = b
+maybe b f (Just a) = f a
 
 maybeToLeft : B -> Maybe A -> Either A B
-maybeToLeft b = maybe (right b) left
+maybeToLeft b = maybe (Right b) Left
 
 maybeToRight : B -> Maybe A -> Either B A
 maybeToRight b = mirror ∘ maybeToLeft b
 
 leftToMaybe : Either A B -> Maybe A
-leftToMaybe = either just (const nothing)
+leftToMaybe = either Just (const Nothing)
 
-rightToMaybe : Either A B -> Maybe B
-rightToMaybe = leftToMaybe ∘ mirror
+RightToMaybe : Either A B -> Maybe B
+RightToMaybe = leftToMaybe ∘ mirror
 
 pattern [_] x = x :: []
 
@@ -305,12 +305,12 @@ listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
 
 maybeToList : Maybe A -> List A
-maybeToList nothing = []
-maybeToList (just a) = a :: []
+maybeToList Nothing = []
+maybeToList (Just a) = a :: []
 
 listToMaybe : List A -> Maybe A
-listToMaybe [] = nothing
-listToMaybe (a :: _) = just a
+listToMaybe [] = Nothing
+listToMaybe (a :: _) = Just a
 
 private
   postulate
@@ -419,8 +419,8 @@ instance
 
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Either A B)
   eqEither ._==_ = λ where
-    (left a) (left a') -> a == a'
-    (right b) (right b') -> b == b'
+    (Left a) (Left a') -> a == a'
+    (Right b) (Right b') -> b == b'
     _ _ -> False
 
   eqTuple : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Tuple A B)
@@ -428,8 +428,8 @@ instance
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = λ where
-    nothing nothing -> True
-    (just a) (just a') -> a == a'
+    Nothing Nothing -> True
+    (Just a) (Just a') -> a == a'
     _ _ -> False
 
   eqList : {{_ : Eq A}} -> Eq (List A)
@@ -439,10 +439,10 @@ instance
     _ _ -> False
 
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
-  eqIdentity ._==_ (identity: a) (identity: a') = a == a'
+  eqIdentity ._==_ (Identity: a) (Identity: a') = a == a'
 
   eqConst : {{_ : Eq A}} -> Eq (Const A B)
-  eqConst ._==_ (const: a) (const: a') = a == a'
+  eqConst ._==_ (Const: a) (Const: a') = a == a'
 
 --------------------------------------------------------------------------------
 -- Ord
@@ -527,15 +527,15 @@ instance
 
   ordMaybe : {{_ : Ord A}} -> Ord (Maybe A)
   ordMaybe ._<_ = λ where
-    _ nothing -> False
-    nothing _ -> True
-    (just a) (just a') -> a < a'
+    _ Nothing -> False
+    Nothing _ -> True
+    (Just a) (Just a') -> a < a'
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
-  ordIdentity ._<_ (identity: a) (identity: a') = a < a'
+  ordIdentity ._<_ (Identity: a) (Identity: a') = a < a'
 
   ordConst : {{_ : Ord A}} -> Ord (Const A B)
-  ordConst ._<_ (const: a) (const: a') = a < a'
+  ordConst ._<_ (Const: a) (Const: a') = a < a'
 
 --------------------------------------------------------------------------------
 -- FromNat and FromNeg
@@ -813,21 +813,21 @@ open Product public
 
 -- For dual semigroups, orders, etc.
 record Dual (A : Set) : Set where
-  constructor dual:
+  constructor Dual:
   field getDual : A
 
 open Dual public
 
 -- Semigroup where x <> y = x
 record First (A : Set) : Set where
-  constructor first:
+  constructor First:
   field getFirst : A
 
 open First public
 
 -- Semigroup where x <> y = y
 record Last (A : Set) : Set where
-  constructor last:
+  constructor Last:
   field getLast : A
 
 open Last public
@@ -848,21 +848,21 @@ open Max public
 
 -- Bool semigroup where x <> y = x || y.
 record Any : Set where
-  constructor any:
+  constructor Any:
   field getAny : Bool
 
 open Any public
 
 -- Bool semigroup where x <> y = x && y.
 record All : Set where
-  constructor all:
+  constructor All:
   field getAll : Bool
 
 open All public
 
 instance
   semigroupDual : {{_ : Semigroup A}} -> Semigroup (Dual A)
-  semigroupDual ._<>_ (dual: a) (dual: a') = dual: (a' <> a)
+  semigroupDual ._<>_ (Dual: a) (Dual: a') = Dual: (a' <> a)
 
   semigroupFirst : Semigroup (First A)
   semigroupFirst ._<>_ a _ = a
@@ -877,10 +877,10 @@ instance
   semigroupMax ._<>_ (max: a) (max: a') = max: (max a a')
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (any: b) (any: b') = any: (b || b')
+  semigroupAny ._<>_ (Any: b) (Any: b') = Any: (b || b')
 
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ (all: b) (all: b') = all: (b && b')
+  semigroupAll ._<>_ (All: b) (All: b') = All: (b && b')
 
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = λ ()
@@ -908,7 +908,7 @@ instance
 
   semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}}
     -> Semigroup (Either A B)
-  semigroupEither ._<>_ (left _) b = b
+  semigroupEither ._<>_ (Left _) b = b
   semigroupEither ._<>_ a _ = a
 
   semigroupTuple : {{_ : Semigroup A}} {{_ : Semigroup B}}
@@ -917,9 +917,9 @@ instance
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
   semigroupMaybe ._<>_ = λ where
-    nothing m -> m
-    m nothing -> m
-    (just a) (just a') -> just (a <> a')
+    Nothing m -> m
+    m Nothing -> m
+    (Just a) (Just a') -> Just (a <> a')
 
   semigroupList : Semigroup (List A)
   semigroupList ._<>_ as as' = listrec as' (λ x _ xs -> x :: xs) as
@@ -929,14 +929,14 @@ instance
     (| _<>_ x y |)
 
   semigroupIdentity : {{_ : Semigroup A}} -> Semigroup (Identity A)
-  semigroupIdentity ._<>_ (identity: a) (identity: a') =
-    identity: (a <> a')
+  semigroupIdentity ._<>_ (Identity: a) (Identity: a') =
+    Identity: (a <> a')
 
   semigroupConst : {{_ : Semigroup A}} -> Semigroup (Const A B)
-  semigroupConst ._<>_ (const: a) (const: a') = const: (a <> a')
+  semigroupConst ._<>_ (Const: a) (Const: a') = Const: (a <> a')
 
   semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g ∘ appEndo f)
+  semigroupEndo ._<>_ g f = Endo: (appEndo g ∘ appEndo f)
 
 --------------------------------------------------------------------------------
 -- Monoid
@@ -959,22 +959,22 @@ open Monoid {{...}} public
 
 instance
   monoidDual : {{_ : Monoid A}} -> Monoid (Dual A)
-  monoidDual .neutral = dual: neutral
+  monoidDual .neutral = Dual: neutral
 
   monoidFirst : {{_ : Monoid A}} -> Monoid (First A)
-  monoidFirst .neutral = first: neutral
+  monoidFirst .neutral = First: neutral
 
   monoidLast : {{_ : Monoid A}} -> Monoid (Last A)
-  monoidLast .neutral = last: neutral
+  monoidLast .neutral = Last: neutral
 
   monoidUnit : Monoid Unit
   monoidUnit .neutral = unit
 
   monoidAll : Monoid All
-  monoidAll .neutral = all: True
+  monoidAll .neutral = All: True
 
   monoidAny : Monoid Any
-  monoidAny .neutral = any: False
+  monoidAny .neutral = Any: False
 
   monoidSumNat : Monoid (Sum Nat)
   monoidSumNat .neutral = sum: 0
@@ -995,10 +995,10 @@ instance
   monoidFunction .neutral = const neutral
 
   monoidEndo : Monoid (Endo A)
-  monoidEndo .neutral = endo: id
+  monoidEndo .neutral = Endo: id
 
   monoidMaybe : {{_ : Semigroup A}} -> Monoid (Maybe A)
-  monoidMaybe .neutral = nothing
+  monoidMaybe .neutral = Nothing
 
   monoidList : Monoid (List A)
   monoidList .neutral = []
@@ -1007,10 +1007,10 @@ instance
   monoidIO .neutral = pureIO neutral
 
   monoidIdentity : {{_ : Monoid A}} -> Monoid (Identity A)
-  monoidIdentity .neutral = identity: neutral
+  monoidIdentity .neutral = Identity: neutral
 
   monoidConst : {{_ : Monoid A}} -> Monoid (Const A B)
-  monoidConst .neutral = const: neutral
+  monoidConst .neutral = Const: neutral
 
 --------------------------------------------------------------------------------
 -- IsBuildable, Buildable
@@ -1039,8 +1039,8 @@ record IsBuildable (S A : Set) : Set where
   fromList (a :: as) = cons a (fromList as)
 
   fromMaybe : Maybe A -> S
-  fromMaybe nothing = nil
-  fromMaybe (just a) = singleton a
+  fromMaybe Nothing = nil
+  fromMaybe (Just a) = singleton a
 
   replicate : Nat -> A -> S
   replicate n a = applyN (cons a) n nil
@@ -1053,14 +1053,14 @@ Buildable F = forall {A} -> IsBuildable (F A) A
 {-# TERMINATING #-}
 unfoldr : {{_ : IsBuildable S A}} -> (B -> Maybe (Tuple A B)) -> B -> S
 unfoldr f b with f b
-... | nothing = nil
-... | (just (a , b')) = cons a (unfoldr f b')
+... | Nothing = nil
+... | (Just (a , b')) = cons a (unfoldr f b')
 
 {-# TERMINATING #-}
 unfoldl : {{_ : IsBuildable S A}} -> (B -> Maybe (Tuple B A)) -> B -> S
 unfoldl f b with f b
-... | nothing = nil
-... | (just (b' , a)) = snoc (unfoldl f b') a
+... | Nothing = nil
+... | (Just (b' , a)) = snoc (unfoldl f b') a
 
 instance
   buildableList : Buildable List
@@ -1132,7 +1132,7 @@ instance
   profunctorFunction .dimap f g h = g ∘ h ∘ f
 
   bifunctorEither : Bifunctor Either
-  bifunctorEither .bimap f g = either (left ∘ f) (right ∘ g)
+  bifunctorEither .bimap f g = either (Left ∘ f) (Right ∘ g)
 
   functorEither : Functor (Either A)
   functorEither .map = second
@@ -1145,8 +1145,8 @@ instance
 
   functorMaybe : Functor Maybe
   functorMaybe .map f = λ where
-    nothing -> nothing
-    (just a) -> just (f a)
+    Nothing -> Nothing
+    (Just a) -> Just (f a)
 
   functorList : Functor List
   functorList .map f = listrec [] λ a _ bs -> f a :: bs
@@ -1155,16 +1155,16 @@ instance
   functorIO .map = mapIO
 
   functorIdentity : Functor Identity
-  functorIdentity .map f = identity: ∘ f ∘ runIdentity
+  functorIdentity .map f = Identity: ∘ f ∘ runIdentity
 
   bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g = const: ∘ f ∘ getConst
+  bifunctorConst .bimap f g = Const: ∘ f ∘ getConst
 
   functorConst : Functor (Const A)
   functorConst .map = second
 
   contravariantConst : Contravariant (Const A)
-  contravariantConst .contramap f = const: ∘ getConst
+  contravariantConst .contramap f = Const: ∘ getConst
 
   functorSum : Functor Sum
   functorSum .map f = sum: ∘ f ∘ getSum
@@ -1173,13 +1173,13 @@ instance
   functorProduct .map f = product: ∘ f ∘ getProduct
 
   functorDual : Functor Dual
-  functorDual .map f = dual: ∘ f ∘ getDual
+  functorDual .map f = Dual: ∘ f ∘ getDual
 
   functorFirst : Functor First
-  functorFirst .map f = first: ∘ f ∘ getFirst
+  functorFirst .map f = First: ∘ f ∘ getFirst
 
   functorLast : Functor Last
-  functorLast .map f = last: ∘ f ∘ getLast
+  functorLast .map f = Last: ∘ f ∘ getLast
 
   functorMin : Functor Min
   functorMin .map f = min: ∘ f ∘ getMin
@@ -1224,16 +1224,16 @@ open Applicative {{...}} public
 
 instance
   applicativeEither : Applicative (Either A)
-  applicativeEither .pure = right
+  applicativeEither .pure = Right
   applicativeEither ._<*>_ = λ where
-    (left a) _ -> left a
-    (right f) -> map f
+    (Left a) _ -> Left a
+    (Right f) -> map f
 
   applicativeMaybe : Applicative Maybe
-  applicativeMaybe .pure = just
+  applicativeMaybe .pure = Just
   applicativeMaybe ._<*>_ = λ where
-    (just f) -> map f
-    nothing _ -> nothing
+    (Just f) -> map f
+    Nothing _ -> Nothing
 
   applicativeList : Applicative List
   applicativeList .pure = singleton
@@ -1247,12 +1247,12 @@ instance
   applicativeIO ._<*>_ = apIO
 
   applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = identity:
+  applicativeIdentity .pure = Identity:
   applicativeIdentity ._<*>_ = map ∘ runIdentity
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
-  applicativeConst .pure _ = const: neutral
-  applicativeConst ._<*>_ (const: f) (const: a) = const: (f <> a)
+  applicativeConst .pure _ = Const: neutral
+  applicativeConst ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
   applicativeSum : Applicative Sum
   applicativeSum .pure = sum:
@@ -1263,16 +1263,16 @@ instance
   applicativeProduct ._<*>_ (product: f) (product: x) = product: (f x)
 
   applicativeDual : Applicative Dual
-  applicativeDual .pure = dual:
-  applicativeDual ._<*>_ (dual: f) (dual: x) = dual: (f x)
+  applicativeDual .pure = Dual:
+  applicativeDual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
 
   applicativeFirst : Applicative First
-  applicativeFirst .pure = first:
-  applicativeFirst ._<*>_ (first: f) (first: x) = first: (f x)
+  applicativeFirst .pure = First:
+  applicativeFirst ._<*>_ (First: f) (First: x) = First: (f x)
 
   applicativeLast : Applicative Last
-  applicativeLast .pure = last:
-  applicativeLast ._<*>_ (last: f) (last: x) = last: (f x)
+  applicativeLast .pure = Last:
+  applicativeLast ._<*>_ (Last: f) (Last: x) = Last: (f x)
 
   applicativeMin : Applicative Min
   applicativeMin .pure = min:
@@ -1301,9 +1301,9 @@ open Alternative {{...}} public
 
 instance
   alternativeMaybe : Alternative Maybe
-  alternativeMaybe .empty = nothing
+  alternativeMaybe .empty = Nothing
   alternativeMaybe ._<|>_ = λ where
-    nothing r -> r
+    Nothing r -> r
     l _ -> l
 
   alternativeList : Alternative List
@@ -1335,13 +1335,13 @@ return = pure
 instance
   monadEither : Monad (Either A)
   monadEither ._>>=_ = λ where
-    (left a) _ -> left a
-    (right x) k -> k x
+    (Left a) _ -> Left a
+    (Right x) k -> k x
 
   monadMaybe : Monad Maybe
   monadMaybe ._>>=_ = λ where
-    nothing _ -> nothing
-    (just x) k -> k x
+    Nothing _ -> Nothing
+    (Just x) k -> k x
 
   monadList : Monad List
   monadList ._>>=_ = λ where
@@ -1352,7 +1352,7 @@ instance
   monadIO ._>>=_ = bindIO
 
   monadIdentity : Monad Identity
-  monadIdentity ._>>=_ (identity: x) k = k x
+  monadIdentity ._>>=_ (Identity: x) k = k x
 
   monadSum : Monad Sum
   monadSum ._>>=_ (sum: x) k = k x
@@ -1361,13 +1361,13 @@ instance
   monadProduct ._>>=_ (product: x) k = k x
 
   monadDual : Monad Dual
-  monadDual ._>>=_ (dual: x) k = k x
+  monadDual ._>>=_ (Dual: x) k = k x
 
   monadFirst : Monad First
-  monadFirst ._>>=_ (first: x) k = k x
+  monadFirst ._>>=_ (First: x) k = k x
 
   monadLast : Monad Last
-  monadLast ._>>=_ (last: x) k = k x
+  monadLast ._>>=_ (Last: x) k = k x
 
   monadMin : Monad Min
   monadMin ._>>=_ (min: x) k = k x
@@ -1386,11 +1386,11 @@ record IsFoldable (S A : Set) : Set where
   fold = foldMap id
 
   foldr : (A -> B -> B) -> B -> S -> B
-  foldr f b as = appEndo (foldMap (endo: ∘ f) as) b
+  foldr f b as = appEndo (foldMap (Endo: ∘ f) as) b
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
-    (appEndo ∘ getDual) (foldMap (dual: ∘ endo: ∘ flip f) as) b
+    (appEndo ∘ getDual) (foldMap (Dual: ∘ Endo: ∘ flip f) as) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -1407,10 +1407,10 @@ record IsFoldable (S A : Set) : Set where
   count = getSum ∘ foldMap (const $ sum: (suc 0))
 
   all : (A -> Bool) -> S -> Bool
-  all p = getAll ∘ foldMap (all: ∘ p)
+  all p = getAll ∘ foldMap (All: ∘ p)
 
   any : (A -> Bool) -> S -> Bool
-  any p = getAny ∘ foldMap (any: ∘ p)
+  any p = getAny ∘ foldMap (Any: ∘ p)
 
   notNull : S -> Bool
   notNull = any (const True)
@@ -1429,7 +1429,7 @@ record IsFoldable (S A : Set) : Set where
 
   find : (A -> Bool) -> S -> Maybe A
   find p = leftToMaybe ∘
-    foldlM (λ _ a ->  if p a then left a else right unit) unit
+    foldlM (λ _ a ->  if p a then Left a else Right unit) unit
 
   module _ {{_ : Eq A}} where
 
@@ -1469,8 +1469,8 @@ instance
   isFoldableNatUnit .foldMap b (suc n) = b unit <> foldMap b n
 
   foldableEither : Foldable (Either A)
-  foldableEither .foldMap _ (left _) = neutral
-  foldableEither .foldMap f (right x) = f x
+  foldableEither .foldMap _ (Left _) = neutral
+  foldableEither .foldMap f (Right x) = f x
 
   foldableTuple : Foldable (Tuple A)
   foldableTuple .foldMap f (_ , x) = f x
@@ -1493,24 +1493,24 @@ record IsFoldable1 (S A : Set) : Set where
 
   foldMap1 : {{_ : Semigroup B}}
     -> (A -> B) -> (s : S) {{_ : Nonempty s}} -> B
-  foldMap1 f s = fromJust (foldMap (just ∘ f) s) {{believeMe}}
+  foldMap1 f s = fromJust (foldMap (Just ∘ f) s) {{believeMe}}
 
   fold1 : {{_ : Semigroup A}} (s : S) {{_ : Nonempty s}} -> A
-  fold1 s = fromJust (foldMap just s) {{believeMe}}
+  fold1 s = fromJust (foldMap Just s) {{believeMe}}
 
   foldr1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
-  foldr1 f s = fromJust (foldr g nothing s) {{believeMe}}
+  foldr1 f s = fromJust (foldr g Nothing s) {{believeMe}}
     where
       g : A -> Maybe A -> Maybe A
-      g a nothing = just a
-      g a (just a') = just (f a a')
+      g a Nothing = Just a
+      g a (Just a') = Just (f a a')
 
   foldl1 : (A -> A -> A) -> (s : S) {{_ : Nonempty s}} -> A
-  foldl1 f s = fromJust (foldl g nothing s) {{believeMe}}
+  foldl1 f s = fromJust (foldl g Nothing s) {{believeMe}}
     where
       g : Maybe A -> A -> Maybe A
-      g nothing a = just a
-      g (just a) a' = just (f a a')
+      g Nothing a = Just a
+      g (Just a) a' = Just (f a a')
 
   module _ {{_ : Ord A}} where
 
@@ -1594,16 +1594,16 @@ open Traversable {{...}} public
 instance
   traversableEither : Traversable (Either A)
   traversableEither .traverse f = λ where
-    (left a) -> pure (left a)
-    (right x) -> map right (f x)
+    (Left a) -> pure (Left a)
+    (Right x) -> map Right (f x)
 
   traversableTuple : Traversable (Tuple A)
   traversableTuple .traverse f (a , x) = map (a ,_) (f x)
 
   traversableMaybe : Traversable Maybe
   traversableMaybe .traverse f = λ where
-    nothing -> pure nothing
-    (just x) -> map just (f x)
+    Nothing -> pure Nothing
+    (Just x) -> map Just (f x)
 
   traversableList : Traversable List
   traversableList .traverse f = listrec (pure []) λ where
@@ -1652,13 +1652,13 @@ instance
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
   showEither .show = λ where
-    (left a) -> "(left " ++ show a ++ ")"
-    (right b) -> "(right " ++ show b ++ ")"
+    (Left a) -> "(Left " ++ show a ++ ")"
+    (Right b) -> "(Right " ++ show b ++ ")"
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
   showMaybe .show = λ where
-    (just a) -> "(just " ++ show a ++ ")"
-    nothing -> "nothing"
+    (Just a) -> "(Just " ++ show a ++ ")"
+    Nothing -> "Nothing"
 
   showList : {{_ : Show A}} -> Show (List A)
   showList .show [] = "[]"
@@ -1670,10 +1670,10 @@ instance
       show' (a :: as) = show a ++ " , " ++ show' as
 
   showIdentity : {{_ : Show A}} -> Show (Identity A)
-  showIdentity .show (identity: a) = "(identity: " ++ show a ++ ")"
+  showIdentity .show (Identity: a) = "(Identity: " ++ show a ++ ")"
 
   showConst : {{_ : Show A}} -> Show (Const A B)
-  showConst .show (const: a) = "(const: " ++ show a ++ ")"
+  showConst .show (Const: a) = "(Const: " ++ show a ++ ")"
 
   showSum : {{_ : Show A}} -> Show (Sum A)
   showSum .show (sum: a) = "(sum: " ++ show a ++ ")"
@@ -1682,13 +1682,13 @@ instance
   showProduct .show (product: a) = "(product: " ++ show a ++ ")"
 
   showDual : {{_ : Show A}} -> Show (Dual A)
-  showDual .show (dual: a) = "(dual: " ++ show a ++ ")"
+  showDual .show (Dual: a) = "(Dual: " ++ show a ++ ")"
 
   showFirst : {{_ : Show A}} -> Show (First A)
-  showFirst .show (first: a) = "(first: " ++ show a ++ ")"
+  showFirst .show (First: a) = "(First: " ++ show a ++ ")"
 
   showLast : {{_ : Show A}} -> Show (Last A)
-  showLast .show (last: a) = "(last: " ++ show a ++ ")"
+  showLast .show (Last: a) = "(Last: " ++ show a ++ ")"
 
   showMin : {{_ : Show A}} -> Show (Min A)
   showMin .show (min: a) = "(min: " ++ show a ++ ")"
@@ -1697,7 +1697,7 @@ instance
   showMax .show (max: a) = "(max: " ++ show a ++ ")"
 
   showAny : Show Any
-  showAny .show (any: a) = "(any: " ++ show a ++ ")"
+  showAny .show (Any: a) = "(Any: " ++ show a ++ ")"
 
   showAll : Show All
-  showAll .show (all: a) = "(all: " ++ show a ++ ")"
+  showAll .show (All: a) = "(All: " ++ show a ++ ")"

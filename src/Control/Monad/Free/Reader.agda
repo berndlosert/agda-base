@@ -17,5 +17,5 @@ run : forall {R Fs X} -> R -> Eff (Reader R :: Fs) X -> Eff Fs X
 run {R} {Fs} r eff = Eff.interpret t eff
   where
     t : Union (Reader R :: Fs) ~> Eff Fs
-    t (left k) = return (k r)
-    t (right u) = Eff.lift u
+    t (Left k) = return (k r)
+    t (Right u) = Eff.lift u

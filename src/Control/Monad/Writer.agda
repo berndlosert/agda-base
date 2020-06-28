@@ -15,7 +15,7 @@ Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
 writer: : A * W -> Writer W A
-writer: = writerT: ∘ identity:
+writer: = writerT: ∘ Identity:
 
 runWriter : Writer W A -> A * W
 runWriter = runIdentity ∘ runWriterT
