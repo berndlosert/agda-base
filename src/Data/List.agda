@@ -159,22 +159,22 @@ zipCons heads tails =
 module _ {{_ : Eq A}} where
 
   isPrefixOf : List A -> List A -> Bool
-  isPrefixOf [] _ = true
-  isPrefixOf _ [] = false
+  isPrefixOf [] _ = True
+  isPrefixOf _ [] = False
   isPrefixOf (x :: xs) (y :: ys) = (x == y) && (isPrefixOf xs ys)
 
   isSuffixOf : List A -> List A -> Bool
   isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
 
   isInfixOf : List A -> List A -> Bool
-  isInfixOf [] _ = true
-  isInfixOf _ [] = false
+  isInfixOf [] _ = True
+  isInfixOf _ [] = False
   isInfixOf as@(x :: xs) (y :: ys) =
     if x == y then isPrefixOf xs ys else isInfixOf as ys
 
   isSubsequenceOf : List A -> List A -> Bool
-  isSubsequenceOf [] _ = true
-  isSubsequenceOf _ [] = true
+  isSubsequenceOf [] _ = True
+  isSubsequenceOf _ [] = True
   isSubsequenceOf as@(x :: xs) (y :: ys) =
     if x == y then isSubsequenceOf xs ys else isSubsequenceOf as ys
 
@@ -226,7 +226,7 @@ nubBy : (A -> A -> Bool) -> List A -> List A
 nubBy {A} eq l = nubBy' l []
   where
     elemBy : (A -> A -> Bool) -> A -> List A -> Bool
-    elemBy _ _ [] = false
+    elemBy _ _ [] = False
     elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
 
     nubBy' : List A -> List A -> List A

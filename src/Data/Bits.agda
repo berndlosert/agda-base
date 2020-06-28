@@ -32,8 +32,8 @@ record Bits (A : Set) : Set where
   setBit x i = x :|: bit i
 
   assignBit : A -> Nat -> Bool -> A
-  assignBit b n true = setBit b n
-  assignBit b n false = clearBit b n
+  assignBit b n True = setBit b n
+  assignBit b n False = clearBit b n
 
   notBit : A -> Nat -> A
   notBit x i = x xor (bit i)

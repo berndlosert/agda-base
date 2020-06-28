@@ -17,7 +17,8 @@ open import Agda.Builtin.Unit public
   renaming (⊤ to Unit; tt to unit)
 
 open import Agda.Builtin.Bool public
-  using (Bool; true; false)
+  using (Bool)
+  renaming (true to True; false to False)
 
 open import Agda.Builtin.Nat public
   using (Nat; suc; zero)
@@ -139,13 +140,13 @@ _∘_ : (B -> C) -> (A -> B) -> A -> C
 g ∘ f = λ a -> g (f a)
 
 So : Bool -> Set
-So false = Void
-So true = Unit
+So False = Void
+So True = Unit
 
 infixr 10 if_then_else_
 if_then_else_ : Bool -> A -> A -> A
-if true then a else _ = a
-if false then _ else a = a
+if True then a else _ = a
+if False then _ else a = a
 
 natrec : A -> (Nat -> A -> A) -> Nat -> A
 natrec a _ 0 = a
@@ -167,8 +168,8 @@ foldZ f g (pos n) = f n
 foldZ f g (negsuc n) = g n
 
 isPos : Int -> Bool
-isPos (pos _) = true
-isPos _ = false
+isPos (pos _) = True
+isPos _ = False
 
 IsPos : Int -> Set
 IsPos (pos _) = Unit
@@ -233,12 +234,12 @@ untag (left a) = a
 untag (right a) = a
 
 isLeft : Either A B -> Bool
-isLeft (left _) = true
-isLeft _ = false
+isLeft (left _) = True
+isLeft _ = False
 
 isRight : Either A B -> Bool
-isRight (left _) = false
-isRight _ = true
+isRight (left _) = False
+isRight _ = True
 
 fromLeft : A -> Either A B -> A
 fromLeft _ (left a) = a
@@ -271,12 +272,12 @@ apply : Tuple (A -> B) A -> B
 apply = uncurry _$_
 
 isJust : Maybe A -> Bool
-isJust (just _) = true
-isJust _ = false
+isJust (just _) = True
+isJust _ = False
 
 isNothing : Maybe A -> Bool
-isNothing (just _) = false
-isNothing _ = true
+isNothing (just _) = False
+isNothing _ = True
 
 fromJust : (x : Maybe A) {{_ : So $ isJust x}} -> A
 fromJust (just a) = a
@@ -352,17 +353,17 @@ open BooleanAlgebra {{...}} public
 
 instance
   booleanAlgebraBool : BooleanAlgebra Bool
-  booleanAlgebraBool .ff = false
-  booleanAlgebraBool .tt = true
+  booleanAlgebraBool .ff = False
+  booleanAlgebraBool .tt = True
   booleanAlgebraBool .not = λ where
-    false -> true
-    true -> false
+    False -> True
+    True -> False
   booleanAlgebraBool ._||_ = λ where
-    false b -> b
-    true _ -> true
+    False b -> b
+    True _ -> True
   booleanAlgebraBool ._&&_ = λ where
-    false _ -> false
-    true b -> b
+    False _ -> False
+    True b -> b
 
   booleanAlgebraFunction : {{_ : BooleanAlgebra B}} -> BooleanAlgebra (A -> B)
   booleanAlgebraFunction .ff = const ff
@@ -381,7 +382,7 @@ record Eq (A : Set) : Set where
 
   infix 4 _/=_
   _/=_ : A -> A -> Bool
-  a /= a' = if a == a' then false else true
+  a /= a' = if a == a' then False else True
 
 open Eq {{...}} public
 
@@ -390,13 +391,13 @@ instance
   eqVoid ._==_ = λ ()
 
   eqUnit : Eq Unit
-  eqUnit ._==_ unit unit = true
+  eqUnit ._==_ unit unit = True
 
   eqBool : Eq Bool
   eqBool ._==_ = λ where
-    true true -> true
-    false false -> false
-    _ _ -> false
+    True True -> True
+    False False -> False
+    _ _ -> False
 
   eqNat : Eq Nat
   eqNat ._==_ = Agda.Builtin.Nat._==_
@@ -405,7 +406,7 @@ instance
   eqInt ._==_ = λ where
     (pos m) (pos n) -> m == n
     (negsuc m) (negsuc n) -> m == n
-    _ _ -> false
+    _ _ -> False
 
   eqFloat : Eq Float
   eqFloat ._==_ = Agda.Builtin.Float.primFloatNumericalEquality
@@ -420,22 +421,22 @@ instance
   eqEither ._==_ = λ where
     (left a) (left a') -> a == a'
     (right b) (right b') -> b == b'
-    _ _ -> false
+    _ _ -> False
 
   eqTuple : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Tuple A B)
   eqTuple ._==_ (a , b) (a' , b') = (a == a') && (b == b')
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
   eqMaybe ._==_ = λ where
-    nothing nothing -> true
+    nothing nothing -> True
     (just a) (just a') -> a == a'
-    _ _ -> false
+    _ _ -> False
 
   eqList : {{_ : Eq A}} -> Eq (List A)
   eqList ._==_ = λ where
-    [] [] -> true
+    [] [] -> True
     (a :: as) (a' :: as') -> a == a' && as == as'
-    _ _ -> false
+    _ _ -> False
 
   eqIdentity : {{_ : Eq A}} -> Eq (Identity A)
   eqIdentity ._==_ (identity: a) (identity: a') = a == a'
@@ -461,7 +462,7 @@ record Ord (A : Set) : Set where
 
   infixl 4 _<=_
   _<=_ : A -> A -> Bool
-  a <= a' = if a < a' then true else if a == a' then true else false
+  a <= a' = if a < a' then True else if a == a' then True else False
 
   infixl 4 _>_
   _>_ : A -> A -> Bool
@@ -487,12 +488,12 @@ instance
   ordVoid ._<_ = λ ()
 
   ordUnit : Ord Unit
-  ordUnit ._<_ unit unit = false
+  ordUnit ._<_ unit unit = False
 
   ordBool : Ord Bool
   ordBool ._<_ = λ where
-    false true -> true
-    _ _ -> false
+    False True -> True
+    _ _ -> False
 
   ordNat : Ord Nat
   ordNat ._<_ = Agda.Builtin.Nat._<_
@@ -501,8 +502,8 @@ instance
   ordInt ._<_ = λ where
     (pos m) (pos n) -> m < n
     (negsuc m) (negsuc n) -> m > n
-    (negsuc _) (pos _) -> true
-    (pos _) (negsuc _) -> false
+    (negsuc _) (pos _) -> True
+    (pos _) (negsuc _) -> False
 
   ordFloat : Ord Float
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
@@ -513,21 +514,21 @@ instance
   ordList : {{_ : Ord A}} -> Ord (List A)
   ordList ._<_ = λ where
     (a :: as) (a' :: as') -> a < a' || (a == a' && as < as')
-    [] [] -> true
-    _ _ -> false
+    [] [] -> True
+    _ _ -> False
 
   ordString : Ord String
   ordString ._<_ s s' with unpack s | unpack s'
   ... | (c :: cs) | (c' :: cs') = c < c' || (c == c' && cs < cs')
-  ... | _ | _ = false
+  ... | _ | _ = False
 
   ordTuple : {{_ : Ord A}} {{_ : Ord B}} -> Ord (Tuple A B)
   ordTuple ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
 
   ordMaybe : {{_ : Ord A}} -> Ord (Maybe A)
   ordMaybe ._<_ = λ where
-    _ nothing -> false
-    nothing _ -> true
+    _ nothing -> False
+    nothing _ -> True
     (just a) (just a') -> a < a'
 
   ordIdentity : {{_ : Ord A}} -> Ord (Identity A)
@@ -947,12 +948,12 @@ record Monoid (A : Set) : Set where
     neutral : A
 
   when : Bool -> A -> A
-  when true a = a
-  when false _ = neutral
+  when True a = a
+  when False _ = neutral
 
   unless : Bool -> A -> A
-  unless true _ = neutral
-  unless false a = a
+  unless True _ = neutral
+  unless False a = a
 
 open Monoid {{...}} public
 
@@ -970,10 +971,10 @@ instance
   monoidUnit .neutral = unit
 
   monoidAll : Monoid All
-  monoidAll .neutral = all: true
+  monoidAll .neutral = all: True
 
   monoidAny : Monoid Any
-  monoidAny .neutral = any: false
+  monoidAny .neutral = any: False
 
   monoidSumNat : Monoid (Sum Nat)
   monoidSumNat .neutral = sum: 0
@@ -1293,8 +1294,8 @@ record Alternative (F : Set -> Set) : Set where
     empty : F A
 
   guard : Bool -> F Unit
-  guard true = pure unit
-  guard false = empty
+  guard True = pure unit
+  guard False = empty
 
 open Alternative {{...}} public
 
@@ -1412,7 +1413,7 @@ record IsFoldable (S A : Set) : Set where
   any p = getAny ∘ foldMap (any: ∘ p)
 
   notNull : S -> Bool
-  notNull = any (const true)
+  notNull = any (const True)
 
   Nonempty : S -> Set
   Nonempty = So ∘ notNull
@@ -1628,8 +1629,8 @@ instance
   showUnit .show unit = "unit"
 
   showBool : Show Bool
-  showBool .show true = "true"
-  showBool .show false = "false"
+  showBool .show True = "True"
+  showBool .show False = "False"
 
   showNat : Show Nat
   showNat .show = Agda.Builtin.String.primShowNat

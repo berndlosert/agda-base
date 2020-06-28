@@ -139,7 +139,7 @@ skipWhile p = do
   if p c then pure unit else empty
 
 skipAll : Parser Unit
-skipAll = skipWhile (const true)
+skipAll = skipWhile (const True)
 
 char : Char -> Parser Char
 char c = satisfy (c ==_)
@@ -211,7 +211,7 @@ takeWhile p = parser: λ s ->
   singleton (String.takeWhile p s , String.dropWhile p s)
 
 takeAll : Parser String
-takeAll = takeWhile (const true)
+takeAll = takeWhile (const True)
 
 --------------------------------------------------------------------------------
 -- Parsers for numbers

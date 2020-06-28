@@ -137,7 +137,7 @@ open Coarbitrary {{...}} public
 
 instance
   arbitraryBool : Arbitrary Bool
-  arbitraryBool .arbitrary = elements (true :: false :: [])
+  arbitraryBool .arbitrary = elements (True :: False :: [])
 
   arbitraryNat : Arbitrary Nat
   arbitraryNat .arbitrary = sized λ n -> choose (0 , n)
@@ -216,8 +216,8 @@ forAll gen body = property: do
 
 infixr 0 _==>_
 _==>_ : {{_ : Testable A}} -> Bool -> A -> Property
-true ==> a = property a
-false ==> a = result none
+True ==> a = property a
+False ==> a = result none
 
 label : {{_ : Testable A}} -> String -> A -> Property
 label s a = property: (add <$> evaluate a)
@@ -226,8 +226,8 @@ label s a = property: (add <$> evaluate a)
     add res = record res { stamp = s :: Result.stamp res }
 
 classify : {{_ : Testable A}} -> Bool -> String -> A -> Property
-classify true name = label name
-classify false _ = property
+classify True name = label name
+classify False _ = property
 
 collect : {{_ : Show A}} {{_ : Testable B}} -> A -> B -> Property
 collect v = label (show v)
@@ -324,9 +324,9 @@ private
         case Result.ok result of λ where
           nothing -> tests
             config gen rnd1 ntest (nfail + 1) stamps
-          (just true) -> tests
+          (just True) -> tests
             config gen rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
-          (just false) -> putStr ("Falsifiable, after "
+          (just False) -> putStr ("Falsifiable, after "
             ++ show ntest
             ++ " tests:\n"
             ++ String.unlines (Result.arguments result))

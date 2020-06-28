@@ -13,7 +13,7 @@ abstract
   getRange : Range A -> A * A
   getRange = id
 
-  mkRange : {{_ : Ord A}} (a a' : A) {_ : (a < a') === true} -> Range A
+  mkRange : {{_ : Ord A}} (a a' : A) {_ : (a < a') === True} -> Range A
   mkRange a a' = (a , a')
 
 record MonadRandom (M : Set -> Set) : Set where
