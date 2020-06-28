@@ -38,11 +38,11 @@ withStateT f (stateT: m) = stateT: (m ∘ f)
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
-  functorStateT .map f (stateT: m) = stateT: \ s0 -> map (first f) (m s0)
+  functorStateT .map f (stateT: m) = stateT: λ s0 -> map (first f) (m s0)
 
   applicativeStateT : {{_ : Monad M}} -> Applicative (StateT S M)
-  applicativeStateT .pure a = stateT: \ s -> return (a , s)
-  applicativeStateT ._<*>_ (stateT: f) (stateT: x) = stateT: \ s0 -> do
+  applicativeStateT .pure a = stateT: λ s -> return (a , s)
+  applicativeStateT ._<*>_ (stateT: f) (stateT: x) = stateT: λ s0 -> do
       (g , s1) <- f s0
       (y , s2) <- x s1
       return (g y , s2)
@@ -50,11 +50,11 @@ instance
   alternativeStateT : {{_ : Alternative M}} {{_ : Monad M}} ->
     Alternative (StateT S M)
   alternativeStateT .empty = stateT: (const empty)
-  alternativeStateT ._<|>_ (stateT: m) (stateT: n) = stateT: \ s ->
+  alternativeStateT ._<|>_ (stateT: m) (stateT: n) = stateT: λ s ->
     m s <|> n s
 
   monadStateT : {{_ : Monad M}} -> Monad (StateT S M)
-  monadStateT ._>>=_ (stateT: m) k = stateT: \ s0 -> do
+  monadStateT ._>>=_ (stateT: m) k = stateT: λ s0 -> do
     (a , s1) <- m s0
     runStateT (k a) s1
 
@@ -62,7 +62,7 @@ instance
   mfunctorStateT .hoist f = mapStateT f
 
   monadTransStateT : MonadTrans (StateT S)
-  monadTransStateT .lift m = stateT: \ s -> do
+  monadTransStateT .lift m = stateT: λ s -> do
     a <- m
     return (a , s)
   monadTransStateT .tmap f _ = hoist f

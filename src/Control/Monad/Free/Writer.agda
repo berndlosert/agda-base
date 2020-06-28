@@ -36,7 +36,7 @@ run : forall {W Fs X} {{_ : Monoid W}}
   -> Eff (Writer W :: Fs) X -> Eff Fs (X * W)
 run = Eff.fold
   (return ∘ (_, empty))
-  (\ { k (x , w) -> map (second (w <>_)) (k x) })
+  (λ { k (x , w) -> map (second (w <>_)) (k x) })
 
 -- If W is a monoid, then Writer W is a monad. The return function in this case
 -- produces a Writer computation that stores empty. The bind operation
@@ -47,6 +47,6 @@ run = Eff.fold
 --  monadWriter : forall {W} {{_ : Monoid W}} -> Monad (Writer W)
 --  monadWriter = record {
 --      instance:Functor = functorWriter;
---      join = \ { ((x , w) , w') -> (x , w <> w') };
---      return = \ x -> (x , empty)
+--      join = λ { ((x , w) , w') -> (x , w <> w') };
+--      return = λ x -> (x , empty)
 --    }

@@ -70,7 +70,7 @@ abstract
   -- Eff [] A and A are isomorphic. This means that Eff [] A describes a pure
   -- computation.
   run : Eff [] A -> A
-  run = runIdentity ∘ (interpret \ ())
+  run = runIdentity ∘ (interpret λ ())
 
   instance
     monadEff : Monad (Eff Fs)

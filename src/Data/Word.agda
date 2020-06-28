@@ -36,7 +36,7 @@ instance
   fromNatWord32 : FromNat Word32
   fromNatWord32 = record {
       Constraint = const Unit;
-      fromNat = \ n -> natToWord32 n
+      fromNat = λ n -> natToWord32 n
     }
 
   eqWord32 : Eq Word32
@@ -99,7 +99,7 @@ instance
   fromNatWord64 : FromNat Word64
   fromNatWord64 = record {
       Constraint = const Unit;
-      fromNat = \ n -> natToWord64 n
+      fromNat = λ n -> natToWord64 n
     }
 
   eqWord64 : Eq Word64

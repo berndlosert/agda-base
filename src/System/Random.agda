@@ -195,4 +195,4 @@ instance
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =
-    first (\ n -> fromNat n + from) $ nextNat' (fromPos (to - from) {believeMe}) g
+    first (λ n -> fromNat n + from) $ nextNat' (fromPos (to - from) {believeMe}) g

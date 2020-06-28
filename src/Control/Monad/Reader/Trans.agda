@@ -32,11 +32,11 @@ instance
 
   applicativeReaderT : {{_ : Applicative M}} -> Applicative (ReaderT R M)
   applicativeReaderT .pure = readerT: ∘ const ∘ pure
-  applicativeReaderT ._<*>_ (readerT: f) (readerT: x) = readerT: \ r ->
+  applicativeReaderT ._<*>_ (readerT: f) (readerT: x) = readerT: λ r ->
     f r <*> x r
 
   monadReaderT : {{_ : Monad M}} -> Monad (ReaderT R M)
-  monadReaderT ._>>=_ (readerT: m) k = readerT: \ r -> do
+  monadReaderT ._>>=_ (readerT: m) k = readerT: λ r -> do
     a <- m r
     runReaderT (k a) r
 
@@ -52,7 +52,7 @@ instance
   monadTransReaderT .tmap f _ = hoist f
 
   mmonadReaderT : MMonad (ReaderT R)
-  mmonadReaderT .embed k (readerT: f) = readerT: \ r -> runReaderT (k (f r)) r
+  mmonadReaderT .embed k (readerT: f) = readerT: λ r -> runReaderT (k (f r)) r
 
   monadBaseReaderT : {{_ : Monad M}} {{_ : Monad N}} {{_ : MonadBase M N}}
     -> MonadBase M (ReaderT R N)

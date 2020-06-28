@@ -75,7 +75,7 @@ toListOf : Getting (Endo (List A)) S A -> S -> List A
 toListOf l = foldrOf l _::_ []
 
 lengthOf : Getting (Dual (Endo Int)) S A -> S -> Int
-lengthOf l = foldlOf l (\ a _ -> a + 1) 0
+lengthOf l = foldlOf l (λ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First A)) S A -> S -> Maybe A
 preview l = map getFirst ∘ foldMapOf l (just ∘ first:)
@@ -99,7 +99,7 @@ over : ASetter S T A B -> (A -> B) -> S -> T
 over g k = runIdentity ∘ g (identity: ∘ k)
 
 set : ASetter S T A B -> B -> S -> T
-set f b = runIdentity ∘ f (\ _ -> identity: b)
+set f b = runIdentity ∘ f (λ _ -> identity: b)
 
 sets : ((A -> B) -> S -> T) -> ASetter S T A B
 sets f k = identity: ∘ f (runIdentity ∘ k)

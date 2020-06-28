@@ -36,7 +36,7 @@ iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
 unfold : (B -> A * B) -> B -> Stream A
-unfold f b = let (a , b') = f b in \ where
+unfold f b = let (a , b') = f b in λ where
   .head -> a
   .tail -> unfold f b'
 

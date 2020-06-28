@@ -136,7 +136,7 @@ case_of_ = _#_
 
 infixr 9 _∘_
 _∘_ : (B -> C) -> (A -> B) -> A -> C
-g ∘ f = \ a -> g (f a)
+g ∘ f = λ a -> g (f a)
 
 So : Bool -> Set
 So false = Void
@@ -354,13 +354,13 @@ instance
   booleanAlgebraBool : BooleanAlgebra Bool
   booleanAlgebraBool .ff = false
   booleanAlgebraBool .tt = true
-  booleanAlgebraBool .not = \ where
+  booleanAlgebraBool .not = λ where
     false -> true
     true -> false
-  booleanAlgebraBool ._||_ = \ where
+  booleanAlgebraBool ._||_ = λ where
     false b -> b
     true _ -> true
-  booleanAlgebraBool ._&&_ = \ where
+  booleanAlgebraBool ._&&_ = λ where
     false _ -> false
     true b -> b
 
@@ -387,13 +387,13 @@ open Eq {{...}} public
 
 instance
   eqVoid : Eq Void
-  eqVoid ._==_ = \ ()
+  eqVoid ._==_ = λ ()
 
   eqUnit : Eq Unit
   eqUnit ._==_ unit unit = true
 
   eqBool : Eq Bool
-  eqBool ._==_ = \ where
+  eqBool ._==_ = λ where
     true true -> true
     false false -> false
     _ _ -> false
@@ -402,7 +402,7 @@ instance
   eqNat ._==_ = Agda.Builtin.Nat._==_
 
   eqInt : Eq Int
-  eqInt ._==_ = \ where
+  eqInt ._==_ = λ where
     (pos m) (pos n) -> m == n
     (negsuc m) (negsuc n) -> m == n
     _ _ -> false
@@ -417,7 +417,7 @@ instance
   eqString ._==_ = Agda.Builtin.String.primStringEquality
 
   eqEither : {{_ : Eq A}} {{_ : Eq B}} -> Eq (Either A B)
-  eqEither ._==_ = \ where
+  eqEither ._==_ = λ where
     (left a) (left a') -> a == a'
     (right b) (right b') -> b == b'
     _ _ -> false
@@ -426,13 +426,13 @@ instance
   eqTuple ._==_ (a , b) (a' , b') = (a == a') && (b == b')
 
   eqMaybe : {{_ : Eq A}} -> Eq (Maybe A)
-  eqMaybe ._==_ = \ where
+  eqMaybe ._==_ = λ where
     nothing nothing -> true
     (just a) (just a') -> a == a'
     _ _ -> false
 
   eqList : {{_ : Eq A}} -> Eq (List A)
-  eqList ._==_ = \ where
+  eqList ._==_ = λ where
     [] [] -> true
     (a :: as) (a' :: as') -> a == a' && as == as'
     _ _ -> false
@@ -484,13 +484,13 @@ open Ord {{...}} public
 
 instance
   ordVoid : Ord Void
-  ordVoid ._<_ = \ ()
+  ordVoid ._<_ = λ ()
 
   ordUnit : Ord Unit
   ordUnit ._<_ unit unit = false
 
   ordBool : Ord Bool
-  ordBool ._<_ = \ where
+  ordBool ._<_ = λ where
     false true -> true
     _ _ -> false
 
@@ -498,7 +498,7 @@ instance
   ordNat ._<_ = Agda.Builtin.Nat._<_
 
   ordInt : Ord Int
-  ordInt ._<_ = \ where
+  ordInt ._<_ = λ where
     (pos m) (pos n) -> m < n
     (negsuc m) (negsuc n) -> m > n
     (negsuc _) (pos _) -> true
@@ -511,7 +511,7 @@ instance
   ordChar ._<_ c c' = ord c < ord c'
 
   ordList : {{_ : Ord A}} -> Ord (List A)
-  ordList ._<_ = \ where
+  ordList ._<_ = λ where
     (a :: as) (a' :: as') -> a < a' || (a == a' && as < as')
     [] [] -> true
     _ _ -> false
@@ -525,7 +525,7 @@ instance
   ordTuple ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
 
   ordMaybe : {{_ : Ord A}} -> Ord (Maybe A)
-  ordMaybe ._<_ = \ where
+  ordMaybe ._<_ = λ where
     _ nothing -> false
     nothing _ -> true
     (just a) (just a') -> a < a'
@@ -552,25 +552,25 @@ instance
   fromNatNat : FromNat Nat
   fromNatNat = record {
       Constraint = const Unit;
-      fromNat = \ n -> n
+      fromNat = λ n -> n
     }
 
   fromNatInt : FromNat Int
   fromNatInt = record {
       Constraint = const Unit;
-      fromNat = \ n -> pos n
+      fromNat = λ n -> pos n
     }
 
   fromNegInt : FromNeg Int
   fromNegInt = record {
       Constraint = const Unit;
-      fromNeg = \ n -> neg n
+      fromNeg = λ n -> neg n
     }
 
   fromNegFloat : FromNeg Float
   fromNegFloat = record {
       Constraint = const Unit;
-      fromNeg = \ x -> Agda.Builtin.Float.primFloatNegate (natToFloat x)
+      fromNeg = λ x -> Agda.Builtin.Float.primFloatNegate (natToFloat x)
     }
 
 --------------------------------------------------------------------------------
@@ -642,7 +642,7 @@ instance
   multiplicationSet ._*_ = Tuple
 
   powerSet : Power Set
-  powerSet ._^_ A = \ where
+  powerSet ._^_ A = λ where
     0 -> Unit
     1 -> A
     (suc n) -> A ^ n * A
@@ -654,7 +654,7 @@ instance
   multiplicationNat ._*_ = Agda.Builtin.Nat._*_
 
   powerNat : Power Nat
-  powerNat ._^_ a = \ where
+  powerNat ._^_ a = λ where
     0 -> 1
     1 -> a
     (suc n) -> a ^ n * a
@@ -690,20 +690,20 @@ instance
       add (pos m) (pos n) = pos (m + n)
 
   multiplicationInt : Multiplication Int
-  multiplicationInt ._*_ = \ where
+  multiplicationInt ._*_ = λ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> neg (n * suc m)
     (negsuc n) (pos m) -> neg (suc n * m)
 
   powerInt : Power Int
-  powerInt ._^_ a = \ where
+  powerInt ._^_ a = λ where
     0 -> 1
     1 -> a
     (suc n) -> a ^ n * a
 
   negationInt : Negation Int
-  negationInt .-_ = \ where
+  negationInt .-_ = λ where
     (pos 0) -> pos 0
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
@@ -728,10 +728,10 @@ instance
   ... | negsuc m | negsuc n = neg (suc m % suc n)
 
   signedInt : Signed Int
-  signedInt .abs = \ where
+  signedInt .abs = λ where
     (pos n) -> pos n
     (negsuc n) -> pos (suc n)
-  signedInt .signum = \ where
+  signedInt .signum = λ where
     (pos 0) -> pos 0
     (pos (suc _)) -> pos 1
     (negsuc _) -> negsuc 0
@@ -743,7 +743,7 @@ instance
   multiplicationFloat ._*_ = Agda.Builtin.Float.primFloatTimes
 
   powerFloat : Power Float
-  powerFloat ._^_ a = \ where
+  powerFloat ._^_ a = λ where
     0 -> 1.0
     1 -> a
     (suc n) -> a ^ n * a
@@ -781,7 +781,7 @@ instance
   subtractionFunction ._-_ f g x = f x - g x
 
   powerFunction : Power (A -> A)
-  powerFunction ._^_ f = \ where
+  powerFunction ._^_ f = λ where
     0 -> id
     1 -> f
     (suc n) -> f ^ n ∘ f
@@ -882,7 +882,7 @@ instance
   semigroupAll ._<>_ (all: b) (all: b') = all: (b && b')
 
   semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = \ ()
+  semigroupVoid ._<>_ = λ ()
 
   semigroupUnit : Semigroup Unit
   semigroupUnit ._<>_ unit unit = unit
@@ -903,7 +903,7 @@ instance
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
 
   semigroupFunction : {{_ : Semigroup B}} -> Semigroup (A -> B)
-  semigroupFunction ._<>_ f g = \ a -> f a <> g a
+  semigroupFunction ._<>_ f g = λ a -> f a <> g a
 
   semigroupEither : {{_ : Semigroup A}} {{_ : Semigroup B}}
     -> Semigroup (Either A B)
@@ -915,13 +915,13 @@ instance
   semigroupTuple ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
 
   semigroupMaybe : {{_ : Semigroup A}} -> Semigroup (Maybe A)
-  semigroupMaybe ._<>_ = \ where
+  semigroupMaybe ._<>_ = λ where
     nothing m -> m
     m nothing -> m
     (just a) (just a') -> just (a <> a')
 
   semigroupList : Semigroup (List A)
-  semigroupList ._<>_ as as' = listrec as' (\ x _ xs -> x :: xs) as
+  semigroupList ._<>_ as as' = listrec as' (λ x _ xs -> x :: xs) as
 
   semigroupIO : {{_ : Semigroup A}} -> Semigroup (IO A)
   semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
@@ -1143,12 +1143,12 @@ instance
   functorTuple .map = second
 
   functorMaybe : Functor Maybe
-  functorMaybe .map f = \ where
+  functorMaybe .map f = λ where
     nothing -> nothing
     (just a) -> just (f a)
 
   functorList : Functor List
-  functorList .map f = listrec [] \ a _ bs -> f a :: bs
+  functorList .map f = listrec [] λ a _ bs -> f a :: bs
 
   functorIO : Functor IO
   functorIO .map = mapIO
@@ -1224,19 +1224,19 @@ open Applicative {{...}} public
 instance
   applicativeEither : Applicative (Either A)
   applicativeEither .pure = right
-  applicativeEither ._<*>_ = \ where
+  applicativeEither ._<*>_ = λ where
     (left a) _ -> left a
     (right f) -> map f
 
   applicativeMaybe : Applicative Maybe
   applicativeMaybe .pure = just
-  applicativeMaybe ._<*>_ = \ where
+  applicativeMaybe ._<*>_ = λ where
     (just f) -> map f
     nothing _ -> nothing
 
   applicativeList : Applicative List
   applicativeList .pure = singleton
-  applicativeList ._<*>_ = \ where
+  applicativeList ._<*>_ = λ where
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
@@ -1303,7 +1303,7 @@ module _ {{_ : Alternative F}} where
 instance
   alternativeMaybe : Alternative Maybe
   alternativeMaybe .empty = nothing
-  alternativeMaybe ._<|>_ = \ where
+  alternativeMaybe ._<|>_ = λ where
     nothing r -> r
     l _ -> l
 
@@ -1335,17 +1335,17 @@ return = pure
 
 instance
   monadEither : Monad (Either A)
-  monadEither ._>>=_ = \ where
+  monadEither ._>>=_ = λ where
     (left a) _ -> left a
     (right x) k -> k x
 
   monadMaybe : Monad Maybe
-  monadMaybe ._>>=_ = \ where
+  monadMaybe ._>>=_ = λ where
     nothing _ -> nothing
     (just x) k -> k x
 
   monadList : Monad List
-  monadList ._>>=_ = \ where
+  monadList ._>>=_ = λ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
@@ -1430,7 +1430,7 @@ record IsFoldable (S A : Set) : Set where
 
   find : (A -> Bool) -> S -> Maybe A
   find p = leftToMaybe ∘
-    foldlM (\ _ a ->  if p a then left a else right unit) unit
+    foldlM (λ _ a ->  if p a then left a else right unit) unit
 
   module _ {{_ : Eq A}} where
 
@@ -1480,7 +1480,7 @@ instance
   foldableMaybe .foldMap = maybe neutral
 
   foldableList : Foldable List
-  foldableList .foldMap f = listrec neutral \ x _ y -> f x <> y
+  foldableList .foldMap f = listrec neutral λ x _ y -> f x <> y
 
   isFoldableStringChar : IsFoldable String Char
   isFoldableStringChar .foldMap f = foldMap f ∘ unpack
@@ -1549,21 +1549,21 @@ private
 
   instance
     functorStateL : Functor (StateL S)
-    functorStateL .map f (stateL: t) = stateL: \ s0 ->
+    functorStateL .map f (stateL: t) = stateL: λ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
     functorStateR : Functor (StateR S)
-    functorStateR .map f (stateR: t) = stateR: \ s0 ->
+    functorStateR .map f (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
     applicativeStateL : Applicative (StateL S)
-    applicativeStateL .pure x = stateL: \ s -> (s , x)
-    applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: \ s0 ->
+    applicativeStateL .pure x = stateL: λ s -> (s , x)
+    applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
       let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
     applicativeStateR : Applicative (StateR S)
-    applicativeStateR .pure x = stateR: \ s -> (s , x)
-    applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: \ s0 ->
+    applicativeStateR .pure x = stateR: λ s -> (s , x)
+    applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
 
 record Traversable (T : Set -> Set) : Set where
@@ -1585,16 +1585,16 @@ record Traversable (T : Set -> Set) : Set where
   mapAccumR f a xs = runStateR (traverse (stateR: ∘ flip f) xs) a
 
   scanl : {{_ : Buildable T}} -> (B -> A -> B) -> B -> T A -> T B
-  scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)
+  scanl f b0 xs = uncurry (flip snoc) (mapAccumL (λ b a -> (f b a , b)) b0 xs)
 
   scanr : {{_ : Buildable T}} -> (A -> B -> B) -> B -> T A -> T B
-  scanr f b0 xs = uncurry cons (mapAccumR (\ b a -> (f a b , b)) b0 xs)
+  scanr f b0 xs = uncurry cons (mapAccumR (λ b a -> (f a b , b)) b0 xs)
 
 open Traversable {{...}} public
 
 instance
   traversableEither : Traversable (Either A)
-  traversableEither .traverse f = \ where
+  traversableEither .traverse f = λ where
     (left a) -> pure (left a)
     (right x) -> map right (f x)
 
@@ -1602,12 +1602,12 @@ instance
   traversableTuple .traverse f (a , x) = map (a ,_) (f x)
 
   traversableMaybe : Traversable Maybe
-  traversableMaybe .traverse f = \ where
+  traversableMaybe .traverse f = λ where
     nothing -> pure nothing
     (just x) -> map just (f x)
 
   traversableList : Traversable List
-  traversableList .traverse f = listrec (pure []) \ where
+  traversableList .traverse f = listrec (pure []) λ where
     x _ ys -> (| _::_ (f x) ys |)
 
 --------------------------------------------------------------------------------
@@ -1652,12 +1652,12 @@ instance
   showTuple .show (a , b) = "(" ++ show a ++ " , " ++ show b ++ ")"
 
   showEither : {{_ : Show A}} {{_ : Show B}} -> Show (Either A B)
-  showEither .show = \ where
+  showEither .show = λ where
     (left a) -> "(left " ++ show a ++ ")"
     (right b) -> "(right " ++ show b ++ ")"
 
   showMaybe : {{_ : Show A}} -> Show (Maybe A)
-  showMaybe .show = \ where
+  showMaybe .show = λ where
     (just a) -> "(just " ++ show a ++ ")"
     nothing -> "nothing"
 

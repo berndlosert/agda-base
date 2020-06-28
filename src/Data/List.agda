@@ -41,19 +41,19 @@ length = foldr (const suc) 0
 --------------------------------------------------------------------------------
 
 takeWhile : (A -> Bool) -> List A -> List A
-takeWhile p = reverse ∘ untag ∘ flip foldlM [] \ where
+takeWhile p = reverse ∘ untag ∘ flip foldlM [] λ where
   as a -> if p a then right (a :: as) else left as
 
 dropWhile : (A -> Bool) -> List A -> List A
-dropWhile p = reverse ∘ flip foldl [] \ where
+dropWhile p = reverse ∘ flip foldl [] λ where
   as a -> if p a then as else (a :: as)
 
 take : Nat -> List A -> List A
-take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) \ where
+take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) λ where
   (k , s) a -> if k < n then right (suc k , cons a s) else left (suc k , s)
 
 drop : Nat -> List A -> List A
-drop n = reverse ∘ snd ∘ flip foldl (0 , []) \ where
+drop n = reverse ∘ snd ∘ flip foldl (0 , []) λ where
   (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
 
 inits : List A -> List (List  A)
@@ -97,27 +97,27 @@ group = groupBy _==_
 --------------------------------------------------------------------------------
 
 indexed : List A -> List (Nat * A)
-indexed = reverse ∘ flip foldl [] \ where
+indexed = reverse ∘ flip foldl [] λ where
   [] a -> (0 , a) :: []
   xs@(h :: t) a' -> (suc (fst h) , a') :: xs
 
 at : Nat -> List A -> Maybe A
-at n = leftToMaybe ∘ flip foldlM 0 \
+at n = leftToMaybe ∘ flip foldlM 0 λ
   k a -> if k == n then left a else right (suc k)
 
 deleteAt : Nat -> List A -> List A
-deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
   (k , as) a -> (suc k , if k == n then as else (a :: as))
 
 modifyAt : Nat -> (A -> A) -> List A -> List A
-modifyAt n f = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+modifyAt n f = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
   (k , as) a -> (suc k , if k == n then f a :: as else (a :: as))
 
 setAt : Nat -> A -> List A -> List A
 setAt n a = modifyAt n (const a)
 
 insertAt : Nat -> A -> List A -> List A
-insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
   (k , as) a -> (suc k , if k == n then a' :: a :: as else (a :: as))
 
 splitAt : Nat -> List A -> List A * List A
@@ -193,7 +193,7 @@ filterA {F} {A} p = foldr f (pure [])
     f a as = (| if_then_else_ (p a) (| (a ::_) as |) as |)
 
 partition : (A -> Bool) -> List A -> List A * List A
-partition p = flip foldr ([] , []) \ where
+partition p = flip foldr ([] , []) λ where
   a (ts , fs) -> if p a then (a :: ts , fs) else (ts , a :: fs)
 
 --------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
 intersperse : A -> List A -> List A
-intersperse sep = flip foldr [] \ where
+intersperse sep = flip foldr [] λ where
   a [] -> singleton a
   a as -> a :: sep :: as
 

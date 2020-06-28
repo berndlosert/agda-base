@@ -17,7 +17,7 @@ data Delay (i : Size) (X : Set) : Set where
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
 unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
-unfold f y = either now (\ x -> later \ where .force -> unfold f x) $ f y
+unfold f y = either now (λ x -> later λ where .force -> unfold f x) $ f y
 
 -- Run a Delay process for at most n steps.
 
@@ -45,16 +45,16 @@ open import Data.Bool
 -- modelled using a function of type Nat -> Bool.
 
 minimize : (Nat -> Bool) -> Delay _ Nat
-minimize test = tryMore (\ n -> if test n then just n else nothing)
+minimize test = tryMore (λ n -> if test n then just n else nothing)
 
 instance
   functorDelay : {i : Size} -> Functor (Delay i)
   functorDelay .map f (now x) = now (f x)
   functorDelay .map f (later thunk) =
-    later \ where .force -> map f (force thunk)
+    later λ where .force -> map f (force thunk)
 
   monadDelay : {i : Size} -> Monad (Delay i)
   monadDelay .return = now
   monadDelay .extend f (now x) = f x
-  monadDelay .extend f (later thunk) = later \ where
+  monadDelay .extend f (later thunk) = later λ where
     .force -> extend f (force thunk)

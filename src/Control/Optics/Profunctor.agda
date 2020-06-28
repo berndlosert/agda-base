@@ -208,7 +208,7 @@ instance
 
   profunctorShop : Profunctor (Shop A B)
   profunctorShop .dimap f g (shop: get put) =
-    shop: (get ∘ f) (\ s -> g ∘ put (f s))
+    shop: (get ∘ f) (λ s -> g ∘ put (f s))
 
   strongShop : Strong (Shop A B)
   strongShop .strong (shop: get put) = shop: get' put'
@@ -239,29 +239,29 @@ instance
 
   profunctorGrating : Profunctor (Grating A B)
   profunctorGrating .dimap f g (grate: r) =
-    grate: \ d -> g (r \ k -> d (k ∘ f))
+    grate: λ d -> g (r λ k -> d (k ∘ f))
 
   closedGrating : Closed (Grating A B)
   closedGrating .closed (grate: degrating) =
-    grate: \ f x -> degrating \ k -> f \ g -> k (g x)
+    grate: λ f x -> degrating λ k -> f λ g -> k (g x)
 
   profunctorTraversal : Profunctor (Traversal A B)
   profunctorTraversal .dimap f g t = dimap f g ∘ t
 
   profunctorBazaar : Profunctor (Bazaar P A B)
-  profunctorBazaar .dimap f g (toBazaar b) = toBazaar \ h s -> g <$> b h (f s)
+  profunctorBazaar .dimap f g (toBazaar b) = toBazaar λ h s -> g <$> b h (f s)
 
   strongBazaar : Strong (Bazaar P A B)
-  strongBazaar .strong (toBazaar b) = toBazaar \ where
+  strongBazaar .strong (toBazaar b) = toBazaar λ where
     h (u , s) -> _,_ u <$> b h s
 
   choiceBazaar : Choice (Bazaar P A B)
-  choiceBazaar .choice (toBazaar b) = toBazaar \ where
+  choiceBazaar .choice (toBazaar b) = toBazaar λ where
     h (right s) -> right <$> b h s
     h (left u) -> left <$> pure u
 
   wanderBazaar : Wander (Bazaar P A B)
-  wanderBazaar .wander w (toBazaar b) = toBazaar \ where
+  wanderBazaar .wander w (toBazaar b) = toBazaar λ where
     h s -> w (b h) s
 
   profunctorSetter : Profunctor (Setter A B)
@@ -290,7 +290,7 @@ instance
 --match p = Market.match $ p $ market: id right
 
 --degrating : Grate A B S T -> ((S -> A) -> B) -> T
---degrating g = Grating.degrating $ g $ grate: \ f -> f id
+--degrating g = Grating.degrating $ g $ grate: λ f -> f id
 
 traverseOf : Traversal A B S T
   -> (forall {F} {{_ : Applicative F}} -> (A -> F B) -> S -> F T)

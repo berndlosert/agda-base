@@ -20,7 +20,7 @@ record MonadState (S : Set) (M : Set -> Set) : Set where
     return a
 
   modify : (S -> S) -> M Unit
-  modify f = state (\ s -> (unit , f s))
+  modify f = state (λ s -> (unit , f s))
 
   gets : (S -> A) -> M A
   gets f = do
