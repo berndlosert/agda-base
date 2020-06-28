@@ -20,6 +20,6 @@ record Comonad (W : Set -> Set) : Set where
   _=>>_ = flip extend
 
   _=>=_ : (W A -> B) -> (W B -> C) -> (W A -> C)
-  f =>= g = g <<< extend f
+  f =>= g = g ∘ extend f
 
 open Comonad {{...}} public

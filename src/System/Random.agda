@@ -155,7 +155,7 @@ setStdGen gen = do
 getStdRandom : (StdGen -> A * StdGen) -> IO A
 getStdRandom f = do
   ref <- theStdGen
-  atomicModify ref (swap <<< f)
+  atomicModify ref (swap ∘ f)
 
 --------------------------------------------------------------------------------
 -- Random and RandomR
@@ -173,7 +173,7 @@ record RandomR (A : Set) : Set where
   field randomR : {{_ : RandomGen G}} -> A * A -> G -> A * G
 
   randomRIO : A * A -> IO A
-  randomRIO = getStdRandom <<< randomR
+  randomRIO = getStdRandom ∘ randomR
 
 open RandomR {{...}} public
 

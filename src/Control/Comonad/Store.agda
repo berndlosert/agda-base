@@ -16,7 +16,7 @@ Store S X = (S -> X) * S
 -- Store S is a functor.
 instance
   functorStore : Functor (Store S)
-  functorStore .map f (g , s) = (f <<< g , s)
+  functorStore .map f (g , s) = (f ∘ g , s)
 
   comonadStore : forall {S} -> Comonad (Store S)
   comonadStore {S} .extend f (g , s) = ((\ _ -> f (g , s)) , s)

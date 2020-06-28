@@ -24,6 +24,6 @@ open HFunctor {{...}} public
 record Effect (Sig : (Set -> Set) -> Set -> Set) : Set where
   field
     thread : {{_ : Functor Ctx}} {{_ : Monad M}}
-      -> (Ctx <<< M ~> N <<< Ctx) -> Sig M ~> Sig N <<< Ctx
+      -> (Ctx ∘ M ~> N ∘ Ctx) -> Sig M ~> Sig N ∘ Ctx
 
 open Effect {{...}} public

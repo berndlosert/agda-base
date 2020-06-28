@@ -9,7 +9,7 @@ open import Prelude
 -- Free F on C equipped with a transformation lift : F ~> Free F satisfying
 -- the following universal property: for any monad M on C and transformation
 -- t : F ~> M, there is a unique monad morphism interpret t : Free F ~> M with
--- the property that t = interpret t <<< lift. When C = Sets, we define
+-- the property that t = interpret t ∘ lift. When C = Sets, we define
 -- Free F, lift and interpret as follows:
 record Free (F : Set -> Set) (A : Set) : Set where
   constructor aFree
@@ -29,7 +29,7 @@ lower = interpret id
 
 instance
   functorFree : forall {F} -> Functor (Free F)
-  functorFree .map f free = aFree (map f <<< run free)
+  functorFree .map f free = aFree (map f ∘ run free)
 
   applicativeFree : forall {F} -> Applicative (Free F)
   applicativeFree .pure x = aFree \ _ -> return x
@@ -37,11 +37,11 @@ instance
 
   monadFree : forall {F} -> Monad (Free F)
   monadFree ._>>=_ m f = aFree \ t ->
-    join (map (interpret t <<< f) (interpret t m))
+    join (map (interpret t ∘ f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 hoist : forall {F G} -> (F ~> G) -> Free F ~> Free G
-hoist t free = interpret (lift <<< t) free
+hoist t free = interpret (lift ∘ t) free
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
 -- is lift; the extend operation is defined below:
@@ -78,12 +78,12 @@ fold {F} ret ext free = interpret t free ret ext
 
     instance
       functorM : Functor M
-      functorM .map f m = \ ret ext -> m (ret <<< f) ext
+      functorM .map f m = \ ret ext -> m (ret ∘ f) ext
 
       applicativeM : Applicative M
       applicativeM .pure x = \ ret ext -> ret x
       applicativeM ._<*>_ f x = \ ret ext ->
-        f (\ g -> x (ret <<< g) ext) ext
+        f (\ g -> x (ret ∘ g) ext) ext
 
       monadM : Monad M
       monadM ._>>=_ m f = \ ret ext -> m (\ y -> (f y) ret ext) ext
@@ -108,12 +108,12 @@ fold' {F} {{inst}} ret jn free = interpret t free ret jn
 
     instance
       functorM : Functor M
-      functorM .map f m = \ ret jn -> m (ret <<< f) jn
+      functorM .map f m = \ ret jn -> m (ret ∘ f) jn
 
       applicativeM : Applicative M
       applicativeM .pure x = \ ret jn -> ret x
       applicativeM ._<*>_ f x = \ ret jn ->
-        f (\ g -> x (ret <<< g) jn) jn
+        f (\ g -> x (ret ∘ g) jn) jn
 
       monadM : Monad M
       monadM ._>>=_ m f = \ ret jn -> m (\ x -> (f x) ret jn) jn

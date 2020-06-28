@@ -134,13 +134,13 @@ _#_ = flip _$_
 case_of_ : A -> (A -> B) -> B
 case_of_ = _#_
 
-infixr 9 _<<<_
-_<<<_ : (B -> C) -> (A -> B) -> A -> C
-g <<< f = \ a -> g (f a)
+infixr 9 _∘_
+_∘_ : (B -> C) -> (A -> B) -> A -> C
+g ∘ f = \ a -> g (f a)
 
 infixr 9 _>>>_
 _>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _<<<_
+_>>>_ = flip _∘_
 
 So : Bool -> Set
 So false = Void
@@ -293,13 +293,13 @@ maybeToLeft : B -> Maybe A -> Either A B
 maybeToLeft b = maybe (right b) left
 
 maybeToRight : B -> Maybe A -> Either B A
-maybeToRight b = mirror <<< maybeToLeft b
+maybeToRight b = mirror ∘ maybeToLeft b
 
 leftToMaybe : Either A B -> Maybe A
 leftToMaybe = either just (const nothing)
 
 rightToMaybe : Either A B -> Maybe B
-rightToMaybe = leftToMaybe <<< mirror
+rightToMaybe = leftToMaybe ∘ mirror
 
 pattern [_] x = x :: []
 
@@ -371,7 +371,7 @@ instance
   booleanAlgebraFunction : {{_ : BooleanAlgebra B}} -> BooleanAlgebra (A -> B)
   booleanAlgebraFunction .ff = const ff
   booleanAlgebraFunction .tt = const tt
-  booleanAlgebraFunction .not f = not <<< f
+  booleanAlgebraFunction .not f = not ∘ f
   booleanAlgebraFunction ._||_ f g a = f a || g a
   booleanAlgebraFunction ._&&_ f g a = f a && g a
 
@@ -788,7 +788,7 @@ instance
   powerFunction ._^_ f = \ where
     0 -> id
     1 -> f
-    (suc n) -> f ^ n <<< f
+    (suc n) -> f ^ n ∘ f
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -939,7 +939,7 @@ instance
   semigroupConst ._<>_ (const: a) (const: a') = const: (a <> a')
 
   semigroupEndo : Semigroup (Endo A)
-  semigroupEndo ._<>_ g f = endo: (appEndo g <<< appEndo f)
+  semigroupEndo ._<>_ g f = endo: (appEndo g ∘ appEndo f)
 
 --------------------------------------------------------------------------------
 -- Monoid
@@ -1070,7 +1070,7 @@ instance
   buildableList .singleton = _:: []
 
   isBuildableStringChar : IsBuildable String Char
-  isBuildableStringChar .singleton = pack <<< singleton
+  isBuildableStringChar .singleton = pack ∘ singleton
 
 --------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
@@ -1089,7 +1089,7 @@ record Functor (F : Set -> Set) : Set where
 
   infixl 4 _<$_
   _<$_ : B -> F A -> F B
-  _<$_ = map <<< const
+  _<$_ = map ∘ const
 
   infixl 4 _$>_
   _$>_ : F A -> B -> F B
@@ -1132,16 +1132,16 @@ open Profunctor {{...}} public
 
 instance
   profunctorFunction : Profunctor Function
-  profunctorFunction .dimap f g h = g <<< h <<< f
+  profunctorFunction .dimap f g h = g ∘ h ∘ f
 
   bifunctorEither : Bifunctor Either
-  bifunctorEither .bimap f g = either (left <<< f) (right <<< g)
+  bifunctorEither .bimap f g = either (left ∘ f) (right ∘ g)
 
   functorEither : Functor (Either A)
   functorEither .map = second
 
   bifunctorTuple : Bifunctor Tuple
-  bifunctorTuple .bimap f g = tuple (f <<< fst) (g <<< snd)
+  bifunctorTuple .bimap f g = tuple (f ∘ fst) (g ∘ snd)
 
   functorTuple : Functor (Tuple A)
   functorTuple .map = second
@@ -1158,37 +1158,37 @@ instance
   functorIO .map = mapIO
 
   functorIdentity : Functor Identity
-  functorIdentity .map f = identity: <<< f <<< runIdentity
+  functorIdentity .map f = identity: ∘ f ∘ runIdentity
 
   bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g = const: <<< f <<< getConst
+  bifunctorConst .bimap f g = const: ∘ f ∘ getConst
 
   functorConst : Functor (Const A)
   functorConst .map = second
 
   contravariantConst : Contravariant (Const A)
-  contravariantConst .contramap f = const: <<< getConst
+  contravariantConst .contramap f = const: ∘ getConst
 
   functorSum : Functor Sum
-  functorSum .map f = sum: <<< f <<< getSum
+  functorSum .map f = sum: ∘ f ∘ getSum
 
   functorProduct : Functor Product
-  functorProduct .map f = product: <<< f <<< getProduct
+  functorProduct .map f = product: ∘ f ∘ getProduct
 
   functorDual : Functor Dual
-  functorDual .map f = dual: <<< f <<< getDual
+  functorDual .map f = dual: ∘ f ∘ getDual
 
   functorFirst : Functor First
-  functorFirst .map f = first: <<< f <<< getFirst
+  functorFirst .map f = first: ∘ f ∘ getFirst
 
   functorLast : Functor Last
-  functorLast .map f = last: <<< f <<< getLast
+  functorLast .map f = last: ∘ f ∘ getLast
 
   functorMin : Functor Min
-  functorMin .map f = min: <<< f <<< getMin
+  functorMin .map f = min: ∘ f ∘ getMin
 
   functorMax : Functor Max
-  functorMax .map f = max: <<< f <<< getMax
+  functorMax .map f = max: ∘ f ∘ getMax
 
 --------------------------------------------------------------------------------
 -- Applicative
@@ -1251,7 +1251,7 @@ instance
 
   applicativeIdentity : Applicative Identity
   applicativeIdentity .pure = identity:
-  applicativeIdentity ._<*>_ = map <<< runIdentity
+  applicativeIdentity ._<*>_ = map ∘ runIdentity
 
   applicativeConst : {{_ : Monoid A}} -> Applicative (Const A)
   applicativeConst .pure _ = const: neutral
@@ -1391,11 +1391,11 @@ record IsFoldable (S A : Set) : Set where
   fold = foldMap id
 
   foldr : (A -> B -> B) -> B -> S -> B
-  foldr f b as = appEndo (foldMap (endo: <<< f) as) b
+  foldr f b as = appEndo (foldMap (endo: ∘ f) as) b
 
   foldl : (B -> A -> B) -> B -> S -> B
   foldl f b as =
-    (appEndo <<< getDual) (foldMap (dual: <<< endo: <<< flip f) as) b
+    (appEndo ∘ getDual) (foldMap (dual: ∘ endo: ∘ flip f) as) b
 
   foldrM : {{_ : Monad M}} -> (A -> B -> M B) -> B -> S -> M B
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -1409,37 +1409,37 @@ record IsFoldable (S A : Set) : Set where
   toList = foldMap [_]
 
   count : S -> Nat
-  count = getSum <<< foldMap (const $ sum: (suc 0))
+  count = getSum ∘ foldMap (const $ sum: (suc 0))
 
   all : (A -> Bool) -> S -> Bool
-  all p = getAll <<< foldMap (all: <<< p)
+  all p = getAll ∘ foldMap (all: ∘ p)
 
   any : (A -> Bool) -> S -> Bool
-  any p = getAny <<< foldMap (any: <<< p)
+  any p = getAny ∘ foldMap (any: ∘ p)
 
   notNull : S -> Bool
   notNull = any (const true)
 
   Nonempty : S -> Set
-  Nonempty = So <<< notNull
+  Nonempty = So ∘ notNull
 
   null : S -> Bool
-  null = not <<< notNull
+  null = not ∘ notNull
 
   sum : {{ _ : Monoid (Sum A)}} -> S -> A
-  sum = getSum <<< foldMap sum:
+  sum = getSum ∘ foldMap sum:
 
   product : {{ _ : Monoid (Product A)}} -> S -> A
-  product = getProduct <<< foldMap product:
+  product = getProduct ∘ foldMap product:
 
   find : (A -> Bool) -> S -> Maybe A
-  find p = leftToMaybe <<<
+  find p = leftToMaybe ∘
     foldlM (\ _ a ->  if p a then left a else right unit) unit
 
   module _ {{_ : Eq A}} where
 
     elem : A -> S -> Bool
-    elem = any <<< _==_
+    elem = any ∘ _==_
 
     notElem : A -> S -> Bool
     notElem a s = not (elem a s)
@@ -1447,7 +1447,7 @@ record IsFoldable (S A : Set) : Set where
   module _ {{_ : Applicative F}} where
 
     traverse! : (A -> F B) -> S -> F Unit
-    traverse! f = foldr (_*>_ <<< f) (pure unit)
+    traverse! f = foldr (_*>_ ∘ f) (pure unit)
 
     for! : S -> (A -> F B) -> F Unit
     for! = flip traverse!
@@ -1487,7 +1487,7 @@ instance
   foldableList .foldMap f = listrec neutral \ x _ y -> f x <> y
 
   isFoldableStringChar : IsFoldable String Char
-  isFoldableStringChar .foldMap f = foldMap f <<< unpack
+  isFoldableStringChar .foldMap f = foldMap f ∘ unpack
 
 --------------------------------------------------------------------------------
 -- IsFoldable1, Foldable1
@@ -1498,7 +1498,7 @@ record IsFoldable1 (S A : Set) : Set where
 
   foldMap1 : {{_ : Semigroup B}}
     -> (A -> B) -> (s : S) {{_ : Nonempty s}} -> B
-  foldMap1 f s = fromJust (foldMap (just <<< f) s) {{believeMe}}
+  foldMap1 f s = fromJust (foldMap (just ∘ f) s) {{believeMe}}
 
   fold1 : {{_ : Semigroup A}} (s : S) {{_ : Nonempty s}} -> A
   fold1 s = fromJust (foldMap just s) {{believeMe}}
@@ -1583,10 +1583,10 @@ record Traversable (T : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (A -> B -> Tuple A C) -> A -> T B -> Tuple A (T C)
-  mapAccumL f a xs = runStateL (traverse (stateL: <<< flip f) xs) a
+  mapAccumL f a xs = runStateL (traverse (stateL: ∘ flip f) xs) a
 
   mapAccumR : (A -> B -> Tuple A C) -> A -> T B -> Tuple A (T C)
-  mapAccumR f a xs = runStateR (traverse (stateR: <<< flip f) xs) a
+  mapAccumR f a xs = runStateR (traverse (stateR: ∘ flip f) xs) a
 
   scanl : {{_ : Buildable T}} -> (B -> A -> B) -> B -> T A -> T B
   scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)

@@ -160,17 +160,17 @@ instance
 
   coarbitraryTuple : {{_ : Coarbitrary A}} {{_ : Coarbitrary B}}
     -> Coarbitrary (A * B)
-  coarbitraryTuple .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
+  coarbitraryTuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
 
   coarbitraryList : {{_ : Coarbitrary A}} -> Coarbitrary (List A)
   coarbitraryList .coarbitrary [] = variant 0
   coarbitraryList .coarbitrary (a :: as) =
-    variant 1 <<< coarbitrary a <<< coarbitrary as
+    variant 1 ∘ coarbitrary a ∘ coarbitrary as
 
   coarbitraryFunction : {{_ : Arbitrary A}} {{_ : Coarbitrary B}}
     -> Coarbitrary (A -> B)
   coarbitraryFunction .coarbitrary f gen =
-    arbitrary >>= (flip coarbitrary gen <<< f)
+    arbitrary >>= (flip coarbitrary gen ∘ f)
 
   arbitraryFunction : {{_ : Coarbitrary A}} {{_ : Arbitrary B}}
     -> Arbitrary (A -> B)
@@ -298,13 +298,13 @@ private
 
       table : String
       table = display
-        <<< map entry
-        <<< reverse
-        <<< sort
-        <<< map pairLength
-        <<< group
-        <<< sort
-        <<< filter (not <<< null)
+        ∘ map entry
+        ∘ reverse
+        ∘ sort
+        ∘ map pairLength
+        ∘ group
+        ∘ sort
+        ∘ filter (not ∘ null)
         $ stamps
 
   {-# TERMINATING #-}

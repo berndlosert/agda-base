@@ -27,7 +27,7 @@ liftFreeT x = freeT: \ ret bnd -> bnd x ret
 instance
   functorFreeT : Functor (FreeT F M)
   functorFreeT .map f (freeT: h) = freeT: \ ret bnd ->
-    h (ret <<< f) bnd
+    h (ret ∘ f) bnd
 
   applicativeFreeT : Applicative (FreeT F M)
   applicativeFreeT .pure x = freeT: \ ret _ -> ret x
@@ -40,12 +40,12 @@ instance
 
   mfunctorFreeT : MFunctor (FreeT F)
   mfunctorFreeT .hoist t (freeT: m) = freeT: \ ret bnd ->
-    join <<< t $ m (return <<< ret) (\ x f -> return $ bnd x (join <<< t <<< f))
+    join ∘ t $ m (return ∘ ret) (\ x f -> return $ bnd x (join ∘ t ∘ f))
 
   monadTransFreeT : MonadTrans (FreeT F)
   monadTransFreeT .lift m = freeT: \ ret jn -> join ((map ret) m)
   monadTransFreeT .tmap f g (freeT: m) = freeT: \ ret bnd ->
-    f (m (g <<< ret) (\ x k -> g (bnd x (f <<< k))))
+    f (m (g ∘ ret) (\ x k -> g (bnd x (f ∘ k))))
 
   monadFreeFreeT : MonadFree F (FreeT F M)
   monadFreeFreeT .wrap x = freeT: \ ret bnd ->

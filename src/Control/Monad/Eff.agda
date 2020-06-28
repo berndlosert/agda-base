@@ -26,7 +26,7 @@ private
 record Member (F : Effect) (Fs : Effects) : Set where
   field
     inj : F ~> Union Fs
-    prj : Union Fs ~> Maybe <<< F
+    prj : Union Fs ~> Maybe ∘ F
 
 open Member {{...}}
 
@@ -37,7 +37,7 @@ instance
 
 abstract
   Eff : Effects -> Effect
-  Eff = Free <<< Union
+  Eff = Free ∘ Union
 
   anEff : (forall {M} {{_ : Monad M}} -> (Union Fs ~> M) -> M A) -> Eff Fs A
   anEff eff = aFree eff
@@ -52,7 +52,7 @@ abstract
   -- algebra, to an effectful computation. This is used to connect the definition
   -- of an effect to the 'Eff' monad so that it can be used and handled.
   send : {{_ : Member F Fs}} -> F ~> Eff Fs
-  send = Free.lift <<< inj
+  send = Free.lift ∘ inj
 
   -- A fold operation for Eff. This is handleRelay from freer-simple.y
 
@@ -70,7 +70,7 @@ abstract
   -- Eff [] A and A are isomorphic. This means that Eff [] A describes a pure
   -- computation.
   run : Eff [] A -> A
-  run = runIdentity <<< (interpret \ ())
+  run = runIdentity ∘ (interpret \ ())
 
   instance
     monadEff : Monad (Eff Fs)

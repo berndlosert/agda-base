@@ -31,10 +31,10 @@ execStateT (stateT: m) s0 = do
   return s1
 
 mapStateT : (M (A * S) -> N (B * S)) -> StateT S M A -> StateT S N B
-mapStateT f (stateT: m) = stateT: (f <<< m)
+mapStateT f (stateT: m) = stateT: (f ∘ m)
 
 withStateT : (S -> S) -> StateT S M A -> StateT S M A
-withStateT f (stateT: m) = stateT: (m <<< f)
+withStateT f (stateT: m) = stateT: (m ∘ f)
 
 instance
   functorStateT : {{_ : Functor M}} -> Functor (StateT S M)
@@ -68,5 +68,5 @@ instance
   monadTransStateT .tmap f _ = hoist f
 
   monadStateStateT : {{_ : Monad M}} -> MonadState S (StateT S M)
-  monadStateStateT .get = stateT: (return <<< dupe)
+  monadStateStateT .get = stateT: (return ∘ dupe)
   monadStateStateT .put s = stateT: (const (return (unit , s)))
