@@ -138,10 +138,6 @@ infixr 9 _∘_
 _∘_ : (B -> C) -> (A -> B) -> A -> C
 g ∘ f = \ a -> g (f a)
 
-infixr 9 _>>>_
-_>>>_ : (A -> B) -> (B -> C) -> A -> C
-_>>>_ = flip _∘_
-
 So : Bool -> Set
 So false = Void
 So true = Unit
