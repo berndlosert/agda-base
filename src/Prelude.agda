@@ -301,9 +301,6 @@ leftToMaybe = either just (const nothing)
 rightToMaybe : Either A B -> Maybe B
 rightToMaybe = leftToMaybe <<< mirror
 
-ensure : (A -> Bool) -> A -> Maybe A
-ensure p a = if p a then just a else nothing
-
 pattern [_] x = x :: []
 
 listrec : B -> (A -> List A -> B -> B) -> List A -> B
