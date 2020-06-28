@@ -40,7 +40,7 @@ instance
 
 variant : Nat -> Gen A -> Gen A
 variant v (gen: m) =
-    gen: λ r n -> m (Stream.at (suc v) (rands r)) n
+    gen: λ r n -> m (Stream.at (Suc v) (rands r)) n
   where
     rands : {{_ : RandomGen G}} -> G -> Stream G
     rands g = Stream.unfold split g
@@ -145,7 +145,7 @@ instance
   arbitraryInt : Arbitrary Int
   arbitraryInt .arbitrary = sized λ where
     0 -> choose (0 , 0)
-    (suc n) -> choose (negsuc n , pos (suc n))
+    (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
   arbitraryTuple : {{_ : Arbitrary A}} {{_ : Arbitrary B}} -> Arbitrary (A * B)
   arbitraryTuple .arbitrary = (| _,_ arbitrary arbitrary |)
@@ -289,7 +289,7 @@ private
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
-      percentage n m@(suc _) = show ((100 * n) / m) ++ "%"
+      percentage n m@(Suc _) = show ((100 * n) / m) ++ "%"
 
       entry : Nat * (List String) -> String
       entry (n , s) = percentage n ntest

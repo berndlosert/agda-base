@@ -51,11 +51,11 @@ prepend (a :: as) ys .tail = prepend as ys
 
 take : Nat -> Stream A -> List A
 take 0 _ = []
-take (suc n) as = head as :: take n (tail as)
+take (Suc n) as = head as :: take n (tail as)
 
 at : Nat -> Stream A -> A
 at 0 as = head as
-at (suc n) as = at n (tail as)
+at (Suc n) as = at n (tail as)
 
 cycle : (as : List A) {{_ : Nonempty as}} -> Stream A
 cycle {A} as = unfold f as

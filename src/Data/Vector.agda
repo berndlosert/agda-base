@@ -11,7 +11,7 @@ private
 
 data Vector (A : Set) : Nat -> Set where
   [] : Vector A 0
-  _::_ : forall {n} -> A -> Vector A n -> Vector A (suc n)
+  _::_ : forall {n} -> A -> Vector A n -> Vector A (Suc n)
 
 append : Vector A m -> Vector A n -> Vector A (m + n)
 append [] as = as
@@ -19,5 +19,5 @@ append (a :: as) as' = a :: append as as'
 
 splitAt : (m : Nat) -> Vector A (m + n) -> Vector A m * Vector A n
 splitAt 0 as = ([] , as)
-splitAt (suc k) (a :: as) with (splitAt k as)
+splitAt (Suc k) (a :: as) with (splitAt k as)
 ... | (l , r) = (a :: l , r)

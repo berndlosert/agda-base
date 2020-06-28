@@ -21,10 +21,12 @@ open import Agda.Builtin.Bool public
   renaming (true to True; false to False)
 
 open import Agda.Builtin.Nat public
-  using (Nat; suc; zero)
+  using (Nat)
+  renaming (suc to Suc; zero to Zero)
 
 open import Agda.Builtin.Int public
-  using (Int; pos; negsuc)
+  using (Int)
+  renaming (pos to Pos; negsuc to NegSuc)
 
 open import Agda.Builtin.Float public
   using (Float)
@@ -150,33 +152,33 @@ if False then _ else a = a
 
 natrec : A -> (Nat -> A -> A) -> Nat -> A
 natrec a _ 0 = a
-natrec a h n@(suc n-1) = h n-1 (natrec a h n-1)
+natrec a h n@(Suc n-1) = h n-1 (natrec a h n-1)
 
 applyN : (A -> A) -> Nat -> A -> A
 applyN f n a = natrec a (const f) n
 
 pred : Nat -> Nat
 pred 0 = 0
-pred (suc n) = n
+pred (Suc n) = n
 
 neg : Nat -> Int
-neg 0 = pos 0
-neg (suc n) = negsuc n
+neg 0 = Pos 0
+neg (Suc n) = NegSuc n
 
 foldZ : (Nat -> A) -> (Nat -> A) -> Int -> A
-foldZ f g (pos n) = f n
-foldZ f g (negsuc n) = g n
+foldZ f g (Pos n) = f n
+foldZ f g (NegSuc n) = g n
 
 isPos : Int -> Bool
-isPos (pos _) = True
+isPos (Pos _) = True
 isPos _ = False
 
 IsPos : Int -> Set
-IsPos (pos _) = Unit
+IsPos (Pos _) = Unit
 IsPos _ = Void
 
 fromPos : (i : Int) {_ : IsPos i} -> Nat
-fromPos (pos n) = n
+fromPos (Pos n) = n
 
 open Agda.Builtin.Float public
   renaming (
@@ -197,8 +199,8 @@ open Agda.Builtin.Float public
   )
 
 intToFloat : Int -> Float
-intToFloat (pos n) = natToFloat n
-intToFloat (negsuc n) = Agda.Builtin.Float.primFloatMinus -1.0 (natToFloat n)
+intToFloat (Pos n) = natToFloat n
+intToFloat (NegSuc n) = Agda.Builtin.Float.primFloatMinus -1.0 (natToFloat n)
 
 open Agda.Builtin.Char public
   renaming (
@@ -404,8 +406,8 @@ instance
 
   eqInt : Eq Int
   eqInt ._==_ = λ where
-    (pos m) (pos n) -> m == n
-    (negsuc m) (negsuc n) -> m == n
+    (Pos m) (Pos n) -> m == n
+    (NegSuc m) (NegSuc n) -> m == n
     _ _ -> False
 
   eqFloat : Eq Float
@@ -500,10 +502,10 @@ instance
 
   ordInt : Ord Int
   ordInt ._<_ = λ where
-    (pos m) (pos n) -> m < n
-    (negsuc m) (negsuc n) -> m > n
-    (negsuc _) (pos _) -> True
-    (pos _) (negsuc _) -> False
+    (Pos m) (Pos n) -> m < n
+    (NegSuc m) (NegSuc n) -> m > n
+    (NegSuc _) (Pos _) -> True
+    (Pos _) (NegSuc _) -> False
 
   ordFloat : Ord Float
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
@@ -559,7 +561,7 @@ instance
   fromNatInt : FromNat Int
   fromNatInt = record {
       Constraint = const Unit;
-      fromNat = λ n -> pos n
+      fromNat = λ n -> Pos n
     }
 
   fromNegInt : FromNeg Int
@@ -646,7 +648,7 @@ instance
   powerSet ._^_ A = λ where
     0 -> Unit
     1 -> A
-    (suc n) -> A ^ n * A
+    (Suc n) -> A ^ n * A
 
   additionNat : Addition Nat
   additionNat ._+_ = Agda.Builtin.Nat._+_
@@ -658,7 +660,7 @@ instance
   powerNat ._^_ a = λ where
     0 -> 1
     1 -> a
-    (suc n) -> a ^ n * a
+    (Suc n) -> a ^ n * a
 
   exponentiationNat : Exponentiation Nat
   exponentiationNat ._**_ = _^_
@@ -668,46 +670,46 @@ instance
 
   divisionNat : Division Nat
   divisionNat .DivisionConstraint n = So (n > 0)
-  divisionNat ._/_ m (suc n) = divAux 0 n m n
+  divisionNat ._/_ m (Suc n) = divAux 0 n m n
     where divAux = Agda.Builtin.Nat.div-helper
 
   modulusNat : Modulus Nat
   modulusNat .ModulusConstraint n = So (n > 0)
-  modulusNat ._%_ m (suc n) = modAux 0 n m n
+  modulusNat ._%_ m (Suc n) = modAux 0 n m n
     where modAux = Agda.Builtin.Nat.mod-helper
 
   additionInt : Addition Int
   additionInt ._+_ = add
     where
       sub' : Nat -> Nat -> Int
-      sub' m 0 = pos m
-      sub' 0 (suc n) = negsuc n
-      sub' (suc m) (suc n) = sub' m n
+      sub' m 0 = Pos m
+      sub' 0 (Suc n) = NegSuc n
+      sub' (Suc m) (Suc n) = sub' m n
 
       add : Int -> Int -> Int
-      add (negsuc m) (negsuc n) = negsuc (suc (m + n))
-      add (negsuc m) (pos n) = sub' n (suc m)
-      add (pos m) (negsuc n) = sub' m (suc n)
-      add (pos m) (pos n) = pos (m + n)
+      add (NegSuc m) (NegSuc n) = NegSuc (Suc (m + n))
+      add (NegSuc m) (Pos n) = sub' n (Suc m)
+      add (Pos m) (NegSuc n) = sub' m (Suc n)
+      add (Pos m) (Pos n) = Pos (m + n)
 
   multiplicationInt : Multiplication Int
   multiplicationInt ._*_ = λ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> neg (n * suc m)
-    (negsuc n) (pos m) -> neg (suc n * m)
+    (Pos n) (Pos m) -> Pos (n * m)
+    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+    (Pos n) (NegSuc m) -> neg (n * Suc m)
+    (NegSuc n) (Pos m) -> neg (Suc n * m)
 
   powerInt : Power Int
   powerInt ._^_ a = λ where
     0 -> 1
     1 -> a
-    (suc n) -> a ^ n * a
+    (Suc n) -> a ^ n * a
 
   negationInt : Negation Int
   negationInt .-_ = λ where
-    (pos 0) -> pos 0
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
+    (Pos 0) -> Pos 0
+    (Pos (Suc n)) -> NegSuc n
+    (NegSuc n) -> Pos (Suc n)
 
   subtractionInt : Subtraction Int
   subtractionInt ._-_ m n = m + (- n)
@@ -715,27 +717,27 @@ instance
   divisionInt : Division Int
   divisionInt .DivisionConstraint n = So (n > 0)
   divisionInt ._/_ x y with x | y
-  ... | pos m | pos (suc n) = pos (m / suc n)
-  ... | negsuc m | pos (suc n) = neg (suc m / suc n)
-  ... | pos m | negsuc n = neg (m / suc n)
-  ... | negsuc m | negsuc n = pos (suc m / suc n)
+  ... | Pos m | Pos (Suc n) = Pos (m / Suc n)
+  ... | NegSuc m | Pos (Suc n) = neg (Suc m / Suc n)
+  ... | Pos m | NegSuc n = neg (m / Suc n)
+  ... | NegSuc m | NegSuc n = Pos (Suc m / Suc n)
 
   modulusInt : Modulus Int
   modulusInt .ModulusConstraint n = So (n > 0)
   modulusInt ._%_ x y with x | y
-  ... | pos m | pos (suc n) = pos (m % suc n)
-  ... | negsuc m | pos (suc n) = neg (suc m % suc n)
-  ... | pos m | negsuc n = pos (m % suc n)
-  ... | negsuc m | negsuc n = neg (suc m % suc n)
+  ... | Pos m | Pos (Suc n) = Pos (m % Suc n)
+  ... | NegSuc m | Pos (Suc n) = neg (Suc m % Suc n)
+  ... | Pos m | NegSuc n = Pos (m % Suc n)
+  ... | NegSuc m | NegSuc n = neg (Suc m % Suc n)
 
   signedInt : Signed Int
   signedInt .abs = λ where
-    (pos n) -> pos n
-    (negsuc n) -> pos (suc n)
+    (Pos n) -> Pos n
+    (NegSuc n) -> Pos (Suc n)
   signedInt .signum = λ where
-    (pos 0) -> pos 0
-    (pos (suc _)) -> pos 1
-    (negsuc _) -> negsuc 0
+    (Pos 0) -> Pos 0
+    (Pos (Suc _)) -> Pos 1
+    (NegSuc _) -> NegSuc 0
 
   additionFloat : Addition Float
   additionFloat ._+_ = Agda.Builtin.Float.primFloatPlus
@@ -747,7 +749,7 @@ instance
   powerFloat ._^_ a = λ where
     0 -> 1.0
     1 -> a
-    (suc n) -> a ^ n * a
+    (Suc n) -> a ^ n * a
 
   exponentiationFloat : Exponentiation Float
   exponentiationFloat ._**_ x y = exp (y * log x)
@@ -785,7 +787,7 @@ instance
   powerFunction ._^_ f = λ where
     0 -> id
     1 -> f
-    (suc n) -> f ^ n ∘ f
+    (Suc n) -> f ^ n ∘ f
 
 --------------------------------------------------------------------------------
 -- Semigroup
@@ -799,14 +801,14 @@ open Semigroup {{...}} public
 
 -- For additive semigroups, monoids, etc.
 record Sum (A : Set) : Set where
-  constructor sum:
+  constructor Sum:
   field getSum : A
 
 open Sum public
 
 -- For multiplicative semigroups, monoids, etc.
 record Product (A : Set) : Set where
-  constructor product:
+  constructor Product:
   field getProduct : A
 
 open Product public
@@ -834,14 +836,14 @@ open Last public
 
 -- For semigroups, monoids, etc. where x <> y = min x y
 record Min (A : Set) : Set where
-  constructor min:
+  constructor Min:
   field getMin : A
 
 open Min public
 
 -- For Semigroups, monoids, etc. where x <> y = max x y
 record Max (A : Set) : Set where
-  constructor max:
+  constructor Max:
   field getMax : A
 
 open Max public
@@ -871,10 +873,10 @@ instance
   semigroupLast ._<>_ _ a = a
 
   semigroupMin : {{_ : Ord A}} -> Semigroup (Min A)
-  semigroupMin ._<>_ (min: a) (min: a') = min: (min a a')
+  semigroupMin ._<>_ (Min: a) (Min: a') = Min: (min a a')
 
   semigroupMax : {{_ : Ord A}} -> Semigroup (Max A)
-  semigroupMax ._<>_ (max: a) (max: a') = max: (max a a')
+  semigroupMax ._<>_ (Max: a) (Max: a') = Max: (max a a')
 
   semigroupAny : Semigroup Any
   semigroupAny ._<>_ (Any: b) (Any: b') = Any: (b || b')
@@ -889,16 +891,16 @@ instance
   semigroupUnit ._<>_ unit unit = unit
 
   semigroupSumNat : Semigroup (Sum Nat)
-  semigroupSumNat ._<>_ (sum: m) (sum: n) = sum: (m + n)
+  semigroupSumNat ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
 
   semigroupProductNat : Semigroup (Product Nat)
-  semigroupProductNat ._<>_ (product: x) (product: y) = product: (x * y)
+  semigroupProductNat ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
   semigroupSumInt : Semigroup (Sum Int)
-  semigroupSumInt ._<>_ (sum: m) (sum: n) = sum: (m + n)
+  semigroupSumInt ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
 
   semigroupProductInt : Semigroup (Product Int)
-  semigroupProductInt ._<>_ (product: x) (product: y) = product: (x * y)
+  semigroupProductInt ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
   semigroupString : Semigroup String
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
@@ -977,16 +979,16 @@ instance
   monoidAny .neutral = Any: False
 
   monoidSumNat : Monoid (Sum Nat)
-  monoidSumNat .neutral = sum: 0
+  monoidSumNat .neutral = Sum: 0
 
   monoidProductNat : Monoid (Product Nat)
-  monoidProductNat .neutral = product: (suc 0)
+  monoidProductNat .neutral = Product: (Suc 0)
 
   monoidSumInt : Monoid (Sum Int)
-  monoidSumInt .neutral = sum: 0
+  monoidSumInt .neutral = Sum: 0
 
   monoidProductInt : Monoid (Product Int)
-  monoidProductInt .neutral = product: 1
+  monoidProductInt .neutral = Product: 1
 
   monoidString : Monoid String
   monoidString .neutral = ""
@@ -1167,10 +1169,10 @@ instance
   contravariantConst .contramap f = Const: ∘ getConst
 
   functorSum : Functor Sum
-  functorSum .map f = sum: ∘ f ∘ getSum
+  functorSum .map f = Sum: ∘ f ∘ getSum
 
   functorProduct : Functor Product
-  functorProduct .map f = product: ∘ f ∘ getProduct
+  functorProduct .map f = Product: ∘ f ∘ getProduct
 
   functorDual : Functor Dual
   functorDual .map f = Dual: ∘ f ∘ getDual
@@ -1182,10 +1184,10 @@ instance
   functorLast .map f = Last: ∘ f ∘ getLast
 
   functorMin : Functor Min
-  functorMin .map f = min: ∘ f ∘ getMin
+  functorMin .map f = Min: ∘ f ∘ getMin
 
   functorMax : Functor Max
-  functorMax .map f = max: ∘ f ∘ getMax
+  functorMax .map f = Max: ∘ f ∘ getMax
 
 --------------------------------------------------------------------------------
 -- Applicative
@@ -1211,14 +1213,14 @@ record Applicative (F : Set -> Set) : Set where
     where
       loop : Nat -> F S
       loop 0 = pure nil
-      loop (suc n) = (| cons f (loop n) |)
+      loop (Suc n) = (| cons f (loop n) |)
 
   replicateA! : Nat -> F A -> F Unit
   replicateA! n0 f = loop n0
     where
       loop : Nat -> F Unit
       loop 0 = pure unit
-      loop (suc n) = f *> loop n
+      loop (Suc n) = f *> loop n
 
 open Applicative {{...}} public
 
@@ -1255,12 +1257,12 @@ instance
   applicativeConst ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
   applicativeSum : Applicative Sum
-  applicativeSum .pure = sum:
-  applicativeSum ._<*>_ (sum: f) (sum: x) = sum: (f x)
+  applicativeSum .pure = Sum:
+  applicativeSum ._<*>_ (Sum: f) (Sum: x) = Sum: (f x)
 
   applicativeProduct : Applicative Product
-  applicativeProduct .pure = product:
-  applicativeProduct ._<*>_ (product: f) (product: x) = product: (f x)
+  applicativeProduct .pure = Product:
+  applicativeProduct ._<*>_ (Product: f) (Product: x) = Product: (f x)
 
   applicativeDual : Applicative Dual
   applicativeDual .pure = Dual:
@@ -1275,12 +1277,12 @@ instance
   applicativeLast ._<*>_ (Last: f) (Last: x) = Last: (f x)
 
   applicativeMin : Applicative Min
-  applicativeMin .pure = min:
-  applicativeMin ._<*>_ (min: f) (min: x) = min: (f x)
+  applicativeMin .pure = Min:
+  applicativeMin ._<*>_ (Min: f) (Min: x) = Min: (f x)
 
   applicativeMax : Applicative Max
-  applicativeMax .pure = max:
-  applicativeMax ._<*>_ (max: f) (max: x) = max: (f x)
+  applicativeMax .pure = Max:
+  applicativeMax ._<*>_ (Max: f) (Max: x) = Max: (f x)
 
 --------------------------------------------------------------------------------
 -- Alternative
@@ -1355,10 +1357,10 @@ instance
   monadIdentity ._>>=_ (Identity: x) k = k x
 
   monadSum : Monad Sum
-  monadSum ._>>=_ (sum: x) k = k x
+  monadSum ._>>=_ (Sum: x) k = k x
 
   monadProduct : Monad Product
-  monadProduct ._>>=_ (product: x) k = k x
+  monadProduct ._>>=_ (Product: x) k = k x
 
   monadDual : Monad Dual
   monadDual ._>>=_ (Dual: x) k = k x
@@ -1370,10 +1372,10 @@ instance
   monadLast ._>>=_ (Last: x) k = k x
 
   monadMin : Monad Min
-  monadMin ._>>=_ (min: x) k = k x
+  monadMin ._>>=_ (Min: x) k = k x
 
   monadMax : Monad Max
-  monadMax ._>>=_ (max: x) k = k x
+  monadMax ._>>=_ (Max: x) k = k x
 
 --------------------------------------------------------------------------------
 -- IsFoldable, Foldable
@@ -1404,7 +1406,7 @@ record IsFoldable (S A : Set) : Set where
   toList = foldMap [_]
 
   count : S -> Nat
-  count = getSum ∘ foldMap (const $ sum: (suc 0))
+  count = getSum ∘ foldMap (const $ Sum: (Suc 0))
 
   all : (A -> Bool) -> S -> Bool
   all p = getAll ∘ foldMap (All: ∘ p)
@@ -1422,10 +1424,10 @@ record IsFoldable (S A : Set) : Set where
   null = not ∘ notNull
 
   sum : {{ _ : Monoid (Sum A)}} -> S -> A
-  sum = getSum ∘ foldMap sum:
+  sum = getSum ∘ foldMap Sum:
 
   product : {{ _ : Monoid (Product A)}} -> S -> A
-  product = getProduct ∘ foldMap product:
+  product = getProduct ∘ foldMap Product:
 
   find : (A -> Bool) -> S -> Maybe A
   find p = leftToMaybe ∘
@@ -1466,7 +1468,7 @@ Foldable F = forall {A} -> IsFoldable (F A) A
 instance
   isFoldableNatUnit : IsFoldable Nat Unit
   isFoldableNatUnit .foldMap b 0 = neutral
-  isFoldableNatUnit .foldMap b (suc n) = b unit <> foldMap b n
+  isFoldableNatUnit .foldMap b (Suc n) = b unit <> foldMap b n
 
   foldableEither : Foldable (Either A)
   foldableEither .foldMap _ (Left _) = neutral
@@ -1676,10 +1678,10 @@ instance
   showConst .show (Const: a) = "(Const: " ++ show a ++ ")"
 
   showSum : {{_ : Show A}} -> Show (Sum A)
-  showSum .show (sum: a) = "(sum: " ++ show a ++ ")"
+  showSum .show (Sum: a) = "(Sum: " ++ show a ++ ")"
 
   showProduct : {{_ : Show A}} -> Show (Product A)
-  showProduct .show (product: a) = "(product: " ++ show a ++ ")"
+  showProduct .show (Product: a) = "(Product: " ++ show a ++ ")"
 
   showDual : {{_ : Show A}} -> Show (Dual A)
   showDual .show (Dual: a) = "(Dual: " ++ show a ++ ")"
@@ -1691,10 +1693,10 @@ instance
   showLast .show (Last: a) = "(Last: " ++ show a ++ ")"
 
   showMin : {{_ : Show A}} -> Show (Min A)
-  showMin .show (min: a) = "(min: " ++ show a ++ ")"
+  showMin .show (Min: a) = "(Min: " ++ show a ++ ")"
 
   showMax : {{_ : Show A}} -> Show (Max A)
-  showMax .show (max: a) = "(max: " ++ show a ++ ")"
+  showMax .show (Max: a) = "(Max: " ++ show a ++ ")"
 
   showAny : Show Any
   showAny .show (Any: a) = "(Any: " ++ show a ++ ")"

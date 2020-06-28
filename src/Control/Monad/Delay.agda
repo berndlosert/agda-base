@@ -11,20 +11,20 @@ open import Control.Thunk
 -- final coalgebra of the functor X +_.
 
 data Delay (i : Size) (X : Set) : Set where
-  now : X -> Delay i X
-  later : Thunk i Delay X -> Delay i X
+  Now : X -> Delay i X
+  Later : Thunk i Delay X -> Delay i X
 
 -- Since Delay is a final coalgebra, it has an unfold operation.
 
 unfold : forall {i X Y} -> (Y -> X + Y) -> Y -> Delay i X
-unfold f y = either now (λ x -> later λ where .force -> unfold f x) $ f y
+unfold f y = either Now (λ x -> Later λ where .force -> unfold f x) $ f y
 
 -- Run a Delay process for at most n steps.
 
 runFor : Nat -> forall {X} -> Delay _ X -> Maybe X
-runFor _ (now x) = Just x
-runFor zero (later _) = Nothing
-runFor (suc n) (later thunk) = runFor n (force thunk)
+runFor _ (Now x) = Just x
+runFor Zero (Later _) = Nothing
+runFor (Suc n) (Later thunk) = runFor n (force thunk)
 
 -- Imagine a stream of Maybe X values. We model the stream as a function of
 -- type Nat -> Maybe X. Assuming there is a least n : Nat such that the nth
@@ -32,12 +32,12 @@ runFor (suc n) (later thunk) = runFor n (force thunk)
 -- value d such that runFor n d = Just x.
 
 tryMore : forall {i X} -> (Nat -> Maybe X) -> Delay i X
-tryMore {_} {X} f = unfold try zero
+tryMore {_} {X} f = unfold try Zero
   where
     try : Nat -> X + Nat
     try n with f n
     ... | Just x = Left x
-    ... | Nothing = Right (suc n)
+    ... | Nothing = Right (Suc n)
 
 open import Data.Bool
 
@@ -49,12 +49,12 @@ minimize test = tryMore (λ n -> if test n then Just n else Nothing)
 
 instance
   functorDelay : {i : Size} -> Functor (Delay i)
-  functorDelay .map f (now x) = now (f x)
-  functorDelay .map f (later thunk) =
-    later λ where .force -> map f (force thunk)
+  functorDelay .map f (Now x) = Now (f x)
+  functorDelay .map f (Later thunk) =
+    Later λ where .force -> map f (force thunk)
 
   monadDelay : {i : Size} -> Monad (Delay i)
-  monadDelay .return = now
-  monadDelay .extend f (now x) = f x
-  monadDelay .extend f (later thunk) = later λ where
+  monadDelay .return = Now
+  monadDelay .extend f (Now x) = f x
+  monadDelay .extend f (Later thunk) = Later λ where
     .force -> extend f (force thunk)

@@ -15,7 +15,7 @@ Reader : Set -> Set -> Set
 Reader R = ReaderT R Identity
 
 reader: : (R -> A) -> Reader R A
-reader: f = readerT: (Identity: ∘ f)
+reader: f = ReaderT: (Identity: ∘ f)
 
 runReader : Reader R A -> R -> A
 runReader m = runIdentity ∘ runReaderT m

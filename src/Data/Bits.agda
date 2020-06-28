@@ -39,13 +39,13 @@ record Bits (A : Set) : Set where
   notBit x i = x xor (bit i)
 
   shiftL : A -> Nat -> A
-  shiftL x i = shift x (pos i)
+  shiftL x i = shift x (Pos i)
 
   shiftR : A -> Nat -> A
   shiftR x i = shift x (neg i)
 
   rotateL : A -> Nat -> A
-  rotateL x i = rotate x (pos i)
+  rotateL x i = rotate x (Pos i)
 
   rotateR : A -> Nat -> A
   rotateR x i = rotate x (neg i)
@@ -58,7 +58,7 @@ record Bits (A : Set) : Set where
 
       go : Nat -> Nat
       go 0 = 0
-      go n@(suc n-1) = if testBit x n then n else go n-1
+      go n@(Suc n-1) = if testBit x n then n else go n-1
 
   countTrailingZeros : A -> Nat
   countTrailingZeros x = go bitSize-1 0
@@ -68,7 +68,7 @@ record Bits (A : Set) : Set where
 
       go : Nat -> Nat -> Nat
       go 0 n = n
-      go (suc m) n =
+      go (Suc m) n =
         if testBit x n then n
         else go m (n + 1)
 

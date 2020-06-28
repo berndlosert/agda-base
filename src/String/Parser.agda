@@ -7,7 +7,7 @@ open import Prelude
 
 open import Control.Monad.State.Trans
   using (
-    StateT; stateT:; runStateT;
+    StateT; StateT:; runStateT;
     functorStateT; applicativeStateT;
     alternativeStateT; monadStateT
   )
@@ -24,7 +24,7 @@ abstract
   Parser = StateT String List
 
   parser: : (String -> List (A * String)) -> Parser A
-  parser: = stateT:
+  parser: = StateT:
 
   runParser : Parser A -> String -> List (A * String)
   runParser = runStateT
@@ -223,4 +223,4 @@ nat = chainl1
     (return λ m n -> 10 * m + n)
 
 int : Parser Int
-int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
+int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)

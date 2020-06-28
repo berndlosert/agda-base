@@ -4,7 +4,7 @@ module Control.Size where
 
 open import Agda.Builtin.Size public
   renaming (
-    ↑_ to szsuc;
+    ↑_ to szSuc;
     _⊔ˢ_ to szmax;
     ∞ to infty
   )

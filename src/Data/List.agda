@@ -34,7 +34,7 @@ reverse : List A -> List A
 reverse = foldl (flip _::_) []
 
 length : List A -> Nat
-length = foldr (const suc) 0
+length = foldr (const Suc) 0
 
 --------------------------------------------------------------------------------
 -- Sublists
@@ -50,11 +50,11 @@ dropWhile p = reverse ∘ flip foldl [] λ where
 
 take : Nat -> List A -> List A
 take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) λ where
-  (k , s) a -> if k < n then Right (suc k , cons a s) else Left (suc k , s)
+  (k , s) a -> if k < n then Right (Suc k , cons a s) else Left (Suc k , s)
 
 drop : Nat -> List A -> List A
 drop n = reverse ∘ snd ∘ flip foldl (0 , []) λ where
-  (k , as) a -> if k < n then (suc k , as) else (suc k , a :: as)
+  (k , as) a -> if k < n then (Suc k , as) else (Suc k , a :: as)
 
 inits : List A -> List (List  A)
 inits = scanl snoc []
@@ -99,26 +99,26 @@ group = groupBy _==_
 indexed : List A -> List (Nat * A)
 indexed = reverse ∘ flip foldl [] λ where
   [] a -> (0 , a) :: []
-  xs@(h :: t) a' -> (suc (fst h) , a') :: xs
+  xs@(h :: t) a' -> (Suc (fst h) , a') :: xs
 
 at : Nat -> List A -> Maybe A
 at n = leftToMaybe ∘ flip foldlM 0 λ
-  k a -> if k == n then Left a else Right (suc k)
+  k a -> if k == n then Left a else Right (Suc k)
 
 deleteAt : Nat -> List A -> List A
 deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
-  (k , as) a -> (suc k , if k == n then as else (a :: as))
+  (k , as) a -> (Suc k , if k == n then as else (a :: as))
 
 modifyAt : Nat -> (A -> A) -> List A -> List A
 modifyAt n f = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
-  (k , as) a -> (suc k , if k == n then f a :: as else (a :: as))
+  (k , as) a -> (Suc k , if k == n then f a :: as else (a :: as))
 
 setAt : Nat -> A -> List A -> List A
 setAt n a = modifyAt n (const a)
 
 insertAt : Nat -> A -> List A -> List A
 insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) λ where
-  (k , as) a -> (suc k , if k == n then a' :: a :: as else (a :: as))
+  (k , as) a -> (Suc k , if k == n then a' :: a :: as else (a :: as))
 
 splitAt : Nat -> List A -> List A * List A
 splitAt n as = (take n as , drop n as)
@@ -126,7 +126,7 @@ splitAt n as = (take n as , drop n as)
 elemAt : Nat -> List A -> Maybe A
 elemAt _ [] = Nothing
 elemAt 0 (a :: _) = Just a
-elemAt (suc n) (_ :: as) = elemAt n as
+elemAt (Suc n) (_ :: as) = elemAt n as
 
 --------------------------------------------------------------------------------
 -- Zipping functions
@@ -210,9 +210,9 @@ intersperse sep = flip foldr [] λ where
   a [] -> singleton a
   a as -> a :: sep :: as
 
-transpose : List (List A) -> List (List A)
-transpose [] = []
-transpose (heads :: tails) = zipCons heads (transpose tails)
+transPose : List (List A) -> List (List A)
+transPose [] = []
+transPose (heads :: tails) = zipCons heads (transPose tails)
 
 --------------------------------------------------------------------------------
 -- Set-like operations
