@@ -1292,13 +1292,11 @@ record Alternative (F : Set -> Set) : Set where
     _<|>_ : F A -> F A -> F A
     empty : F A
 
-open Alternative {{...}} public
-
-module _ {{_ : Alternative F}} where
-
   guard : Bool -> F Unit
   guard true = pure unit
   guard false = empty
+
+open Alternative {{...}} public
 
 instance
   alternativeMaybe : Alternative Maybe
