@@ -1220,6 +1220,10 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
+{-# NON_TERMINATING #-}
+forever : {{_ : Applicative f}} -> f a -> f b
+forever as = as *> forever as
+
 instance
   applicativeEither : Applicative (Either a)
   applicativeEither .pure = Right
@@ -1327,7 +1331,7 @@ record Monad (M : Set -> Set) : Set where
 
 open Monad {{...}} public
 
-return : forall {a M} {{_ : Monad M}} -> a -> M a
+return : forall {a m} {{_ : Monad m}} -> a -> m a
 return = pure
 
 instance
