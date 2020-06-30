@@ -40,7 +40,7 @@ instance
 {-# COMPILE GHC atomically = \ _ stm -> atomically stm #-}
 {-# COMPILE GHC retry = \ _ -> retry #-}
 {-# COMPILE GHC orElse = \ _ stm1 stm2 -> stm1 `orElse` stm2 #-}
-{-# COMPILE GHC mapSTM = \ _ _ f -> map f #-}
+{-# COMPILE GHC mapSTM = \ _ _ f x -> fmap f x #-}
 {-# COMPILE GHC pureSTM = \ _ x -> pure x #-}
 {-# COMPILE GHC apSTM = \ _ _ f x -> f <*> x #-}
 {-# COMPILE GHC bindSTM = \ _ _ m k -> m >>= k #-}
