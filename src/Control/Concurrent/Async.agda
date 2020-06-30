@@ -6,7 +6,10 @@ open import Prelude
 
 open import Control.Concurrent
 
-private variable a b : Set
+private
+  variable
+    a b : Set
+    f t : Set -> Set
 
 --------------------------------------------------------------------------------
 -- Async
@@ -20,6 +23,7 @@ postulate
   waitEither : Async a -> Async b -> IO (a + b)
   waitEither! : Async a -> Async b -> IO Unit
   waitBoth : Async a -> Async b -> IO (a * b)
+  waitBoth! : Async a -> Async b -> IO Unit
   cancel : Async a -> IO Unit
   withAsync : IO a -> (Async a -> IO b) -> IO b
 
@@ -40,6 +44,9 @@ concurrently left right =
   withAsync left λ a ->
   withAsync right λ b ->
   waitBoth a b
+
+concurrently! : IO a -> IO b -> IO Unit
+concurrently! left right = void $ concurrently left right
 
 {-# FOREIGN GHC
 
@@ -102,7 +109,7 @@ concurrently left right =
   waitEither_ :: Async a -> Async b -> IO ()
   waitEither_ left right = atomically (waitEitherSTM_ left right)
 
-  waitBothSTM :: Async a -> Async b -> STM (a,b)
+  waitBothSTM :: Async a -> Async b -> STM (a, b)
   waitBothSTM left right = do
       a <- waitSTM left `orElse` (waitSTM right >> retry)
       b <- waitSTM right
@@ -110,6 +117,9 @@ concurrently left right =
 
   waitBoth :: Async a -> Async b -> IO (a, b)
   waitBoth left right = atomically (waitBothSTM left right)
+
+  waitBoth_ :: Async a -> Async b -> IO ()
+  waitBoth_ left right = void $ waitBoth left right
 
   data AsyncCancelled = AsyncCancelled
     deriving (Show)
@@ -149,6 +159,7 @@ concurrently left right =
 {-# COMPILE GHC waitEither = \ _ _ a b -> waitEither a b #-}
 {-# COMPILE GHC waitEither! = \ _ _ a b -> waitEither_ a b #-}
 {-# COMPILE GHC waitBoth = \ _ _ a b -> waitBoth a b #-}
+{-# COMPILE GHC waitBoth! = \ _ _ a b -> waitBoth_ a b #-}
 {-# COMPILE GHC cancel = \ _ a -> cancel a #-}
 {-# COMPILE GHC withAsync = \ _ _ a k -> withAsync a k #-}
 
@@ -176,3 +187,23 @@ instance
     Concurrently: (forever $ microDelay $ 2 ^ 32)
   alternativeConcurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
     Concurrently: (untag <$> race as bs)
+
+  semigroupConcurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
+  semigroupConcurrently ._<>_ x y = (| _<>_ x y |)
+
+  monoidConcurrently : {{_ : Monoid a}} -> Monoid (Concurrently a)
+  monoidConcurrently .neutral = pure neutral
+
+mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
+mapConcurrently f = runConcurrently ∘ traverse (Concurrently: ∘ f)
+
+mapConcurrently! : {{_ : Foldable f}} -> (a -> IO b) -> f a -> IO Unit
+mapConcurrently! f = runConcurrently ∘ foldMap (Concurrently: ∘ void ∘ f)
+
+replicateConcurrently : Nat -> IO a -> IO (List a)
+replicateConcurrently cnt =
+  runConcurrently ∘ sequence ∘ replicate cnt ∘ Concurrently:
+
+replicateConcurrently! : Nat -> IO a -> IO Unit
+replicateConcurrently! cnt =
+  runConcurrently ∘ fold ∘ replicate cnt ∘ Concurrently: ∘ void
