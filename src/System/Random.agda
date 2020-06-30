@@ -6,6 +6,7 @@ open import Prelude
 
 open import Data.Bits
 open import Data.Ref
+open import Data.Time.Units
 open import Data.Word
 open import System.Time
 
@@ -132,8 +133,8 @@ mkStdGen s = stdgen: (mix64 s) (mixgamma (s + goldengamma))
 
 theStdGen : IO (Ref StdGen)
 theStdGen = do
-  ctr <- getTime
-  key <- getCPUTime
+  ctr <- map getSecond getTime
+  key <- map getPicosecond getCPUTime
   let seed = squares (natToWord64 ctr) (natToWord64 key)
   new (mkStdGen seed)
 

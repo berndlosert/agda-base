@@ -4,20 +4,23 @@ module Control.Concurrent where
 
 open import Prelude
 
+open import Data.Time.Units
+
+private variable a : Set
+
 postulate
   ThreadId : Set
-
   myThreadId : IO ThreadId
-  fork : IO Unit -> IO ThreadId
-  kill : ThreadId -> IO Unit
+  forkIO : IO Unit -> IO ThreadId
+  killThread : ThreadId -> IO Unit
   yield : IO Unit
-  microDelay : Nat -> IO Unit
 
 private
   postulate
     primEqThreadId : ThreadId -> ThreadId -> Bool
     primLessThanThreadId : ThreadId -> ThreadId -> Bool
     primShowThreadId : ThreadId -> String
+    primThreadDelay : Nat -> IO Unit
 
 instance
   eqThreadId : Eq ThreadId
@@ -29,8 +32,8 @@ instance
   showThreadId : Show ThreadId
   showThreadId .show = primShowThreadId
 
-delay : Nat -> IO Unit
-delay n = microDelay $ n * 10 ^ 6
+threadDelay : {{_ : TimeUnit a}} -> a -> IO Unit
+threadDelay x = primThreadDelay (toMicroseconds x)
 
 {-# FOREIGN GHC import Control.Concurrent #-}
 {-# FOREIGN GHC import Data.Text (pack) #-}
@@ -38,7 +41,7 @@ delay n = microDelay $ n * 10 ^ 6
 {-# COMPILE GHC primEqThreadId = \ t1 t2 -> t1 == t2 #-}
 {-# COMPILE GHC primLessThanThreadId = \ t1 t2 -> t1 < t2 #-}
 {-# COMPILE GHC primShowThreadId = \ t -> pack (show t) #-}
-{-# COMPILE GHC fork = forkIO #-}
-{-# COMPILE GHC kill = killThread #-}
+{-# COMPILE GHC forkIO = forkIO #-}
+{-# COMPILE GHC killThread = killThread #-}
 {-# COMPILE GHC yield = yield #-}
-{-# COMPILE GHC microDelay = \ t -> threadDelay (fromInteger t) #-}
+{-# COMPILE GHC primThreadDelay = \ t -> threadDelay (fromInteger t) #-}
