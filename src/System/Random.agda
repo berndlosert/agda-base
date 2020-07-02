@@ -5,7 +5,7 @@ module System.Random where
 open import Prelude
 
 open import Data.Bits
-open import Data.Ref
+open import Data.IORef
 open import Data.Time.Units
 open import Data.Word
 open import System.Time
@@ -131,32 +131,32 @@ instance
 mkStdGen : Word64 -> StdGen
 mkStdGen s = stdgen: (mix64 s) (mixgamma (s + goldengamma))
 
-theStdGen : IO (Ref StdGen)
+theStdGen : IO (IORef StdGen)
 theStdGen = do
   ctr <- map getSecond getTime
   key <- map getPicosecond getCPUTime
   let seed = squares (natToWord64 ctr) (natToWord64 key)
-  new (mkStdGen seed)
+  newIORef (mkStdGen seed)
 
 newStdGen : IO StdGen
 newStdGen = do
   ref <- theStdGen
-  atomicModify ref split
+  atomicModifyIORef ref split
 
 getStdGen : IO StdGen
 getStdGen = do
   ref <- theStdGen
-  read ref
+  readIORef ref
 
 setStdGen : StdGen -> IO Unit
 setStdGen gen = do
   ref <- theStdGen
-  write ref gen
+  writeIORef ref gen
 
 getStdRandom : (StdGen -> a * StdGen) -> IO a
 getStdRandom f = do
   ref <- theStdGen
-  atomicModify ref (swap ∘ f)
+  atomicModifyIORef ref (swap ∘ f)
 
 --------------------------------------------------------------------------------
 -- Random and RandomR
