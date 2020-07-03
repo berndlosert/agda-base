@@ -6,6 +6,7 @@ open import Prelude
 
 open import Data.Bits
 open import Data.IORef
+open import Data.List
 open import Data.Time.Units
 open import Data.Word
 open import System.Time
@@ -25,27 +26,39 @@ record RandomGen (g : Set) : Set where
 open RandomGen {{...}} public
 
 private
-  -- nextNat n generates a random Nat in the range [0, 2 ^ n)
-  nextNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
-  nextNat {g} n g0 =
-      fst $ foldr accum (first word64ToNat (next' g0) , 1) q
+  W64s = List Word64
+
+  -- Convert a list of Word64 values, considered as one long word, into a Nat.
+  w64sToNat : W64s -> Nat
+  w64sToNat [] = 0
+  w64sToNat ws = go (reverse ws) 0
     where
+      go : W64s -> Nat -> Nat
+      go [] n = 0
+      go (w :: ws) n = (word64ToNat w) * 2 ^ (64 * n) + go ws (n + 1)
+
+  -- Generates n random Word64 values.
+  nextW64s : {{_ : RandomGen g}} -> Nat -> g -> W64s * g
+  nextW64s 0 g0 = ([] , g0)
+  nextW64s (Suc n) g0 =
+    let
+      (w , g1) = next g0
+      (ws , g) = nextW64s n g1
+    in
+      (w :: ws , g)
+
+  -- nextNat n generates a random Nat in the range [0, 2 ^ n).
+  nextNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+  nextNat n g0 =
+    let
       q = n / 64
       r = n % 64
       mask = shiftR oneBits (64 - r)
-
-      -- This will generate a Word64 value in the range [0, 2 ^ r).
-      next' : g -> Word64 * g
-      next' g = first (_:&: mask) (next g)
-
-      -- We use this to build up the random number in the foldr expression.
-      accum : Unit -> (Nat * g) * Nat -> (Nat * g) * Nat
-      accum _ ((m , g) , i) =
-        let
-          (w , g') = next g
-          m' = m + 2 ^ (64 * i) * word64ToNat w
-        in
-          (m' , g' , i + 1)
+      (ws , g) = nextW64s (q + 1) g0
+    in
+      case ws of λ where
+        (h :: t) -> (w64sToNat ((h :&: mask) :: t) , g)
+        [] -> (0 , g)
 
   -- nextNat' n generates a Nat in the range [0 , n].
   {-# TERMINATING #-}
