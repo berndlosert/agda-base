@@ -38,32 +38,32 @@ private
       go (w :: ws) n = (word64ToNat w) * 2 ^ (64 * n) + go ws (n + 1)
 
   -- Generates n random Word64 values.
-  nextW64s : {{_ : RandomGen g}} -> Nat -> g -> W64s * g
-  nextW64s 0 g0 = ([] , g0)
-  nextW64s (Suc n) g0 =
+  genW64s : {{_ : RandomGen g}} -> Nat -> g -> W64s * g
+  genW64s 0 g0 = ([] , g0)
+  genW64s (Suc n) g0 =
     let
       (w , g1) = next g0
-      (ws , g) = nextW64s n g1
+      (ws , g) = genW64s n g1
     in
       (w :: ws , g)
 
-  -- nextNat n generates a random Nat in the range [0, 2 ^ n).
-  nextNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
-  nextNat n g0 =
+  -- genNat n generates a random Nat in the range [0, 2 ^ n).
+  genNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+  genNat n g0 =
     let
       q = n / 64
       r = n % 64
       mask = shiftR oneBits (64 - r)
-      (ws , g) = nextW64s (q + 1) g0
+      (ws , g) = genW64s (q + 1) g0
     in
       case ws of λ where
         (h :: t) -> (w64sToNat ((h :&: mask) :: t) , g)
         [] -> (0 , g)
 
-  -- nextNat' n generates a Nat in the range [0 , n].
+  -- genNat' n generates a Nat in the range [0 , n].
   {-# TERMINATING #-}
-  nextNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
-  nextNat' {g} n g0 = loop g0
+  genNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+  genNat' {g} n g0 = loop g0
     where
       log2 : Nat -> Nat
       log2 0 = 1
@@ -72,7 +72,7 @@ private
       k = log2 n
 
       loop : g -> Nat * g
-      loop g = let (m , g') = nextNat k g in
+      loop g = let (m , g') = genNat k g in
         if m > n then loop g' else (m , g')
 
 --------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ instance
   randomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT = first (_+ from) $ nextNat' (to - from) g
+  ... | LT = first (_+ from) $ genNat' (to - from) g
 
   {-# TERMINATING #-}
   randomRInt : RandomR Int
@@ -210,4 +210,4 @@ instance
   ... | GT = randomR (to , from) g
   ... | LT =
     first (λ n -> fromNat n + from)
-      $ nextNat' (fromPos (to - from) {{believeMe}}) g
+      $ genNat' (fromPos (to - from) {{believeMe}}) g
