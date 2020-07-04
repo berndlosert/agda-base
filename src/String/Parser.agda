@@ -5,14 +5,15 @@ module String.Parser where
 open import Prelude
   hiding (count)
 
-open import Control.Monad.State.Trans
+import Control.Monad.State.Trans as StateT
+import Data.String as String
+
+open StateT
   using (
     StateT; StateT:; runStateT;
     functorStateT; applicativeStateT;
     alternativeStateT; monadStateT
   )
-
-open import Data.String as String using ()
 
 private variable a b c : Set
 
@@ -23,8 +24,8 @@ private variable a b c : Set
 abstract
   Parser = StateT String List
 
-  parser: : (String -> List (a * String)) -> Parser a
-  parser: = StateT:
+  Parser: : (String -> List (a * String)) -> Parser a
+  Parser: = StateT:
 
   runParser : Parser a -> String -> List (a * String)
   runParser = runStateT
@@ -126,7 +127,7 @@ parse p s with runParser p s
 --------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = parser: (maybeToList ∘ String.uncons)
+anyChar = Parser: (maybeToList ∘ String.uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -207,7 +208,7 @@ word = neword <|> (pure "")
       return (cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = parser: λ s ->
+takeWhile p = Parser: λ s ->
   singleton (String.takeWhile p s , String.dropWhile p s)
 
 takeAll : Parser String
