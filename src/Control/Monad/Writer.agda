@@ -4,10 +4,8 @@ module Control.Monad.Writer where
 
 open import Prelude
 
-open import Control.Monad.Writer.Trans
-
-open Control.Monad.Writer.Trans public
-  using (functorWriterT; applicativeWriterT; monadWriterT)
+open import Control.Monad.Writer.Class public
+open import Control.Monad.Writer.Trans public
 
 private variable a b w w' : Set
 

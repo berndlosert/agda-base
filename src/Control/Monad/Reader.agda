@@ -6,10 +6,8 @@ open import Prelude
 
 private variable a b r r' : Set
 
-open import Control.Monad.Reader.Trans
-
-open Control.Monad.Reader.Trans public
-  using (functorReaderT; applicativeReaderT; monadReaderT)
+open import Control.Monad.Reader.Class public
+open import Control.Monad.Reader.Trans public
 
 Reader : Set -> Set -> Set
 Reader r = ReaderT r Identity

@@ -4,18 +4,13 @@ module Control.Monad.State where
 
 open import Prelude
 
-open import Control.Monad.State.Trans
-
-open Control.Monad.State.Trans public
-  using (functorStateT; applicativeStateT; monadStateT)
+open import Control.Monad.State.Class public
+open import Control.Monad.State.Trans public
 
 private variable a b s : Set
 
 State : Set -> Set -> Set
 State s = StateT s Identity
-
-state : (s -> a * s) -> State s a
-state t = StateT: (Identity: ∘ t)
 
 runState : State s a -> s -> a * s
 runState m = runIdentity ∘ runStateT m

@@ -4,10 +4,8 @@ module Control.Monad.Cont where
 
 open import Prelude
 
-open import Control.Monad.Cont.Trans
-
-open Control.Monad.Cont.Trans public
-  using (functorContT; applicativeContT; monadContT)
+open import Control.Monad.Cont.Class public
+open import Control.Monad.Cont.Trans public
 
 private variable a b r r' : Set
 
