@@ -4,17 +4,33 @@ module Test.QC where
 
 open import Prelude
 
-import Data.Bits as Bits
-import Data.Ix as Ix
-import Data.List as List
-import Data.Stream as Stream
-import Data.String as String
-import System.Random as System/Random
+open import Data.Ix
+  using (
+    range
+  )
 
-open Ix using (range)
-open Stream using (Stream)
-open System/Random using (RandomGen; split; Random; random; RandomR; randomR)
-open System/Random using (StdGen; newStdGen)
+open import Data.List as List
+  using ()
+
+open import Data.Stream as Stream
+  using (
+    Stream
+  )
+
+open import Data.String as String
+  using ()
+
+open import System.Random
+  using (
+    RandomGen;
+    split;
+    Random;
+    random;
+    RandomR;
+    randomR;
+    StdGen;
+    newStdGen
+  )
 
 private variable a b g : Set
 

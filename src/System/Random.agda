@@ -4,19 +4,48 @@ module System.Random where
 
 open import Prelude
 
-import Data.Bits as Bits
-import Data.IORef as IORef
-import Data.List as List
-import Data.Time.Units as Time/Units
-import Data.Word as Word
-import System.Time as Time
+open import Data.Bits
+  using (
+    shiftL;
+    shiftR;
+    oneBits;
+    _:&:_;
+    _xor_;
+    _:|:_;
+    popCount;
+    testBit
+  )
 
-open Bits using (shiftL; shiftR; oneBits; _:&:_; _xor_; _:|:_)
-open Bits using (popCount; testBit)
-open IORef using (IORef; newIORef; atomicModifyIORef; readIORef; writeIORef)
-open Time using (getTime; getCPUTime)
-open Time/Units using (unSecond; unPicosecond)
-open Word using (Word64; word64ToNat; natToWord64)
+open import Data.IORef
+  using (
+    IORef;
+    newIORef;
+    atomicModifyIORef;
+    readIORef;
+    writeIORef
+  )
+
+open import Data.List as List
+  using ()
+
+open import System.Time
+  using (
+    getTime;
+    getCPUTime
+  )
+
+open import Data.Time.Units
+  using (
+    unSecond;
+    unPicosecond
+  )
+
+open import Data.Word
+  using (
+    Word64;
+    word64ToNat;
+    natToWord64
+  )
 
 private variable a as g : Set
 

@@ -2,13 +2,22 @@
 
 module String.Parser where
 
-open import Prelude hiding (count)
+open import Prelude
+  hiding (count)
 
-import Control.Monad.State.Trans as State/Trans
-import Data.String as String
+open import Control.Monad.State.Trans
+  using (
+    StateT;
+    StateT:;
+    runStateT;
+    functorStateT;
+    applicativeStateT;
+    alternativeStateT;
+    monadStateT
+  )
 
-open State/Trans using (StateT; StateT:; runStateT; functorStateT)
-open State/Trans using (applicativeStateT; alternativeStateT; monadStateT)
+open import Data.String as String
+  using ()
 
 private variable a b c : Set
 
