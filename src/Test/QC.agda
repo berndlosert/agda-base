@@ -4,12 +4,17 @@ module Test.QC where
 
 open import Prelude
 
-open import Data.Bits
-open import Data.Ix
-open import Data.List
-open import Data.Stream as Stream using (Stream)
-open import Data.String as String using ()
-open import System.Random public
+import Data.Bits as Bits
+import Data.Ix as Ix
+import Data.List as List
+import Data.Stream as Stream
+import Data.String as String
+import System.Random as System/Random
+
+open Ix using (range)
+open Stream using (Stream)
+open System/Random using (RandomGen; split; Random; random; RandomR; randomR)
+open System/Random using (StdGen; newStdGen)
 
 private variable a b g : Set
 
@@ -85,7 +90,7 @@ sample g = do
 oneof : (gs : List (Gen a)) {{_ : Nonempty gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , count gs - 1)
-  fromJust (at n gs) {{believeMe}}
+  fromJust (List.at n gs) {{believeMe}}
 
 frequency : (xs : List (Nat * Gen a)) {{_ : Assert $ sum (map fst xs) > 0}}
   -> Gen a
@@ -99,8 +104,8 @@ frequency {a} xs = choose (1 , tot) >>= (λ x -> pick x xs)
 
 elements : (xs : List a) {{_ : Nonempty xs}} -> Gen a
 elements xs = map
-  (λ n -> fromJust (at n xs) {{believeMe}})
-  (choose {Nat} (0 , length xs - 1))
+  (λ n -> fromJust (List.at n xs) {{believeMe}})
+  (choose {Nat} (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = replicateA
@@ -111,12 +116,12 @@ listOf gen = sized λ n -> do
   vectorOf k gen
 
 sublistOf : List a -> Gen (List a)
-sublistOf xs = filterA (λ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs
+sublistOf xs = List.filterA (λ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
-  ns <- vectorOf (length xs) (choose {Nat} (0 , 2 ^ 32))
-  return (map snd (sortBy (comparing fst) (zip ns xs)))
+  ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2 ^ 32))
+  return (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
 
 promote : (a -> Gen b) -> Gen (a -> b)
 promote f = Gen: λ r n a -> let (Gen: m) = f a in m r n
@@ -285,7 +290,7 @@ private
 
       pairLength : List (List String) -> Nat * List String
       pairLength [] = (0 , [])
-      pairLength xss@(xs :: _) = (length xss , xs)
+      pairLength xss@(xs :: _) = (List.length xss , xs)
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
@@ -294,17 +299,17 @@ private
       entry : Nat * (List String) -> String
       entry (n , s) = percentage n ntest
         ++ " "
-        ++ String.concat (intersperse ", " s)
+        ++ String.concat (List.intersperse ", " s)
 
       table : String
       table = display
         ∘ map entry
-        ∘ reverse
-        ∘ sort
+        ∘ List.reverse
+        ∘ List.sort
         ∘ map pairLength
-        ∘ group
-        ∘ sort
-        ∘ filter (not ∘ null)
+        ∘ List.group
+        ∘ List.sort
+        ∘ List.filter (not ∘ null)
         $ stamps
 
   {-# TERMINATING #-}
