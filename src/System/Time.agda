@@ -4,9 +4,13 @@ module System.Time where
 
 open import Prelude
 
-import Data.Time.Units as Time/Units
-
-open Time/Units using (Second; _sec; Picosecond; _psec)
+open import Data.Time.Units
+  using (
+    Second;
+    _sec;
+    Picosecond;
+    _psec
+  )
 
 private
   postulate
