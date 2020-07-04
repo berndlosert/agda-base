@@ -93,7 +93,6 @@ record Const (a b : Set) : Set where
 
 open Const public
 
--- Endofunctions
 record Endo a : Set where
   constructor Endo:
   field appEndo : a -> a
