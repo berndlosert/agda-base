@@ -15,7 +15,7 @@ open Bits using (shiftL; shiftR; oneBits; _:&:_; _xor_; _:|:_)
 open Bits using (popCount; testBit)
 open IORef using (IORef; newIORef; atomicModifyIORef; readIORef; writeIORef)
 open Time using (getTime; getCPUTime)
-open Time/Units using (getSecond; getPicosecond)
+open Time/Units using (unSecond; unPicosecond)
 open Word using (Word64; word64ToNat; natToWord64)
 
 private variable a as g : Set
@@ -153,8 +153,8 @@ mkStdGen s = stdgen: (mix64 s) (mixgamma (s + goldengamma))
 
 theStdGen : IO (IORef StdGen)
 theStdGen = do
-  ctr <- map getSecond getTime
-  key <- map getPicosecond getCPUTime
+  ctr <- map unSecond getTime
+  key <- map unPicosecond getCPUTime
   let seed = squares (natToWord64 ctr) (natToWord64 key)
   newIORef (mkStdGen seed)
 

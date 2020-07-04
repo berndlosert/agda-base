@@ -21,25 +21,25 @@ open TimeUnit {{...}} public
 
 record Second : Set where
   constructor _sec
-  field getSecond : Nat
+  field unSecond : Nat
 
 open Second public
 
 record Millisecond : Set where
   constructor _msec
-  field getMillisecond : Nat
+  field unMillisecond : Nat
 
 open Millisecond public
 
 record Microsecond : Set where
   constructor _μsec
-  field getMicrosecond : Nat
+  field unMicrosecond : Nat
 
 open Microsecond public
 
 record Picosecond : Set where
   constructor _psec
-  field getPicosecond : Nat
+  field unPicosecond : Nat
 
 open Picosecond public
 
