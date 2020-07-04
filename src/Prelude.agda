@@ -1186,7 +1186,7 @@ instance
   functorMax .map f = Max: ∘ f ∘ getMax
 
 --------------------------------------------------------------------------------
--- applicative
+-- Applicative
 --------------------------------------------------------------------------------
 
 record Applicative (f : Set -> Set) : Set where
@@ -1285,7 +1285,7 @@ instance
   applicativeMax ._<*>_ (Max: f) (Max: x) = Max: (f x)
 
 --------------------------------------------------------------------------------
--- alternative
+-- Alternative
 --------------------------------------------------------------------------------
 
 record Alternative (f : Set -> Set) : Set where
