@@ -515,8 +515,8 @@ instance
     _ _ -> False
 
   ordString : Ord String
-  ordString ._<_ s s' with unpack s | unpack s'
-  ... | (c :: cs) | (c' :: cs') = c < c' || (c == c' && cs < cs')
+  ordString ._<_ l r with unpack l | unpack r
+  ... | (x :: xs) | (y :: ys) = x < y || (x == y && xs < ys)
   ... | _ | _ = False
 
   ordTuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
