@@ -379,7 +379,7 @@ record Eq (a : Set) : Set where
 
   infix 4 _/=_
   _/=_ : a -> a -> Bool
-  a /= a' = if a == a' then False else True
+  x /= y = if x == y then False else True
 
 open Eq {{...}} public
 
@@ -416,30 +416,30 @@ instance
 
   eqEither : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
   eqEither ._==_ = λ where
-    (Left a) (Left a') -> a == a'
-    (Right b) (Right b') -> b == b'
+    (Left x) (Left y) -> x == y
+    (Right x) (Right y) -> x == y
     _ _ -> False
 
   eqTuple : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Tuple a b)
-  eqTuple ._==_ (a , b) (a' , b') = (a == a') && (b == b')
+  eqTuple ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
   eqMaybe : {{_ : Eq a}} -> Eq (Maybe a)
   eqMaybe ._==_ = λ where
     Nothing Nothing -> True
-    (Just a) (Just a') -> a == a'
+    (Just x) (Just y) -> x == y
     _ _ -> False
 
   eqList : {{_ : Eq a}} -> Eq (List a)
   eqList ._==_ = λ where
     [] [] -> True
-    (a :: as) (a' :: as') -> a == a' && as == as'
+    (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
   eqIdentity : {{_ : Eq a}} -> Eq (Identity a)
-  eqIdentity ._==_ (Identity: a) (Identity: a') = a == a'
+  eqIdentity ._==_ (Identity: x) (Identity: y) = x == y
 
   eqConst : {{_ : Eq a}} -> Eq (Const a b)
-  eqConst ._==_ (Const: a) (Const: a') = a == a'
+  eqConst ._==_ (Const: x) (Const: y) = x == y
 
 --------------------------------------------------------------------------------
 -- Ord
@@ -455,11 +455,11 @@ record Ord (a : Set) : Set where
     _<_ : a -> a -> Bool
 
   compare : a -> a -> Ordering
-  compare a a' = if a < a' then LT else if a == a' then EQ else GT
+  compare x y = if x < y then LT else if x == y then EQ else GT
 
   infixl 4 _<=_
   _<=_ : a -> a -> Bool
-  a <= a' = if a < a' then True else if a == a' then True else False
+  x <= y = if x < y then True else if x == y then True else False
 
   infixl 4 _>_
   _>_ : a -> a -> Bool
@@ -476,7 +476,7 @@ record Ord (a : Set) : Set where
   max x y = if x < y then y else x
 
   comparing : (b -> a) -> b -> b -> Ordering
-  comparing p b b' = compare (p b) (p b')
+  comparing p x y = compare (p x) (p y)
 
 open Ord {{...}} public
 
@@ -506,11 +506,11 @@ instance
   ordFloat ._<_ = Agda.Builtin.Float.primFloatNumericalLess
 
   ordChar : Ord Char
-  ordChar ._<_ c c' = ord c < ord c'
+  ordChar ._<_ x y = ord x < ord y
 
   ordList : {{_ : Ord a}} -> Ord (List a)
   ordList ._<_ = λ where
-    (a :: as) (a' :: as') -> a < a' || (a == a' && as < as')
+    (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
     [] [] -> True
     _ _ -> False
 
@@ -520,19 +520,19 @@ instance
   ... | _ | _ = False
 
   ordTuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
-  ordTuple ._<_ (a , b) (a' , b') = a < a' || (a == a' && b < b')
+  ordTuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
 
   ordMaybe : {{_ : Ord a}} -> Ord (Maybe a)
   ordMaybe ._<_ = λ where
     _ Nothing -> False
     Nothing _ -> True
-    (Just a) (Just a') -> a < a'
+    (Just x) (Just y) -> x < y
 
   ordIdentity : {{_ : Ord a}} -> Ord (Identity a)
-  ordIdentity ._<_ (Identity: a) (Identity: a') = a < a'
+  ordIdentity ._<_ (Identity: x) (Identity: y) = x < y
 
   ordConst : {{_ : Ord a}} -> Ord (Const a b)
-  ordConst ._<_ (Const: a) (Const: a') = a < a'
+  ordConst ._<_ (Const: x) (Const: y) = x < y
 
 --------------------------------------------------------------------------------
 -- FromNat and FromNeg
@@ -859,25 +859,25 @@ open All public
 
 instance
   semigroupDual : {{_ : Semigroup a}} -> Semigroup (Dual a)
-  semigroupDual ._<>_ (Dual: a) (Dual: a') = Dual: (a' <> a)
+  semigroupDual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
   semigroupFirst : Semigroup (First a)
-  semigroupFirst ._<>_ a _ = a
+  semigroupFirst ._<>_ x _ = x
 
   semigroupLast : Semigroup (Last a)
-  semigroupLast ._<>_ _ a = a
+  semigroupLast ._<>_ _ x = x
 
   semigroupMin : {{_ : Ord a}} -> Semigroup (Min a)
-  semigroupMin ._<>_ (Min: a) (Min: a') = Min: (min a a')
+  semigroupMin ._<>_ (Min: x) (Min: y) = Min: (min x y)
 
   semigroupMax : {{_ : Ord a}} -> Semigroup (Max a)
-  semigroupMax ._<>_ (Max: a) (Max: a') = Max: (max a a')
+  semigroupMax ._<>_ (Max: x) (Max: y) = Max: (max x y)
 
   semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (Any: b) (Any: b') = Any: (b || b')
+  semigroupAny ._<>_ (Any: x) (Any: y) = Any: (x || y)
 
   semigroupAll : Semigroup All
-  semigroupAll ._<>_ (All: b) (All: b') = All: (b && b')
+  semigroupAll ._<>_ (All: x) (All: y) = All: (x && y)
 
   semigroupVoid : Semigroup Void
   semigroupVoid ._<>_ = λ ()
@@ -901,16 +901,16 @@ instance
   semigroupString ._<>_ = Agda.Builtin.String.primStringAppend
 
   semigroupFunction : {{_ : Semigroup b}} -> Semigroup (a -> b)
-  semigroupFunction ._<>_ f g = λ a -> f a <> g a
+  semigroupFunction ._<>_ f g = λ x -> f x <> g x
 
   semigroupEither : {{_ : Semigroup a}} {{_ : Semigroup b}}
     -> Semigroup (Either a b)
-  semigroupEither ._<>_ (Left _) b = b
-  semigroupEither ._<>_ a _ = a
+  semigroupEither ._<>_ (Left _) x = x
+  semigroupEither ._<>_ x _ = x
 
   semigroupTuple : {{_ : Semigroup a}} {{_ : Semigroup b}}
     -> Semigroup (Tuple a b)
-  semigroupTuple ._<>_ (a , b) (a' , b') = (a <> a' , b <> b')
+  semigroupTuple ._<>_ (x , y) (w , z) = (x <> w , y <> z)
 
   semigroupMaybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
   semigroupMaybe ._<>_ = λ where
@@ -919,18 +919,18 @@ instance
     (Just a) (Just a') -> Just (a <> a')
 
   semigroupList : Semigroup (List a)
-  semigroupList ._<>_ as as' = listrec as' (λ x _ xs -> x :: xs) as
+  semigroupList ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
 
   semigroupIO : {{_ : Semigroup a}} -> Semigroup (IO a)
   semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
   semigroupIdentity : {{_ : Semigroup a}} -> Semigroup (Identity a)
-  semigroupIdentity ._<>_ (Identity: a) (Identity: a') =
-    Identity: (a <> a')
+  semigroupIdentity ._<>_ (Identity: x) (Identity: y) =
+    Identity: (x <> y)
 
   semigroupConst : {{_ : Semigroup a}} -> Semigroup (Const a b)
-  semigroupConst ._<>_ (Const: a) (Const: a') = Const: (a <> a')
+  semigroupConst ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
   semigroupEndo : Semigroup (Endo a)
   semigroupEndo ._<>_ g f = Endo: (appEndo g ∘ appEndo f)
