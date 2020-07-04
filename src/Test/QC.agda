@@ -5,32 +5,10 @@ module Test.QC where
 open import Prelude
 
 open import Data.Ix
-  using (
-    range
-  )
-
-open import Data.List as List
-  using ()
-
-open import Data.Stream as Stream
-  using (
-    Stream
-  )
-
-open import Data.String as String
-  using ()
-
+open import Data.List as List using ()
+open import Data.Stream as Stream using (Stream)
+open import Data.String as String using ()
 open import System.Random
-  using (
-    RandomGen;
-    split;
-    Random;
-    random;
-    RandomR;
-    randomR;
-    StdGen;
-    newStdGen
-  )
 
 private variable a b g : Set
 

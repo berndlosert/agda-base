@@ -5,47 +5,11 @@ module System.Random where
 open import Prelude
 
 open import Data.Bits
-  using (
-    shiftL;
-    shiftR;
-    oneBits;
-    _:&:_;
-    _xor_;
-    _:|:_;
-    popCount;
-    testBit
-  )
-
 open import Data.IORef
-  using (
-    IORef;
-    newIORef;
-    atomicModifyIORef;
-    readIORef;
-    writeIORef
-  )
-
-open import Data.List as List
-  using ()
-
+open import Data.List
 open import System.Time
-  using (
-    getTime;
-    getCPUTime
-  )
-
 open import Data.Time.Units
-  using (
-    unSecond;
-    unPicosecond
-  )
-
 open import Data.Word
-  using (
-    Word64;
-    word64ToNat;
-    natToWord64
-  )
 
 private variable a as g : Set
 
@@ -67,7 +31,7 @@ private
   -- Convert a list of Word64 values, considered as one long word, into a Nat.
   w64sToNat : W64s -> Nat
   w64sToNat [] = 0
-  w64sToNat ws = go (List.reverse ws) 0
+  w64sToNat ws = go (reverse ws) 0
     where
       go : W64s -> Nat -> Nat
       go [] n = 0
