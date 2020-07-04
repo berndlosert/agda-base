@@ -1011,7 +1011,7 @@ instance
   monoidConst .neutral = Const: neutral
 
 --------------------------------------------------------------------------------
--- IsBuildable, buildable
+-- IsBuildable, Buildable
 --------------------------------------------------------------------------------
 
 record IsBuildable (s a : Set) : Set where
@@ -1068,7 +1068,7 @@ instance
   isBuildableStringChar .singleton = pack ∘ singleton
 
 --------------------------------------------------------------------------------
--- Functor, Contravariant, bifunctor, Profunctor
+-- Functor, Contravariant, Bifunctor, Profunctor
 --------------------------------------------------------------------------------
 
 infixr 0 _~>_
