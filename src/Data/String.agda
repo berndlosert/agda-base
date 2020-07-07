@@ -2,10 +2,10 @@
 
 module Data.String where
 
-import Data.List as List
-import Prelude
+open import Prelude
+  hiding (cons; singleton; snoc)
 
-open Prelude hiding (cons; singleton; snoc)
+open import Data.List as List using ()
 
 repack : (List Char -> List Char) -> String -> String
 repack f = pack ∘ f ∘ unpack
@@ -98,6 +98,17 @@ padLeft l c s =
 concat : List String -> String
 concat = foldr _++_ ""
 
+lines : String -> List String
+lines s =
+  let
+    (l , ls) = foldl f ("" , []) s
+  in
+    List.reverse $ if l == "" then ls else (l :: ls)
+  where
+    f : String * List String -> Char -> String * List String
+    f (l , ls) '\n' = ("" , l :: ls)
+    f (l , ls) c = (snoc l c , ls)
+
 unlines : List String -> String
 unlines = concat ∘ map (flip snoc '\n')
 
@@ -116,3 +127,5 @@ unlines = concat ∘ map (flip snoc '\n')
 {-# COMPILE GHC isInfixOf = Text.isInfixOf #-}
 {-# COMPILE GHC length = toInteger. Text.length #-}
 {-# COMPILE GHC filter = Text.filter #-}
+{-# COMPILE GHC lines = Text.lines #-}
+{-# COMPILE GHC unlines = Text.unlines #-}
