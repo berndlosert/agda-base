@@ -366,8 +366,8 @@ instance
   booleanFunction .ff = const ff
   booleanFunction .tt = const tt
   booleanFunction .not f = not ∘ f
-  booleanFunction ._||_ f g a = f a || g a
-  booleanFunction ._&&_ f g a = f a && g a
+  booleanFunction ._||_ f g x = f x || g x
+  booleanFunction ._&&_ f g x = f x && g x
 
 --------------------------------------------------------------------------------
 -- Eq
@@ -914,9 +914,9 @@ instance
 
   semigroupMaybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
   semigroupMaybe ._<>_ = λ where
-    Nothing m -> m
-    m Nothing -> m
-    (Just a) (Just a') -> Just (a <> a')
+    Nothing x -> x
+    x Nothing -> x
+    (Just x) (Just y) -> Just (x <> y)
 
   semigroupList : Semigroup (List a)
   semigroupList ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
@@ -1503,15 +1503,15 @@ record IsFoldable1 (s a : Set) : Set where
   foldr1 f s = fromJust (foldr g Nothing s) {{believeMe}}
     where
       g : a -> Maybe a -> Maybe a
-      g a Nothing = Just a
-      g a (Just a') = Just (f a a')
+      g x Nothing = Just x
+      g x (Just y) = Just (f x y)
 
   foldl1 : (a -> a -> a) -> (s : s) {{_ : Nonempty s}} -> a
   foldl1 f s = fromJust (foldl g Nothing s) {{believeMe}}
     where
       g : Maybe a -> a -> Maybe a
-      g Nothing a = Just a
-      g (Just a) a' = Just (f a a')
+      g Nothing x = Just x
+      g (Just x) y = Just (f x y)
 
   module _ {{_ : Ord a}} where
 
