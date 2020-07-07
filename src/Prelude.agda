@@ -1618,7 +1618,7 @@ record Show (a : Set) : Set where
   field show : a -> String
 
   print : a -> IO Unit
-  print a = putStrLn (show a)
+  print x = putStrLn (show x)
 
 open Show {{...}} public
 
