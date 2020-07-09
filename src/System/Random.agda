@@ -111,7 +111,7 @@ private
     in
       if n >= 24 then z1 else z1 xor 0xaaaaaaaaaaaaaaaa
 
-  -- Squares: a Fast Counter-Based RNg
+  -- Squares: a Fast Counter-Based RNG
   -- https://arxiv.org/pdf/2004.06278v2.pdf
   squares : Word64 -> Word64 -> Word64
   squares ctr key =
