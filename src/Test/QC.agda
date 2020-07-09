@@ -22,16 +22,16 @@ record Gen (a : Set) : Set where
 
 instance
   functorGen : Functor Gen
-  functorGen .map f (Gen: h) = Gen: λ r n -> f (h r n)
+  functorGen .map f (Gen: x) = Gen: λ r n -> f (x r n)
 
   applicativeGen : Applicative Gen
   applicativeGen .pure x = Gen: λ _ _ -> x
-  applicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n -> f r n (x r n)
+  applicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
+    let (r1 , r2) = split r in f r1 n (x r2 n)
 
   monadGen : Monad Gen
   monadGen ._>>=_ (Gen: m) k = Gen: λ r n ->
-    case split r of λ where
-      (r1 , r2) -> let Gen: m' = k (m r1 n) in m' r2 n
+    let (r1 , r2) = split r; Gen: m' = k (m r1 n) in m' r2 n
 
 --------------------------------------------------------------------------------
 -- Gen combinators
