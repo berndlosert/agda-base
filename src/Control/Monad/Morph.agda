@@ -26,8 +26,8 @@ open MFunctor {{...}} public
 
 record MMonad (t : (Set -> Set) -> Set -> Set) : Set where
   field
-    {{mfunctor}} : MFunctor t
-    {{monadtrans}} : MonadTrans t
+    overlap {{mfunctor}} : MFunctor t
+    overlap {{monadtrans}} : MonadTrans t
     embed : {{_ : Monad m}} {{_ : Monad n}} -> (m ~> t n) -> t m ~> t n
 
 open MMonad {{...}} public
