@@ -4,9 +4,9 @@ module Control.Monad.Cont.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base
-open import Control.Monad.Cont.Class
-open import Control.Monad.Trans.Class
+open import Control.Monad.Base public
+open import Control.Monad.Cont.Class public
+open import Control.Monad.Trans.Class public
 
 private
   variable
@@ -42,7 +42,6 @@ instance
 
   monadTransContT : MonadTrans (ContT r)
   monadTransContT .lift m = ContT: (m >>=_)
-  monadTransContT .tmap f g (ContT: h) = ContT: λ k -> f (h (g ∘ k))
 
   monadContContT : MonadCont (ContT r n)
   monadContContT .callCC f =

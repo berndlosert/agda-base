@@ -4,7 +4,6 @@ module Control.Monad.State.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Morph public
 open import Control.Monad.State.Class public
 open import Control.Monad.Trans.Class public

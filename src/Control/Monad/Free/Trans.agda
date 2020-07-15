@@ -49,6 +49,6 @@ instance
   monadFreeFreeT .wrap x = FreeT: λ ret bnd ->
     bnd x (λ f -> runFreeT f ret bnd)
 
-  monadBaseReaderT : {{_ : Monad n}} {{_ : MonadBase m n}}
+  monadBaseFreeT : {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (FreeT f n)
   monadBaseReaderT .liftBase m = lift (liftBase m)
