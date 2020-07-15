@@ -8,8 +8,8 @@ private variable a b : Set
 
 record MonadWriter (w : Set) (m : Set -> Set) : Set where
   field
-    {{monoid}} : Monoid w
-    {{monad}} : Monad m
+    overlap {{monoid}} : Monoid w
+    overlap {{monad}} : Monad m
     tell : w -> m Unit
     listen : m a -> m (a * w)
     pass : m (a * (w -> w)) -> m a

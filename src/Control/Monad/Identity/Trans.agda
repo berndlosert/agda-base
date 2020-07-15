@@ -4,9 +4,9 @@ module Control.Monad.Identity.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base
-open import Control.Monad.Morph
-open import Control.Monad.Trans.Class
+open import Control.Monad.Base public
+open import Control.Monad.Morph public
+open import Control.Monad.Trans.Class public
 
 private
   variable

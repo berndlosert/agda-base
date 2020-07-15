@@ -328,8 +328,8 @@ sets = id
 --  -- : p a b -> p (a * c) (b * c)
 --#fst =
 
---#snd : Lens b c (a * b) (a * c)
-#snd : Simple Lens b (a * b)
+#snd : Lens b c (a * b) (a * c)
+--#snd : Simple Lens b (a * b)
 #snd = strong
 --
 --#Left : Traversal (a + c) (b + c) a b

@@ -8,7 +8,7 @@ private variable a : Set
 
 record MonadReader (r : Set) (m : Set -> Set) : Set where
   field
-    {{monad}} : Monad m
+    overlap {{monad}} : Monad m
     ask : m r
     local : (r -> r) -> m ~> m
 

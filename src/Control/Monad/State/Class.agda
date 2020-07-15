@@ -8,7 +8,7 @@ private variable a : Set
 
 record MonadState (s : Set) (m : Set -> Set) : Set where
   field
-    {{monad}} : Monad m
+    overlap {{monad}} : Monad m
     get : m s
     put : s -> m Unit
 

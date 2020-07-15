@@ -10,7 +10,7 @@ private variable m n : Set -> Set
 -- of monads.
 record MonadTrans (t : (Set -> Set) -> Set -> Set) : Set where
   field
-    {{transform}} : {{_ : Monad m}} -> Monad (t m)
+    overlap {{transform}} : {{_ : Monad m}} -> Monad (t m)
     lift : {{_ : Monad m}} -> m ~> t m
     tmap : {{_ : Monad m}} {{_ : Monad n}}
       -> (m ~> n) -> (n ~> m) -> t m ~> t n
