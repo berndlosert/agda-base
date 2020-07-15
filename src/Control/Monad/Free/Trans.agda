@@ -44,8 +44,6 @@ instance
 
   monadTransFreeT : MonadTrans (FreeT f)
   monadTransFreeT .lift m = FreeT: λ ret jn -> join ((map ret) m)
-  monadTransFreeT .tmap f g (FreeT: m) = FreeT: λ ret bnd ->
-    f (m (g ∘ ret) (λ x k -> g (bnd x (f ∘ k))))
 
   monadFreeFreeT : MonadFree f (FreeT f m)
   monadFreeFreeT .wrap x = FreeT: λ ret bnd ->

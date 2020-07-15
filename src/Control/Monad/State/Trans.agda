@@ -65,7 +65,6 @@ instance
   monadTransStateT .lift m = StateT: λ s -> do
     a <- m
     return (a , s)
-  monadTransStateT .tmap f _ = hoist f
 
   monadStateStateT : {{_ : Monad m}} -> MonadState s (StateT s m)
   monadStateStateT .get = StateT: (return ∘ dupe)

@@ -37,7 +37,6 @@ instance
 
   monadTransIdentityT : MonadTrans IdentityT
   monadTransIdentityT .lift = IdentityT:
-  monadTransIdentityT .tmap f _ = hoist f
 
   mmonadIdentityT : MMonad IdentityT
   mmonadIdentityT .embed k (IdentityT: m) = k m

@@ -54,7 +54,6 @@ instance
   monadTransWriterT .lift m = WriterT: do
     a <- m
     return (a , neutral)
-  monadTransWriterT .tmap f _ = hoist f
 
   mmonadWriterT : {{_ : Monoid w}} -> MMonad (WriterT w)
   mmonadWriterT .embed k (WriterT: m) = WriterT: do
