@@ -992,7 +992,7 @@ instance
   monoidFunction .neutral = const neutral
 
   monoidEndo : Monoid (Endo a)
-  monoidEndo .neutral = Endo: id
+  monoidEndo .neutral = Endo: λ x -> x
 
   monoidMaybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
   monoidMaybe .neutral = Nothing
