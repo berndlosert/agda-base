@@ -933,7 +933,7 @@ instance
   semigroupConst ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
   semigroupEndo : Semigroup (Endo a)
-  semigroupEndo ._<>_ g f = Endo: (appEndo g ∘ appEndo f)
+  semigroupEndo ._<>_ g f = Endo: λ x -> appEndo g (appEndo f x)
 
 --------------------------------------------------------------------------------
 -- Monoid
@@ -1064,7 +1064,7 @@ instance
   buildableList .singleton = _:: []
 
   isBuildableStringChar : IsBuildable String Char
-  isBuildableStringChar .singleton = pack ∘ singleton
+  isBuildableStringChar .singleton c = pack (singleton c)
 
 --------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
