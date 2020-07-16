@@ -287,13 +287,13 @@ maybeToLeft : b -> Maybe a -> Either a b
 maybeToLeft b = maybe (Right b) Left
 
 maybeToRight : b -> Maybe a -> Either b a
-maybeToRight b = mirror ∘ maybeToLeft b
+maybeToRight b = maybe (Left b) Right
 
 leftToMaybe : Either a b -> Maybe a
 leftToMaybe = either Just (const Nothing)
 
-RightToMaybe : Either a b -> Maybe b
-RightToMaybe = leftToMaybe ∘ mirror
+rightToMaybe : Either a b -> Maybe b
+rightToMaybe = either (const Nothing) Just
 
 pattern [_] x = x :: []
 
@@ -363,9 +363,9 @@ instance
     True b -> b
 
   booleanFunction : {{_ : Boolean b}} -> Boolean (a -> b)
-  booleanFunction .ff = const ff
-  booleanFunction .tt = const tt
-  booleanFunction .not f = not ∘ f
+  booleanFunction .ff x = ff
+  booleanFunction .tt x = tt
+  booleanFunction .not f x = not (f x)
   booleanFunction ._||_ f g x = f x || g x
   booleanFunction ._&&_ f g x = f x && g x
 
@@ -780,9 +780,9 @@ instance
 
   powerFunction : Power (a -> a)
   powerFunction ._^_ f = λ where
-    0 -> id
-    1 -> f
-    (Suc n) -> f ^ n ∘ f
+    0 x -> x
+    1 x -> f x
+    (Suc n) x -> (f ^ n) (f x)
 
 --------------------------------------------------------------------------------
 -- Semigroup
