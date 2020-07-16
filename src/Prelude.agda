@@ -127,7 +127,7 @@ flip f x y = f y x
 
 infixr 0 _$_
 _$_ : (a -> b) -> a -> b
-_$_ = id
+f $ x = f x
 
 infixl 1 _#_
 _#_ : a -> (a -> b) -> b
