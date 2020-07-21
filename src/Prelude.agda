@@ -1128,6 +1128,9 @@ instance
   profunctorFunction : Profunctor Function
   profunctorFunction .dimap f g h = g ∘ h ∘ f
 
+  functorFunction : Functor (Function a)
+  functorFunction .map = rmap
+
   bifunctorEither : Bifunctor Either
   bifunctorEither .bimap f g = either (Left ∘ f) (Right ∘ g)
 
@@ -1224,6 +1227,10 @@ forever : {{_ : Applicative f}} -> f a -> f b
 forever as = as *> forever as
 
 instance
+  applicativeFunction : Applicative (Function a)
+  applicativeFunction .pure = const
+  applicativeFunction ._<*>_ f x = λ a -> f a (x a)
+
   applicativeEither : Applicative (Either a)
   applicativeEither .pure = Right
   applicativeEither ._<*>_ = λ where
