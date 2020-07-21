@@ -1341,6 +1341,9 @@ return : forall {a m} {{_ : Monad m}} -> a -> m a
 return = pure
 
 instance
+  monadFunction : Monad (Function a)
+  monadFunction ._>>=_ m k = λ a -> k (m a) a
+
   monadEither : Monad (Either a)
   monadEither ._>>=_ = λ where
     (Left a) _ -> Left a
