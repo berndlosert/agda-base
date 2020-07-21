@@ -7,7 +7,7 @@ open import Prelude
 
 private
   variable
-    a b C : Set
+    a b c : Set
     f : Set -> Set
 
 --------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ elemAt (Suc n) (_ :: as) = elemAt n as
 -- Zipping functions
 --------------------------------------------------------------------------------
 
-zipWith : (a -> b -> C) -> List a -> List b -> List C
+zipWith : (a -> b -> c) -> List a -> List b -> List c
 zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
