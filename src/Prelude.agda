@@ -41,8 +41,7 @@ Not : Set -> Set
 Not a = a -> Void
 
 open import Agda.Builtin.Equality public
-  using (refl)
-  renaming (_≡_ to _===_)
+  renaming (_≡_ to _===_; refl to Refl)
 
 Function : Set -> Set -> Set
 Function a b = a -> b
