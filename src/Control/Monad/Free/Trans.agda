@@ -51,4 +51,4 @@ instance
 
   monadBaseFreeT : {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (FreeT f n)
-  monadBaseReaderT .liftBase m = lift (liftBase m)
+  monadBaseFreeT .liftBase m = lift (liftBase m)
