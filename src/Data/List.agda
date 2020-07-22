@@ -14,17 +14,14 @@ private
 -- Destructors
 --------------------------------------------------------------------------------
 
-head : List a -> Maybe a
-head [] = Nothing
-head (a :: _) = Just a
+head : (xs : List a) {{_ : Nonempty xs}} -> a
+head (a :: _) = a
 
-tail : List a -> Maybe (List a)
-tail [] = Nothing
-tail (_ :: as) = Just as
+tail : (xs : List a) {{_ : Nonempty xs}} -> List a
+tail (_ :: as) = as
 
-uncons : List a -> Maybe (a * List a)
-uncons [] = Nothing
-uncons (a :: as) = Just (a , as)
+uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
+uncons (a :: as) = (a , as)
 
 --------------------------------------------------------------------------------
 -- basic functions

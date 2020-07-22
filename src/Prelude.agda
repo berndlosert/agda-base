@@ -1339,6 +1339,12 @@ open Monad {{...}} public
 return : forall {a m} {{_ : Monad m}} -> a -> m a
 return = pure
 
+ap : {{_ : Monad m}} -> m (a -> b) -> m a -> m b
+ap mf mx = do
+  f <- mf
+  x <- mx
+  return (f x)
+
 instance
   monadFunction : Monad (Function a)
   monadFunction ._>>=_ m k = λ a -> k (m a) a
@@ -1469,6 +1475,9 @@ open IsFoldable {{...}} public
 
 sequence! : {{_ : Applicative f}} {{_ : IsFoldable s (f a)}} -> s -> f Unit
 sequence! = traverse! id
+
+asum : {{_ : Alternative f}} {{_ : IsFoldable s (f a)}} -> s -> f a
+asum = foldr _<|>_ empty
 
 Foldable : (Set -> Set) -> Set
 Foldable f = forall {a} -> IsFoldable (f a) a
