@@ -73,3 +73,8 @@ instance
   monadBaseWriterT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
     -> {{_ : Monoid w}} -> MonadBase m (WriterT w n)
   monadBaseWriterT .liftBase m = lift (liftBase m)
+
+  alternativeWriterT : {{_ : Monoid w}} {{_ : Alternative m}}
+    -> Alternative (WriterT w m)
+  alternativeWriterT .empty = WriterT: empty
+  alternativeWriterT ._<|>_ (WriterT: m) (WriterT: n) = WriterT: (m <|> n)
