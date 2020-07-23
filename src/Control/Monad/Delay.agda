@@ -70,4 +70,4 @@ instance
   monadDelay : Monad (Delay i)
   monadDelay ._>>=_ (Now x) f = f x
   monadDelay ._>>=_ (Later x) f = Later λ where
-    .force -> _>>=_ (force x) f
+    .force -> force x >>= f
