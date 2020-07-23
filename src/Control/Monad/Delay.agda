@@ -12,7 +12,7 @@ private
     a b : Set
     i : Size
 
--- Delay represents processes which must always eventually yield. It is the
+-- Delay represents processes which may always eventually yield. It is the
 -- final coalgebra of the functor a +_.
 data Delay (i : Size) (a : Set) : Set where
   Now : a -> Delay i a
@@ -22,11 +22,19 @@ data Delay (i : Size) (a : Set) : Set where
 unfold : (b -> a + b) -> b -> Delay i a
 unfold f y = either Now (λ x -> Later λ where .force -> unfold f x) $ f y
 
--- Run a Delay process for at most n steps.
+-- A process that never yields a value.
+never : Delay i a
+never = unfold (λ _ -> Right unit) unit
+
+-- Run a process for at most n steps.
 runFor : Nat -> Delay _ a -> Maybe a
 runFor _ (Now x) = Just x
 runFor Zero (Later _) = Nothing
 runFor (Suc n) (Later thunk) = runFor n (force thunk)
+
+-- Wrap a value x in a process that requires one step to yield x.
+delay : a -> Delay _ a
+delay x = unfold (λ b -> if b then Left x else Right True) False
 
 -- Imagine a stream of Maybe a values. We model the stream as a function of
 -- type Nat -> Maybe a. Assuming there is a least n : Nat such that the nth
