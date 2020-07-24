@@ -15,6 +15,7 @@ private
 
 {-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Set -> Set) (a : Set) : Set where
+  coinductive
   constructor IterT:
   field runIterT : m (a + IterT m a)
 
@@ -23,11 +24,11 @@ open IterT public
 Iter : Set -> Set
 Iter = IterT Identity
 
-delay : {{_ : Monad f}} {{_ : MonadFree f m}} -> m a -> m a
-delay = wrap ∘ return
+delay : {{_ : Monad m}} -> IterT m a -> IterT m a
+delay iter = IterT: $ return (Right iter)
 
 {-# NON_TERMINATING #-}
-never : {{_ : Monad f}} {{_ : MonadFree f m}} -> m a
+never : {{_ : Monad m}} -> IterT m a
 never = delay never
 
 {-# TERMINATING #-}
@@ -43,8 +44,8 @@ instance
   functorIterT .map = liftM
   applicativeIterT .pure = IterT: ∘ return ∘ Left
   applicativeIterT ._<*>_ = ap
-  monadIterT ._>>=_ (IterT: m) k = IterT: do
-    result <- m
+  monadIterT ._>>=_ m k = IterT: do
+    result <- runIterT m
     case result of λ where
       (Left x) -> runIterT (k x)
       (Right iter) -> return $ Right (iter >>= k)
@@ -55,11 +56,11 @@ instance
   {-# TERMINATING #-}
   alternativeIterT : {{_ : Monad m}} -> Alternative (IterT m)
   alternativeIterT .empty = never
-  alternativeIterT ._<|>_ (IterT: l) (IterT: r) = IterT: do
-    result <- l
+  alternativeIterT ._<|>_ l r = IterT: do
+    result <- runIterT l
     case result of λ where
       (Left x) -> return (Left x)
-      (Right iter) -> flip map r $ second $ (iter <|>_)
+      (Right iter) -> flip map (runIterT r) $ second $ (iter <|>_)
 
   monadTransIterT : MonadTrans IterT
   monadTransIterT .lift = IterT: ∘ map Left
