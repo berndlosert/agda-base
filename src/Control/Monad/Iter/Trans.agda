@@ -40,7 +40,7 @@ instance
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
   monadIterT : {{_ : Monad m}} -> Monad (IterT m)
 
-  functorIterT .map f = IterT: ∘ map (bimap f (map f)) ∘ runIterT
+  functorIterT .map = liftM
   applicativeIterT .pure = IterT: ∘ return ∘ Left
   applicativeIterT ._<*>_ = ap
   monadIterT ._>>=_ (IterT: m) k = IterT: do

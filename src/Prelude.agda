@@ -1205,6 +1205,9 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
+  liftA : (a -> b) -> f a -> f b
+  liftA f x = (| f x |)
+
   replicateA : {{_ : IsBuildable s a}} -> Nat -> f a -> f s
   replicateA {s} {a} n0 fa = loop n0
     where
@@ -1321,29 +1324,34 @@ instance
 -- Monad
 --------------------------------------------------------------------------------
 
-record Monad (M : Set -> Set) : Set where
+record Monad (m : Set -> Set) : Set where
   infixl 1 _>>=_
   field
-    overlap {{super}} : Applicative M
-    _>>=_ : M a -> (a -> M b) -> M b
+    overlap {{super}} : Applicative m
+    _>>=_ : m a -> (a -> m b) -> m b
 
-  join : M (M a) -> M a
+  join : m (m a) -> m a
   join = _>>= id
 
   infixl 1 _>>_
-  _>>_ : M a -> M b -> M b
+  _>>_ : m a -> m b -> m b
   _>>_ = _*>_
+
+  liftM : (a -> b) -> m a -> m b
+  liftM f mx = do
+    x <- mx
+    pure (f x)
+
+  ap : m (a -> b) -> m a -> m b
+  ap mf mx = do
+    f <- mf
+    x <- mx
+    pure (f x)
 
 open Monad {{...}} public
 
 return : forall {a m} {{_ : Monad m}} -> a -> m a
 return = pure
-
-ap : {{_ : Monad m}} -> m (a -> b) -> m a -> m b
-ap mf mx = do
-  f <- mf
-  x <- mx
-  return (f x)
 
 instance
   monadFunction : Monad (Function a)
