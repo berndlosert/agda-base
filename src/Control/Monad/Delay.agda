@@ -23,7 +23,7 @@ unfold : (b -> a + b) -> b -> Delay i a
 unfold f y = either Now (λ x -> Later λ where .force -> unfold f x) $ f y
 
 -- A process that never yields a value.
-never : Delay i a
+never : Delay _ a
 never = unfold (λ _ -> Right unit) unit
 
 -- Run a process for at most n steps.
@@ -40,7 +40,7 @@ delay x = unfold (λ b -> if b then Left x else Right True) False
 -- type Nat -> Maybe a. Assuming there is a least n : Nat such that the nth
 -- element of the stream is a (Just x) value, tryMore will produce a Delay
 -- value d such that runFor n d = Just x.
-tryMore : (Nat -> Maybe a) -> Delay i a
+tryMore : (Nat -> Maybe a) -> Delay _ a
 tryMore {a = a} f = unfold try Zero
   where
     try : Nat -> a + Nat
@@ -62,12 +62,18 @@ instance
   applicativeDelay : Applicative (Delay i)
   applicativeDelay .pure = Now
   applicativeDelay ._<*>_ = λ where
-    (Now f) (Now x) -> Now (f x)
-    (Now f) x@(Later _) -> map f x
-    (Later f) x@(Now _) -> Later λ where .force -> force f <*> x
-    (Later f) (Later x) -> Later λ where .force -> force f <*> force x
+    (Now f) x -> map f x
+    (Later f) x -> Later λ where .force -> force f <*> x
 
   monadDelay : Monad (Delay i)
   monadDelay ._>>=_ (Now x) f = f x
   monadDelay ._>>=_ (Later x) f = Later λ where
     .force -> force x >>= f
+
+  alternativeDelay : Alternative (Delay i)
+  alternativeDelay .empty = never
+  alternativeDelay ._<|>_ = λ where
+    l@(Now x) _ -> l
+    (Later _) r@(Now x) -> r
+    (Later x) (Later y) -> Later λ where
+      .force -> force x <|> force y
