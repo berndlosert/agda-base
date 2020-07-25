@@ -51,12 +51,11 @@ instance
 
   {-# TERMINATING #-}
   monadIterT : {{_ : Monad m}} -> Monad (IterT m)
-  monadIterT ._>>=_ iter k = λ where
-    .runIterT -> do
-      result <- runIterT iter
-      case result of λ where
-        (Left m) -> runIterT (k m)
-        (Right iter') -> return $ Right $ iter' >>= k
+  monadIterT ._>>=_ iter k .runIterT = do
+    result <- runIterT iter
+    case result of λ where
+      (Left m) -> runIterT (k m)
+      (Right iter') -> return $ Right $ iter' >>= k
 
   {-# TERMINATING #-}
   alternativeIterT : {{_ : Monad m}} -> Alternative (IterT m)
