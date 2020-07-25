@@ -40,11 +40,8 @@ unsafeRetract iter = runIterT iter >>= either return unsafeRetract
 instance
   {-# TERMINATING #-}
   functorIterT : {{_ : Monad m}} -> Functor (IterT m)
-  functorIterT .map f iter .runIterT = do
-    result <- runIterT iter
-    return $ case result of λ where
-      (Left x) -> Left (f x)
-      (Right iter') -> Right (map f iter')
+  functorIterT .map f iter .runIterT =
+    runIterT iter >>= return ∘ either (Left ∘ f) (Right ∘ map f)
 
   {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
