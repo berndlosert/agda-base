@@ -11,8 +11,8 @@ open import Control.Size
 
 private
   variable
-    a b r s : Set
-    f m : Set -> Set
+    a s : Set
+    m : Set -> Set
 
 {-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Set -> Set) (a : Set) : Set where
