@@ -46,11 +46,8 @@ instance
   {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
   applicativeIterT .pure x .runIterT = return (Left x)
-  applicativeIterT ._<*>_ iter x .runIterT = do
-    result <- runIterT iter
-    case result of λ where
-      (Left f) -> runIterT (map f x)
-      (Right iter') -> return $ Right $ iter' <*> x
+  applicativeIterT ._<*>_ iter x .runIterT =
+    runIterT iter >>= either (runIterT ∘ (_<$> x)) (return ∘ Right ∘ (_<*> x))
 
   {-# TERMINATING #-}
   monadIterT : {{_ : Monad m}} -> Monad (IterT m)
