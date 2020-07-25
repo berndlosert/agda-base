@@ -46,8 +46,11 @@ instance
   {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
   applicativeIterT .pure x .runIterT = return (Left x)
-  applicativeIterT ._<*>_ iter x .runIterT =
-    runIterT iter >>= either (runIterT ∘ (_<$> x)) (return ∘ Right ∘ (_<*> x))
+  applicativeIterT ._<*>_ iter x .runIterT = do
+    result <- runIterT iter
+    case result of λ where
+      (Left f) -> runIterT (f <$> x)
+      (Right iter') -> return $ Right $ iter' <*> x
 
   {-# TERMINATING #-}
   monadIterT : {{_ : Monad m}} -> Monad (IterT m)
@@ -63,11 +66,11 @@ instance
   alternativeIterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
     case resultl of λ where
-      (Left x) -> runIterT l
+      (Left _) -> return resultl
       (Right iter') -> do
         resultr <- runIterT r
         case resultr of λ where
-          (Left y) -> runIterT r
+          (Left _) -> return resultr
           (Right iter'') -> return $ Right $ iter' <|> iter''
 
   monadFreeIterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
@@ -79,4 +82,3 @@ instance
   monadStateIterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
   monadStateIterT .get = lift get
   monadStateIterT .put s = lift (put s)
-
