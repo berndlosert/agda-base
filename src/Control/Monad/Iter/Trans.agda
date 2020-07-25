@@ -70,13 +70,13 @@ instance
           (Left y) -> runIterT r
           (Right iter'') -> return $ Right $ iter' <|> iter''
 
-  --monadFreeIterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
-  --monadFreeIterT .wrap .runIterT = return ∘ Right ∘ runIdentity
+  monadFreeIterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
+  monadFreeIterT .wrap (Identity: iter) = delay iter
 
-  --monadTransIterT : MonadTrans IterT
-  --monadTransIterT .lift .runIterT = map Left
+  monadTransIterT : MonadTrans IterT
+  monadTransIterT .lift m .runIterT = map Left m
 
-  --monadStateIterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
-  --monadStateIterT .get = lift get
-  --monadStateIterT .put s = lift (put s)
+  monadStateIterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
+  monadStateIterT .get = lift get
+  monadStateIterT .put s = lift (put s)
 
