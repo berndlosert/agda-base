@@ -1205,9 +1205,6 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
-  liftA : (a -> b) -> f a -> f b
-  liftA f x = (| f x |)
-
   replicateA : {{_ : IsBuildable s a}} -> Nat -> f a -> f s
   replicateA {s} {a} n0 fa = loop n0
     where
@@ -1336,17 +1333,6 @@ record Monad (m : Set -> Set) : Set where
   infixl 1 _>>_
   _>>_ : m a -> m b -> m b
   _>>_ = _*>_
-
-  liftM : (a -> b) -> m a -> m b
-  liftM f mx = do
-    x <- mx
-    pure (f x)
-
-  ap : m (a -> b) -> m a -> m b
-  ap mf mx = do
-    f <- mf
-    x <- mx
-    pure (f x)
 
 open Monad {{...}} public
 
