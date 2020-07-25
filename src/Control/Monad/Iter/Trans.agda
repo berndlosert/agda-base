@@ -41,7 +41,7 @@ instance
   {-# TERMINATING #-}
   functorIterT : {{_ : Monad m}} -> Functor (IterT m)
   functorIterT .map f iter .runIterT =
-    runIterT iter >>= return ∘ either (Left ∘ f) (Right ∘ map f)
+    runIterT iter >>= return ∘ bimap f (map f)
 
   {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
