@@ -45,7 +45,7 @@ instance
 
   {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
-  applicativeIterT .pure x = λ where .runIterT -> return (Left x)
+  applicativeIterT .pure x .runIterT = return (Left x)
   applicativeIterT ._<*>_ iter x = λ where
     .runIterT -> do
       result <- runIterT iter
