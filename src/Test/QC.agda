@@ -304,7 +304,6 @@ private
         ∘ List.filter (not ∘ null)
         $ stamps
 
-  {-# TERMINATING #-}
   tests : Config -> Gen Result -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
   tests config gen rnd0 ntest nfail stamps =

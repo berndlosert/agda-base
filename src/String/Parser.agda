@@ -49,7 +49,6 @@ abstract
 -- Combinators
 --------------------------------------------------------------------------------
 
-{-# NON_TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
 many1 a = (| _::_ a (many a) |)
 many a = many1 a <|> pure []
@@ -91,7 +90,6 @@ endBy p sep = many (p <* sep)
 endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
-{-# TERMINATING #-}
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p op = p >>= rest
   where
@@ -104,7 +102,6 @@ chainl1 p op = p >>= rest
 chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op a = chainl1 p op <|> pure a
 
-{-# TERMINATING #-}
 chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainr1 p op = scan
   where
@@ -193,13 +190,11 @@ tab = char '\t'
 -- String parsers
 --------------------------------------------------------------------------------
 
-{-# TERMINATING #-}
 string : String -> Parser String
 string s with String.uncons s
 ... | Nothing = pure ""
 ... | (Just (c , s')) = char c *> string s' *> pure (cons c s')
 
-{-# TERMINATING #-}
 word : Parser String
 word = neword <|> (pure "")
   where

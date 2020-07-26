@@ -59,7 +59,6 @@ private
         [] -> (0 , g)
 
   -- genNat' n generates a Nat in the range [0 , n].
-  {-# TERMINATING #-}
   genNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
   genNat' {g} n g0 = loop g0
     where
@@ -194,14 +193,12 @@ instance
   randomBool .random g = let (n , g') = next g in
     (testBit n 0 , g')
 
-  {-# TERMINATING #-}
   randomRNat : RandomR Nat
   randomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT = first (_+ from) $ genNat' (to - from) g
 
-  {-# TERMINATING #-}
   randomRInt : RandomR Int
   randomRInt .randomR (from , to) g with compare from to
   ... | EQ = (from , g)

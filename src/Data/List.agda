@@ -77,13 +77,11 @@ stripPrefix (x :: xs) (y :: ys) =
   if x == y then stripPrefix xs ys else Nothing
 stripPrefix _ _ = Nothing
 
-{-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy _ [] = []
 groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
   (x :: ys) :: groupBy eq zs
 
-{-# TERMINATING #-}
 group : {{_ : Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 

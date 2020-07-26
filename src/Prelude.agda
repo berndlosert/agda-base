@@ -1154,13 +1154,11 @@ open IsBuildable {{...}} public
 Buildable : (Set -> Set) -> Set
 Buildable f = forall {a} -> IsBuildable (f a) a
 
-{-# TERMINATING #-}
 unfoldr : {{_ : IsBuildable s a}} -> (b -> Maybe (Tuple a b)) -> b -> s
 unfoldr f b with f b
 ... | Nothing = nil
 ... | (Just (a , b')) = cons a (unfoldr f b')
 
-{-# TERMINATING #-}
 unfoldl : {{_ : IsBuildable s a}} -> (b -> Maybe (Tuple b a)) -> b -> s
 unfoldl f b with f b
 ... | Nothing = nil
@@ -1329,7 +1327,6 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
-{-# NON_TERMINATING #-}
 forever : {{_ : Applicative f}} -> f a -> f b
 forever as = as *> forever as
 

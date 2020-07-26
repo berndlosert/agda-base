@@ -11,7 +11,6 @@ private
     a s : Set
     m : Set -> Set
 
-{-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Set -> Set) (a : Set) : Set where
   coinductive
   field runIterT : m (a + IterT m a)
@@ -24,23 +23,19 @@ Iter = IterT Identity
 delay : {{_ : Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = return (Right iter)
 
-{-# NON_TERMINATING #-}
 never : {{_ : Monad m}} -> IterT m a
 never .runIterT = return (Right never)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
-{-# TERMINATING #-}
 unsafeRetract : {{_ : Monad m}} -> IterT m a -> m a
 unsafeRetract iter = runIterT iter >>= either return unsafeRetract
 
 instance
-  {-# TERMINATING #-}
   functorIterT : {{_ : Monad m}} -> Functor (IterT m)
   functorIterT .map f iter .runIterT =
     runIterT iter >>= return ∘ bimap f (map f)
 
-  {-# TERMINATING #-}
   applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
   applicativeIterT .pure x .runIterT = return (Left x)
   applicativeIterT ._<*>_ iter x .runIterT = do
@@ -49,7 +44,6 @@ instance
       (Left f) -> runIterT (f <$> x)
       (Right iter') -> return $ Right $ iter' <*> x
 
-  {-# TERMINATING #-}
   monadIterT : {{_ : Monad m}} -> Monad (IterT m)
   monadIterT ._>>=_ iter k .runIterT = do
     result <- runIterT iter
@@ -57,7 +51,6 @@ instance
       (Left m) -> runIterT (k m)
       (Right iter') -> return $ Right $ iter' >>= k
 
-  {-# TERMINATING #-}
   alternativeIterT : {{_ : Monad m}} -> Alternative (IterT m)
   alternativeIterT .empty = never
   alternativeIterT ._<|>_ l r .runIterT = do

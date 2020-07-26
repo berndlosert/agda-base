@@ -12,7 +12,6 @@ record Ix (a : Set) : Set where
 open Ix {{...}} public
 
 instance
-  {-# TERMINATING #-}
   ixNat : Ix Nat
   ixNat .range (m , n) =
       if m == n then [ m ]
@@ -22,7 +21,6 @@ instance
   ixNat .rangeSize (m , n) = max (m - n) (n - m) + 1
   ixNat .index (m , n) k = if inRange (m , n) k then Just (k - m) else Nothing
 
-  {-# TERMINATING #-}
   ixInt : Ix Int
   ixInt .range (m , n) =
       if m == n then [ m ]
