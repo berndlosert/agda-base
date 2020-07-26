@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Data.List where
 
 open import Prelude

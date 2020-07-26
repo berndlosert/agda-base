@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Data.Word where
 
 open import Prelude
@@ -71,16 +69,17 @@ instance
 -- Word64
 --------------------------------------------------------------------------------
 
-open import Agda.Builtin.Word public
-  using (Word64)
-  renaming (
-    primWord64ToNat to word64ToNat;
-    primWord64FromNat to natToWord64
-  )
+postulate Word64 : Set
+
+{-# BUILTIN WORD64 Word64 #-}
 
 private
   2^64 : Nat
   2^64 = 18446744073709551616
+
+  primitive
+    primWord64ToNat : Word64 -> Nat
+    primWord64FromNat : Nat -> Word64
 
   postulate
     primEqWord64 : Word64 -> Word64 -> Bool
@@ -94,6 +93,9 @@ private
     primTestBitWord64 : Word64 -> Nat -> Bool
     primIsSignedWord64 : Word64 -> Bool
     primPopCountWord64 : Word64 -> Nat
+
+word64ToNat = primWord64ToNat
+natToWord64 = primWord64FromNat
 
 instance
   fromNatWord64 : FromNat Word64

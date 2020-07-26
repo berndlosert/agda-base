@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Comonad.Env where
 
 open import Control.Comonad

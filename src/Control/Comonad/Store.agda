@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Comonad.Store where
 
 open import Control.Comonad

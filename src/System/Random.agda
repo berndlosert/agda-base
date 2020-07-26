@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module System.Random where
 
 open import Prelude

@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Test.QC where
 
 open import Prelude

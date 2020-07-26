@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Monad.Iter.Trans where
 
 open import Prelude
@@ -7,7 +5,6 @@ open import Prelude
 open import Control.Monad.Free.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
-open import Control.Size
 
 private
   variable

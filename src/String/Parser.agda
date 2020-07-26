@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module String.Parser where
 
 open import Prelude

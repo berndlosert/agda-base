@@ -1,10 +1,9 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Concurrent.Async where
 
 open import Prelude
 
 open import Control.Concurrent
+open import Data.Time.Units
 
 private
   variable
@@ -184,7 +183,7 @@ instance
 
   alternativeConcurrently : Alternative Concurrently
   alternativeConcurrently .empty =
-    Concurrently: (forever $ microDelay $ 2 ^ 32)
+    Concurrently: (forever $ threadDelay ((2 ^ 32) μsec))
   alternativeConcurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
     Concurrently: (untag <$> race as bs)
 

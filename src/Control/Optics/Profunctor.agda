@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Optics.Profunctor where
 
 open import Prelude
