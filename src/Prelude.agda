@@ -1446,7 +1446,10 @@ record Monad (m : Set -> Set) : Set where
   liftM f x = x >>= pure ∘ f
 
   ap : m (a -> b) -> m a -> m b
-  ap f x = (| _$_ f x |)
+  ap f x = do
+    g <- f
+    y <- x
+    pure (g y)
 
 open Monad {{...}} public
 
