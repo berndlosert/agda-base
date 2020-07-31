@@ -1185,7 +1185,7 @@ instance
   listReturnList .fromDiffList f = f []
 
   listReturnFunction : {{_ : ListReturn a r}} -> ListReturn a (a -> r)
-  listReturnFunction .fromDiffList f x = fromDiffList (f ∘ (_::_) x)
+  listReturnFunction .fromDiffList f x = fromDiffList $ f ∘ (x ::_)
 
 -- Polyvariadic function for building lists.
 list : {{_ : ListReturn a r}} -> r
