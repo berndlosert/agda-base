@@ -50,9 +50,6 @@ postulate String : Set
 
 {-# BUILTIN STRING String #-}
 
-Not : Set -> Set
-Not a = a -> Void
-
 infix 4 _===_
 data _===_ {a : Set} (x : a) : a -> Set where
  instance Refl : x === x
