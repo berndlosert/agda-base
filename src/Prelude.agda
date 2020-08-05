@@ -1151,16 +1151,6 @@ open IsBuildable {{...}} public
 Buildable : (Set -> Set) -> Set
 Buildable f = forall {a} -> IsBuildable (f a) a
 
-unfoldr : {{_ : IsBuildable s a}} -> (b -> Maybe (Tuple a b)) -> b -> s
-unfoldr f b with f b
-... | Nothing = nil
-... | (Just (a , b')) = cons a (unfoldr f b')
-
-unfoldl : {{_ : IsBuildable s a}} -> (b -> Maybe (Tuple b a)) -> b -> s
-unfoldl f b with f b
-... | Nothing = nil
-... | (Just (b' , a)) = snoc (unfoldl f b') a
-
 instance
   buildableList : Buildable List
   buildableList .singleton = _:: []
