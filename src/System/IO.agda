@@ -4,12 +4,63 @@ open import Prelude
 
 open import Data.Int
 
-private variable r : Set
+private variable a b r : Set
+
+-------------------------------------------------------------------------------
+-- IO
+-------------------------------------------------------------------------------
+
+postulate IO : Set -> Set
+
+{-# BUILTIN IO IO #-}
+{-# COMPILE GHC IO = type IO #-}
+
+private
+  postulate
+    mapIO : (a -> b) -> IO a -> IO b
+    pureIO : a -> IO a
+    apIO : IO (a -> b) -> IO a -> IO b
+    bindIO : IO a -> (a -> IO b) -> IO b
+
+instance
+  semigroupIO : {{_ : Semigroup a}} -> Semigroup (IO a)
+  semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
+    (| _<>_ x y |)
+
+  monoidIO : {{_ : Monoid a}} -> Monoid (IO a)
+  monoidIO .neutral = pureIO neutral
+
+  functorIO : Functor IO
+  functorIO .map = mapIO
+
+  applicativeIO : Applicative IO
+  applicativeIO .pure = pureIO
+  applicativeIO ._<*>_ = apIO
+
+  monadIO : Monad IO
+  monadIO ._>>=_ = bindIO
+
+-------------------------------------------------------------------------------
+-- Console IO stuff
+-------------------------------------------------------------------------------
+
+postulate
+  putStr : String -> IO Unit
+  putStrLn : String -> IO Unit
+  getLine : IO String
+  getContents : IO String
 
 interact : (String -> String) -> IO Unit
 interact f = do
   s <- getContents
   putStrLn (f s)
+
+print : {{_ : Show a}} -> a -> IO Unit
+print x = putStrLn (show x)
+
+-------------------------------------------------------------------------------
+-- File IO stuff
+-------------------------------------------------------------------------------
 
 FilePath : Set
 FilePath = String
@@ -43,6 +94,14 @@ postulate
 {-# FOREIGN GHC import Data.Text (unpack) #-}
 {-# FOREIGN GHC import qualified System.IO as IO #-}
 {-# FOREIGN GHC import qualified Data.Text.IO as T #-}
+{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
+{-# COMPILE GHC pureIO = \ _ -> pure #-}
+{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
+{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
+{-# COMPILE GHC putStr = T.putStr #-}
+{-# COMPILE GHC putStrLn = T.putStrLn #-}
+{-# COMPILE GHC getLine = T.getLine #-}
+{-# COMPILE GHC getContents = T.getContents #-}
 {-# COMPILE GHC IOMode = data IOMode (ReadMode | WriteMode | AppendMode | ReadWriteMode) #-}
 {-# COMPILE GHC BufferMode = data BufferMode (NoBuffering | LineBuffering | BlockBuffering) #-}
 {-# COMPILE GHC Handle = type Handle #-}

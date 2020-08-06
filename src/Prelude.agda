@@ -89,11 +89,6 @@ data List (a : Set) : Set where
 
 {-# BUILTIN LIST List #-}
 
-postulate IO : Set -> Set
-
-{-# BUILTIN IO IO #-}
-{-# COMPILE GHC IO = type IO #-}
-
 -------------------------------------------------------------------------------
 -- Wrappers
 -------------------------------------------------------------------------------
@@ -402,29 +397,6 @@ maybeToList (Just x) = x :: []
 listToMaybe : List a -> Maybe a
 listToMaybe [] = Nothing
 listToMaybe (x :: _) = Just x
-
-private
-  postulate
-    mapIO : (a -> b) -> IO a -> IO b
-    pureIO : a -> IO a
-    apIO : IO (a -> b) -> IO a -> IO b
-    bindIO : IO a -> (a -> IO b) -> IO b
-
-postulate
-  putStr : String -> IO Unit
-  putStrLn : String -> IO Unit
-  getLine : IO String
-  getContents : IO String
-
-{-# FOREIGN GHC import qualified Data.Text.IO as Text #-}
-{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
-{-# COMPILE GHC pureIO = \ _ -> pure #-}
-{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
-{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
-{-# COMPILE GHC putStr = Text.putStr #-}
-{-# COMPILE GHC putStrLn = Text.putStrLn #-}
-{-# COMPILE GHC getLine = Text.getLine #-}
-{-# COMPILE GHC getContents = Text.getContents #-}
 
 -------------------------------------------------------------------------------
 -- Boolean
@@ -1025,10 +997,6 @@ instance
   semigroupList : Semigroup (List a)
   semigroupList ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
 
-  semigroupIO : {{_ : Semigroup a}} -> Semigroup (IO a)
-  semigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
-    (| _<>_ x y |)
-
   semigroupIdentity : {{_ : Semigroup a}} -> Semigroup (Identity a)
   semigroupIdentity ._<>_ (Identity: x) (Identity: y) =
     Identity: (x <> y)
@@ -1103,9 +1071,6 @@ instance
 
   monoidList : Monoid (List a)
   monoidList .neutral = []
-
-  monoidIO : {{_ : Monoid a}} -> Monoid (IO a)
-  monoidIO .neutral = pureIO neutral
 
   monoidIdentity : {{_ : Monoid a}} -> Monoid (Identity a)
   monoidIdentity .neutral = Identity: neutral
@@ -1263,9 +1228,6 @@ instance
   functorList : Functor List
   functorList .map f = listrec [] λ a _ bs -> f a :: bs
 
-  functorIO : Functor IO
-  functorIO .map = mapIO
-
   functorIdentity : Functor Identity
   functorIdentity .map f = Identity: ∘ f ∘ runIdentity
 
@@ -1363,10 +1325,6 @@ instance
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
-
-  applicativeIO : Applicative IO
-  applicativeIO .pure = pureIO
-  applicativeIO ._<*>_ = apIO
 
   applicativeIdentity : Applicative Identity
   applicativeIdentity .pure = Identity:
@@ -1481,9 +1439,6 @@ instance
   monadList ._>>=_ = λ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
-
-  monadIO : Monad IO
-  monadIO ._>>=_ = bindIO
 
   monadIdentity : Monad Identity
   monadIdentity ._>>=_ (Identity: x) k = k x
@@ -1752,9 +1707,6 @@ instance
 
 record Show (a : Set) : Set where
   field show : a -> String
-
-  print : a -> IO Unit
-  print x = putStrLn (show x)
 
 open Show {{...}} public
 
