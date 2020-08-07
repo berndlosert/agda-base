@@ -1124,26 +1124,6 @@ instance
   isBuildableStringChar .singleton c = pack (singleton c)
 
 -------------------------------------------------------------------------------
--- ListReturn and list
--------------------------------------------------------------------------------
-
-record ListReturn (a r : Set) : Set where
-  field fromDiffList : (List a -> List a) -> r
-
-open ListReturn {{...}}
-
-instance
-  listReturnList : ListReturn a (List a)
-  listReturnList .fromDiffList f = f []
-
-  listReturnFunction : {{_ : ListReturn a r}} -> ListReturn a (a -> r)
-  listReturnFunction .fromDiffList f x = fromDiffList $ f ∘ (x ::_)
-
--- Polyvariadic function for building lists.
-list : {{_ : ListReturn a r}} -> r
-list = fromDiffList id
-
--------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
 -------------------------------------------------------------------------------
 
