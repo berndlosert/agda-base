@@ -1753,11 +1753,11 @@ instance
   ShowMaybe .showsPrec d Nothing = showString "Nothing"
 
   ShowList : {{_ : Show a}} -> Show (List a)
-  ShowList {a = a} .showsPrec _ zs s' = listShow shows zs s'
+  ShowList {a = a} .showsPrec _ zs s' = showList shows zs s'
     where
-      listShow : (a -> ShowS) -> List a -> ShowS
-      listShow _ [] s = "[]" ++ s
-      listShow showx (x :: xs) s = "[ " ++ showx x (showl xs)
+      showList : (a -> ShowS) -> List a -> ShowS
+      showList _ [] s = "[]" ++ s
+      showList showx (x :: xs) s = "[ " ++ showx x (showl xs)
         where
           showl : List a -> String
           showl [] = " ]" ++ s
