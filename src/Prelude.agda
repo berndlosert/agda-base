@@ -1753,15 +1753,10 @@ instance
   ShowMaybe .showsPrec d Nothing = showString "Nothing"
 
   ShowList : {{_ : Show a}} -> Show (List a)
-  ShowList {a = a} .showsPrec _ zs s' = showList shows zs s'
-    where
-      showList : (a -> ShowS) -> List a -> ShowS
-      showList _ [] s = "[]" ++ s
-      showList showx (x :: xs) s = "[ " ++ showx x (showl xs)
-        where
-          showl : List a -> String
-          showl [] = " ]" ++ s
-          showl (y :: ys) = " , " ++ showx y (showl ys)
+  ShowList .showsPrec _ [] = showString "[]"
+  ShowList .showsPrec d (x :: xs) = showString "["
+     ∘ foldl (λ r y -> r ∘ showString ", " ∘ showsPrec d y) (showsPrec d x) xs
+     ∘ showString "]"
 
   ShowIdentity : {{_ : Show a}} -> Show (Identity a)
   ShowIdentity .showsPrec d (Identity: x) = showParen (d > appPrec) $
