@@ -4,6 +4,7 @@ open import Prelude
 
 open import Control.Concurrent
 open import Data.Time.Units
+open import System.IO
 
 private
   variable

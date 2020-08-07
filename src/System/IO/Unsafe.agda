@@ -2,6 +2,8 @@ module System.IO.Unsafe where
 
 open import Prelude
 
+open import System.IO
+
 private variable a : Set
 
 postulate

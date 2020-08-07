@@ -1631,7 +1631,7 @@ private
 
     Applicative-StateL : Applicative (StateL s)
     Applicative-StateL .pure x = stateL: λ s -> (s , x)
-    ApplicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
+    Applicative-StateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
       let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
     Applicative-StateR : Applicative (StateR s)
