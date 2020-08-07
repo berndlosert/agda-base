@@ -27,27 +27,27 @@ withContT : ((b -> m r) -> (a -> m r)) -> ContT r m a -> ContT r m b
 withContT f (ContT: m) = ContT: (m ∘ f)
 
 instance
-  FunctorContT : Functor (ContT r m)
-  FunctorContT .map f (ContT: m) = ContT: λ c -> m (c ∘ f)
+  Functor-ContT : Functor (ContT r m)
+  Functor-ContT .map f (ContT: m) = ContT: λ c -> m (c ∘ f)
 
-  ApplicativeContT : Applicative (ContT r m)
-  ApplicativeContT .pure x = ContT: (_$ x)
-  ApplicativeContT ._<*>_ (ContT: f) (ContT: x) =
+  Applicative-ContT : Applicative (ContT r m)
+  Applicative-ContT .pure x = ContT: (_$ x)
+  Applicative-ContT ._<*>_ (ContT: f) (ContT: x) =
     ContT: λ c -> f λ g -> x (c ∘ g)
 
-  MonadContT : Monad (ContT r m)
-  MonadContT ._>>=_ (ContT: m) k = ContT: λ c -> m λ x -> runContT (k x) c
+  Monad-ContT : Monad (ContT r m)
+  Monad-ContT ._>>=_ (ContT: m) k = ContT: λ c -> m λ x -> runContT (k x) c
 
-  MonadTransContT : MonadTrans (ContT r)
-  MonadTransContT .lift m = ContT: (m >>=_)
+  MonadTrans-ContT : MonadTrans (ContT r)
+  MonadTrans-ContT .lift m = ContT: (m >>=_)
 
-  MonadContContT : MonadCont (ContT r n)
-  MonadContContT .callCC f =
+  MonadCont-ContT : MonadCont (ContT r n)
+  MonadCont-ContT .callCC f =
     ContT: λ c -> runContT (f λ x -> ContT: λ _ -> c x) c
 
-  MonadBaseContT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
+  MonadBase-ContT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (ContT r n)
-  MonadBaseContT .liftBase m = lift (liftBase m)
+  MonadBase-ContT .liftBase m = lift (liftBase m)
 
 resetT : {{_ : Monad m}} -> ContT r m r -> ContT r' m r
 resetT = lift ∘ evalContT

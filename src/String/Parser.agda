@@ -4,18 +4,7 @@ open import Prelude
   hiding (count)
 
 open import Control.Monad.State.Trans
-  using (
-    StateT;
-    StateT:;
-    runStateT;
-    FunctorStateT;
-    ApplicativeStateT;
-    AlternativeStateT;
-    MonadStateT
-  )
-
-open import Data.String as String
-  using ()
+open import Data.String as String using ()
 
 private variable a b c : Set
 
@@ -33,17 +22,17 @@ abstract
   runParser = runStateT
 
   instance
-    FunctorParser : Functor Parser
-    FunctorParser = FunctorStateT
+    Functor-Parser : Functor Parser
+    Functor-Parser = Functor-StateT
 
-    ApplicativeParser : Applicative Parser
-    ApplicativeParser = ApplicativeStateT
+    Applicative-Parser : Applicative Parser
+    Applicative-Parser = Applicative-StateT
 
-    AlternativeParser : Alternative Parser
-    AlternativeParser = AlternativeStateT
+    Alternative-Parser : Alternative Parser
+    Alternative-Parser = Alternative-StateT
 
-    MonadParser : Monad Parser
-    MonadParser = MonadStateT
+    Monad-Parser : Monad Parser
+    Monad-Parser = Monad-StateT
 
 -------------------------------------------------------------------------------
 -- Combinators

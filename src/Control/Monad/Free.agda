@@ -19,15 +19,15 @@ lower : forall {m} {{_ : Monad m}} -> Free m ~> m
 lower = interpret id
 
 instance
-  FunctorFree : forall {f} -> Functor (Free f)
-  FunctorFree .map f free = Free: (map f ∘ run free)
+  Functor-Free : forall {f} -> Functor (Free f)
+  Functor-Free .map f free = Free: (map f ∘ run free)
 
-  ApplicativeFree : forall {f} -> Applicative (Free f)
-  ApplicativeFree .pure x = Free: λ _ -> return x
-  ApplicativeFree ._<*>_ f x = Free: λ t -> run f t <*> run x t
+  Applicative-Free : forall {f} -> Applicative (Free f)
+  Applicative-Free .pure x = Free: λ _ -> return x
+  Applicative-Free ._<*>_ f x = Free: λ t -> run f t <*> run x t
 
-  MonadFree : forall {f} -> Monad (Free f)
-  MonadFree ._>>=_ m f = Free: λ t ->
+  Monad-Free : forall {f} -> Monad (Free f)
+  Monad-Free ._>>=_ m f = Free: λ t ->
     join (map (interpret t ∘ f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
@@ -68,16 +68,16 @@ fold {f} ret ext free = interpret t free ret ext
       -> b
 
     instance
-      functorM : Functor M
-      functorM .map f m = λ ret ext -> m (ret ∘ f) ext
+      Functor-M : Functor M
+      Functor-M .map f m = λ ret ext -> m (ret ∘ f) ext
 
-      applicativeM : Applicative M
-      applicativeM .pure x = λ ret ext -> ret x
-      applicativeM ._<*>_ f x = λ ret ext ->
+      Applicative-M : Applicative M
+      Applicative-M .pure x = λ ret ext -> ret x
+      Applicative-M ._<*>_ f x = λ ret ext ->
         f (λ g -> x (ret ∘ g) ext) ext
 
-      monadM : Monad M
-      monadM ._>>=_ m f = λ ret ext -> m (λ y -> (f y) ret ext) ext
+      Monad-M : Monad M
+      Monad-M ._>>=_ m f = λ ret ext -> m (λ y -> (f y) ret ext) ext
 
     -- The lift operation of the free monad M.
     t : f ~> M
@@ -98,16 +98,16 @@ fold' {f} {{inst}} ret jn free = interpret t free ret jn
     M a = forall {b} -> (a -> b) -> (f b -> b) -> b
 
     instance
-      functorM : Functor M
-      functorM .map f m = λ ret jn -> m (ret ∘ f) jn
+      Functor-M : Functor M
+      Functor-M .map f m = λ ret jn -> m (ret ∘ f) jn
 
-      applicativeM : Applicative M
-      applicativeM .pure x = λ ret jn -> ret x
-      applicativeM ._<*>_ f x = λ ret jn ->
+      Applicative-M : Applicative M
+      Applicative-M .pure x = λ ret jn -> ret x
+      Applicative-M ._<*>_ f x = λ ret jn ->
         f (λ g -> x (ret ∘ g) jn) jn
 
-      monadM : Monad M
-      monadM ._>>=_ m f = λ ret jn -> m (λ x -> (f x) ret jn) jn
+      Monad-M : Monad M
+      Monad-M ._>>=_ m f = λ ret jn -> m (λ x -> (f x) ret jn) jn
 
     -- The lift operation of the free monad M.
     t : f ~> M

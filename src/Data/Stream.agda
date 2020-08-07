@@ -15,19 +15,19 @@ record Stream (a : Set) : Set where
 open Stream public
 
 instance
-  FunctorStream : Functor Stream
-  FunctorStream .map f as .head = f (head as)
-  FunctorStream .map f as .tail = map f (tail as)
+  Functor-Stream : Functor Stream
+  Functor-Stream .map f as .head = f (head as)
+  Functor-Stream .map f as .tail = map f (tail as)
 
-  ApplicativeStream : Applicative Stream
-  ApplicativeStream .pure a .head = a
-  ApplicativeStream .pure a .tail = pure a
-  ApplicativeStream ._<*>_ fs as .head = head fs (head as)
-  ApplicativeStream ._<*>_ fs as .tail = tail fs <*> tail as
+  Applicative-Stream : Applicative Stream
+  Applicative-Stream .pure a .head = a
+  Applicative-Stream .pure a .tail = pure a
+  Applicative-Stream ._<*>_ fs as .head = head fs (head as)
+  Applicative-Stream ._<*>_ fs as .tail = tail fs <*> tail as
 
-  ComonadStream : Comonad Stream
-  ComonadStream .extend f as = pure (f as)
-  ComonadStream .extract as = head as
+  Comonad-Stream : Comonad Stream
+  Comonad-Stream .extend f as = pure (f as)
+  Comonad-Stream .extract as = head as
 
 iterate : (a -> a) -> a -> Stream a
 iterate f a .head = a

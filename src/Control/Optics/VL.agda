@@ -17,8 +17,8 @@ record Copointed (f : Set -> Set) : Set where
 open Copointed {{...}}
 
 instance
-  CopointedIdentity : Copointed Identity
-  CopointedIdentity .extract = runIdentity
+  Copointed-Identity : Copointed Identity
+  Copointed-Identity .extract = runIdentity
 
 -------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -120,8 +120,8 @@ record Each (s t a b : Set) : Set where
 open Each {{...}} public
 
 instance
-  EachList : Each (List a) (List b) a b
-  EachList .each = traverse
+  Each-List : Each (List a) (List b) a b
+  Each-List .each = traverse
 
 -------------------------------------------------------------------------------
 -- basic lens and traversals

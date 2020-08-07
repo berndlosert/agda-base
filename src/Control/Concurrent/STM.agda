@@ -25,19 +25,19 @@ private
     bindSTM : STM a -> (a -> STM b) -> STM b
 
 instance
-  FunctorSTM : Functor STM
-  FunctorSTM .map = mapSTM
+  Functor-STM : Functor STM
+  Functor-STM .map = mapSTM
 
-  ApplicativeSTM : Applicative STM
-  ApplicativeSTM .pure = pureSTM
-  ApplicativeSTM ._<*>_ = apSTM
+  Applicative-STM : Applicative STM
+  Applicative-STM .pure = pureSTM
+  Applicative-STM ._<*>_ = apSTM
 
-  AlternativeSTM : Alternative STM
-  AlternativeSTM .empty = retry
-  AlternativeSTM ._<|>_ = orElse
+  Alternative-STM : Alternative STM
+  Alternative-STM .empty = retry
+  Alternative-STM ._<|>_ = orElse
 
-  MonadSTM : Monad STM
-  MonadSTM ._>>=_ = bindSTM
+  Monad-STM : Monad STM
+  Monad-STM ._>>=_ = bindSTM
 
 {-# FOREIGN GHC import Control.Monad.STM #-}
 {-# COMPILE GHC STM = type STM #-}
@@ -70,8 +70,8 @@ private
     primEqTVar : TVar a -> TVar a -> Bool
 
 instance
-  eqTVar : Eq (TVar a)
-  eqTVar ._==_ = primEqTVar
+  Eq-TVar : Eq (TVar a)
+  Eq-TVar ._==_ = primEqTVar
 
 {-# FOREIGN GHC import Control.Concurrent.STM.TVar #-}
 {-# COMPILE GHC TVar = type TVar #-}
@@ -110,8 +110,8 @@ private
     primEqTMVar : TMVar a -> TMVar a -> Bool
 
 instance
-  eqTMVar : Eq (TMVar a)
-  eqTMVar ._==_ = primEqTMVar
+  Eq-TMVar : Eq (TMVar a)
+  Eq-TMVar ._==_ = primEqTMVar
 
 {-# FOREIGN GHC import Control.Concurrent.STM.TMVar #-}
 {-# COMPILE GHC TMVar = type TMVar #-}

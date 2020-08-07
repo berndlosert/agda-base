@@ -23,22 +23,22 @@ private
     bindIO : IO a -> (a -> IO b) -> IO b
 
 instance
-  SemigroupIO : {{_ : Semigroup a}} -> Semigroup (IO a)
-  SemigroupIO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
+  Semigroup-IO : {{_ : Semigroup a}} -> Semigroup (IO a)
+  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
-  MonoidIO : {{_ : Monoid a}} -> Monoid (IO a)
-  MonoidIO .neutral = pureIO neutral
+  Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
+  Monoid-IO .neutral = pureIO neutral
 
-  FunctorIO : Functor IO
-  FunctorIO .map = mapIO
+  Functor-IO : Functor IO
+  Functor-IO .map = mapIO
 
-  ApplicativeIO : Applicative IO
-  ApplicativeIO .pure = pureIO
-  ApplicativeIO ._<*>_ = apIO
+  Applicative-IO : Applicative IO
+  Applicative-IO .pure = pureIO
+  Applicative-IO ._<*>_ = apIO
 
-  MonadIO : Monad IO
-  MonadIO ._>>=_ = bindIO
+  Monad-IO : Monad IO
+  Monad-IO ._>>=_ = bindIO
 
 -------------------------------------------------------------------------------
 -- Console IO stuff

@@ -9,14 +9,14 @@ data Result (e a : Set) : Set where
   Ok : a -> Result e a
 
 instance
-  FunctorResult : Functor (Result e)
-  FunctorResult .map f = λ where
+  Functor-Result : Functor (Result e)
+  Functor-Result .map f = λ where
     (Ok x) -> Ok (f x)
     (Error e) -> Error e
 
-  ApplicativeResult : {{_ : Semigroup e}} -> Applicative (Result e)
-  ApplicativeResult .pure = Ok
-  ApplicativeResult ._<*>_ = λ where
+  Applicative-Result : {{_ : Semigroup e}} -> Applicative (Result e)
+  Applicative-Result .pure = Ok
+  Applicative-Result ._<*>_ = λ where
     (Ok f) (Ok x) -> Ok (f x)
     (Ok _) (Error e) -> Error e
     (Error e) (Error e') -> Error (e <> e')

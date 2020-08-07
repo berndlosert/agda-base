@@ -20,16 +20,16 @@ record Gen (a : Set) : Set where
   field unGen : StdGen -> Nat -> a
 
 instance
-  FunctorGen : Functor Gen
-  FunctorGen .map f (Gen: x) = Gen: λ r n -> f (x r n)
+  Functor-Gen : Functor Gen
+  Functor-Gen .map f (Gen: x) = Gen: λ r n -> f (x r n)
 
-  ApplicativeGen : Applicative Gen
-  ApplicativeGen .pure x = Gen: λ _ _ -> x
-  ApplicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
+  Applicative-Gen : Applicative Gen
+  Applicative-Gen .pure x = Gen: λ _ _ -> x
+  Applicative-Gen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
     let (r1 , r2) = split r in f r1 n (x r2 n)
 
-  MonadGen : Monad Gen
-  MonadGen ._>>=_ (Gen: m) k = Gen: λ r n ->
+  Monad-Gen : Monad Gen
+  Monad-Gen ._>>=_ (Gen: m) k = Gen: λ r n ->
     let (r1 , r2) = split r; Gen: m' = k (m r1 n) in m' r2 n
 
 -------------------------------------------------------------------------------
@@ -134,45 +134,45 @@ record Coarbitrary (a : Set) : Set where
 open Coarbitrary {{...}} public
 
 instance
-  ArbitraryBool : Arbitrary Bool
-  ArbitraryBool .arbitrary = elements (True :: False :: [])
+  Arbitrary-Bool : Arbitrary Bool
+  Arbitrary-Bool .arbitrary = elements (True :: False :: [])
 
-  ArbitraryNat : Arbitrary Nat
-  ArbitraryNat .arbitrary = sized λ n -> choose (0 , n)
+  Arbitrary-Nat : Arbitrary Nat
+  Arbitrary-Nat .arbitrary = sized λ n -> choose (0 , n)
 
-  ArbitraryInt : Arbitrary Int
-  ArbitraryInt .arbitrary = sized λ where
+  Arbitrary-Int : Arbitrary Int
+  Arbitrary-Int .arbitrary = sized λ where
     0 -> choose (0 , 0)
     (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
-  ArbitraryTuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
-  ArbitraryTuple .arbitrary = (| _,_ arbitrary arbitrary |)
+  Arbitrary-Tuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
+  Arbitrary-Tuple .arbitrary = (| _,_ arbitrary arbitrary |)
 
-  ArbitraryList : {{_ : Arbitrary a}} -> Arbitrary (List a)
-  ArbitraryList .arbitrary = sized λ n -> do
+  Arbitrary-List : {{_ : Arbitrary a}} -> Arbitrary (List a)
+  Arbitrary-List .arbitrary = sized λ n -> do
     m <- choose (0 , n)
     vectorOf m arbitrary
 
-  CoarbitraryBool : Coarbitrary Bool
-  CoarbitraryBool .coarbitrary b = variant (if b then 0 else 1)
+  Coarbitrary-Bool : Coarbitrary Bool
+  Coarbitrary-Bool .coarbitrary b = variant (if b then 0 else 1)
 
-  CoarbitraryTuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
+  Coarbitrary-Tuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a * b)
-  CoarbitraryTuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
+  Coarbitrary-Tuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
 
-  CoarbitraryList : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
-  CoarbitraryList .coarbitrary [] = variant 0
-  CoarbitraryList .coarbitrary (a :: as) =
+  Coarbitrary-List : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
+  Coarbitrary-List .coarbitrary [] = variant 0
+  Coarbitrary-List .coarbitrary (a :: as) =
     variant 1 ∘ coarbitrary a ∘ coarbitrary as
 
-  CoarbitraryFunction : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
+  Coarbitrary-Function : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a -> b)
-  CoarbitraryFunction .coarbitrary f gen =
+  Coarbitrary-Function .coarbitrary f gen =
     arbitrary >>= (flip coarbitrary gen ∘ f)
 
-  ArbitraryFunction : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
+  Arbitrary-Function : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
     -> Arbitrary (a -> b)
-  ArbitraryFunction .arbitrary = promote (flip coarbitrary arbitrary)
+  Arbitrary-Function .arbitrary = promote (flip coarbitrary arbitrary)
 
 -------------------------------------------------------------------------------
 -- Result & Property
@@ -231,15 +231,15 @@ collect : {{_ : Show a}} {{_ : Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
 instance
-  testableBool : Testable Bool
-  testableBool .property b = result (record none { ok = Just b })
+  Testable-Bool : Testable Bool
+  Testable-Bool .property b = result (record none { ok = Just b })
 
-  testableProperty : Testable Property
-  testableProperty .property prop = prop
+  Testable-Property : Testable Property
+  Testable-Property .property prop = prop
 
-  testableFunction : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
+  Testable-Function : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
     -> Testable (a -> b)
-  testableFunction .property f = forAll arbitrary f
+  Testable-Function .property f = forAll arbitrary f
 
 -------------------------------------------------------------------------------
 -- Config

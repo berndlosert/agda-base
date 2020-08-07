@@ -31,38 +31,38 @@ private
     primPopCountWord32 : Word32 -> Nat
 
 instance
-  FromNatWord32 : FromNat Word32
-  FromNatWord32 = record {
+  FromNat-Word32 : FromNat Word32
+  FromNat-Word32 = record {
       Constraint = const Unit;
       fromNat = λ n -> natToWord32 n
     }
 
-  EqWord32 : Eq Word32
-  EqWord32 ._==_ = primEqWord32
+  Eq-Word32 : Eq Word32
+  Eq-Word32 ._==_ = primEqWord32
 
-  OrdWord32 : Ord Word32
-  OrdWord32 ._<_ = primLessThanWord32
+  Ord-Word32 : Ord Word32
+  Ord-Word32 ._<_ = primLessThanWord32
 
-  BitsWord32 : Bits Word32
-  BitsWord32 .bitSize _ = 32
-  BitsWord32 .zeroBits = 0x0
-  BitsWord32 .oneBits = 0xFFFFFFFF
-  BitsWord32 ._:|:_ = primOrWord32
-  BitsWord32 ._xor_ = primXorWord32
-  BitsWord32 ._:&:_ = primAndWord32
-  BitsWord32 .shift = primShiftWord32
-  BitsWord32 .rotate = primRotateWord32
-  BitsWord32 .bit = primBitWord32
-  BitsWord32 .testBit = primTestBitWord32
-  BitsWord32 .isSigned = primIsSignedWord32
-  BitsWord32 .popCount = primPopCountWord32
+  Bits-Word32 : Bits Word32
+  Bits-Word32 .bitSize _ = 32
+  Bits-Word32 .zeroBits = 0x0
+  Bits-Word32 .oneBits = 0xFFFFFFFF
+  Bits-Word32 ._:|:_ = primOrWord32
+  Bits-Word32 ._xor_ = primXorWord32
+  Bits-Word32 ._:&:_ = primAndWord32
+  Bits-Word32 .shift = primShiftWord32
+  Bits-Word32 .rotate = primRotateWord32
+  Bits-Word32 .bit = primBitWord32
+  Bits-Word32 .testBit = primTestBitWord32
+  Bits-Word32 .isSigned = primIsSignedWord32
+  Bits-Word32 .popCount = primPopCountWord32
 
-  AdditionWord32 : Addition Word32
-  AdditionWord32 ._+_ x y = natToWord32 $
+  Addition-Word32 : Addition Word32
+  Addition-Word32 ._+_ x y = natToWord32 $
     (word32ToNat x + word32ToNat y) % 2^32
 
-  MultiplicationWord32 : Multiplication Word32
-  MultiplicationWord32 ._*_ x y = natToWord32 $
+  Multiplication-Word32 : Multiplication Word32
+  Multiplication-Word32 ._*_ x y = natToWord32 $
     (word32ToNat x * word32ToNat y) % 2^32
 
 -------------------------------------------------------------------------------
@@ -98,38 +98,38 @@ word64ToNat = primWord64ToNat
 natToWord64 = primWord64FromNat
 
 instance
-  FromNatWord64 : FromNat Word64
-  FromNatWord64 = record {
+  FromNat-Word64 : FromNat Word64
+  FromNat-Word64 = record {
       Constraint = const Unit;
       fromNat = λ n -> natToWord64 n
     }
 
-  EqWord64 : Eq Word64
-  EqWord64 ._==_ = primEqWord64
+  Eq-Word64 : Eq Word64
+  Eq-Word64 ._==_ = primEqWord64
 
-  OrdWord64 : Ord Word64
-  OrdWord64 ._<_ = primLessThanWord64
+  Ord-Word64 : Ord Word64
+  Ord-Word64 ._<_ = primLessThanWord64
 
-  BitsWord64 : Bits Word64
-  BitsWord64 .bitSize _ = 64
-  BitsWord64 .zeroBits = 0x0
-  BitsWord64 .oneBits = 0xFFFFFFFFFFFFFFFF
-  BitsWord64 ._:|:_ = primOrWord64
-  BitsWord64 ._xor_ = primXorWord64
-  BitsWord64 ._:&:_ = primAndWord64
-  BitsWord64 .shift = primShiftWord64
-  BitsWord64 .rotate = primRotateWord64
-  BitsWord64 .bit = primBitWord64
-  BitsWord64 .testBit = primTestBitWord64
-  BitsWord64 .isSigned = primIsSignedWord64
-  BitsWord64 .popCount = primPopCountWord64
+  Bits-Word64 : Bits Word64
+  Bits-Word64 .bitSize _ = 64
+  Bits-Word64 .zeroBits = 0x0
+  Bits-Word64 .oneBits = 0xFFFFFFFFFFFFFFFF
+  Bits-Word64 ._:|:_ = primOrWord64
+  Bits-Word64 ._xor_ = primXorWord64
+  Bits-Word64 ._:&:_ = primAndWord64
+  Bits-Word64 .shift = primShiftWord64
+  Bits-Word64 .rotate = primRotateWord64
+  Bits-Word64 .bit = primBitWord64
+  Bits-Word64 .testBit = primTestBitWord64
+  Bits-Word64 .isSigned = primIsSignedWord64
+  Bits-Word64 .popCount = primPopCountWord64
 
-  AdditionWord64 : Addition Word64
-  AdditionWord64 ._+_ x y = natToWord64 $
+  Addition-Word64 : Addition Word64
+  Addition-Word64 ._+_ x y = natToWord64 $
     (word64ToNat x + word64ToNat y) % 2^64
 
-  MultiplicationWord64 : Multiplication Word64
-  MultiplicationWord64 ._*_ x y = natToWord64 $
+  Multiplication-Word64 : Multiplication Word64
+  Multiplication-Word64 ._*_ x y = natToWord64 $
     (word64ToNat x * word64ToNat y) % 2^64
 
 -------------------------------------------------------------------------------

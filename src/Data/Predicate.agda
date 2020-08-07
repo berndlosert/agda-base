@@ -11,12 +11,12 @@ record Predicate (a : Set) : Set where
 open Predicate
 
 instance
-  SemigroupPredicate : Semigroup (Predicate a)
-  SemigroupPredicate ._<>_ (Predicate: p) (Predicate: q) =
+  Semigroup-Predicate : Semigroup (Predicate a)
+  Semigroup-Predicate ._<>_ (Predicate: p) (Predicate: q) =
     Predicate: λ a -> p a && q a
 
-  MonoidPredicate : Monoid (Predicate a)
-  MonoidPredicate .neutral = Predicate: (const True)
+  Monoid-Predicate : Monoid (Predicate a)
+  Monoid-Predicate .neutral = Predicate: (const True)
 
-  FunctorPredicate : Contravariant Predicate
-  FunctorPredicate .contramap f (Predicate: p) = Predicate: (p ∘ f)
+  Contravariant-Predicate : Contravariant Predicate
+  Contravariant-Predicate .contramap f (Predicate: p) = Predicate: (p ∘ f)

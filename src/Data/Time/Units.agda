@@ -42,30 +42,30 @@ record Picosecond : Set where
 open Picosecond public
 
 instance
-  TimeUnitSecond : TimeUnit Second
-  TimeUnitSecond .toMicroseconds (x sec) = x * 10 ^ 6
-  TimeUnitSecond .fromMicroseconds x = (x / 10 ^ 6) sec
+  TimeUnit-Second : TimeUnit Second
+  TimeUnit-Second .toMicroseconds (x sec) = x * 10 ^ 6
+  TimeUnit-Second .fromMicroseconds x = (x / 10 ^ 6) sec
 
-  TimeUnitMillisecond : TimeUnit Millisecond
-  TimeUnitMillisecond .toMicroseconds (x msec) = x * 10 ^ 3
-  TimeUnitMillisecond .fromMicroseconds x = (x / 10 ^ 3) msec
+  TimeUnit-Millisecond : TimeUnit Millisecond
+  TimeUnit-Millisecond .toMicroseconds (x msec) = x * 10 ^ 3
+  TimeUnit-Millisecond .fromMicroseconds x = (x / 10 ^ 3) msec
 
-  TimeUnitMicrosecond : TimeUnit Microsecond
-  TimeUnitMicrosecond .toMicroseconds (x μsec) = x
-  TimeUnitMicrosecond .fromMicroseconds x = x μsec
+  TimeUnit-Microsecond : TimeUnit Microsecond
+  TimeUnit-Microsecond .toMicroseconds (x μsec) = x
+  TimeUnit-Microsecond .fromMicroseconds x = x μsec
 
-  TimeUnitPicosecond : TimeUnit Picosecond
-  TimeUnitPicosecond .toMicroseconds (x psec) = x / 10 ^ 6
-  TimeUnitPicosecond .fromMicroseconds x = (x * 10 ^ 6) psec
+  TimeUnit-Picosecond : TimeUnit Picosecond
+  TimeUnit-Picosecond .toMicroseconds (x psec) = x / 10 ^ 6
+  TimeUnit-Picosecond .fromMicroseconds x = (x * 10 ^ 6) psec
 
-  ShowSecond : Show Second
-  ShowSecond .showsPrec d (x sec) = showsPrec d x ∘ showString "s"
+  Show-Second : Show Second
+  Show-Second .showsPrec d (x sec) = showsPrec d x ∘ showString "s"
 
-  ShowMillisecond : Show Millisecond
-  ShowMillisecond .showsPrec d (x msec) = showsPrec d x ∘ showString "ms"
+  Show-Millisecond : Show Millisecond
+  Show-Millisecond .showsPrec d (x msec) = showsPrec d x ∘ showString "ms"
 
-  ShowMicrosecond : Show Microsecond
-  ShowMicrosecond .showsPrec d (x μsec) = showsPrec d x ∘ showString "μs"
+  Show-Microsecond : Show Microsecond
+  Show-Microsecond .showsPrec d (x μsec) = showsPrec d x ∘ showString "μs"
 
-  ShowPicosecond : Show Picosecond
-  ShowPicosecond .showsPrec d (x psec) = showsPrec d x ∘ showString "ps"
+  Show-Picosecond : Show Picosecond
+  Show-Picosecond .showsPrec d (x psec) = showsPrec d x ∘ showString "ps"

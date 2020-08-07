@@ -23,30 +23,30 @@ liftFreeT : f ~> FreeT f m
 liftFreeT x = FreeT: λ ret bnd -> bnd x ret
 
 instance
-  FunctorFreeT : Functor (FreeT f m)
-  FunctorFreeT .map f (FreeT: h) = FreeT: λ ret bnd ->
+  Functor-FreeT : Functor (FreeT f m)
+  Functor-FreeT .map f (FreeT: h) = FreeT: λ ret bnd ->
     h (ret ∘ f) bnd
 
-  ApplicativeFreeT : Applicative (FreeT f m)
-  ApplicativeFreeT .pure x = FreeT: λ ret _ -> ret x
-  ApplicativeFreeT ._<*>_ (FreeT: f) (FreeT: x) = FreeT: λ ret bnd ->
+  Applicative-FreeT : Applicative (FreeT f m)
+  Applicative-FreeT .pure x = FreeT: λ ret _ -> ret x
+  Applicative-FreeT ._<*>_ (FreeT: f) (FreeT: x) = FreeT: λ ret bnd ->
     f (λ g -> x (λ a -> ret (g a)) bnd) bnd
 
-  MonadFreeT : Monad (FreeT f m)
-  MonadFreeT ._>>=_ (FreeT: m) k = FreeT: λ ret bnd ->
+  Monad-FreeT : Monad (FreeT f m)
+  Monad-FreeT ._>>=_ (FreeT: m) k = FreeT: λ ret bnd ->
     m (λ a -> runFreeT (k a) ret bnd) bnd
 
-  MFunctorFreeT : MFunctor (FreeT f)
-  MFunctorFreeT .hoist t (FreeT: m) = FreeT: λ ret bnd ->
+  MFunctor-FreeT : MFunctor (FreeT f)
+  MFunctor-FreeT .hoist t (FreeT: m) = FreeT: λ ret bnd ->
     join ∘ t $ m (return ∘ ret) (λ x f -> return $ bnd x (join ∘ t ∘ f))
 
-  MonadTransFreeT : MonadTrans (FreeT f)
-  MonadTransFreeT .lift m = FreeT: λ ret jn -> join ((map ret) m)
+  MonadTrans-FreeT : MonadTrans (FreeT f)
+  MonadTrans-FreeT .lift m = FreeT: λ ret jn -> join ((map ret) m)
 
-  MonadFreeFreeT : MonadFree f (FreeT f m)
-  MonadFreeFreeT .wrap x = FreeT: λ ret bnd ->
+  MonadFree-FreeT : MonadFree f (FreeT f m)
+  MonadFree-FreeT .wrap x = FreeT: λ ret bnd ->
     bnd x (λ f -> runFreeT f ret bnd)
 
-  MonadBaseFreeT : {{_ : Monad n}} {{_ : MonadBase m n}}
+  MonadBase-FreeT : {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (FreeT f n)
-  MonadBaseFreeT .liftBase m = lift (liftBase m)
+  MonadBase-FreeT .liftBase m = lift (liftBase m)

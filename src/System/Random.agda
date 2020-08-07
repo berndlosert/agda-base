@@ -127,13 +127,13 @@ private
       shiftR (x4 * x4 + y) 32
 
 instance
-  RandomGenStdGen : RandomGen StdGen
-  RandomGenStdGen .next (stdgen: seed gamma) =
+  RandomGen-StdGen : RandomGen StdGen
+  RandomGen-StdGen .next (stdgen: seed gamma) =
       (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
-  RandomGenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
-  RandomGenStdGen .split (stdgen: seed gamma) =
+  RandomGen-StdGen .genRange _ = (0 , 2 ^ 64 - 1)
+  RandomGen-StdGen .split (stdgen: seed gamma) =
       (stdgen: seed'' gamma , stdgen: (mix64 seed') (mixgamma seed''))
     where
       seed' = seed + gamma
@@ -190,18 +190,18 @@ record RandomR (a : Set) : Set where
 open RandomR {{...}} public
 
 instance
-  RandomBool : Random Bool
-  RandomBool .random g = let (n , g') = next g in
+  Random-Bool : Random Bool
+  Random-Bool .random g = let (n , g') = next g in
     (testBit n 0 , g')
 
-  RandomRNat : RandomR Nat
-  RandomRNat .randomR (from , to) g with compare from to
+  RandomR-Nat : RandomR Nat
+  RandomR-Nat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT = first (_+ from) $ genNat' (to - from) g
 
-  RandomRInt : RandomR Int
-  RandomRInt .randomR (from , to) g with compare from to
+  RandomR-Int : RandomR Int
+  RandomR-Int .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =

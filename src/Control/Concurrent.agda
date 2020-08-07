@@ -22,14 +22,14 @@ private
     primThreadDelay : Nat -> IO Unit
 
 instance
-  EqThreadId : Eq ThreadId
-  EqThreadId ._==_ = primEqThreadId
+  Eq-ThreadId : Eq ThreadId
+  Eq-ThreadId ._==_ = primEqThreadId
 
-  OrdThreadId : Ord ThreadId
-  OrdThreadId ._<_ = primLessThanThreadId
+  Ord-ThreadId : Ord ThreadId
+  Ord-ThreadId ._<_ = primLessThanThreadId
 
-  ShowThreadId : Show ThreadId
-  ShowThreadId .showsPrec _ = showString ∘ primShowThreadId
+  Show-ThreadId : Show ThreadId
+  Show-ThreadId .showsPrec _ = showString ∘ primShowThreadId
 
 threadDelay : {{_ : TimeUnit a}} -> a -> IO Unit
 threadDelay x = primThreadDelay (toMicroseconds x)

@@ -172,58 +172,58 @@ getter g f = Forget: (runForget f ∘ g)
 -------------------------------------------------------------------------------
 
 instance
-  ProfunctorForget : Profunctor (Forget r)
-  ProfunctorForget .dimap f g h = Forget: (runForget h ∘ f)
+  Profunctor-Forget : Profunctor (Forget r)
+  Profunctor-Forget .dimap f g h = Forget: (runForget h ∘ f)
 
-  StrongForget : Strong (Forget r)
-  StrongForget .strong z = Forget: (runForget z ∘ snd)
+  Strong-Forget : Strong (Forget r)
+  Strong-Forget .strong z = Forget: (runForget z ∘ snd)
 
-  ChoiceForget : {{_ : Monoid r}} -> Choice (Forget r)
-  ChoiceForget .choice z = Forget: $ either neutral (runForget z)
+  Choice-Forget : {{_ : Monoid r}} -> Choice (Forget r)
+  Choice-Forget .choice z = Forget: $ either neutral (runForget z)
 
-  WanderForget : {{_ : Monoid r}} -> Wander (Forget r)
-  WanderForget .wander t f =
+  Wander-Forget : {{_ : Monoid r}} -> Wander (Forget r)
+  Wander-Forget .wander t f =
     Forget: $ getConst ∘ t (Const: ∘ runForget f)
 
-  ProfunctorTagged : Profunctor Tagged
-  ProfunctorTagged .dimap _ g x = Tagged: (g $ unTagged x)
+  Profunctor-Tagged : Profunctor Tagged
+  Profunctor-Tagged .dimap _ g x = Tagged: (g $ unTagged x)
 
-  ChoiceTagged : Choice Tagged
-  ChoiceTagged .choice x = Tagged: (Right $ unTagged x)
+  Choice-Tagged : Choice Tagged
+  Choice-Tagged .choice x = Tagged: (Right $ unTagged x)
 
-  ClosedTagged : Closed Tagged
-  ClosedTagged .closed x = Tagged: (const $ unTagged x)
+  Closed-Tagged : Closed Tagged
+  Closed-Tagged .closed x = Tagged: (const $ unTagged x)
 
-  ProfunctorAdapter : Profunctor (Adapter a b)
-  ProfunctorAdapter .dimap f g a = dimap f g ∘ a
+  Profunctor-Adapter : Profunctor (Adapter a b)
+  Profunctor-Adapter .dimap f g a = dimap f g ∘ a
 
-  ProfunctorExchange : Profunctor (Exchange a b)
-  ProfunctorExchange .dimap f g (Exchange: from to) =
+  Profunctor-Exchange : Profunctor (Exchange a b)
+  Profunctor-Exchange .dimap f g (Exchange: from to) =
     Exchange: (from ∘ f) (g ∘ to)
 
-  ProfunctorLens : Profunctor (Lens a b)
-  ProfunctorLens .dimap f g l = dimap f g ∘ l
+  Profunctor-Lens : Profunctor (Lens a b)
+  Profunctor-Lens .dimap f g l = dimap f g ∘ l
 
-  ProfunctorShop : Profunctor (Shop a b)
-  ProfunctorShop .dimap f g (Shop: get put) =
+  Profunctor-Shop : Profunctor (Shop a b)
+  Profunctor-Shop .dimap f g (Shop: get put) =
     Shop: (get ∘ f) (λ s -> g ∘ put (f s))
 
-  StrongShop : Strong (Shop a b)
-  StrongShop .strong (Shop: get put) = Shop: get' put'
+  Strong-Shop : Strong (Shop a b)
+  Strong-Shop .strong (Shop: get put) = Shop: get' put'
     where
       get' put' : _
       get' (u , s) = get s
       put' (u , s) y = (u , put s y)
 
-  ProfunctorPrism : Profunctor (Prism a b)
-  ProfunctorPrism .dimap f g p = dimap f g ∘ p
+  Profunctor-Prism : Profunctor (Prism a b)
+  Profunctor-Prism .dimap f g p = dimap f g ∘ p
 
-  ProfunctorMarket : Profunctor (Market a b)
-  ProfunctorMarket .dimap f g (Market: build match) =
+  Profunctor-Market : Profunctor (Market a b)
+  Profunctor-Market .dimap f g (Market: build match) =
       Market: (g ∘ build) (first g ∘ match ∘ f)
 
-  ChoiceMarket : Choice (Market a b)
-  ChoiceMarket .choice (Market: build match) = Market: build' match'
+  Choice-Market : Choice (Market a b)
+  Choice-Market .choice (Market: build match) = Market: build' match'
     where
       build' match' : _
       build' y = Right (build y)
@@ -232,41 +232,41 @@ instance
       ... | Left t = Left (Right t)
       ... | Right x = Right x
 
-  ProfunctorGrate : Profunctor (Grate a b)
-  ProfunctorGrate .dimap f g r = dimap f g ∘ r
+  Profunctor-Grate : Profunctor (Grate a b)
+  Profunctor-Grate .dimap f g r = dimap f g ∘ r
 
-  ProfunctorGrating : Profunctor (Grating a b)
-  ProfunctorGrating .dimap f g (Grate: r) =
+  Profunctor-Grating : Profunctor (Grating a b)
+  Profunctor-Grating .dimap f g (Grate: r) =
     Grate: λ d -> g (r λ k -> d (k ∘ f))
 
-  ClosedGrating : Closed (Grating a b)
-  ClosedGrating .closed (Grate: degrating) =
+  Closed-Grating : Closed (Grating a b)
+  Closed-Grating .closed (Grate: degrating) =
     Grate: λ f x -> degrating λ k -> f λ g -> k (g x)
 
-  ProfunctorTraversal : Profunctor (Traversal a b)
-  ProfunctorTraversal .dimap f g t = dimap f g ∘ t
+  Profunctor-Traversal : Profunctor (Traversal a b)
+  Profunctor-Traversal .dimap f g t = dimap f g ∘ t
 
-  ProfunctorBazaar : Profunctor (Bazaar p a b)
-  ProfunctorBazaar .dimap f g (Bazaar: b) = Bazaar: λ h s -> g <$> b h (f s)
+  Profunctor-Bazaar : Profunctor (Bazaar p a b)
+  Profunctor-Bazaar .dimap f g (Bazaar: b) = Bazaar: λ h s -> g <$> b h (f s)
 
-  StrongBazaar : Strong (Bazaar p a b)
-  StrongBazaar .strong (Bazaar: b) = Bazaar: λ where
+  Strong-Bazaar : Strong (Bazaar p a b)
+  Strong-Bazaar .strong (Bazaar: b) = Bazaar: λ where
     h (u , s) -> _,_ u <$> b h s
 
-  ChoiceBazaar : Choice (Bazaar p a b)
-  ChoiceBazaar .choice (Bazaar: b) = Bazaar: λ where
+  Choice-Bazaar : Choice (Bazaar p a b)
+  Choice-Bazaar .choice (Bazaar: b) = Bazaar: λ where
     h (Right s) -> Right <$> b h s
     h (Left u) -> Left <$> pure u
 
-  WanderBazaar : Wander (Bazaar p a b)
-  WanderBazaar .wander w (Bazaar: b) = Bazaar: λ where
+  Wander-Bazaar : Wander (Bazaar p a b)
+  Wander-Bazaar .wander w (Bazaar: b) = Bazaar: λ where
     h s -> w (b h) s
 
-  ProfunctorSetter : Profunctor (Setter a b)
-  ProfunctorSetter .dimap f g h k = g ∘ h k ∘ f
+  Profunctor-Setter : Profunctor (Setter a b)
+  Profunctor-Setter .dimap f g h k = g ∘ h k ∘ f
 
-  StrongSetter : Strong (Setter a b)
-  StrongSetter .strong f g (c , a) = (c , f g a)
+  Strong-Setter : Strong (Setter a b)
+  Strong-Setter .strong f g (c , a) = (c , f g a)
 
 -------------------------------------------------------------------------------
 -- Deconstructors
