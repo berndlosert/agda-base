@@ -1705,10 +1705,29 @@ instance
 -- Show
 -------------------------------------------------------------------------------
 
+ShowS : Set
+ShowS = String -> String
+
 record Show (a : Set) : Set where
-  field show : a -> String
+  field showsPrec : Nat -> a -> ShowS
+
+  shows : a -> ShowS
+  shows = showsPrec 0
+
+  show : a -> String
+  show x = shows x ""
 
 open Show {{...}} public
+
+stringShow : String -> ShowS
+stringShow = _++_
+
+parenShow : Bool -> ShowS -> ShowS
+parenShow b p = if b then stringShow "(" ∘ p ∘ stringShow ")" else p
+
+appPrec appPrec+1 : Nat
+appPrec = 10
+appPrec+1 = 11
 
 private
   primitive
@@ -1720,81 +1739,96 @@ private
 
 instance
   showVoid : Show Void
-  showVoid .show ()
+  showVoid .showsPrec _ ()
 
   showUnit : Show Unit
-  showUnit .show unit = "unit"
+  showUnit .showsPrec _ unit = stringShow "unit"
 
   showBool : Show Bool
-  showBool .show True = "True"
-  showBool .show False = "False"
+  showBool .showsPrec _ True = stringShow "True"
+  showBool .showsPrec _ False = stringShow "False"
 
   showNat : Show Nat
-  showNat .show = primShowNat
+  showNat .showsPrec _ = stringShow ∘ primShowNat
 
   showInt : Show Int
-  showInt .show = primShowInteger
+  showInt .showsPrec _ = stringShow ∘ primShowInteger
 
   showFloat : Show Float
-  showFloat .show = primShowFloat
+  showFloat .showsPrec _ = stringShow ∘ primShowFloat
 
   showChar : Show Char
-  showChar .show = primShowChar
+  showChar .showsPrec _ = stringShow ∘ primShowChar
 
   showString : Show String
-  showString .show = primShowString
+  showString .showsPrec _ = stringShow ∘ primShowString
 
   showTuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
-  showTuple .show (x , y) = "(" ++ show x ++ " , " ++ show y ++ ")"
+  showTuple .showsPrec d (x , y) = stringShow "(" ∘ showsPrec d x
+    ∘ stringShow " , " ∘ showsPrec d y ∘ stringShow ")"
 
   showEither : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
-  showEither .show = λ where
-    (Left x) -> "(Left " ++ show x ++ ")"
-    (Right x) -> "(Right " ++ show x ++ ")"
+  showEither .showsPrec d (Left x) = parenShow (d > appPrec) $
+    stringShow "Left " ∘ showsPrec appPrec+1 x
+  showEither .showsPrec d (Right x) = parenShow (d > appPrec) $
+    stringShow "Right " ∘ showsPrec appPrec+1 x
 
   showMaybe : {{_ : Show a}} -> Show (Maybe a)
-  showMaybe .show = λ where
-    (Just x) -> "(Just " ++ show x ++ ")"
-    Nothing -> "Nothing"
+  showMaybe .showsPrec d (Just x) = parenShow (d > appPrec) $
+    stringShow "Just " ∘ showsPrec appPrec+1 x
+  showMaybe .showsPrec d Nothing = stringShow "Nothing"
 
   showList : {{_ : Show a}} -> Show (List a)
-  showList .show [] = "[]"
-  showList .show xs = "[ " ++ show' xs ++ " ]"
+  showList {a = a} .showsPrec _ zs s' = listShow shows zs s'
     where
-      show' : {{_ : Show a}} -> List a -> String
-      show' [] = ""
-      show' (y :: []) = show y
-      show' (y :: ys) = show y ++ " , " ++ show' ys
+      listShow : (a -> ShowS) -> List a -> ShowS
+      listShow _ [] s = "[]" ++ s
+      listShow showx (x :: xs) s = "[ " ++ showx x (showl xs)
+        where
+          showl : List a -> String
+          showl [] = " ]" ++ s
+          showl (y :: ys) = " , " ++ showx y (showl ys)
 
   showIdentity : {{_ : Show a}} -> Show (Identity a)
-  showIdentity .show (Identity: x) = "(Identity: " ++ show x ++ ")"
+  showIdentity .showsPrec d (Identity: x) = parenShow (d > appPrec) $
+    stringShow "Identity: " ∘ showsPrec appPrec+1 x
 
   showConst : {{_ : Show a}} -> Show (Const a b)
-  showConst .show (Const: x) = "(Const: " ++ show x ++ ")"
+  showConst .showsPrec d (Const: x) = parenShow (d > appPrec) $
+    stringShow "Const: " ∘ showsPrec appPrec+1 x
 
   showSum : {{_ : Show a}} -> Show (Sum a)
-  showSum .show (Sum: x) = "(Sum: " ++ show x ++ ")"
+  showSum .showsPrec d (Sum: x) = parenShow (d > appPrec) $
+    stringShow "Show: " ∘ showsPrec appPrec+1 x
 
   showProduct : {{_ : Show a}} -> Show (Product a)
-  showProduct .show (Product: x) = "(Product: " ++ show x ++ ")"
+  showProduct .showsPrec d (Product: x) = parenShow (d > appPrec) $
+    stringShow "Product: " ∘ showsPrec appPrec+1 x
 
   showDual : {{_ : Show a}} -> Show (Dual a)
-  showDual .show (Dual: x) = "(Dual: " ++ show x ++ ")"
+  showDual .showsPrec d (Dual: x) = parenShow (d > appPrec) $
+    stringShow "Dual: " ∘ showsPrec appPrec+1 x
 
   showFirst : {{_ : Show a}} -> Show (First a)
-  showFirst .show (First: x) = "(First: " ++ show x ++ ")"
+  showFirst .showsPrec d (First: x) = parenShow (d > appPrec) $
+    stringShow "First: " ∘ showsPrec appPrec+1 x
 
   showLast : {{_ : Show a}} -> Show (Last a)
-  showLast .show (Last: x) = "(Last: " ++ show x ++ ")"
+  showLast .showsPrec d (Last: x) = parenShow (d > appPrec) $
+    stringShow "Last: " ∘ showsPrec appPrec+1 x
 
   showMin : {{_ : Show a}} -> Show (Min a)
-  showMin .show (Min: x) = "(Min: " ++ show x ++ ")"
+  showMin .showsPrec d (Min: x) = parenShow (d > appPrec) $
+    stringShow "Min: " ∘ showsPrec appPrec+1 x
 
   showMax : {{_ : Show a}} -> Show (Max a)
-  showMax .show (Max: x) = "(Max: " ++ show x ++ ")"
+  showMax .showsPrec d (Max: x) = parenShow (d > appPrec) $
+    stringShow "Max: " ∘ showsPrec appPrec+1 x
 
   showAny : Show Any
-  showAny .show (Any: x) = "(Any: " ++ show x ++ ")"
+  showAny .showsPrec d (Any: x) = parenShow (d > appPrec) $
+    stringShow "Any: " ∘ showsPrec appPrec+1 x
 
   showAll : Show All
-  showAll .show (All: x) = "(All: " ++ show x ++ ")"
+  showAll .showsPrec d (All: x) = parenShow (d > appPrec) $
+    stringShow "All: " ∘ showsPrec appPrec+1 x
