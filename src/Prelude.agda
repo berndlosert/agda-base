@@ -1481,14 +1481,8 @@ record IsFoldable (s a : Set) : Set where
   any : (a -> Bool) -> s -> Bool
   any p = getAny ∘ foldMap (Any: ∘ p)
 
-  notNull : s -> Bool
-  notNull = any (const True)
-
-  Nonempty : s -> Set
-  Nonempty = Assert ∘ notNull
-
   null : s -> Bool
-  null = not ∘ notNull
+  null = foldr (λ _ _ -> False) True
 
   sum : {{ _ : Monoid (Sum a)}} -> s -> a
   sum = getSum ∘ foldMap Sum:
@@ -1540,13 +1534,6 @@ instance
   isFoldableNatUnit .foldMap b 0 = neutral
   isFoldableNatUnit .foldMap b (Suc n) = b unit <> foldMap b n
 
-  foldableEither : Foldable (Either a)
-  foldableEither .foldMap _ (Left _) = neutral
-  foldableEither .foldMap f (Right x) = f x
-
-  foldableTuple : Foldable (Tuple a)
-  foldableTuple .foldMap f (_ , x) = f x
-
   foldableMaybe : Foldable Maybe
   foldableMaybe .foldMap = maybe neutral
 
@@ -1561,7 +1548,9 @@ instance
 -------------------------------------------------------------------------------
 
 record IsFoldable1 (s a : Set) : Set where
-  field {{isFoldable}} : IsFoldable s a
+  field
+    {{super}} : IsFoldable s a
+    Nonempty : s -> Set
 
   foldMap1 : {{_ : Semigroup b}}
     -> (a -> b) -> (xs : s) {{_ : Nonempty xs}} -> b
@@ -1598,8 +1587,21 @@ Foldable1 : (Set -> Set) -> Set
 Foldable1 f = forall {a} -> IsFoldable1 (f a) a
 
 instance
-  isFoldable1 : {{_ : IsFoldable s a}} -> IsFoldable1 s a
-  isFoldable1 = record {}
+  isFoldable1NatUnit : IsFoldable1 Nat Unit
+  isFoldable1NatUnit .Nonempty 0 = Void
+  isFoldable1NatUnit .Nonempty _ = Unit
+
+  foldable1Maybe : Foldable1 Maybe
+  foldable1Maybe .Nonempty Nothing = Void
+  foldable1Maybe .Nonempty _ = Unit
+
+  foldable1List : Foldable1 List
+  foldable1List .Nonempty [] = Void
+  foldable1List .Nonempty _ = Unit
+
+  isFoldable1StringChar : IsFoldable1 String Char
+  isFoldable1StringChar .Nonempty "" = Void
+  isFoldable1StringChar .Nonempty _ = Unit
 
 -------------------------------------------------------------------------------
 -- Traversable
@@ -1664,14 +1666,6 @@ record Traversable (t : Set -> Set) : Set where
 open Traversable {{...}} public
 
 instance
-  traversableEither : Traversable (Either a)
-  traversableEither .traverse f = λ where
-    (Left a) -> pure (Left a)
-    (Right x) -> map Right (f x)
-
-  traversableTuple : Traversable (Tuple a)
-  traversableTuple .traverse f (a , x) = map (a ,_) (f x)
-
   traversableMaybe : Traversable Maybe
   traversableMaybe .traverse f = λ where
     Nothing -> pure Nothing
