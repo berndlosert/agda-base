@@ -32,28 +32,28 @@ unsafeRetract : {{_ : Monad m}} -> IterT m a -> m a
 unsafeRetract iter = runIterT iter >>= either return unsafeRetract
 
 instance
-  functorIterT : {{_ : Monad m}} -> Functor (IterT m)
-  functorIterT .map f iter .runIterT =
+  FunctorIterT : {{_ : Monad m}} -> Functor (IterT m)
+  FunctorIterT .map f iter .runIterT =
     runIterT iter >>= return ∘ bimap f (map f)
 
-  applicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
-  applicativeIterT .pure x .runIterT = return (Left x)
-  applicativeIterT ._<*>_ iter x .runIterT = do
+  ApplicativeIterT : {{_ : Monad m}} -> Applicative (IterT m)
+  ApplicativeIterT .pure x .runIterT = return (Left x)
+  ApplicativeIterT ._<*>_ iter x .runIterT = do
     result <- runIterT iter
     case result of λ where
       (Left f) -> runIterT (f <$> x)
       (Right iter') -> return $ Right $ iter' <*> x
 
-  monadIterT : {{_ : Monad m}} -> Monad (IterT m)
-  monadIterT ._>>=_ iter k .runIterT = do
+  MonadIterT : {{_ : Monad m}} -> Monad (IterT m)
+  MonadIterT ._>>=_ iter k .runIterT = do
     result <- runIterT iter
     case result of λ where
       (Left m) -> runIterT (k m)
       (Right iter') -> return $ Right $ iter' >>= k
 
-  alternativeIterT : {{_ : Monad m}} -> Alternative (IterT m)
-  alternativeIterT .empty = never
-  alternativeIterT ._<|>_ l r .runIterT = do
+  AlternativeIterT : {{_ : Monad m}} -> Alternative (IterT m)
+  AlternativeIterT .empty = never
+  AlternativeIterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
     case resultl of λ where
       (Left _) -> return resultl
@@ -63,12 +63,12 @@ instance
           (Left _) -> return resultr
           (Right iter'') -> return $ Right $ iter' <|> iter''
 
-  monadFreeIterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
-  monadFreeIterT .wrap (Identity: iter) = delay iter
+  MonadFreeIterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
+  MonadFreeIterT .wrap (Identity: iter) = delay iter
 
-  monadTransIterT : MonadTrans IterT
-  monadTransIterT .lift m .runIterT = map Left m
+  MonadTransIterT : MonadTrans IterT
+  MonadTransIterT .lift m .runIterT = map Left m
 
-  monadStateIterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
-  monadStateIterT .get = lift get
-  monadStateIterT .put s = lift (put s)
+  MonadStateIterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
+  MonadStateIterT .get = lift get
+  MonadStateIterT .put s = lift (put s)

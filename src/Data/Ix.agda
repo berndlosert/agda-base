@@ -12,23 +12,23 @@ record Ix (a : Set) : Set where
 open Ix {{...}} public
 
 instance
-  ixNat : Ix Nat
-  ixNat .range (m , n) =
+  IxNat : Ix Nat
+  IxNat .range (m , n) =
       if m == n then [ m ]
       else if m < n then m :: range (m + 1 , n)
       else (m :: range (m - 1 , n))
-  ixNat .inRange (m , n) k = m <= k && k <= n
-  ixNat .rangeSize (m , n) = max (m - n) (n - m) + 1
-  ixNat .index (m , n) k = if inRange (m , n) k then Just (k - m) else Nothing
+  IxNat .inRange (m , n) k = m <= k && k <= n
+  IxNat .rangeSize (m , n) = max (m - n) (n - m) + 1
+  IxNat .index (m , n) k = if inRange (m , n) k then Just (k - m) else Nothing
 
-  ixInt : Ix Int
-  ixInt .range (m , n) =
+  IxInt : Ix Int
+  IxInt .range (m , n) =
       if m == n then [ m ]
       else if m < n then m :: range (m + 1 , n)
       else (m :: range (m - 1 , n))
-  ixInt .inRange (m , n) k = m <= k && k <= n
-  ixInt .rangeSize (m , n) = fromPos (abs (m - n)) {{believeMe}}
-  ixInt .index (m , n) k =
+  IxInt .inRange (m , n) k = m <= k && k <= n
+  IxInt .rangeSize (m , n) = fromPos (abs (m - n)) {{believeMe}}
+  IxInt .index (m , n) k =
     if inRange (m , n) k
     then Just $ fromPos (abs $ k - m) {{believeMe}}
     else Nothing

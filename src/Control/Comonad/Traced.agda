@@ -10,9 +10,9 @@ Traced : Set -> Set -> Set
 Traced m a = m -> a
 
 instance
-  functorTraced : Functor (Traced m)
-  functorTraced .map f g = f ∘ g
+  FunctorTraced : Functor (Traced m)
+  FunctorTraced .map f g = f ∘ g
 
-  comonadTraced : {{_ : Monoid m}} -> Comonad (Traced m)
-  comonadTraced .extend h t m = h $ λ m' -> t (m <> m')
-  comonadTraced .extract f = f neutral
+  ComonadTraced : {{_ : Monoid m}} -> Comonad (Traced m)
+  ComonadTraced .extend h t m = h $ λ m' -> t (m <> m')
+  ComonadTraced .extract f = f neutral

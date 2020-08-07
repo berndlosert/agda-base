@@ -19,15 +19,15 @@ lower : forall {m} {{_ : Monad m}} -> Free m ~> m
 lower = interpret id
 
 instance
-  functorFree : forall {f} -> Functor (Free f)
-  functorFree .map f free = Free: (map f ∘ run free)
+  FunctorFree : forall {f} -> Functor (Free f)
+  FunctorFree .map f free = Free: (map f ∘ run free)
 
-  applicativeFree : forall {f} -> Applicative (Free f)
-  applicativeFree .pure x = Free: λ _ -> return x
-  applicativeFree ._<*>_ f x = Free: λ t -> run f t <*> run x t
+  ApplicativeFree : forall {f} -> Applicative (Free f)
+  ApplicativeFree .pure x = Free: λ _ -> return x
+  ApplicativeFree ._<*>_ f x = Free: λ t -> run f t <*> run x t
 
-  monadFree : forall {f} -> Monad (Free f)
-  monadFree ._>>=_ m f = Free: λ t ->
+  MonadFree : forall {f} -> Monad (Free f)
+  MonadFree ._>>=_ m f = Free: λ t ->
     join (map (interpret t ∘ f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:

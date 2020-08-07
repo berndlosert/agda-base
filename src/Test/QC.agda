@@ -6,6 +6,7 @@ open import Data.Ix
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
+open import System.IO
 open import System.Random
 
 private variable a b g : Set
@@ -19,16 +20,16 @@ record Gen (a : Set) : Set where
   field unGen : StdGen -> Nat -> a
 
 instance
-  functorGen : Functor Gen
-  functorGen .map f (Gen: x) = Gen: λ r n -> f (x r n)
+  FunctorGen : Functor Gen
+  FunctorGen .map f (Gen: x) = Gen: λ r n -> f (x r n)
 
-  applicativeGen : Applicative Gen
-  applicativeGen .pure x = Gen: λ _ _ -> x
-  applicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
+  ApplicativeGen : Applicative Gen
+  ApplicativeGen .pure x = Gen: λ _ _ -> x
+  ApplicativeGen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
     let (r1 , r2) = split r in f r1 n (x r2 n)
 
-  monadGen : Monad Gen
-  monadGen ._>>=_ (Gen: m) k = Gen: λ r n ->
+  MonadGen : Monad Gen
+  MonadGen ._>>=_ (Gen: m) k = Gen: λ r n ->
     let (r1 , r2) = split r; Gen: m' = k (m r1 n) in m' r2 n
 
 -------------------------------------------------------------------------------
@@ -133,45 +134,45 @@ record Coarbitrary (a : Set) : Set where
 open Coarbitrary {{...}} public
 
 instance
-  arbitraryBool : Arbitrary Bool
-  arbitraryBool .arbitrary = elements (True :: False :: [])
+  ArbitraryBool : Arbitrary Bool
+  ArbitraryBool .arbitrary = elements (True :: False :: [])
 
-  arbitraryNat : Arbitrary Nat
-  arbitraryNat .arbitrary = sized λ n -> choose (0 , n)
+  ArbitraryNat : Arbitrary Nat
+  ArbitraryNat .arbitrary = sized λ n -> choose (0 , n)
 
-  arbitraryInt : Arbitrary Int
-  arbitraryInt .arbitrary = sized λ where
+  ArbitraryInt : Arbitrary Int
+  ArbitraryInt .arbitrary = sized λ where
     0 -> choose (0 , 0)
     (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
-  arbitraryTuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
-  arbitraryTuple .arbitrary = (| _,_ arbitrary arbitrary |)
+  ArbitraryTuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
+  ArbitraryTuple .arbitrary = (| _,_ arbitrary arbitrary |)
 
-  arbitraryList : {{_ : Arbitrary a}} -> Arbitrary (List a)
-  arbitraryList .arbitrary = sized λ n -> do
+  ArbitraryList : {{_ : Arbitrary a}} -> Arbitrary (List a)
+  ArbitraryList .arbitrary = sized λ n -> do
     m <- choose (0 , n)
     vectorOf m arbitrary
 
-  coarbitraryBool : Coarbitrary Bool
-  coarbitraryBool .coarbitrary b = variant (if b then 0 else 1)
+  CoarbitraryBool : Coarbitrary Bool
+  CoarbitraryBool .coarbitrary b = variant (if b then 0 else 1)
 
-  coarbitraryTuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
+  CoarbitraryTuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a * b)
-  coarbitraryTuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
+  CoarbitraryTuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
 
-  coarbitraryList : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
-  coarbitraryList .coarbitrary [] = variant 0
-  coarbitraryList .coarbitrary (a :: as) =
+  CoarbitraryList : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
+  CoarbitraryList .coarbitrary [] = variant 0
+  CoarbitraryList .coarbitrary (a :: as) =
     variant 1 ∘ coarbitrary a ∘ coarbitrary as
 
-  coarbitraryFunction : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
+  CoarbitraryFunction : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a -> b)
-  coarbitraryFunction .coarbitrary f gen =
+  CoarbitraryFunction .coarbitrary f gen =
     arbitrary >>= (flip coarbitrary gen ∘ f)
 
-  arbitraryFunction : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
+  ArbitraryFunction : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
     -> Arbitrary (a -> b)
-  arbitraryFunction .arbitrary = promote (flip coarbitrary arbitrary)
+  ArbitraryFunction .arbitrary = promote (flip coarbitrary arbitrary)
 
 -------------------------------------------------------------------------------
 -- Result & Property

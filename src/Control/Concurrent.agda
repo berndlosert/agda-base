@@ -3,6 +3,7 @@ module Control.Concurrent where
 open import Prelude
 
 open import Data.Time.Units
+open import System.IO
 
 private variable a : Set
 
@@ -21,14 +22,14 @@ private
     primThreadDelay : Nat -> IO Unit
 
 instance
-  eqThreadId : Eq ThreadId
-  eqThreadId ._==_ = primEqThreadId
+  EqThreadId : Eq ThreadId
+  EqThreadId ._==_ = primEqThreadId
 
-  ordThreadId : Ord ThreadId
-  ordThreadId ._<_ = primLessThanThreadId
+  OrdThreadId : Ord ThreadId
+  OrdThreadId ._<_ = primLessThanThreadId
 
-  showThreadId : Show ThreadId
-  showThreadId .show = primShowThreadId
+  ShowThreadId : Show ThreadId
+  ShowThreadId .showsPrec _ = showString ∘ primShowThreadId
 
 threadDelay : {{_ : TimeUnit a}} -> a -> IO Unit
 threadDelay x = primThreadDelay (toMicroseconds x)

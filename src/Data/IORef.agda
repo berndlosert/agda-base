@@ -2,6 +2,8 @@ module Data.IORef where
 
 open import Prelude
 
+open import System.IO
+
 private variable a b : Set
 
 postulate

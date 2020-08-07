@@ -34,35 +34,35 @@ withStateT : (s -> s) -> StateT s m a -> StateT s m a
 withStateT f (StateT: m) = StateT: (m ∘ f)
 
 instance
-  functorStateT : {{_ : Functor m}} -> Functor (StateT s m)
-  functorStateT .map f (StateT: m) = StateT: λ s0 -> map (first f) (m s0)
+  FunctorStateT : {{_ : Functor m}} -> Functor (StateT s m)
+  FunctorStateT .map f (StateT: m) = StateT: λ s0 -> map (first f) (m s0)
 
-  applicativeStateT : {{_ : Monad m}} -> Applicative (StateT s m)
-  applicativeStateT .pure a = StateT: λ s -> return (a , s)
-  applicativeStateT ._<*>_ (StateT: f) (StateT: x) = StateT: λ s0 -> do
+  ApplicativeStateT : {{_ : Monad m}} -> Applicative (StateT s m)
+  ApplicativeStateT .pure a = StateT: λ s -> return (a , s)
+  ApplicativeStateT ._<*>_ (StateT: f) (StateT: x) = StateT: λ s0 -> do
       (g , s1) <- f s0
       (y , s2) <- x s1
       return (g y , s2)
 
-  alternativeStateT : {{_ : Alternative m}} {{_ : Monad m}} ->
+  AlternativeStateT : {{_ : Alternative m}} {{_ : Monad m}} ->
     Alternative (StateT s m)
-  alternativeStateT .empty = StateT: (const empty)
-  alternativeStateT ._<|>_ (StateT: m) (StateT: n) = StateT: λ s ->
+  AlternativeStateT .empty = StateT: (const empty)
+  AlternativeStateT ._<|>_ (StateT: m) (StateT: n) = StateT: λ s ->
     m s <|> n s
 
-  monadStateT : {{_ : Monad m}} -> Monad (StateT s m)
-  monadStateT ._>>=_ (StateT: m) k = StateT: λ s0 -> do
+  MonadStateT : {{_ : Monad m}} -> Monad (StateT s m)
+  MonadStateT ._>>=_ (StateT: m) k = StateT: λ s0 -> do
     (a , s1) <- m s0
     runStateT (k a) s1
 
-  mfunctorStateT : MFunctor (StateT s)
-  mfunctorStateT .hoist f = mapStateT f
+  MFunctorStateT : MFunctor (StateT s)
+  MFunctorStateT .hoist f = mapStateT f
 
-  monadTransStateT : MonadTrans (StateT s)
-  monadTransStateT .lift m = StateT: λ s -> do
+  MonadTransStateT : MonadTrans (StateT s)
+  MonadTransStateT .lift m = StateT: λ s -> do
     a <- m
     return (a , s)
 
-  monadStateStateT : {{_ : Monad m}} -> MonadState s (StateT s m)
-  monadStateStateT .get = StateT: (return ∘ dupe)
-  monadStateStateT .put s = StateT: (const (return (unit , s)))
+  MonadStateStateT : {{_ : Monad m}} -> MonadState s (StateT s m)
+  MonadStateStateT .get = StateT: (return ∘ dupe)
+  MonadStateStateT .put s = StateT: (const (return (unit , s)))

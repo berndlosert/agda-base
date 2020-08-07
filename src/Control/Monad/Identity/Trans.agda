@@ -17,28 +17,28 @@ record IdentityT (m : Set -> Set) (a : Set) : Set where
 open IdentityT public
 
 instance
-  functorIdentityT : {{_ : Functor m}} -> Functor (IdentityT m)
-  functorIdentityT .map f (IdentityT: m) = IdentityT: (map f m)
+  FunctorIdentityT : {{_ : Functor m}} -> Functor (IdentityT m)
+  FunctorIdentityT .map f (IdentityT: m) = IdentityT: (map f m)
 
-  applicativeIdentityT : {{_ : Applicative m}} -> Applicative (IdentityT m)
-  applicativeIdentityT .pure x = IdentityT: (pure x)
-  applicativeIdentityT ._<*>_ (IdentityT: f) (IdentityT: x) =
+  ApplicativeIdentityT : {{_ : Applicative m}} -> Applicative (IdentityT m)
+  ApplicativeIdentityT .pure x = IdentityT: (pure x)
+  ApplicativeIdentityT ._<*>_ (IdentityT: f) (IdentityT: x) =
     IdentityT: (f <*> x)
 
-  monadIdentityT : {{_ : Monad m}} -> Monad (IdentityT m)
-  monadIdentityT ._>>=_ (IdentityT: m) k = IdentityT: do
+  MonadIdentityT : {{_ : Monad m}} -> Monad (IdentityT m)
+  MonadIdentityT ._>>=_ (IdentityT: m) k = IdentityT: do
     a <- m
     runIdentityT (k a)
 
-  mfunctorIdentityT : MFunctor IdentityT
-  mfunctorIdentityT .hoist t (IdentityT: m) = IdentityT: (t m)
+  MfunctorIdentityT : MFunctor IdentityT
+  MfunctorIdentityT .hoist t (IdentityT: m) = IdentityT: (t m)
 
-  monadTransIdentityT : MonadTrans IdentityT
-  monadTransIdentityT .lift = IdentityT:
+  MonadTransIdentityT : MonadTrans IdentityT
+  MonadTransIdentityT .lift = IdentityT:
 
-  mmonadIdentityT : MMonad IdentityT
-  mmonadIdentityT .embed k (IdentityT: m) = k m
+  MMonadIdentityT : MMonad IdentityT
+  MMonadIdentityT .embed k (IdentityT: m) = k m
 
-  monadBaseIdentityT : {{_ : Monad n}} {{_ : MonadBase m n}}
+  MonadBaseIdentityT : {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (IdentityT n)
-  monadBaseIdentityT .liftBase m = lift (liftBase m)
+  MonadBaseIdentityT .liftBase m = lift (liftBase m)

@@ -10,9 +10,9 @@ Env : Set -> Set -> Set
 Env e a = e * a
 
 instance
-  functorEnv : Functor (Env e)
-  functorEnv .map f (e , x) = (e , f x)
+  FunctorEnv : Functor (Env e)
+  FunctorEnv .map f (e , x) = (e , f x)
 
-  comonadEnv : Comonad (Env e)
-  comonadEnv .extend f p@(e , x) = (e , f p)
-  comonadEnv .extract (e , x) = x
+  ComonadEnv : Comonad (Env e)
+  ComonadEnv .extend f p@(e , x) = (e , f p)
+  ComonadEnv .extract (e , x) = x

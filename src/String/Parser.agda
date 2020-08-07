@@ -8,10 +8,10 @@ open import Control.Monad.State.Trans
     StateT;
     StateT:;
     runStateT;
-    functorStateT;
-    applicativeStateT;
-    alternativeStateT;
-    monadStateT
+    FunctorStateT;
+    ApplicativeStateT;
+    AlternativeStateT;
+    MonadStateT
   )
 
 open import Data.String as String
@@ -33,17 +33,17 @@ abstract
   runParser = runStateT
 
   instance
-    functorParser : Functor Parser
-    functorParser = functorStateT
+    FunctorParser : Functor Parser
+    FunctorParser = FunctorStateT
 
-    applicativeParser : Applicative Parser
-    applicativeParser = applicativeStateT
+    ApplicativeParser : Applicative Parser
+    ApplicativeParser = ApplicativeStateT
 
-    alternativeParser : Alternative Parser
-    alternativeParser = alternativeStateT
+    AlternativeParser : Alternative Parser
+    AlternativeParser = AlternativeStateT
 
-    monadParser : Monad Parser
-    monadParser = monadStateT
+    MonadParser : Monad Parser
+    MonadParser = MonadStateT
 
 -------------------------------------------------------------------------------
 -- Combinators

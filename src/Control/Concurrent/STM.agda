@@ -2,6 +2,8 @@ module Control.Concurrent.STM where
 
 open import Prelude
 
+open import System.IO
+
 private variable a b s : Set
 
 -------------------------------------------------------------------------------
@@ -23,19 +25,19 @@ private
     bindSTM : STM a -> (a -> STM b) -> STM b
 
 instance
-  functorSTM : Functor STM
-  functorSTM .map = mapSTM
+  FunctorSTM : Functor STM
+  FunctorSTM .map = mapSTM
 
-  applicativeSTM : Applicative STM
-  applicativeSTM .pure = pureSTM
-  applicativeSTM ._<*>_ = apSTM
+  ApplicativeSTM : Applicative STM
+  ApplicativeSTM .pure = pureSTM
+  ApplicativeSTM ._<*>_ = apSTM
 
-  alternativeSTM : Alternative STM
-  alternativeSTM .empty = retry
-  alternativeSTM ._<|>_ = orElse
+  AlternativeSTM : Alternative STM
+  AlternativeSTM .empty = retry
+  AlternativeSTM ._<|>_ = orElse
 
-  monadSTM : Monad STM
-  monadSTM ._>>=_ = bindSTM
+  MonadSTM : Monad STM
+  MonadSTM ._>>=_ = bindSTM
 
 {-# FOREIGN GHC import Control.Monad.STM #-}
 {-# COMPILE GHC STM = type STM #-}

@@ -5,9 +5,10 @@ open import Prelude
 open import Data.Bits
 open import Data.IORef
 open import Data.List
-open import System.Time
 open import Data.Time.Units
 open import Data.Word
+open import System.IO
+open import System.Time
 
 private variable a as g : Set
 
@@ -126,13 +127,13 @@ private
       shiftR (x4 * x4 + y) 32
 
 instance
-  randomgenStdGen : RandomGen StdGen
-  randomgenStdGen .next (stdgen: seed gamma) =
+  RandomGenStdGen : RandomGen StdGen
+  RandomGenStdGen .next (stdgen: seed gamma) =
       (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
-  randomgenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
-  randomgenStdGen .split (stdgen: seed gamma) =
+  RandomGenStdGen .genRange _ = (0 , 2 ^ 64 - 1)
+  RandomGenStdGen .split (stdgen: seed gamma) =
       (stdgen: seed'' gamma , stdgen: (mix64 seed') (mixgamma seed''))
     where
       seed' = seed + gamma
@@ -189,18 +190,18 @@ record RandomR (a : Set) : Set where
 open RandomR {{...}} public
 
 instance
-  randomBool : Random Bool
-  randomBool .random g = let (n , g') = next g in
+  RandomBool : Random Bool
+  RandomBool .random g = let (n , g') = next g in
     (testBit n 0 , g')
 
-  randomRNat : RandomR Nat
-  randomRNat .randomR (from , to) g with compare from to
+  RandomRNat : RandomR Nat
+  RandomRNat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT = first (_+ from) $ genNat' (to - from) g
 
-  randomRInt : RandomR Int
-  randomRInt .randomR (from , to) g with compare from to
+  RandomRInt : RandomR Int
+  RandomRInt .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =

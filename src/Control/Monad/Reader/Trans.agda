@@ -25,32 +25,32 @@ withReaderT : (r' -> r) -> ReaderT r m ~> ReaderT r' m
 withReaderT f (ReaderT: m) = ReaderT: (m ∘ f)
 
 instance
-  functorReaderT : {{_ : Functor m}} -> Functor (ReaderT r m)
-  functorReaderT .map f = mapReaderT (map f)
+  FunctorReaderT : {{_ : Functor m}} -> Functor (ReaderT r m)
+  FunctorReaderT .map f = mapReaderT (map f)
 
-  applicativeReaderT : {{_ : Applicative m}} -> Applicative (ReaderT r m)
-  applicativeReaderT .pure = ReaderT: ∘ const ∘ pure
-  applicativeReaderT ._<*>_ (ReaderT: f) (ReaderT: x) = ReaderT: λ r ->
+  ApplicativeReaderT : {{_ : Applicative m}} -> Applicative (ReaderT r m)
+  ApplicativeReaderT .pure = ReaderT: ∘ const ∘ pure
+  ApplicativeReaderT ._<*>_ (ReaderT: f) (ReaderT: x) = ReaderT: λ r ->
     f r <*> x r
 
-  monadReaderT : {{_ : Monad m}} -> Monad (ReaderT r m)
-  monadReaderT ._>>=_ (ReaderT: m) k = ReaderT: λ r -> do
+  MonadReaderT : {{_ : Monad m}} -> Monad (ReaderT r m)
+  MonadReaderT ._>>=_ (ReaderT: m) k = ReaderT: λ r -> do
     a <- m r
     runReaderT (k a) r
 
-  monadReaderReaderT : {{_ : Monad m}} -> MonadReader r (ReaderT r m)
-  monadReaderReaderT .ask = ReaderT: return
-  monadReaderReaderT .local f = withReaderT f
+  MonadReaderReaderT : {{_ : Monad m}} -> MonadReader r (ReaderT r m)
+  MonadReaderReaderT .ask = ReaderT: return
+  MonadReaderReaderT .local f = withReaderT f
 
-  mfunctorReaderT : MFunctor (ReaderT r)
-  mfunctorReaderT .hoist t = mapReaderT t
+  MFunctorReaderT : MFunctor (ReaderT r)
+  MFunctorReaderT .hoist t = mapReaderT t
 
-  monadTransReaderT : MonadTrans (ReaderT r)
-  monadTransReaderT .lift = ReaderT: ∘ const
+  MonadTransReaderT : MonadTrans (ReaderT r)
+  MonadTransReaderT .lift = ReaderT: ∘ const
 
-  mmonadReaderT : MMonad (ReaderT r)
-  mmonadReaderT .embed k (ReaderT: f) = ReaderT: λ r -> runReaderT (k (f r)) r
+  MMonadReaderT : MMonad (ReaderT r)
+  MMonadReaderT .embed k (ReaderT: f) = ReaderT: λ r -> runReaderT (k (f r)) r
 
-  monadBaseReaderT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
+  MonadBaseReaderT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
     -> MonadBase m (ReaderT r n)
-  monadBaseReaderT .liftBase m = lift (liftBase m)
+  MonadBaseReaderT .liftBase m = lift (liftBase m)

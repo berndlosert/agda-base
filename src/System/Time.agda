@@ -3,6 +3,7 @@ module System.Time where
 open import Prelude
 
 open import Data.Time.Units
+open import System.IO
 
 private
   postulate

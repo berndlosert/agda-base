@@ -31,38 +31,38 @@ private
     primPopCountWord32 : Word32 -> Nat
 
 instance
-  fromNatWord32 : FromNat Word32
-  fromNatWord32 = record {
+  FromNatWord32 : FromNat Word32
+  FromNatWord32 = record {
       Constraint = const Unit;
       fromNat = λ n -> natToWord32 n
     }
 
-  eqWord32 : Eq Word32
-  eqWord32 ._==_ = primEqWord32
+  EqWord32 : Eq Word32
+  EqWord32 ._==_ = primEqWord32
 
-  ordWord32 : Ord Word32
-  ordWord32 ._<_ = primLessThanWord32
+  OrdWord32 : Ord Word32
+  OrdWord32 ._<_ = primLessThanWord32
 
-  bitsWord32 : Bits Word32
-  bitsWord32 .bitSize _ = 32
-  bitsWord32 .zeroBits = 0x0
-  bitsWord32 .oneBits = 0xFFFFFFFF
-  bitsWord32 ._:|:_ = primOrWord32
-  bitsWord32 ._xor_ = primXorWord32
-  bitsWord32 ._:&:_ = primAndWord32
-  bitsWord32 .shift = primShiftWord32
-  bitsWord32 .rotate = primRotateWord32
-  bitsWord32 .bit = primBitWord32
-  bitsWord32 .testBit = primTestBitWord32
-  bitsWord32 .isSigned = primIsSignedWord32
-  bitsWord32 .popCount = primPopCountWord32
+  BitsWord32 : Bits Word32
+  BitsWord32 .bitSize _ = 32
+  BitsWord32 .zeroBits = 0x0
+  BitsWord32 .oneBits = 0xFFFFFFFF
+  BitsWord32 ._:|:_ = primOrWord32
+  BitsWord32 ._xor_ = primXorWord32
+  BitsWord32 ._:&:_ = primAndWord32
+  BitsWord32 .shift = primShiftWord32
+  BitsWord32 .rotate = primRotateWord32
+  BitsWord32 .bit = primBitWord32
+  BitsWord32 .testBit = primTestBitWord32
+  BitsWord32 .isSigned = primIsSignedWord32
+  BitsWord32 .popCount = primPopCountWord32
 
-  additionWord32 : Addition Word32
-  additionWord32 ._+_ x y = natToWord32 $
+  AdditionWord32 : Addition Word32
+  AdditionWord32 ._+_ x y = natToWord32 $
     (word32ToNat x + word32ToNat y) % 2^32
 
-  multiplicationWord32 : Multiplication Word32
-  multiplicationWord32 ._*_ x y = natToWord32 $
+  MultiplicationWord32 : Multiplication Word32
+  MultiplicationWord32 ._*_ x y = natToWord32 $
     (word32ToNat x * word32ToNat y) % 2^32
 
 -------------------------------------------------------------------------------
@@ -98,38 +98,38 @@ word64ToNat = primWord64ToNat
 natToWord64 = primWord64FromNat
 
 instance
-  fromNatWord64 : FromNat Word64
-  fromNatWord64 = record {
+  FromNatWord64 : FromNat Word64
+  FromNatWord64 = record {
       Constraint = const Unit;
       fromNat = λ n -> natToWord64 n
     }
 
-  eqWord64 : Eq Word64
-  eqWord64 ._==_ = primEqWord64
+  EqWord64 : Eq Word64
+  EqWord64 ._==_ = primEqWord64
 
-  ordWord64 : Ord Word64
-  ordWord64 ._<_ = primLessThanWord64
+  OrdWord64 : Ord Word64
+  OrdWord64 ._<_ = primLessThanWord64
 
-  bitsWord64 : Bits Word64
-  bitsWord64 .bitSize _ = 64
-  bitsWord64 .zeroBits = 0x0
-  bitsWord64 .oneBits = 0xFFFFFFFFFFFFFFFF
-  bitsWord64 ._:|:_ = primOrWord64
-  bitsWord64 ._xor_ = primXorWord64
-  bitsWord64 ._:&:_ = primAndWord64
-  bitsWord64 .shift = primShiftWord64
-  bitsWord64 .rotate = primRotateWord64
-  bitsWord64 .bit = primBitWord64
-  bitsWord64 .testBit = primTestBitWord64
-  bitsWord64 .isSigned = primIsSignedWord64
-  bitsWord64 .popCount = primPopCountWord64
+  BitsWord64 : Bits Word64
+  BitsWord64 .bitSize _ = 64
+  BitsWord64 .zeroBits = 0x0
+  BitsWord64 .oneBits = 0xFFFFFFFFFFFFFFFF
+  BitsWord64 ._:|:_ = primOrWord64
+  BitsWord64 ._xor_ = primXorWord64
+  BitsWord64 ._:&:_ = primAndWord64
+  BitsWord64 .shift = primShiftWord64
+  BitsWord64 .rotate = primRotateWord64
+  BitsWord64 .bit = primBitWord64
+  BitsWord64 .testBit = primTestBitWord64
+  BitsWord64 .isSigned = primIsSignedWord64
+  BitsWord64 .popCount = primPopCountWord64
 
-  additionWord64 : Addition Word64
-  additionWord64 ._+_ x y = natToWord64 $
+  AdditionWord64 : Addition Word64
+  AdditionWord64 ._+_ x y = natToWord64 $
     (word64ToNat x + word64ToNat y) % 2^64
 
-  multiplicationWord64 : Multiplication Word64
-  multiplicationWord64 ._*_ x y = natToWord64 $
+  MultiplicationWord64 : Multiplication Word64
+  MultiplicationWord64 ._*_ x y = natToWord64 $
     (word64ToNat x * word64ToNat y) % 2^64
 
 -------------------------------------------------------------------------------

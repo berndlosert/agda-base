@@ -173,25 +173,25 @@ record Concurrently (a : Set) : Set where
 open Concurrently public
 
 instance
-  functorConcurrently : Functor Concurrently
-  functorConcurrently .map f (Concurrently: a) = Concurrently: (map f a)
+  FunctorConcurrently : Functor Concurrently
+  FunctorConcurrently .map f (Concurrently: a) = Concurrently: (map f a)
 
-  applicativeConcurrently : Applicative Concurrently
-  applicativeConcurrently .pure = Concurrently: ∘ pure
-  applicativeConcurrently ._<*>_ (Concurrently: f) (Concurrently: x) =
+  ApplicativeConcurrently : Applicative Concurrently
+  ApplicativeConcurrently .pure = Concurrently: ∘ pure
+  ApplicativeConcurrently ._<*>_ (Concurrently: f) (Concurrently: x) =
     Concurrently: (apply <$> concurrently f x)
 
-  alternativeConcurrently : Alternative Concurrently
-  alternativeConcurrently .empty =
+  AlternativeConcurrently : Alternative Concurrently
+  AlternativeConcurrently .empty =
     Concurrently: (forever $ threadDelay ((2 ^ 32) μsec))
-  alternativeConcurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
+  AlternativeConcurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
     Concurrently: (untag <$> race as bs)
 
-  semigroupConcurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
-  semigroupConcurrently ._<>_ x y = (| _<>_ x y |)
+  SemigroupConcurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
+  SemigroupConcurrently ._<>_ x y = (| _<>_ x y |)
 
-  monoidConcurrently : {{_ : Monoid a}} -> Monoid (Concurrently a)
-  monoidConcurrently .neutral = pure neutral
+  MonoidConcurrently : {{_ : Monoid a}} -> Monoid (Concurrently a)
+  MonoidConcurrently .neutral = pure neutral
 
 mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
 mapConcurrently f = runConcurrently ∘ traverse (Concurrently: ∘ f)

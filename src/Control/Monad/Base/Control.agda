@@ -13,7 +13,7 @@ record MonadBaseControl (b m : Set -> Set) : Set where
 open MonadBaseControl {{...}}
 
 instance
-  monadBaseControlMaybe : MonadBaseControl Maybe Maybe
-  monadBaseControlMaybe .StM = id
-  monadBaseControlMaybe .liftBaseWith f = f id
-  monadBaseControlMaybe .restoreM = return
+  MonadBaseControlMaybe : MonadBaseControl Maybe Maybe
+  MonadBaseControlMaybe .StM = id
+  MonadBaseControlMaybe .liftBaseWith f = f id
+  MonadBaseControlMaybe .restoreM = return

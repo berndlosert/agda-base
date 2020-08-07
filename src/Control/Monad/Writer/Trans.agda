@@ -28,51 +28,51 @@ mapWriterT : (m (a * w) -> n (b * w'))
 mapWriterT f (WriterT: m) = WriterT: (f m)
 
 instance
-  functorWriterT : {{_ : Functor m}} -> Functor (WriterT w m)
-  functorWriterT .map f = mapWriterT (map (first f))
+  FunctorWriterT : {{_ : Functor m}} -> Functor (WriterT w m)
+  FunctorWriterT .map f = mapWriterT (map (first f))
 
-  applicativeWriterT : {{_ : Monoid w}} {{_ : Applicative m}}
+  ApplicativeWriterT : {{_ : Monoid w}} {{_ : Applicative m}}
     -> Applicative (WriterT w m)
-  applicativeWriterT .pure a = WriterT: $ pure (a , neutral)
-  applicativeWriterT ._<*>_ (WriterT: f) (WriterT: x) = WriterT: (| k f x |)
+  ApplicativeWriterT .pure a = WriterT: $ pure (a , neutral)
+  ApplicativeWriterT ._<*>_ (WriterT: f) (WriterT: x) = WriterT: (| k f x |)
     where
       k : _
       k (f , w) (x , w') = (f x , w <> w')
 
-  monadWriterT : {{_ : Monoid w}} {{_ : Monad m}} -> Monad (WriterT w m)
-  monadWriterT ._>>=_ (WriterT: m) k = WriterT: do
+  MonadWriterT : {{_ : Monoid w}} {{_ : Monad m}} -> Monad (WriterT w m)
+  MonadWriterT ._>>=_ (WriterT: m) k = WriterT: do
     (a , w) <- m
     (b , w') <- runWriterT (k a)
     return (b , w <> w')
 
-  mfunctorWriterT : MFunctor (WriterT w)
-  mfunctorWriterT .hoist f = mapWriterT f
+  MFunctorWriterT : MFunctor (WriterT w)
+  MFunctorWriterT .hoist f = mapWriterT f
 
-  monadTransWriterT : {{_ : Monoid w}} -> MonadTrans (WriterT w)
-  monadTransWriterT .lift m = WriterT: do
+  MonadTransWriterT : {{_ : Monoid w}} -> MonadTrans (WriterT w)
+  MonadTransWriterT .lift m = WriterT: do
     a <- m
     return (a , neutral)
 
-  mmonadWriterT : {{_ : Monoid w}} -> MMonad (WriterT w)
-  mmonadWriterT .embed k (WriterT: m) = WriterT: do
+  MMonadWriterT : {{_ : Monoid w}} -> MMonad (WriterT w)
+  MMonadWriterT .embed k (WriterT: m) = WriterT: do
     ((a , w) , w') <- runWriterT (k m)
     return (a , w <> w')
 
-  monadWriterWriterT : {{_ : Monoid w}} {{_ : Monad m}}
+  MonadWriterWriterT : {{_ : Monoid w}} {{_ : Monad m}}
     -> MonadWriter w (WriterT w m)
-  monadWriterWriterT .tell w = WriterT: (return (unit , w))
-  monadWriterWriterT .listen (WriterT: m) = WriterT: do
+  MonadWriterWriterT .tell w = WriterT: (return (unit , w))
+  MonadWriterWriterT .listen (WriterT: m) = WriterT: do
     (a , w) <- m
     return ((a , w) , w)
-  monadWriterWriterT .pass (WriterT: m) = WriterT: do
+  MonadWriterWriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
     return (a , f w)
 
-  monadBaseWriterT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
+  MonadBaseWriterT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
     -> {{_ : Monoid w}} -> MonadBase m (WriterT w n)
-  monadBaseWriterT .liftBase m = lift (liftBase m)
+  MonadBaseWriterT .liftBase m = lift (liftBase m)
 
-  alternativeWriterT : {{_ : Monoid w}} {{_ : Alternative m}}
+  AlternativeWriterT : {{_ : Monoid w}} {{_ : Alternative m}}
     -> Alternative (WriterT w m)
-  alternativeWriterT .empty = WriterT: empty
-  alternativeWriterT ._<|>_ (WriterT: m) (WriterT: n) = WriterT: (m <|> n)
+  AlternativeWriterT .empty = WriterT: empty
+  AlternativeWriterT ._<|>_ (WriterT: m) (WriterT: n) = WriterT: (m <|> n)
