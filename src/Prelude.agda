@@ -415,25 +415,25 @@ record Boolean (b : Set) : Set where
 open Boolean {{...}} public
 
 instance
-  booleanBool : Boolean Bool
-  booleanBool .ff = False
-  booleanBool .tt = True
-  booleanBool .not = λ where
+  BooleanBool : Boolean Bool
+  BooleanBool .ff = False
+  BooleanBool .tt = True
+  BooleanBool .not = λ where
     False -> True
     True -> False
-  booleanBool ._||_ = λ where
+  BooleanBool ._||_ = λ where
     False b -> b
     True _ -> True
-  booleanBool ._&&_ = λ where
+  BooleanBool ._&&_ = λ where
     False _ -> False
     True b -> b
 
-  booleanFunction : {{_ : Boolean b}} -> Boolean (a -> b)
-  booleanFunction .ff x = ff
-  booleanFunction .tt x = tt
-  booleanFunction .not f x = not (f x)
-  booleanFunction ._||_ f g x = f x || g x
-  booleanFunction ._&&_ f g x = f x && g x
+  BooleanFunction : {{_ : Boolean b}} -> Boolean (a -> b)
+  BooleanFunction .ff x = ff
+  BooleanFunction .tt x = tt
+  BooleanFunction .not f x = not (f x)
+  BooleanFunction ._||_ f g x = f x || g x
+  BooleanFunction ._&&_ f g x = f x && g x
 
 -------------------------------------------------------------------------------
 -- Eq
@@ -450,62 +450,62 @@ record Eq (a : Set) : Set where
 open Eq {{...}} public
 
 instance
-  eqVoid : Eq Void
-  eqVoid ._==_ = λ ()
+  EqVoid : Eq Void
+  EqVoid ._==_ = λ ()
 
-  eqUnit : Eq Unit
-  eqUnit ._==_ unit unit = True
+  EqUnit : Eq Unit
+  EqUnit ._==_ unit unit = True
 
-  eqBool : Eq Bool
-  eqBool ._==_ = λ where
+  EqBool : Eq Bool
+  EqBool ._==_ = λ where
     True True -> True
     False False -> False
     _ _ -> False
 
-  eqNat : Eq Nat
-  eqNat ._==_ = natEquality
+  EqNat : Eq Nat
+  EqNat ._==_ = natEquality
 
-  eqInt : Eq Int
-  eqInt ._==_ = λ where
+  EqInt : Eq Int
+  EqInt ._==_ = λ where
     (Pos m) (Pos n) -> m == n
     (NegSuc m) (NegSuc n) -> m == n
     _ _ -> False
 
-  eqFloat : Eq Float
-  eqFloat ._==_ = primFloatNumericalEquality
+  EqFloat : Eq Float
+  EqFloat ._==_ = primFloatNumericalEquality
 
-  eqChar : Eq Char
-  eqChar ._==_ = primCharEquality
+  EqChar : Eq Char
+  EqChar ._==_ = primCharEquality
 
-  eqString : Eq String
-  eqString ._==_ = primStringEquality
+  EqString : Eq String
+  EqString ._==_ = primStringEquality
 
-  eqEither : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
-  eqEither ._==_ = λ where
+  EqEither : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
+  EqEither ._==_ = λ where
     (Left x) (Left y) -> x == y
     (Right x) (Right y) -> x == y
     _ _ -> False
 
-  eqTuple : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Tuple a b)
-  eqTuple ._==_ (x , y) (w , z) = (x == w) && (y == z)
+  EqTuple : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Tuple a b)
+  EqTuple ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
-  eqMaybe : {{_ : Eq a}} -> Eq (Maybe a)
-  eqMaybe ._==_ = λ where
+  EqMaybe : {{_ : Eq a}} -> Eq (Maybe a)
+  EqMaybe ._==_ = λ where
     Nothing Nothing -> True
     (Just x) (Just y) -> x == y
     _ _ -> False
 
-  eqList : {{_ : Eq a}} -> Eq (List a)
-  eqList ._==_ = λ where
+  EqList : {{_ : Eq a}} -> Eq (List a)
+  EqList ._==_ = λ where
     [] [] -> True
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
-  eqIdentity : {{_ : Eq a}} -> Eq (Identity a)
-  eqIdentity ._==_ (Identity: x) (Identity: y) = x == y
+  EqIdentity : {{_ : Eq a}} -> Eq (Identity a)
+  EqIdentity ._==_ (Identity: x) (Identity: y) = x == y
 
-  eqConst : {{_ : Eq a}} -> Eq (Const a b)
-  eqConst ._==_ (Const: x) (Const: y) = x == y
+  EqConst : {{_ : Eq a}} -> Eq (Const a b)
+  EqConst ._==_ (Const: x) (Const: y) = x == y
 
 -------------------------------------------------------------------------------
 -- Ord
@@ -547,58 +547,58 @@ record Ord (a : Set) : Set where
 open Ord {{...}} public
 
 instance
-  ordVoid : Ord Void
-  ordVoid ._<_ = λ ()
+  OrdVoid : Ord Void
+  OrdVoid ._<_ = λ ()
 
-  ordUnit : Ord Unit
-  ordUnit ._<_ unit unit = False
+  OrdUnit : Ord Unit
+  OrdUnit ._<_ unit unit = False
 
-  ordBool : Ord Bool
-  ordBool ._<_ = λ where
+  OrdBool : Ord Bool
+  OrdBool ._<_ = λ where
     False True -> True
     _ _ -> False
 
-  ordNat : Ord Nat
-  ordNat ._<_ = natLessThan
+  OrdNat : Ord Nat
+  OrdNat ._<_ = natLessThan
 
-  ordInt : Ord Int
-  ordInt ._<_ = λ where
+  OrdInt : Ord Int
+  OrdInt ._<_ = λ where
     (Pos m) (Pos n) -> m < n
     (NegSuc m) (NegSuc n) -> m > n
     (NegSuc _) (Pos _) -> True
     (Pos _) (NegSuc _) -> False
 
-  ordFloat : Ord Float
-  ordFloat ._<_ = primFloatNumericalLess
+  OrdFloat : Ord Float
+  OrdFloat ._<_ = primFloatNumericalLess
 
-  ordChar : Ord Char
-  ordChar ._<_ x y = ord x < ord y
+  OrdChar : Ord Char
+  OrdChar ._<_ x y = ord x < ord y
 
-  ordList : {{_ : Ord a}} -> Ord (List a)
-  ordList ._<_ = λ where
+  OrdList : {{_ : Ord a}} -> Ord (List a)
+  OrdList ._<_ = λ where
     (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
     [] [] -> True
     _ _ -> False
 
-  ordString : Ord String
-  ordString ._<_ l r with unpack l | unpack r
+  OrdString : Ord String
+  OrdString ._<_ l r with unpack l | unpack r
   ... | (x :: xs) | (y :: ys) = x < y || (x == y && xs < ys)
   ... | _ | _ = False
 
-  ordTuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
-  ordTuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
+  OrdTuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
+  OrdTuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
 
-  ordMaybe : {{_ : Ord a}} -> Ord (Maybe a)
-  ordMaybe ._<_ = λ where
+  OrdMaybe : {{_ : Ord a}} -> Ord (Maybe a)
+  OrdMaybe ._<_ = λ where
     _ Nothing -> False
     Nothing _ -> True
     (Just x) (Just y) -> x < y
 
-  ordIdentity : {{_ : Ord a}} -> Ord (Identity a)
-  ordIdentity ._<_ (Identity: x) (Identity: y) = x < y
+  OrdIdentity : {{_ : Ord a}} -> Ord (Identity a)
+  OrdIdentity ._<_ (Identity: x) (Identity: y) = x < y
 
-  ordConst : {{_ : Ord a}} -> Ord (Const a b)
-  ordConst ._<_ (Const: x) (Const: y) = x < y
+  OrdConst : {{_ : Ord a}} -> Ord (Const a b)
+  OrdConst ._<_ (Const: x) (Const: y) = x < y
 
 -------------------------------------------------------------------------------
 -- FromNat and FromNeg
@@ -625,26 +625,26 @@ open FromNeg {{...}} public using (fromNeg)
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
 instance
-  fromNatNat : FromNat Nat
-  fromNatNat = record {
+  FromNatNat : FromNat Nat
+  FromNatNat = record {
       Constraint = const Unit;
       fromNat = λ n -> n
     }
 
-  fromNatInt : FromNat Int
-  fromNatInt = record {
+  FromNatInt : FromNat Int
+  FromNatInt = record {
       Constraint = const Unit;
       fromNat = λ n -> Pos n
     }
 
-  fromNegInt : FromNeg Int
-  fromNegInt = record {
+  FromNegInt : FromNeg Int
+  FromNegInt = record {
       Constraint = const Unit;
       fromNeg = λ n -> neg n
     }
 
-  fromNegFloat : FromNeg Float
-  fromNegFloat = record {
+  FromNegFloat : FromNeg Float
+  FromNegFloat = record {
       Constraint = const Unit;
       fromNeg = λ x -> primFloatNegate (natToFloat x)
     }
@@ -711,46 +711,46 @@ record Signed (a : Set) : Set where
 open Signed {{...}} public
 
 instance
-  additionSet : Addition Set
-  additionSet ._+_ = Either
+  AdditionSet : Addition Set
+  AdditionSet ._+_ = Either
 
-  multiplicationSet : Multiplication Set
-  multiplicationSet ._*_ = Tuple
+  MultiplicationSet : Multiplication Set
+  MultiplicationSet ._*_ = Tuple
 
-  powerSet : Power Set
-  powerSet ._^_ a = λ where
+  PowerSet : Power Set
+  PowerSet ._^_ a = λ where
     0 -> Unit
     1 -> a
     (Suc n) -> a ^ n * a
 
-  additionNat : Addition Nat
-  additionNat ._+_ = natPlus
+  AdditionNat : Addition Nat
+  AdditionNat ._+_ = natPlus
 
-  multiplicationNat : Multiplication Nat
-  multiplicationNat ._*_ = natTimes
+  MultiplicationNat : Multiplication Nat
+  MultiplicationNat ._*_ = natTimes
 
-  powerNat : Power Nat
-  powerNat ._^_ a = λ where
+  PowerNat : Power Nat
+  PowerNat ._^_ a = λ where
     0 -> 1
     1 -> a
     (Suc n) -> a ^ n * a
 
-  exponentiationNat : Exponentiation Nat
-  exponentiationNat ._**_ = _^_
+  ExponentiationNat : Exponentiation Nat
+  ExponentiationNat ._**_ = _^_
 
-  subtractionNat : Subtraction Nat
-  subtractionNat ._-_ = natMinus
+  SubtractionNat : Subtraction Nat
+  SubtractionNat ._-_ = natMinus
 
-  divisionNat : Division Nat
-  divisionNat .DivisionConstraint n = Assert (n > 0)
-  divisionNat ._/_ m (Suc n) = natDivAux 0 n m n
+  DivisionNat : Division Nat
+  DivisionNat .DivisionConstraint n = Assert (n > 0)
+  DivisionNat ._/_ m (Suc n) = natDivAux 0 n m n
 
-  modulusNat : Modulus Nat
-  modulusNat .ModulusConstraint n = Assert (n > 0)
-  modulusNat ._%_ m (Suc n) = natModAux 0 n m n
+  ModulusNat : Modulus Nat
+  ModulusNat .ModulusConstraint n = Assert (n > 0)
+  ModulusNat ._%_ m (Suc n) = natModAux 0 n m n
 
-  additionInt : Addition Int
-  additionInt ._+_ = add
+  AdditionInt : Addition Int
+  AdditionInt ._+_ = add
     where
       sub' : Nat -> Nat -> Int
       sub' m 0 = Pos m
@@ -763,99 +763,99 @@ instance
       add (Pos m) (NegSuc n) = sub' m (Suc n)
       add (Pos m) (Pos n) = Pos (m + n)
 
-  multiplicationInt : Multiplication Int
-  multiplicationInt ._*_ = λ where
+  MultiplicationInt : Multiplication Int
+  MultiplicationInt ._*_ = λ where
     (Pos n) (Pos m) -> Pos (n * m)
     (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
     (Pos n) (NegSuc m) -> neg (n * Suc m)
     (NegSuc n) (Pos m) -> neg (Suc n * m)
 
-  powerInt : Power Int
-  powerInt ._^_ a = λ where
+  PowerInt : Power Int
+  PowerInt ._^_ a = λ where
     0 -> 1
     1 -> a
     (Suc n) -> a ^ n * a
 
-  negationInt : Negation Int
-  negationInt .-_ = λ where
+  NegationInt : Negation Int
+  NegationInt .-_ = λ where
     (Pos 0) -> Pos 0
     (Pos (Suc n)) -> NegSuc n
     (NegSuc n) -> Pos (Suc n)
 
-  subtractionInt : Subtraction Int
-  subtractionInt ._-_ m n = m + (- n)
+  SubtractionInt : Subtraction Int
+  SubtractionInt ._-_ m n = m + (- n)
 
-  divisionInt : Division Int
-  divisionInt .DivisionConstraint n = Assert (n > 0)
-  divisionInt ._/_ x y with x | y
+  DivisionInt : Division Int
+  DivisionInt .DivisionConstraint n = Assert (n > 0)
+  DivisionInt ._/_ x y with x | y
   ... | Pos m | Pos (Suc n) = Pos (m / Suc n)
   ... | NegSuc m | Pos (Suc n) = neg (Suc m / Suc n)
   ... | Pos m | NegSuc n = neg (m / Suc n)
   ... | NegSuc m | NegSuc n = Pos (Suc m / Suc n)
 
-  modulusInt : Modulus Int
-  modulusInt .ModulusConstraint n = Assert (n > 0)
-  modulusInt ._%_ x y with x | y
+  ModulusInt : Modulus Int
+  ModulusInt .ModulusConstraint n = Assert (n > 0)
+  ModulusInt ._%_ x y with x | y
   ... | Pos m | Pos (Suc n) = Pos (m % Suc n)
   ... | NegSuc m | Pos (Suc n) = neg (Suc m % Suc n)
   ... | Pos m | NegSuc n = Pos (m % Suc n)
   ... | NegSuc m | NegSuc n = neg (Suc m % Suc n)
 
-  signedInt : Signed Int
-  signedInt .abs = λ where
+  SignedInt : Signed Int
+  SignedInt .abs = λ where
     (Pos n) -> Pos n
     (NegSuc n) -> Pos (Suc n)
-  signedInt .signum = λ where
+  SignedInt .signum = λ where
     (Pos 0) -> Pos 0
     (Pos (Suc _)) -> Pos 1
     (NegSuc _) -> NegSuc 0
 
-  additionFloat : Addition Float
-  additionFloat ._+_ = primFloatPlus
+  AdditionFloat : Addition Float
+  AdditionFloat ._+_ = primFloatPlus
 
-  multiplicationFloat : Multiplication Float
-  multiplicationFloat ._*_ = primFloatTimes
+  MultiplicationFloat : Multiplication Float
+  MultiplicationFloat ._*_ = primFloatTimes
 
-  powerFloat : Power Float
-  powerFloat ._^_ a = λ where
+  PowerFloat : Power Float
+  PowerFloat ._^_ a = λ where
     0 -> 1.0
     1 -> a
     (Suc n) -> a ^ n * a
 
-  exponentiationFloat : Exponentiation Float
-  exponentiationFloat ._**_ x y = exp (y * log x)
+  ExponentiationFloat : Exponentiation Float
+  ExponentiationFloat ._**_ x y = exp (y * log x)
 
-  negationFloat : Negation Float
-  negationFloat .-_ = primFloatNegate
+  NegationFloat : Negation Float
+  NegationFloat .-_ = primFloatNegate
 
-  subtractionFloat : Subtraction Float
-  subtractionFloat ._-_ = primFloatMinus
+  SubtractionFloat : Subtraction Float
+  SubtractionFloat ._-_ = primFloatMinus
 
-  divisionFloat : Division Float
-  divisionFloat .DivisionConstraint = const Unit
-  divisionFloat ._/_ x y = primFloatDiv x y
+  DivisionFloat : Division Float
+  DivisionFloat .DivisionConstraint = const Unit
+  DivisionFloat ._/_ x y = primFloatDiv x y
 
-  signedFloat : Signed Float
-  signedFloat .abs x = if x < 0.0 then - x else x
-  signedFloat .signum x with compare x 0.0
+  SignedFloat : Signed Float
+  SignedFloat .abs x = if x < 0.0 then - x else x
+  SignedFloat .signum x with compare x 0.0
   ... | EQ = 0.0
   ... | LT = -1.0
   ... | GT = 1.0
 
-  additionFunction : {{_ : Addition b}} -> Addition (a -> b)
-  additionFunction ._+_ f g x = f x + g x
+  AdditionFunction : {{_ : Addition b}} -> Addition (a -> b)
+  AdditionFunction ._+_ f g x = f x + g x
 
-  multiplicationFunction : {{_ : Multiplication b}} -> Multiplication (a -> b)
-  multiplicationFunction ._*_ f g x = f x * g x
+  MultiplicationFunction : {{_ : Multiplication b}} -> Multiplication (a -> b)
+  MultiplicationFunction ._*_ f g x = f x * g x
 
-  negationFunction : {{_ : Negation b}} -> Negation (a -> b)
-  negationFunction .-_ f x = - (f x)
+  NegationFunction : {{_ : Negation b}} -> Negation (a -> b)
+  NegationFunction .-_ f x = - (f x)
 
-  subtractionFunction : {{_ : Subtraction b}} -> Subtraction (a -> b)
-  subtractionFunction ._-_ f g x = f x - g x
+  SubtractionFunction : {{_ : Subtraction b}} -> Subtraction (a -> b)
+  SubtractionFunction ._-_ f g x = f x - g x
 
-  powerFunction : Power (a -> a)
-  powerFunction ._^_ f = λ where
+  PowerFunction : Power (a -> a)
+  PowerFunction ._^_ f = λ where
     0 x -> x
     1 x -> f x
     (Suc n) x -> (f ^ n) (f x)
@@ -934,78 +934,78 @@ record All : Set where
 open All public
 
 instance
-  semigroupDual : {{_ : Semigroup a}} -> Semigroup (Dual a)
-  semigroupDual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
+  SemigroupDual : {{_ : Semigroup a}} -> Semigroup (Dual a)
+  SemigroupDual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
-  semigroupFirst : Semigroup (First a)
-  semigroupFirst ._<>_ x _ = x
+  SemigroupFirst : Semigroup (First a)
+  SemigroupFirst ._<>_ x _ = x
 
-  semigroupLast : Semigroup (Last a)
-  semigroupLast ._<>_ _ x = x
+  SemigroupLast : Semigroup (Last a)
+  SemigroupLast ._<>_ _ x = x
 
-  semigroupMin : {{_ : Ord a}} -> Semigroup (Min a)
-  semigroupMin ._<>_ (Min: x) (Min: y) = Min: (min x y)
+  SemigroupMin : {{_ : Ord a}} -> Semigroup (Min a)
+  SemigroupMin ._<>_ (Min: x) (Min: y) = Min: (min x y)
 
-  semigroupMax : {{_ : Ord a}} -> Semigroup (Max a)
-  semigroupMax ._<>_ (Max: x) (Max: y) = Max: (max x y)
+  SemigroupMax : {{_ : Ord a}} -> Semigroup (Max a)
+  SemigroupMax ._<>_ (Max: x) (Max: y) = Max: (max x y)
 
-  semigroupAny : Semigroup Any
-  semigroupAny ._<>_ (Any: x) (Any: y) = Any: (x || y)
+  SemigroupAny : Semigroup Any
+  SemigroupAny ._<>_ (Any: x) (Any: y) = Any: (x || y)
 
-  semigroupAll : Semigroup All
-  semigroupAll ._<>_ (All: x) (All: y) = All: (x && y)
+  SemigroupAll : Semigroup All
+  SemigroupAll ._<>_ (All: x) (All: y) = All: (x && y)
 
-  semigroupVoid : Semigroup Void
-  semigroupVoid ._<>_ = λ ()
+  SemigroupVoid : Semigroup Void
+  SemigroupVoid ._<>_ = λ ()
 
-  semigroupUnit : Semigroup Unit
-  semigroupUnit ._<>_ unit unit = unit
+  SemigroupUnit : Semigroup Unit
+  SemigroupUnit ._<>_ unit unit = unit
 
-  semigroupSumNat : Semigroup (Sum Nat)
-  semigroupSumNat ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
+  SemigroupSumNat : Semigroup (Sum Nat)
+  SemigroupSumNat ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
 
-  semigroupProductNat : Semigroup (Product Nat)
-  semigroupProductNat ._<>_ (Product: x) (Product: y) = Product: (x * y)
+  SemigroupProductNat : Semigroup (Product Nat)
+  SemigroupProductNat ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
-  semigroupSumInt : Semigroup (Sum Int)
-  semigroupSumInt ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
+  SemigroupSumInt : Semigroup (Sum Int)
+  SemigroupSumInt ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
 
-  semigroupProductInt : Semigroup (Product Int)
-  semigroupProductInt ._<>_ (Product: x) (Product: y) = Product: (x * y)
+  SemigroupProductInt : Semigroup (Product Int)
+  SemigroupProductInt ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
-  semigroupString : Semigroup String
-  semigroupString ._<>_ = primStringAppend
+  SemigroupString : Semigroup String
+  SemigroupString ._<>_ = primStringAppend
 
-  semigroupFunction : {{_ : Semigroup b}} -> Semigroup (a -> b)
-  semigroupFunction ._<>_ f g = λ x -> f x <> g x
+  SemigroupFunction : {{_ : Semigroup b}} -> Semigroup (a -> b)
+  SemigroupFunction ._<>_ f g = λ x -> f x <> g x
 
-  semigroupEither : {{_ : Semigroup a}} {{_ : Semigroup b}}
+  SemigroupEither : {{_ : Semigroup a}} {{_ : Semigroup b}}
     -> Semigroup (Either a b)
-  semigroupEither ._<>_ (Left _) x = x
-  semigroupEither ._<>_ x _ = x
+  SemigroupEither ._<>_ (Left _) x = x
+  SemigroupEither ._<>_ x _ = x
 
-  semigroupTuple : {{_ : Semigroup a}} {{_ : Semigroup b}}
+  SemigroupTuple : {{_ : Semigroup a}} {{_ : Semigroup b}}
     -> Semigroup (Tuple a b)
-  semigroupTuple ._<>_ (x , y) (w , z) = (x <> w , y <> z)
+  SemigroupTuple ._<>_ (x , y) (w , z) = (x <> w , y <> z)
 
-  semigroupMaybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
-  semigroupMaybe ._<>_ = λ where
+  SemigroupMaybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
+  SemigroupMaybe ._<>_ = λ where
     Nothing x -> x
     x Nothing -> x
     (Just x) (Just y) -> Just (x <> y)
 
-  semigroupList : Semigroup (List a)
-  semigroupList ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
+  SemigroupList : Semigroup (List a)
+  SemigroupList ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
 
-  semigroupIdentity : {{_ : Semigroup a}} -> Semigroup (Identity a)
-  semigroupIdentity ._<>_ (Identity: x) (Identity: y) =
+  SemigroupIdentity : {{_ : Semigroup a}} -> Semigroup (Identity a)
+  SemigroupIdentity ._<>_ (Identity: x) (Identity: y) =
     Identity: (x <> y)
 
-  semigroupConst : {{_ : Semigroup a}} -> Semigroup (Const a b)
-  semigroupConst ._<>_ (Const: x) (Const: y) = Const: (x <> y)
+  SemigroupConst : {{_ : Semigroup a}} -> Semigroup (Const a b)
+  SemigroupConst ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
-  semigroupEndo : Semigroup (Endo a)
-  semigroupEndo ._<>_ g f = Endo: λ x -> appEndo g (appEndo f x)
+  SemigroupEndo : Semigroup (Endo a)
+  SemigroupEndo ._<>_ g f = Endo: λ x -> appEndo g (appEndo f x)
 
 -------------------------------------------------------------------------------
 -- Monoid
@@ -1027,56 +1027,56 @@ record Monoid (a : Set) : Set where
 open Monoid {{...}} public
 
 instance
-  monoidDual : {{_ : Monoid a}} -> Monoid (Dual a)
-  monoidDual .neutral = Dual: neutral
+  MonoidDual : {{_ : Monoid a}} -> Monoid (Dual a)
+  MonoidDual .neutral = Dual: neutral
 
-  monoidFirst : {{_ : Monoid a}} -> Monoid (First a)
-  monoidFirst .neutral = First: neutral
+  MonoidFirst : {{_ : Monoid a}} -> Monoid (First a)
+  MonoidFirst .neutral = First: neutral
 
-  monoidLast : {{_ : Monoid a}} -> Monoid (Last a)
-  monoidLast .neutral = Last: neutral
+  MonoidLast : {{_ : Monoid a}} -> Monoid (Last a)
+  MonoidLast .neutral = Last: neutral
 
-  monoidUnit : Monoid Unit
-  monoidUnit .neutral = unit
+  MonoidUnit : Monoid Unit
+  MonoidUnit .neutral = unit
 
-  monoidAll : Monoid All
-  monoidAll .neutral = All: True
+  MonoidAll : Monoid All
+  MonoidAll .neutral = All: True
 
-  monoidAny : Monoid Any
-  monoidAny .neutral = Any: False
+  MonoidAny : Monoid Any
+  MonoidAny .neutral = Any: False
 
-  monoidSumNat : Monoid (Sum Nat)
-  monoidSumNat .neutral = Sum: 0
+  MonoidSumNat : Monoid (Sum Nat)
+  MonoidSumNat .neutral = Sum: 0
 
-  monoidProductNat : Monoid (Product Nat)
-  monoidProductNat .neutral = Product: (Suc 0)
+  MonoidProductNat : Monoid (Product Nat)
+  MonoidProductNat .neutral = Product: (Suc 0)
 
-  monoidSumInt : Monoid (Sum Int)
-  monoidSumInt .neutral = Sum: 0
+  MonoidSumInt : Monoid (Sum Int)
+  MonoidSumInt .neutral = Sum: 0
 
-  monoidProductInt : Monoid (Product Int)
-  monoidProductInt .neutral = Product: 1
+  MonoidProductInt : Monoid (Product Int)
+  MonoidProductInt .neutral = Product: 1
 
-  monoidString : Monoid String
-  monoidString .neutral = ""
+  MonoidString : Monoid String
+  MonoidString .neutral = ""
 
-  monoidFunction : {{_ : Monoid b}} -> Monoid (a -> b)
-  monoidFunction .neutral = const neutral
+  MonoidFunction : {{_ : Monoid b}} -> Monoid (a -> b)
+  MonoidFunction .neutral = const neutral
 
-  monoidEndo : Monoid (Endo a)
-  monoidEndo .neutral = Endo: λ x -> x
+  MonoidEndo : Monoid (Endo a)
+  MonoidEndo .neutral = Endo: λ x -> x
 
-  monoidMaybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
-  monoidMaybe .neutral = Nothing
+  MonoidMaybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
+  MonoidMaybe .neutral = Nothing
 
-  monoidList : Monoid (List a)
-  monoidList .neutral = []
+  MonoidList : Monoid (List a)
+  MonoidList .neutral = []
 
-  monoidIdentity : {{_ : Monoid a}} -> Monoid (Identity a)
-  monoidIdentity .neutral = Identity: neutral
+  MonoidIdentity : {{_ : Monoid a}} -> Monoid (Identity a)
+  MonoidIdentity .neutral = Identity: neutral
 
-  monoidConst : {{_ : Monoid a}} -> Monoid (Const a b)
-  monoidConst .neutral = Const: neutral
+  MonoidConst : {{_ : Monoid a}} -> Monoid (Const a b)
+  MonoidConst .neutral = Const: neutral
 
 -------------------------------------------------------------------------------
 -- IsBuildable, Buildable
@@ -1117,11 +1117,11 @@ Buildable : (Set -> Set) -> Set
 Buildable f = forall {a} -> IsBuildable (f a) a
 
 instance
-  buildableList : Buildable List
-  buildableList .singleton = _:: []
+  BuildableList : Buildable List
+  BuildableList .singleton = _:: []
 
-  isBuildableStringChar : IsBuildable String Char
-  isBuildableStringChar .singleton c = pack (singleton c)
+  IsBuildableStringChar : IsBuildable String Char
+  IsBuildableStringChar .singleton c = pack (singleton c)
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
@@ -1182,64 +1182,64 @@ record Profunctor (p : Set -> Set -> Set) : Set where
 open Profunctor {{...}} public
 
 instance
-  profunctorFunction : Profunctor Function
-  profunctorFunction .dimap f g h = g ∘ h ∘ f
+  ProfunctorFunction : Profunctor Function
+  ProfunctorFunction .dimap f g h = g ∘ h ∘ f
 
-  functorFunction : Functor (Function a)
-  functorFunction .map = rmap
+  FunctorFunction : Functor (Function a)
+  FunctorFunction .map = rmap
 
-  bifunctorEither : Bifunctor Either
-  bifunctorEither .bimap f g = either (Left ∘ f) (Right ∘ g)
+  BifunctorEither : Bifunctor Either
+  BifunctorEither .bimap f g = either (Left ∘ f) (Right ∘ g)
 
-  functorEither : Functor (Either a)
-  functorEither .map = second
+  FunctorEither : Functor (Either a)
+  FunctorEither .map = second
 
-  bifunctorTuple : Bifunctor Tuple
-  bifunctorTuple .bimap f g = tuple (f ∘ fst) (g ∘ snd)
+  BifunctorTuple : Bifunctor Tuple
+  BifunctorTuple .bimap f g = tuple (f ∘ fst) (g ∘ snd)
 
-  functorTuple : Functor (Tuple a)
-  functorTuple .map = second
+  FunctorTuple : Functor (Tuple a)
+  FunctorTuple .map = second
 
-  functorMaybe : Functor Maybe
-  functorMaybe .map f = λ where
+  FunctorMaybe : Functor Maybe
+  FunctorMaybe .map f = λ where
     Nothing -> Nothing
     (Just a) -> Just (f a)
 
-  functorList : Functor List
-  functorList .map f = listrec [] λ a _ bs -> f a :: bs
+  FunctorList : Functor List
+  FunctorList .map f = listrec [] λ a _ bs -> f a :: bs
 
-  functorIdentity : Functor Identity
-  functorIdentity .map f = Identity: ∘ f ∘ runIdentity
+  FunctorIdentity : Functor Identity
+  FunctorIdentity .map f = Identity: ∘ f ∘ runIdentity
 
-  bifunctorConst : Bifunctor Const
-  bifunctorConst .bimap f g = Const: ∘ f ∘ getConst
+  BifunctorConst : Bifunctor Const
+  BifunctorConst .bimap f g = Const: ∘ f ∘ getConst
 
-  functorConst : Functor (Const a)
-  functorConst .map = second
+  FunctorConst : Functor (Const a)
+  FunctorConst .map = second
 
-  contravariantConst : Contravariant (Const a)
-  contravariantConst .contramap f = Const: ∘ getConst
+  ContravariantConst : Contravariant (Const a)
+  ContravariantConst .contramap f = Const: ∘ getConst
 
-  functorSum : Functor Sum
-  functorSum .map f = Sum: ∘ f ∘ getSum
+  FunctorSum : Functor Sum
+  FunctorSum .map f = Sum: ∘ f ∘ getSum
 
-  functorProduct : Functor Product
-  functorProduct .map f = Product: ∘ f ∘ getProduct
+  FunctorProduct : Functor Product
+  FunctorProduct .map f = Product: ∘ f ∘ getProduct
 
-  functorDual : Functor Dual
-  functorDual .map f = Dual: ∘ f ∘ getDual
+  FunctorDual : Functor Dual
+  FunctorDual .map f = Dual: ∘ f ∘ getDual
 
-  functorFirst : Functor First
-  functorFirst .map f = First: ∘ f ∘ getFirst
+  FunctorFirst : Functor First
+  FunctorFirst .map f = First: ∘ f ∘ getFirst
 
-  functorLast : Functor Last
-  functorLast .map f = Last: ∘ f ∘ getLast
+  FunctorLast : Functor Last
+  FunctorLast .map f = Last: ∘ f ∘ getLast
 
-  functorMin : Functor Min
-  functorMin .map f = Min: ∘ f ∘ getMin
+  FunctorMin : Functor Min
+  FunctorMin .map f = Min: ∘ f ∘ getMin
 
-  functorMax : Functor Max
-  functorMax .map f = Max: ∘ f ∘ getMax
+  FunctorMax : Functor Max
+  FunctorMax .map f = Max: ∘ f ∘ getMax
 
 -------------------------------------------------------------------------------
 -- Applicative
@@ -1283,64 +1283,64 @@ forever : {{_ : Applicative f}} -> f a -> f b
 forever as = as *> forever as
 
 instance
-  applicativeFunction : Applicative (Function a)
-  applicativeFunction .pure = const
-  applicativeFunction ._<*>_ f x = λ a -> f a (x a)
+  ApplicativeFunction : Applicative (Function a)
+  ApplicativeFunction .pure = const
+  ApplicativeFunction ._<*>_ f x = λ a -> f a (x a)
 
-  applicativeEither : Applicative (Either a)
-  applicativeEither .pure = Right
-  applicativeEither ._<*>_ = λ where
+  ApplicativeEither : Applicative (Either a)
+  ApplicativeEither .pure = Right
+  ApplicativeEither ._<*>_ = λ where
     (Left a) _ -> Left a
     (Right f) -> map f
 
-  applicativeMaybe : Applicative Maybe
-  applicativeMaybe .pure = Just
-  applicativeMaybe ._<*>_ = λ where
+  ApplicativeMaybe : Applicative Maybe
+  ApplicativeMaybe .pure = Just
+  ApplicativeMaybe ._<*>_ = λ where
     (Just f) -> map f
     Nothing _ -> Nothing
 
-  applicativeList : Applicative List
-  applicativeList .pure = singleton
-  applicativeList ._<*>_ = λ where
+  ApplicativeList : Applicative List
+  ApplicativeList .pure = singleton
+  ApplicativeList ._<*>_ = λ where
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
 
-  applicativeIdentity : Applicative Identity
-  applicativeIdentity .pure = Identity:
-  applicativeIdentity ._<*>_ = map ∘ runIdentity
+  ApplicativeIdentity : Applicative Identity
+  ApplicativeIdentity .pure = Identity:
+  ApplicativeIdentity ._<*>_ = map ∘ runIdentity
 
-  applicativeConst : {{_ : Monoid a}} -> Applicative (Const a)
-  applicativeConst .pure _ = Const: neutral
-  applicativeConst ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
+  ApplicativeConst : {{_ : Monoid a}} -> Applicative (Const a)
+  ApplicativeConst .pure _ = Const: neutral
+  ApplicativeConst ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
-  applicativeSum : Applicative Sum
-  applicativeSum .pure = Sum:
-  applicativeSum ._<*>_ (Sum: f) (Sum: x) = Sum: (f x)
+  ApplicativeSum : Applicative Sum
+  ApplicativeSum .pure = Sum:
+  ApplicativeSum ._<*>_ (Sum: f) (Sum: x) = Sum: (f x)
 
-  applicativeProduct : Applicative Product
-  applicativeProduct .pure = Product:
-  applicativeProduct ._<*>_ (Product: f) (Product: x) = Product: (f x)
+  ApplicativeProduct : Applicative Product
+  ApplicativeProduct .pure = Product:
+  ApplicativeProduct ._<*>_ (Product: f) (Product: x) = Product: (f x)
 
-  applicativeDual : Applicative Dual
-  applicativeDual .pure = Dual:
-  applicativeDual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
+  ApplicativeDual : Applicative Dual
+  ApplicativeDual .pure = Dual:
+  ApplicativeDual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
 
-  applicativeFirst : Applicative First
-  applicativeFirst .pure = First:
-  applicativeFirst ._<*>_ (First: f) (First: x) = First: (f x)
+  ApplicativeFirst : Applicative First
+  ApplicativeFirst .pure = First:
+  ApplicativeFirst ._<*>_ (First: f) (First: x) = First: (f x)
 
-  applicativeLast : Applicative Last
-  applicativeLast .pure = Last:
-  applicativeLast ._<*>_ (Last: f) (Last: x) = Last: (f x)
+  ApplicativeLast : Applicative Last
+  ApplicativeLast .pure = Last:
+  ApplicativeLast ._<*>_ (Last: f) (Last: x) = Last: (f x)
 
-  applicativeMin : Applicative Min
-  applicativeMin .pure = Min:
-  applicativeMin ._<*>_ (Min: f) (Min: x) = Min: (f x)
+  ApplicativeMin : Applicative Min
+  ApplicativeMin .pure = Min:
+  ApplicativeMin ._<*>_ (Min: f) (Min: x) = Min: (f x)
 
-  applicativeMax : Applicative Max
-  applicativeMax .pure = Max:
-  applicativeMax ._<*>_ (Max: f) (Max: x) = Max: (f x)
+  ApplicativeMax : Applicative Max
+  ApplicativeMax .pure = Max:
+  ApplicativeMax ._<*>_ (Max: f) (Max: x) = Max: (f x)
 
 -------------------------------------------------------------------------------
 -- Alternative
@@ -1360,15 +1360,15 @@ record Alternative (f : Set -> Set) : Set where
 open Alternative {{...}} public
 
 instance
-  alternativeMaybe : Alternative Maybe
-  alternativeMaybe .empty = Nothing
-  alternativeMaybe ._<|>_ = λ where
+  AlternativeMaybe : Alternative Maybe
+  AlternativeMaybe .empty = Nothing
+  AlternativeMaybe ._<|>_ = λ where
     Nothing r -> r
     l _ -> l
 
-  alternativeList : Alternative List
-  alternativeList .empty = neutral
-  alternativeList ._<|>_ = _<>_
+  AlternativeList : Alternative List
+  AlternativeList .empty = neutral
+  AlternativeList ._<|>_ = _<>_
 
 -------------------------------------------------------------------------------
 -- Monad
@@ -1402,47 +1402,47 @@ return : forall {a m} {{_ : Monad m}} -> a -> m a
 return = pure
 
 instance
-  monadFunction : Monad (Function a)
-  monadFunction ._>>=_ m k = λ a -> k (m a) a
+  MonadFunction : Monad (Function a)
+  MonadFunction ._>>=_ m k = λ a -> k (m a) a
 
-  monadEither : Monad (Either a)
-  monadEither ._>>=_ = λ where
+  MonadEither : Monad (Either a)
+  MonadEither ._>>=_ = λ where
     (Left a) _ -> Left a
     (Right x) k -> k x
 
-  monadMaybe : Monad Maybe
-  monadMaybe ._>>=_ = λ where
+  MonadMaybe : Monad Maybe
+  MonadMaybe ._>>=_ = λ where
     Nothing _ -> Nothing
     (Just x) k -> k x
 
-  monadList : Monad List
-  monadList ._>>=_ = λ where
+  MonadList : Monad List
+  MonadList ._>>=_ = λ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
 
-  monadIdentity : Monad Identity
-  monadIdentity ._>>=_ (Identity: x) k = k x
+  MonadIdentity : Monad Identity
+  MonadIdentity ._>>=_ (Identity: x) k = k x
 
-  monadSum : Monad Sum
-  monadSum ._>>=_ (Sum: x) k = k x
+  MonadSum : Monad Sum
+  MonadSum ._>>=_ (Sum: x) k = k x
 
-  monadProduct : Monad Product
-  monadProduct ._>>=_ (Product: x) k = k x
+  MonadProduct : Monad Product
+  MonadProduct ._>>=_ (Product: x) k = k x
 
-  monadDual : Monad Dual
-  monadDual ._>>=_ (Dual: x) k = k x
+  MonadDual : Monad Dual
+  MonadDual ._>>=_ (Dual: x) k = k x
 
-  monadFirst : Monad First
-  monadFirst ._>>=_ (First: x) k = k x
+  MonadFirst : Monad First
+  MonadFirst ._>>=_ (First: x) k = k x
 
-  monadLast : Monad Last
-  monadLast ._>>=_ (Last: x) k = k x
+  MonadLast : Monad Last
+  MonadLast ._>>=_ (Last: x) k = k x
 
-  monadMin : Monad Min
-  monadMin ._>>=_ (Min: x) k = k x
+  MonadMin : Monad Min
+  MonadMin ._>>=_ (Min: x) k = k x
 
-  monadMax : Monad Max
-  monadMax ._>>=_ (Max: x) k = k x
+  MonadMax : Monad Max
+  MonadMax ._>>=_ (Max: x) k = k x
 
 -------------------------------------------------------------------------------
 -- IsFoldable, Foldable
@@ -1530,18 +1530,18 @@ Foldable : (Set -> Set) -> Set
 Foldable f = forall {a} -> IsFoldable (f a) a
 
 instance
-  isFoldableNatUnit : IsFoldable Nat Unit
-  isFoldableNatUnit .foldMap b 0 = neutral
-  isFoldableNatUnit .foldMap b (Suc n) = b unit <> foldMap b n
+  IsFoldableNatUnit : IsFoldable Nat Unit
+  IsFoldableNatUnit .foldMap b 0 = neutral
+  IsFoldableNatUnit .foldMap b (Suc n) = b unit <> foldMap b n
 
-  foldableMaybe : Foldable Maybe
-  foldableMaybe .foldMap = maybe neutral
+  FoldableMaybe : Foldable Maybe
+  FoldableMaybe .foldMap = maybe neutral
 
-  foldableList : Foldable List
-  foldableList .foldMap f = listrec neutral λ x _ y -> f x <> y
+  FoldableList : Foldable List
+  FoldableList .foldMap f = listrec neutral λ x _ y -> f x <> y
 
-  isFoldableStringChar : IsFoldable String Char
-  isFoldableStringChar .foldMap f = foldMap f ∘ unpack
+  IsFoldableStringChar : IsFoldable String Char
+  IsFoldableStringChar .foldMap f = foldMap f ∘ unpack
 
 -------------------------------------------------------------------------------
 -- IsFoldable1, Foldable1
@@ -1587,21 +1587,21 @@ Foldable1 : (Set -> Set) -> Set
 Foldable1 f = forall {a} -> IsFoldable1 (f a) a
 
 instance
-  isFoldable1NatUnit : IsFoldable1 Nat Unit
-  isFoldable1NatUnit .Nonempty 0 = Void
-  isFoldable1NatUnit .Nonempty _ = Unit
+  IsFoldable1NatUnit : IsFoldable1 Nat Unit
+  IsFoldable1NatUnit .Nonempty 0 = Void
+  IsFoldable1NatUnit .Nonempty _ = Unit
 
-  foldable1Maybe : Foldable1 Maybe
-  foldable1Maybe .Nonempty Nothing = Void
-  foldable1Maybe .Nonempty _ = Unit
+  Foldable1Maybe : Foldable1 Maybe
+  Foldable1Maybe .Nonempty Nothing = Void
+  Foldable1Maybe .Nonempty _ = Unit
 
-  foldable1List : Foldable1 List
-  foldable1List .Nonempty [] = Void
-  foldable1List .Nonempty _ = Unit
+  Foldable1List : Foldable1 List
+  Foldable1List .Nonempty [] = Void
+  Foldable1List .Nonempty _ = Unit
 
-  isFoldable1StringChar : IsFoldable1 String Char
-  isFoldable1StringChar .Nonempty "" = Void
-  isFoldable1StringChar .Nonempty _ = Unit
+  IsFoldable1StringChar : IsFoldable1 String Char
+  IsFoldable1StringChar .Nonempty "" = Void
+  IsFoldable1StringChar .Nonempty _ = Unit
 
 -------------------------------------------------------------------------------
 -- Traversable
@@ -1621,22 +1621,22 @@ private
   open StateR
 
   instance
-    functorStateL : Functor (StateL s)
-    functorStateL .map f (stateL: t) = stateL: λ s0 ->
+    FunctorStateL : Functor (StateL s)
+    FunctorStateL .map f (stateL: t) = stateL: λ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
-    functorStateR : Functor (StateR s)
-    functorStateR .map f (stateR: t) = stateR: λ s0 ->
+    FunctorStateR : Functor (StateR s)
+    FunctorStateR .map f (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
-    applicativeStateL : Applicative (StateL s)
-    applicativeStateL .pure x = stateL: λ s -> (s , x)
-    applicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
+    ApplicativeStateL : Applicative (StateL s)
+    ApplicativeStateL .pure x = stateL: λ s -> (s , x)
+    ApplicativeStateL ._<*>_ (stateL: f) (stateL: t) = stateL: λ s0 ->
       let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
-    applicativeStateR : Applicative (StateR s)
-    applicativeStateR .pure x = stateR: λ s -> (s , x)
-    applicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: λ s0 ->
+    ApplicativeStateR : Applicative (StateR s)
+    ApplicativeStateR .pure x = stateR: λ s -> (s , x)
+    ApplicativeStateR ._<*>_ (stateR: f) (stateR: t) = stateR: λ s0 ->
       let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
 
 record Traversable (t : Set -> Set) : Set where
@@ -1666,13 +1666,13 @@ record Traversable (t : Set -> Set) : Set where
 open Traversable {{...}} public
 
 instance
-  traversableMaybe : Traversable Maybe
-  traversableMaybe .traverse f = λ where
+  TraversableMaybe : Traversable Maybe
+  TraversableMaybe .traverse f = λ where
     Nothing -> pure Nothing
     (Just x) -> map Just (f x)
 
-  traversableList : Traversable List
-  traversableList .traverse f = listrec (pure []) λ where
+  TraversableList : Traversable List
+  TraversableList .traverse f = listrec (pure []) λ where
     x _ ys -> (| _::_ (f x) ys |)
 
 -------------------------------------------------------------------------------
@@ -1693,11 +1693,11 @@ record Show (a : Set) : Set where
 
 open Show {{...}} public
 
-stringShow : String -> ShowS
-stringShow = _++_
+showString : String -> ShowS
+showString = _++_
 
-parenShow : Bool -> ShowS -> ShowS
-parenShow b p = if b then stringShow "(" ∘ p ∘ stringShow ")" else p
+showParen : Bool -> ShowS -> ShowS
+showParen b p = if b then showString "(" ∘ p ∘ showString ")" else p
 
 appPrec appPrec+1 : Nat
 appPrec = 10
@@ -1712,48 +1712,48 @@ private
     primShowString : String -> String
 
 instance
-  showVoid : Show Void
-  showVoid .showsPrec _ ()
+  ShowVoid : Show Void
+  ShowVoid .showsPrec _ ()
 
-  showUnit : Show Unit
-  showUnit .showsPrec _ unit = stringShow "unit"
+  ShowUnit : Show Unit
+  ShowUnit .showsPrec _ unit = showString "unit"
 
-  showBool : Show Bool
-  showBool .showsPrec _ True = stringShow "True"
-  showBool .showsPrec _ False = stringShow "False"
+  ShowBool : Show Bool
+  ShowBool .showsPrec _ True = showString "True"
+  ShowBool .showsPrec _ False = showString "False"
 
-  showNat : Show Nat
-  showNat .showsPrec _ = stringShow ∘ primShowNat
+  ShowNat : Show Nat
+  ShowNat .showsPrec _ = showString ∘ primShowNat
 
-  showInt : Show Int
-  showInt .showsPrec _ = stringShow ∘ primShowInteger
+  ShowInt : Show Int
+  ShowInt .showsPrec _ = showString ∘ primShowInteger
 
-  showFloat : Show Float
-  showFloat .showsPrec _ = stringShow ∘ primShowFloat
+  ShowFloat : Show Float
+  ShowFloat .showsPrec _ = showString ∘ primShowFloat
 
-  showChar : Show Char
-  showChar .showsPrec _ = stringShow ∘ primShowChar
+  ShowChar : Show Char
+  ShowChar .showsPrec _ = showString ∘ primShowChar
 
-  showString : Show String
-  showString .showsPrec _ = stringShow ∘ primShowString
+  ShowString : Show String
+  ShowString .showsPrec _ = showString ∘ primShowString
 
-  showTuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
-  showTuple .showsPrec d (x , y) = stringShow "(" ∘ showsPrec d x
-    ∘ stringShow " , " ∘ showsPrec d y ∘ stringShow ")"
+  ShowTuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
+  ShowTuple .showsPrec d (x , y) = showString "(" ∘ showsPrec d x
+    ∘ showString " , " ∘ showsPrec d y ∘ showString ")"
 
-  showEither : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
-  showEither .showsPrec d (Left x) = parenShow (d > appPrec) $
-    stringShow "Left " ∘ showsPrec appPrec+1 x
-  showEither .showsPrec d (Right x) = parenShow (d > appPrec) $
-    stringShow "Right " ∘ showsPrec appPrec+1 x
+  ShowEither : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
+  ShowEither .showsPrec d (Left x) = showParen (d > appPrec) $
+    showString "Left " ∘ showsPrec appPrec+1 x
+  ShowEither .showsPrec d (Right x) = showParen (d > appPrec) $
+    showString "Right " ∘ showsPrec appPrec+1 x
 
-  showMaybe : {{_ : Show a}} -> Show (Maybe a)
-  showMaybe .showsPrec d (Just x) = parenShow (d > appPrec) $
-    stringShow "Just " ∘ showsPrec appPrec+1 x
-  showMaybe .showsPrec d Nothing = stringShow "Nothing"
+  ShowMaybe : {{_ : Show a}} -> Show (Maybe a)
+  ShowMaybe .showsPrec d (Just x) = showParen (d > appPrec) $
+    showString "Just " ∘ showsPrec appPrec+1 x
+  ShowMaybe .showsPrec d Nothing = showString "Nothing"
 
-  showList : {{_ : Show a}} -> Show (List a)
-  showList {a = a} .showsPrec _ zs s' = listShow shows zs s'
+  ShowList : {{_ : Show a}} -> Show (List a)
+  ShowList {a = a} .showsPrec _ zs s' = listShow shows zs s'
     where
       listShow : (a -> ShowS) -> List a -> ShowS
       listShow _ [] s = "[]" ++ s
@@ -1763,46 +1763,46 @@ instance
           showl [] = " ]" ++ s
           showl (y :: ys) = " , " ++ showx y (showl ys)
 
-  showIdentity : {{_ : Show a}} -> Show (Identity a)
-  showIdentity .showsPrec d (Identity: x) = parenShow (d > appPrec) $
-    stringShow "Identity: " ∘ showsPrec appPrec+1 x
+  ShowIdentity : {{_ : Show a}} -> Show (Identity a)
+  ShowIdentity .showsPrec d (Identity: x) = showParen (d > appPrec) $
+    showString "Identity: " ∘ showsPrec appPrec+1 x
 
-  showConst : {{_ : Show a}} -> Show (Const a b)
-  showConst .showsPrec d (Const: x) = parenShow (d > appPrec) $
-    stringShow "Const: " ∘ showsPrec appPrec+1 x
+  ShowConst : {{_ : Show a}} -> Show (Const a b)
+  ShowConst .showsPrec d (Const: x) = showParen (d > appPrec) $
+    showString "Const: " ∘ showsPrec appPrec+1 x
 
-  showSum : {{_ : Show a}} -> Show (Sum a)
-  showSum .showsPrec d (Sum: x) = parenShow (d > appPrec) $
-    stringShow "Show: " ∘ showsPrec appPrec+1 x
+  ShowSum : {{_ : Show a}} -> Show (Sum a)
+  ShowSum .showsPrec d (Sum: x) = showParen (d > appPrec) $
+    showString "Show: " ∘ showsPrec appPrec+1 x
 
-  showProduct : {{_ : Show a}} -> Show (Product a)
-  showProduct .showsPrec d (Product: x) = parenShow (d > appPrec) $
-    stringShow "Product: " ∘ showsPrec appPrec+1 x
+  ShowProduct : {{_ : Show a}} -> Show (Product a)
+  ShowProduct .showsPrec d (Product: x) = showParen (d > appPrec) $
+    showString "Product: " ∘ showsPrec appPrec+1 x
 
-  showDual : {{_ : Show a}} -> Show (Dual a)
-  showDual .showsPrec d (Dual: x) = parenShow (d > appPrec) $
-    stringShow "Dual: " ∘ showsPrec appPrec+1 x
+  ShowDual : {{_ : Show a}} -> Show (Dual a)
+  ShowDual .showsPrec d (Dual: x) = showParen (d > appPrec) $
+    showString "Dual: " ∘ showsPrec appPrec+1 x
 
-  showFirst : {{_ : Show a}} -> Show (First a)
-  showFirst .showsPrec d (First: x) = parenShow (d > appPrec) $
-    stringShow "First: " ∘ showsPrec appPrec+1 x
+  ShowFirst : {{_ : Show a}} -> Show (First a)
+  ShowFirst .showsPrec d (First: x) = showParen (d > appPrec) $
+    showString "First: " ∘ showsPrec appPrec+1 x
 
-  showLast : {{_ : Show a}} -> Show (Last a)
-  showLast .showsPrec d (Last: x) = parenShow (d > appPrec) $
-    stringShow "Last: " ∘ showsPrec appPrec+1 x
+  ShowLast : {{_ : Show a}} -> Show (Last a)
+  ShowLast .showsPrec d (Last: x) = showParen (d > appPrec) $
+    showString "Last: " ∘ showsPrec appPrec+1 x
 
-  showMin : {{_ : Show a}} -> Show (Min a)
-  showMin .showsPrec d (Min: x) = parenShow (d > appPrec) $
-    stringShow "Min: " ∘ showsPrec appPrec+1 x
+  ShowMin : {{_ : Show a}} -> Show (Min a)
+  ShowMin .showsPrec d (Min: x) = showParen (d > appPrec) $
+    showString "Min: " ∘ showsPrec appPrec+1 x
 
-  showMax : {{_ : Show a}} -> Show (Max a)
-  showMax .showsPrec d (Max: x) = parenShow (d > appPrec) $
-    stringShow "Max: " ∘ showsPrec appPrec+1 x
+  ShowMax : {{_ : Show a}} -> Show (Max a)
+  ShowMax .showsPrec d (Max: x) = showParen (d > appPrec) $
+    showString "Max: " ∘ showsPrec appPrec+1 x
 
-  showAny : Show Any
-  showAny .showsPrec d (Any: x) = parenShow (d > appPrec) $
-    stringShow "Any: " ∘ showsPrec appPrec+1 x
+  ShowAny : Show Any
+  ShowAny .showsPrec d (Any: x) = showParen (d > appPrec) $
+    showString "Any: " ∘ showsPrec appPrec+1 x
 
-  showAll : Show All
-  showAll .showsPrec d (All: x) = parenShow (d > appPrec) $
-    stringShow "All: " ∘ showsPrec appPrec+1 x
+  ShowAll : Show All
+  ShowAll .showsPrec d (All: x) = showParen (d > appPrec) $
+    showString "All: " ∘ showsPrec appPrec+1 x
