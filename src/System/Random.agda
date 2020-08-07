@@ -7,7 +7,6 @@ open import Data.IORef
 open import Data.List
 open import Data.Time.Units
 open import Data.Word
-open import System.IO
 open import System.Time
 
 private variable a as g : Set

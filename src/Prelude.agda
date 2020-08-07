@@ -89,6 +89,11 @@ data List (a : Set) : Set where
 
 {-# BUILTIN LIST List #-}
 
+postulate IO : Set -> Set
+
+{-# BUILTIN IO IO #-}
+{-# COMPILE GHC IO = type IO #-}
+
 -------------------------------------------------------------------------------
 -- Wrappers
 -------------------------------------------------------------------------------
@@ -397,6 +402,18 @@ maybeToList (Just x) = x :: []
 listToMaybe : List a -> Maybe a
 listToMaybe [] = Nothing
 listToMaybe (x :: _) = Just x
+
+private
+  postulate
+    mapIO : (a -> b) -> IO a -> IO b
+    pureIO : a -> IO a
+    apIO : IO (a -> b) -> IO a -> IO b
+    bindIO : IO a -> (a -> IO b) -> IO b
+
+{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
+{-# COMPILE GHC pureIO = \ _ -> pure #-}
+{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
+{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
 
 -------------------------------------------------------------------------------
 -- Boolean
@@ -997,6 +1014,10 @@ instance
   Semigroup-List : Semigroup (List a)
   Semigroup-List ._<>_ xs ys = listrec ys (λ z _ zs -> z :: zs) xs
 
+  Semigroup-IO : {{_ : Semigroup a}} -> Semigroup (IO a)
+  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
+    (| _<>_ x y |)
+
   Semigroup-Identity : {{_ : Semigroup a}} -> Semigroup (Identity a)
   Semigroup-Identity ._<>_ (Identity: x) (Identity: y) =
     Identity: (x <> y)
@@ -1071,6 +1092,9 @@ instance
 
   Monoid-List : Monoid (List a)
   Monoid-List .neutral = []
+
+  Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
+  Monoid-IO .neutral = pureIO neutral
 
   Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .neutral = Identity: neutral
@@ -1208,6 +1232,9 @@ instance
   Functor-List : Functor List
   Functor-List .map f = listrec [] λ a _ bs -> f a :: bs
 
+  Functor-IO : Functor IO
+  Functor-IO .map = mapIO
+
   Functor-Identity : Functor Identity
   Functor-Identity .map f = Identity: ∘ f ∘ runIdentity
 
@@ -1305,6 +1332,10 @@ instance
     [] _ -> []
     _ [] -> []
     (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
+
+  Applicative-IO : Applicative IO
+  Applicative-IO .pure = pureIO
+  Applicative-IO ._<*>_ = apIO
 
   Applicative-Identity : Applicative Identity
   Applicative-Identity .pure = Identity:
@@ -1419,6 +1450,9 @@ instance
   Monad-List ._>>=_ = λ where
     [] k -> []
     (x :: xs) k -> k x ++ (xs >>= k)
+
+  Monad-IO : Monad IO
+  Monad-IO ._>>=_ = bindIO
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ (Identity: x) k = k x

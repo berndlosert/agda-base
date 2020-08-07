@@ -7,40 +7,6 @@ open import Data.Int
 private variable a b r : Set
 
 -------------------------------------------------------------------------------
--- IO
--------------------------------------------------------------------------------
-
-postulate IO : Set -> Set
-
-{-# BUILTIN IO IO #-}
-{-# COMPILE GHC IO = type IO #-}
-
-private
-  postulate
-    mapIO : (a -> b) -> IO a -> IO b
-    pureIO : a -> IO a
-    apIO : IO (a -> b) -> IO a -> IO b
-    bindIO : IO a -> (a -> IO b) -> IO b
-
-instance
-  Semigroup-IO : {{_ : Semigroup a}} -> Semigroup (IO a)
-  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
-    (| _<>_ x y |)
-
-  Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
-  Monoid-IO .neutral = pureIO neutral
-
-  Functor-IO : Functor IO
-  Functor-IO .map = mapIO
-
-  Applicative-IO : Applicative IO
-  Applicative-IO .pure = pureIO
-  Applicative-IO ._<*>_ = apIO
-
-  Monad-IO : Monad IO
-  Monad-IO ._>>=_ = bindIO
-
--------------------------------------------------------------------------------
 -- Console IO stuff
 -------------------------------------------------------------------------------
 
@@ -94,10 +60,6 @@ postulate
 {-# FOREIGN GHC import Data.Text (unpack) #-}
 {-# FOREIGN GHC import qualified System.IO as IO #-}
 {-# FOREIGN GHC import qualified Data.Text.IO as T #-}
-{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
-{-# COMPILE GHC pureIO = \ _ -> pure #-}
-{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
-{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
 {-# COMPILE GHC putStr = T.putStr #-}
 {-# COMPILE GHC putStrLn = T.putStrLn #-}
 {-# COMPILE GHC getLine = T.getLine #-}

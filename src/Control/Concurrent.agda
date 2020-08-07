@@ -3,7 +3,6 @@ module Control.Concurrent where
 open import Prelude
 
 open import Data.Time.Units
-open import System.IO
 
 private variable a : Set
 
