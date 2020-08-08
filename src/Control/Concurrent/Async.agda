@@ -64,7 +64,7 @@ concurrently! left right = void (concurrently left right)
   asyncUsing doFork = \ action -> do
     var <- newEmptyTMVarIO
     t <- mask $ \ restore ->
-      doFork $ try (restore action) >>= atomically . putTMVar var
+      doFork (try (restore action) >>= atomically . putTMVar var)
     return (Async t (readTMVar var))
 
   async :: IO a -> IO (Async a)
@@ -88,22 +88,22 @@ concurrently! left right = void (concurrently left right)
 
   waitAnySTM :: [Async a] -> STM (Async a, a)
   waitAnySTM asyncs =
-      foldr orElse retry $
-        map (\ a -> do r <- waitSTM a; return (a, r)) asyncs
+      foldr orElse retry
+        (map (\ a -> do r <- waitSTM a; return (a, r)) asyncs)
 
   waitAny :: [Async a] -> IO (Async a, a)
   waitAny = atomically . waitAnySTM
 
   waitEitherSTM :: Async a -> Async b -> STM (Either a b)
   waitEitherSTM left right =
-    (Left <$> waitSTM left) `orElse` (Right <$> waitSTM right)
+    (map Left (waitSTM left)) `orElse` (map Right (waitSTM right))
 
   waitEither :: Async a -> Async b -> IO (Either a b)
   waitEither left right = atomically (waitEitherSTM left right)
 
   waitEitherSTM_:: Async a -> Async b -> STM ()
   waitEitherSTM_ left right =
-    (void $ waitSTM left) `orElse` (void $ waitSTM right)
+    (void (waitSTM left)) `orElse` (void (waitSTM right))
 
   waitEither_ :: Async a -> Async b -> IO ()
   waitEither_ left right = atomically (waitEitherSTM_ left right)
@@ -118,7 +118,7 @@ concurrently! left right = void (concurrently left right)
   waitBoth left right = atomically (waitBothSTM left right)
 
   waitBoth_ :: Async a -> Async b -> IO ()
-  waitBoth_ left right = void $ waitBoth left right
+  waitBoth_ left right = void (waitBoth left right)
 
   data AsyncCancelled = AsyncCancelled
     deriving (Show)
@@ -139,7 +139,7 @@ concurrently! left right = void (concurrently left right)
   withAsyncUsing doFork = \ action inner -> do
     var <- newEmptyTMVarIO
     mask $ \ restore -> do
-      t <- doFork $ try (restore action) >>= atomically . putTMVar var
+      t <- doFork (try (restore action) >>= atomically . putTMVar var)
       let a = Async t (readTMVar var)
       r <- restore (inner a) `catchAll` \ e -> do
         uninterruptibleCancel a
@@ -179,13 +179,13 @@ instance
   Applicative-Concurrently : Applicative Concurrently
   Applicative-Concurrently .pure = Concurrently: ∘ pure
   Applicative-Concurrently ._<*>_ (Concurrently: f) (Concurrently: x) =
-    Concurrently: (apply <$> concurrently f x)
+    Concurrently: (map apply (concurrently f x))
 
   Alternative-Concurrently : Alternative Concurrently
   Alternative-Concurrently .empty =
-    Concurrently: (forever $ threadDelay ((2 ^ 32) μsec))
+    Concurrently: (forever (threadDelay ((2 ^ 32) μsec)))
   Alternative-Concurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
-    Concurrently: (untag <$> race as bs)
+    Concurrently: (map untag (race as bs))
 
   Semigroup-Concurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)
