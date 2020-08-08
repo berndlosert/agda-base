@@ -25,20 +25,20 @@ instance
   Functor-ErrorT .map f = ErrorT: ∘ map (map f) ∘ runErrorT
 
   Applicative-ErrorT : {{_ : Monad m}} -> Applicative (ErrorT e m)
-  Applicative-ErrorT .pure x = ErrorT: $ return (Right x)
+  Applicative-ErrorT .pure x = ErrorT: (return (Right x))
   Applicative-ErrorT ._<*>_ (ErrorT: mf) (ErrorT: mx) = ErrorT: do
     f <- mf
     case f of λ where
-      (Left e) -> return $ Left e
+      (Left e) -> return (Left e)
       (Right g) -> do
         x <- mx
         case x of λ where
-          (Left e) -> return $ Left e
-          (Right y) -> return $ Right (g y)
+          (Left e) -> return (Left e)
+          (Right y) -> return (Right (g y))
 
   Monad-ErrorT : {{_ : Monad m}} -> Monad (ErrorT e m)
   Monad-ErrorT ._>>=_ (ErrorT: m) k = ErrorT: do
     x <- m
     case x of λ where
-      (Left e) -> return $ Left e
-      (Right y) -> runErrorT $ k y
+      (Left e) -> return (Left e)
+      (Right y) -> runErrorT (k y)
