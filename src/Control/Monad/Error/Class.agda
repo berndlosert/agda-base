@@ -7,4 +7,4 @@ record MonadError (e : Set) (m : Set -> Set) : Set where
     throwError : e -> m a
     catchError : m a -> (e -> m a) -> m a
 
-open MonadError {{...}}
+open MonadError {{...}} public

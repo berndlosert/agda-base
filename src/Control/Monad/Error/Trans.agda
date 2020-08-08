@@ -2,6 +2,11 @@ module Control.Monad.Error.Trans where
 
 open import Prelude
 
+open import Control.Monad.Base public
+open import Control.Monad.Error.Class public
+open import Control.Monad.Morph public
+open import Control.Monad.Trans.Class public
+
 private
   variable
     a b e e' : Set
@@ -42,3 +47,21 @@ instance
     case x of λ where
       (Left e) -> return (Left e)
       (Right y) -> runErrorT (k y)
+
+  MonadError-ErrorT : {{_ : Monad m}} -> MonadError e (ErrorT e m)
+  MonadError-ErrorT .throwError e = ErrorT: (return (Left e))
+  MonadError-ErrorT .catchError (ErrorT: m) k = ErrorT: do
+    x <- m
+    case x of λ where
+      (Left e) -> runErrorT (k e)
+      (Right y) -> return (Right y)
+
+  MFunctor-ErrorT : MFunctor (ErrorT e)
+  MFunctor-ErrorT .hoist t = mapErrorT t
+
+  MonadTrans-ErrorT : MonadTrans (ErrorT e)
+  MonadTrans-ErrorT .lift m = ErrorT: (map Right m)
+
+  MonadBase-ErrorT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
+    -> MonadBase m (ErrorT e n)
+  MonadBase-ErrorT .liftBase m = lift (liftBase m)
