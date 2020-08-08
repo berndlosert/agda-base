@@ -18,7 +18,7 @@ record ErrorT (e : Set) (m : Set -> Set) (a : Set) : Set where
 open ErrorT public
 
 mapErrorT : (m (e + a) -> n (e' + b)) -> ErrorT e m a -> ErrorT e' n b
-mapErrorT f m = ErrorT: $ f (runErrorT m)
+mapErrorT f m = ErrorT: (f (runErrorT m))
 
 instance
   Functor-ErrorT : {{_ : Functor m}} -> Functor (ErrorT e m)
