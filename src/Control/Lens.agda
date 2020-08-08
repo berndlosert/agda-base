@@ -1,4 +1,4 @@
-module Control.Optics.VL where
+module Control.Lens where
 
 open import Prelude
 
