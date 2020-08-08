@@ -197,7 +197,7 @@ instance
   RandomR-Nat .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT = first (_+ from) $ genNat' (to - from) g
+  ... | LT = first (_+ from) (genNat' (to - from) g)
 
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (from , to) g with compare from to
@@ -205,4 +205,4 @@ instance
   ... | GT = randomR (to , from) g
   ... | LT =
     first (λ n -> fromNat n + from)
-      $ genNat' (fromPos (to - from) {{believeMe}}) g
+      (genNat' (fromPos (to - from) {{believeMe}}) g)

@@ -10,6 +10,3 @@ postulate
 {-# COMPILE GHC Int64 = type Int #-}
 {-# COMPILE GHC intToInt64 = fromInteger #-}
 {-# COMPILE GHC int64ToInt = toInteger #-}
-
-
-

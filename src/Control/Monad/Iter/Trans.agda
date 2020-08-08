@@ -41,15 +41,15 @@ instance
   Applicative-IterT ._<*>_ iter x .runIterT = do
     result <- runIterT iter
     case result of λ where
-      (Left f) -> runIterT (f <$> x)
-      (Right iter') -> return $ Right $ iter' <*> x
+      (Left f) -> runIterT (map f x)
+      (Right iter') -> return (Right (iter' <*> x))
 
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = do
     result <- runIterT iter
     case result of λ where
       (Left m) -> runIterT (k m)
-      (Right iter') -> return $ Right $ iter' >>= k
+      (Right iter') -> return (Right (iter' >>= k))
 
   Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
@@ -61,7 +61,7 @@ instance
         resultr <- runIterT r
         case resultr of λ where
           (Left _) -> return resultr
-          (Right iter'') -> return $ Right $ iter' <|> iter''
+          (Right iter'') -> return (Right (iter' <|> iter''))
 
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter

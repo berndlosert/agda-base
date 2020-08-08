@@ -228,7 +228,7 @@ isPos : Int -> Bool
 isPos (Pos _) = True
 isPos _ = False
 
-fromPos : (i : Int) {{_ : Assert $ isPos i}} -> Nat
+fromPos : (i : Int) {{_ : Assert (isPos i)}} -> Nat
 fromPos (Pos n) = n
 
 private
@@ -360,7 +360,7 @@ curry : (Tuple a b -> c) -> a -> b -> c
 curry f x y = f (x , y)
 
 apply : Tuple (a -> b) a -> b
-apply = uncurry _$_
+apply (f , x) = f x
 
 isJust : Maybe a -> Bool
 isJust (Just _) = True
@@ -370,7 +370,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (m : Maybe a) {{_ : Assert $ isJust m}} -> a
+fromJust : (m : Maybe a) {{_ : Assert (isJust m)}} -> a
 fromJust (Just x) = x
 
 maybe : b -> (a -> b) -> Maybe a -> b
@@ -1179,7 +1179,7 @@ record Contravariant (f : Set -> Set) : Set where
   field contramap : (a -> b) -> f b -> f a
 
   phantom : {{_ : Functor f}} -> f a -> f b
-  phantom x = contramap (const unit) $ map (const unit) x
+  phantom x = contramap (const unit) (map (const unit) x)
 
 open Contravariant {{...}} public
 
@@ -1507,7 +1507,7 @@ record IsFoldable (s a : Set) : Set where
   toList = foldMap [_]
 
   count : s -> Nat
-  count = getSum ∘ foldMap (const $ Sum: (Suc 0))
+  count = getSum ∘ foldMap (const (Sum: (Suc 0)))
 
   all : (a -> Bool) -> s -> Bool
   all p = getAll ∘ foldMap (All: ∘ p)
@@ -1776,14 +1776,14 @@ instance
     ∘ showString " , " ∘ showsPrec d y ∘ showString ")"
 
   Show-Either : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
-  Show-Either .showsPrec d (Left x) = showParen (d > appPrec) $
-    showString "Left " ∘ showsPrec appPrec+1 x
-  Show-Either .showsPrec d (Right x) = showParen (d > appPrec) $
-    showString "Right " ∘ showsPrec appPrec+1 x
+  Show-Either .showsPrec d (Left x) = showParen (d > appPrec)
+    (showString "Left " ∘ showsPrec appPrec+1 x)
+  Show-Either .showsPrec d (Right x) = showParen (d > appPrec)
+    (showString "Right " ∘ showsPrec appPrec+1 x)
 
   Show-Maybe : {{_ : Show a}} -> Show (Maybe a)
-  Show-Maybe .showsPrec d (Just x) = showParen (d > appPrec) $
-    showString "Just " ∘ showsPrec appPrec+1 x
+  Show-Maybe .showsPrec d (Just x) = showParen (d > appPrec)
+    (showString "Just " ∘ showsPrec appPrec+1 x)
   Show-Maybe .showsPrec d Nothing = showString "Nothing"
 
   Show-List : {{_ : Show a}} -> Show (List a)
@@ -1793,45 +1793,45 @@ instance
      ∘ showString "]"
 
   Show-Identity : {{_ : Show a}} -> Show (Identity a)
-  Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec) $
-    showString "Identity: " ∘ showsPrec appPrec+1 x
+  Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec)
+    (showString "Identity: " ∘ showsPrec appPrec+1 x)
 
   Show-Const : {{_ : Show a}} -> Show (Const a b)
-  Show-Const .showsPrec d (Const: x) = showParen (d > appPrec) $
-    showString "Const: " ∘ showsPrec appPrec+1 x
+  Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
+    (showString "Const: " ∘ showsPrec appPrec+1 x)
 
   Show-Sum : {{_ : Show a}} -> Show (Sum a)
-  Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec) $
-    showString "Show: " ∘ showsPrec appPrec+1 x
+  Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec)
+    (showString "Show: " ∘ showsPrec appPrec+1 x)
 
   Show-Product : {{_ : Show a}} -> Show (Product a)
-  Show-Product .showsPrec d (Product: x) = showParen (d > appPrec) $
-    showString "Product: " ∘ showsPrec appPrec+1 x
+  Show-Product .showsPrec d (Product: x) = showParen (d > appPrec)
+    (showString "Product: " ∘ showsPrec appPrec+1 x)
 
   Show-Dual : {{_ : Show a}} -> Show (Dual a)
-  Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec) $
-    showString "Dual: " ∘ showsPrec appPrec+1 x
+  Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
+    (showString "Dual: " ∘ showsPrec appPrec+1 x)
 
   Show-First : {{_ : Show a}} -> Show (First a)
-  Show-First .showsPrec d (First: x) = showParen (d > appPrec) $
-    showString "First: " ∘ showsPrec appPrec+1 x
+  Show-First .showsPrec d (First: x) = showParen (d > appPrec)
+    (showString "First: " ∘ showsPrec appPrec+1 x)
 
   Show-Last : {{_ : Show a}} -> Show (Last a)
-  Show-Last .showsPrec d (Last: x) = showParen (d > appPrec) $
-    showString "Last: " ∘ showsPrec appPrec+1 x
+  Show-Last .showsPrec d (Last: x) = showParen (d > appPrec)
+    (showString "Last: " ∘ showsPrec appPrec+1 x)
 
   Show-Min : {{_ : Show a}} -> Show (Min a)
-  Show-Min .showsPrec d (Min: x) = showParen (d > appPrec) $
-    showString "Min: " ∘ showsPrec appPrec+1 x
+  Show-Min .showsPrec d (Min: x) = showParen (d > appPrec)
+    (showString "Min: " ∘ showsPrec appPrec+1 x)
 
   Show-Max : {{_ : Show a}} -> Show (Max a)
-  Show-Max .showsPrec d (Max: x) = showParen (d > appPrec) $
-    showString "Max: " ∘ showsPrec appPrec+1 x
+  Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
+    (showString "Max: " ∘ showsPrec appPrec+1 x)
 
   Show-Any : Show Any
-  Show-Any .showsPrec d (Any: x) = showParen (d > appPrec) $
-    showString "Any: " ∘ showsPrec appPrec+1 x
+  Show-Any .showsPrec d (Any: x) = showParen (d > appPrec)
+    (showString "Any: " ∘ showsPrec appPrec+1 x)
 
   Show-All : Show All
-  Show-All .showsPrec d (All: x) = showParen (d > appPrec) $
-    showString "All: " ∘ showsPrec appPrec+1 x
+  Show-All .showsPrec d (All: x) = showParen (d > appPrec)
+    (showString "All: " ∘ showsPrec appPrec+1 x)

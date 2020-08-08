@@ -38,7 +38,7 @@ instance
 
   MFunctor-FreeT : MFunctor (FreeT f)
   MFunctor-FreeT .hoist t (FreeT: m) = FreeT: λ ret bnd ->
-    join ∘ t $ m (return ∘ ret) (λ x f -> return $ bnd x (join ∘ t ∘ f))
+    (join ∘ t) (m (return ∘ ret) (λ x f -> return (bnd x (join ∘ t ∘ f))))
 
   MonadTrans-FreeT : MonadTrans (FreeT f)
   MonadTrans-FreeT .lift m = FreeT: λ ret jn -> join ((map ret) m)

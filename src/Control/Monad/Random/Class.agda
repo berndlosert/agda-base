@@ -11,7 +11,7 @@ abstract
   getRange : Range a -> a * a
   getRange = id
 
-  mkRange : {{_ : Ord a}} (l u : a) {{_ : Assert $ l < u}} -> Range a
+  mkRange : {{_ : Ord a}} (l u : a) {{_ : Assert (l < u)}} -> Range a
   mkRange l u = (l , u)
 
 record MonadRandom (m : Set -> Set) : Set where

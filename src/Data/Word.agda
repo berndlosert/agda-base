@@ -58,12 +58,12 @@ instance
   Bits-Word32 .popCount = primPopCountWord32
 
   Addition-Word32 : Addition Word32
-  Addition-Word32 ._+_ x y = natToWord32 $
-    (word32ToNat x + word32ToNat y) % 2^32
+  Addition-Word32 ._+_ x y =
+    natToWord32 ((word32ToNat x + word32ToNat y) % 2^32)
 
   Multiplication-Word32 : Multiplication Word32
-  Multiplication-Word32 ._*_ x y = natToWord32 $
-    (word32ToNat x * word32ToNat y) % 2^32
+  Multiplication-Word32 ._*_ x y =
+    natToWord32 ((word32ToNat x * word32ToNat y) % 2^32)
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -125,12 +125,12 @@ instance
   Bits-Word64 .popCount = primPopCountWord64
 
   Addition-Word64 : Addition Word64
-  Addition-Word64 ._+_ x y = natToWord64 $
-    (word64ToNat x + word64ToNat y) % 2^64
+  Addition-Word64 ._+_ x y =
+    natToWord64 ((word64ToNat x + word64ToNat y) % 2^64)
 
   Multiplication-Word64 : Multiplication Word64
-  Multiplication-Word64 ._*_ x y = natToWord64 $
-    (word64ToNat x * word64ToNat y) % 2^64
+  Multiplication-Word64 ._*_ x y =
+    natToWord64 ((word64ToNat x * word64ToNat y) % 2^64)
 
 -------------------------------------------------------------------------------
 -- FFI

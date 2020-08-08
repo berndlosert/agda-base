@@ -71,7 +71,7 @@ generate (Gen: g) = do
   return (g r 30)
 
 sample' : Gen a -> IO (List a)
-sample' g = traverse generate $ do
+sample' g = traverse generate do
   n <- 0 :: range (2 , 20)
   return (resize n g)
 
@@ -85,7 +85,7 @@ oneof gs = do
   n <- choose (0 , count gs - 1)
   fromJust (List.at n gs) {{believeMe}}
 
-frequency : (xs : List (Nat * Gen a)) {{_ : Assert $ sum (map fst xs) > 0}}
+frequency : (xs : List (Nat * Gen a)) {{_ : Assert (sum (map fst xs) > 0)}}
   -> Gen a
 frequency {a} xs = choose (1 , tot) >>= (λ x -> pick x xs)
   where
@@ -109,7 +109,7 @@ listOf gen = sized λ n -> do
   vectorOf k gen
 
 sublistOf : List a -> Gen (List a)
-sublistOf xs = List.filterA (λ _ -> map (_== 0) $ choose {Nat} (0 , 1)) xs
+sublistOf = List.filterA λ _ -> map (_== 0) (choose {Nat} (0 , 1))
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
@@ -218,7 +218,7 @@ True ==> a = property a
 False ==> a = result none
 
 label : {{_ : Testable a}} -> String -> a -> Property
-label s a = property: (add <$> evaluate a)
+label s a = property: (map add (evaluate a))
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
@@ -295,7 +295,8 @@ private
         ++ String.concat (List.intersperse ", " s)
 
       table : String
-      table = display
+      table =
+        ( display
         ∘ map entry
         ∘ List.reverse
         ∘ List.sort
@@ -303,7 +304,7 @@ private
         ∘ List.group
         ∘ List.sort
         ∘ List.filter (not ∘ null)
-        $ stamps
+        ) stamps
 
   tests : Config -> Gen Result -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit

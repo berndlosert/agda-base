@@ -30,5 +30,5 @@ instance
   Ix-Int .rangeSize (m , n) = fromPos (abs (m - n)) {{believeMe}}
   Ix-Int .index (m , n) k =
     if inRange (m , n) k
-    then Just $ fromPos (abs $ k - m) {{believeMe}}
+    then Just (fromPos (abs (k - m)) {{believeMe}})
     else Nothing

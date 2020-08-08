@@ -31,7 +31,7 @@ instance
   Functor-ContT .map f (ContT: m) = ContT: λ c -> m (c ∘ f)
 
   Applicative-ContT : Applicative (ContT r m)
-  Applicative-ContT .pure x = ContT: (_$ x)
+  Applicative-ContT .pure x = ContT: (λ f -> f x)
   Applicative-ContT ._<*>_ (ContT: f) (ContT: x) =
     ContT: λ c -> f λ g -> x (c ∘ g)
 

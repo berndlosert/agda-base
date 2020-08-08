@@ -45,7 +45,7 @@ concurrently left right =
   waitBoth a b
 
 concurrently! : IO a -> IO b -> IO Unit
-concurrently! left right = void $ concurrently left right
+concurrently! left right = void (concurrently left right)
 
 {-# FOREIGN GHC
 

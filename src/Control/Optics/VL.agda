@@ -107,7 +107,7 @@ sets f k = Identity: ∘ f (runIdentity ∘ k)
 -------------------------------------------------------------------------------
 
 lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
-lens v u f s = u s <$> f (v s)
+lens v u f s = map (u s) (f (v s))
 
 -------------------------------------------------------------------------------
 -- Each and instances
@@ -128,23 +128,23 @@ instance
 -------------------------------------------------------------------------------
 
 #fst : Lens (a * c) (b * c) a b
-#fst k (a , c) = (_, c) <$> k a
+#fst k (a , c) = map (_, c) (k a)
 
 #snd : Lens (a * b) (a * c) b c
-#snd k (x , y) = (x ,_) <$> k y
+#snd k (x , y) = map (x ,_) (k y)
 
 #Left : Traversal (a + c) (b + c) a b
-#Left f (Left x) = Left <$> f x
+#Left f (Left x) = map Left (f x)
 #Left _ (Right y) = pure (Right y)
 
 #Right : Traversal (a + b) (a + c) b c
-#Right f (Right y) = Right <$> f y
+#Right f (Right y) = map Right (f y)
 #Right _ (Left x) = pure (Left x)
 
 #Just : Traversal (Maybe a) (Maybe b) a b
-#Just f (Just x) = Just <$> f x
+#Just f (Just x) = map Just (f x)
 #Just _ Nothing = pure Nothing
 
 #Nothing : Simple Traversal (Maybe a) Unit
-#Nothing f Nothing = const Nothing <$> f unit
+#Nothing f Nothing = map (const Nothing) (f unit)
 #Nothing _ j = pure j

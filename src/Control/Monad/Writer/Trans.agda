@@ -33,7 +33,7 @@ instance
 
   Applicative-WriterT : {{_ : Monoid w}} {{_ : Applicative m}}
     -> Applicative (WriterT w m)
-  Applicative-WriterT .pure a = WriterT: $ pure (a , neutral)
+  Applicative-WriterT .pure a = WriterT: (pure (a , neutral))
   Applicative-WriterT ._<*>_ (WriterT: f) (WriterT: x) = WriterT: (| k f x |)
     where
       k : _

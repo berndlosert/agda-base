@@ -68,7 +68,7 @@ skipMany1 : Parser a -> Parser Unit
 skipMany1 p = many1 p *> pure unit
 
 sepBy1 : Parser a -> Parser b -> Parser (List a)
-sepBy1 p sep = (| _::_ p (many $ sep *> p) |)
+sepBy1 p sep = (| _::_ p (many (sep *> p)) |)
 
 sepBy : Parser a -> Parser b -> Parser (List a)
 sepBy p sep = sepBy1 p sep <|> pure []
@@ -206,7 +206,7 @@ takeAll = takeWhile (const True)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= λ n -> return $ ord n - ord '0')
+    (digit >>= λ n -> return (ord n - ord '0'))
     (return λ m n -> 10 * m + n)
 
 int : Parser Int

@@ -101,7 +101,7 @@ lines s =
   let
     (l , ls) = foldl f ("" , []) s
   in
-    List.reverse $ if l == "" then ls else (l :: ls)
+    List.reverse (if l == "" then ls else (l :: ls))
   where
     f : String * List String -> Char -> String * List String
     f (l , ls) '\n' = ("" , l :: ls)
