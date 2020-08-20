@@ -32,10 +32,8 @@ private
 
 instance
   FromNat-Word8 : FromNat Word8
-  FromNat-Word8 = record {
-      Constraint = const Unit;
-      fromNat = λ n -> natToWord8 n
-    }
+  FromNat-Word8 .FromNatConstraint = const Unit
+  FromNat-Word8 .fromNat n = natToWord8 n
 
   Eq-Word8 : Eq Word8
   Eq-Word8 ._==_ = primEqWord8
@@ -93,10 +91,8 @@ private
 
 instance
   FromNat-Word32 : FromNat Word32
-  FromNat-Word32 = record {
-      Constraint = const Unit;
-      fromNat = λ n -> natToWord32 n
-    }
+  FromNat-Word32 .FromNatConstraint = const Unit
+  FromNat-Word32 .fromNat n = natToWord32 n
 
   Eq-Word32 : Eq Word32
   Eq-Word32 ._==_ = primEqWord32
@@ -160,10 +156,8 @@ natToWord64 = primWord64FromNat
 
 instance
   FromNat-Word64 : FromNat Word64
-  FromNat-Word64 = record {
-      Constraint = const Unit;
-      fromNat = λ n -> natToWord64 n
-    }
+  FromNat-Word64 .FromNatConstraint = const Unit
+  FromNat-Word64 .fromNat n = natToWord64 n
 
   Eq-Word64 : Eq Word64
   Eq-Word64 ._==_ = primEqWord64

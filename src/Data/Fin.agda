@@ -15,10 +15,8 @@ toNat (Suc n) = Suc (toNat n)
 
 instance
   FromNat-Fin : forall {n} -> FromNat (Fin (Suc n))
-  FromNat-Fin {n} = record {
-      Constraint = λ m -> Assert (m <= n);
-      fromNat = λ m {{p}} -> go m n {p}
-    }
+  FromNat-Fin {n} .FromNatConstraint m = Assert (m <= n)
+  FromNat-Fin {n} .fromNat m {{p}} = go m n {p}
     where
       go : (m n : Nat) {_ : Assert (m <= n)} -> Fin (Suc n)
       go Zero _ = Zero

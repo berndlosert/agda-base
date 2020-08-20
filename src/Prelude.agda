@@ -636,48 +636,40 @@ instance
 
 record FromNat (a : Set) : Set where
   field
-    Constraint : Nat -> Set
-    fromNat : (n : Nat) {{_ : Constraint n}} -> a
+    FromNatConstraint : Nat -> Set
+    fromNat : (n : Nat) {{_ : FromNatConstraint n}} -> a
 
-open FromNat {{...}} public using (fromNat)
+open FromNat {{...}} public
 
 {-# BUILTIN FROMNAT fromNat #-}
 {-# DISPLAY FromNat.fromNat _ n = fromNat n #-}
 
 record FromNeg (a : Set) : Set where
   field
-    Constraint : Nat -> Set
-    fromNeg : (n : Nat) {{_ : Constraint n}} -> a
+    FromNegConstraint : Nat -> Set
+    fromNeg : (n : Nat) {{_ : FromNegConstraint n}} -> a
 
-open FromNeg {{...}} public using (fromNeg)
+open FromNeg {{...}} public
 
 {-# BUILTIN FROMNEG fromNeg #-}
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
 instance
   FromNat-Nat : FromNat Nat
-  FromNat-Nat = record {
-      Constraint = const Unit;
-      fromNat = λ n -> n
-    }
+  FromNat-Nat .FromNatConstraint = const Unit
+  FromNat-Nat .fromNat n = n
 
   FromNat-Int : FromNat Int
-  FromNat-Int = record {
-      Constraint = const Unit;
-      fromNat = λ n -> Pos n
-    }
+  FromNat-Int .FromNatConstraint = const Unit
+  FromNat-Int .fromNat n = Pos n
 
   FromNeg-Int : FromNeg Int
-  FromNeg-Int = record {
-      Constraint = const Unit;
-      fromNeg = λ n -> neg n
-    }
+  FromNeg-Int .FromNegConstraint = const Unit
+  FromNeg-Int .fromNeg n = neg n
 
   FromNeg-Float : FromNeg Float
-  FromNeg-Float = record {
-      Constraint = const Unit;
-      fromNeg = λ x -> primFloatNegate (natToFloat x)
-    }
+  FromNeg-Float .FromNegConstraint = const Unit
+  FromNeg-Float .fromNeg x = primFloatNegate (natToFloat x)
 
 -------------------------------------------------------------------------------
 -- Arithmetic operations
