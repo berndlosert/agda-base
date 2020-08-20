@@ -228,9 +228,6 @@ isPos : Int -> Bool
 isPos (Pos _) = True
 isPos _ = False
 
-fromPos : (i : Int) {{_ : Assert (isPos i)}} -> Nat
-fromPos (Pos n) = n
-
 private
   primitive
     primFloatNumericalEquality : Float -> Float -> Bool
@@ -631,7 +628,7 @@ instance
   Ord-Const ._<_ (Const: x) (Const: y) = x < y
 
 -------------------------------------------------------------------------------
--- FromNat and FromNeg
+-- FromNat, ToNat and FromNeg
 -------------------------------------------------------------------------------
 
 record FromNat (a : Set) : Set where
@@ -643,6 +640,13 @@ open FromNat {{...}} public
 
 {-# BUILTIN FROMNAT fromNat #-}
 {-# DISPLAY FromNat.fromNat _ n = fromNat n #-}
+
+record ToNat (a : Set) : Set where
+  field
+    ToNatConstraint : a -> Set
+    toNat : (x : a) {{_ : ToNatConstraint x}} -> Nat
+
+open ToNat {{...}} public
 
 record FromNeg (a : Set) : Set where
   field
@@ -659,9 +663,17 @@ instance
   FromNat-Nat .FromNatConstraint = const Unit
   FromNat-Nat .fromNat n = n
 
+  ToNat-Nat : ToNat Nat
+  ToNat-Nat .ToNatConstraint = const Unit
+  ToNat-Nat .toNat n = n
+
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint = const Unit
   FromNat-Int .fromNat n = Pos n
+
+  ToNat-Int : ToNat Int
+  ToNat-Int .ToNatConstraint i = Assert (isPos i)
+  ToNat-Int .toNat (Pos n) = n
 
   FromNeg-Int : FromNeg Int
   FromNeg-Int .FromNegConstraint = const Unit
