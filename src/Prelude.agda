@@ -310,9 +310,6 @@ private
     primStringFromList : List Char -> String
     primStringAppend : String -> String -> String
 
-unpack = primStringToList
-pack = primStringFromList
-
 either : (a -> c) -> (b -> c) -> Either a b -> c
 either f g (Left a) = f a
 either f g (Right b) = g b
@@ -451,6 +448,22 @@ instance
   Boolean-Function .not f x = not (f x)
   Boolean-Function ._||_ f g x = f x || g x
   Boolean-Function ._&&_ f g x = f x && g x
+
+-------------------------------------------------------------------------------
+-- Packed
+-------------------------------------------------------------------------------
+
+record Packed (s a : Set) : Set where
+  field
+    pack : List a -> s
+    unpack : s -> List a
+
+open Packed {{...}} public
+
+instance
+  Packed-String-Char : Packed String Char
+  Packed-String-Char .pack = primStringFromList
+  Packed-String-Char .unpack = primStringToList
 
 -------------------------------------------------------------------------------
 -- Eq
