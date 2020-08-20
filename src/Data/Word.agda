@@ -5,6 +5,67 @@ open import Prelude
 open import Data.Bits
 
 -------------------------------------------------------------------------------
+-- Word8
+-------------------------------------------------------------------------------
+
+postulate
+  Word8 : Set
+  word8ToNat : Word8 -> Nat
+  natToWord8 : Nat -> Word8
+
+private
+  2^8 : Nat
+  2^8 = 256
+
+  postulate
+    primEqWord8 : Word8 -> Word8 -> Bool
+    primLessThanWord8 : Word8 -> Word8 -> Bool
+    primOrWord8 : Word8 -> Word8 -> Word8
+    primXorWord8 : Word8 -> Word8 -> Word8
+    primAndWord8 : Word8 -> Word8 -> Word8
+    primShiftWord8 : Word8 -> Int -> Word8
+    primRotateWord8 : Word8 -> Int -> Word8
+    primBitWord8 : Nat -> Word8
+    primTestBitWord8 : Word8 -> Nat -> Bool
+    primIsSignedWord8 : Word8 -> Bool
+    primPopCountWord8 : Word8 -> Nat
+
+instance
+  FromNat-Word8 : FromNat Word8
+  FromNat-Word8 = record {
+      Constraint = const Unit;
+      fromNat = λ n -> natToWord8 n
+    }
+
+  Eq-Word8 : Eq Word8
+  Eq-Word8 ._==_ = primEqWord8
+
+  Ord-Word8 : Ord Word8
+  Ord-Word8 ._<_ = primLessThanWord8
+
+  Bits-Word8 : Bits Word8
+  Bits-Word8 .bitSize _ = 8
+  Bits-Word8 .zeroBits = 0x0
+  Bits-Word8 .oneBits = 0xFFFFFFFF
+  Bits-Word8 ._:|:_ = primOrWord8
+  Bits-Word8 ._xor_ = primXorWord8
+  Bits-Word8 ._:&:_ = primAndWord8
+  Bits-Word8 .shift = primShiftWord8
+  Bits-Word8 .rotate = primRotateWord8
+  Bits-Word8 .bit = primBitWord8
+  Bits-Word8 .testBit = primTestBitWord8
+  Bits-Word8 .isSigned = primIsSignedWord8
+  Bits-Word8 .popCount = primPopCountWord8
+
+  Addition-Word8 : Addition Word8
+  Addition-Word8 ._+_ x y =
+    natToWord8 ((word8ToNat x + word8ToNat y) % 2^8)
+
+  Multiplication-Word8 : Multiplication Word8
+  Multiplication-Word8 ._*_ x y =
+    natToWord8 ((word8ToNat x * word8ToNat y) % 2^8)
+
+-------------------------------------------------------------------------------
 -- Word32
 -------------------------------------------------------------------------------
 
@@ -138,6 +199,19 @@ instance
 
 {-# FOREIGN GHC import Data.Word #-}
 {-# FOREIGN GHC import Data.Bits #-}
+
+{-# COMPILE GHC Word8 = type Word8 #-}
+{-# COMPILE GHC primEqWord8 = \ x y -> x == y #-}
+{-# COMPILE GHC primLessThanWord8 = \ x y -> x < y #-}
+{-# COMPILE GHC primOrWord8 = \ x y -> x .|. y #-}
+{-# COMPILE GHC primXorWord8 = \ x y -> x `xor` y #-}
+{-# COMPILE GHC primAndWord8 = \ x y -> x .&. y #-}
+{-# COMPILE GHC primShiftWord8 = \ x i -> shift x (fromIntegral i) #-}
+{-# COMPILE GHC primRotateWord8 = \ x i -> rotate x (fromIntegral i) #-}
+{-# COMPILE GHC primBitWord8 = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC primTestBitWord8 = \ x i -> testBit x (fromIntegral i) #-}
+{-# COMPILE GHC primIsSignedWord8 = isSigned #-}
+{-# COMPILE GHC primPopCountWord8 = toInteger . popCount #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC primEqWord32 = \ x y -> x == y #-}
