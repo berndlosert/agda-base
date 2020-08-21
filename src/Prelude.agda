@@ -742,6 +742,7 @@ record Signed (a : Set) : Set where
   field
     abs : a -> a
     signum : a -> a
+
 open Signed {{...}} public
 
 instance
