@@ -205,4 +205,4 @@ instance
   ... | GT = randomR (to , from) g
   ... | LT =
     first (λ n -> fromNat n + from)
-      (genNat' (fromPos (to - from) {{believeMe}}) g)
+      (genNat' (toNat (to - from) {{believeMe}}) g)
