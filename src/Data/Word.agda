@@ -64,6 +64,65 @@ instance
     natToWord8 ((word8ToNat x * word8ToNat y) % 2^8)
 
 -------------------------------------------------------------------------------
+-- Word16
+-------------------------------------------------------------------------------
+
+postulate
+  Word16 : Set
+  word16ToNat : Word16 -> Nat
+  natToWord16 : Nat -> Word16
+
+private
+  2^16 : Nat
+  2^16 = 256
+
+  postulate
+    primEqWord16 : Word16 -> Word16 -> Bool
+    primLessThanWord16 : Word16 -> Word16 -> Bool
+    primOrWord16 : Word16 -> Word16 -> Word16
+    primXorWord16 : Word16 -> Word16 -> Word16
+    primAndWord16 : Word16 -> Word16 -> Word16
+    primShiftWord16 : Word16 -> Int -> Word16
+    primRotateWord16 : Word16 -> Int -> Word16
+    primBitWord16 : Nat -> Word16
+    primTestBitWord16 : Word16 -> Nat -> Bool
+    primIsSignedWord16 : Word16 -> Bool
+    primPopCountWord16 : Word16 -> Nat
+
+instance
+  FromNat-Word16 : FromNat Word16
+  FromNat-Word16 .FromNatConstraint = const Unit
+  FromNat-Word16 .fromNat n = natToWord16 n
+
+  Eq-Word16 : Eq Word16
+  Eq-Word16 ._==_ = primEqWord16
+
+  Ord-Word16 : Ord Word16
+  Ord-Word16 ._<_ = primLessThanWord16
+
+  Bits-Word16 : Bits Word16
+  Bits-Word16 .bitSize _ = 16
+  Bits-Word16 .zeroBits = 0x0
+  Bits-Word16 .oneBits = 0xFFFFFFFF
+  Bits-Word16 ._:|:_ = primOrWord16
+  Bits-Word16 ._xor_ = primXorWord16
+  Bits-Word16 ._:&:_ = primAndWord16
+  Bits-Word16 .shift = primShiftWord16
+  Bits-Word16 .rotate = primRotateWord16
+  Bits-Word16 .bit = primBitWord16
+  Bits-Word16 .testBit = primTestBitWord16
+  Bits-Word16 .isSigned = primIsSignedWord16
+  Bits-Word16 .popCount = primPopCountWord16
+
+  Addition-Word16 : Addition Word16
+  Addition-Word16 ._+_ x y =
+    natToWord16 ((word16ToNat x + word16ToNat y) % 2^16)
+
+  Multiplication-Word16 : Multiplication Word16
+  Multiplication-Word16 ._*_ x y =
+    natToWord16 ((word16ToNat x * word16ToNat y) % 2^16)
+
+-------------------------------------------------------------------------------
 -- Word32
 -------------------------------------------------------------------------------
 
@@ -206,6 +265,19 @@ instance
 {-# COMPILE GHC primTestBitWord8 = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC primIsSignedWord8 = isSigned #-}
 {-# COMPILE GHC primPopCountWord8 = toInteger . popCount #-}
+
+{-# COMPILE GHC Word16 = type Word16 #-}
+{-# COMPILE GHC primEqWord16 = \ x y -> x == y #-}
+{-# COMPILE GHC primLessThanWord16 = \ x y -> x < y #-}
+{-# COMPILE GHC primOrWord16 = \ x y -> x .|. y #-}
+{-# COMPILE GHC primXorWord16 = \ x y -> x `xor` y #-}
+{-# COMPILE GHC primAndWord16 = \ x y -> x .&. y #-}
+{-# COMPILE GHC primShiftWord16 = \ x i -> shift x (fromIntegral i) #-}
+{-# COMPILE GHC primRotateWord16 = \ x i -> rotate x (fromIntegral i) #-}
+{-# COMPILE GHC primBitWord16 = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC primTestBitWord16 = \ x i -> testBit x (fromIntegral i) #-}
+{-# COMPILE GHC primIsSignedWord16 = isSigned #-}
+{-# COMPILE GHC primPopCountWord16 = toInteger . popCount #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC primEqWord32 = \ x y -> x == y #-}
