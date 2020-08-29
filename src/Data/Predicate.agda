@@ -13,7 +13,7 @@ open Predicate
 instance
   Semigroup-Predicate : Semigroup (Predicate a)
   Semigroup-Predicate ._<>_ (Predicate: p) (Predicate: q) =
-    Predicate: λ a -> p a && q a
+    Predicate: \ a -> p a && q a
 
   Monoid-Predicate : Monoid (Predicate a)
   Monoid-Predicate .neutral = Predicate: (const True)

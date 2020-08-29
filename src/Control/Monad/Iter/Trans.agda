@@ -40,14 +40,14 @@ instance
   Applicative-IterT .pure x .runIterT = return (Left x)
   Applicative-IterT ._<*>_ iter x .runIterT = do
     result <- runIterT iter
-    case result of λ where
+    case result of \ where
       (Left f) -> runIterT (map f x)
       (Right iter') -> return (Right (iter' <*> x))
 
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = do
     result <- runIterT iter
-    case result of λ where
+    case result of \ where
       (Left m) -> runIterT (k m)
       (Right iter') -> return (Right (iter' >>= k))
 
@@ -55,11 +55,11 @@ instance
   Alternative-IterT .empty = never
   Alternative-IterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
-    case resultl of λ where
+    case resultl of \ where
       (Left _) -> return resultl
       (Right iter') -> do
         resultr <- runIterT r
-        case resultr of λ where
+        case resultr of \ where
           (Left _) -> return resultr
           (Right iter'') -> return (Right (iter' <|> iter''))
 

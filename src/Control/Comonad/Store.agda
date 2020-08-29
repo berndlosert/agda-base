@@ -15,5 +15,5 @@ instance
   Functor-Store .map f (g , s) = (f ∘ g , s)
 
   Comonad-Store : Comonad (Store s)
-  Comonad-Store .extend f (g , s) = ((λ _ -> f (g , s)) , s)
+  Comonad-Store .extend f (g , s) = ((\ _ -> f (g , s)) , s)
   Comonad-Store .extract (g , s) = g s

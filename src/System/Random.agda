@@ -54,7 +54,7 @@ private
       mask = shiftR oneBits (64 - r)
       (ws , g) = genW64s (q + 1) g0
     in
-      case ws of λ where
+      case ws of \ where
         (h :: t) -> (w64sToNat ((h :&: mask) :: t) , g)
         [] -> (0 , g)
 
@@ -204,5 +204,5 @@ instance
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
   ... | LT =
-    first (λ n -> fromNat n + from)
+    first (\ n -> fromNat n + from)
       (genNat' (toNat (to - from) {{believeMe}}) g)

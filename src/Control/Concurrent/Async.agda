@@ -28,20 +28,20 @@ postulate
 
 race : IO a -> IO b -> IO (a + b)
 race left right =
-  withAsync left λ a ->
-  withAsync right λ b ->
+  withAsync left \ a ->
+  withAsync right \ b ->
   waitEither a b
 
 race! : IO a -> IO b -> IO Unit
 race! left right =
-  withAsync left λ a ->
-  withAsync right λ b ->
+  withAsync left \ a ->
+  withAsync right \ b ->
   waitEither! a b
 
 concurrently : IO a -> IO b -> IO (a * b)
 concurrently left right =
-  withAsync left λ a ->
-  withAsync right λ b ->
+  withAsync left \ a ->
+  withAsync right \ b ->
   waitBoth a b
 
 concurrently! : IO a -> IO b -> IO Unit

@@ -21,15 +21,15 @@ record Gen (a : Set) : Set where
 
 instance
   Functor-Gen : Functor Gen
-  Functor-Gen .map f (Gen: x) = Gen: λ r n -> f (x r n)
+  Functor-Gen .map f (Gen: x) = Gen: \ r n -> f (x r n)
 
   Applicative-Gen : Applicative Gen
-  Applicative-Gen .pure x = Gen: λ _ _ -> x
-  Applicative-Gen ._<*>_ (Gen: f) (Gen: x) = Gen: λ r n ->
+  Applicative-Gen .pure x = Gen: \ _ _ -> x
+  Applicative-Gen ._<*>_ (Gen: f) (Gen: x) = Gen: \ r n ->
     let (r1 , r2) = split r in f r1 n (x r2 n)
 
   Monad-Gen : Monad Gen
-  Monad-Gen ._>>=_ (Gen: m) k = Gen: λ r n ->
+  Monad-Gen ._>>=_ (Gen: m) k = Gen: \ r n ->
     let (r1 , r2) = split r; Gen: m' = k (m r1 n) in m' r2 n
 
 -------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ instance
 
 variant : Nat -> Gen a -> Gen a
 variant v (Gen: m) =
-    Gen: λ r n -> m (Stream.at (Suc v) (rands r)) n
+    Gen: \ r n -> m (Stream.at (Suc v) (rands r)) n
   where
     rands : {{_ : RandomGen g}} -> g -> Stream g
     rands g = Stream.unfold split g
@@ -48,22 +48,22 @@ generate' n rnd (Gen: m) = let (size , rnd') = randomR (0 , n) rnd in
   m rnd' size
 
 sized : (Nat -> Gen a) -> Gen a
-sized f = Gen: λ r n -> let Gen: m = f n in m r n
+sized f = Gen: \ r n -> let Gen: m = f n in m r n
 
 getSize : Gen Nat
 getSize = sized pure
 
 resize : Nat -> Gen a -> Gen a
-resize n (Gen: g) = Gen: λ r _ -> g r n
+resize n (Gen: g) = Gen: \ r _ -> g r n
 
 scale : (Nat -> Nat) -> Gen a -> Gen a
-scale f g = sized (λ n -> resize (f n) g)
+scale f g = sized (\ n -> resize (f n) g)
 
 choose : {{_ : RandomR a}} -> a * a -> Gen a
-choose rng = Gen: λ r _ -> let (x , _) = randomR rng r in x
+choose rng = Gen: \ r _ -> let (x , _) = randomR rng r in x
 
 chooseAny : {{_ : Random a}} -> Gen a
-chooseAny = Gen: λ r _ -> let (x , _) = random r in x
+chooseAny = Gen: \ r _ -> let (x , _) = random r in x
 
 generate : Gen a -> IO a
 generate (Gen: g) = do
@@ -87,7 +87,7 @@ oneof gs = do
 
 frequency : (xs : List (Nat * Gen a)) {{_ : Assert (sum (map fst xs) > 0)}}
   -> Gen a
-frequency {a} xs = choose (1 , tot) >>= (λ x -> pick x xs)
+frequency {a} xs = choose (1 , tot) >>= (\ x -> pick x xs)
   where
     tot = sum (map fst xs)
 
@@ -97,19 +97,19 @@ frequency {a} xs = choose (1 , tot) >>= (λ x -> pick x xs)
 
 elements : (xs : List a) {{_ : Nonempty xs}} -> Gen a
 elements xs = map
-  (λ n -> fromJust (List.at n xs) {{believeMe}})
+  (\ n -> fromJust (List.at n xs) {{believeMe}})
   (choose {Nat} (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = replicateA
 
 listOf : Gen a -> Gen (List a)
-listOf gen = sized λ n -> do
+listOf gen = sized \ n -> do
   k <- choose (0 , n)
   vectorOf k gen
 
 sublistOf : List a -> Gen (List a)
-sublistOf = List.filterA λ _ -> map (_== 0) (choose {Nat} (0 , 1))
+sublistOf = List.filterA \ _ -> map (_== 0) (choose {Nat} (0 , 1))
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
@@ -117,7 +117,7 @@ shuffle xs = do
   return (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
 
 promote : (a -> Gen b) -> Gen (a -> b)
-promote f = Gen: λ r n a -> let (Gen: m) = f a in m r n
+promote f = Gen: \ r n a -> let (Gen: m) = f a in m r n
 
 -------------------------------------------------------------------------------
 -- Arbitrary & Coarbitrary
@@ -138,10 +138,10 @@ instance
   Arbitrary-Bool .arbitrary = elements (True :: False :: [])
 
   Arbitrary-Nat : Arbitrary Nat
-  Arbitrary-Nat .arbitrary = sized λ n -> choose (0 , n)
+  Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)
 
   Arbitrary-Int : Arbitrary Int
-  Arbitrary-Int .arbitrary = sized λ where
+  Arbitrary-Int .arbitrary = sized \ where
     0 -> choose (0 , 0)
     (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
@@ -149,7 +149,7 @@ instance
   Arbitrary-Tuple .arbitrary = (| _,_ arbitrary arbitrary |)
 
   Arbitrary-List : {{_ : Arbitrary a}} -> Arbitrary (List a)
-  Arbitrary-List .arbitrary = sized λ n -> do
+  Arbitrary-List .arbitrary = sized \ n -> do
     m <- choose (0 , n)
     vectorOf m arbitrary
 
@@ -256,15 +256,15 @@ quick : Config
 quick = record {
     maxTest = 100;
     maxFail = 1000;
-    size = λ n -> n / 2 + 3;
-    every = λ n args ->
+    size = \ n -> n / 2 + 3;
+    every = \ n args ->
       let s = show n in
       s ++ pack (replicate (String.length s) '\b')
   }
 
 verbose : Config
 verbose = record quick {
-    every = λ n args -> show n ++ ":\n" ++ String.unlines args
+    every = \ n args -> show n ++ ":\n" ++ String.unlines args
   }
 
 -------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ private
         result = generate' (Config.size config ntest) rnd2 gen
       in do
         putStr (Config.every config ntest (Result.arguments result))
-        case Result.ok result of λ where
+        case Result.ok result of \ where
           Nothing -> tests
             config gen rnd1 ntest (nfail + 1) stamps
           (Just True) -> tests

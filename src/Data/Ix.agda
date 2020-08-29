@@ -27,8 +27,8 @@ instance
       else if m < n then m :: range (m + 1 , n)
       else (m :: range (m - 1 , n))
   Ix-Int .inRange (m , n) k = m <= k && k <= n
-  Ix-Int .rangeSize (m , n) = fromPos (abs (m - n)) {{believeMe}}
+  Ix-Int .rangeSize (m , n) = toNat (abs (m - n)) {{believeMe}}
   Ix-Int .index (m , n) k =
     if inRange (m , n) k
-    then Just (fromPos (abs (k - m)) {{believeMe}})
+    then Just (toNat (abs (k - m)) {{believeMe}})
     else Nothing

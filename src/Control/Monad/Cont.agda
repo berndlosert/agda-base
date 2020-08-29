@@ -11,7 +11,7 @@ Cont : Set -> Set -> Set
 Cont r a = ContT r Identity a
 
 cont : ((a -> r) -> r) -> Cont r a
-cont f = ContT: λ c -> Identity: (f (runIdentity ∘ c))
+cont f = ContT: \ c -> Identity: (f (runIdentity ∘ c))
 
 runCont : Cont r a -> (a -> r) -> r
 runCont m k = runIdentity (runContT m (Identity: ∘ k))

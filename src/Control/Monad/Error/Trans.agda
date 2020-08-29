@@ -33,18 +33,18 @@ instance
   Applicative-ErrorT .pure x = ErrorT: (return (Right x))
   Applicative-ErrorT ._<*>_ (ErrorT: mf) (ErrorT: mx) = ErrorT: do
     f <- mf
-    case f of λ where
+    case f of \ where
       (Left e) -> return (Left e)
       (Right g) -> do
         x <- mx
-        case x of λ where
+        case x of \ where
           (Left e) -> return (Left e)
           (Right y) -> return (Right (g y))
 
   Monad-ErrorT : {{_ : Monad m}} -> Monad (ErrorT e m)
   Monad-ErrorT ._>>=_ (ErrorT: m) k = ErrorT: do
     x <- m
-    case x of λ where
+    case x of \ where
       (Left e) -> return (Left e)
       (Right y) -> runErrorT (k y)
 
@@ -52,7 +52,7 @@ instance
   MonadError-ErrorT .throwError e = ErrorT: (return (Left e))
   MonadError-ErrorT .catchError (ErrorT: m) k = ErrorT: do
     x <- m
-    case x of λ where
+    case x of \ where
       (Left e) -> runErrorT (k e)
       (Right y) -> return (Right y)
 

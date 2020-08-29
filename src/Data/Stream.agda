@@ -34,7 +34,7 @@ iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
 unfold : (b -> a * b) -> b -> Stream a
-unfold f b = let (a , b') = f b in λ where
+unfold f b = let (a , b') = f b in \ where
   .head -> a
   .tail -> unfold f b'
 
@@ -56,7 +56,7 @@ at 0 as = head as
 at (Suc n) as = at n (tail as)
 
 cycle : (as : List a) {{_ : Nonempty as}} -> Stream a
-cycle as = flip unfold as λ where
+cycle as = flip unfold as \ where
   [] -> undefined -- We never use this case anyways.
   [ x ] -> (x , as)
   (x :: xs) -> (x , xs)

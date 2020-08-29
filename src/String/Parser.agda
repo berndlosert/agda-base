@@ -134,10 +134,10 @@ char : Char -> Parser Char
 char c = satisfy (c ==_)
 
 oneOf : List Char -> Parser Char
-oneOf cs = satisfy (λ c -> elem c cs)
+oneOf cs = satisfy (\ c -> elem c cs)
 
 noneOf : List Char -> Parser Char
-noneOf cs = satisfy (λ c -> notElem c cs)
+noneOf cs = satisfy (\ c -> notElem c cs)
 
 letter : Parser Char
 letter = satisfy isAlpha
@@ -194,7 +194,7 @@ word = neword <|> (pure "")
       return (cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = Parser: λ s ->
+takeWhile p = Parser: \ s ->
   singleton (String.takeWhile p s , String.dropWhile p s)
 
 takeAll : Parser String
@@ -206,8 +206,8 @@ takeAll = takeWhile (const True)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= λ n -> return (ord n - ord '0'))
-    (return λ m n -> 10 * m + n)
+    (digit >>= \ n -> return (ord n - ord '0'))
+    (return \ m n -> 10 * m + n)
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
