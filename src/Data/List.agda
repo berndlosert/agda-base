@@ -36,19 +36,19 @@ length = foldr (const Suc) 0
 -------------------------------------------------------------------------------
 
 takeWhile : (a -> Bool) -> List a -> List a
-takeWhile p = reverse ∘ untag ∘ flip foldlM [] \ where
+takeWhile p = reverse <<< untag <<< flip foldlM [] \ where
   as a -> if p a then Right (a :: as) else Left as
 
 dropWhile : (a -> Bool) -> List a -> List a
-dropWhile p = reverse ∘ flip foldl [] \ where
+dropWhile p = reverse <<< flip foldl [] \ where
   as a -> if p a then as else (a :: as)
 
 take : Nat -> List a -> List a
-take n = reverse ∘ snd ∘ untag ∘ flip foldlM (0 , []) \ where
+take n = reverse <<< snd <<< untag <<< flip foldlM (0 , []) \ where
   (k , s) a -> if k < n then Right (Suc k , cons a s) else Left (Suc k , s)
 
 drop : Nat -> List a -> List a
-drop n = reverse ∘ snd ∘ flip foldl (0 , []) \ where
+drop n = reverse <<< snd <<< flip foldl (0 , []) \ where
   (k , as) a -> if k < n then (Suc k , as) else (Suc k , a :: as)
 
 inits : List a -> List (List a)
@@ -90,27 +90,27 @@ group = groupBy _==_
 -------------------------------------------------------------------------------
 
 indexed : List a -> List (Nat * a)
-indexed = reverse ∘ flip foldl [] \ where
+indexed = reverse <<< flip foldl [] \ where
   [] a -> (0 , a) :: []
   xs@(h :: t) a' -> (Suc (fst h) , a') :: xs
 
 at : Nat -> List a -> Maybe a
-at n = leftToMaybe ∘ flip foldlM 0 \
+at n = leftToMaybe <<< flip foldlM 0 \
   k a -> if k == n then Left a else Right (Suc k)
 
 deleteAt : Nat -> List a -> List a
-deleteAt n = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+deleteAt n = reverse <<< snd <<< flip foldl (0 , nil) \ where
   (k , as) a -> (Suc k , if k == n then as else (a :: as))
 
 modifyAt : Nat -> (a -> a) -> List a -> List a
-modifyAt n f = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+modifyAt n f = reverse <<< snd <<< flip foldl (0 , nil) \ where
   (k , as) a -> (Suc k , if k == n then f a :: as else (a :: as))
 
 setAt : Nat -> a -> List a -> List a
 setAt n a = modifyAt n (const a)
 
 insertAt : Nat -> a -> List a -> List a
-insertAt n a' = reverse ∘ snd ∘ flip foldl (0 , nil) \ where
+insertAt n a' = reverse <<< snd <<< flip foldl (0 , nil) \ where
   (k , as) a -> (Suc k , if k == n then a' :: a :: as else (a :: as))
 
 splitAt : Nat -> List a -> List a * List a
@@ -260,7 +260,7 @@ sort : {{_ : Ord a}} -> List a -> List a
 sort = sortBy compare
 
 sortOn : {{_ : Ord b}} -> (a -> b) -> List a -> List a
-sortOn f = map snd ∘ sortBy (comparing fst) ∘ map (tuple f id)
+sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
 
 -------------------------------------------------------------------------------
 -- Searching

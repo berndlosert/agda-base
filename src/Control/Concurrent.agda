@@ -28,7 +28,7 @@ instance
   Ord-ThreadId ._<_ = primLessThanThreadId
 
   Show-ThreadId : Show ThreadId
-  Show-ThreadId .showsPrec _ = showString ∘ primShowThreadId
+  Show-ThreadId .showsPrec _ = showString <<< primShowThreadId
 
 threadDelay : {{_ : TimeUnit a}} -> a -> IO Unit
 threadDelay x = primThreadDelay (toMicroseconds x)

@@ -34,7 +34,7 @@ unsafeRetract iter = runIterT iter >>= either return unsafeRetract
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT =
-    runIterT iter >>= return ∘ bimap f (map f)
+    runIterT iter >>= return <<< bimap f (map f)
 
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
   Applicative-IterT .pure x .runIterT = return (Left x)

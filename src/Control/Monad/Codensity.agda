@@ -9,7 +9,7 @@ Codensity f a = forall {b} -> (a -> f b) -> f b
 
 instance
   Functor-Codensity : Functor (Codensity f)
-  Functor-Codensity .map f x =  \ k -> x (k ∘ f)
+  Functor-Codensity .map f x =  \ k -> x (k <<< f)
 
   Applicative-Codensity : Applicative (Codensity f)
   Applicative-Codensity .pure x = \ k -> k x

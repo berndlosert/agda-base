@@ -177,7 +177,7 @@ instance
   Functor-Concurrently .map f (Concurrently: a) = Concurrently: (map f a)
 
   Applicative-Concurrently : Applicative Concurrently
-  Applicative-Concurrently .pure = Concurrently: ∘ pure
+  Applicative-Concurrently .pure = Concurrently: <<< pure
   Applicative-Concurrently ._<*>_ (Concurrently: f) (Concurrently: x) =
     Concurrently: (map apply (concurrently f x))
 
@@ -194,15 +194,15 @@ instance
   Monoid-Concurrently .neutral = pure neutral
 
 mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
-mapConcurrently f = runConcurrently ∘ traverse (Concurrently: ∘ f)
+mapConcurrently f = runConcurrently <<< traverse (Concurrently: <<< f)
 
 mapConcurrently! : {{_ : Foldable f}} -> (a -> IO b) -> f a -> IO Unit
-mapConcurrently! f = runConcurrently ∘ foldMap (Concurrently: ∘ void ∘ f)
+mapConcurrently! f = runConcurrently <<< foldMap (Concurrently: <<< void <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
 replicateConcurrently cnt =
-  runConcurrently ∘ sequence ∘ replicate cnt ∘ Concurrently:
+  runConcurrently <<< sequence <<< replicate cnt <<< Concurrently:
 
 replicateConcurrently! : Nat -> IO a -> IO Unit
 replicateConcurrently! cnt =
-  runConcurrently ∘ fold ∘ replicate cnt ∘ Concurrently: ∘ void
+  runConcurrently <<< fold <<< replicate cnt <<< Concurrently: <<< void

@@ -21,19 +21,19 @@ evalContT : {{_ : Monad m}} -> ContT r m r -> m r
 evalContT (ContT: m) = m return
 
 mapContT : (m r -> m r) -> ContT r m ~> ContT r m
-mapContT f (ContT: m) = ContT: (f ∘ m)
+mapContT f (ContT: m) = ContT: (f <<< m)
 
 withContT : ((b -> m r) -> (a -> m r)) -> ContT r m a -> ContT r m b
-withContT f (ContT: m) = ContT: (m ∘ f)
+withContT f (ContT: m) = ContT: (m <<< f)
 
 instance
   Functor-ContT : Functor (ContT r m)
-  Functor-ContT .map f (ContT: m) = ContT: \ c -> m (c ∘ f)
+  Functor-ContT .map f (ContT: m) = ContT: \ c -> m (c <<< f)
 
   Applicative-ContT : Applicative (ContT r m)
   Applicative-ContT .pure x = ContT: (\ f -> f x)
   Applicative-ContT ._<*>_ (ContT: f) (ContT: x) =
-    ContT: \ c -> f \ g -> x (c ∘ g)
+    ContT: \ c -> f \ g -> x (c <<< g)
 
   Monad-ContT : Monad (ContT r m)
   Monad-ContT ._>>=_ (ContT: m) k = ContT: \ c -> m \ x -> runContT (k x) c
@@ -50,14 +50,14 @@ instance
   MonadBase-ContT .liftBase m = lift (liftBase m)
 
 resetT : {{_ : Monad m}} -> ContT r m r -> ContT r' m r
-resetT = lift ∘ evalContT
+resetT = lift <<< evalContT
 
 shiftT : {{_ : Monad m}} -> ((a -> m r) -> ContT r m r) -> ContT r m a
-shiftT f = ContT: (evalContT ∘ f)
+shiftT f = ContT: (evalContT <<< f)
 
 liftLocal : {{_ : Monad m}}
   -> m r' -> ((r' -> r') -> m r -> m r)
   -> (r' -> r') -> ContT r m ~> ContT r m
 liftLocal ask local f (ContT: m) = ContT: \ c -> do
   r <- ask
-  local f (m (local (const r) ∘ c))
+  local f (m (local (const r) <<< c))

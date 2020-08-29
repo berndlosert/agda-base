@@ -11,13 +11,13 @@ Writer : Set -> Set -> Set
 Writer W = WriterT W Identity
 
 writer: : a * w -> Writer w a
-writer: = WriterT: ∘ Identity:
+writer: = WriterT: <<< Identity:
 
 runWriter : Writer w a -> a * w
-runWriter = runIdentity ∘ runWriterT
+runWriter = runIdentity <<< runWriterT
 
 execWriter : Writer w a -> w
 execWriter m = snd (runWriter m)
 
 mapWriter : (a * w -> b * w') -> Writer w a -> Writer w' b
-mapWriter = mapWriterT ∘ map
+mapWriter = mapWriterT <<< map

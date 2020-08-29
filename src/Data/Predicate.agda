@@ -19,4 +19,4 @@ instance
   Monoid-Predicate .neutral = Predicate: (const True)
 
   Contravariant-Predicate : Contravariant Predicate
-  Contravariant-Predicate .contramap f (Predicate: p) = Predicate: (p ∘ f)
+  Contravariant-Predicate .contramap f (Predicate: p) = Predicate: (p <<< f)

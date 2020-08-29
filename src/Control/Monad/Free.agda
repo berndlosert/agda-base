@@ -20,7 +20,7 @@ lower = interpret id
 
 instance
   Functor-Free : forall {f} -> Functor (Free f)
-  Functor-Free .map f free = Free: (map f ∘ run free)
+  Functor-Free .map f free = Free: (map f <<< run free)
 
   Applicative-Free : forall {f} -> Applicative (Free f)
   Applicative-Free .pure x = Free: \ _ -> return x
@@ -28,11 +28,11 @@ instance
 
   Monad-Free : forall {f} -> Monad (Free f)
   Monad-Free ._>>=_ m f = Free: \ t ->
-    join (map (interpret t ∘ f) (interpret t m))
+    join (map (interpret t <<< f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
 hoist : forall {f g} -> (f ~> g) -> Free f ~> Free g
-hoist t free = interpret (lift ∘ t) free
+hoist t free = interpret (lift <<< t) free
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
 -- is lift; the extend operation is defined below:
@@ -69,12 +69,12 @@ fold {f} ret ext free = interpret t free ret ext
 
     instance
       Functor-M : Functor M
-      Functor-M .map f m = \ ret ext -> m (ret ∘ f) ext
+      Functor-M .map f m = \ ret ext -> m (ret <<< f) ext
 
       Applicative-M : Applicative M
       Applicative-M .pure x = \ ret ext -> ret x
       Applicative-M ._<*>_ f x = \ ret ext ->
-        f (\ g -> x (ret ∘ g) ext) ext
+        f (\ g -> x (ret <<< g) ext) ext
 
       Monad-M : Monad M
       Monad-M ._>>=_ m f = \ ret ext -> m (\ y -> (f y) ret ext) ext
@@ -99,12 +99,12 @@ fold' {f} {{inst}} ret jn free = interpret t free ret jn
 
     instance
       Functor-M : Functor M
-      Functor-M .map f m = \ ret jn -> m (ret ∘ f) jn
+      Functor-M .map f m = \ ret jn -> m (ret <<< f) jn
 
       Applicative-M : Applicative M
       Applicative-M .pure x = \ ret jn -> ret x
       Applicative-M ._<*>_ f x = \ ret jn ->
-        f (\ g -> x (ret ∘ g) jn) jn
+        f (\ g -> x (ret <<< g) jn) jn
 
       Monad-M : Monad M
       Monad-M ._>>=_ m f = \ ret jn -> m (\ x -> (f x) ret jn) jn

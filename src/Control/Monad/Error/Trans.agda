@@ -27,7 +27,7 @@ mapErrorT f m = ErrorT: (f (runErrorT m))
 
 instance
   Functor-ErrorT : {{_ : Functor m}} -> Functor (ErrorT e m)
-  Functor-ErrorT .map f = ErrorT: ∘ map (map f) ∘ runErrorT
+  Functor-ErrorT .map f = ErrorT: <<< map (map f) <<< runErrorT
 
   Applicative-ErrorT : {{_ : Monad m}} -> Applicative (ErrorT e m)
   Applicative-ErrorT .pure x = ErrorT: (return (Right x))

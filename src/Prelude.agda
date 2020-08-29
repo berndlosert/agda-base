@@ -130,9 +130,6 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
-id : a -> a
-id x = x
-
 const : a -> b -> a
 const x _ = x
 
@@ -149,10 +146,6 @@ _#_ = flip _$_
 
 case_of_ : a -> (a -> b) -> b
 case_of_ = _#_
-
-infixr 9 _∘_
-_∘_ : (b -> c) -> (a -> b) -> a -> c
-g ∘ f = \ x -> g (f x)
 
 Assert : Bool -> Set
 Assert False = Void
@@ -1166,6 +1159,26 @@ instance
   IsBuildable-String-Char .singleton c = pack (singleton c)
 
 -------------------------------------------------------------------------------
+-- Category
+-------------------------------------------------------------------------------
+
+record Category (a : Set -> Set -> Set) : Set where
+  infixr 9 _<<<_ _>>>_
+  field
+    id : a b b
+    _<<<_ : a c d -> a b c -> a b d
+
+  _>>>_ : a b c -> a c d -> a b d
+  _>>>_ = flip _<<<_
+
+open Category {{...}} public
+
+instance
+  Category-Function : Category Function
+  Category-Function .id x = x
+  Category-Function ._<<<_ g f x = g (f x)
+
+-------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
 -------------------------------------------------------------------------------
 
@@ -1182,7 +1195,7 @@ record Functor (f : Set -> Set) : Set where
 
   infixl 4 _<$_
   _<$_ : b -> f a -> f b
-  _<$_ = map ∘ const
+  _<$_ = map <<< const
 
   infixl 4 _$>_
   _$>_ : f a -> b -> f b
@@ -1225,19 +1238,19 @@ open Profunctor {{...}} public
 
 instance
   Profunctor-Function : Profunctor Function
-  Profunctor-Function .dimap f g h = g ∘ h ∘ f
+  Profunctor-Function .dimap f g h = g <<< h <<< f
 
   Functor-Function : Functor (Function a)
   Functor-Function .map = rmap
 
   Bifunctor-Either : Bifunctor Either
-  Bifunctor-Either .bimap f g = either (Left ∘ f) (Right ∘ g)
+  Bifunctor-Either .bimap f g = either (Left <<< f) (Right <<< g)
 
   Functor-Either : Functor (Either a)
   Functor-Either .map = second
 
   Bifunctor-Tuple : Bifunctor Tuple
-  Bifunctor-Tuple .bimap f g = tuple (f ∘ fst) (g ∘ snd)
+  Bifunctor-Tuple .bimap f g = tuple (f <<< fst) (g <<< snd)
 
   Functor-Tuple : Functor (Tuple a)
   Functor-Tuple .map = second
@@ -1254,37 +1267,37 @@ instance
   Functor-IO .map = mapIO
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map f = Identity: ∘ f ∘ runIdentity
+  Functor-Identity .map f = Identity: <<< f <<< runIdentity
 
   Bifunctor-Const : Bifunctor Const
-  Bifunctor-Const .bimap f g = Const: ∘ f ∘ getConst
+  Bifunctor-Const .bimap f g = Const: <<< f <<< getConst
 
   Functor-Const : Functor (Const a)
   Functor-Const .map = second
 
   Contravariant-Const : Contravariant (Const a)
-  Contravariant-Const .contramap f = Const: ∘ getConst
+  Contravariant-Const .contramap f = Const: <<< getConst
 
   Functor-Sum : Functor Sum
-  Functor-Sum .map f = Sum: ∘ f ∘ getSum
+  Functor-Sum .map f = Sum: <<< f <<< getSum
 
   Functor-Product : Functor Product
-  Functor-Product .map f = Product: ∘ f ∘ getProduct
+  Functor-Product .map f = Product: <<< f <<< getProduct
 
   Functor-Dual : Functor Dual
-  Functor-Dual .map f = Dual: ∘ f ∘ getDual
+  Functor-Dual .map f = Dual: <<< f <<< getDual
 
   Functor-First : Functor First
-  Functor-First .map f = First: ∘ f ∘ getFirst
+  Functor-First .map f = First: <<< f <<< getFirst
 
   Functor-Last : Functor Last
-  Functor-Last .map f = Last: ∘ f ∘ getLast
+  Functor-Last .map f = Last: <<< f <<< getLast
 
   Functor-Min : Functor Min
-  Functor-Min .map f = Min: ∘ f ∘ getMin
+  Functor-Min .map f = Min: <<< f <<< getMin
 
   Functor-Max : Functor Max
-  Functor-Max .map f = Max: ∘ f ∘ getMax
+  Functor-Max .map f = Max: <<< f <<< getMax
 
 -------------------------------------------------------------------------------
 -- Applicative
@@ -1357,7 +1370,7 @@ instance
 
   Applicative-Identity : Applicative Identity
   Applicative-Identity .pure = Identity:
-  Applicative-Identity ._<*>_ = map ∘ runIdentity
+  Applicative-Identity ._<*>_ = map <<< runIdentity
 
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: neutral
@@ -1437,7 +1450,7 @@ record Monad (m : Set -> Set) : Set where
   _>>_ = _*>_
 
   liftM : (a -> b) -> m a -> m b
-  liftM f x = x >>= pure ∘ f
+  liftM f x = x >>= pure <<< f
 
   ap : m (a -> b) -> m a -> m b
   ap f x = do
@@ -1507,11 +1520,11 @@ record IsFoldable (s a : Set) : Set where
   fold = foldMap id
 
   foldr : (a -> b -> b) -> b -> s -> b
-  foldr f b as = appEndo (foldMap (Endo: ∘ f) as) b
+  foldr f b as = appEndo (foldMap (Endo: <<< f) as) b
 
   foldl : (b -> a -> b) -> b -> s -> b
   foldl f b as =
-    (appEndo ∘ getDual) (foldMap (Dual: ∘ Endo: ∘ flip f) as) b
+    (appEndo <<< getDual) (foldMap (Dual: <<< Endo: <<< flip f) as) b
 
   foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> s -> m b
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -1525,31 +1538,31 @@ record IsFoldable (s a : Set) : Set where
   toList = foldMap [_]
 
   count : s -> Nat
-  count = getSum ∘ foldMap (const (Sum: (Suc 0)))
+  count = getSum <<< foldMap (const (Sum: (Suc 0)))
 
   all : (a -> Bool) -> s -> Bool
-  all p = getAll ∘ foldMap (All: ∘ p)
+  all p = getAll <<< foldMap (All: <<< p)
 
   any : (a -> Bool) -> s -> Bool
-  any p = getAny ∘ foldMap (Any: ∘ p)
+  any p = getAny <<< foldMap (Any: <<< p)
 
   null : s -> Bool
   null = foldr (\ _ _ -> False) True
 
   sum : {{ _ : Monoid (Sum a)}} -> s -> a
-  sum = getSum ∘ foldMap Sum:
+  sum = getSum <<< foldMap Sum:
 
   product : {{ _ : Monoid (Product a)}} -> s -> a
-  product = getProduct ∘ foldMap Product:
+  product = getProduct <<< foldMap Product:
 
   find : (a -> Bool) -> s -> Maybe a
-  find p = leftToMaybe ∘
+  find p = leftToMaybe <<<
     foldlM (\ _ a ->  if p a then Left a else Right unit) unit
 
   module _ {{_ : Eq a}} where
 
     elem : a -> s -> Bool
-    elem = any ∘ _==_
+    elem = any <<< _==_
 
     notElem : a -> s -> Bool
     notElem a s = not (elem a s)
@@ -1557,7 +1570,7 @@ record IsFoldable (s a : Set) : Set where
   module _ {{_ : Applicative f}} where
 
     traverse! : (a -> f b) -> s -> f Unit
-    traverse! f = foldr (_*>_ ∘ f) (pure unit)
+    traverse! f = foldr (_*>_ <<< f) (pure unit)
 
     for! : s -> (a -> f b) -> f Unit
     for! = flip traverse!
@@ -1593,7 +1606,7 @@ instance
   Foldable-List .foldMap f = listrec neutral \ x _ y -> f x <> y
 
   IsFoldable-String-Char : IsFoldable String Char
-  IsFoldable-String-Char .foldMap f = foldMap f ∘ unpack
+  IsFoldable-String-Char .foldMap f = foldMap f <<< unpack
 
 -------------------------------------------------------------------------------
 -- IsFoldable1, Foldable1
@@ -1606,7 +1619,7 @@ record IsFoldable1 (s a : Set) : Set where
 
   foldMap1 : {{_ : Semigroup b}}
     -> (a -> b) -> (xs : s) {{_ : Nonempty xs}} -> b
-  foldMap1 f s = fromJust (foldMap (Just ∘ f) s) {{believeMe}}
+  foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{believeMe}}
 
   fold1 : {{_ : Semigroup a}} (xs : s) {{_ : Nonempty xs}} -> a
   fold1 s = fromJust (foldMap Just s) {{believeMe}}
@@ -1704,10 +1717,10 @@ record Traversable (t : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumL f a xs = runStateL (traverse (stateL: ∘ flip f) xs) a
+  mapAccumL f a xs = runStateL (traverse (stateL: <<< flip f) xs) a
 
   mapAccumR : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumR f a xs = runStateR (traverse (stateR: ∘ flip f) xs) a
+  mapAccumR f a xs = runStateR (traverse (stateR: <<< flip f) xs) a
 
   scanl : {{_ : Buildable t}} -> (b -> a -> b) -> b -> t a -> t b
   scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)
@@ -1749,7 +1762,7 @@ showString : String -> ShowS
 showString = _++_
 
 showParen : Bool -> ShowS -> ShowS
-showParen b p = if b then showString "(" ∘ p ∘ showString ")" else p
+showParen b p = if b then showString "(" <<< p <<< showString ")" else p
 
 appPrec appPrec+1 : Nat
 appPrec = 10
@@ -1775,81 +1788,81 @@ instance
   Show-Bool .showsPrec _ False = showString "False"
 
   Show-Nat : Show Nat
-  Show-Nat .showsPrec _ = showString ∘ primShowNat
+  Show-Nat .showsPrec _ = showString <<< primShowNat
 
   Show-Int : Show Int
-  Show-Int .showsPrec _ = showString ∘ primShowInteger
+  Show-Int .showsPrec _ = showString <<< primShowInteger
 
   Show-Float : Show Float
-  Show-Float .showsPrec _ = showString ∘ primShowFloat
+  Show-Float .showsPrec _ = showString <<< primShowFloat
 
   Show-Char : Show Char
-  Show-Char .showsPrec _ = showString ∘ primShowChar
+  Show-Char .showsPrec _ = showString <<< primShowChar
 
   Show-String : Show String
-  Show-String .showsPrec _ = showString ∘ primShowString
+  Show-String .showsPrec _ = showString <<< primShowString
 
   Show-Tuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
-  Show-Tuple .showsPrec d (x , y) = showString "(" ∘ showsPrec d x
-    ∘ showString " , " ∘ showsPrec d y ∘ showString ")"
+  Show-Tuple .showsPrec d (x , y) = showString "(" <<< showsPrec d x
+    <<< showString " , " <<< showsPrec d y <<< showString ")"
 
   Show-Either : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
   Show-Either .showsPrec d (Left x) = showParen (d > appPrec)
-    (showString "Left " ∘ showsPrec appPrec+1 x)
+    (showString "Left " <<< showsPrec appPrec+1 x)
   Show-Either .showsPrec d (Right x) = showParen (d > appPrec)
-    (showString "Right " ∘ showsPrec appPrec+1 x)
+    (showString "Right " <<< showsPrec appPrec+1 x)
 
   Show-Maybe : {{_ : Show a}} -> Show (Maybe a)
   Show-Maybe .showsPrec d (Just x) = showParen (d > appPrec)
-    (showString "Just " ∘ showsPrec appPrec+1 x)
+    (showString "Just " <<< showsPrec appPrec+1 x)
   Show-Maybe .showsPrec d Nothing = showString "Nothing"
 
   Show-List : {{_ : Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"
   Show-List .showsPrec d (x :: xs) = showString "["
-     ∘ foldl (\ r y -> r ∘ showString ", " ∘ showsPrec d y) (showsPrec d x) xs
-     ∘ showString "]"
+     <<< foldl (\ r y -> r <<< showString ", " <<< showsPrec d y) (showsPrec d x) xs
+     <<< showString "]"
 
   Show-Identity : {{_ : Show a}} -> Show (Identity a)
   Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec)
-    (showString "Identity: " ∘ showsPrec appPrec+1 x)
+    (showString "Identity: " <<< showsPrec appPrec+1 x)
 
   Show-Const : {{_ : Show a}} -> Show (Const a b)
   Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
-    (showString "Const: " ∘ showsPrec appPrec+1 x)
+    (showString "Const: " <<< showsPrec appPrec+1 x)
 
   Show-Sum : {{_ : Show a}} -> Show (Sum a)
   Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec)
-    (showString "Show: " ∘ showsPrec appPrec+1 x)
+    (showString "Show: " <<< showsPrec appPrec+1 x)
 
   Show-Product : {{_ : Show a}} -> Show (Product a)
   Show-Product .showsPrec d (Product: x) = showParen (d > appPrec)
-    (showString "Product: " ∘ showsPrec appPrec+1 x)
+    (showString "Product: " <<< showsPrec appPrec+1 x)
 
   Show-Dual : {{_ : Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
-    (showString "Dual: " ∘ showsPrec appPrec+1 x)
+    (showString "Dual: " <<< showsPrec appPrec+1 x)
 
   Show-First : {{_ : Show a}} -> Show (First a)
   Show-First .showsPrec d (First: x) = showParen (d > appPrec)
-    (showString "First: " ∘ showsPrec appPrec+1 x)
+    (showString "First: " <<< showsPrec appPrec+1 x)
 
   Show-Last : {{_ : Show a}} -> Show (Last a)
   Show-Last .showsPrec d (Last: x) = showParen (d > appPrec)
-    (showString "Last: " ∘ showsPrec appPrec+1 x)
+    (showString "Last: " <<< showsPrec appPrec+1 x)
 
   Show-Min : {{_ : Show a}} -> Show (Min a)
   Show-Min .showsPrec d (Min: x) = showParen (d > appPrec)
-    (showString "Min: " ∘ showsPrec appPrec+1 x)
+    (showString "Min: " <<< showsPrec appPrec+1 x)
 
   Show-Max : {{_ : Show a}} -> Show (Max a)
   Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
-    (showString "Max: " ∘ showsPrec appPrec+1 x)
+    (showString "Max: " <<< showsPrec appPrec+1 x)
 
   Show-Any : Show Any
   Show-Any .showsPrec d (Any: x) = showParen (d > appPrec)
-    (showString "Any: " ∘ showsPrec appPrec+1 x)
+    (showString "Any: " <<< showsPrec appPrec+1 x)
 
   Show-All : Show All
   Show-All .showsPrec d (All: x) = showParen (d > appPrec)
-    (showString "All: " ∘ showsPrec appPrec+1 x)
+    (showString "All: " <<< showsPrec appPrec+1 x)

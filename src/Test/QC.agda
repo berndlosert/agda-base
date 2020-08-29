@@ -158,17 +158,17 @@ instance
 
   Coarbitrary-Tuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a * b)
-  Coarbitrary-Tuple .coarbitrary (a , b) = coarbitrary a ∘ coarbitrary b
+  Coarbitrary-Tuple .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
 
   Coarbitrary-List : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
   Coarbitrary-List .coarbitrary [] = variant 0
   Coarbitrary-List .coarbitrary (a :: as) =
-    variant 1 ∘ coarbitrary a ∘ coarbitrary as
+    variant 1 <<< coarbitrary a <<< coarbitrary as
 
   Coarbitrary-Function : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a -> b)
   Coarbitrary-Function .coarbitrary f gen =
-    arbitrary >>= (flip coarbitrary gen ∘ f)
+    arbitrary >>= (flip coarbitrary gen <<< f)
 
   Arbitrary-Function : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
     -> Arbitrary (a -> b)
@@ -297,13 +297,13 @@ private
       table : String
       table =
         ( display
-        ∘ map entry
-        ∘ List.reverse
-        ∘ List.sort
-        ∘ map pairLength
-        ∘ List.group
-        ∘ List.sort
-        ∘ List.filter (not ∘ null)
+        <<< map entry
+        <<< List.reverse
+        <<< List.sort
+        <<< map pairLength
+        <<< List.group
+        <<< List.sort
+        <<< List.filter (not <<< null)
         ) stamps
 
   tests : Config -> Gen Result -> StdGen -> Nat -> Nat

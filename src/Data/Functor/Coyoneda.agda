@@ -14,7 +14,7 @@ data Coyoneda (f : Set -> Set) (b : Set) : Set where
 -- Coyoneda C F is a functor.
 instance
   Functor-Coyoneda : Functor (Coyoneda f)
-  Functor-Coyoneda .map f (Coyoneda: x g) = Coyoneda: x (f ∘ g)
+  Functor-Coyoneda .map f (Coyoneda: x g) = Coyoneda: x (f <<< g)
 
 -- The coYoneda lemma states that F B ~= Coyoneda C F Y. The isomorphsim
 -- is witnessed by lower and lift.

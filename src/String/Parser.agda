@@ -115,7 +115,7 @@ parse p s with runParser p s
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: (maybeToList ∘ String.uncons)
+anyChar = Parser: (maybeToList <<< String.uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do

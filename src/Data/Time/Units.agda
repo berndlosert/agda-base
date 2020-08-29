@@ -59,13 +59,13 @@ instance
   TimeUnit-Picosecond .fromMicroseconds x = (x * 10 ^ 6) psec
 
   Show-Second : Show Second
-  Show-Second .showsPrec d (x sec) = showsPrec d x ∘ showString "s"
+  Show-Second .showsPrec d (x sec) = showsPrec d x <<< showString "s"
 
   Show-Millisecond : Show Millisecond
-  Show-Millisecond .showsPrec d (x msec) = showsPrec d x ∘ showString "ms"
+  Show-Millisecond .showsPrec d (x msec) = showsPrec d x <<< showString "ms"
 
   Show-Microsecond : Show Microsecond
-  Show-Microsecond .showsPrec d (x μsec) = showsPrec d x ∘ showString "μs"
+  Show-Microsecond .showsPrec d (x μsec) = showsPrec d x <<< showString "μs"
 
   Show-Picosecond : Show Picosecond
-  Show-Picosecond .showsPrec d (x psec) = showsPrec d x ∘ showString "ps"
+  Show-Picosecond .showsPrec d (x psec) = showsPrec d x <<< showString "ps"
