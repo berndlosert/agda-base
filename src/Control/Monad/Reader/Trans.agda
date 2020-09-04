@@ -2,7 +2,6 @@ module Control.Monad.Reader.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Morph public
 open import Control.Monad.Reader.Class public
 open import Control.Monad.Trans.Class public
@@ -50,7 +49,3 @@ instance
 
   MMonad-ReaderT : MMonad (ReaderT r)
   MMonad-ReaderT .embed k (ReaderT: f) = ReaderT: \ r -> runReaderT (k (f r)) r
-
-  MonadBase-ReaderT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
-    -> MonadBase m (ReaderT r n)
-  MonadBase-ReaderT .liftBase m = lift (liftBase m)

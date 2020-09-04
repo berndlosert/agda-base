@@ -2,7 +2,6 @@ module Control.Monad.Error.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Error.Class public
 open import Control.Monad.Morph public
 open import Control.Monad.Trans.Class public
@@ -61,7 +60,3 @@ instance
 
   MonadTrans-ErrorT : MonadTrans (ErrorT e)
   MonadTrans-ErrorT .lift m = ErrorT: (map Right m)
-
-  MonadBase-ErrorT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
-    -> MonadBase m (ErrorT e n)
-  MonadBase-ErrorT .liftBase m = lift (liftBase m)

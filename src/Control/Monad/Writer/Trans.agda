@@ -2,7 +2,6 @@ module Control.Monad.Writer.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Morph public
 open import Control.Monad.Trans.Class public
 open import Control.Monad.Writer.Class public
@@ -67,10 +66,6 @@ instance
   MonadWriter-WriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
     return (a , f w)
-
-  MonadBase-WriterT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
-    -> {{_ : Monoid w}} -> MonadBase m (WriterT w n)
-  MonadBase-WriterT .liftBase m = lift (liftBase m)
 
   Alternative-WriterT : {{_ : Monoid w}} {{_ : Alternative m}}
     -> Alternative (WriterT w m)

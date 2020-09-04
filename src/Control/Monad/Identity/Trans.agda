@@ -2,7 +2,6 @@ module Control.Monad.Identity.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Morph public
 open import Control.Monad.Trans.Class public
 
@@ -38,7 +37,3 @@ instance
 
   MMonad-IdentityT : MMonad IdentityT
   MMonad-IdentityT .embed k (IdentityT: m) = k m
-
-  MonadBase-IdentityT : {{_ : Monad n}} {{_ : MonadBase m n}}
-    -> MonadBase m (IdentityT n)
-  MonadBase-IdentityT .liftBase m = lift (liftBase m)

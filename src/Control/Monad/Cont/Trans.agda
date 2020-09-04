@@ -2,7 +2,6 @@ module Control.Monad.Cont.Trans where
 
 open import Prelude
 
-open import Control.Monad.Base public
 open import Control.Monad.Cont.Class public
 open import Control.Monad.Trans.Class public
 
@@ -44,10 +43,6 @@ instance
   MonadCont-ContT : MonadCont (ContT r n)
   MonadCont-ContT .callCC f =
     ContT: \ c -> runContT (f \ x -> ContT: \ _ -> c x) c
-
-  MonadBase-ContT : {{_ : Monad m}} {{_ : Monad n}} {{_ : MonadBase m n}}
-    -> MonadBase m (ContT r n)
-  MonadBase-ContT .liftBase m = lift (liftBase m)
 
 resetT : {{_ : Monad m}} -> ContT r m r -> ContT r' m r
 resetT = lift <<< evalContT
