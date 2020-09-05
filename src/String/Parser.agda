@@ -1,7 +1,6 @@
 module String.Parser where
 
 open import Prelude
-  hiding (count)
 
 open import Control.Monad.State.Trans
 open import Data.String as String using ()
