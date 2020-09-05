@@ -95,7 +95,12 @@ module Base where
   {-# COMPILE GHC hFlush = IO.hFlush #-}
 
 open Base public
-  using (FilePath; IOMode; BufferMode; Handle; stdin; stdout; stderr)
+  using (
+    FilePath;
+    IOMode; ReadMode; WriteMode; AppendMode; ReadWriteMode;
+    BufferMode; NoBuffering; LineBuffering; BlockBuffering;
+    Handle; stdin; stdout; stderr
+  )
 
 -------------------------------------------------------------------------------
 -- Console IO (lifted)
@@ -107,7 +112,7 @@ module _ {{_ : MonadIO m}} where
   putStr = liftIO <<< Base.putStr
 
   putStrLn : String -> m Unit
-  putStrLn = liftIO <<< Base.putStr
+  putStrLn = liftIO <<< Base.putStrLn
 
   getLine : m String
   getLine = liftIO (Base.getLine)
