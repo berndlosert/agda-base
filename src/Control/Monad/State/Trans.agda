@@ -2,6 +2,7 @@ module Control.Monad.State.Trans where
 
 open import Prelude
 
+open import Control.Monad.IO.Class
 open import Control.Monad.Morph public
 open import Control.Monad.State.Class public
 open import Control.Monad.Trans.Class public
@@ -66,3 +67,6 @@ instance
   MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
   MonadState-StateT .get = StateT: (return <<< dupe)
   MonadState-StateT .put s = StateT: (const (return (unit , s)))
+
+  MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
+  MonadIO-StateT .liftIO = lift <<< liftIO

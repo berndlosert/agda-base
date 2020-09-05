@@ -331,6 +331,19 @@ fromEither : (a -> b) -> Either a b -> b
 fromEither f (Left x) = f x
 fromEither _ (Right x) = x
 
+lefts : List (Either a b) -> List a
+lefts [] = []
+lefts (Left a :: xs) = a :: lefts xs
+lefts (_ :: xs) = lefts xs
+
+rights : List (Either a b) -> List b
+rights [] = []
+rights (Right b :: xs) = b :: rights xs
+rights (_ :: xs) = rights xs
+
+partitionEithers : List (Either a b) -> Tuple (List a) (List b)
+partitionEithers xs = (lefts xs , rights xs)
+
 tuple : (a -> b) -> (a -> c) -> a -> Tuple b c
 tuple f g x = (f x , g x)
 
@@ -1448,6 +1461,14 @@ record Monad (m : Set -> Set) : Set where
   infixl 1 _>>_
   _>>_ : m a -> m b -> m b
   _>>_ = _*>_
+
+  infixr 1 _>=>_
+  _>=>_ : (a -> m b) -> (b -> m c) -> a -> m c
+  (f >=> g) x = f x >>= g
+
+  infixr 1 _<=<_
+  _<=<_ : (b -> m c) -> (a -> m b) -> a -> m c
+  _<=<_ = flip _>=>_
 
   liftM : (a -> b) -> m a -> m b
   liftM f x = x >>= pure <<< f

@@ -51,9 +51,9 @@ eitherP a b = (| Left a | Right b |)
 choice : List (Parser a) -> Parser a
 choice ps = foldr _<|>_ empty ps
 
-count : Nat -> Parser a -> Parser (List a)
-count 0 p = pure []
-count n p = sequence (replicate n p)
+length : Nat -> Parser a -> Parser (List a)
+length 0 p = pure []
+length n p = sequence (replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> (q <* p')
@@ -185,13 +185,12 @@ string s with String.uncons s
 ... | (Just (c , s')) = char c *> string s' *> pure (cons c s')
 
 word : Parser String
-word = neword <|> (pure "")
-  where
-    neword : Parser String
-    neword = do
-      c <- letter
-      s <- word
-      return (cons c s)
+word1 : Parser String
+word = word1 <|> (pure "")
+word1 = do
+  c <- letter
+  s <- word
+  return (cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = Parser: \ s ->
@@ -211,3 +210,13 @@ nat = chainl1
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
+
+-------------------------------------------------------------------------------
+-- Misc. parsers
+-------------------------------------------------------------------------------
+
+lexeme : Parser a -> Parser a
+lexeme p = p <* skipSpaces
+
+symbol : String -> Parser String
+symbol = lexeme <<< string
