@@ -1374,8 +1374,7 @@ instance
   Applicative-List .pure = singleton
   Applicative-List ._<*>_ = \ where
     [] _ -> []
-    _ [] -> []
-    (f :: fs) (x :: xs) -> f x :: (fs <*> xs)
+    (f :: fs) xs -> (map f xs) ++ (fs <*> xs)
 
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
