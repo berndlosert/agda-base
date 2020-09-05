@@ -51,9 +51,9 @@ eitherP a b = (| Left a | Right b |)
 choice : List (Parser a) -> Parser a
 choice ps = foldr _<|>_ empty ps
 
-length : Nat -> Parser a -> Parser (List a)
-length 0 p = pure []
-length n p = sequence (replicate n p)
+exactly : Nat -> Parser a -> Parser (List a)
+exactly 0 p = pure []
+exactly n p = sequence (replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> (q <* p')
