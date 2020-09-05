@@ -218,5 +218,5 @@ int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
 lexeme : Parser a -> Parser a
 lexeme p = p <* skipSpaces
 
-symbol : String -> Parser String
-symbol = lexeme <<< string
+symbol : (s : String) {{_ : Nonempty s}} -> Parser String
+symbol s = lexeme (string s)
