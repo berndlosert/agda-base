@@ -96,6 +96,23 @@ padLeft l c s =
 concat : List String -> String
 concat = foldr _++_ ""
 
+break : (Char -> Bool) -> String -> String * String
+break p s = bimap pack pack $ List.break p (unpack s)
+
+words : String -> List String
+words s = let s' = dropWhile isSpace s in
+  if s' == ""
+    then []
+    else let (w , s'') = break isSpace s' in w :: words s''
+
+unwords : List String -> String
+unwords [] = ""
+unwords (w :: ws) = w ++ go ws
+  where
+    go : List String -> String
+    go [] = ""
+    go (v :: vs) = " " ++ v ++ go vs
+
 lines : String -> List String
 lines s =
   let
@@ -125,5 +142,8 @@ unlines = concat <<< map (flip snoc '\n')
 {-# COMPILE GHC isInfixOf = Text.isInfixOf #-}
 {-# COMPILE GHC length = toInteger. Text.length #-}
 {-# COMPILE GHC filter = Text.filter #-}
+{-# COMPILE GHC break = Text.break #-}
+{-# COMPILE GHC words = Text.words #-}
+{-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
