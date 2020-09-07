@@ -18,54 +18,54 @@ open TimeUnit {{...}} public
 -------------------------------------------------------------------------------
 
 record Second : Set where
-  constructor _sec
+  constructor _<s>
   field unSecond : Nat
 
 open Second public
 
 record Millisecond : Set where
-  constructor _msec
+  constructor _<ms>
   field unMillisecond : Nat
 
 open Millisecond public
 
 record Microsecond : Set where
-  constructor _μsec
+  constructor _<μs>
   field unMicrosecond : Nat
 
 open Microsecond public
 
 record Picosecond : Set where
-  constructor _psec
+  constructor _<ps>
   field unPicosecond : Nat
 
 open Picosecond public
 
 instance
   TimeUnit-Second : TimeUnit Second
-  TimeUnit-Second .toMicroseconds (x sec) = x * 10 ^ 6
-  TimeUnit-Second .fromMicroseconds x = (x / 10 ^ 6) sec
+  TimeUnit-Second .toMicroseconds (x <s>) = x * 10 ^ 6
+  TimeUnit-Second .fromMicroseconds x = (x / 10 ^ 6) <s>
 
   TimeUnit-Millisecond : TimeUnit Millisecond
-  TimeUnit-Millisecond .toMicroseconds (x msec) = x * 10 ^ 3
-  TimeUnit-Millisecond .fromMicroseconds x = (x / 10 ^ 3) msec
+  TimeUnit-Millisecond .toMicroseconds (x <ms>) = x * 10 ^ 3
+  TimeUnit-Millisecond .fromMicroseconds x = (x / 10 ^ 3) <ms>
 
   TimeUnit-Microsecond : TimeUnit Microsecond
-  TimeUnit-Microsecond .toMicroseconds (x μsec) = x
-  TimeUnit-Microsecond .fromMicroseconds x = x μsec
+  TimeUnit-Microsecond .toMicroseconds (x <μs>) = x
+  TimeUnit-Microsecond .fromMicroseconds x = x <μs>
 
   TimeUnit-Picosecond : TimeUnit Picosecond
-  TimeUnit-Picosecond .toMicroseconds (x psec) = x / 10 ^ 6
-  TimeUnit-Picosecond .fromMicroseconds x = (x * 10 ^ 6) psec
+  TimeUnit-Picosecond .toMicroseconds (x <ps>) = x / 10 ^ 6
+  TimeUnit-Picosecond .fromMicroseconds x = (x * 10 ^ 6) <ps>
 
   Show-Second : Show Second
-  Show-Second .showsPrec d (x sec) = showsPrec d x <<< showString "s"
+  Show-Second .showsPrec d (x <s>) = showsPrec d x <<< showString "s"
 
   Show-Millisecond : Show Millisecond
-  Show-Millisecond .showsPrec d (x msec) = showsPrec d x <<< showString "ms"
+  Show-Millisecond .showsPrec d (x <ms>) = showsPrec d x <<< showString "ms"
 
   Show-Microsecond : Show Microsecond
-  Show-Microsecond .showsPrec d (x μsec) = showsPrec d x <<< showString "μs"
+  Show-Microsecond .showsPrec d (x <μs>) = showsPrec d x <<< showString "μs"
 
   Show-Picosecond : Show Picosecond
-  Show-Picosecond .showsPrec d (x psec) = showsPrec d x <<< showString "ps"
+  Show-Picosecond .showsPrec d (x <ps>) = showsPrec d x <<< showString "ps"
