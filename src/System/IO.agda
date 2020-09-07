@@ -123,8 +123,8 @@ module _ {{_ : MonadIO m}} where
   interact : (String -> String) -> m Unit
   interact = liftIO <<< Base.interact
 
-  print : {{_ : Show a}} -> a -> m Unit
-  print = liftIO <<< Base.print
+print : {{_ : Show a}} {{_ : MonadIO m}} -> a -> m Unit
+print = liftIO <<< Base.print
 
 -------------------------------------------------------------------------------
 -- File IO (lifted)
