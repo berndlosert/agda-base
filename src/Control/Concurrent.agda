@@ -79,4 +79,4 @@ module _ {{_ : MonadIO m}} where
   threadDelay = liftIO <<< Base.threadDelay <<< toMicroseconds
 
 forkIO : {{_ : MonadUnliftIO m}} -> m Unit -> m ThreadId
-forkIO f = withRunInIO (\ run -> Base.forkIO (run f))
+forkIO f = withRunInIO \ run -> Base.forkIO (run f)
