@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Data.Functor.Coyoneda where
 
 open import Prelude

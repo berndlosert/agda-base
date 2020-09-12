@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Control.Monad.Free.Trans where
 
 open import Prelude

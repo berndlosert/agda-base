@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Control.Monad.Writer where
 
 open import Prelude

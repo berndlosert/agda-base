@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Data.Word where
 
 open import Prelude

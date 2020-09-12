@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Data.Predicate where
 
 open import Prelude

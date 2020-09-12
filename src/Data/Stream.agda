@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Data.Stream where
 
 open import Prelude

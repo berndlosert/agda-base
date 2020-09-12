@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module System.Time where
 
 open import Prelude

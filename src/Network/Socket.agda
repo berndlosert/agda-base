@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module Network.Socket where
 
 postulate

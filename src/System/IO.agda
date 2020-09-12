@@ -1,3 +1,5 @@
+{-# OPTIONS --type-in-type #-}
+
 module System.IO where
 
 open import Prelude
