@@ -1350,6 +1350,7 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
+{-# NON_TERMINATING #-}
 forever : {{_ : Applicative f}} -> f a -> f b
 forever as = as *> forever as
 
@@ -1886,3 +1887,24 @@ instance
   Show-All : Show All
   Show-All .showsPrec d (All: x) = showParen (d > appPrec)
     (showString "All: " <<< showsPrec appPrec+1 x)
+
+-------------------------------------------------------------------------------
+-- Size
+-------------------------------------------------------------------------------
+
+{-# BUILTIN SIZEUNIV SizeU #-}
+{-# BUILTIN SIZE Size #-}
+{-# BUILTIN SIZELT Size<_ #-}
+{-# BUILTIN SIZESUC SizeSuc #-}
+{-# BUILTIN SIZEINF Inf #-}
+{-# BUILTIN SIZEMAX SizeMax #-}
+
+{-# FOREIGN GHC
+  type SizeLT i = ()
+#-}
+
+{-# COMPILE GHC Size = type () #-}
+{-# COMPILE GHC Size<_ = type SizeLT #-}
+{-# COMPILE GHC SizeSuc = \_ -> () #-}
+{-# COMPILE GHC Inf = () #-}
+{-# COMPILE GHC SizeMax = \_ _ -> () #-}

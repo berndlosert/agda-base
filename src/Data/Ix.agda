@@ -32,3 +32,9 @@ instance
     if inRange (m , n) k
     then Just (toNat (abs (k - m)) {{believeMe}})
     else Nothing
+
+  Ix-Char : Ix Char
+  Ix-Char .range (c , d) = chr <$> range (ord c , ord d)
+  Ix-Char .inRange (c , d) x = inRange (ord c , ord d) (ord x)
+  Ix-Char .rangeSize (c , d) = rangeSize (ord c , ord d)
+  Ix-Char .index (c , d) x = index (ord c , ord d) (ord x)
