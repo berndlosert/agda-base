@@ -40,7 +40,7 @@ instance
   {-# TERMINATING #-}
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT =
-    runIterT iter >>= return <<< bimap f (map f)
+    runIterT iter >>= bimap f (map f) >>> return
 
   {-# TERMINATING #-}
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
