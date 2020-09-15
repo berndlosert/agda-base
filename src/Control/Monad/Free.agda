@@ -89,10 +89,7 @@ fold {f = f} ret ext free = interpret t free ret ext
 
 -- A fold operation based on the standard definition of monad. This one
 -- requires F to be a functor.
-fold' : {{_ : Functor f}}
-  -> (a -> b)
-  -> (f b -> b)
-  -> Free f a -> b
+fold' : {{_ : Functor f}} -> (a -> b) -> (f b -> b) -> Free f a -> b
 fold' {f = f} {{inst}} ret jn free = interpret t free ret jn
   where
 
