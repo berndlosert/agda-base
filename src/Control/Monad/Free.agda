@@ -10,23 +10,19 @@ private
     a b : Set
     f g m : Set -> Set
 
-infixr 0 _~>_
-_~>_ : (f g : Set -> Set) -> Set
-f ~> g = forall {a} -> f a -> g a
-
 record Free (f : Set -> Set) (a : Set) : Set where
   constructor Free:
-  field run : {{_ : Monad m}} -> (f ~> m) -> m a
+  field run : {{_ : Monad m}} -> (forall {b} -> f b -> m b) -> m a
 
 open Free
 
-lift : f ~> Free f
+lift : f a -> Free f a
 lift x = Free: \ t -> t x
 
-interpret : {{_ : Monad m}} -> (f ~> m) -> Free f ~> m
+interpret : {{_ : Monad m}} -> (forall {a} -> f a -> m a) -> Free f b -> m b
 interpret t free = run free t
 
-lower : {{_ : Monad m}} -> Free m ~> m
+lower : {{_ : Monad m}} -> Free m a -> m a
 lower = interpret id
 
 instance
@@ -42,19 +38,19 @@ instance
     join (map (interpret t <<< f) (interpret t m))
 
 -- Free forms a functor on the category Sets ^ Sets whose map operation is:
-hoist : (f ~> g) -> Free f ~> Free g
+hoist : (forall {a} -> f a -> g a) -> Free f b -> Free g b
 hoist t free = interpret (lift <<< t) free
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
 -- is lift; the extend operation is defined below:
-flatMap : (f ~> Free g) -> Free f ~> Free g
-flatMap = interpret
+flatMap : (forall {a} -> f a -> Free g a) -> Free f a -> Free g a
+flatMap t = interpret t
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.
 -- The right adjunct of this adjunction is basically interpret. The left
 -- adjunct is given below.
-uninterpret : (Free f ~> m) -> f ~> m
+uninterpret : (forall {a} -> Free f a -> m a) -> f b -> m b
 uninterpret t x = t (lift x)
 
 -- When F is a functor, Free F A is an F-algebra for any type A. The operation
@@ -88,7 +84,7 @@ fold {f = f} ret ext free = interpret t free ret ext
       Monad-M ._>>=_ m f = \ ret ext -> m (\ y -> (f y) ret ext) ext
 
     -- The lift operation of the free monad M.
-    t : f ~> M
+    t : f a -> M a
     t x = \ ret ext -> ext ret x
 
 -- A fold operation based on the standard definition of monad. This one
@@ -118,5 +114,5 @@ fold' {f = f} {{inst}} ret jn free = interpret t free ret jn
       Monad-M ._>>=_ m f = \ ret jn -> m (\ x -> (f x) ret jn) jn
 
     -- The lift operation of the free monad M.
-    t : f ~> M
+    t : f a -> M a
     t x = \ ret jn -> jn ((map {{inst}} ret) x)
