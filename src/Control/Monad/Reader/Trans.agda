@@ -22,7 +22,7 @@ open ReaderT public
 mapReaderT : (m a -> n b) -> ReaderT r m a -> ReaderT r n b
 mapReaderT f (ReaderT: m) = ReaderT: (f <<< m)
 
-withReaderT : (r' -> r) -> ReaderT r m ~> ReaderT r' m
+withReaderT : (r' -> r) -> ReaderT r m a -> ReaderT r' m a
 withReaderT f (ReaderT: m) = ReaderT: (m <<< f)
 
 instance

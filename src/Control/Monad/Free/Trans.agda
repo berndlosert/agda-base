@@ -10,7 +10,7 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    r : Set
+    a r : Set
     f m n : Set -> Set
 
 record FreeT (f : Set -> Set) (m : Set -> Set) (a : Set) : Set where
@@ -20,7 +20,7 @@ record FreeT (f : Set -> Set) (m : Set -> Set) (a : Set) : Set where
 
 open FreeT
 
-liftFreeT : f ~> FreeT f m
+liftFreeT : f a -> FreeT f m a
 liftFreeT x = FreeT: \ ret bnd -> bnd x ret
 
 instance

@@ -6,12 +6,12 @@ open import Prelude
 
 open import Control.Monad.IO.Class
 
-private variable b : Set
+private variable a b : Set
 
 record MonadUnliftIO (m : Set -> Set) : Set where
   field
     overlap {{super}} : MonadIO m
-    withRunInIO : ((m ~> IO) -> IO b) -> m b
+    withRunInIO : ((forall {a} -> m a -> IO a) -> IO b) -> m b
 
 open MonadUnliftIO {{...}} public
 

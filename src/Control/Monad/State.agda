@@ -24,5 +24,5 @@ execState m s = snd (runState m s)
 mapState : (a * s -> b * s) -> State s a -> State s b
 mapState = mapStateT <<< map
 
-withState : (s -> s) -> State s ~> State s
+withState : (s -> s) -> State s a -> State s a
 withState f = withStateT f

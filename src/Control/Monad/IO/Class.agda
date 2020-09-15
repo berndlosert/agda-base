@@ -4,10 +4,12 @@ module Control.Monad.IO.Class where
 
 open import Prelude
 
+private variable a : Set
+
 record MonadIO (m : Set -> Set) : Set where
   field
     overlap {{super}} : Monad m
-    liftIO : IO ~> m
+    liftIO : IO a -> m a
 
 open MonadIO {{...}} public
 

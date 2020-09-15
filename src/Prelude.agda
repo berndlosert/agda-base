@@ -1197,10 +1197,6 @@ instance
 -- Functor, Contravariant, Bifunctor, Profunctor
 -------------------------------------------------------------------------------
 
-infixr 0 _~>_
-_~>_ : (f g : Set -> Set) -> Set
-f ~> g  = forall {a} -> f a -> g a
-
 record Functor (f : Set -> Set) : Set where
   field map : (a -> b) -> f a -> f b
 

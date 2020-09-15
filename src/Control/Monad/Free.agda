@@ -5,6 +5,10 @@ module Control.Monad.Free where
 open import Prelude
   hiding (fold)
 
+infixr 0 _~>_
+_~>_ : (f g : Set -> Set) -> Set
+f ~> g = forall {a} -> f a -> g a
+
 record Free (f : Set -> Set) (a : Set) : Set where
   constructor Free:
   field run : forall {m} {{_ : Monad m}} -> (f ~> m) -> m a

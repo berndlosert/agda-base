@@ -21,7 +21,7 @@ open ContT public
 evalContT : {{_ : Monad m}} -> ContT r m r -> m r
 evalContT (ContT: m) = m return
 
-mapContT : (m r -> m r) -> ContT r m ~> ContT r m
+mapContT : (m r -> m r) -> ContT r m a -> ContT r m a
 mapContT f (ContT: m) = ContT: (f <<< m)
 
 withContT : ((b -> m r) -> (a -> m r)) -> ContT r m a -> ContT r m b
@@ -54,7 +54,7 @@ shiftT f = ContT: (evalContT <<< f)
 
 liftLocal : {{_ : Monad m}}
   -> m r' -> ((r' -> r') -> m r -> m r)
-  -> (r' -> r') -> ContT r m ~> ContT r m
+  -> (r' -> r') -> ContT r m a -> ContT r m a
 liftLocal ask local f (ContT: m) = ContT: \ c -> do
   r <- ask
   local f (m (local (const r) <<< c))

@@ -24,7 +24,7 @@ record MonadWriter (w : Set) (m : Set -> Set) : Set where
     (a , w) <- listen m
     return (a , f w)
 
-  censor : (w -> w) -> m ~> m
+  censor : (w -> w) -> m a -> m a
   censor f m = pass do
     a <- m
     return (a , f)

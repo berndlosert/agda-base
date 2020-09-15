@@ -10,7 +10,7 @@ record MonadReader (r : Set) (m : Set -> Set) : Set where
   field
     overlap {{monad}} : Monad m
     ask : m r
-    local : (r -> r) -> m ~> m
+    local : (r -> r) -> m a -> m a
 
   asks : (r -> a) -> m a
   asks f = do
