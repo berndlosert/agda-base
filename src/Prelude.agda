@@ -1178,11 +1178,12 @@ instance
 -------------------------------------------------------------------------------
 
 record Category (a : Set -> Set -> Set) : Set where
-  infixr 9 _<<<_ _>>>_
+  infixr 9 _<<<_
   field
     id : a b b
     _<<<_ : a c d -> a b c -> a b d
 
+  infixr 9 _>>>_
   _>>>_ : a b c -> a c d -> a b d
   _>>>_ = flip _<<<_
 
