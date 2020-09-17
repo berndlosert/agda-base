@@ -4,12 +4,9 @@ module System.IO where
 
 open import Prelude
 
-open import Control.Monad.IO.Class
-open import Control.Monad.IO.Unlift
+open import Control.Monad.IO.Class public
+open import Control.Monad.IO.Unlift public
 open import Data.Int
-
-open Control.Monad.IO.Class public using (MonadIO-IO)
-open Control.Monad.IO.Unlift public using (MonadUnliftIO-IO)
 
 private
   variable

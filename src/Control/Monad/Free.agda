@@ -43,9 +43,9 @@ hoistFree : (forall {a} -> f a -> g a) -> Free f b -> Free g b
 hoistFree t free = interpretFree (liftFree <<< t) free
 
 -- Free also forms a monad on Sets ^ Sets. The return operation of this monad
--- is liftFree; the extend operation is defined below:
-flatMap : (forall {a} -> f a -> Free g a) -> Free f a -> Free g a
-flatMap t = interpretFree t
+-- is liftFree; the bind operation is defined below:
+bindFree : Free f a -> (forall {b} -> f b -> Free g b) -> Free g a
+bindFree free t = runFree free t
 
 -- Free is a free construction. It is basically the left-adjoint of the
 -- would-be forgetful functor U that forgets the monad structure of a functor.

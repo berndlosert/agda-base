@@ -4,8 +4,8 @@ module Control.Concurrent where
 
 open import Prelude
 
-open import Control.Monad.IO.Class
-open import Control.Monad.IO.Unlift
+open import Control.Monad.IO.Class public
+open import Control.Monad.IO.Unlift public
 open import Data.Time.Units
 
 private

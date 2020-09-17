@@ -181,13 +181,13 @@ instance
   Applicative-Concurrently : Applicative Concurrently
   Applicative-Concurrently .pure = Concurrently: <<< pure
   Applicative-Concurrently ._<*>_ (Concurrently: f) (Concurrently: x) =
-    Concurrently: (map apply (concurrently f x))
+    Concurrently: $ apply <$> concurrently f x
 
   Alternative-Concurrently : Alternative Concurrently
   Alternative-Concurrently .empty =
-    Concurrently: (forever (threadDelay ((2 ^ 32) μsec)))
+    Concurrently: $ forever $ threadDelay $ (2 ^ 32) <μs>
   Alternative-Concurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
-    Concurrently: (map untag (race as bs))
+    Concurrently: $ untag <$> race as bs
 
   Semigroup-Concurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)
