@@ -49,6 +49,10 @@ concurrently left right =
 concurrently! : IO a -> IO b -> IO Unit
 concurrently! left right = void (concurrently left right)
 
+-------------------------------------------------------------------------------
+-- Async FFI
+-------------------------------------------------------------------------------
+
 {-# FOREIGN GHC
 
   import Control.Concurrent
