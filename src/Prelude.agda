@@ -116,7 +116,7 @@ record Const (a b : Set) : Set where
 
 open Const public
 
-record Endo a : Set where
+record Endo (a : Set) : Set where
   constructor Endo:
   field appEndo : a -> a
 
