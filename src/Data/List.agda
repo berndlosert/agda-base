@@ -2,8 +2,16 @@
 
 module Data.List where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
   hiding (find)
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
@@ -24,7 +32,7 @@ uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
 uncons (a :: as) = (a , as)
 
 -------------------------------------------------------------------------------
--- basic functions
+-- Basic functions
 -------------------------------------------------------------------------------
 
 reverse : List a -> List a
@@ -79,6 +87,7 @@ stripPrefix (x :: xs) (y :: ys) =
   if x == y then stripPrefix xs ys else Nothing
 stripPrefix _ _ = Nothing
 
+{-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy _ [] = []
 groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
