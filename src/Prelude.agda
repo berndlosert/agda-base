@@ -1181,14 +1181,14 @@ instance
 -- Category
 -------------------------------------------------------------------------------
 
-record Category (a : Set -> Set -> Set) : Set where
+record Category (hom : Set -> Set -> Set) : Set where
   infixr 9 _<<<_
   field
-    id : a b b
-    _<<<_ : a c d -> a b c -> a b d
+    id : hom a a
+    _<<<_ : hom b c -> hom a b -> hom a c
 
   infixr 9 _>>>_
-  _>>>_ : a b c -> a c d -> a b d
+  _>>>_ : hom a b -> hom b c -> hom a c
   _>>>_ = flip _<<<_
 
 open Category {{...}} public
