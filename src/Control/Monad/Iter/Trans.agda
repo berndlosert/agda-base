@@ -2,6 +2,10 @@
 
 module Control.Monad.Iter.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
 open import Control.Monad.Free.Class
@@ -10,11 +14,19 @@ open import Control.Monad.Trans.Class
 open import Data.Functor.Coyoneda
 open import Data.Thunk
 
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
 private
   variable
     i : Size
     a b s : Set
     m : Set -> Set
+
+-------------------------------------------------------------------------------
+-- IterT
+-------------------------------------------------------------------------------
 
 data IterT (m : Set -> Set) (a : Set) (i : Size) : Set where
   Now : a -> IterT m a i
