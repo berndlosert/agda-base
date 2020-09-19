@@ -59,16 +59,13 @@ instance
   Applicative-IterT .pure x = Now x
   Applicative-IterT ._<*>_ (Now f) x = map f x
   Applicative-IterT ._<*>_ (Later thunk) x = Later \ where
-    .force -> liftCoyoneda do
-      iter <- lowerCoyoneda (force thunk)
-      return (iter <*> x)
+    .force -> liftCoyoneda (| (_<*> x) (lowerCoyoneda (force thunk)) |)
 
   Monad-IterT : {{_ : Monad m}} -> Monad (\ a -> IterT m a i)
   Monad-IterT ._>>=_ (Now x) k = k x
   Monad-IterT ._>>=_ (Later thunk) k = Later \ where
-    .force -> liftCoyoneda do
-      iter <- lowerCoyoneda (force thunk)
-      return (_>>=_ {{Monad-IterT}} iter k)
+    .force -> let _>>='_ = _>>=_ {{Monad-IterT}} in
+      liftCoyoneda (| (_>>=' k) (lowerCoyoneda (force thunk)) |)
 
 --  {-# TERMINATING #-}
 --  Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
