@@ -67,25 +67,25 @@ instance
     .force -> let _>>='_ = _>>=_ {{Monad-IterT}} in
       liftCoyoneda (| (_>>=' k) (lowerCoyoneda (force thunk)) |)
 
---  {-# TERMINATING #-}
---  Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
---  Alternative-IterT .empty = never
---  Alternative-IterT ._<|>_ l r .runIterT = do
---    resultl <- runIterT l
---    case resultl of \ where
---      (Left _) -> return resultl
---      (Right iter') -> do
---        resultr <- runIterT r
---        case resultr of \ where
---          (Left _) -> return resultr
---          (Right iter'') -> return (Right (iter' <|> iter''))
---
---  MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
---  MonadFree-IterT .wrap (Identity: iter) = delay iter
---
---  MonadTrans-IterT : MonadTrans IterT
---  MonadTrans-IterT .lift m .runIterT = map Left m
---
---  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
---  MonadState-IterT .get = lift get
---  MonadState-IterT .put s = lift (put s)
+  Alternative-IterT : {{_ : Monad m}} -> Alternative (\ a -> IterT m a i)
+  Alternative-IterT .empty = never
+  Alternative-IterT ._<|>_ (Now l) _ = Now l
+  Alternative-IterT ._<|>_ (Later _) (Now r) = Now r
+  Alternative-IterT ._<|>_ (Later lthunk) (Later rthunk) = Later \ where
+    .force ->
+      let
+        l = lowerCoyoneda (force lthunk)
+        r = lowerCoyoneda (force rthunk)
+      in
+        liftCoyoneda (| _<|>_ l r |)
+
+  MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (\ a -> IterT m a i)
+  MonadFree-IterT .wrap (Identity: iter) = delay iter
+
+  MonadTrans-IterT : MonadTrans (\ m a -> IterT m a i)
+  MonadTrans-IterT .lift m = Later \ where
+    .force -> liftCoyoneda (map Now m)
+
+  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (\ a -> IterT m a i)
+  MonadState-IterT .get = lift get
+  MonadState-IterT .put s = lift (put s)
