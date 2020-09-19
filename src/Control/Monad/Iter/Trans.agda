@@ -45,9 +45,9 @@ never = Later \ where
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
 {-# TERMINATING #-}
-unsafeRetract : {{_ : Monad m}} -> IterT m a Inf -> m a
-unsafeRetract (Now x) = return x
-unsafeRetract (Later thunk) = lowerCoyoneda (force thunk) >>= unsafeRetract
+unsafeRunIterT : {{_ : Monad m}} -> IterT m a Inf -> m a
+unsafeRunIterT (Now x) = return x
+unsafeRunIterT (Later thunk) = lowerCoyoneda (force thunk) >>= unsafeRunIterT
 
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (\ a -> IterT m a i)

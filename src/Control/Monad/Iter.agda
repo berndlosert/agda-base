@@ -1,12 +1,14 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Trans.Class where
+module Control.Monad.Iter where
 
 -------------------------------------------------------------------------------
 -- Imports
 -------------------------------------------------------------------------------
 
 open import Prelude
+
+open import Control.Monad.Iter.Trans
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -15,15 +17,14 @@ open import Prelude
 private
   variable
     a : Set
-    m : Set -> Set
 
 -------------------------------------------------------------------------------
--- MonadTrans
+-- Iter
 -------------------------------------------------------------------------------
 
-record MonadTrans (t : (Set -> Set) -> Set -> Set) : Set where
-  field
-    overlap {{transform}} : {{_ : Monad m}} -> Monad (t m)
-    lift : {{_ : Monad m}} -> m a -> t m a
+Iter : Set -> Size -> Set
+Iter a i = IterT Identity a i
 
-open MonadTrans {{...}} public
+{-# TERMINATING #-}
+unsafeRunIter : Iter a Inf -> a
+unsafeRunIter iter = runIdentity (unsafeRunIterT iter)
