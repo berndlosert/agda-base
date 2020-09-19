@@ -86,6 +86,7 @@ instance
   MonadTrans-IterT .lift m = Later \ where
     .force -> liftCoyoneda (map Now m)
 
-  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (\ a -> IterT m a i)
+  MonadState-IterT : {{_ : MonadState s m}}
+    -> MonadState s (\ a -> IterT m a i)
   MonadState-IterT .get = lift get
   MonadState-IterT .put s = lift (put s)
