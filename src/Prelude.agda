@@ -1534,6 +1534,35 @@ instance
   Monad-Max ._>>=_ (Max: x) k = k x
 
 -------------------------------------------------------------------------------
+-- Enum
+-------------------------------------------------------------------------------
+
+record Enum (a : Set) : Set where
+  field enumFromTo : a -> a -> List a
+
+open Enum {{...}} public
+
+instance
+  Enum-Int : Enum Int
+  Enum-Int .enumFromTo m n =
+      let k = toNat (abs (m - n)) {{believeMe}}
+      in go k m n
+    where
+      go : Nat -> Int -> Int -> List Int
+      go 0 m _ = [ m ]
+      go (Suc k) m n =
+        let m' = if m < n then m + 1 else (m - 1)
+        in m :: go k m' n
+
+  Enum-Nat : Enum Nat
+  Enum-Nat .enumFromTo m n = map
+    (\ k -> toNat k {{believeMe}})
+    (enumFromTo (Pos m) (Pos n))
+
+  Enum-Char : Enum Char
+  Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
+
+-------------------------------------------------------------------------------
 -- IsFoldable, Foldable
 -------------------------------------------------------------------------------
 

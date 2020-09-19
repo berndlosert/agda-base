@@ -15,10 +15,10 @@ postulate
   cpuTimePrecision : Nat
 
 getTime : IO Second
-getTime = map _sec primGetTime
+getTime = map _<s> primGetTime
 
 getCPUTime : IO Picosecond
-getCPUTime = map _psec primGetCPUTime
+getCPUTime = map _<ps> primGetCPUTime
 
 {-# FOREIGN GHC
   import Foreign.C (CTime (..))

@@ -101,6 +101,7 @@ concat = foldr _++_ ""
 break : (Char -> Bool) -> String -> String * String
 break p s = bimap pack pack $ List.break p (unpack s)
 
+{-# TERMINATING #-}
 words : String -> List String
 words s = let s' = dropWhile isSpace s in
   if s' == ""

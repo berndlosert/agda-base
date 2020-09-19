@@ -84,7 +84,7 @@ generate (Gen: g) = do
 
 sample' : Gen a -> IO (List a)
 sample' g = traverse generate do
-  n <- 0 :: range (2 , 20)
+  n <- 0 :: enumFromTo 2 20
   return (resize n g)
 
 sample : {{_ : Show a}} -> Gen a -> IO Unit
@@ -318,6 +318,7 @@ private
         <<< List.filter (not <<< null)
         ) stamps
 
+  {-# TERMINATING #-}
   tests : Config -> Gen Result -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
   tests config gen rnd0 ntest nfail stamps =
