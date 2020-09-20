@@ -68,13 +68,8 @@ instance
   Alternative-IterT .empty = never
   Alternative-IterT ._<|>_ (Now l) _ = Now l
   Alternative-IterT ._<|>_ (Later _) (Now r) = Now r
-  Alternative-IterT ._<|>_ (Later lthunk) (Later rthunk) = Later \ where
-    .force ->
-      let
-        l = lowerCoyoneda (force lthunk)
-        r = lowerCoyoneda (force rthunk)
-      in
-        liftCoyoneda (| _<|>_ l r |)
+  Alternative-IterT ._<|>_ (Later l) (Later r) = Later \ where
+    .force -> (| _<|>_ (force l) (force r) |)
 
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT i m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
