@@ -14,6 +14,15 @@ open import Control.Monad.Trans.Class
 open import Data.Functor.Coyoneda
 
 -------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Functor.Coyoneda public
+  using (
+    Functor-Coyoneda; Applicative-Coyoneda; Monad-Coyoneda
+  )
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 

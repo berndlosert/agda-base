@@ -18,7 +18,8 @@ open Control.Monad.Iter.Trans public
   using (
     Now; Later;
     delay; never;
-    Functor-IterT; Applicative-IterT; Monad-IterT; Alternative-IterT
+    Functor-IterT; Applicative-IterT; Monad-IterT; Alternative-IterT;
+    Functor-Coyoneda; Applicative-Coyoneda; Monad-Coyoneda
   )
 
 -------------------------------------------------------------------------------

@@ -111,18 +111,18 @@ at n = leftToMaybe <<< flip foldlM 0 \
 
 deleteAt : Nat -> List a -> List a
 deleteAt n = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , if k == n then as else (a :: as))
+  (k , as) a -> (Suc k , (if k == n then as else a :: as))
 
 modifyAt : Nat -> (a -> a) -> List a -> List a
 modifyAt n f = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , if k == n then f a :: as else (a :: as))
+  (k , as) a -> (Suc k , (if k == n then f a :: as else a :: as))
 
 setAt : Nat -> a -> List a -> List a
 setAt n a = modifyAt n (const a)
 
 insertAt : Nat -> a -> List a -> List a
 insertAt n a' = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , if k == n then a' :: a :: as else (a :: as))
+  (k , as) a -> (Suc k , (if k == n then a' :: a :: as else a :: as))
 
 splitAt : Nat -> List a -> List a * List a
 splitAt n as = (take n as , drop n as)
