@@ -19,24 +19,6 @@ private
     a b r : Set
 
 -------------------------------------------------------------------------------
--- Console IO
--------------------------------------------------------------------------------
-
-postulate
-  putStr : String -> IO Unit
-  putStrLn : String -> IO Unit
-  getLine : IO String
-  getContents : IO String
-
-interact : (String -> String) -> IO Unit
-interact f = do
-  s <- getContents
-  putStrLn (f s)
-
-print : {{_ : Show a}} -> a -> IO Unit
-print x = putStrLn (show x)
-
--------------------------------------------------------------------------------
 -- File IO
 -------------------------------------------------------------------------------
 
@@ -76,10 +58,6 @@ postulate
 {-# FOREIGN GHC import Data.Text (unpack) #-}
 {-# FOREIGN GHC import qualified System.IO as IO #-}
 {-# FOREIGN GHC import qualified Data.Text.IO as T #-}
-{-# COMPILE GHC putStr = T.putStr #-}
-{-# COMPILE GHC putStrLn = T.putStrLn #-}
-{-# COMPILE GHC getLine = T.getLine #-}
-{-# COMPILE GHC getContents = T.getContents #-}
 {-# COMPILE GHC IOMode = data IOMode (ReadMode | WriteMode | AppendMode | ReadWriteMode) #-}
 {-# COMPILE GHC BufferMode = data BufferMode (NoBuffering | LineBuffering | BlockBuffering) #-}
 {-# COMPILE GHC Handle = type Handle #-}

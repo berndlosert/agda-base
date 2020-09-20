@@ -1921,6 +1921,30 @@ instance
     (showString "All: " <<< showsPrec appPrec+1 x)
 
 -------------------------------------------------------------------------------
+-- Console IO
+-------------------------------------------------------------------------------
+
+postulate
+  putStr : String -> IO Unit
+  putStrLn : String -> IO Unit
+  getLine : IO String
+  getContents : IO String
+
+interact : (String -> String) -> IO Unit
+interact f = do
+  s <- getContents
+  putStrLn (f s)
+
+print : {{_ : Show a}} -> a -> IO Unit
+print x = putStrLn (show x)
+
+{-# FOREIGN GHC import qualified Data.Text.IO as T #-}
+{-# COMPILE GHC putStr = T.putStr #-}
+{-# COMPILE GHC putStrLn = T.putStrLn #-}
+{-# COMPILE GHC getLine = T.getLine #-}
+{-# COMPILE GHC getContents = T.getContents #-}
+
+-------------------------------------------------------------------------------
 -- Size
 -------------------------------------------------------------------------------
 
