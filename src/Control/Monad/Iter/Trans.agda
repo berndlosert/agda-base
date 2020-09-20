@@ -18,9 +18,7 @@ open import Data.Functor.Coyoneda
 -------------------------------------------------------------------------------
 
 open Data.Functor.Coyoneda public
-  using (
-    Functor-Coyoneda; Applicative-Coyoneda; Monad-Coyoneda
-  )
+  hiding (Coyoneda; Coyoneda:; liftCoyoneda; lowerCoyoneda)
 
 -------------------------------------------------------------------------------
 -- Variables

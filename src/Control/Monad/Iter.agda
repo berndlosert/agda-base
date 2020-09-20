@@ -15,12 +15,7 @@ open import Control.Monad.Iter.Trans
 -------------------------------------------------------------------------------
 
 open Control.Monad.Iter.Trans public
-  using (
-    Now; Later;
-    delay; never;
-    Functor-IterT; Applicative-IterT; Monad-IterT; Alternative-IterT;
-    Functor-Coyoneda; Applicative-Coyoneda; Monad-Coyoneda
-  )
+  hiding (IterT; unsafeIterT)
 
 -------------------------------------------------------------------------------
 -- Variables
