@@ -49,3 +49,10 @@ instance
   Monad-Coyoneda : {{_ : Monad f}} -> Monad (Coyoneda f)
   Monad-Coyoneda ._>>=_ m f =
     liftCoyoneda $ lowerCoyoneda m >>= (f >>> lowerCoyoneda)
+
+  Foldable-Coyoneda : {{_ : Foldable f}} -> Foldable (Coyoneda f)
+  Foldable-Coyoneda .foldMap f (Coyoneda: k a) = foldMap (f <<< k) a
+
+  Traversable-Coyoneda : {{_ : Traversable f}} -> Traversable (Coyoneda f)
+  Traversable-Coyoneda .traverse f (Coyoneda: k a) =
+    Coyoneda: id <$> traverse (f <<< k) a
