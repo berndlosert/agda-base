@@ -33,27 +33,24 @@ data IterT (i : Size) (m : Set -> Set) (a : Set) : Set where
   Later : Thunk i (\ j -> Coyoneda m (IterT j m a)) -> IterT i m a
 
 delay : {{_ : Monad m}} -> IterT i m a -> IterT i m a
-delay (Now x) = Later \ where
-  .force -> liftCoyoneda (return (Now x))
-delay (Later thunk) = Later \ where
-  .force -> liftCoyoneda (return (Later thunk))
+delay (Now x) = Later \ where .force -> return (Now x)
+delay (Later thunk) = Later \ where .force -> return (Later thunk)
 
 never : {{_ : Monad m}} -> IterT i m a
-never = Later \ where
-  .force -> liftCoyoneda (return never)
+never = Later \ where .force -> return never
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
 {-# TERMINATING #-}
-unsafeRunIterT : {{_ : Monad m}} -> IterT Inf m a -> m a
-unsafeRunIterT (Now x) = return x
-unsafeRunIterT (Later thunk) = lowerCoyoneda (force thunk) >>= unsafeRunIterT
+unsafeIterT : {{_ : Monad m}} -> IterT Inf m a -> m a
+unsafeIterT (Now x) = return x
+unsafeIterT (Later thunk) = lowerCoyoneda (force thunk) >>= unsafeIterT
 
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT i m)
   Functor-IterT .map f (Now x) = Now (f x)
   Functor-IterT .map f (Later thunk) = Later \ where
-    .force -> liftCoyoneda (| (map f) (lowerCoyoneda (force thunk)) |)
+    .force -> (| (map f) (lowerCoyoneda (force thunk)) |)
 
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT i m)
   Applicative-IterT .pure x = Now x
