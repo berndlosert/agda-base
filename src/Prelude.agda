@@ -1940,3 +1940,13 @@ instance
 {-# COMPILE GHC SizeSuc = \_ -> () #-}
 {-# COMPILE GHC Inf = () #-}
 {-# COMPILE GHC SizeMax = \_ _ -> () #-}
+
+-------------------------------------------------------------------------------
+-- Thunk
+-------------------------------------------------------------------------------
+
+record Thunk (i : Size) (f : Size -> Set) : Set where
+  coinductive
+  field force : {j : Size< i} -> f j
+
+open Thunk public

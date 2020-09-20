@@ -12,7 +12,6 @@ open import Control.Monad.Free.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Data.Functor.Coyoneda
-open import Data.Thunk
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -74,7 +73,7 @@ instance
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT i m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
-  MonadTrans-IterT : MonadTrans (\ m a -> IterT i m a)
+  MonadTrans-IterT : MonadTrans (IterT i)
   MonadTrans-IterT .lift m = Later \ where
     .force -> liftCoyoneda (map Now m)
 

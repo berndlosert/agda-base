@@ -33,9 +33,9 @@ private
 -- Iter
 -------------------------------------------------------------------------------
 
-Iter : Set -> Size -> Set
-Iter a i = IterT Identity a i
+Iter : Size -> Set -> Set
+Iter i a = IterT i Identity a
 
 {-# TERMINATING #-}
-unsafeIter : Iter a Inf -> a
+unsafeIter : Iter Inf a -> a
 unsafeIter iter = runIdentity (unsafeIterT iter)
