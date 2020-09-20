@@ -50,19 +50,19 @@ instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT i m)
   Functor-IterT .map f (Now x) = Now (f x)
   Functor-IterT .map f (Later thunk) = Later \ where
-    .force -> (| (map f) (lowerCoyoneda (force thunk)) |)
+    .force -> (| (map f) (force thunk) |)
 
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT i m)
   Applicative-IterT .pure x = Now x
   Applicative-IterT ._<*>_ (Now f) x = map f x
   Applicative-IterT ._<*>_ (Later thunk) x = Later \ where
-    .force -> liftCoyoneda (| (_<*> x) (lowerCoyoneda (force thunk)) |)
+    .force -> (| (_<*> x) (force thunk) |)
 
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT i m)
   Monad-IterT ._>>=_ (Now x) k = k x
   Monad-IterT ._>>=_ (Later thunk) k = Later \ where
     .force -> let _>>='_ = _>>=_ {{Monad-IterT}} in
-      liftCoyoneda (| (_>>=' k) (lowerCoyoneda (force thunk)) |)
+      (| (_>>=' k) (force thunk) |)
 
   Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT i m)
   Alternative-IterT .empty = never
