@@ -23,17 +23,17 @@ private
 -- Colist
 -------------------------------------------------------------------------------
 
-data Colist (a : Set) (i : Size) : Set where
-  [] : Colist a i
-  _::_ : a -> Thunk (Colist a) i -> Colist a i
+data Colist (i : Size) (a : Set) : Set where
+  [] : Colist i a
+  _::_ : a -> Thunk i (\ j -> Colist j a) -> Colist i a
 
 instance
-  Semigroup-Colist : Semigroup (Colist a i)
+  Semigroup-Colist : Semigroup (Colist i a)
   Semigroup-Colist ._<>_ [] ys = []
   Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .force -> (xs .force <> ys)
 
-  Monoid-Colist : Monoid (Colist a i)
+  Monoid-Colist : Monoid (Colist i a)
   Monoid-Colist .neutral = []
 
-  IsBuildable-Colist : IsBuildable (Colist a i) a
-  IsBuildable-Colist .singleton a = a :: \ where .force -> []
+  Buildable-Colist : Buildable (Colist i)
+  Buildable-Colist .singleton a = a :: \ where .force -> []

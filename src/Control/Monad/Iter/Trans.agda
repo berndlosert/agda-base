@@ -30,7 +30,7 @@ private
 
 data IterT (i : Size) (m : Set -> Set) (a : Set) : Set where
   Now : a -> IterT i m a
-  Later : Thunk (\ j -> Coyoneda m (IterT j m a)) i -> IterT i m a
+  Later : Thunk i (\ j -> Coyoneda m (IterT j m a)) -> IterT i m a
 
 delay : {{_ : Monad m}} -> IterT i m a -> IterT i m a
 delay (Now x) = Later \ where

@@ -14,7 +14,7 @@ open import Data.Functor.Coyoneda
 -- Thunk
 -------------------------------------------------------------------------------
 
-record Thunk (f : Size -> Set) (i : Size) : Set where
+record Thunk (i : Size) (f : Size -> Set) : Set where
   coinductive
   field force : {j : Size< i} -> f j
 
