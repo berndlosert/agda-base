@@ -157,7 +157,7 @@ Assert : Bool -> Set
 Assert False = Void
 Assert True = Unit
 
-infixr 10 if_then_else_
+infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
 if True then x else _ = x
 if False then _ else x = x
