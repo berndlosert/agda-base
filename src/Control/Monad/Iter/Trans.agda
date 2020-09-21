@@ -85,5 +85,4 @@ instance
     .force -> lift (map Now m)
 
   MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT i m)
-  MonadState-IterT .get = lift get
-  MonadState-IterT .put s = lift (put s)
+  MonadState-IterT .state f = lift (state f)

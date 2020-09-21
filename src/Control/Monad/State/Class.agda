@@ -23,18 +23,16 @@ private
 record MonadState (s : Set) (m : Set -> Set) : Set where
   field
     overlap {{monad}} : Monad m
-    get : m s
-    put : s -> m Unit
+    state : (s -> a * s) -> m a
 
-  state : (s -> a * s) -> m a
-  state f = do
-    s0 <- get
-    let (a , s1) = f s0
-    put s1
-    return a
+  get : m s
+  get = state \ s -> (s , s)
+
+  put : s -> m Unit
+  put s = state \ _ -> (unit , s)
 
   modify : (s -> s) -> m Unit
-  modify f = state (\ s -> (unit , f s))
+  modify f = state \ s -> (unit , f s)
 
   gets : (s -> a) -> m a
   gets f = do

@@ -61,14 +61,13 @@ instance
   MFunctor-StateT : MFunctor (StateT s)
   MFunctor-StateT .hoist f = mapStateT f
 
+  MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
+  MonadState-StateT .state f = StateT: (return <<< f)
+
   MonadTrans-StateT : MonadTrans (StateT s)
   MonadTrans-StateT .lift m = StateT: \ s -> do
     a <- m
     return (a , s)
-
-  MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
-  MonadState-StateT .get = StateT: (return <<< dupe)
-  MonadState-StateT .put s = StateT: (const (return (unit , s)))
 
   MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
