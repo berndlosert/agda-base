@@ -53,7 +53,7 @@ instance
   Applicative-Coyoneda : {{_ : Applicative f}} -> Applicative (Coyoneda f)
   Applicative-Coyoneda .pure = liftCoyoneda <<< pure
   Applicative-Coyoneda ._<*>_ (Coyoneda: f x) (Coyoneda: g y) =
-    liftCoyoneda $ (| f x |) <*> (| g y |)
+    liftCoyoneda $ (\ u v -> f u (g v)) <$> x <*> y
 
   Alternative-Coyoneda : {{_ : Alternative f}} -> Alternative (Coyoneda f)
   Alternative-Coyoneda .empty = liftCoyoneda empty
@@ -61,8 +61,8 @@ instance
     liftCoyoneda $ lowerCoyoneda l <|> lowerCoyoneda r
 
   Monad-Coyoneda : {{_ : Monad f}} -> Monad (Coyoneda f)
-  Monad-Coyoneda ._>>=_ m f =
-    liftCoyoneda $ lowerCoyoneda m >>= (f >>> lowerCoyoneda)
+  Monad-Coyoneda ._>>=_ (Coyoneda: f v) k =
+    liftCoyoneda $ v >>= f >>> k >>> lowerCoyoneda
 
   Foldable-Coyoneda : {{_ : Foldable f}} -> Foldable (Coyoneda f)
   Foldable-Coyoneda .foldMap f (Coyoneda: k a) = foldMap (f <<< k) a
