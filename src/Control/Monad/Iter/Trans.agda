@@ -2,87 +2,82 @@
 
 module Control.Monad.Iter.Trans where
 
--------------------------------------------------------------------------------
--- Imports
--------------------------------------------------------------------------------
-
 open import Prelude
 
 open import Control.Monad.Free.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
-open import Data.Functor.Coyoneda
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Functor.Coyoneda public
-  hiding (Coyoneda; Coyoneda:; liftCoyoneda; lowerCoyoneda)
-
--------------------------------------------------------------------------------
--- Variables
--------------------------------------------------------------------------------
 
 private
   variable
-    i : Size
-    a b s : Set
+    a s : Set
     m : Set -> Set
 
--------------------------------------------------------------------------------
--- IterT
--------------------------------------------------------------------------------
+{-# NO_POSITIVITY_CHECK #-}
+record IterT (m : Set -> Set) (a : Set) : Set where
+  coinductive
+  field runIterT : m (a + IterT m a)
 
-data IterT (i : Size) (m : Set -> Set) (a : Set) : Set where
-  Now : a -> IterT i m a
-  Later : Thunk i (\ j -> Coyoneda m (IterT j m a)) -> IterT i m a
+open IterT public
 
-delay : {{_ : Monad m}} -> IterT i m a -> IterT (SizeSuc i) m a
-delay (Now x) = Later \ where .force -> return (Now x)
-delay (Later thunk) = Later \ where .force -> return (Later thunk)
+Iter : Set -> Set
+Iter = IterT Identity
 
-never : {{_ : Monad m}} -> IterT i m a
-never = Later \ where .force -> return never
+delay : {{_ : Monad m}} -> IterT m a -> IterT m a
+delay iter .runIterT = return (Right iter)
+
+{-# NON_TERMINATING #-}
+never : {{_ : Monad m}} -> IterT m a
+never .runIterT = return (Right never)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
 {-# TERMINATING #-}
-unsafeIterT : {{_ : Monad m}} -> IterT Inf m a -> m a
-unsafeIterT (Now x) = return x
-unsafeIterT (Later thunk) = lowerCoyoneda (force thunk) >>= unsafeIterT
+unsafeRetract : {{_ : Monad m}} -> IterT m a -> m a
+unsafeRetract iter = runIterT iter >>= either return unsafeRetract
 
 instance
-  Functor-IterT : {{_ : Monad m}} -> Functor (IterT i m)
-  Functor-IterT .map f (Now x) = Now (f x)
-  Functor-IterT .map f (Later thunk) = Later \ where
-    .force -> (| (map f) (force thunk) |)
+  {-# TERMINATING #-}
+  Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
+  Functor-IterT .map f iter .runIterT =
+    runIterT iter >>= bimap f (map f) >>> return
 
-  Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT i m)
-  Applicative-IterT .pure x = Now x
-  Applicative-IterT ._<*>_ (Now f) x = map f x
-  Applicative-IterT ._<*>_ (Later thunk) x = Later \ where
-    .force -> (| (_<*> x) (force thunk) |)
+  {-# TERMINATING #-}
+  Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
+  Applicative-IterT .pure x .runIterT = return (Left x)
+  Applicative-IterT ._<*>_ iter x .runIterT = do
+    result <- runIterT iter
+    case result of \ where
+      (Left f) -> runIterT (map f x)
+      (Right iter') -> return (Right (iter' <*> x))
 
-  Monad-IterT : {{_ : Monad m}} -> Monad (IterT i m)
-  Monad-IterT ._>>=_ (Now x) k = k x
-  Monad-IterT ._>>=_ (Later thunk) k = Later \ where
-    .force -> let _>>='_ = _>>=_ {{Monad-IterT}} in
-      (| (_>>=' k) (force thunk) |)
+  {-# TERMINATING #-}
+  Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
+  Monad-IterT ._>>=_ iter k .runIterT = do
+    result <- runIterT iter
+    case result of \ where
+      (Left m) -> runIterT (k m)
+      (Right iter') -> return (Right (iter' >>= k))
 
-  Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT i m)
+  {-# TERMINATING #-}
+  Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
-  Alternative-IterT ._<|>_ (Now l) _ = Now l
-  Alternative-IterT ._<|>_ (Later _) (Now r) = Now r
-  Alternative-IterT ._<|>_ (Later l) (Later r) = Later \ where
-    .force -> (| _<|>_ (force l) (force r) |)
+  Alternative-IterT ._<|>_ l r .runIterT = do
+    resultl <- runIterT l
+    case resultl of \ where
+      (Left _) -> return resultl
+      (Right iter') -> do
+        resultr <- runIterT r
+        case resultr of \ where
+          (Left _) -> return resultr
+          (Right iter'') -> return (Right (iter' <|> iter''))
 
-  MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT i m)
+  MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
-  MonadTrans-IterT : MonadTrans (IterT i)
-  MonadTrans-IterT .lift m = Later \ where
-    .force -> lift (map Now m)
+  MonadTrans-IterT : MonadTrans IterT
+  MonadTrans-IterT .lift m .runIterT = map Left m
 
-  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT i m)
-  MonadState-IterT .state f = lift (state f)
+  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
+  MonadState-IterT .get = lift get
+  MonadState-IterT .put s = lift (put s)
