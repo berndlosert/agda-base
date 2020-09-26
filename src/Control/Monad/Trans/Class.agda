@@ -23,7 +23,7 @@ private
 
 record MonadTrans (t : (Set -> Set) -> Set -> Set) : Set where
   field
-    overlap {{transform}} : {{_ : Monad m}} -> Monad (t m)
+    overlap {{monadTrans}} : {{_ : Monad m}} -> Monad (t m)
     lift : {{_ : Monad m}} -> m a -> t m a
 
 open MonadTrans {{...}} public
