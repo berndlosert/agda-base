@@ -22,8 +22,13 @@ private
 
 postulate
   Exception : Set -> Set
+
   SomeException : Set
-  instance Exception-SomeException : Exception SomeException
+  IOException : Set
+
+  instance
+    Exception-SomeException : Exception SomeException
+    Exception-IOException : Exception IOException
 
 module _ {{_ : Exception e}} where
 
@@ -73,7 +78,9 @@ module _ {{_ : Exception e}} where
 {-# FOREIGN GHC data ExceptionDict e = Exception e => ExceptionDict #-}
 {-# COMPILE GHC Exception = type ExceptionDict #-}
 {-# COMPILE GHC SomeException = type SomeException #-}
+{-# COMPILE GHC IOException = type IOException #-}
 {-# COMPILE GHC Exception-SomeException = ExceptionDict #-}
+{-# COMPILE GHC Exception-IOException = ExceptionDict #-}
 {-# COMPILE GHC toException = \ _ ExceptionDict -> toException #-}
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
