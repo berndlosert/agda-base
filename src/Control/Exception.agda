@@ -38,9 +38,7 @@ module _ {{_ : Exception e}} where
     catch : IO a -> (e -> IO a) -> IO a
 
   catchJust : (e -> Maybe b) -> IO a -> (b -> IO a) -> IO a
-  catchJust p a handler = catch a \ e -> case p e of \ where
-    Nothing -> throwIO e
-    (Just b) -> handler b
+  catchJust p a handler = catch a (\ e -> maybe (throwIO e) handler (p e))
 
   handle : (e -> IO a) -> IO a -> IO a
   handle = flip catch
@@ -49,16 +47,14 @@ module _ {{_ : Exception e}} where
   handleJust = flip <<< catchJust
 
   try : IO a -> IO (Either e a)
-  try a = catch (a >>= \ v -> return (Right v)) (\ e -> return (Left e))
+  try a = catch (a >>= Right >>> return) (Left >>> return)
 
   tryJust : (e -> Maybe b) -> IO a -> IO (Either b a)
   tryJust p a = do
     r <- try a
     case r of \ where
       (Right v) -> return (Right v)
-      (Left e) -> case p e of \ where
-        Nothing -> throwIO e
-        (Just b) -> return (Left b)
+      (Left e) -> maybe (throwIO e) (return <<< Left) (p e)
 
 -------------------------------------------------------------------------------
 -- FFI
