@@ -49,6 +49,9 @@ postulate
   hSetBuffering : Handle -> BufferMode -> IO Unit
   hGetBuffering : Handle -> IO BufferMode
   hFlush : Handle -> IO Unit
+  hPutChar : Handle -> Char -> IO Unit
+  hPutStr : Handle -> String -> IO Unit
+  hPutStrLn : Handle -> String -> IO Unit
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -77,3 +80,6 @@ postulate
 {-# COMPILE GHC hSetBuffering = IO.hSetBuffering #-}
 {-# COMPILE GHC hGetBuffering = IO.hGetBuffering #-}
 {-# COMPILE GHC hFlush = IO.hFlush #-}
+{-# COMPILE GHC hPutChar = IO.hPutChar #-}
+{-# COMPILE GHC hPutStr = \ h s -> IO.hPutStr h (unpack s) #-}
+{-# COMPILE GHC hPutStrLn = \ h s -> IO.hPutStrLn h (unpack s) #-}
