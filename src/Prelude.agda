@@ -1351,6 +1351,9 @@ record Applicative (f : Set -> Set) : Set where
       loop 0 = pure unit
       loop (Suc n) = fa *> loop n
 
+  unlessA : Bool -> f Unit -> f Unit
+  unlessA p s = if p then pure unit else s
+
 open Applicative {{...}} public
 
 {-# NON_TERMINATING #-}

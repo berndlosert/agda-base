@@ -8,6 +8,7 @@ module Control.Concurrent where
 
 open import Prelude
 
+open import Control.Exception
 open import Data.Time.Units
 
 -------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ instance
 postulate
   myThreadId : IO ThreadId
   forkIO : IO Unit -> IO ThreadId
+  forkFinally : IO a -> (SomeException + a -> IO Unit) -> IO ThreadId
   killThread : ThreadId -> IO Unit
   yield : IO Unit
 
@@ -64,5 +66,6 @@ postulate
 {-# COMPILE GHC primThreadDelay = \ t -> threadDelay (fromInteger t) #-}
 {-# COMPILE GHC myThreadId = myThreadId #-}
 {-# COMPILE GHC forkIO = forkIO #-}
+{-# COMPILE GHC forkFinally = \ _ -> forkFinally #-}
 {-# COMPILE GHC killThread = killThread #-}
 {-# COMPILE GHC yield = yield #-}

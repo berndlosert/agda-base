@@ -26,6 +26,10 @@ postulate
   SomeException : Set
   IOException : Set
 
+  bracket : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+  bracketOnError : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+  finally : IO a -> IO b -> IO a
+
   instance
     Exception-SomeException : Exception SomeException
     Exception-IOException : Exception IOException
@@ -41,9 +45,6 @@ module _ {{_ : Exception e}} where
     throwIO : e -> IO a
 
     catch : IO a -> (e -> IO a) -> IO a
-
-    bracket : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-    finally : IO a -> IO b -> IO a
 
   catchJust : (e -> Maybe b) -> IO a -> (b -> IO a) -> IO a
   catchJust p a handler = catch a (\ e -> maybe (throwIO e) handler (p e))
@@ -87,5 +88,6 @@ module _ {{_ : Exception e}} where
 {-# COMPILE GHC throw = \ _ ExceptionDict _ -> throw #-}
 {-# COMPILE GHC throwIO = \ _ ExceptionDict _ -> throwIO #-}
 {-# COMPILE GHC catch = \ _ ExceptionDict _ -> catch #-}
-{-# COMPILE GHC bracket = \ _ ExceptionDict _ _ _ -> bracket #-}
-{-# COMPILE GHC finally = \ _ ExceptionDict _ _ -> finally #-}
+{-# COMPILE GHC bracket = \ _ _ _ -> bracket #-}
+{-# COMPILE GHC bracketOnError = \ _ _ _ -> bracketOnError #-}
+{-# COMPILE GHC finally = \ _ _ -> finally #-}
