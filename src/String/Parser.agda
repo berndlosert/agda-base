@@ -1,4 +1,5 @@
 {-# OPTIONS --type-in-type #-}
+{-# OPTIONS --no-termination-check #-}
 
 module String.Parser where
 
