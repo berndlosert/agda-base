@@ -21,33 +21,15 @@ private
     r : Set
 
 -------------------------------------------------------------------------------
--- Types, values, functions
+-- ProtocolNumber, PortNumber, HostName, HostIPv4Addr, ServiceName
 -------------------------------------------------------------------------------
 
 postulate
-  SocketAddr : Set
-
-  AddrFamily : Set
-  AF_INET : AddrFamily
-  AF_UNSPEC : AddrFamily
-
-  SocketType : Set
-  SOCK_NONE : SocketType
-  SOCK_STREAM : SocketType
-
   ProtocolNumber : Set
   defaultProtocol : ProtocolNumber
 
   PortNumber : Set
   defaultPort : PortNumber
-
-private
-  postulate
-    primShowSocketAddr : SocketAddr -> String
-
-instance
-  Show-SocketAddr : Show SocketAddr
-  Show-SocketAddr .showsPrec _ = showString <<< primShowSocketAddr
 
 HostName : Set
 HostName = List Char
@@ -58,6 +40,44 @@ HostIPv4Addr = Word32
 ServiceName : Set
 ServiceName = List Char
 
+-------------------------------------------------------------------------------
+-- SocketAddr
+-------------------------------------------------------------------------------
+
+postulate
+  SocketAddr : Set
+  SocketAddrIPv4 : PortNumber -> HostIPv4Addr -> SocketAddr
+
+private
+  postulate
+    primShowSocketAddr : SocketAddr -> String
+
+instance
+  Show-SocketAddr : Show SocketAddr
+  Show-SocketAddr .showsPrec _ = showString <<< primShowSocketAddr
+
+-------------------------------------------------------------------------------
+-- SocketType
+-------------------------------------------------------------------------------
+
+postulate
+  SocketType : Set
+  SOCK_NONE : SocketType
+  SOCK_STREAM : SocketType
+
+-------------------------------------------------------------------------------
+-- AddrFamily
+-------------------------------------------------------------------------------
+
+postulate
+  AddrFamily : Set
+  AF_INET : AddrFamily
+  AF_UNSPEC : AddrFamily
+
+-------------------------------------------------------------------------------
+-- AddrInfoFlag
+-------------------------------------------------------------------------------
+
 data AddrInfoFlag : Set where
   AI_ADDRCONFIG : AddrInfoFlag
   AI_ALL : AddrInfoFlag
@@ -66,8 +86,6 @@ data AddrInfoFlag : Set where
   AI_NUMERICSERV : AddrInfoFlag
   AI_PASSIVE : AddrInfoFlag
   AI_V4MAPPED : AddrInfoFlag
-
-postulate SocketAddrIPv4 : PortNumber -> HostIPv4Addr -> SocketAddr
 
 -------------------------------------------------------------------------------
 -- AddrInfo
