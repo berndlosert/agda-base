@@ -180,14 +180,18 @@ postulate
 
 {-# COMPILE GHC SocketAddr = type SockAddr #-}
 {-# COMPILE GHC primShowSocketAddr = pack . show #-}
+
 {-# COMPILE GHC AddrInfo = data AddrInfo (AddrInfo) #-}
 {-# COMPILE GHC AddrInfoFlag = data AddrInfoFlag (AI_ADDRCONFIG | AI_ALL | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE | AI_V4MAPPED) #-}
+
 {-# COMPILE GHC AddrFamily = type Family #-}
 {-# COMPILE GHC AF_INET = AF_INET #-}
 {-# COMPILE GHC AF_UNSPEC = AF_UNSPEC #-}
+
 {-# COMPILE GHC SocketType = type SocketType #-}
 {-# COMPILE GHC SOCK_STREAM = Stream #-}
 {-# COMPILE GHC SOCK_NONE = NoSocketType #-}
+
 {-# COMPILE GHC ProtocolNumber = type ProtocolNumber #-}
 {-# COMPILE GHC defaultProtocol = defaultProtocol #-}
 {-# COMPILE GHC PortNumber = type PortNumber #-}
