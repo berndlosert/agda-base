@@ -1067,14 +1067,6 @@ record Monoid (a : Set) : Set where
     overlap {{super}} : Semigroup a
     neutral : a
 
-  when : Bool -> a -> a
-  when True a = a
-  when False _ = neutral
-
-  unless : Bool -> a -> a
-  unless True _ = neutral
-  unless False a = a
-
 open Monoid {{...}} public
 
 instance
@@ -1351,8 +1343,8 @@ record Applicative (f : Set -> Set) : Set where
       loop 0 = pure unit
       loop (Suc n) = fa *> loop n
 
-  unlessA : Bool -> f Unit -> f Unit
-  unlessA p s = if p then pure unit else s
+  unless : Bool -> f Unit -> f Unit
+  unless p s = if p then pure unit else s
 
 open Applicative {{...}} public
 
