@@ -8,7 +8,7 @@ module Network.Socket where
 
 open import Prelude
 
-open import Data.ByteString
+open import Data.Bytes
 open import Data.Word
 open import Data.Time.Units
 
@@ -129,9 +129,9 @@ postulate
   bind : Socket -> SocketAddr -> IO Unit
   accept : Socket -> IO (Socket * SocketAddr)
   close : Socket -> IO Unit
-  send : Socket -> ByteString -> IO Nat
-  sendAll : Socket -> ByteString -> IO Unit
-  recv : Socket -> Nat -> IO ByteString
+  send : Socket -> Bytes -> IO Nat
+  sendAll : Socket -> Bytes -> IO Unit
+  recv : Socket -> Nat -> IO Bytes
 
 private
   postulate

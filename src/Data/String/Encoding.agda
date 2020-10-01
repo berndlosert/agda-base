@@ -8,14 +8,14 @@ module Data.String.Encoding where
 
 open import Prelude
 
-open import Data.ByteString
+open import Data.Bytes
 
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
 
 postulate
-  encodeUtf8 : String -> ByteString
+  encodeUtf8 : String -> Bytes
 
 -------------------------------------------------------------------------------
 -- FFI
