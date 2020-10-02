@@ -4,16 +4,28 @@
 
 module Control.Monad.Iter.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
 open import Control.Monad.Free.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
 private
   variable
     a s : Set
     m : Set -> Set
+
+-------------------------------------------------------------------------------
+-- IterT
+-------------------------------------------------------------------------------
 
 record IterT (m : Set -> Set) (a : Set) : Set where
   coinductive
