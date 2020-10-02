@@ -46,7 +46,7 @@ length = foldr (const Suc) 0
 -------------------------------------------------------------------------------
 
 takeWhile : (a -> Bool) -> List a -> List a
-takeWhile p = reverse <<< untag <<< flip foldlM [] \ where
+takeWhile p = reverse <<< fromEither <<< flip foldlM [] \ where
   as a -> if p a then Right (a :: as) else Left as
 
 dropWhile : (a -> Bool) -> List a -> List a
@@ -54,7 +54,7 @@ dropWhile p = reverse <<< flip foldl [] \ where
   as a -> if p a then as else (a :: as)
 
 take : Nat -> List a -> List a
-take n = reverse <<< snd <<< untag <<< flip foldlM (0 , []) \ where
+take n = reverse <<< snd <<< fromEither <<< flip foldlM (0 , []) \ where
   (k , s) a -> if k < n then Right (Suc k , cons a s) else Left (Suc k , s)
 
 drop : Nat -> List a -> List a

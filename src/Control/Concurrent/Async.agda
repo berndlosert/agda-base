@@ -199,7 +199,7 @@ instance
   Alternative-Concurrently .empty =
     Concurrently: $ forever $ threadDelay $ (2 ^ 32) <μs>
   Alternative-Concurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
-    Concurrently: $ untag <$> race as bs
+    Concurrently: $ fromEither <$> race as bs
 
   Semigroup-Concurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)

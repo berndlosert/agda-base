@@ -10,7 +10,7 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- Additional yype classes used for characterizing optics
+-- Additional type classes used for characterizing optics
 -------------------------------------------------------------------------------
 
 record Copointed (f : Set -> Set) : Set where
@@ -22,9 +22,22 @@ instance
   Copointed-Identity : Copointed Identity
   Copointed-Identity .extract = runIdentity
 
+record Choice (p : Set -> Set -> Set) : Set where
+  field
+    {{super}} : Profunctor p
+    lchoice : p a b -> p (a + c) (b + c)
+
+  rchoice : p a b -> p (c + a) (c + b)
+  rchoice = dimap (either Right Left) (either Right Left) <<< lchoice
+
+open Choice {{...}}
+
 -------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
 -------------------------------------------------------------------------------
+
+Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
+Simple Optic s a = Optic s s a a
 
 Traversal : (s t a b : Set) -> Set
 Traversal s t a b = forall {f} {{_ : Applicative f}}
@@ -46,8 +59,9 @@ Getter : (s t a b : Set) -> Set
 Getter s t a b = forall {f} {{_ : Functor f}} {{_ : Contravariant f}}
   -> (a -> f b) -> s -> f t
 
-Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
-Simple Optic s a = Optic s s a a
+Prism : (s t a b : Set) -> Set
+Prism s t a b = forall {p} {{_ : Choice p}} {f} {{_ : Functor f}}
+  -> p a (f b) -> p s (f t)
 
 -------------------------------------------------------------------------------
 -- Getting operations
@@ -103,6 +117,12 @@ set f b = runIdentity <<< f (\ _ -> Identity: b)
 
 sets : ((a -> b) -> s -> t) -> ASetter s t a b
 sets f k = Identity: <<< f (runIdentity <<< k)
+
+-------------------------------------------------------------------------------
+-- AReview operations
+-------------------------------------------------------------------------------
+
+AReview : (t b : Set) -> Tagged t (Identity b) -> Tagged t (Identity b)
 
 -------------------------------------------------------------------------------
 -- Lens operations

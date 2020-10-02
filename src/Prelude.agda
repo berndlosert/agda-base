@@ -313,9 +313,9 @@ either f g (Right b) = g b
 mirror : Either a b -> Either b a
 mirror = either Right Left
 
-untag : Either a a -> a
-untag (Left a) = a
-untag (Right a) = a
+fromEither : Either a a -> a
+fromEither (Left a) = a
+fromEither (Right a) = a
 
 isLeft : Either a b -> Bool
 isLeft (Left _) = True
@@ -324,18 +324,6 @@ isLeft _ = False
 isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
-
-fromLeft : a -> Either a b -> a
-fromLeft _ (Left x) = x
-fromLeft x (Right _) = x
-
-fromRight : b -> Either a b -> b
-fromRight x (Left _) = x
-fromRight _ (Right x) = x
-
-fromEither : (a -> b) -> Either a b -> b
-fromEither f (Left x) = f x
-fromEither _ (Right x) = x
 
 lefts : List (Either a b) -> List a
 lefts [] = []
