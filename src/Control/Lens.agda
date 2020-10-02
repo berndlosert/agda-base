@@ -2,7 +2,15 @@
 
 module Control.Lens where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
@@ -10,13 +18,13 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- Additional type classes used for characterizing optics
+-- Additional types and type classes used for characterizing optics
 -------------------------------------------------------------------------------
 
 record Copointed (f : Set -> Set) : Set where
   field extract : f a -> a
 
-open Copointed {{...}}
+open Copointed {{...}} public
 
 instance
   Copointed-Identity : Copointed Identity
@@ -30,7 +38,20 @@ record Choice (p : Set -> Set -> Set) : Set where
   rchoice : p a b -> p (c + a) (c + b)
   rchoice = dimap (either Right Left) (either Right Left) <<< lchoice
 
-open Choice {{...}}
+open Choice {{...}} public
+
+record Tagged (s b : Set) : Set where
+  constructor Tagged:
+  field unTagged : b
+
+open Tagged public
+
+instance
+  Profunctor-Tagged : Profunctor Tagged
+  Profunctor-Tagged .dimap _ f (Tagged: x) = Tagged: (f x)
+
+  Choice-Tagged : Choice Tagged
+  Choice-Tagged .lchoice (Tagged: x) = Tagged: (Left x)
 
 -------------------------------------------------------------------------------
 -- Optics ala Van Laarhoven
@@ -122,7 +143,11 @@ sets f k = Identity: <<< f (runIdentity <<< k)
 -- AReview operations
 -------------------------------------------------------------------------------
 
-AReview : (t b : Set) -> Tagged t (Identity b) -> Tagged t (Identity b)
+AReview : (t b : Set) -> Set
+AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
+
+review : AReview t b -> b -> t
+review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< Identity:
 
 -------------------------------------------------------------------------------
 -- Lens operations
