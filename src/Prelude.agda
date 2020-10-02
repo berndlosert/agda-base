@@ -1456,9 +1456,17 @@ record Monad (m : Set -> Set) : Set where
   join : m (m a) -> m a
   join = _>>= id
 
+  infixl 1 _=<<_
+  _=<<_ : (a -> m b) -> m a -> m b
+  _=<<_ = flip _>>=_
+
   infixl 1 _>>_
   _>>_ : m a -> m b -> m b
   _>>_ = _*>_
+
+  infixl 1 _<<_
+  _<<_ : m b -> m a -> m b
+  _<<_ = _<*_
 
   infixr 1 _>=>_
   _>=>_ : (a -> m b) -> (b -> m c) -> a -> m c
