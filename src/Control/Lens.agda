@@ -100,6 +100,9 @@ view g = getConst <<< g Const:
 foldMapOf : Getting r s a -> (a -> r) -> s -> r
 foldMapOf g k = getConst <<< g (Const: <<< k)
 
+foldOf : Getting a s a -> s -> a
+foldOf l = getConst <<< l Const:
+
 foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l f z = flip appEndo z <<< foldMapOf l (Endo: <<< f)
 
@@ -109,11 +112,17 @@ foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: 
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
-lengthOf : Getting (Dual (Endo Int)) s a -> s -> Int
-lengthOf l = foldlOf l (\ a _ -> a + 1) 0
+countOf : Getting (Dual (Endo Int)) s a -> s -> Int
+countOf l = foldlOf l (\ a _ -> a + 1) 0
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (Just <<< First:)
+
+firstOf : Getting (First a) s a -> s -> a
+firstOf l = getFirst <<< foldMapOf l First:
+
+lastOf : Getting (Last a) s a -> s -> a
+lastOf l = getLast <<< foldMapOf l Last:
 
 traverseOf! : {{_ : Functor f}}
   -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
