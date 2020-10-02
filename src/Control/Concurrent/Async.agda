@@ -29,25 +29,25 @@ postulate
   withAsync : IO a -> (Async a -> IO b) -> IO b
 
 race : IO a -> IO b -> IO (a + b)
-race left right =
-  withAsync left \ a ->
-  withAsync right \ b ->
+race l r =
+  withAsync l \ a ->
+  withAsync r \ b ->
   waitEither a b
 
 race! : IO a -> IO b -> IO Unit
-race! left right =
-  withAsync left \ a ->
-  withAsync right \ b ->
+race! l r =
+  withAsync l \ a ->
+  withAsync r \ b ->
   waitEither! a b
 
 concurrently : IO a -> IO b -> IO (a * b)
-concurrently left right =
-  withAsync left \ a ->
-  withAsync right \ b ->
+concurrently l r =
+  withAsync l \ a ->
+  withAsync r \ b ->
   waitBoth a b
 
 concurrently! : IO a -> IO b -> IO Unit
-concurrently! left right = void (concurrently left right)
+concurrently! l r = void (concurrently l r)
 
 -------------------------------------------------------------------------------
 -- Async FFI
@@ -101,30 +101,30 @@ concurrently! left right = void (concurrently left right)
   waitAny = atomically . waitAnySTM
 
   waitEitherSTM :: Async a -> Async b -> STM (Either a b)
-  waitEitherSTM left right =
-    (map Left (waitSTM left)) `orElse` (map Right (waitSTM right))
+  waitEitherSTM l r =
+    (map Left (waitSTM l)) `orElse` (map Right (waitSTM r))
 
   waitEither :: Async a -> Async b -> IO (Either a b)
-  waitEither left right = atomically (waitEitherSTM left right)
+  waitEither l r = atomically (waitEitherSTM l r)
 
   waitEitherSTM_:: Async a -> Async b -> STM ()
-  waitEitherSTM_ left right =
-    (void (waitSTM left)) `orElse` (void (waitSTM right))
+  waitEitherSTM_ l r =
+    (void (waitSTM l)) `orElse` (void (waitSTM r))
 
   waitEither_ :: Async a -> Async b -> IO ()
-  waitEither_ left right = atomically (waitEitherSTM_ left right)
+  waitEither_ l r = atomically (waitEitherSTM_ l r)
 
   waitBothSTM :: Async a -> Async b -> STM (a, b)
-  waitBothSTM left right = do
-      a <- waitSTM left `orElse` (waitSTM right >> retry)
-      b <- waitSTM right
+  waitBothSTM l r = do
+      a <- waitSTM l `orElse` (waitSTM r >> retry)
+      b <- waitSTM r
       return (a, b)
 
   waitBoth :: Async a -> Async b -> IO (a, b)
-  waitBoth left right = atomically (waitBothSTM left right)
+  waitBoth l r = atomically (waitBothSTM l r)
 
   waitBoth_ :: Async a -> Async b -> IO ()
-  waitBoth_ left right = void (waitBoth left right)
+  waitBoth_ l r = void (waitBoth l r)
 
   data AsyncCancelled = AsyncCancelled
     deriving (Show)
