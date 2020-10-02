@@ -1343,8 +1343,11 @@ record Applicative (f : Set -> Set) : Set where
       loop 0 = pure unit
       loop (Suc n) = fa *> loop n
 
+  when : Bool -> f Unit -> f Unit
+  when p x = if p then x else pure unit
+
   unless : Bool -> f Unit -> f Unit
-  unless p s = if p then pure unit else s
+  unless p x = if p then pure unit else x
 
 open Applicative {{...}} public
 
