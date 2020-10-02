@@ -10,7 +10,7 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- additional Type classes used for characterizing optics
+-- Additional yype classes used for characterizing optics
 -------------------------------------------------------------------------------
 
 record Copointed (f : Set -> Set) : Set where
@@ -89,7 +89,7 @@ forOf! : {{_ : Functor f}}
 forOf! = flip <<< traverseOf!
 
 -------------------------------------------------------------------------------
--- aSetter operations
+-- ASetter operations
 -------------------------------------------------------------------------------
 
 ASetter : (s t a b : Set) -> Set
@@ -116,8 +116,7 @@ lens v u f s = map (u s) (f (v s))
 -------------------------------------------------------------------------------
 
 record Each (s t a b : Set) : Set where
-  field
-    each : Traversal s t a b
+  field each : Traversal s t a b
 
 open Each {{...}} public
 
@@ -126,7 +125,7 @@ instance
   Each-List .each = traverse
 
 -------------------------------------------------------------------------------
--- basic lens and traversals
+-- Basic lenses and traversals
 -------------------------------------------------------------------------------
 
 #fst : Lens (a * c) (b * c) a b
