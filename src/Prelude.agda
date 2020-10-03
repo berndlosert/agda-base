@@ -577,13 +577,11 @@ instance
   Ord-List : {{_ : Ord a}} -> Ord (List a)
   Ord-List ._<_ = \ where
     (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
-    [] [] -> True
     _ _ -> False
 
   Ord-String : Ord String
-  Ord-String ._<_ l r with unpack l | unpack r
-  ... | (x :: xs) | (y :: ys) = x < y || (x == y && xs < ys)
-  ... | _ | _ = False
+  Ord-String ._<_ l r = toList l < toList r
+    where toList = primStringToList
 
   Ord-Tuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
   Ord-Tuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
