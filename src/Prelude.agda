@@ -1492,130 +1492,122 @@ instance
   Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
--- IsFoldable, Foldable
+-- Foldable
 -------------------------------------------------------------------------------
 
-record IsFoldable (s a : Set) : Set where
-  field foldMap : {{_ : Monoid b}} -> (a -> b) -> s -> b
+record Foldable (t : Set -> Set) : Set where
+  field foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b
 
-  fold : {{_ : Monoid a}} -> s -> a
+  fold : {{_ : Monoid a}} -> t a -> a
   fold = foldMap id
 
-  foldr : (a -> b -> b) -> b -> s -> b
+  foldr : (a -> b -> b) -> b -> t a -> b
   foldr f b as = appEndo (foldMap (Endo: <<< f) as) b
 
-  foldl : (b -> a -> b) -> b -> s -> b
+  foldl : (b -> a -> b) -> b -> t a -> b
   foldl f b as =
     (appEndo <<< getDual) (foldMap (Dual: <<< Endo: <<< flip f) as) b
 
-  foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> s -> m b
+  foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM f b as = let g k a b' = f a b' >>= k in
     foldl g return as b
 
-  foldlM : {{_ : Monad m}} -> (b -> a -> m b) -> b -> s -> m b
+  foldlM : {{_ : Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM f b as = let g a k b' = f b' a >>= k in
     foldr g return as b
 
-  toList : s -> List a
+  toList : t a -> List a
   toList = foldMap [_]
 
-  count : s -> Nat
+  count : t a -> Nat
   count = getSum <<< foldMap (const (Sum: 1))
 
-  all : (a -> Bool) -> s -> Bool
+  all : (a -> Bool) -> t a -> Bool
   all p = getAll <<< foldMap (All: <<< p)
 
-  any : (a -> Bool) -> s -> Bool
+  any : (a -> Bool) -> t a -> Bool
   any p = getAny <<< foldMap (Any: <<< p)
 
-  null : s -> Bool
+  null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  sum : {{ _ : Monoid (Sum a)}} -> s -> a
+  sum : {{ _ : Monoid (Sum a)}} -> t a -> a
   sum = getSum <<< foldMap Sum:
 
-  product : {{ _ : Monoid (Product a)}} -> s -> a
+  product : {{ _ : Monoid (Product a)}} -> t a -> a
   product = getProduct <<< foldMap Product:
 
-  find : (a -> Bool) -> s -> Maybe a
+  or : t Bool -> Bool
+  or = foldr _||_ False
+
+  and : t Bool -> Bool
+  and = foldr _&&_ True
+
+  find : (a -> Bool) -> t a -> Maybe a
   find p = leftToMaybe <<<
     foldlM (\ _ a ->  if p a then Left a else Right unit) unit
 
   module _ {{_ : Eq a}} where
 
-    elem : a -> s -> Bool
+    elem : a -> t a -> Bool
     elem = any <<< _==_
 
-    notElem : a -> s -> Bool
+    notElem : a -> t a -> Bool
     notElem a s = not (elem a s)
 
   module _ {{_ : Applicative f}} where
 
-    traverse! : (a -> f b) -> s -> f Unit
+    traverse! : (a -> f b) -> t a -> f Unit
     traverse! f = foldr (_*>_ <<< f) (pure unit)
 
-    for! : s -> (a -> f b) -> f Unit
+    for! : t a -> (a -> f b) -> f Unit
     for! = flip traverse!
 
-open IsFoldable {{...}} public
+    sequence! : t (f a) -> f Unit
+    sequence! = traverse! id
 
-or : {{IsFoldable s Bool}} -> s -> Bool
-or = foldr _||_ False
+  module _ {{_ : Alternative f}} where
 
-and : {{IsFoldable s Bool}} -> s -> Bool
-and = foldr _&&_ True
+    asum : t (f a) -> f a
+    asum = foldr _<|>_ empty
 
-sequence! : {{_ : Applicative f}} {{_ : IsFoldable s (f a)}} -> s -> f Unit
-sequence! = traverse! id
-
-asum : {{_ : Alternative f}} {{_ : IsFoldable s (f a)}} -> s -> f a
-asum = foldr _<|>_ empty
-
-Foldable : (Set -> Set) -> Set
-Foldable f = forall {a} -> IsFoldable (f a) a
+open Foldable {{...}} public
 
 instance
-  IsFoldable-Nat-Unit : IsFoldable Nat Unit
-  IsFoldable-Nat-Unit .foldMap b 0 = neutral
-  IsFoldable-Nat-Unit .foldMap b (Suc n) = b unit <> foldMap b n
-
   Foldable-Maybe : Foldable Maybe
   Foldable-Maybe .foldMap = maybe neutral
 
   Foldable-List : Foldable List
   Foldable-List .foldMap f = listrec neutral \ x _ y -> f x <> y
 
-  IsFoldable-String-Char : IsFoldable String Char
-  IsFoldable-String-Char .foldMap f = foldMap f <<< unpack
-
   Foldable-Const : Foldable (Const a)
   Foldable-Const .foldMap _ _ = neutral
 
 -------------------------------------------------------------------------------
--- IsFoldable1, Foldable1
+-- Foldable1
 -------------------------------------------------------------------------------
 
-record IsFoldable1 (s a : Set) : Set where
+record Foldable1 (t : Set -> Set) : Set where
   field
-    {{IsFoldable-super}} : IsFoldable s a
-    Nonempty : s -> Set
+    {{Foldable-super}} : Foldable t
+    Nonempty : t a -> Set
 
   foldMap1 : {{_ : Semigroup b}}
-    -> (a -> b) -> (xs : s) {{_ : Nonempty xs}} -> b
+    -> (a -> b) -> (xs : t a) {{_ : Nonempty xs}} -> b
   foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{believeMe}}
 
-  fold1 : {{_ : Semigroup a}} (xs : s) {{_ : Nonempty xs}} -> a
+  fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : Nonempty xs}} -> a
   fold1 s = fromJust (foldMap Just s) {{believeMe}}
 
-  foldr1 : (a -> a -> a) -> (xs : s) {{_ : Nonempty xs}} -> a
-  foldr1 f s = fromJust (foldr g Nothing s) {{believeMe}}
+  foldr1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
+  foldr1 {a} f s = fromJust (foldr g Nothing s) {{believeMe}}
     where
       g : a -> Maybe a -> Maybe a
       g x Nothing = Just x
       g x (Just y) = Just (f x y)
 
-  foldl1 : (a -> a -> a) -> (xs : s) {{_ : Nonempty xs}} -> a
-  foldl1 f s = fromJust (foldl g Nothing s) {{believeMe}}
+  foldl1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
+  foldl1 {a} f s = fromJust (foldl g Nothing s) {{believeMe}}
     where
       g : Maybe a -> a -> Maybe a
       g Nothing x = Just x
@@ -1623,22 +1615,15 @@ record IsFoldable1 (s a : Set) : Set where
 
   module _ {{_ : Ord a}} where
 
-    minimum : (xs : s) {{_ : Nonempty xs}} -> a
+    minimum : (xs : t a) {{_ : Nonempty xs}} -> a
     minimum = foldr1 min
 
-    maximum : (xs : s) {{_ : Nonempty xs}} -> a
+    maximum : (xs : t a) {{_ : Nonempty xs}} -> a
     maximum = foldr1 max
 
-open IsFoldable1 {{...}} public
-
-Foldable1 : (Set -> Set) -> Set
-Foldable1 f = forall {a} -> IsFoldable1 (f a) a
+open Foldable1 {{...}} public
 
 instance
-  IsFoldable1-Nat-Unit : IsFoldable1 Nat Unit
-  IsFoldable1-Nat-Unit .Nonempty 0 = Void
-  IsFoldable1-Nat-Unit .Nonempty _ = Unit
-
   Foldable1-Maybe : Foldable1 Maybe
   Foldable1-Maybe .Nonempty Nothing = Void
   Foldable1-Maybe .Nonempty _ = Unit
@@ -1646,10 +1631,6 @@ instance
   Foldable1-List : Foldable1 List
   Foldable1-List .Nonempty [] = Void
   Foldable1-List .Nonempty _ = Unit
-
-  IsFoldable1-String-Char : IsFoldable1 String Char
-  IsFoldable1-String-Char .Nonempty "" = Void
-  IsFoldable1-String-Char .Nonempty _ = Unit
 
 -------------------------------------------------------------------------------
 -- Traversable

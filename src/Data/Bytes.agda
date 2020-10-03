@@ -6,7 +6,7 @@ module Data.Bytes where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (putStrLn)
+open import Prelude hiding (foldr; putStrLn)
 
 open import Data.Word
 
@@ -33,7 +33,7 @@ private
     primAppend : Bytes -> Bytes -> Bytes
     primEmpty : Bytes
     singleton : Word8 -> Bytes
-    primFoldr : (Word8 -> a -> a) -> a -> Bytes -> a
+    foldr : (Word8 -> a -> a) -> a -> Bytes -> a
 
 instance
   Packed-Bytes-Word8 : Packed Bytes Word8
@@ -45,10 +45,6 @@ instance
 
   Monoid-Bytes : Monoid Bytes
   Monoid-Bytes .neutral = primEmpty
-
-  IsFoldable-Bytes-Word8 : IsFoldable Bytes Word8
-  IsFoldable-Bytes-Word8 .foldMap f bs =
-    primFoldr (\ w accum -> f w <> accum) neutral bs
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -63,5 +59,5 @@ instance
 {-# COMPILE GHC primAppend = BS.append #-}
 {-# COMPILE GHC primEmpty = BS.empty #-}
 {-# COMPILE GHC singleton = BS.singleton #-}
-{-# COMPILE GHC primFoldr = BS.foldr #-}
+{-# COMPILE GHC foldr = BS.foldr #-}
 {-# COMPILE GHC putStrLn = Char8.putStrLn #-}

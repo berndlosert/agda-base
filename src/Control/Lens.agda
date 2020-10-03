@@ -172,7 +172,7 @@ lens v u f s = map (u s) (f (v s))
 mapped : {{_ : Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 
-folded : {{_ : IsFoldable s a}} {{_ : Monoid r}} -> Getting r s a
+folded : {{_ : Foldable f}} {{_ : Monoid r}} -> Getting r (f a) a
 folded = foldring foldr
   where
     noEffect : {{_ : Monoid r}} -> Const r a
