@@ -544,7 +544,7 @@ data Ordering : Set where
 record Ord (a : Set) : Set where
   infixl 4 _<_
   field
-    overlap {{super}} : Eq a
+    overlap {{Eq-super}} : Eq a
     _<_ : a -> a -> Bool
 
   compare : a -> a -> Ordering
@@ -1052,7 +1052,7 @@ instance
 
 record Monoid (a : Set) : Set where
   field
-    overlap {{super}} : Semigroup a
+    overlap {{Semigroup-super}} : Semigroup a
     neutral : a
 
 open Monoid {{...}} public
@@ -1118,7 +1118,7 @@ instance
 
 record IsBuildable (s a : Set) : Set where
   field
-    {{monoid}} : Monoid s
+    overlap {{Monoid-super}} : Monoid s
     singleton : a -> s
 
   infixr 5 _++_
@@ -1305,7 +1305,7 @@ instance
 record Applicative (f : Set -> Set) : Set where
   infixl 4 _<*>_
   field
-    overlap {{super}} : Functor f
+    overlap {{Functor-super}} : Functor f
     _<*>_ : f (a -> b) -> f a -> f b
     pure : a -> f a
 
@@ -1416,7 +1416,7 @@ instance
 record Alternative (f : Set -> Set) : Set where
   infixl 3 _<|>_
   field
-    overlap {{super}} : Applicative f
+    overlap {{Alternative-super}} : Applicative f
     _<|>_ : f a -> f a -> f a
     empty : f a
 
@@ -1444,7 +1444,7 @@ instance
 record Monad (m : Set -> Set) : Set where
   infixl 1 _>>=_
   field
-    overlap {{super}} : Applicative m
+    overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
 
   join : m (m a) -> m a
@@ -1667,7 +1667,7 @@ instance
 
 record IsFoldable1 (s a : Set) : Set where
   field
-    {{super}} : IsFoldable s a
+    {{IsFoldable-super}} : IsFoldable s a
     Nonempty : s -> Set
 
   foldMap1 : {{_ : Semigroup b}}
@@ -1759,8 +1759,8 @@ private
 
 record Traversable (t : Set -> Set) : Set where
   field
-    {{superFunctor}} : Functor t
-    {{superFoldable}} : Foldable t
+    overlap {{Functor-super}} : Functor t
+    overlap {{Foldable-super}} : Foldable t
     traverse : {{_ : Applicative f}} -> (a -> f b) -> t a -> f (t b)
 
   sequence : {{_ : Applicative f}} -> t (f a) -> f (t a)
