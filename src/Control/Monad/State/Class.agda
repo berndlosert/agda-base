@@ -22,7 +22,7 @@ private
 
 record MonadState (s : Set) (m : Set -> Set) : Set where
   field
-    overlap {{monad}} : Monad m
+    overlap {{Monad-super}} : Monad m
     state : (s -> a * s) -> m a
 
   get : m s
