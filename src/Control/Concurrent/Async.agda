@@ -206,7 +206,7 @@ instance
   Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)
 
   Monoid-Concurrently : {{_ : Monoid a}} -> Monoid (Concurrently a)
-  Monoid-Concurrently .neutral = pure neutral
+  Monoid-Concurrently .mempty = pure mempty
 
 mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
 mapConcurrently f = runConcurrently <<< traverse (Concurrently: <<< f)

@@ -34,7 +34,7 @@ instance
 
   Applicative-WriterT : {{_ : Monoid w}} {{_ : Applicative m}}
     -> Applicative (WriterT w m)
-  Applicative-WriterT .pure a = WriterT: (pure (a , neutral))
+  Applicative-WriterT .pure a = WriterT: (pure (a , mempty))
   Applicative-WriterT ._<*>_ (WriterT: f) (WriterT: x) = WriterT: (| k f x |)
     where
       k : _
@@ -52,7 +52,7 @@ instance
   MonadTrans-WriterT : {{_ : Monoid w}} -> MonadTrans (WriterT w)
   MonadTrans-WriterT .lift m = WriterT: do
     a <- m
-    return (a , neutral)
+    return (a , mempty)
 
   MMonad-WriterT : {{_ : Monoid w}} -> MMonad (WriterT w)
   MMonad-WriterT .embed k (WriterT: m) = WriterT: do

@@ -1030,64 +1030,64 @@ instance
 record Monoid (a : Set) : Set where
   field
     overlap {{Semigroup-super}} : Semigroup a
-    neutral : a
+    mempty : a
 
 open Monoid {{...}} public
 
 instance
   Monoid-Dual : {{_ : Monoid a}} -> Monoid (Dual a)
-  Monoid-Dual .neutral = Dual: neutral
+  Monoid-Dual .mempty = Dual: mempty
 
   Monoid-First : {{_ : Monoid a}} -> Monoid (First a)
-  Monoid-First .neutral = First: neutral
+  Monoid-First .mempty = First: mempty
 
   Monoid-Last : {{_ : Monoid a}} -> Monoid (Last a)
-  Monoid-Last .neutral = Last: neutral
+  Monoid-Last .mempty = Last: mempty
 
   Monoid-Unit : Monoid Unit
-  Monoid-Unit .neutral = unit
+  Monoid-Unit .mempty = unit
 
   Monoid-All : Monoid All
-  Monoid-All .neutral = All: True
+  Monoid-All .mempty = All: True
 
   Monoid-Any : Monoid Any
-  Monoid-Any .neutral = Any: False
+  Monoid-Any .mempty = Any: False
 
   Monoid-SumNat : Monoid (Sum Nat)
-  Monoid-SumNat .neutral = Sum: 0
+  Monoid-SumNat .mempty = Sum: 0
 
   Monoid-ProductNat : Monoid (Product Nat)
-  Monoid-ProductNat .neutral = Product: 1
+  Monoid-ProductNat .mempty = Product: 1
 
   Monoid-SumInt : Monoid (Sum Int)
-  Monoid-SumInt .neutral = Sum: 0
+  Monoid-SumInt .mempty = Sum: 0
 
   Monoid-ProductInt : Monoid (Product Int)
-  Monoid-ProductInt .neutral = Product: 1
+  Monoid-ProductInt .mempty = Product: 1
 
   Monoid-String : Monoid String
-  Monoid-String .neutral = ""
+  Monoid-String .mempty = ""
 
   Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
-  Monoid-Function .neutral = const neutral
+  Monoid-Function .mempty = const mempty
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .neutral = Endo: \ x -> x
+  Monoid-Endo .mempty = Endo: \ x -> x
 
   Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
-  Monoid-Maybe .neutral = Nothing
+  Monoid-Maybe .mempty = Nothing
 
   Monoid-List : Monoid (List a)
-  Monoid-List .neutral = []
+  Monoid-List .mempty = []
 
   Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
-  Monoid-IO .neutral = pureIO neutral
+  Monoid-IO .mempty = pureIO mempty
 
   Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
-  Monoid-Identity .neutral = Identity: neutral
+  Monoid-Identity .mempty = Identity: mempty
 
   Monoid-Const : {{_ : Monoid a}} -> Monoid (Const a b)
-  Monoid-Const .neutral = Const: neutral
+  Monoid-Const .mempty = Const: mempty
 
 -------------------------------------------------------------------------------
 -- Category
@@ -1310,7 +1310,7 @@ instance
   Applicative-Identity ._<*>_ = map <<< runIdentity
 
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
-  Applicative-Const .pure _ = Const: neutral
+  Applicative-Const .pure _ = Const: mempty
   Applicative-Const ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
   Applicative-Sum : Applicative Sum
@@ -1366,7 +1366,7 @@ instance
     l _ -> l
 
   Alternative-List : Alternative List
-  Alternative-List .empty = neutral
+  Alternative-List .empty = mempty
   Alternative-List ._<|>_ = _<>_
 
 --------------------------------------------------------------------------------
@@ -1575,13 +1575,13 @@ open Foldable {{...}} public
 
 instance
   Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldMap = maybe neutral
+  Foldable-Maybe .foldMap = maybe mempty
 
   Foldable-List : Foldable List
-  Foldable-List .foldMap f = listrec neutral \ x _ y -> f x <> y
+  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
 
   Foldable-Const : Foldable (Const a)
-  Foldable-Const .foldMap _ _ = neutral
+  Foldable-Const .foldMap _ _ = mempty
 
 -------------------------------------------------------------------------------
 -- Foldable1

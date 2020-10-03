@@ -44,7 +44,7 @@ instance
   Semigroup-Bytes ._<>_ = primAppend
 
   Monoid-Bytes : Monoid Bytes
-  Monoid-Bytes .neutral = primEmpty
+  Monoid-Bytes .mempty = primEmpty
 
 -------------------------------------------------------------------------------
 -- FFI

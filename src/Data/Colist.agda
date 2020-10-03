@@ -31,7 +31,7 @@ instance
   Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .force -> (xs .force <> ys)
 
   Monoid-Colist : Monoid (Colist i a)
-  Monoid-Colist .neutral = []
+  Monoid-Colist .mempty = []
 
   Buildable-Colist : Buildable (Colist i)
   Buildable-Colist .singleton a = a :: \ where .force -> []
