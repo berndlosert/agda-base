@@ -162,6 +162,20 @@ if_then_else_ : Bool -> a -> a -> a
 if True then x else _ = x
 if False then _ else x = x
 
+not : Bool -> Bool
+not False = True
+not True = False
+
+infixr 2 _||_
+_||_ : Bool -> Bool -> Bool
+False || x = x
+True || _ = True
+
+infixr 3 _&&_
+_&&_ : Bool -> Bool -> Bool
+False && _ = False
+True && x = x
+
 natrec : a -> (Nat -> a -> a) -> Nat -> a
 natrec x _ 0 = x
 natrec x h n@(Suc n-1) = h n-1 (natrec x h n-1)
@@ -408,43 +422,6 @@ private
 {-# COMPILE GHC pureIO = \ _ -> pure #-}
 {-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
-
--------------------------------------------------------------------------------
--- Boolean
--------------------------------------------------------------------------------
-
-record Boolean (b : Set) : Set where
-  infixr 2 _||_
-  infixr 3 _&&_
-  field
-    ff : b
-    tt : b
-    not : b -> b
-    _||_ : b -> b -> b
-    _&&_ : b -> b -> b
-
-open Boolean {{...}} public
-
-instance
-  Boolean-Bool : Boolean Bool
-  Boolean-Bool .ff = False
-  Boolean-Bool .tt = True
-  Boolean-Bool .not = \ where
-    False -> True
-    True -> False
-  Boolean-Bool ._||_ = \ where
-    False b -> b
-    True _ -> True
-  Boolean-Bool ._&&_ = \ where
-    False _ -> False
-    True b -> b
-
-  Boolean-Function : {{_ : Boolean b}} -> Boolean (a -> b)
-  Boolean-Function .ff x = ff
-  Boolean-Function .tt x = tt
-  Boolean-Function .not f x = not (f x)
-  Boolean-Function ._||_ f g x = f x || g x
-  Boolean-Function ._&&_ f g x = f x && g x
 
 -------------------------------------------------------------------------------
 -- Packed
@@ -1625,15 +1602,13 @@ record IsFoldable (s a : Set) : Set where
     for! : s -> (a -> f b) -> f Unit
     for! = flip traverse!
 
-  module _ {{_ : Boolean a}} where
-
-    or : s -> a
-    or = foldr _||_ ff
-
-    and : s -> a
-    and = foldr _&&_ tt
-
 open IsFoldable {{...}} public
+
+or : {{IsFoldable s Bool}} -> s -> Bool
+or = foldr _||_ False
+
+and : {{IsFoldable s Bool}} -> s -> Bool
+and = foldr _&&_ True
 
 sequence! : {{_ : Applicative f}} {{_ : IsFoldable s (f a)}} -> s -> f Unit
 sequence! = traverse! id
