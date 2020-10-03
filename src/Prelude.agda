@@ -1658,6 +1658,9 @@ instance
   IsFoldable-String-Char : IsFoldable String Char
   IsFoldable-String-Char .foldMap f = foldMap f <<< unpack
 
+  Foldable-Const : Foldable (Const a)
+  Foldable-Const .foldMap _ _ = neutral
+
 -------------------------------------------------------------------------------
 -- IsFoldable1, Foldable1
 -------------------------------------------------------------------------------
