@@ -1080,7 +1080,7 @@ instance
   Monoid-SumNat .neutral = Sum: 0
 
   Monoid-ProductNat : Monoid (Product Nat)
-  Monoid-ProductNat .neutral = Product: (Suc 0)
+  Monoid-ProductNat .neutral = Product: 1
 
   Monoid-SumInt : Monoid (Sum Int)
   Monoid-SumInt .neutral = Sum: 0
