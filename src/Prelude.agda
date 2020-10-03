@@ -1098,18 +1098,14 @@ record IsBuildable (s a : Set) : Set where
     overlap {{Monoid-super}} : Monoid s
     singleton : a -> s
 
-  infixr 5 _++_
-  _++_ : s -> s -> s
-  _++_ = _<>_
-
   nil : s
   nil = neutral
 
   cons : a -> s -> s
-  cons a s = singleton a ++ s
+  cons a s = singleton a <> s
 
   snoc : s -> a -> s
-  snoc s a = s ++ singleton a
+  snoc s a = s <> singleton a
 
   fromList : List a -> s
   fromList [] = nil
@@ -1344,7 +1340,7 @@ instance
   Applicative-List .pure = singleton
   Applicative-List ._<*>_ = \ where
     [] _ -> []
-    (f :: fs) xs -> (map f xs) ++ (fs <*> xs)
+    (f :: fs) xs -> (map f xs) <> (fs <*> xs)
 
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
@@ -1478,7 +1474,7 @@ instance
   Monad-List : Monad List
   Monad-List ._>>=_ = \ where
     [] k -> []
-    (x :: xs) k -> k x ++ (xs >>= k)
+    (x :: xs) k -> k x <> (xs >>= k)
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
@@ -1787,7 +1783,7 @@ record Show (a : Set) : Set where
 open Show {{...}} public
 
 showString : String -> ShowS
-showString = _++_
+showString = _<>_
 
 showParen : Bool -> ShowS -> ShowS
 showParen b p = if b then showString "(" <<< p <<< showString ")" else p

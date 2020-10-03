@@ -17,7 +17,7 @@ singleton : Char -> String
 singleton = pack <<< Prelude.singleton
 
 snoc : String -> Char -> String
-snoc s c = repack (_++ Prelude.singleton c) s
+snoc s c = repack (_<> Prelude.singleton c) s
 
 head : String -> Maybe Char
 head s with unpack s
@@ -88,15 +88,15 @@ partition p s = bimap pack pack (List.partition p (unpack s))
 padRight : Nat -> Char -> String -> String
 padRight l c s =
   let replicated = replicate (l - length s) c
-  in s ++ replicated
+  in s <> replicated
 
 padLeft : Nat -> Char -> String -> String
 padLeft l c s =
   let replicated = replicate (l - length s) c
-  in replicated ++ s
+  in replicated <> s
 
 concat : List String -> String
-concat = foldr _++_ ""
+concat = foldr _<>_ ""
 
 break : (Char -> Bool) -> String -> String * String
 break p s = bimap pack pack $ List.break p (unpack s)
@@ -110,11 +110,11 @@ words s = let s' = dropWhile isSpace s in
 
 unwords : List String -> String
 unwords [] = ""
-unwords (w :: ws) = w ++ go ws
+unwords (w :: ws) = w <> go ws
   where
     go : List String -> String
     go [] = ""
-    go (v :: vs) = " " ++ v ++ go vs
+    go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
 lines s =

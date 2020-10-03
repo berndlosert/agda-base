@@ -270,12 +270,12 @@ quick = record {
     size = \ n -> n / 2 + 3;
     every = \ n args ->
       let s = show n in
-      s ++ pack (replicate (String.length s) '\b')
+      s <> pack (replicate (String.length s) '\b')
   }
 
 verbose : Config
 verbose = record quick {
-    every = \ n args -> show n ++ ":\n" ++ String.unlines args
+    every = \ n args -> show n <> ":\n" <> String.unlines args
   }
 
 -------------------------------------------------------------------------------
@@ -285,12 +285,12 @@ verbose = record quick {
 private
   done : String -> Nat -> List (List String) -> IO Unit
   done mesg ntest stamps =
-      do putStr (mesg ++ " " ++ show ntest ++ " tests" ++ table)
+      do putStr (mesg <> " " <> show ntest <> " tests" <> table)
     where
       display : List String -> String
       display [] = ".\n"
-      display [ x ] = " (" ++ x ++ ").\n"
-      display xs = ".\n" ++ String.unlines (map (_++ ".") xs)
+      display [ x ] = " (" <> x <> ").\n"
+      display xs = ".\n" <> String.unlines (map (_<> ".") xs)
 
       pairLength : List (List String) -> Nat * List String
       pairLength [] = (0 , [])
@@ -298,12 +298,12 @@ private
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
-      percentage n m@(Suc _) = show ((100 * n) / m) ++ "%"
+      percentage n m@(Suc _) = show ((100 * n) / m) <> "%"
 
       entry : Nat * (List String) -> String
       entry (n , s) = percentage n ntest
-        ++ " "
-        ++ String.concat (List.intersperse ", " s)
+        <> " "
+        <> String.concat (List.intersperse ", " s)
 
       table : String
       table =
@@ -337,9 +337,9 @@ private
           (Just True) -> tests
             config gen rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
           (Just False) -> putStr ("Falsifiable, after "
-            ++ show ntest
-            ++ " tests:\n"
-            ++ String.unlines (Result.arguments result))
+            <> show ntest
+            <> " tests:\n"
+            <> String.unlines (Result.arguments result))
       )
 
 check : {{_ : Testable a}} -> Config -> a -> IO Unit
