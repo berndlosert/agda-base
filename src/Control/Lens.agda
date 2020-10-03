@@ -18,7 +18,7 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- Additional types and type classes used for characterizing optics
+-- Types and type classes used for characterizing optics
 -------------------------------------------------------------------------------
 
 record Copointed (f : Set -> Set) : Set where
@@ -54,7 +54,7 @@ instance
   Choice-Tagged .lchoice (Tagged: x) = Tagged: (Left x)
 
 -------------------------------------------------------------------------------
--- Optics ala Van Laarhoven
+-- Optic types ala Van Laarhoven
 -------------------------------------------------------------------------------
 
 Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
@@ -166,8 +166,25 @@ lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
 
 -------------------------------------------------------------------------------
--- Each and instances
+-- Basic optics
 -------------------------------------------------------------------------------
+
+mapped : {{_ : Functor f}} -> ASetter (f a) (f b) a b
+mapped = sets map
+
+folded : {{_ : Foldable f}} {{_ : Monoid r}} -> Getting r (f a) a
+folded = foldring foldr
+  where
+    noEffect : {{_ : Monoid r}} -> Const r a
+    noEffect = phantom (pure unit)
+
+    foldring : {{_ : Monoid r}}
+      -> ((a -> Const r a -> Const r a) -> Const r a -> s -> Const r a)
+      -> (a -> Const r b) -> s -> Const r t
+    foldring fr f = phantom <<< fr (\ a fa -> f a *> fa) noEffect
+
+traversed : {{_ : Traversable f}} -> Traversal (f a) (f b) a b
+traversed = traverse
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b
@@ -175,6 +192,16 @@ record Each (s t a b : Set) : Set where
 open Each {{...}} public
 
 instance
+  Each-Tuple : Each (a * a) (b * b) a b
+  Each-Tuple .each f (a , b) = (| _,_ (f a) (f b) |)
+
+  Each-Maybe : Each (Maybe a) (Maybe b) a b
+  Each-Maybe .each = traverse
+
+  Each-Either : Each (Either a a) (Either b b) a b
+  Each-Either .each f (Left a) = map Left (f a)
+  Each-Either .each f (Right a) = map Right (f a)
+
   Each-List : Each (List a) (List b) a b
   Each-List .each = traverse
 
