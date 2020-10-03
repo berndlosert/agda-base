@@ -1727,34 +1727,34 @@ instance
 
 private
   record StateL (s a : Set) : Set where
-    constructor stateL:
+    constructor StateL:
     field runStateL : s -> Tuple s a
 
   open StateL
 
   record StateR (s a : Set) : Set where
-    constructor stateR:
+    constructor StateR:
     field runStateR : s -> Tuple s a
 
   open StateR
 
   instance
     Functor-StateL : Functor (StateL s)
-    Functor-StateL .map f (stateL: t) = stateL: \ s0 ->
+    Functor-StateL .map f (StateL: t) = StateL: \ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
     Functor-StateR : Functor (StateR s)
-    Functor-StateR .map f (stateR: t) = stateR: \ s0 ->
+    Functor-StateR .map f (StateR: t) = StateR: \ s0 ->
       let (s1 , x) = t s0 in (s1 , f x)
 
     Applicative-StateL : Applicative (StateL s)
-    Applicative-StateL .pure x = stateL: \ s -> (s , x)
-    Applicative-StateL ._<*>_ (stateL: f) (stateL: t) = stateL: \ s0 ->
+    Applicative-StateL .pure x = StateL: \ s -> (s , x)
+    Applicative-StateL ._<*>_ (StateL: f) (StateL: t) = StateL: \ s0 ->
       let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
 
     Applicative-StateR : Applicative (StateR s)
-    Applicative-StateR .pure x = stateR: \ s -> (s , x)
-    Applicative-StateR ._<*>_ (stateR: f) (stateR: t) = stateR: \ s0 ->
+    Applicative-StateR .pure x = StateR: \ s -> (s , x)
+    Applicative-StateR ._<*>_ (StateR: f) (StateR: t) = StateR: \ s0 ->
       let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
 
 record Traversable (t : Set -> Set) : Set where
@@ -1770,10 +1770,10 @@ record Traversable (t : Set -> Set) : Set where
   for = flip traverse
 
   mapAccumL : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumL f a xs = runStateL (traverse (stateL: <<< flip f) xs) a
+  mapAccumL f a xs = runStateL (traverse (StateL: <<< flip f) xs) a
 
   mapAccumR : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumR f a xs = runStateR (traverse (stateR: <<< flip f) xs) a
+  mapAccumR f a xs = runStateR (traverse (StateR: <<< flip f) xs) a
 
   scanl : {{_ : Buildable t}} -> (b -> a -> b) -> b -> t a -> t b
   scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)
