@@ -43,6 +43,11 @@ record Choice (p : Set -> Set -> Set) : Set where
 
 open Choice {{...}} public
 
+instance
+  Choice-Function : Choice Function
+  Choice-Function .lchoice ab (Left a) = Left (ab a)
+  Choice-Function .lchoice _ (Right c) = Right c
+
 record Tagged (s b : Set) : Set where
   constructor Tagged:
   field unTagged : b
@@ -196,6 +201,12 @@ under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
 
 lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
+
+prism : (b -> t)  -> (s -> t + a) -> Prism s t a b
+prism bt seta = dimap seta (either pure (map bt)) <<< rchoice
+
+prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
+prism' bs sma = prism bs (\ s -> maybe (Left s) Right (sma s))
 
 iso : (s -> a) -> (b -> t) -> Iso s t a b
 iso f g = dimap f (map g)
