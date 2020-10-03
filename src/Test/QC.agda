@@ -11,6 +11,8 @@ open import Prelude
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
+open import Data.Foldable
+open import Data.Traversable
 open import System.IO
 open import System.Random
 
@@ -270,7 +272,7 @@ quick = record {
     size = \ n -> n / 2 + 3;
     every = \ n args ->
       let s = show n in
-      s <> pack (replicate (String.length s) '\b')
+      s <> String.replicate (String.length s) "\b"
   }
 
 verbose : Config
@@ -303,7 +305,7 @@ private
       entry : Nat * (List String) -> String
       entry (n , s) = percentage n ntest
         <> " "
-        <> String.concat (List.intersperse ", " s)
+        <> fold (List.intersperse ", " s)
 
       table : String
       table =

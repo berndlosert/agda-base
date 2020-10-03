@@ -8,6 +8,9 @@ module Control.Lens where
 
 open import Prelude
 
+open import Data.Foldable
+open import Data.Traversable
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -53,6 +56,17 @@ instance
   Choice-Tagged : Choice Tagged
   Choice-Tagged .lchoice (Tagged: x) = Tagged: (Left x)
 
+data Exchange (a b s t : Set) : Set where
+  Exchange: : (s -> a) -> (b -> t) -> Exchange a b s t
+
+instance
+  Functor-Exchange : Functor (Exchange a b s)
+  Functor-Exchange .map f (Exchange: sa bt) = Exchange: sa (f <<< bt)
+
+  Profunctor-Exchange : Profunctor (Exchange a b)
+  Profunctor-Exchange .dimap f g (Exchange: sa bt) =
+    Exchange: (sa <<< f) (g <<< bt)
+
 -------------------------------------------------------------------------------
 -- Optic types ala Van Laarhoven
 -------------------------------------------------------------------------------
@@ -72,16 +86,20 @@ Fold : (s t a b : Set) -> Set
 Fold s t a b = forall {f} {{_ : Applicative f}} {{_ : Contravariant f}}
   -> (a -> f b) -> s -> f t
 
-Lens : (s t a b : Set) -> Set
-Lens s t a b = forall {f} {{_ : Functor f}}
-  -> (a -> f b) -> s -> f t
-
 Getter : (s t a b : Set) -> Set
 Getter s t a b = forall {f} {{_ : Functor f}} {{_ : Contravariant f}}
   -> (a -> f b) -> s -> f t
 
+Lens : (s t a b : Set) -> Set
+Lens s t a b = forall {f} {{_ : Functor f}}
+  -> (a -> f b) -> s -> f t
+
+Iso : (s t a b : Set) -> Set
+Iso s t a b = forall {p} {{_ : Profunctor p}} {f} {{_ : Functor f}}
+  -> p a (f b) -> p s (f t)
+
 Prism : (s t a b : Set) -> Set
-Prism s t a b = forall {p} {{_ : Choice p}} {f} {{_ : Functor f}}
+Prism s t a b = forall {p} {{_ : Choice p}} {f} {{_ : Applicative f}}
   -> p a (f b) -> p s (f t)
 
 -------------------------------------------------------------------------------
@@ -112,8 +130,8 @@ foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: 
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
-countOf : Getting (Dual (Endo Int)) s a -> s -> Int
-countOf l = foldlOf l (\ a _ -> a + 1) 0
+countOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
+countOf l = foldlOf l (\ n _ -> Suc n) 0
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (Just <<< First:)
@@ -159,15 +177,38 @@ review : AReview t b -> b -> t
 review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< Identity:
 
 -------------------------------------------------------------------------------
--- Lens operations
+-- AnIso operations
+-------------------------------------------------------------------------------
+
+AnIso : (s t a b : Set) -> Set
+AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
+
+withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
+withIso ai k with ai (Exchange: id Identity:)
+... | Exchange: sa bt = k sa (runIdentity <<< bt)
+
+under : AnIso s t a b -> (t -> s) -> b -> a
+under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
+
+-------------------------------------------------------------------------------
+-- Constructors
 -------------------------------------------------------------------------------
 
 lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
 
+iso : (s -> a) -> (b -> t) -> Iso s t a b
+iso f g = dimap f (map g)
+
 -------------------------------------------------------------------------------
 -- Some general optics
 -------------------------------------------------------------------------------
+
+packed : {{_ : Packed s a}} -> Simple Iso (List a) s
+packed = iso pack unpack
+
+unpacked : {{_ : Packed s a}} -> Simple Iso s (List a)
+unpacked = iso unpack pack
 
 mapped : {{_ : Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map

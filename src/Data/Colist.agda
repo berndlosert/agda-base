@@ -32,6 +32,3 @@ instance
 
   Monoid-Colist : Monoid (Colist i a)
   Monoid-Colist .mempty = []
-
-  Buildable-Colist : Buildable (Colist i)
-  Buildable-Colist .singleton a = a :: \ where .force -> []

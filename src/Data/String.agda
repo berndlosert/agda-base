@@ -8,7 +8,16 @@ module Data.String where
 
 open import Prelude
 
+open import Data.Foldable
 open import Data.List as List using ()
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Functions
@@ -25,9 +34,6 @@ singleton = pack <<< [_]
 
 snoc : String -> Char -> String
 snoc s c = repack (_<> [ c ]) s
-
-concat : List String -> String
-concat = fold
 
 head : String -> Maybe Char
 head s with unpack s
@@ -96,7 +102,7 @@ partition : (Char -> Bool) -> String -> String * String
 partition p s = bimap pack pack (List.partition p (unpack s))
 
 replicate : Nat -> String -> String
-replicate n s = concat (List.replicate n s)
+replicate n s = fold (List.replicate n s)
 
 padRight : Nat -> Char -> String -> String
 padRight l c s =
@@ -127,7 +133,7 @@ unwords (w :: ws) = w <> go ws
 lines : String -> List String
 lines s =
   let
-    (l , ls) = foldl f ("" , []) s
+    (l , ls) = foldl f ("" , []) (unpack s)
   in
     List.reverse (if l == "" then ls else (l :: ls))
   where
@@ -136,7 +142,7 @@ lines s =
     f (l , ls) c = (snoc l c , ls)
 
 unlines : List String -> String
-unlines = concat <<< map (flip snoc '\n')
+unlines = fold <<< map (_<> "\n")
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -162,5 +168,4 @@ unlines = concat <<< map (flip snoc '\n')
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
-{-# COMPILE GHC concat = Text.concat #-}
 {-# COMPILE GHC replicate = Text.replicate . fromInteger #-}

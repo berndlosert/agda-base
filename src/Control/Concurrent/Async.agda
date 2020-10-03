@@ -11,6 +11,8 @@ open import Prelude
 open import Control.Concurrent
 open import Data.List as List using ()
 open import Data.Time.Units
+open import Data.Foldable
+open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Variables

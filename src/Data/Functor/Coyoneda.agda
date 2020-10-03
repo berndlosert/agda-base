@@ -9,6 +9,8 @@ module Data.Functor.Coyoneda where
 open import Prelude
 
 open import Control.Monad.Trans.Class
+open import Data.Foldable
+open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Variables

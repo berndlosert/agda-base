@@ -6,7 +6,7 @@ module Data.Bytes where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (foldr; putStrLn)
+open import Prelude hiding (putStrLn)
 
 open import Data.Word
 

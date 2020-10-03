@@ -233,10 +233,6 @@ neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
-foldZ : (Nat -> a) -> (Nat -> a) -> Int -> a
-foldZ f g (Pos n) = f n
-foldZ f g (NegSuc n) = g n
-
 isPos : Int -> Bool
 isPos (Pos _) = True
 isPos _ = False
@@ -1090,6 +1086,28 @@ instance
   Monoid-Const .mempty = Const: mempty
 
 -------------------------------------------------------------------------------
+-- Nonempty
+-------------------------------------------------------------------------------
+
+record NonemptyConstraint (a : Set) : Set where
+  field Nonempty : a -> Set
+
+open NonemptyConstraint {{...}} public
+
+instance
+  NonemptyConstraint-Maybe : NonemptyConstraint (Maybe a)
+  NonemptyConstraint-Maybe .Nonempty Nothing = Void
+  NonemptyConstraint-Maybe .Nonempty _ = Unit
+
+  NonemptyConstraint-List : NonemptyConstraint (List a)
+  NonemptyConstraint-List .Nonempty [] = Void
+  NonemptyConstraint-List .Nonempty _ = Unit
+
+  NonemptyConstraint-String : NonemptyConstraint String
+  NonemptyConstraint-String .Nonempty "" = Void
+  NonemptyConstraint-String .Nonempty _ = Unit
+
+-------------------------------------------------------------------------------
 -- Category
 -------------------------------------------------------------------------------
 
@@ -1252,12 +1270,12 @@ record Applicative (f : Set -> Set) : Set where
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 
-  --replicateA : {{_ : IsBuildable s a}} -> Nat -> f a -> f s
-  --replicateA {s} {a} n0 fa = loop n0
-  --  where
-  --    loop : Nat -> f s
-  --    loop 0 = pure nil
-  --    loop (Suc n) = (| cons fa (loop n) |)
+  replicateA : Nat -> f a -> f (List a)
+  replicateA {a} n0 fa = loop n0
+    where
+      loop : Nat -> f (List a)
+      loop 0 = pure []
+      loop (Suc n) = (| _::_ fa (loop n) |)
 
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
@@ -1492,175 +1510,6 @@ instance
   Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
--- Foldable
--------------------------------------------------------------------------------
-
-record Foldable (t : Set -> Set) : Set where
-  field foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b
-
-  fold : {{_ : Monoid a}} -> t a -> a
-  fold = foldMap id
-
-  foldr : (a -> b -> b) -> b -> t a -> b
-  foldr f b as = appEndo (foldMap (Endo: <<< f) as) b
-
-  foldl : (b -> a -> b) -> b -> t a -> b
-  foldl f b as =
-    (appEndo <<< getDual) (foldMap (Dual: <<< Endo: <<< flip f) as) b
-
-  foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM f b as = let g k a b' = f a b' >>= k in
-    foldl g return as b
-
-  foldlM : {{_ : Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
-  foldlM f b as = let g a k b' = f b' a >>= k in
-    foldr g return as b
-
-  toList : t a -> List a
-  toList = foldMap [_]
-
-  count : t a -> Nat
-  count = getSum <<< foldMap (const (Sum: 1))
-
-  all : (a -> Bool) -> t a -> Bool
-  all p = getAll <<< foldMap (All: <<< p)
-
-  any : (a -> Bool) -> t a -> Bool
-  any p = getAny <<< foldMap (Any: <<< p)
-
-  null : t a -> Bool
-  null = foldr (\ _ _ -> False) True
-
-  sum : {{ _ : Monoid (Sum a)}} -> t a -> a
-  sum = getSum <<< foldMap Sum:
-
-  product : {{ _ : Monoid (Product a)}} -> t a -> a
-  product = getProduct <<< foldMap Product:
-
-  or : t Bool -> Bool
-  or = foldr _||_ False
-
-  and : t Bool -> Bool
-  and = foldr _&&_ True
-
-  find : (a -> Bool) -> t a -> Maybe a
-  find p = leftToMaybe <<<
-    foldlM (\ _ a ->  if p a then Left a else Right unit) unit
-
-  module _ {{_ : Eq a}} where
-
-    elem : a -> t a -> Bool
-    elem = any <<< _==_
-
-    notElem : a -> t a -> Bool
-    notElem a s = not (elem a s)
-
-  module _ {{_ : Applicative f}} where
-
-    traverse! : (a -> f b) -> t a -> f Unit
-    traverse! f = foldr (_*>_ <<< f) (pure unit)
-
-    for! : t a -> (a -> f b) -> f Unit
-    for! = flip traverse!
-
-    sequence! : t (f a) -> f Unit
-    sequence! = traverse! id
-
-  module _ {{_ : Alternative f}} where
-
-    asum : t (f a) -> f a
-    asum = foldr _<|>_ empty
-
-open Foldable {{...}} public
-
-instance
-  Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldMap = maybe mempty
-
-  Foldable-List : Foldable List
-  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
-
-  Foldable-Const : Foldable (Const a)
-  Foldable-Const .foldMap _ _ = mempty
-
--------------------------------------------------------------------------------
--- Foldable1
--------------------------------------------------------------------------------
-
-record Foldable1 (t : Set -> Set) : Set where
-  field
-    {{Foldable-super}} : Foldable t
-    Nonempty : t a -> Set
-
-  foldMap1 : {{_ : Semigroup b}}
-    -> (a -> b) -> (xs : t a) {{_ : Nonempty xs}} -> b
-  foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{believeMe}}
-
-  fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : Nonempty xs}} -> a
-  fold1 s = fromJust (foldMap Just s) {{believeMe}}
-
-  foldr1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
-  foldr1 {a} f s = fromJust (foldr g Nothing s) {{believeMe}}
-    where
-      g : a -> Maybe a -> Maybe a
-      g x Nothing = Just x
-      g x (Just y) = Just (f x y)
-
-  foldl1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
-  foldl1 {a} f s = fromJust (foldl g Nothing s) {{believeMe}}
-    where
-      g : Maybe a -> a -> Maybe a
-      g Nothing x = Just x
-      g (Just x) y = Just (f x y)
-
-  module _ {{_ : Ord a}} where
-
-    minimum : (xs : t a) {{_ : Nonempty xs}} -> a
-    minimum = foldr1 min
-
-    maximum : (xs : t a) {{_ : Nonempty xs}} -> a
-    maximum = foldr1 max
-
-open Foldable1 {{...}} public
-
-instance
-  Foldable1-Maybe : Foldable1 Maybe
-  Foldable1-Maybe .Nonempty Nothing = Void
-  Foldable1-Maybe .Nonempty _ = Unit
-
-  Foldable1-List : Foldable1 List
-  Foldable1-List .Nonempty [] = Void
-  Foldable1-List .Nonempty _ = Unit
-
--------------------------------------------------------------------------------
--- Traversable
--------------------------------------------------------------------------------
-
-record Traversable (t : Set -> Set) : Set where
-  field
-    overlap {{Functor-super}} : Functor t
-    overlap {{Foldable-super}} : Foldable t
-    traverse : {{_ : Applicative f}} -> (a -> f b) -> t a -> f (t b)
-
-  sequence : {{_ : Applicative f}} -> t (f a) -> f (t a)
-  sequence = traverse id
-
-  for : {{_ : Applicative f}} -> t a -> (a -> f b) -> f (t b)
-  for = flip traverse
-
-open Traversable {{...}} public
-
-instance
-  Traversable-Maybe : Traversable Maybe
-  Traversable-Maybe .traverse f = \ where
-    Nothing -> pure Nothing
-    (Just x) -> map Just (f x)
-
-  Traversable-List : Traversable List
-  Traversable-List .traverse f = listrec (pure []) \ where
-    x _ ys -> (| _::_ (f x) ys |)
-
--------------------------------------------------------------------------------
 -- Show
 -------------------------------------------------------------------------------
 
@@ -1739,9 +1588,14 @@ instance
 
   Show-List : {{_ : Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"
-  Show-List .showsPrec d (x :: xs) = showString "["
-     <<< foldl (\ r y -> r <<< showString ", " <<< showsPrec d y) (showsPrec d x) xs
-     <<< showString "]"
+  Show-List .showsPrec d (x :: xs) = showString "[" <<< content <<< showString "]"
+    where
+      content : ShowS
+      content = showsPrec d x <<< go xs
+        where
+          go : {{_ : Show a}} -> List a -> ShowS
+          go [] = showString ""
+          go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
 
   Show-Identity : {{_ : Show a}} -> Show (Identity a)
   Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec)

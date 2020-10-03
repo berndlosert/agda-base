@@ -7,7 +7,10 @@ module Data.List where
 -------------------------------------------------------------------------------
 
 open import Prelude
-  hiding (find)
+
+open import Data.Foldable
+open import Data.Foldable1
+open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Variables
