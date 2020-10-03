@@ -21,7 +21,7 @@ private
 -------------------------------------------------------------------------------
 record MonadReader (r : Set) (m : Set -> Set) : Set where
   field
-    overlap {{Monad-super}} : Monad m
+    overlap {{Monad-m}} : Monad m
     ask : m r
     local : (r -> r) -> m a -> m a
 

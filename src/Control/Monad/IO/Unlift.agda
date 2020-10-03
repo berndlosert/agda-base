@@ -2,15 +2,29 @@
 
 module Control.Monad.IO.Unlift where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
 open import Control.Monad.IO.Class
 
-private variable a b : Set
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b : Set
+
+-------------------------------------------------------------------------------
+-- MonadUnliftIO
+-------------------------------------------------------------------------------
 
 record MonadUnliftIO (m : Set -> Set) : Set where
   field
-    overlap {{super}} : MonadIO m
+    overlap {{MonadIO-super}} : MonadIO m
     withRunInIO : ((forall {a} -> m a -> IO a) -> IO b) -> m b
 
 open MonadUnliftIO {{...}} public

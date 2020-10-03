@@ -2,9 +2,17 @@
 
 module Control.Monad.Morph where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
 open import Control.Monad.Trans.Class
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
@@ -29,8 +37,8 @@ open MFunctor {{...}} public
 
 record MMonad (t : (Set -> Set) -> Set -> Set) : Set where
   field
-    overlap {{mfunctor}} : MFunctor t
-    overlap {{monadtrans}} : MonadTrans t
+    overlap {{Mfunctor-super}} : MFunctor t
+    overlap {{MonadTrans-super}} : MonadTrans t
     embed : {{_ : Monad m}} {{_ : Monad n}}
       -> (forall {a} -> m a -> t n a) -> t m b -> t n b
 
