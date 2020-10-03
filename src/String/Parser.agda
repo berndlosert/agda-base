@@ -148,7 +148,7 @@ lower : Parser Char
 lower = satisfy isLower
 
 upper : Parser Char
-upper = satisfy (isAlpha && not isLower)
+upper = satisfy (\ c -> isAlpha c && not (isLower c))
 
 digit : Parser Char
 digit = satisfy isDigit
