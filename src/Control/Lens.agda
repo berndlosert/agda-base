@@ -72,6 +72,26 @@ instance
   Profunctor-Exchange .dimap f g (Exchange: sa bt) =
     Exchange: (sa <<< f) (g <<< bt)
 
+data Market (a b s t : Set) : Set where
+  Market: : (b -> t) -> (s -> t + a) -> Market a b s t
+
+instance
+  Functor-Market : Functor (Market a b s)
+  Functor-Market .map f (Market: bt seta) =
+    Market: (f <<< bt) (either (Left <<< f) Right <<< seta)
+
+  Profunctor-Market : Profunctor (Market a b)
+  Profunctor-Market .dimap f g (Market: bt seta) =
+    Market: (g <<< bt) (either (Left <<< g) Right <<< seta <<< f)
+
+  Choice-Market : Choice (Market a b)
+  Choice-Market .lchoice (Market: bt seta) =
+    Market: (Left <<< bt) $ \ where
+      (Left s) -> case seta s of \ where
+        (Left t) -> Left (Left t)
+        (Right a) -> Right a
+      (Right c) -> Left (Right c)
+
 -------------------------------------------------------------------------------
 -- Optic types ala Van Laarhoven
 -------------------------------------------------------------------------------
@@ -156,7 +176,7 @@ forOf! : {{_ : Functor f}}
 forOf! = flip <<< traverseOf!
 
 -------------------------------------------------------------------------------
--- ASetter operations
+-- ASetter
 -------------------------------------------------------------------------------
 
 ASetter : (s t a b : Set) -> Set
@@ -172,7 +192,7 @@ sets : ((a -> b) -> s -> t) -> ASetter s t a b
 sets f k = Identity: <<< f (runIdentity <<< k)
 
 -------------------------------------------------------------------------------
--- AReview operations
+-- AReview
 -------------------------------------------------------------------------------
 
 AReview : (t b : Set) -> Set
@@ -182,7 +202,7 @@ review : AReview t b -> b -> t
 review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< Identity:
 
 -------------------------------------------------------------------------------
--- AnIso operations
+-- AnIso
 -------------------------------------------------------------------------------
 
 AnIso : (s t a b : Set) -> Set
@@ -194,6 +214,26 @@ withIso ai k with ai (Exchange: id Identity:)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
+
+-------------------------------------------------------------------------------
+-- APrism
+-------------------------------------------------------------------------------
+
+APrism : (s t a b : Set) -> Set
+APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
+
+withPrism : APrism s t a b -> ((b -> t) -> (s -> t + a) -> r) -> r
+withPrism ap f with ap (Market: Identity: Right)
+... | Market: bt seta =
+  f (runIdentity <<< bt) (either (Left <<< runIdentity) Right <<< seta)
+
+matching : APrism s t a b -> s -> t + a
+matching ap = withPrism ap \ _ seta -> seta
+
+isn't : APrism s t a b -> s -> Bool
+isn't ap s with matching ap s
+... | Left _ = True
+... | Right _ = False
 
 -------------------------------------------------------------------------------
 -- Constructors
