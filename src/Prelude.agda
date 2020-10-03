@@ -1588,7 +1588,7 @@ record IsFoldable (s a : Set) : Set where
   toList = foldMap [_]
 
   count : s -> Nat
-  count = getSum <<< foldMap (const (Sum: (Suc 0)))
+  count = getSum <<< foldMap (const (Sum: 1))
 
   all : (a -> Bool) -> s -> Bool
   all p = getAll <<< foldMap (All: <<< p)
