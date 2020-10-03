@@ -1090,47 +1090,6 @@ instance
   Monoid-Const .neutral = Const: neutral
 
 -------------------------------------------------------------------------------
--- IsBuildable, Buildable
--------------------------------------------------------------------------------
-
-record IsBuildable (s a : Set) : Set where
-  field
-    overlap {{Monoid-super}} : Monoid s
-    singleton : a -> s
-
-  nil : s
-  nil = neutral
-
-  cons : a -> s -> s
-  cons a s = singleton a <> s
-
-  snoc : s -> a -> s
-  snoc s a = s <> singleton a
-
-  fromList : List a -> s
-  fromList [] = nil
-  fromList (a :: as) = cons a (fromList as)
-
-  fromMaybe : Maybe a -> s
-  fromMaybe Nothing = nil
-  fromMaybe (Just a) = singleton a
-
-  replicate : Nat -> a -> s
-  replicate n a = applyN (cons a) n nil
-
-open IsBuildable {{...}} public
-
-Buildable : (Set -> Set) -> Set
-Buildable f = forall {a} -> IsBuildable (f a) a
-
-instance
-  Buildable-List : Buildable List
-  Buildable-List .singleton = _:: []
-
-  IsBuildable-String-Char : IsBuildable String Char
-  IsBuildable-String-Char .singleton c = pack (singleton c)
-
--------------------------------------------------------------------------------
 -- Category
 -------------------------------------------------------------------------------
 
@@ -1293,12 +1252,12 @@ record Applicative (f : Set -> Set) : Set where
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 
-  replicateA : {{_ : IsBuildable s a}} -> Nat -> f a -> f s
-  replicateA {s} {a} n0 fa = loop n0
-    where
-      loop : Nat -> f s
-      loop 0 = pure nil
-      loop (Suc n) = (| cons fa (loop n) |)
+  --replicateA : {{_ : IsBuildable s a}} -> Nat -> f a -> f s
+  --replicateA {s} {a} n0 fa = loop n0
+  --  where
+  --    loop : Nat -> f s
+  --    loop 0 = pure nil
+  --    loop (Suc n) = (| cons fa (loop n) |)
 
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
@@ -1337,7 +1296,7 @@ instance
     Nothing _ -> Nothing
 
   Applicative-List : Applicative List
-  Applicative-List .pure = singleton
+  Applicative-List .pure = _:: []
   Applicative-List ._<*>_ = \ where
     [] _ -> []
     (f :: fs) xs -> (map f xs) <> (fs <*> xs)
@@ -1696,38 +1655,6 @@ instance
 -- Traversable
 -------------------------------------------------------------------------------
 
-private
-  record StateL (s a : Set) : Set where
-    constructor StateL:
-    field runStateL : s -> Tuple s a
-
-  open StateL
-
-  record StateR (s a : Set) : Set where
-    constructor StateR:
-    field runStateR : s -> Tuple s a
-
-  open StateR
-
-  instance
-    Functor-StateL : Functor (StateL s)
-    Functor-StateL .map f (StateL: t) = StateL: \ s0 ->
-      let (s1 , x) = t s0 in (s1 , f x)
-
-    Functor-StateR : Functor (StateR s)
-    Functor-StateR .map f (StateR: t) = StateR: \ s0 ->
-      let (s1 , x) = t s0 in (s1 , f x)
-
-    Applicative-StateL : Applicative (StateL s)
-    Applicative-StateL .pure x = StateL: \ s -> (s , x)
-    Applicative-StateL ._<*>_ (StateL: f) (StateL: t) = StateL: \ s0 ->
-      let (s1 , f') = f s0; (s2 , x) = t s1 in (s2 , f' x)
-
-    Applicative-StateR : Applicative (StateR s)
-    Applicative-StateR .pure x = StateR: \ s -> (s , x)
-    Applicative-StateR ._<*>_ (StateR: f) (StateR: t) = StateR: \ s0 ->
-      let (s1 , x) = t s0; (s2 , f') = f s1 in (s2 , f' x)
-
 record Traversable (t : Set -> Set) : Set where
   field
     overlap {{Functor-super}} : Functor t
@@ -1739,18 +1666,6 @@ record Traversable (t : Set -> Set) : Set where
 
   for : {{_ : Applicative f}} -> t a -> (a -> f b) -> f (t b)
   for = flip traverse
-
-  mapAccumL : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumL f a xs = runStateL (traverse (StateL: <<< flip f) xs) a
-
-  mapAccumR : (a -> b -> Tuple a c) -> a -> t b -> Tuple a (t c)
-  mapAccumR f a xs = runStateR (traverse (StateR: <<< flip f) xs) a
-
-  scanl : {{_ : Buildable t}} -> (b -> a -> b) -> b -> t a -> t b
-  scanl f b0 xs = uncurry (flip snoc) (mapAccumL (\ b a -> (f b a , b)) b0 xs)
-
-  scanr : {{_ : Buildable t}} -> (a -> b -> b) -> b -> t a -> t b
-  scanr f b0 xs = uncurry cons (mapAccumR (\ b a -> (f a b , b)) b0 xs)
 
 open Traversable {{...}} public
 

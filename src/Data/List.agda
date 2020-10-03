@@ -19,6 +19,22 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
+-- Constructors
+-------------------------------------------------------------------------------
+
+nil : List a
+nil = []
+
+cons : a -> List a -> List a
+cons = _::_
+
+singleton : a -> List a
+singleton = [_]
+
+snoc : List a -> a -> List a
+snoc xs x = xs <> [ x ]
+
+-------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
 
@@ -35,11 +51,33 @@ uncons (a :: as) = (a , as)
 -- Basic functions
 -------------------------------------------------------------------------------
 
+append : List a -> List a -> List a
+append = _<>_
+
+concat : List (List a) -> List a
+concat = join
+
 reverse : List a -> List a
 reverse = foldl (flip _::_) []
 
 length : List a -> Nat
 length = foldr (const Suc) 0
+
+replicate : Nat -> a -> List a
+replicate n a = applyN (a ::_) n []
+
+-------------------------------------------------------------------------------
+-- Scans
+-------------------------------------------------------------------------------
+
+scanl : (b -> a -> b) -> b -> List a -> List b
+scanl f b [] = [ b ]
+scanl f b (a :: as) = b :: scanl f (f b a) as
+
+scanr : (a -> b -> b) -> b -> List a -> List b
+scanr f b [] = [ b ]
+scanr f b (a :: as) = let as' = scanr f b as in
+  f a (head as' {{believeMe}}) :: as'
 
 -------------------------------------------------------------------------------
 -- Sublists
@@ -209,7 +247,7 @@ intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
 intersperse : a -> List a -> List a
 intersperse sep = flip foldr [] \ where
-  a [] -> singleton a
+  a [] -> [ a ]
   a as -> a :: sep :: as
 
 transPose : List (List a) -> List (List a)

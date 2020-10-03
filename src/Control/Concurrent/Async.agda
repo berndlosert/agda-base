@@ -9,6 +9,7 @@ module Control.Concurrent.Async where
 open import Prelude
 
 open import Control.Concurrent
+open import Data.List as List using ()
 open import Data.Time.Units
 
 -------------------------------------------------------------------------------
@@ -215,8 +216,8 @@ mapConcurrently! f = runConcurrently <<< foldMap (Concurrently: <<< void <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
 replicateConcurrently cnt =
-  runConcurrently <<< sequence <<< replicate cnt <<< Concurrently:
+  runConcurrently <<< sequence <<< List.replicate cnt <<< Concurrently:
 
 replicateConcurrently! : Nat -> IO a -> IO Unit
 replicateConcurrently! cnt =
-  runConcurrently <<< fold <<< replicate cnt <<< Concurrently: <<< void
+  runConcurrently <<< fold <<< List.replicate cnt <<< Concurrently: <<< void

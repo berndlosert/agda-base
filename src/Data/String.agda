@@ -2,10 +2,17 @@
 
 module Data.String where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
-  hiding (cons; singleton; snoc)
 
 open import Data.List as List using ()
+
+-------------------------------------------------------------------------------
+-- Functions
+-------------------------------------------------------------------------------
 
 repack : (List Char -> List Char) -> String -> String
 repack f = pack <<< f <<< unpack
@@ -14,10 +21,13 @@ cons : Char -> String -> String
 cons c = repack (c ::_)
 
 singleton : Char -> String
-singleton = pack <<< Prelude.singleton
+singleton = pack <<< [_]
 
 snoc : String -> Char -> String
-snoc s c = repack (_<> Prelude.singleton c) s
+snoc s c = repack (_<> [ c ]) s
+
+concat : List String -> String
+concat = fold
 
 head : String -> Maybe Char
 head s with unpack s
@@ -85,18 +95,16 @@ filter = repack <<< List.filter
 partition : (Char -> Bool) -> String -> String * String
 partition p s = bimap pack pack (List.partition p (unpack s))
 
+replicate : Nat -> String -> String
+replicate n s = concat (List.replicate n s)
+
 padRight : Nat -> Char -> String -> String
 padRight l c s =
-  let replicated = replicate (l - length s) c
-  in s <> replicated
+  s <> replicate (l - length s) (singleton c)
 
 padLeft : Nat -> Char -> String -> String
 padLeft l c s =
-  let replicated = replicate (l - length s) c
-  in replicated <> s
-
-concat : List String -> String
-concat = foldr _<>_ ""
+  replicate (l - length s) (singleton c) <> s
 
 break : (Char -> Bool) -> String -> String * String
 break p s = bimap pack pack $ List.break p (unpack s)
@@ -130,6 +138,10 @@ lines s =
 unlines : List String -> String
 unlines = concat <<< map (flip snoc '\n')
 
+-------------------------------------------------------------------------------
+-- FFI
+-------------------------------------------------------------------------------
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
@@ -150,3 +162,5 @@ unlines = concat <<< map (flip snoc '\n')
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
+{-# COMPILE GHC concat = Text.concat #-}
+{-# COMPILE GHC replicate = Text.replicate . fromInteger #-}

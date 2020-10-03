@@ -32,7 +32,7 @@ private
     primUnpack : Bytes -> List Word8
     primAppend : Bytes -> Bytes -> Bytes
     primEmpty : Bytes
-    primSingleton : Word8 -> Bytes
+    singleton : Word8 -> Bytes
     primFoldr : (Word8 -> a -> a) -> a -> Bytes -> a
 
 instance
@@ -45,9 +45,6 @@ instance
 
   Monoid-Bytes : Monoid Bytes
   Monoid-Bytes .neutral = primEmpty
-
-  IsBuildable-Bytes-Word8 : IsBuildable Bytes Word8
-  IsBuildable-Bytes-Word8 .singleton = primSingleton
 
   IsFoldable-Bytes-Word8 : IsFoldable Bytes Word8
   IsFoldable-Bytes-Word8 .foldMap f bs =
@@ -65,6 +62,6 @@ instance
 {-# COMPILE GHC primUnpack = BS.unpack #-}
 {-# COMPILE GHC primAppend = BS.append #-}
 {-# COMPILE GHC primEmpty = BS.empty #-}
-{-# COMPILE GHC primSingleton = BS.singleton #-}
+{-# COMPILE GHC singleton = BS.singleton #-}
 {-# COMPILE GHC primFoldr = BS.foldr #-}
 {-# COMPILE GHC putStrLn = Char8.putStrLn #-}
