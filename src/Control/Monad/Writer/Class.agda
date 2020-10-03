@@ -2,14 +2,28 @@
 
 module Control.Monad.Writer.Class where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-private variable a b : Set
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b : Set
+
+-------------------------------------------------------------------------------
+-- MonadWriter
+-------------------------------------------------------------------------------
 
 record MonadWriter (w : Set) (m : Set -> Set) : Set where
   field
-    overlap {{monoid}} : Monoid w
-    overlap {{monad}} : Monad m
+    overlap {{Monoid-w}} : Monoid w
+    overlap {{Monad-m}} : Monad m
     tell : w -> m Unit
     listen : m a -> m (a * w)
     pass : m (a * (w -> w)) -> m a
