@@ -136,11 +136,22 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
+id : a -> a
+id x = x
+
 const : a -> b -> a
 const x _ = x
 
 flip : (a -> b -> c) -> b -> a -> c
 flip f x y = f y x
+
+infixr 9 _<<<_
+_<<<_ : (b -> c) -> (a -> b) -> a -> c
+g <<< f = \ x -> g (f x)
+
+infixr 9 _>>>_
+_>>>_ : (a -> b) -> (b -> c) -> a -> c
+_>>>_ = flip _<<<_
 
 infixr 0 _$_
 _$_ : (a -> b) -> a -> b
@@ -634,6 +645,16 @@ instance
   FromNat-Nat .FromNatConstraint = const Unit
   FromNat-Nat .fromNat n = n
 
+  FromNat-Set : FromNat Set
+  FromNat-Set .FromNatConstraint 0 = Unit
+  FromNat-Set .FromNatConstraint 1 = Unit
+  FromNat-Set .FromNatConstraint 2 = Unit
+  FromNat-Set .FromNatConstraint _ = Void
+  FromNat-Set .fromNat 0 = Void
+  FromNat-Set .fromNat 1 = Unit
+  FromNat-Set .fromNat 2 = Bool
+  FromNat-Set .fromNat _ = undefined
+
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint = const Unit
   ToNat-Nat .toNat n = n
@@ -1111,27 +1132,6 @@ instance
   NonemptyConstraint-String : NonemptyConstraint String
   NonemptyConstraint-String .Nonempty "" = Void
   NonemptyConstraint-String .Nonempty _ = Unit
-
--------------------------------------------------------------------------------
--- Category
--------------------------------------------------------------------------------
-
-record Category (hom : Set -> Set -> Set) : Set where
-  infixr 9 _<<<_
-  field
-    id : hom a a
-    _<<<_ : hom b c -> hom a b -> hom a c
-
-  infixr 9 _>>>_
-  _>>>_ : hom a b -> hom b c -> hom a c
-  _>>>_ = flip _<<<_
-
-open Category {{...}} public
-
-instance
-  Category-Function : Category Function
-  Category-Function .id x = x
-  Category-Function ._<<<_ g f x = g (f x)
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
