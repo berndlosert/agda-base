@@ -646,14 +646,10 @@ instance
   FromNat-Nat .fromNat n = n
 
   FromNat-Set : FromNat Set
-  FromNat-Set .FromNatConstraint 0 = Unit
-  FromNat-Set .FromNatConstraint 1 = Unit
-  FromNat-Set .FromNatConstraint 2 = Unit
-  FromNat-Set .FromNatConstraint _ = Void
+  FromNat-Set .FromNatConstraint = const Unit
   FromNat-Set .fromNat 0 = Void
   FromNat-Set .fromNat 1 = Unit
-  FromNat-Set .fromNat 2 = Bool
-  FromNat-Set .fromNat _ = undefined
+  FromNat-Set .fromNat (Suc n) = Either (fromNat 1) (fromNat n)
 
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint = const Unit
