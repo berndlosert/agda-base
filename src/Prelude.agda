@@ -261,7 +261,6 @@ private
     primATan : Float -> Float
     primATan2 : Float -> Float -> Float
 
-natToFloat = primNatToFloat
 sqrt = primFloatSqrt
 round = primRound
 floor = primFloor
@@ -275,10 +274,6 @@ asin = primASin
 acos = primACos
 atan = primATan
 atan2 = primATan2
-
-intToFloat : Int -> Float
-intToFloat (Pos n) = natToFloat n
-intToFloat (NegSuc n) = primFloatMinus -1.0 (natToFloat n)
 
 private
   primitive
@@ -599,7 +594,7 @@ instance
   Ord-Const ._<_ (Const: x) (Const: y) = x < y
 
 -------------------------------------------------------------------------------
--- FromNat, ToNat and FromNeg
+-- FromNat, ToNat, FromNeg, ToFloat
 -------------------------------------------------------------------------------
 
 record FromNat (a : Set) : Set where
@@ -629,6 +624,11 @@ open FromNeg {{...}} public
 {-# BUILTIN FROMNEG fromNeg #-}
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
+record ToFloat (a : Set) : Set where
+  field toFloat : a -> Float
+
+open ToFloat {{...}} public
+
 instance
   FromNat-Nat : FromNat Nat
   FromNat-Nat .FromNatConstraint = const Unit
@@ -652,7 +652,14 @@ instance
 
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint = const Unit
-  FromNeg-Float .fromNeg x = primFloatNegate (natToFloat x)
+  FromNeg-Float .fromNeg x = primFloatNegate (primNatToFloat x)
+
+  ToFloat-Nat : ToFloat Nat
+  ToFloat-Nat .toFloat = primNatToFloat
+
+  ToFloat-Int : ToFloat Int
+  ToFloat-Int .toFloat (Pos n) = primNatToFloat n
+  ToFloat-Int .toFloat (NegSuc n) = primFloatMinus -1.0 (primNatToFloat n)
 
 -------------------------------------------------------------------------------
 -- Arithmetic operations
