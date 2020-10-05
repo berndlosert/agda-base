@@ -2,15 +2,35 @@
 
 module Control.Monad.Cont.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.Cont.Class public
-open import Control.Monad.Trans.Class public
+open import Control.Monad.Cont.Class
+open import Control.Monad.IO.Class
+open import Control.Monad.Trans.Class
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Cont.Class public
+open Control.Monad.Trans.Class public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
     a b r r' : Set
     f m n : Set -> Set
+
+-------------------------------------------------------------------------------
+-- ContT
+-------------------------------------------------------------------------------
 
 record ContT (r : Set) (m : Set -> Set) (a : Set) : Set where
   constructor ContT:
@@ -42,9 +62,12 @@ instance
   MonadTrans-ContT : MonadTrans (ContT r)
   MonadTrans-ContT .lift m = ContT: (m >>=_)
 
-  MonadCont-ContT : MonadCont (ContT r n)
+  MonadCont-ContT : MonadCont (ContT r m)
   MonadCont-ContT .callCC f =
     ContT: \ c -> runContT (f \ x -> ContT: \ _ -> c x) c
+
+  MonadIO-ContT : {{_ : MonadIO m}} -> MonadIO (ContT r m)
+  MonadIO-ContT .liftIO = lift <<< liftIO
 
 resetT : {{_ : Monad m}} -> ContT r m r -> ContT r' m r
 resetT = lift <<< evalContT
