@@ -5,7 +5,6 @@ module System.IO.Lifted where
 -------------------------------------------------------------------------------
 
 open import Prelude
-  hiding (putStr; putStrLn; getLine; getContents; interact; print)
 
 open import Control.Monad.IO.Class
 open import Control.Monad.IO.Unlift
@@ -45,22 +44,22 @@ private
 module _ {{_ : MonadIO m}} where
 
   putStr : String -> m Unit
-  putStr = liftIO <<< Prelude.putStr
+  putStr = liftIO <<< Base.putStr
 
   putStrLn : String -> m Unit
-  putStrLn = liftIO <<< Prelude.putStrLn
+  putStrLn = liftIO <<< Base.putStrLn
 
   getLine : m String
-  getLine = liftIO (Prelude.getLine)
+  getLine = liftIO (Base.getLine)
 
   getContents : m String
-  getContents = liftIO (Prelude.getContents)
+  getContents = liftIO (Base.getContents)
 
   interact : (String -> String) -> m Unit
-  interact = liftIO <<< Prelude.interact
+  interact = liftIO <<< Base.interact
 
 print : {{_ : Show a}} {{_ : MonadIO m}} -> a -> m Unit
-print = liftIO <<< Prelude.print
+print = liftIO <<< Base.print
 
 -------------------------------------------------------------------------------
 -- File IO
