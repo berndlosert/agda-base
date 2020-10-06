@@ -93,8 +93,8 @@ instance
   MonadIO-StateT .liftIO = lift <<< liftIO
 
   MonadThrow-StateT : {{_ : MonadThrow e m}} -> MonadThrow e (StateT s m)
-  MonadThrow-StateT .throwError = lift <<< throwError
+  MonadThrow-StateT .throw = lift <<< throw
 
   MonadError-StateT : {{_ : MonadError e m}} -> MonadError e (StateT s m)
-  MonadError-StateT .catchError m h = StateT: \ s ->
-    catchError (runStateT m s) (\ e -> runStateT (h e) s)
+  MonadError-StateT .catch m h = StateT: \ s ->
+    catch (runStateT m s) (\ e -> runStateT (h e) s)
