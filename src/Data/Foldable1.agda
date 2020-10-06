@@ -8,7 +8,14 @@ module Data.Foldable1 where
 
 open import Prelude
 
+open import Data.Constraint.Nonempty
 open import Data.Foldable
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Constraint.Nonempty public
 
 -------------------------------------------------------------------------------
 -- Variables
