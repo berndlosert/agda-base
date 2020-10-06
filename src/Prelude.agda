@@ -645,6 +645,10 @@ instance
   FromNat-Nat .FromNatConstraint = const Unit
   FromNat-Nat .fromNat n = n
 
+  FromNat-Int : FromNat Int
+  FromNat-Int .FromNatConstraint = const Unit
+  FromNat-Int .fromNat n = Pos n
+
   FromNat-Set : FromNat Set
   FromNat-Set .FromNatConstraint = const Unit
   FromNat-Set .fromNat 0 = Void
@@ -654,10 +658,6 @@ instance
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint = const Unit
   ToNat-Nat .toNat n = n
-
-  FromNat-Int : FromNat Int
-  FromNat-Int .FromNatConstraint = const Unit
-  FromNat-Int .fromNat n = Pos n
 
   ToNat-Int : ToNat Int
   ToNat-Int .ToNatConstraint i = Assert (isPos i)
