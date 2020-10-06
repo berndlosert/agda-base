@@ -8,6 +8,14 @@ module Control.Exception where
 
 open import Prelude
 
+open import Control.Monad.Error.Class
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Error.Class public
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -29,6 +37,7 @@ postulate
   bracket : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
   bracketOnError : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
   finally : IO a -> IO b -> IO a
+  onException : IO a -> IO b -> IO a
 
   instance
     Exception-SomeException : Exception SomeException
@@ -41,34 +50,16 @@ module _ {{_ : Exception e}} where
     fromException : SomeException -> Maybe e
     displayException : e -> String
 
-    throw : e -> a
+    unsafeThrow : e -> a
     throwIO : e -> IO a
+    catchIO : IO a -> (e -> IO a) -> IO a
 
-    catch : IO a -> (e -> IO a) -> IO a
+  instance
+    MonadThrow-IO : MonadThrow e IO
+    MonadThrow-IO .throw = throwIO
 
-  catchJust : (e -> Maybe b) -> IO a -> (b -> IO a) -> IO a
-  catchJust p a handler = catch a (\ e -> maybe (throwIO e) handler (p e))
-
-  handle : (e -> IO a) -> IO a -> IO a
-  handle = flip catch
-
-  handleJust : (e -> Maybe b) -> (b -> IO a) -> IO a -> IO a
-  handleJust = flip <<< catchJust
-
-  try : IO a -> IO (Either e a)
-  try a = catch (a >>= Right >>> return) (Left >>> return)
-
-  tryJust : (e -> Maybe b) -> IO a -> IO (Either b a)
-  tryJust p a = do
-    r <- try a
-    case r of \ where
-      (Right v) -> return (Right v)
-      (Left e) -> maybe (throwIO e) (return <<< Left) (p e)
-
-  onException : IO a -> IO b -> IO a
-  onException io what = catch io \ e -> do
-    _ <- what
-    throwIO e
+    MonadError-IO : MonadError e IO
+    MonadError-IO .catch = catchIO
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -85,9 +76,10 @@ module _ {{_ : Exception e}} where
 {-# COMPILE GHC toException = \ _ ExceptionDict -> toException #-}
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
-{-# COMPILE GHC throw = \ _ ExceptionDict _ -> throw #-}
+{-# COMPILE GHC unsafeThrow = \ _ ExceptionDict _ -> throw #-}
 {-# COMPILE GHC throwIO = \ _ ExceptionDict _ -> throwIO #-}
-{-# COMPILE GHC catch = \ _ ExceptionDict _ -> catch #-}
+{-# COMPILE GHC catchIO = \ _ ExceptionDict _ -> catch #-}
 {-# COMPILE GHC bracket = \ _ _ _ -> bracket #-}
 {-# COMPILE GHC bracketOnError = \ _ _ _ -> bracketOnError #-}
 {-# COMPILE GHC finally = \ _ _ -> finally #-}
+{-# COMPILE GHC finally = \ _ _ -> onException #-}
