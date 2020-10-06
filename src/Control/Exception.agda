@@ -8,13 +8,13 @@ module Control.Exception where
 
 open import Prelude
 
-open import Control.Monad.Error.Class
+open import Control.Monad.Except.Class
 
 -------------------------------------------------------------------------------
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Error.Class public
+open Control.Monad.Except.Class public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -58,8 +58,8 @@ module _ {{_ : Exception e}} where
     MonadThrow-IO : MonadThrow e IO
     MonadThrow-IO .throw = throwIO
 
-    MonadError-IO : MonadError e IO
-    MonadError-IO .catch = catchIO
+    MonadExcept-IO : MonadExcept e IO
+    MonadExcept-IO .catch = catchIO
 
 -------------------------------------------------------------------------------
 -- FFI

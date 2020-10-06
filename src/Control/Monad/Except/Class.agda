@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Error.Class where
+module Control.Monad.Except.Class where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -31,7 +31,7 @@ open MonadThrow {{...}} public
 -- MonadError
 -------------------------------------------------------------------------------
 
-record MonadError (e : Set) (m : Set -> Set) : Set where
+record MonadExcept (e : Set) (m : Set -> Set) : Set where
   field
     overlap {{MonadThrow-super}} : MonadThrow e m
     catch : m a -> (e -> m a) -> m a
@@ -62,4 +62,4 @@ record MonadError (e : Set) (m : Set -> Set) : Set where
     release resource
     either throw pure result
 
-open MonadError {{...}} public
+open MonadExcept {{...}} public

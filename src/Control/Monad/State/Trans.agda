@@ -9,7 +9,7 @@ open import Prelude
 
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
-open import Control.Monad.Error.Class
+open import Control.Monad.Except.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
@@ -95,6 +95,6 @@ instance
   MonadThrow-StateT : {{_ : MonadThrow e m}} -> MonadThrow e (StateT s m)
   MonadThrow-StateT .throw = lift <<< throw
 
-  MonadError-StateT : {{_ : MonadError e m}} -> MonadError e (StateT s m)
-  MonadError-StateT .catch m h = StateT: \ s ->
+  MonadExcept-StateT : {{_ : MonadExcept e m}} -> MonadExcept e (StateT s m)
+  MonadExcept-StateT .catch m h = StateT: \ s ->
     catch (runStateT m s) (\ e -> runStateT (h e) s)
