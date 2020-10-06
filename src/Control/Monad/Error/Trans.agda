@@ -2,11 +2,26 @@
 
 module Control.Monad.Error.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.Error.Class public
+open import Control.Monad.Error.Class
 open import Control.Monad.Morph public
-open import Control.Monad.Trans.Class public
+open import Control.Monad.Trans.Class
+
+-------------------------------------------------------------------------------
+-- Exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Error.Class public
+open Control.Monad.Trans.Class public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
@@ -49,8 +64,10 @@ instance
       (Left e) -> return (Left e)
       (Right y) -> runErrorT (k y)
 
+  MonadThrow-ErrorT : {{_ : Monad m}} -> MonadThrow e (ErrorT e m)
+  MonadThrow-ErrorT .throwError e = ErrorT: (return (Left e))
+
   MonadError-ErrorT : {{_ : Monad m}} -> MonadError e (ErrorT e m)
-  MonadError-ErrorT .throwError e = ErrorT: (return (Left e))
   MonadError-ErrorT .catchError (ErrorT: m) k = ErrorT: do
     x <- m
     case x of \ where
