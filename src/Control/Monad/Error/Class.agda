@@ -22,7 +22,7 @@ private
 
 record MonadThrow (e : Set) (m : Set -> Set) : Set where
   field
-    {{Monad-super}} : Monad m
+    overlap {{Monad-super}} : Monad m
     throwError : e -> m a
 
 open MonadThrow {{...}} public
@@ -33,7 +33,7 @@ open MonadThrow {{...}} public
 
 record MonadError (e : Set) (m : Set -> Set) : Set where
   field
-    {{MonadThrow-super}} : MonadThrow e m
+    overlap {{MonadThrow-super}} : MonadThrow e m
     catchError : m a -> (e -> m a) -> m a
 
   try : m a -> m (e + a)

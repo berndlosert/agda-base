@@ -2,17 +2,37 @@
 
 module Control.Monad.State.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
 open import Prelude
 
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph public
-open import Control.Monad.State.Class public
-open import Control.Monad.Trans.Class public
+open import Control.Monad.Morph
+open import Control.Monad.Error.Class
+open import Control.Monad.State.Class
+open import Control.Monad.Trans.Class
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Morph public
+open Control.Monad.State.Class public
+open Control.Monad.Trans.Class public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
-    a b s : Set
+    a b e s : Set
     m n : Set -> Set
+
+-------------------------------------------------------------------------------
+-- StateT
+-------------------------------------------------------------------------------
 
 record StateT (s : Set) (m : Set -> Set) (a : Set) : Set where
   constructor StateT:
@@ -71,3 +91,10 @@ instance
 
   MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
+
+  MonadThrow-StateT : {{_ : MonadThrow e m}} -> MonadThrow e (StateT s m)
+  MonadThrow-StateT .throwError = lift <<< throwError
+
+  MonadError-StateT : {{_ : MonadError e m}} -> MonadError e (StateT s m)
+  MonadError-StateT .catchError m h = StateT: \ s ->
+    catchError (runStateT m s) (\ e -> runStateT (h e) s)

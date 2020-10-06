@@ -9,14 +9,16 @@ module Control.Monad.Error.Trans where
 open import Prelude
 
 open import Control.Monad.Error.Class
-open import Control.Monad.Morph public
+open import Control.Monad.Morph
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
 -------------------------------------------------------------------------------
--- Exports
+-- Re-exports
 -------------------------------------------------------------------------------
 
 open Control.Monad.Error.Class public
+open Control.Monad.Morph public
 open Control.Monad.Trans.Class public
 
 -------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e e' : Set
+    a b e e' s : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ instance
   Functor-ErrorT .map f = ErrorT: <<< map (map f) <<< runErrorT
 
   Applicative-ErrorT : {{_ : Monad m}} -> Applicative (ErrorT e m)
-  Applicative-ErrorT .pure x = ErrorT: (return (Right x))
+  Applicative-ErrorT .pure = ErrorT: <<< pure <<< Right
   Applicative-ErrorT ._<*>_ (ErrorT: mf) (ErrorT: mx) = ErrorT: do
     f <- mf
     case f of \ where
@@ -58,24 +60,21 @@ instance
           (Right y) -> return (Right (g y))
 
   Monad-ErrorT : {{_ : Monad m}} -> Monad (ErrorT e m)
-  Monad-ErrorT ._>>=_ (ErrorT: m) k = ErrorT: do
-    x <- m
-    case x of \ where
-      (Left e) -> return (Left e)
-      (Right y) -> runErrorT (k y)
+  Monad-ErrorT ._>>=_ (ErrorT: m) k =
+    ErrorT: (m >>= either (pure <<< Left) (runErrorT <<< k))
 
   MonadThrow-ErrorT : {{_ : Monad m}} -> MonadThrow e (ErrorT e m)
-  MonadThrow-ErrorT .throwError e = ErrorT: (return (Left e))
+  MonadThrow-ErrorT .throwError = ErrorT: <<< pure <<< Left
 
   MonadError-ErrorT : {{_ : Monad m}} -> MonadError e (ErrorT e m)
-  MonadError-ErrorT .catchError (ErrorT: m) k = ErrorT: do
-    x <- m
-    case x of \ where
-      (Left e) -> runErrorT (k e)
-      (Right y) -> return (Right y)
+  MonadError-ErrorT .catchError (ErrorT: m) k =
+    ErrorT: (m >>= either (runErrorT <<< k) (pure <<< Right))
 
   MFunctor-ErrorT : MFunctor (ErrorT e)
   MFunctor-ErrorT .hoist t = mapErrorT t
 
   MonadTrans-ErrorT : MonadTrans (ErrorT e)
-  MonadTrans-ErrorT .lift m = ErrorT: (map Right m)
+  MonadTrans-ErrorT .lift = ErrorT: <<< map Right
+
+  MonadState-ErrorT : {{_ : MonadState s m}} -> MonadState s (ErrorT e m)
+  MonadState-ErrorT .state = lift <<< state
