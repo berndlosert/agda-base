@@ -64,10 +64,10 @@ instance
     ErrorT: (m >>= either (pure <<< Left) (runErrorT <<< k))
 
   MonadThrow-ErrorT : {{_ : Monad m}} -> MonadThrow e (ErrorT e m)
-  MonadThrow-ErrorT .throwError = ErrorT: <<< pure <<< Left
+  MonadThrow-ErrorT .throw = ErrorT: <<< pure <<< Left
 
   MonadError-ErrorT : {{_ : Monad m}} -> MonadError e (ErrorT e m)
-  MonadError-ErrorT .catchError (ErrorT: m) k =
+  MonadError-ErrorT .catch (ErrorT: m) k =
     ErrorT: (m >>= either (runErrorT <<< k) (pure <<< Right))
 
   MFunctor-ErrorT : MFunctor (ErrorT e)
