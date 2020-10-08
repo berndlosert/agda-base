@@ -6,6 +6,7 @@ module String.Parser where
 open import Prelude
 
 open import Control.Monad.State.Trans
+open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Traversable
 open import Data.List as List using ()
