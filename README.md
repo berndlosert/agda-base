@@ -1,8 +1,10 @@
 # WIP: Agda base library
 
 This is an attempt at creating a base library for Agda. Unlike the agda-stdlib
-library, which is designed with proving in mind, this library is meant to be a
-general purpose "batteries-included" base library.
+library, which is designed with proving in mind (and requires emacs configured
+with the Agda input method in order to type all those fancy unicode symbols),
+this library is meant to be a general purpose "batteries-included" base library
+that doesn't require emacs to use and is keyboard friendly.
 
 The design is mostly based on GHC's base library, but a lot of ideas were
 "stolen" from PureScript too.
@@ -12,6 +14,9 @@ The design is mostly based on GHC's base library, but a lot of ideas were
 ```sh
 # Install agda
 brew install agda
+
+# Clone the project somewhere (or download the code and unzip it somewhere)
+git clone https://github.com/berndlosert/agda-base.git
 
 # Set up the base library
 mkdir ~/.agda
