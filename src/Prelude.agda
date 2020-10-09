@@ -906,29 +906,9 @@ record Dual (a : Set) : Set where
 
 open Dual public
 
--- For semigroups, monoids, etc. where x <> y = min x y
-record Min (a : Set) : Set where
-  constructor Min:
-  field getMin : a
-
-open Min public
-
--- For Semigroups, monoids, etc. where x <> y = max x y
-record Max (a : Set) : Set where
-  constructor Max:
-  field getMax : a
-
-open Max public
-
 instance
   Semigroup-Dual : {{_ : Semigroup a}} -> Semigroup (Dual a)
   Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
-
-  Semigroup-Min : {{_ : Ord a}} -> Semigroup (Min a)
-  Semigroup-Min ._<>_ (Min: x) (Min: y) = Min: (min x y)
-
-  Semigroup-Max : {{_ : Ord a}} -> Semigroup (Max a)
-  Semigroup-Max ._<>_ (Max: x) (Max: y) = Max: (max x y)
 
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
@@ -1118,12 +1098,6 @@ instance
   Functor-Dual : Functor Dual
   Functor-Dual .map f = Dual: <<< f <<< getDual
 
-  Functor-Min : Functor Min
-  Functor-Min .map f = Min: <<< f <<< getMin
-
-  Functor-Max : Functor Max
-  Functor-Max .map f = Max: <<< f <<< getMax
-
 -------------------------------------------------------------------------------
 -- Applicative
 -------------------------------------------------------------------------------
@@ -1210,14 +1184,6 @@ instance
   Applicative-Dual : Applicative Dual
   Applicative-Dual .pure = Dual:
   Applicative-Dual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
-
-  Applicative-Min : Applicative Min
-  Applicative-Min .pure = Min:
-  Applicative-Min ._<*>_ (Min: f) (Min: x) = Min: (f x)
-
-  Applicative-Max : Applicative Max
-  Applicative-Max .pure = Max:
-  Applicative-Max ._<*>_ (Max: f) (Max: x) = Max: (f x)
 
 -------------------------------------------------------------------------------
 -- Alternative
@@ -1321,12 +1287,6 @@ instance
 
   Monad-Dual : Monad Dual
   Monad-Dual ._>>=_ (Dual: x) k = k x
-
-  Monad-Min : Monad Min
-  Monad-Min ._>>=_ (Min: x) k = k x
-
-  Monad-Max : Monad Max
-  Monad-Max ._>>=_ (Max: x) k = k x
 
 -------------------------------------------------------------------------------
 -- Enum
@@ -1456,14 +1416,6 @@ instance
   Show-Dual : {{_ : Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
     (showString "Dual: " <<< showsPrec appPrec+1 x)
-
-  Show-Min : {{_ : Show a}} -> Show (Min a)
-  Show-Min .showsPrec d (Min: x) = showParen (d > appPrec)
-    (showString "Min: " <<< showsPrec appPrec+1 x)
-
-  Show-Max : {{_ : Show a}} -> Show (Max a)
-  Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
-    (showString "Max: " <<< showsPrec appPrec+1 x)
 
 -------------------------------------------------------------------------------
 -- Size
