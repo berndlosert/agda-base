@@ -586,8 +586,7 @@ instance
     _ _ -> False
 
   Ord-String : Ord String
-  Ord-String ._<_ l r = toList l < toList r
-    where toList = primStringToList
+  Ord-String ._<_ l r = unpack l < unpack r
 
   Ord-Tuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
   Ord-Tuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
