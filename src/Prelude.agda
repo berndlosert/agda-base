@@ -641,21 +641,21 @@ open ToFloat {{...}} public
 
 instance
   FromNat-Nat : FromNat Nat
-  FromNat-Nat .FromNatConstraint = const Unit
+  FromNat-Nat .FromNatConstraint _ = Unit
   FromNat-Nat .fromNat n = n
 
   FromNat-Int : FromNat Int
-  FromNat-Int .FromNatConstraint = const Unit
+  FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
 
   FromNat-Set : FromNat Set
-  FromNat-Set .FromNatConstraint = const Unit
+  FromNat-Set .FromNatConstraint _ = Unit
   FromNat-Set .fromNat 0 = Void
   FromNat-Set .fromNat 1 = Unit
   FromNat-Set .fromNat (Suc n) = Either (fromNat 1) (fromNat n)
 
   ToNat-Nat : ToNat Nat
-  ToNat-Nat .ToNatConstraint = const Unit
+  ToNat-Nat .ToNatConstraint _ = Unit
   ToNat-Nat .toNat n = n
 
   ToNat-Int : ToNat Int
@@ -663,11 +663,11 @@ instance
   ToNat-Int .toNat (Pos n) = n
 
   FromNeg-Int : FromNeg Int
-  FromNeg-Int .FromNegConstraint = const Unit
+  FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
 
   FromNeg-Float : FromNeg Float
-  FromNeg-Float .FromNegConstraint = const Unit
+  FromNeg-Float .FromNegConstraint _ = Unit
   FromNeg-Float .fromNeg x = primFloatNegate (primNatToFloat x)
 
   ToFloat-Nat : ToFloat Nat
@@ -861,7 +861,7 @@ instance
   Subtraction-Float ._-_ = primFloatMinus
 
   Division-Float : Division Float
-  Division-Float .DivisionConstraint = const Unit
+  Division-Float .DivisionConstraint _ = Unit
   Division-Float ._/_ x y = primFloatDiv x y
 
   Signed-Float : Signed Float
