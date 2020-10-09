@@ -899,20 +899,6 @@ record Semigroup (a : Set) : Set where
 
 open Semigroup {{...}} public
 
--- For additive semigroups, monoids, etc.
-record Sum (a : Set) : Set where
-  constructor Sum:
-  field getSum : a
-
-open Sum public
-
--- For multiplicative semigroups, monoids, etc.
-record Product (a : Set) : Set where
-  constructor Product:
-  field getProduct : a
-
-open Product public
-
 -- For dual semigroups, orders, etc.
 record Dual (a : Set) : Set where
   constructor Dual:
@@ -969,18 +955,6 @@ instance
 
   Semigroup-Unit : Semigroup Unit
   Semigroup-Unit ._<>_ unit unit = unit
-
-  Semigroup-Sum-Nat : Semigroup (Sum Nat)
-  Semigroup-Sum-Nat ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
-
-  Semigroup-Product-Nat : Semigroup (Product Nat)
-  Semigroup-Product-Nat ._<>_ (Product: x) (Product: y) = Product: (x * y)
-
-  Semigroup-Sum-Int : Semigroup (Sum Int)
-  Semigroup-Sum-Int ._<>_ (Sum: m) (Sum: n) = Sum: (m + n)
-
-  Semigroup-Product-Int : Semigroup (Product Int)
-  Semigroup-Product-Int ._<>_ (Product: x) (Product: y) = Product: (x * y)
 
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = primStringAppend
@@ -1043,18 +1017,6 @@ instance
 
   Monoid-Any : Monoid Any
   Monoid-Any .mempty = Any: False
-
-  Monoid-SumNat : Monoid (Sum Nat)
-  Monoid-SumNat .mempty = Sum: 0
-
-  Monoid-ProductNat : Monoid (Product Nat)
-  Monoid-ProductNat .mempty = Product: 1
-
-  Monoid-SumInt : Monoid (Sum Int)
-  Monoid-SumInt .mempty = Sum: 0
-
-  Monoid-ProductInt : Monoid (Product Int)
-  Monoid-ProductInt .mempty = Product: 1
 
   Monoid-String : Monoid String
   Monoid-String .mempty = ""
@@ -1179,12 +1141,6 @@ instance
   Contravariant-Const : Contravariant (Const a)
   Contravariant-Const .contramap f = Const: <<< getConst
 
-  Functor-Sum : Functor Sum
-  Functor-Sum .map f = Sum: <<< f <<< getSum
-
-  Functor-Product : Functor Product
-  Functor-Product .map f = Product: <<< f <<< getProduct
-
   Functor-Dual : Functor Dual
   Functor-Dual .map f = Dual: <<< f <<< getDual
 
@@ -1276,14 +1232,6 @@ instance
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: mempty
   Applicative-Const ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
-
-  Applicative-Sum : Applicative Sum
-  Applicative-Sum .pure = Sum:
-  Applicative-Sum ._<*>_ (Sum: f) (Sum: x) = Sum: (f x)
-
-  Applicative-Product : Applicative Product
-  Applicative-Product .pure = Product:
-  Applicative-Product ._<*>_ (Product: f) (Product: x) = Product: (f x)
 
   Applicative-Dual : Applicative Dual
   Applicative-Dual .pure = Dual:
@@ -1396,12 +1344,6 @@ instance
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ (Identity: x) k = k x
-
-  Monad-Sum : Monad Sum
-  Monad-Sum ._>>=_ (Sum: x) k = k x
-
-  Monad-Product : Monad Product
-  Monad-Product ._>>=_ (Product: x) k = k x
 
   Monad-Dual : Monad Dual
   Monad-Dual ._>>=_ (Dual: x) k = k x
@@ -1536,14 +1478,6 @@ instance
   Show-Const : {{_ : Show a}} -> Show (Const a b)
   Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
     (showString "Const: " <<< showsPrec appPrec+1 x)
-
-  Show-Sum : {{_ : Show a}} -> Show (Sum a)
-  Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec)
-    (showString "Show: " <<< showsPrec appPrec+1 x)
-
-  Show-Product : {{_ : Show a}} -> Show (Product a)
-  Show-Product .showsPrec d (Product: x) = showParen (d > appPrec)
-    (showString "Product: " <<< showsPrec appPrec+1 x)
 
   Show-Dual : {{_ : Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)

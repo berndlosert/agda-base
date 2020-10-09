@@ -8,6 +8,9 @@ module Data.Foldable where
 
 open import Prelude
 
+open import Data.Monoid.Product
+open import Data.Monoid.Sum
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
