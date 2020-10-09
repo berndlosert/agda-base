@@ -116,12 +116,6 @@ record Const (a b : Set) : Set where
 
 open Const public
 
-record Endo (a : Set) : Set where
-  constructor Endo:
-  field appEndo : a -> a
-
-open Endo public
-
 -------------------------------------------------------------------------------
 -- Primitive functions and operations
 -------------------------------------------------------------------------------
@@ -899,17 +893,7 @@ record Semigroup (a : Set) : Set where
 
 open Semigroup {{...}} public
 
--- For dual semigroups, orders, etc.
-record Dual (a : Set) : Set where
-  constructor Dual:
-  field getDual : a
-
-open Dual public
-
 instance
-  Semigroup-Dual : {{_ : Semigroup a}} -> Semigroup (Dual a)
-  Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
-
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
 
@@ -951,9 +935,6 @@ instance
   Semigroup-Const : {{_ : Semigroup a}} -> Semigroup (Const a b)
   Semigroup-Const ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
-  Semigroup-Endo : Semigroup (Endo a)
-  Semigroup-Endo ._<>_ g f = Endo: \ x -> appEndo g (appEndo f x)
-
 -------------------------------------------------------------------------------
 -- Monoid
 -------------------------------------------------------------------------------
@@ -966,9 +947,6 @@ record Monoid (a : Set) : Set where
 open Monoid {{...}} public
 
 instance
-  Monoid-Dual : {{_ : Monoid a}} -> Monoid (Dual a)
-  Monoid-Dual .mempty = Dual: mempty
-
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = unit
 
@@ -977,9 +955,6 @@ instance
 
   Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
   Monoid-Function .mempty = const mempty
-
-  Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .mempty = Endo: \ x -> x
 
   Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
   Monoid-Maybe .mempty = Nothing
@@ -1095,9 +1070,6 @@ instance
   Contravariant-Const : Contravariant (Const a)
   Contravariant-Const .contramap f = Const: <<< getConst
 
-  Functor-Dual : Functor Dual
-  Functor-Dual .map f = Dual: <<< f <<< getDual
-
 -------------------------------------------------------------------------------
 -- Applicative
 -------------------------------------------------------------------------------
@@ -1180,10 +1152,6 @@ instance
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: mempty
   Applicative-Const ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
-
-  Applicative-Dual : Applicative Dual
-  Applicative-Dual .pure = Dual:
-  Applicative-Dual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
 
 -------------------------------------------------------------------------------
 -- Alternative
@@ -1284,9 +1252,6 @@ instance
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ (Identity: x) k = k x
-
-  Monad-Dual : Monad Dual
-  Monad-Dual ._>>=_ (Dual: x) k = k x
 
 -------------------------------------------------------------------------------
 -- Enum
@@ -1412,10 +1377,6 @@ instance
   Show-Const : {{_ : Show a}} -> Show (Const a b)
   Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
     (showString "Const: " <<< showsPrec appPrec+1 x)
-
-  Show-Dual : {{_ : Show a}} -> Show (Dual a)
-  Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
-    (showString "Dual: " <<< showsPrec appPrec+1 x)
 
 -------------------------------------------------------------------------------
 -- Size

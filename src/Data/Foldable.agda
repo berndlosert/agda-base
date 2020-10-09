@@ -10,6 +10,8 @@ open import Prelude
 
 open import Data.Monoid.All
 open import Data.Monoid.Any
+open import Data.Monoid.Dual
+open import Data.Monoid.Endo
 open import Data.Monoid.Product
 open import Data.Monoid.Sum
 
