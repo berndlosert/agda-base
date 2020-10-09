@@ -249,6 +249,14 @@ isPos (Pos _) = True
 isPos _ = False
 
 private
+  -- Workaround for https://github.com/agda/agda/issues/4967
+  intLessThan : Int -> Int -> Bool
+  intLessThan (Pos m) (Pos n) = natLessThan m n
+  intLessThan (NegSuc m) (NegSuc n) = natLessThan n m
+  intLessThan (NegSuc _) (Pos _) = True
+  intLessThan (Pos _) (NegSuc _) = False
+
+private
   primitive
     primFloatNumericalEquality : Float -> Float -> Bool
     primFloatNumericalLess : Float -> Float -> Bool
@@ -568,11 +576,7 @@ instance
   Ord-Nat ._<_ = natLessThan
 
   Ord-Int : Ord Int
-  Ord-Int ._<_ = \ where
-    (Pos m) (Pos n) -> m < n
-    (NegSuc m) (NegSuc n) -> m > n
-    (NegSuc _) (Pos _) -> True
-    (Pos _) (NegSuc _) -> False
+  Ord-Int ._<_ = intLessThan
 
   Ord-Float : Ord Float
   Ord-Float ._<_ = primFloatNumericalLess
