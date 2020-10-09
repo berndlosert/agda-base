@@ -9,6 +9,8 @@ module Control.Lens where
 open import Prelude
 
 open import Data.Foldable
+open import Data.Semigroup.First
+open import Data.Semigroup.Last
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

@@ -920,20 +920,6 @@ record Dual (a : Set) : Set where
 
 open Dual public
 
--- Semigroup where x <> y = x
-record First (a : Set) : Set where
-  constructor First:
-  field getFirst : a
-
-open First public
-
--- Semigroup where x <> y = y
-record Last (a : Set) : Set where
-  constructor Last:
-  field getLast : a
-
-open Last public
-
 -- For semigroups, monoids, etc. where x <> y = min x y
 record Min (a : Set) : Set where
   constructor Min:
@@ -965,12 +951,6 @@ open All public
 instance
   Semigroup-Dual : {{_ : Semigroup a}} -> Semigroup (Dual a)
   Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
-
-  Semigroup-First : Semigroup (First a)
-  Semigroup-First ._<>_ x _ = x
-
-  Semigroup-Last : Semigroup (Last a)
-  Semigroup-Last ._<>_ _ x = x
 
   Semigroup-Min : {{_ : Ord a}} -> Semigroup (Min a)
   Semigroup-Min ._<>_ (Min: x) (Min: y) = Min: (min x y)
@@ -1054,12 +1034,6 @@ open Monoid {{...}} public
 instance
   Monoid-Dual : {{_ : Monoid a}} -> Monoid (Dual a)
   Monoid-Dual .mempty = Dual: mempty
-
-  Monoid-First : {{_ : Monoid a}} -> Monoid (First a)
-  Monoid-First .mempty = First: mempty
-
-  Monoid-Last : {{_ : Monoid a}} -> Monoid (Last a)
-  Monoid-Last .mempty = Last: mempty
 
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = unit
@@ -1214,12 +1188,6 @@ instance
   Functor-Dual : Functor Dual
   Functor-Dual .map f = Dual: <<< f <<< getDual
 
-  Functor-First : Functor First
-  Functor-First .map f = First: <<< f <<< getFirst
-
-  Functor-Last : Functor Last
-  Functor-Last .map f = Last: <<< f <<< getLast
-
   Functor-Min : Functor Min
   Functor-Min .map f = Min: <<< f <<< getMin
 
@@ -1320,14 +1288,6 @@ instance
   Applicative-Dual : Applicative Dual
   Applicative-Dual .pure = Dual:
   Applicative-Dual ._<*>_ (Dual: f) (Dual: x) = Dual: (f x)
-
-  Applicative-First : Applicative First
-  Applicative-First .pure = First:
-  Applicative-First ._<*>_ (First: f) (First: x) = First: (f x)
-
-  Applicative-Last : Applicative Last
-  Applicative-Last .pure = Last:
-  Applicative-Last ._<*>_ (Last: f) (Last: x) = Last: (f x)
 
   Applicative-Min : Applicative Min
   Applicative-Min .pure = Min:
@@ -1445,12 +1405,6 @@ instance
 
   Monad-Dual : Monad Dual
   Monad-Dual ._>>=_ (Dual: x) k = k x
-
-  Monad-First : Monad First
-  Monad-First ._>>=_ (First: x) k = k x
-
-  Monad-Last : Monad Last
-  Monad-Last ._>>=_ (Last: x) k = k x
 
   Monad-Min : Monad Min
   Monad-Min ._>>=_ (Min: x) k = k x
@@ -1594,14 +1548,6 @@ instance
   Show-Dual : {{_ : Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
     (showString "Dual: " <<< showsPrec appPrec+1 x)
-
-  Show-First : {{_ : Show a}} -> Show (First a)
-  Show-First .showsPrec d (First: x) = showParen (d > appPrec)
-    (showString "First: " <<< showsPrec appPrec+1 x)
-
-  Show-Last : {{_ : Show a}} -> Show (Last a)
-  Show-Last .showsPrec d (Last: x) = showParen (d > appPrec)
-    (showString "Last: " <<< showsPrec appPrec+1 x)
 
   Show-Min : {{_ : Show a}} -> Show (Min a)
   Show-Min .showsPrec d (Min: x) = showParen (d > appPrec)
