@@ -920,20 +920,6 @@ record Max (a : Set) : Set where
 
 open Max public
 
--- Bool Semigroup where x <> y = x || y.
-record Any : Set where
-  constructor Any:
-  field getAny : Bool
-
-open Any public
-
--- Bool Semigroup where x <> y = x && y.
-record All : Set where
-  constructor All:
-  field getAll : Bool
-
-open All public
-
 instance
   Semigroup-Dual : {{_ : Semigroup a}} -> Semigroup (Dual a)
   Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
@@ -943,12 +929,6 @@ instance
 
   Semigroup-Max : {{_ : Ord a}} -> Semigroup (Max a)
   Semigroup-Max ._<>_ (Max: x) (Max: y) = Max: (max x y)
-
-  Semigroup-Any : Semigroup Any
-  Semigroup-Any ._<>_ (Any: x) (Any: y) = Any: (x || y)
-
-  Semigroup-All : Semigroup All
-  Semigroup-All ._<>_ (All: x) (All: y) = All: (x && y)
 
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
@@ -1011,12 +991,6 @@ instance
 
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = unit
-
-  Monoid-All : Monoid All
-  Monoid-All .mempty = All: True
-
-  Monoid-Any : Monoid Any
-  Monoid-Any .mempty = Any: False
 
   Monoid-String : Monoid String
   Monoid-String .mempty = ""
@@ -1490,14 +1464,6 @@ instance
   Show-Max : {{_ : Show a}} -> Show (Max a)
   Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
     (showString "Max: " <<< showsPrec appPrec+1 x)
-
-  Show-Any : Show Any
-  Show-Any .showsPrec d (Any: x) = showParen (d > appPrec)
-    (showString "Any: " <<< showsPrec appPrec+1 x)
-
-  Show-All : Show All
-  Show-All .showsPrec d (All: x) = showParen (d > appPrec)
-    (showString "All: " <<< showsPrec appPrec+1 x)
 
 -------------------------------------------------------------------------------
 -- Size
