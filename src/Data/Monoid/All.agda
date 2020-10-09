@@ -26,6 +26,6 @@ instance
   Monoid-All : Monoid All
   Monoid-All .mempty = All: True
 
-  Show-All : {{_ : Show a}} -> Show All
+  Show-All : Show All
   Show-All .showsPrec d (All: x) = showParen (d > appPrec)
     (showString "Show: " <<< showsPrec appPrec+1 x)
