@@ -236,10 +236,6 @@ private
 {-# BUILTIN NATDIVSUCAUX natDivAux #-}
 {-# BUILTIN NATMODSUCAUX natModAux #-}
 
-pred : Nat -> Nat
-pred 0 = 0
-pred (Suc n) = n
-
 neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
