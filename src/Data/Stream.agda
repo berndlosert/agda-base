@@ -9,7 +9,7 @@ module Data.Stream where
 open import Prelude
 
 open import Control.Comonad
-open import Data.Foldable1
+open import Data.Constraint.Nonempty
 
 -------------------------------------------------------------------------------
 -- Variables

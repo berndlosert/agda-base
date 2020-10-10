@@ -8,17 +8,9 @@ module Data.List where
 
 open import Prelude
 
+open import Data.Constraint.Nonempty
 open import Data.Foldable
-open import Data.Foldable1
 open import Data.Traversable
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Foldable public
-open Data.Foldable1 public
-open Data.Traversable public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -65,10 +57,6 @@ uncons (a :: as) = (a , as)
 instance
   Foldable-List : Foldable List
   Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
-
-  Foldable1-List : Foldable1 List
-  Foldable1-List .IsFoldable-super = Foldable-List
-  Foldable1-List .NonemptyConstraint-super = NonemptyConstraint-List
 
   Traversable-List : Traversable List
   Traversable-List .traverse f = listrec (pure []) \ where
