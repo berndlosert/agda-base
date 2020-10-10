@@ -22,13 +22,6 @@ private
 -- Map
 -------------------------------------------------------------------------------
 
--- This is a list-backed implememntation because:
---  * it's easy
---  * the AVL tree implemenation in agda-stdlib is complicated and requires
---    too much proof infrastructure
---  * Idris's SortedMap makes no sense to me
---  * Haskell tree-based implemenations require too many partial functions
-
 abstract
   Map : (k v : Set) -> Set
   Map k v = List (k * v)
