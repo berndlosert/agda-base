@@ -34,6 +34,8 @@ record IsBuildable (s a : Set) : Set where
   replicate : Nat -> a -> s
   replicate n a = applyN (cons a) n mempty
 
+open IsBuildable {{...}} public
+
 -------------------------------------------------------------------------------
 -- Buildable
 -------------------------------------------------------------------------------
