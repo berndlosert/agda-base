@@ -180,11 +180,6 @@ insertAt n a' = reverse <<< snd <<< flip foldl (0 , nil) \ where
 splitAt : Nat -> List a -> List a * List a
 splitAt n as = (take n as , drop n as)
 
-elemAt : Nat -> List a -> Maybe a
-elemAt _ [] = Nothing
-elemAt 0 (a :: _) = Just a
-elemAt (Suc n) (_ :: as) = elemAt n as
-
 -------------------------------------------------------------------------------
 -- Zipping functions
 -------------------------------------------------------------------------------
