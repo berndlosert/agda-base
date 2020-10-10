@@ -59,6 +59,22 @@ uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
 uncons (a :: as) = (a , as)
 
 -------------------------------------------------------------------------------
+-- Foldable, Traversable instances
+-------------------------------------------------------------------------------
+
+instance
+  Foldable-List : Foldable List
+  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
+
+  Foldable1-List : Foldable1 List
+  Foldable1-List .IsFoldable-super = Foldable-List
+  Foldable1-List .NonemptyConstraint-super = NonemptyConstraint-List
+
+  Traversable-List : Traversable List
+  Traversable-List .traverse f = listrec (pure []) \ where
+    x _ ys -> (| _::_ (f x) ys |)
+
+-------------------------------------------------------------------------------
 -- Basic functions
 -------------------------------------------------------------------------------
 

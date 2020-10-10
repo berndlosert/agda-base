@@ -9,6 +9,7 @@ module Control.Lens where
 open import Prelude
 
 open import Data.Foldable
+open import Data.List as List using ()
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
 open import Data.Semigroup.First
@@ -302,7 +303,7 @@ instance
   Each-Either .each f (Right a) = map Right (f a)
 
   Each-List : Each (List a) (List b) a b
-  Each-List .each = traverse
+  Each-List .each = List.traverse
 
 -------------------------------------------------------------------------------
 -- Some specific optics

@@ -9,6 +9,7 @@ module Data.Map where
 open import Prelude
 
 open import Data.Foldable
+open import Data.List as List using ()
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -97,4 +98,4 @@ abstract
     Functor-Map .map f = map \ {(k , v) -> (k , f v)}
 
     Foldable-Map : Foldable (Map k)
-    Foldable-Map .foldMap f = foldMap \ {(k , v) ->  f v}
+    Foldable-Map .foldMap f = List.foldMap \ {(k , v) ->  f v}

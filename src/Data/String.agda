@@ -102,7 +102,7 @@ partition : (Char -> Bool) -> String -> String * String
 partition p s = bimap pack pack (List.partition p (unpack s))
 
 replicate : Nat -> String -> String
-replicate n s = fold (List.replicate n s)
+replicate n s = List.fold (List.replicate n s)
 
 padRight : Nat -> Char -> String -> String
 padRight l c s =
@@ -133,7 +133,7 @@ unwords (w :: ws) = w <> go ws
 lines : String -> List String
 lines s =
   let
-    (l , ls) = foldl f ("" , []) (unpack s)
+    (l , ls) = List.foldl f ("" , []) (unpack s)
   in
     List.reverse (if l == "" then ls else (l :: ls))
   where
@@ -142,7 +142,11 @@ lines s =
     f (l , ls) c = (snoc l c , ls)
 
 unlines : List String -> String
-unlines = fold <<< map (_<> "\n")
+unlines = List.fold <<< map (_<> "\n")
+
+instance
+  IsFoldable-String-Char : IsFoldable String Char
+  IsFoldable-String-Char .foldMap f s = List.foldMap f (unpack s)
 
 -------------------------------------------------------------------------------
 -- FFI

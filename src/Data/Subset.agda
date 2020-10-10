@@ -9,6 +9,7 @@ module Data.Subset where
 open import Prelude
 
 open import Data.Foldable
+open import Data.List as List using ()
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -76,4 +77,4 @@ abstract
     Functor-Subset .map = map {{Functor-List}}
 
     Foldable-Subset : Foldable Subset
-    Foldable-Subset .foldMap = foldMap {{Foldable-List}}
+    Foldable-Subset .foldMap = foldMap {{List.Foldable-List}}

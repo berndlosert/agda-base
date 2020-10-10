@@ -42,7 +42,3 @@ instance
   Traversable-Maybe .traverse f = \ where
     Nothing -> pure Nothing
     (Just x) -> map Just (f x)
-
-  Traversable-List : Traversable List
-  Traversable-List .traverse f = listrec (pure []) \ where
-    x _ ys -> (| _::_ (f x) ys |)
