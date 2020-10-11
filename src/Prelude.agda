@@ -405,6 +405,10 @@ rightToMaybe = either (const Nothing) Just
 
 pattern [_] x = x :: []
 
+list : b -> (a -> List a -> b) -> List a -> b
+list b f [] = b
+list b f (a :: as) = f a as
+
 listrec : b -> (a -> List a -> b -> b) -> List a -> b
 listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
