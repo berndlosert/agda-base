@@ -30,7 +30,7 @@ private
 -- IsFreeMonoid
 -------------------------------------------------------------------------------
 
-module _ {{_ : IsBuildable s a}} {{_ : IsFoldable s a}} where
+module _ {{_ : IsBuildable s a}} {{_ : Monofoldable s a}} where
 
   reverse : s -> s
   reverse = foldl (flip cons) mempty

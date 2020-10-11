@@ -37,10 +37,10 @@ private
     f m t : Set -> Set
 
 -------------------------------------------------------------------------------
--- IsFoldable
+-- Monofoldable
 -------------------------------------------------------------------------------
 
-record IsFoldable (s a : Set) : Set where
+record Monofoldable (s a : Set) : Set where
   field foldMap : {{_ : Monoid b}} -> (a -> b) -> s -> b
 
   fold : {{_ : Monoid a}} -> s -> a
@@ -131,14 +131,14 @@ record IsFoldable (s a : Set) : Set where
     maximum : {{_ : Ord a}} (xs : s) {{_ : Nonempty xs}} -> a
     maximum = foldr1 max
 
-open IsFoldable {{...}} public
+open Monofoldable {{...}} public
 
 -------------------------------------------------------------------------------
 -- Foldable
 -------------------------------------------------------------------------------
 
 Foldable : (Set -> Set) -> Set
-Foldable t = forall {a} -> IsFoldable (t a) a
+Foldable t = forall {a} -> Monofoldable (t a) a
 
 module _ {{_ : Foldable t}} where
 
@@ -163,9 +163,9 @@ module _ {{_ : Foldable t}} where
 -------------------------------------------------------------------------------
 
 instance
-  IsFoldable-Nat-Unit : IsFoldable Nat Unit
-  IsFoldable-Nat-Unit .foldMap f Zero = mempty
-  IsFoldable-Nat-Unit .foldMap f (Suc n) = f unit <> foldMap f n
+  Monofoldable-Nat-Unit : Monofoldable Nat Unit
+  Monofoldable-Nat-Unit .foldMap f Zero = mempty
+  Monofoldable-Nat-Unit .foldMap f (Suc n) = f unit <> foldMap f n
 
   Foldable-Maybe : Foldable Maybe
   Foldable-Maybe .foldMap = maybe mempty

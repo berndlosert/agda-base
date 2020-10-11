@@ -272,19 +272,16 @@ unpacked = iso unpack pack
 mapped : {{_ : Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 
-folded : {{_ : Foldable f}} {{_ : Monoid r}} -> Getting r (f a) a
-folded = foldring foldr
-  where
-    noEffect : {{_ : Monoid r}} -> Const r a
-    noEffect = phantom (pure unit)
+record Folded (s a : Set) : Set where
+  field
+    folded : {{_ : Monoid r}} -> Getting r s a
 
-    foldring : {{_ : Monoid r}}
-      -> ((a -> Const r a -> Const r a) -> Const r a -> s -> Const r a)
-      -> (a -> Const r b) -> s -> Const r t
-    foldring fr f = phantom <<< fr (\ a fa -> f a *> fa) noEffect
+open Folded {{...}} public
 
-traversed : {{_ : Traversable f}} -> Traversal (f a) (f b) a b
-traversed = traverse
+instance
+  Folded-List : Folded (List a) a
+  Folded-List .folded f xs =
+    Const: (listrec mempty (\ x _ y -> getConst (f x) <> y) xs)
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b
@@ -303,7 +300,8 @@ instance
   Each-Either .each f (Right a) = map Right (f a)
 
   Each-List : Each (List a) (List b) a b
-  Each-List .each = List.traverse
+  Each-List .each f = listrec (pure []) \ where
+    x _ ys -> (| _::_ (f x) ys |)
 
 -------------------------------------------------------------------------------
 -- Some specific optics
