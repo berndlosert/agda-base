@@ -438,6 +438,9 @@ record Packed (s a : Set) : Set where
     pack : List a -> s
     unpack : s -> List a
 
+  repack : (List a -> List a) -> s -> s
+  repack f = pack <<< f <<< unpack
+
 open Packed {{...}} public
 
 instance
