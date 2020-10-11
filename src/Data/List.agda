@@ -22,20 +22,123 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- Constructors
+-- Listlike
 -------------------------------------------------------------------------------
 
-nil : List a
-nil = []
+record Listlike (s a : Set) : Set where
+  infixr 5 _++_
+  field
+    {{Monofoldable-super}} : Monofoldable s a
+    nil : s
+    singleton : a -> s
+    _++_ : s -> s -> s
 
-cons : a -> List a -> List a
-cons = _::_
+  -- More Constructors
 
-singleton : a -> List a
-singleton = [_]
+  cons : a -> s -> s
+  cons x xs = singleton x ++ xs
 
-snoc : List a -> a -> List a
-snoc xs x = xs <> [ x ]
+  snoc : s -> a -> s
+  snoc xs x = xs ++ singleton x
+
+  fromList : List a -> s
+  fromList [] = nil
+  fromList (a :: as) = cons a (fromList as)
+
+  fromMaybe : Maybe a -> s
+  fromMaybe Nothing = nil
+  fromMaybe (Just a) = singleton a
+
+  replicate : Nat -> a -> s
+  replicate n a = applyN (cons a) n nil
+
+  -- Transformations
+
+  reverse : s -> s
+  reverse = foldl (flip cons) nil
+
+  intersperse : a -> s -> s
+  intersperse sep = flip foldr nil \ where
+    a as -> if null as then singleton a else cons a (cons sep as)
+
+  -- Extracting sublists
+
+  takeWhile : (a -> Bool) -> s -> s
+  takeWhile p = reverse <<< fromEither <<< flip foldlM nil \ where
+    as a -> if p a then Right (cons a as) else Left as
+
+  dropWhile : (a -> Bool) -> s -> s
+  dropWhile p = reverse <<< flip foldl nil \ where
+    as a -> if p a then as else (cons a as)
+
+  take : Nat -> s -> s
+  take n = reverse <<< snd <<< fromEither <<< flip foldlM (0 , nil) \ where
+    (k , s) a -> if k < n then Right (Suc k , cons a s) else Left (Suc k , s)
+
+  drop : Nat -> s -> s
+  drop n = reverse <<< snd <<< flip foldl (0 , nil) \ where
+    (k , as) a -> if k < n then (Suc k , as) else (Suc k , cons a as)
+
+  span : (a -> Bool) -> s -> s * s
+  span p xs = (takeWhile p xs , dropWhile p xs)
+
+  break : (a -> Bool) -> s -> s * s
+  break p = span (not <<< p)
+
+  -- Indexed functions
+
+  splitAt : Nat -> s -> s * s
+  splitAt n as = (take n as , drop n as)
+
+  at : Nat -> s -> Maybe a
+  at n = leftToMaybe <<< flip foldlM 0 \
+    k a -> if k == n then Left a else Right (Suc k)
+
+  infixl 9 _!!_
+  _!!_ : s -> Nat -> Maybe a
+  _!!_ = flip at
+
+  deleteAt : Nat -> s -> s
+  deleteAt n = reverse <<< snd <<< flip foldl (0 , nil) \ where
+    (k , as) a -> (Suc k , (if k == n then as else cons a as))
+
+  modifyAt : Nat -> (a -> a) -> s -> s
+  modifyAt n f = reverse <<< snd <<< flip foldl (0 , nil) \ where
+    (k , as) a -> (Suc k , (if k == n then cons (f a) as else cons a as))
+
+  setAt : Nat -> a -> s -> s
+  setAt n a = modifyAt n (const a)
+
+  insertAt : Nat -> a -> s -> s
+  insertAt n a' = reverse <<< snd <<< flip foldl (0 , nil) \ where
+    (k , as) a -> (Suc k , (if k == n then cons a' (cons a as) else cons a as))
+
+  -- Searching with a predicate
+
+  filter : (a -> Bool) -> s -> s
+  filter p = foldr (\ a as -> if p a then cons a as else as) nil
+
+  partition : (a -> Bool) -> s -> s * s
+  partition p xs = (filter p xs , filter (not <<< p) xs)
+
+open Listlike {{...}} public
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Foldable-List : Foldable List
+  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
+
+  Traversable-List : Traversable List
+  Traversable-List .traverse f = listrec (pure []) \ where
+    x _ ys -> (| _::_ (f x) ys |)
+
+  Listlike-List : Listlike (List a) a
+  Listlike-List .nil = []
+  Listlike-List .singleton = [_]
+  Listlike-List ._++_ = _<>_
 
 -------------------------------------------------------------------------------
 -- Destructors
@@ -51,18 +154,6 @@ uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
 uncons (a :: as) = (a , as)
 
 -------------------------------------------------------------------------------
--- Foldable, Traversable instances
--------------------------------------------------------------------------------
-
-instance
-  Foldable-List : Foldable List
-  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
-
-  Traversable-List : Traversable List
-  Traversable-List .traverse f = listrec (pure []) \ where
-    x _ ys -> (| _::_ (f x) ys |)
-
--------------------------------------------------------------------------------
 -- Basic functions
 -------------------------------------------------------------------------------
 
@@ -72,14 +163,8 @@ append = _<>_
 concat : List (List a) -> List a
 concat = join
 
-reverse : List a -> List a
-reverse = foldl (flip _::_) []
-
 length : List a -> Nat
 length = foldr (const Suc) 0
-
-replicate : Nat -> a -> List a
-replicate n a = applyN (a ::_) n []
 
 -------------------------------------------------------------------------------
 -- Scans
@@ -98,41 +183,11 @@ scanr f b (a :: as) = let as' = scanr f b as in
 -- Sublists
 -------------------------------------------------------------------------------
 
-takeWhile : (a -> Bool) -> List a -> List a
-takeWhile p = reverse <<< fromEither <<< flip foldlM [] \ where
-  as a -> if p a then Right (a :: as) else Left as
-
-dropWhile : (a -> Bool) -> List a -> List a
-dropWhile p = reverse <<< flip foldl [] \ where
-  as a -> if p a then as else (a :: as)
-
-take : Nat -> List a -> List a
-take n = reverse <<< snd <<< fromEither <<< flip foldlM (0 , []) \ where
-  (k , s) a -> if k < n then Right (Suc k , cons a s) else Left (Suc k , s)
-
-drop : Nat -> List a -> List a
-drop n = reverse <<< snd <<< flip foldl (0 , []) \ where
-  (k , as) a -> if k < n then (Suc k , as) else (Suc k , a :: as)
-
 inits : List a -> List (List a)
 inits = scanl snoc []
 
 tails : List a -> List (List a)
 tails = scanr cons []
-
-span : (a -> Bool) -> List a -> List a * List a
-span _ as@[] = (as , as)
-span p as@(x :: xs) =
-  if p x
-  then (let (ys , zs) = span p xs in (x :: ys , zs))
-  else ([] , xs)
-
-break : (a -> Bool) -> List a -> List a * List a
-break p [] = ([] , [])
-break p as@(x :: xs) =
-  if p x
-  then ([] , as)
-  else let (ys , zs) = break p xs in (x :: ys , zs)
 
 stripPrefix : {{_ : Eq a}} -> List a -> List a -> Maybe (List a)
 stripPrefix [] as = Just as
@@ -157,28 +212,6 @@ indexed : List a -> List (Nat * a)
 indexed = reverse <<< flip foldl [] \ where
   [] a -> (0 , a) :: []
   xs@(h :: t) a' -> (Suc (fst h) , a') :: xs
-
-at : Nat -> List a -> Maybe a
-at n = leftToMaybe <<< flip foldlM 0 \
-  k a -> if k == n then Left a else Right (Suc k)
-
-deleteAt : Nat -> List a -> List a
-deleteAt n = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , (if k == n then as else a :: as))
-
-modifyAt : Nat -> (a -> a) -> List a -> List a
-modifyAt n f = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , (if k == n then f a :: as else a :: as))
-
-setAt : Nat -> a -> List a -> List a
-setAt n a = modifyAt n (const a)
-
-insertAt : Nat -> a -> List a -> List a
-insertAt n a' = reverse <<< snd <<< flip foldl (0 , nil) \ where
-  (k , as) a -> (Suc k , (if k == n then a' :: a :: as else a :: as))
-
-splitAt : Nat -> List a -> List a * List a
-splitAt n as = (take n as , drop n as)
 
 -------------------------------------------------------------------------------
 -- Zipping functions
@@ -234,17 +267,9 @@ module _ {{_ : Eq a}} where
 -- Filtering functions
 -------------------------------------------------------------------------------
 
-filter : (a -> Bool) -> List a -> List a
-filter p [] = []
-filter p (a :: as) = if p a then a :: filter p as else filter p as
-
 filterA : {{_ : Applicative f}} -> (a -> f Bool) -> List a -> f (List a)
 filterA p = flip foldr (pure []) \ where
     a as -> (| if_then_else_ (p a) (| (a ::_) as |) as |)
-
-partition : (a -> Bool) -> List a -> List a * List a
-partition p = flip foldr ([] , []) \ where
-  a (ts , fs) -> if p a then (a :: ts , fs) else (ts , a :: fs)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -255,14 +280,9 @@ intercalate sep [] = mempty
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
-intersperse : a -> List a -> List a
-intersperse sep = flip foldr [] \ where
-  a [] -> [ a ]
-  a as -> a :: sep :: as
-
-transPose : List (List a) -> List (List a)
-transPose [] = []
-transPose (heads :: tails) = zipCons heads (transPose tails)
+transpose : List (List a) -> List (List a)
+transpose [] = []
+transpose (heads :: tails) = zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
 -- Set-like operations
