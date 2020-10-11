@@ -339,6 +339,12 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
+fromLeft : (x : Either a b) {{_ : Assert (isLeft x)}} -> a
+fromLeft (Left a) = a
+
+fromRight : (x : Either a b) {{_ : Assert (isRight x)}} -> b
+fromRight (Right b) = b
+
 lefts : List (Either a b) -> List a
 lefts [] = []
 lefts (Left a :: xs) = a :: lefts xs
