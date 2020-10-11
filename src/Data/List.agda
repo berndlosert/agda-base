@@ -251,9 +251,9 @@ module _ {{_ : Listlike s a}} {{_ : Eq a}} where
 
 module _ {{_ : Listlike s a}} where
 
-  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
-  stripPrefix xs ys = let zs = drop (count xs) ys in
-    if xs ++ zs == ys then Just zs else Nothing
+  stripPrefix : {{_ : Eq a}} -> s -> s -> Maybe s
+  stripPrefix xs ys =
+    if isPrefixOf xs ys then Just (drop (count xs) ys) else Nothing
 
   {-# TERMINATING #-}
   groupBy : (a -> a -> Bool) -> s -> List s
