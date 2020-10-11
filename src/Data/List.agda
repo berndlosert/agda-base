@@ -191,18 +191,11 @@ module _ {{_ : Listlike s a}} where
 
 module _ {{_ : Listlike s a}} where
 
-  {-# TERMINATING #-}
   scanl : (b -> a -> b) -> b -> s -> List b
-  scanl f b xs = case uncons xs of \ where
-    Nothing -> singleton b
-    (Just (a , as)) -> b :: scanl f (f b a) as
+  scanl f b xs = foldl f b <$> inits xs
 
-  {-# TERMINATING #-}
   scanr : (a -> b -> b) -> b -> s -> List b
-  scanr f b xs = case uncons xs of \ where
-    Nothing -> singleton b
-    (Just (a , as)) -> let as' = scanr f b as in
-      f a (fromJust (head as') {{believeMe}}) :: as'
+  scanr f b xs = foldr f b <$> tails xs
 
 -------------------------------------------------------------------------------
 -- Index-based operations
