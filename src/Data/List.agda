@@ -165,6 +165,9 @@ module _ {{_ : Listlike s a}} where
   tails : s -> List s
   tails = foldl (\ ss a -> map (flip snoc a) ss ++ [ nil ]) [ nil ]
 
+  segments : s -> List s
+  segments as = filter (not <<< null) $ foldr _++_ [] (tails <$> inits as)
+
 -------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
