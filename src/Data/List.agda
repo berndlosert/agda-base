@@ -166,7 +166,8 @@ module _ {{_ : Listlike s a}} where
   tails = foldl (\ ss a -> map (flip snoc a) ss ++ [ nil ]) [ nil ]
 
   segments : s -> List s
-  segments as = filter (not <<< null) $ foldr _++_ [] (tails <$> inits as)
+  segments as =
+    [ nil ] ++ (filter (not <<< null) $ foldr _++_ [] (tails <$> inits as))
 
   segmentsOfSize : Nat -> s -> List s
   segmentsOfSize 0 _ = [ nil ]
