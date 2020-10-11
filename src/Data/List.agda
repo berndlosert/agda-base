@@ -29,9 +29,12 @@ record Listlike (s a : Set) : Set where
   infixr 5 _++_
   field
     {{Monofoldable-super}} : Monofoldable s a
+    -- Basic constructors
     nil : s
     singleton : a -> s
     _++_ : s -> s -> s
+    -- Basic destructors
+    uncons : s -> Maybe (a * s)
 
   -- More Constructors
 
@@ -51,6 +54,14 @@ record Listlike (s a : Set) : Set where
 
   replicate : Nat -> a -> s
   replicate n a = applyN (cons a) n nil
+
+  -- More destructors
+
+  head : s -> Maybe a
+  head = map fst <<< uncons
+
+  tail : s -> Maybe s
+  tail = map snd <<< uncons
 
   -- Transformations
 
@@ -139,19 +150,8 @@ instance
   Listlike-List .nil = []
   Listlike-List .singleton = [_]
   Listlike-List ._++_ = _<>_
-
--------------------------------------------------------------------------------
--- Destructors
--------------------------------------------------------------------------------
-
-head : (xs : List a) {{_ : Nonempty xs}} -> a
-head (a :: _) = a
-
-tail : (xs : List a) {{_ : Nonempty xs}} -> List a
-tail (_ :: as) = as
-
-uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
-uncons (a :: as) = (a , as)
+  Listlike-List .uncons [] = Nothing
+  Listlike-List .uncons (x :: xs) = Just (x , xs)
 
 -------------------------------------------------------------------------------
 -- Scans
@@ -164,7 +164,7 @@ scanl f b (a :: as) = b :: scanl f (f b a) as
 scanr : (a -> b -> b) -> b -> List a -> List b
 scanr f b [] = [ b ]
 scanr f b (a :: as) = let as' = scanr f b as in
-  f a (head as' {{believeMe}}) :: as'
+  f a (fromJust (head as') {{believeMe}}) :: as'
 
 -------------------------------------------------------------------------------
 -- Sublists
