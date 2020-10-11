@@ -154,19 +154,6 @@ uncons : (xs : List a) {{_ : Nonempty xs}} -> a * List a
 uncons (a :: as) = (a , as)
 
 -------------------------------------------------------------------------------
--- Basic functions
--------------------------------------------------------------------------------
-
-append : List a -> List a -> List a
-append = _<>_
-
-concat : List (List a) -> List a
-concat = join
-
-length : List a -> Nat
-length = foldr (const Suc) 0
-
--------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
 
@@ -232,10 +219,10 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (length heads - length tails) []
+    padding = replicate (count heads - count tails) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
-    excess = snd (splitAt (length heads) tails)
+    excess = snd (splitAt (count heads) tails)
 
 -------------------------------------------------------------------------------
 -- Predicates
