@@ -154,6 +154,32 @@ instance
   Listlike-List .uncons (x :: xs) = Just (x , xs)
 
 -------------------------------------------------------------------------------
+-- Sublists
+-------------------------------------------------------------------------------
+
+module _ {{_ : Listlike s a}} where
+
+  inits : s -> List s
+  inits = foldr (\ a ss -> [ nil ] ++ map (cons a) ss) [ nil ]
+
+  tails : s -> List s
+  tails = foldl (\ ss a -> map (flip snoc a) ss ++ [ nil ]) [ nil ]
+
+  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
+  stripPrefix xs ys = let zs = drop (count xs) ys in
+    if xs ++ zs == ys then Just zs else Nothing
+
+  {-# TERMINATING #-}
+  groupBy : (a -> a -> Bool) -> s -> List s
+  groupBy eq xs = case uncons xs of \ where
+    Nothing -> []
+    (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
+      cons x ys :: groupBy eq zs
+
+  group : {{_ : Eq a}} -> s -> List (s)
+  group = groupBy _==_
+
+-------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
 
@@ -171,32 +197,6 @@ module _ {{_ : Listlike s a}} where
     Nothing -> singleton b
     (Just (a , as)) -> let as' = scanr f b as in
       f a (fromJust (head as') {{believeMe}}) :: as'
-
--------------------------------------------------------------------------------
--- Sublists
--------------------------------------------------------------------------------
-
-module _ {{_ : Listlike s a}} where
-
-  inits : s -> List s
-  inits = scanl snoc nil
-
-  tails : s -> List s
-  tails = scanr cons nil
-
-  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
-  stripPrefix xs ys = let zs = drop (count xs) ys in
-    if xs ++ zs == ys then Just zs else Nothing
-
-  {-# TERMINATING #-}
-  groupBy : (a -> a -> Bool) -> s -> List s
-  groupBy eq xs = case uncons xs of \ where
-    Nothing -> []
-    (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
-      cons x ys :: groupBy eq zs
-
-  group : {{_ : Eq a}} -> s -> List (s)
-  group = groupBy _==_
 
 -------------------------------------------------------------------------------
 -- Index-based operations
