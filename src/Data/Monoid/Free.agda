@@ -19,13 +19,18 @@ open Data.Foldable public
 open Data.Monoid.Buildable public
 
 -------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    s a : Set
+
+-------------------------------------------------------------------------------
 -- IsFreeMonoid
 -------------------------------------------------------------------------------
 
-record IsFreeMonoid (s a : Set) : Set where
-  field
-    {{IsBuildable-super}} : IsBuildable s a
-    {{IsFoldable-super}} : IsFoldable s a
+module _ {{_ : IsBuildable s a}} {{_ : IsFoldable s a}} where
 
   reverse : s -> s
   reverse = foldl (flip cons) mempty
@@ -87,12 +92,3 @@ record IsFreeMonoid (s a : Set) : Set where
 
   partition : (a -> Bool) -> s -> s * s
   partition p xs = (filter p xs , filter (not <<< p) xs)
-
-open IsFreeMonoid {{...}} public
-
--------------------------------------------------------------------------------
--- FreeMonoid
--------------------------------------------------------------------------------
-
-FreeMonoid : (Set -> Set) -> Set
-FreeMonoid t = forall {a} -> IsFreeMonoid (t a) a
