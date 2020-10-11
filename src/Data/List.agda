@@ -168,6 +168,9 @@ module _ {{_ : Listlike s a}} where
   segments : s -> List s
   segments as = filter (not <<< null) $ foldr _++_ [] (tails <$> inits as)
 
+  segmentsN : Nat -> s -> List s
+  segmentsN n = filter (\ s -> count s == n) <<< segments
+
 -------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
