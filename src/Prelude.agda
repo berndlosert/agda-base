@@ -961,6 +961,9 @@ instance
   Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
   Monoid-Function .mempty = const mempty
 
+  Monoid-Tuple : {{_ : Monoid a}} {{_ : Monoid b}} -> Monoid (Tuple a b)
+  Monoid-Tuple .mempty = (mempty , mempty)
+
   Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
   Monoid-Maybe .mempty = Nothing
 
