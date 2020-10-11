@@ -409,14 +409,6 @@ listrec : b -> (a -> List a -> b -> b) -> List a -> b
 listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
 
-maybeToList : Maybe a -> List a
-maybeToList Nothing = []
-maybeToList (Just x) = x :: []
-
-listToMaybe : List a -> Maybe a
-listToMaybe [] = Nothing
-listToMaybe (x :: _) = Just x
-
 private
   postulate
     mapIO : (a -> b) -> IO a -> IO b
