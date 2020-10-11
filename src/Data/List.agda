@@ -154,7 +154,7 @@ instance
   Listlike-List .uncons (x :: xs) = Just (x , xs)
 
 -------------------------------------------------------------------------------
--- Sublists
+-- Segments
 -------------------------------------------------------------------------------
 
 module _ {{_ : Listlike s a}} where
@@ -164,6 +164,12 @@ module _ {{_ : Listlike s a}} where
 
   tails : s -> List s
   tails = foldl (\ ss a -> map (flip snoc a) ss ++ [ nil ]) [ nil ]
+
+-------------------------------------------------------------------------------
+-- Sublists
+-------------------------------------------------------------------------------
+
+module _ {{_ : Listlike s a}} where
 
   stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
   stripPrefix xs ys = let zs = drop (count xs) ys in
