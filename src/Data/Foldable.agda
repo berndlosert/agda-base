@@ -65,7 +65,7 @@ record Monofoldable (s a : Set) : Set where
   toList = foldMap [_]
 
   count : s -> Nat
-  count = getSum <<< foldMap (const (Sum: 1))
+  count = foldr (const Suc) 0
 
   all : (a -> Bool) -> s -> Bool
   all p = getAll <<< foldMap (All: <<< p)
