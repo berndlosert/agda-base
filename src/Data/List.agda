@@ -18,7 +18,7 @@ open import Data.Traversable
 
 private
   variable
-    a b c : Set
+    a b c s : Set
     f : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -157,39 +157,46 @@ instance
 -- Scans
 -------------------------------------------------------------------------------
 
-scanl : (b -> a -> b) -> b -> List a -> List b
-scanl f b [] = [ b ]
-scanl f b (a :: as) = b :: scanl f (f b a) as
+module _ {{_ : Listlike s a}} where
 
-scanr : (a -> b -> b) -> b -> List a -> List b
-scanr f b [] = [ b ]
-scanr f b (a :: as) = let as' = scanr f b as in
-  f a (fromJust (head as') {{believeMe}}) :: as'
+  {-# TERMINATING #-}
+  scanl : (b -> a -> b) -> b -> s -> List b
+  scanl f b xs = case uncons xs of \ where
+    Nothing -> singleton b
+    (Just (a , as)) -> b :: scanl f (f b a) as
+
+  {-# TERMINATING #-}
+  scanr : (a -> b -> b) -> b -> s -> List b
+  scanr f b xs = case uncons xs of \ where
+    Nothing -> singleton b
+    (Just (a , as)) -> let as' = scanr f b as in
+      f a (fromJust (head as') {{believeMe}}) :: as'
 
 -------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
 
-inits : List a -> List (List a)
-inits = scanl snoc []
+module _ {{_ : Listlike s a}} where
 
-tails : List a -> List (List a)
-tails = scanr cons []
+  inits : s -> List s
+  inits = scanl snoc nil
 
-stripPrefix : {{_ : Eq a}} -> List a -> List a -> Maybe (List a)
-stripPrefix [] as = Just as
-stripPrefix (x :: xs) (y :: ys) =
-  if x == y then stripPrefix xs ys else Nothing
-stripPrefix _ _ = Nothing
+  tails : s -> List s
+  tails = scanr cons nil
 
-{-# TERMINATING #-}
-groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy _ [] = []
-groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
-  (x :: ys) :: groupBy eq zs
+  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
+  stripPrefix xs ys = let zs = drop (count xs) ys in
+    if xs ++ zs == ys then Just zs else Nothing
 
-group : {{_ : Eq a}} -> List a -> List (List a)
-group = groupBy _==_
+  {-# TERMINATING #-}
+  groupBy : (a -> a -> Bool) -> s -> List s
+  groupBy eq xs = case uncons xs of \ where
+    Nothing -> []
+    (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
+      cons x ys :: groupBy eq zs
+
+  group : {{_ : Eq a}} -> s -> List (s)
+  group = groupBy _==_
 
 -------------------------------------------------------------------------------
 -- Index-based operations
@@ -228,27 +235,33 @@ zipCons heads tails =
 -- Predicates
 -------------------------------------------------------------------------------
 
-module _ {{_ : Eq a}} where
+module _ {{_ : Listlike s a}} {{_ : Eq a}} where
 
-  isPrefixOf : List a -> List a -> Bool
-  isPrefixOf [] _ = True
-  isPrefixOf _ [] = False
-  isPrefixOf (x :: xs) (y :: ys) = (x == y) && (isPrefixOf xs ys)
+  {-# TERMINATING #-}
+  isPrefixOf : s -> s -> Bool
+  isPrefixOf xs ys = case (uncons xs , uncons ys) of \ where
+    (Nothing , _) -> True
+    (_ , Nothing) -> False
+    (Just (a , as) , Just (b , bs)) -> (a == b) && isPrefixOf as bs
 
-  isSuffixOf : List a -> List a -> Bool
+  isSuffixOf : s -> s -> Bool
   isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
 
-  isInfixOf : List a -> List a -> Bool
-  isInfixOf [] _ = True
-  isInfixOf _ [] = False
-  isInfixOf as@(x :: xs) (y :: ys) =
-    if x == y then isPrefixOf xs ys else isInfixOf as ys
+  {-# TERMINATING #-}
+  isInfixOf : s -> s -> Bool
+  isInfixOf xs ys = case (uncons xs , uncons ys) of \ where
+    (Nothing , _) -> True
+    (_ , Nothing) -> False
+    (Just (a , as) , Just (b , bs)) ->
+      if a == b then isPrefixOf as bs else isInfixOf (cons a as) bs
 
-  isSubsequenceOf : List a -> List a -> Bool
-  isSubsequenceOf [] _ = True
-  isSubsequenceOf _ [] = True
-  isSubsequenceOf as@(x :: xs) (y :: ys) =
-    if x == y then isSubsequenceOf xs ys else isSubsequenceOf as ys
+  {-# TERMINATING #-}
+  isSubsequenceOf : s -> s -> Bool
+  isSubsequenceOf xs ys = case (uncons xs , uncons ys) of \ where
+    (Nothing , _) -> True
+    (_ , Nothing) -> False
+    (Just (a , as) , Just (b , bs)) ->
+      if a == b then isSubsequenceOf as bs else isSubsequenceOf (cons a as) bs
 
 -------------------------------------------------------------------------------
 -- Filtering functions

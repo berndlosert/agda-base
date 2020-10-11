@@ -39,27 +39,6 @@ instance
 -- Functions
 -------------------------------------------------------------------------------
 
---isPrefixOf : String -> String -> Bool
---isPrefixOf s s' = List.isPrefixOf (unpack s) (unpack s')
---
---isSuffixOf : String -> String -> Bool
---isSuffixOf s s' = List.isSuffixOf (unpack s) (unpack s')
---
---isInfixOf : String -> String -> Bool
---isInfixOf s s' = List.isInfixOf (unpack s) (unpack s')
---
---isSubsequenceOf : String -> String -> Bool
---isSubsequenceOf s s' = List.isSubsequenceOf (unpack s) (unpack s')
-
---filter : (Char -> Bool) -> String -> String
---filter = repack <<< List.filter
-
---partition : (Char -> Bool) -> String -> String * String
---partition p s = bimap pack pack (List.partition p (unpack s))
---
---replicate : Nat -> String -> String
---replicate n s = fold (List.replicate n s)
-
 padRight : Nat -> Char -> String -> String
 padRight l c cs = cs ++ replicate (l - count cs) c
 
