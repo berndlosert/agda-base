@@ -9,8 +9,8 @@ open import Control.Monad.State.Trans
 open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Traversable
-open import Data.List as List using ()
-open import Data.String as String using ()
+open import Data.List as List hiding (takeWhile; dropWhile)
+open import Data.String
 
 private variable a b c : Set
 
@@ -59,7 +59,7 @@ choice ps = foldr _<|>_ empty ps
 
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
-exactly n p = sequence (List.replicate n p)
+exactly n p = sequence (replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> (q <* p')
@@ -121,7 +121,7 @@ parse p s with runParser p s
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: (maybeToList <<< String.uncons)
+anyChar = Parser: (maybe [] [_] <<< uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -186,9 +186,9 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string s with String.uncons s
+string s with uncons s
 ... | Nothing = pure ""
-... | (Just (c , s')) = char c *> string s' *> pure (String.cons c s')
+... | (Just (c , s')) = char c *> string s' *> pure (cons c s')
 
 word : Parser String
 word1 : Parser String
@@ -196,11 +196,11 @@ word = word1 <|> (pure "")
 word1 = do
   c <- letter
   s <- word
-  return (String.cons c s)
+  return (cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = Parser: \ s ->
-  [ (String.takeWhile p s , String.dropWhile p s) ]
+  [ (List.takeWhile p s , List.dropWhile p s) ]
 
 takeAll : Parser String
 takeAll = takeWhile (const True)
