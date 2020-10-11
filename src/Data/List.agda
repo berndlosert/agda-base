@@ -169,26 +169,6 @@ module _ {{_ : Listlike s a}} where
   segments as = filter (not <<< null) $ foldr _++_ [] (tails <$> inits as)
 
 -------------------------------------------------------------------------------
--- Sublists
--------------------------------------------------------------------------------
-
-module _ {{_ : Listlike s a}} where
-
-  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
-  stripPrefix xs ys = let zs = drop (count xs) ys in
-    if xs ++ zs == ys then Just zs else Nothing
-
-  {-# TERMINATING #-}
-  groupBy : (a -> a -> Bool) -> s -> List s
-  groupBy eq xs = case uncons xs of \ where
-    Nothing -> []
-    (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
-      cons x ys :: groupBy eq zs
-
-  group : {{_ : Eq a}} -> s -> List (s)
-  group = groupBy _==_
-
--------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
 
@@ -264,6 +244,26 @@ module _ {{_ : Listlike s a}} {{_ : Eq a}} where
     (_ , Nothing) -> False
     (Just (a , as) , Just (b , bs)) ->
       if a == b then isSubsequenceOf as bs else isSubsequenceOf (cons a as) bs
+
+-------------------------------------------------------------------------------
+-- Sublists
+-------------------------------------------------------------------------------
+
+module _ {{_ : Listlike s a}} where
+
+  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
+  stripPrefix xs ys = let zs = drop (count xs) ys in
+    if xs ++ zs == ys then Just zs else Nothing
+
+  {-# TERMINATING #-}
+  groupBy : (a -> a -> Bool) -> s -> List s
+  groupBy eq xs = case uncons xs of \ where
+    Nothing -> []
+    (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
+      cons x ys :: groupBy eq zs
+
+  group : {{_ : Eq a}} -> s -> List (s)
+  group = groupBy _==_
 
 -------------------------------------------------------------------------------
 -- Filtering functions
