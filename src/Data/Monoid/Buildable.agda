@@ -9,10 +9,10 @@ module Data.Monoid.Buildable where
 open import Prelude
 
 -------------------------------------------------------------------------------
--- IsBuildable
+-- Monobuildable
 -------------------------------------------------------------------------------
 
-record IsBuildable (s a : Set) : Set where
+record Monobuildable (s a : Set) : Set where
   field
     {{Monoid-s}} : Monoid s
     singleton : a -> s
@@ -41,11 +41,11 @@ record IsBuildable (s a : Set) : Set where
   replicate : Nat -> a -> s
   replicate n a = applyN (cons a) n nil
 
-open IsBuildable {{...}} public
+open Monobuildable {{...}} public
 
 -------------------------------------------------------------------------------
 -- Buildable
 -------------------------------------------------------------------------------
 
 Buildable : (Set -> Set) -> Set
-Buildable t = forall {a} -> IsBuildable (t a) a
+Buildable t = forall {a} -> Monobuildable (t a) a
