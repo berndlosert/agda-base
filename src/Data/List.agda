@@ -13,6 +13,13 @@ open import Data.Foldable
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Foldable public
+open Data.Traversable public
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
@@ -79,8 +86,11 @@ record Listlike (s a : Set) : Set where
     as a -> if p a then Right (cons a as) else Left as
 
   dropWhile : (a -> Bool) -> s -> s
-  dropWhile p = reverse <<< flip foldl nil \ where
-    as a -> if p a then as else (cons a as)
+  dropWhile p = reverse <<< snd <<< flip foldl (True , nil) \ where
+    (check , as) a ->
+      if check
+        then if p a then (True , as) else (False , cons a as)
+        else (False , cons a as)
 
   take : Nat -> s -> s
   take n = reverse <<< snd <<< fromEither <<< flip foldlM (0 , nil) \ where
@@ -226,22 +236,23 @@ zipCons heads tails =
 module _ {{_ : Listlike s a}} {{_ : Eq s}} where
 
   isPrefixOf : s -> s -> Bool
-  isPrefixOf xs ys = take (count xs) ys == ys
+  isPrefixOf xs ys = take (count xs) ys == xs
 
   isSuffixOf : s -> s -> Bool
-  isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
+  isSuffixOf xs ys = isPrefixOf xs (drop (count xs) ys)
 
   isInfixOf : s -> s -> Bool
   isInfixOf xs ys = maybe False (const True) $
     find (_== xs) (segmentsOfSize (count xs) ys)
 
-  {-# TERMINATING #-}
   isSubsequenceOf : {{_ : Eq a}} -> s -> s -> Bool
-  isSubsequenceOf xs ys = case (uncons xs , uncons ys) of \ where
-    (Nothing , _) -> True
-    (_ , Nothing) -> False
-    (Just (a , as) , Just (b , bs)) ->
-      if a == b then isSubsequenceOf as bs else isSubsequenceOf (cons a as) bs
+  isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
+    where
+      g : s -> a -> Maybe s
+      g s a = let s' = dropWhile (_/= a) s in
+        if null s'
+          then Nothing
+          else tail s'
 
 -------------------------------------------------------------------------------
 -- Sublists
