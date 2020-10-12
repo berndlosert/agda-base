@@ -119,19 +119,29 @@ _!!_ : List a -> Nat -> Maybe a
 _!!_ = flip at
 
 deleteAt : Nat -> List a -> List a
-deleteAt n = reverse <<< snd <<< flip foldl (0 , []) \ where
-  (k , xs) x -> (Suc k , (if k == n then xs else cons x xs))
+deleteAt 0 (_ :: xs) = xs
+deleteAt (Suc n) (x :: xs) = x :: deleteAt n xs
+deleteAt _ [] = []
 
 modifyAt : Nat -> (a -> a) -> List a -> List a
-modifyAt n f = reverse <<< snd <<< flip foldl (0 , []) \ where
-  (k , xs) x -> (Suc k , (if k == n then cons (f x) xs else cons x xs))
+modifyAt 0 f (x :: xs) = f x :: xs
+modifyAt (Suc n) f (x :: xs) = x :: modifyAt n f xs
+modifyAt _ _ [] = []
 
 setAt : Nat -> a -> List a -> List a
 setAt n x = modifyAt n (const x)
 
+updateAt : Nat -> (a -> Maybe a) -> List a -> List a
+updateAt 0 f (x :: xs) with f x
+... | Nothing = xs
+... | Just x' = x' :: xs
+updateAt (Suc n) f (x :: xs) = x :: updateAt n f xs
+updateAt _ _ [] = []
+
 insertAt : Nat -> a -> List a -> List a
-insertAt n x' = reverse <<< snd <<< flip foldl (0 , []) \ where
-  (k , xs) x -> (Suc k , (if k == n then x' :: x :: xs else x :: xs))
+insertAt 0 x (y :: ys) = x :: y :: ys
+insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
+insertAt _ _ [] = []
 
 -------------------------------------------------------------------------------
 -- Searching with a predicate
