@@ -121,7 +121,9 @@ parse p s with runParser p s
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: (maybe [] [_] <<< uncons)
+anyChar = Parser: \ s -> case unpack s of \ where
+   [] -> []
+   (c :: cs) -> [ (c , pack cs) ]
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
