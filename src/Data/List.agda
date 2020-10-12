@@ -72,8 +72,8 @@ intersperse sep = flip foldr [] \ where
 -------------------------------------------------------------------------------
 
 takeWhile : (a -> Bool) -> List a -> List a
-takeWhile p = reverse <<< fromEither <<< flip foldlM [] \ where
-  xs x -> if p x then Right (x :: xs) else Left xs
+takeWhile p [] = []
+takeWhile p (x :: xs) = if p x then x :: takeWhile p xs else []
 
 dropWhile : (a -> Bool) -> List a -> List a
 dropWhile p = reverse <<< snd <<< flip foldl (True , []) \ where
