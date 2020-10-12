@@ -72,20 +72,20 @@ intersperse sep = flip foldr [] \ where
 -------------------------------------------------------------------------------
 
 takeWhile : (a -> Bool) -> List a -> List a
-takeWhile p [] = []
+takeWhile _ [] = []
 takeWhile p (x :: xs) = if p x then x :: takeWhile p xs else []
 
 dropWhile : (a -> Bool) -> List a -> List a
-dropWhile p [] = []
+dropWhile _ [] = []
 dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
 
 take : Nat -> List a -> List a
-take n [] = []
+take _ [] = []
 take 0 xs = []
 take (Suc n) (x :: xs) = x :: take n xs
 
 drop : Nat -> List a -> List a
-drop n [] = []
+drop _ [] = []
 drop 0 xs = xs
 drop (Suc n) (x :: xs) = drop n xs
 
@@ -100,9 +100,12 @@ break p = span (not <<< p)
 -------------------------------------------------------------------------------
 
 indexed : List a -> List (Nat * a)
-indexed = reverse <<< flip foldl [] \ where
-  [] a -> (0 , a) :: []
-  xs@(h :: t) a' -> (Suc (fst h) , a') :: xs
+indexed [] = []
+indexed xs = go 0 xs
+  where
+    go : Nat -> List a -> List (Nat * a)
+    go _ [] = []
+    go n (y :: ys) = (n , y) :: go (Suc n) ys
 
 splitAt : Nat -> List a -> List a * List a
 splitAt n xs = (take n xs , drop n xs)
