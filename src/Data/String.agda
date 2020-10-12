@@ -9,23 +9,35 @@ module Data.String where
 open import Prelude
 
 open import Data.List
+open import Control.Lens
 
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
 
+Chars : Set
+Chars = List Char
+
 padRight : Nat -> Char -> String -> String
-padRight l c cs = cs <> replicate (l - count cs) c
+padRight l c s = pack $ padRight' l c $ unpack s
+  where
+    padRight' : Nat -> Char -> Chars -> Chars
+    padRight' l c cs = cs <> replicate (l - count cs) c
 
 padLeft : Nat -> Char -> String -> String
-padLeft l c cs = replicate (l - count cs) c <> cs
+padLeft l c s = pack $ padLeft' l c $ unpack s
+  where
+    padLeft' : Nat -> Char -> Chars -> Chars
+    padLeft' l c cs = replicate (l - count cs) c <> cs
 
 {-# TERMINATING #-}
 words : String -> List String
-words s = let s' = dropWhile isSpace s in
-  if s' == ""
-    then []
-    else let (w , s'') = break isSpace s' in w :: words s''
+words s = map pack $ words' $ unpack s
+  where
+    words' : Chars -> List (Chars)
+    words' cs with dropWhile isSpace cs
+    ... | [] = []
+    ... | cs' = let (w , cs'') = break isSpace cs' in w :: words' cs''
 
 unwords : List String -> String
 unwords [] = ""
@@ -36,15 +48,16 @@ unwords (w :: ws) = w <> go ws
     go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
-lines s =
-  let
-    (l , ls) = foldl f ("" , []) (unpack s)
-  in
-    reverse (if l == "" then ls else (l :: ls))
+lines s = map pack $ lines' $ unpack s
   where
-    f : String * List String -> Char -> String * List String
-    f (l , ls) '\n' = ("" , l :: ls)
-    f (l , ls) c = (snoc l c , ls)
+    lines' : Chars -> List (Chars)
+    lines' cs =
+      let (l , ls) = foldl f ([] , []) cs
+      in reverse (if l == [] then ls else (l :: ls))
+      where
+        f : Chars * List (Chars) -> Char -> Chars * List (Chars)
+        f (l , ls) '\n' = ([] , l :: ls)
+        f (l , ls) c = (snoc l c , ls)
 
 unlines : List String -> String
 unlines = fold <<< map (_<> "\n")
