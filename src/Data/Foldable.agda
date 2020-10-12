@@ -159,3 +159,6 @@ instance
 
   Foldable-Const : Foldable (Const a)
   Foldable-Const .foldMap _ _ = mempty
+
+  Foldable-List : Foldable List
+  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
