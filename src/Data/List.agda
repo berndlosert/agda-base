@@ -76,15 +76,13 @@ takeWhile p [] = []
 takeWhile p (x :: xs) = if p x then x :: takeWhile p xs else []
 
 dropWhile : (a -> Bool) -> List a -> List a
-dropWhile p = reverse <<< snd <<< flip foldl (True , []) \ where
-  (check , xs) x ->
-    if check
-      then if p x then (True , xs) else (False , x :: xs)
-      else (False , x :: xs)
+dropWhile p [] = []
+dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
 
 take : Nat -> List a -> List a
-take n = reverse <<< snd <<< fromEither <<< flip foldlM (0 , []) \ where
-  (k , xs) x -> if k < n then Right (Suc k , x :: xs) else Left (Suc k , xs)
+take n [] = []
+take 0 xs = []
+take (Suc n) (x :: xs) = x :: take n xs
 
 drop : Nat -> List a -> List a
 drop n = reverse <<< snd <<< flip foldl (0 , []) \ where
