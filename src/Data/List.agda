@@ -223,28 +223,20 @@ zipCons heads tails =
 -- Predicates
 -------------------------------------------------------------------------------
 
-module _ {{_ : Listlike s a}} {{_ : Eq a}} where
+module _ {{_ : Listlike s a}} {{_ : Eq s}} where
 
-  {-# TERMINATING #-}
   isPrefixOf : s -> s -> Bool
-  isPrefixOf xs ys = case (uncons xs , uncons ys) of \ where
-    (Nothing , _) -> True
-    (_ , Nothing) -> False
-    (Just (a , as) , Just (b , bs)) -> (a == b) && isPrefixOf as bs
+  isPrefixOf xs ys = take (count xs) ys == ys
 
   isSuffixOf : s -> s -> Bool
   isSuffixOf xs ys = isPrefixOf (reverse xs) (reverse ys)
 
-  {-# TERMINATING #-}
   isInfixOf : s -> s -> Bool
-  isInfixOf xs ys = case (uncons xs , uncons ys) of \ where
-    (Nothing , _) -> True
-    (_ , Nothing) -> False
-    (Just (a , as) , Just (b , bs)) ->
-      if a == b then isPrefixOf as bs else isInfixOf (cons a as) bs
+  isInfixOf xs ys = maybe False (const True) $
+    find (_== xs) (segmentsOfSize (count xs) ys)
 
   {-# TERMINATING #-}
-  isSubsequenceOf : s -> s -> Bool
+  isSubsequenceOf : {{_ : Eq a}} -> s -> s -> Bool
   isSubsequenceOf xs ys = case (uncons xs , uncons ys) of \ where
     (Nothing , _) -> True
     (_ , Nothing) -> False
@@ -257,7 +249,7 @@ module _ {{_ : Listlike s a}} {{_ : Eq a}} where
 
 module _ {{_ : Listlike s a}} where
 
-  stripPrefix : {{_ : Eq a}} -> s -> s -> Maybe s
+  stripPrefix : {{_ : Eq s}} -> s -> s -> Maybe s
   stripPrefix xs ys =
     if isPrefixOf xs ys then Just (drop (count xs) ys) else Nothing
 
