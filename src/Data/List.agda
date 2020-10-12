@@ -85,8 +85,9 @@ take 0 xs = []
 take (Suc n) (x :: xs) = x :: take n xs
 
 drop : Nat -> List a -> List a
-drop n = reverse <<< snd <<< flip foldl (0 , []) \ where
-  (k , xs) x -> if k < n then (Suc k , xs) else (Suc k , x :: xs)
+drop n [] = []
+drop 0 xs = xs
+drop (Suc n) (x :: xs) = drop n xs
 
 span : (a -> Bool) -> List a -> List a * List a
 span p xs = (takeWhile p xs , dropWhile p xs)
