@@ -8,49 +8,17 @@ module Data.String where
 
 open import Prelude
 
-open import Data.Foldable
 open import Data.List
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Foldable public
-open Data.List public
-
--------------------------------------------------------------------------------
--- Variables
--------------------------------------------------------------------------------
-
-private
-  variable
-    a : Set
-
--------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Monofoldable-String-Char : Monofoldable String Char
-  Monofoldable-String-Char .foldMap f s = foldMap f (unpack s)
-
-  Listlike-String-Char : Listlike String Char
-  Listlike-String-Char .nil = ""
-  Listlike-String-Char .singleton = pack <<< [_]
-  Listlike-String-Char ._++_ = _<>_
-  Listlike-String-Char .uncons xs = case unpack xs of \ where
-    [] -> Nothing
-    (a :: as) -> Just (a , pack as)
 
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
 
 padRight : Nat -> Char -> String -> String
-padRight l c cs = cs ++ replicate (l - count cs) c
+padRight l c cs = cs <> replicate (l - count cs) c
 
 padLeft : Nat -> Char -> String -> String
-padLeft l c cs = replicate (l - count cs) c ++ cs
+padLeft l c cs = replicate (l - count cs) c <> cs
 
 {-# TERMINATING #-}
 words : String -> List String
