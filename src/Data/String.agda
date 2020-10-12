@@ -19,7 +19,7 @@ Chars : Set
 Chars = List Char
 
 padRight : Nat -> Char -> String -> String
-padRight l c s = pack $ padRight' l c $ unpack s
+padRight l c = repack $ padRight' l c
   where
     padRight' : Nat -> Char -> Chars -> Chars
     padRight' l c cs = cs <> replicate (l - count cs) c
@@ -32,7 +32,7 @@ padLeft l c s = pack $ padLeft' l c $ unpack s
 
 {-# TERMINATING #-}
 words : String -> List String
-words s = map pack $ words' $ unpack s
+words = map pack <<< words' <<< unpack
   where
     words' : Chars -> List (Chars)
     words' cs with dropWhile isSpace cs
@@ -48,7 +48,7 @@ unwords (w :: ws) = w <> go ws
     go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
-lines s = map pack $ lines' $ unpack s
+lines = map pack <<< lines' <<< unpack
   where
     lines' : Chars -> List (Chars)
     lines' cs =
