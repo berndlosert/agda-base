@@ -9,6 +9,7 @@ module Data.List where
 open import Prelude
 
 open import Data.Constraint.Nonempty
+open import Data.Monoid.Endo
 open import Data.Foldable
 open import Data.Traversable
 
@@ -162,6 +163,17 @@ instance
   Listlike-List ._++_ = _<>_
   Listlike-List .uncons [] = Nothing
   Listlike-List .uncons (x :: xs) = Just (x , xs)
+
+  Monofoldable-Endo : {{_ : Listlike s a}} -> Monofoldable (Endo s) a
+  Monofoldable-Endo .foldMap f (Endo: s) = foldMap f (s nil)
+
+  Listlike-Endo : {{_ : Listlike s a}} -> Listlike (Endo s) a
+  Listlike-Endo .nil = Endo: id
+  Listlike-Endo .singleton x = Endo: (cons x)
+  Listlike-Endo ._++_ (Endo: xs) (Endo: ys) = Endo: (xs <<< ys)
+  Listlike-Endo .uncons (Endo: xs) = do
+    (h , t) <- uncons (xs nil)
+    return (h , Endo: (t ++_))
 
 -------------------------------------------------------------------------------
 -- Segments
