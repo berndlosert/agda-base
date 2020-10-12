@@ -19,13 +19,13 @@ Chars : Set
 Chars = List Char
 
 padRight : Nat -> Char -> String -> String
-padRight l c = repack $ padRight' l c
+padRight l c = under packed (padRight' l c)
   where
     padRight' : Nat -> Char -> Chars -> Chars
     padRight' l c cs = cs <> replicate (l - count cs) c
 
 padLeft : Nat -> Char -> String -> String
-padLeft l c s = pack $ padLeft' l c $ unpack s
+padLeft l c = under packed (padLeft' l c)
   where
     padLeft' : Nat -> Char -> Chars -> Chars
     padLeft' l c cs = replicate (l - count cs) c <> cs
