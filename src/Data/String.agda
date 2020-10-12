@@ -32,7 +32,7 @@ padLeft l c = under packed (padLeft' l c)
 
 {-# TERMINATING #-}
 words : String -> List String
-words = map pack <<< words' <<< unpack
+words = unpacked words'
   where
     words' : Chars -> List (Chars)
     words' cs with dropWhile isSpace cs
@@ -48,7 +48,7 @@ unwords (w :: ws) = w <> go ws
     go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
-lines = map pack <<< lines' <<< unpack
+lines = unpacked lines'
   where
     lines' : Chars -> List (Chars)
     lines' cs =
