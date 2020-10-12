@@ -150,6 +150,10 @@ insertAt _ _ [] = []
 filter : (a -> Bool) -> List a -> List a
 filter p = foldr (\ x xs -> if p x then x :: xs else xs) []
 
+filterA : {{_ : Applicative f}} -> (a -> f Bool) -> List a -> f (List a)
+filterA p = flip foldr (pure []) \ where
+    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
+
 partition : (a -> Bool) -> List a -> List a * List a
 partition p xs = (filter p xs , filter (not <<< p) xs)
 
@@ -161,7 +165,8 @@ inits : List a -> List (List a)
 inits = foldr (\ x ys -> [ [] ] <> map (x ::_) ys) [ [] ]
 
 tails : List a -> List (List a)
-tails = foldl (\ ys x -> map (flip snoc x) ys <> [ [] ]) [ [] ]
+tails [] = [ [] ]
+tails xs@(_ :: xs') = [ xs ] <> tails xs'
 
 segments : List a -> List (List a)
 segments xs = [ [] ] <>
@@ -210,24 +215,26 @@ zipCons heads tails =
 -- Predicates
 -------------------------------------------------------------------------------
 
-isPrefixOf : {{_ : Eq a}} -> List a -> List a -> Bool
-isPrefixOf xs ys = take (count xs) ys == xs
+module _ {{_ : Eq a}} where
 
-isSuffixOf : {{_ : Eq a}} -> List a -> List a -> Bool
-isSuffixOf xs ys = isPrefixOf xs (drop (count xs) ys)
+  isPrefixOf : List a -> List a -> Bool
+  isPrefixOf xs ys = take (count xs) ys == xs
 
-isInfixOf : {{_ : Eq a}} -> List a -> List a -> Bool
-isInfixOf xs ys = maybe False (const True) $
-  find (_== xs) (segmentsOfSize (count xs) ys)
+  isSuffixOf : List a -> List a -> Bool
+  isSuffixOf xs ys = isPrefixOf xs (drop (count xs) ys)
 
-isSubsequenceOf : {{_ : Eq a}} -> List a -> List a -> Bool
-isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
-  where
-    g : {{_ : Eq a}} -> List a -> a -> Maybe (List a)
-    g s a = let s' = dropWhile (_/= a) s in
-      if null s'
-        then Nothing
-        else tail s'
+  isInfixOf : List a -> List a -> Bool
+  isInfixOf xs ys = maybe False (const True) $
+    find (_== xs) (segmentsOfSize (count xs) ys)
+
+  isSubsequenceOf : List a -> List a -> Bool
+  isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
+    where
+      g : List a -> a -> Maybe (List a)
+      g s a = let s' = dropWhile (_/= a) s in
+        if null s'
+          then Nothing
+          else tail s'
 
 -------------------------------------------------------------------------------
 -- Sublists
@@ -239,21 +246,12 @@ stripPrefix xs ys =
 
 {-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy eq xs = case uncons xs of \ where
-  Nothing -> []
-  (Just (x , xs)) -> let (ys , zs) = span (eq x) xs in
-    cons x ys :: groupBy eq zs
+groupBy eq [] = []
+groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
+  (x :: ys) :: groupBy eq zs
 
 group : {{_ : Eq a}} -> List a -> List (List a)
 group = groupBy _==_
-
--------------------------------------------------------------------------------
--- Filtering functions
--------------------------------------------------------------------------------
-
-filterA : {{_ : Applicative f}} -> (a -> f Bool) -> List a -> f (List a)
-filterA p = flip foldr (pure []) \ where
-    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -293,14 +291,16 @@ nubBy {a} eq l = nubBy' l []
 unionBy : (a -> a -> Bool) -> List a -> List a -> List a
 unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
 
-delete : {{_ : Eq a}} -> a -> List a -> List a
-delete = deleteBy _==_
+module _ {{_ : Eq a}} where
 
-nub : {{_ : Eq a}} -> List a -> List a
-nub = nubBy _==_
+  delete : a -> List a -> List a
+  delete = deleteBy _==_
 
-union : {{_ : Eq a}} -> List a -> List a -> List a
-union = unionBy _==_
+  nub : List a -> List a
+  nub = nubBy _==_
+
+  union : List a -> List a -> List a
+  union = unionBy _==_
 
 -------------------------------------------------------------------------------
 -- Sorting
@@ -316,14 +316,16 @@ sortBy : (a -> a -> Ordering) -> List a -> List a
 sortBy cmp [] = []
 sortBy cmp (x :: xs) = insertBy cmp x (sortBy cmp xs)
 
-insert : {{_ : Ord a}} -> a -> List a -> List a
-insert = insertBy compare
+module _ {{_ : Ord a}} where
 
-sort : {{_ : Ord a}} -> List a -> List a
-sort = sortBy compare
+  insert : a -> List a -> List a
+  insert = insertBy compare
 
-sortOn : {{_ : Ord b}} -> (a -> b) -> List a -> List a
-sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
+  sort : List a -> List a
+  sort = sortBy compare
+
+  sortOn : (b -> a) -> List b -> List b
+  sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
 
 -------------------------------------------------------------------------------
 -- Searching
