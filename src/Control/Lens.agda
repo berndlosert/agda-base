@@ -23,7 +23,7 @@ open import Data.Traversable
 private
   variable
     a b c r s t : Set
-    f : Set -> Set
+    f g : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Types and type classes used for characterizing optics
@@ -133,6 +133,22 @@ Prism s t a b = forall {p} {{_ : Choice p}} {f} {{_ : Applicative f}}
   -> p a (f b) -> p s (f t)
 
 -------------------------------------------------------------------------------
+-- Constructors
+-------------------------------------------------------------------------------
+
+lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
+lens v u f s = map (u s) (f (v s))
+
+prism : (b -> t)  -> (s -> t + a) -> Prism s t a b
+prism bt seta = dimap seta (either pure (map bt)) <<< rchoice
+
+prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
+prism' bs sma = prism bs (\ s -> maybe (Left s) Right (sma s))
+
+iso : (s -> a) -> (b -> t) -> Iso s t a b
+iso f g = dimap f (map g)
+
+-------------------------------------------------------------------------------
 -- Getting operations
 -------------------------------------------------------------------------------
 
@@ -220,6 +236,10 @@ withIso ai k with ai (Exchange: id Identity:)
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
 
+mapping : {{_ : Functor f}} {{_ : Functor g}}
+  -> AnIso s t a b -> Iso (f s) (g t) (f a) (g b)
+mapping k = withIso k $ \ sa bt -> iso (map sa) (map bt)
+
 -------------------------------------------------------------------------------
 -- APrism
 -------------------------------------------------------------------------------
@@ -242,22 +262,6 @@ isn't ap s with matching ap s
 
 is : APrism s t a b -> s -> Bool
 is ap = not <<< isn't ap
-
--------------------------------------------------------------------------------
--- Constructors
--------------------------------------------------------------------------------
-
-lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
-lens v u f s = map (u s) (f (v s))
-
-prism : (b -> t)  -> (s -> t + a) -> Prism s t a b
-prism bt seta = dimap seta (either pure (map bt)) <<< rchoice
-
-prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
-prism' bs sma = prism bs (\ s -> maybe (Left s) Right (sma s))
-
-iso : (s -> a) -> (b -> t) -> Iso s t a b
-iso f g = dimap f (map g)
 
 -------------------------------------------------------------------------------
 -- Some general optics
