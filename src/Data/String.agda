@@ -51,7 +51,7 @@ length : String -> Nat
 length = List.count <<< unpack
 
 padRight : Nat -> Char -> String -> String
-padRight l c s = s <> replicate (l - length s) (cons c "")
+padRight l c s = s <> replicate (l - length s) (singleton c)
 
 padLeft : Nat -> Char -> String -> String
 padLeft l c = under packed (padLeft' l c)
