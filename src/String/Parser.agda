@@ -5,10 +5,9 @@ module String.Parser where
 
 open import Prelude
 
+open import Control.Lens
 open import Control.Monad.State.Trans
 open import Data.Constraint.Nonempty
-open import Data.Foldable
-open import Data.Traversable
 open import Data.List as List hiding (takeWhile; dropWhile)
 open import Data.String
 
@@ -188,9 +187,11 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string s with uncons s
-... | Nothing = pure ""
-... | (Just (c , s')) = char c *> string s' *> pure (cons c s')
+string = unpacked string'
+  where
+    string' : Chars -> Parser Chars
+    string' [] = pure []
+    string' cs@(c :: cs') = char c *> string' cs' *> pure cs
 
 word : Parser String
 word1 : Parser String

@@ -8,6 +8,7 @@ module Data.String where
 
 open import Prelude hiding (pack; unpack; empty)
 
+open import Data.Constraint.Nonempty
 open import Data.List as List using ()
 open import Control.Lens
 
@@ -60,6 +61,9 @@ tail = map snd <<< uncons
 
 length : String -> Nat
 length = List.count <<< unpack
+
+init : (s : String) {{_ : Nonempty s}} -> String
+init s = pack $ List.init (unpack s) {{believeMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
