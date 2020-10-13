@@ -52,19 +52,15 @@ head = map fst <<< uncons
 tail : String -> Maybe String
 tail = map snd <<< uncons
 
+length : String -> Nat
+length = List.count <<< unpack
+
 -------------------------------------------------------------------------------
 -- Generation and unfolding
 -------------------------------------------------------------------------------
 
 replicate : Nat -> String -> String
 replicate n s = List.fold (List.replicate n s)
-
--------------------------------------------------------------------------------
--- Folds
--------------------------------------------------------------------------------
-
-length : String -> Nat
-length = List.count <<< unpack
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -84,11 +80,7 @@ justifyRight : Nat -> Char -> String -> String
 justifyRight l c s = replicate (l - length s) (singleton c) <> s
 
 -------------------------------------------------------------------------------
--- Folds
--------------------------------------------------------------------------------
-
--------------------------------------------------------------------------------
--- Parsing words and lines
+-- Breaking into lines and words
 -------------------------------------------------------------------------------
 
 {-# TERMINATING #-}
