@@ -54,10 +54,7 @@ padRight : Nat -> Char -> String -> String
 padRight l c s = s <> replicate (l - length s) (singleton c)
 
 padLeft : Nat -> Char -> String -> String
-padLeft l c = under packed (padLeft' l c)
-  where
-    padLeft' : Nat -> Char -> Chars -> Chars
-    padLeft' l c cs = List.replicate (l - List.count cs) c <> cs
+padLeft l c s = replicate (l - length s) (singleton c) <> s
 
 {-# TERMINATING #-}
 words : String -> List String
