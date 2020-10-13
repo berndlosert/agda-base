@@ -62,6 +62,10 @@ head = list Nothing (\ x _ -> Just x)
 tail : List a -> Maybe (List a)
 tail = list Nothing (\ _ xs -> Just xs )
 
+init : (xs : List a) {{_ : Nonempty xs}} -> List a
+init (x :: []) = []
+init (x :: x' :: xs) = x :: init (x' :: xs)
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
