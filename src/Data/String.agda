@@ -34,15 +34,18 @@ replicate n s = List.fold (List.replicate n s)
 uncons : String -> Maybe (Char * String)
 uncons s = maybe Nothing (Just <<< second pack) (List.uncons (unpack s))
 
---head : List a -> Maybe a
---head = list Nothing (\ x _ -> Just x)
---
---tail : List a -> Maybe (List a)
---tail = list Nothing (\ _ xs -> Just xs )
+head : String -> Maybe Char
+head = map fst <<< uncons
+
+tail : String -> Maybe String
+tail = map snd <<< uncons
 
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
+
+length : String -> Nat
+length = List.count <<< unpack
 
 padRight : Nat -> Char -> String -> String
 padRight l c = under packed (padRight' l c)
@@ -97,6 +100,7 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC snoc = Text.snoc #-}
 {-# COMPILE GHC uncons = Text.uncons #-}
 {-# COMPILE GHC replicate = \ n -> Text.replicate (fromInteger n) #-}
+{-# COMPILE GHC length = toInteger . Text.length #-}
 {-# COMPILE GHC words = Text.words #-}
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
