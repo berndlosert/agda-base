@@ -24,6 +24,9 @@ cons c = under packed (c ::_)
 snoc : String -> Char -> String
 snoc s c = under packed (_<> [ c ]) s
 
+singleton : Char -> String
+singleton = pack <<< [_]
+
 replicate : Nat -> String -> String
 replicate n s = List.fold (List.replicate n s)
 
@@ -95,6 +98,7 @@ unlines = List.fold <<< map (_<> "\n")
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
 {-# COMPILE GHC snoc = Text.snoc #-}
+{-# COMPILE GHC singleton = Text.singleton #-}
 {-# COMPILE GHC uncons = Text.uncons #-}
 {-# COMPILE GHC replicate = \ n -> Text.replicate (fromInteger n) #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
