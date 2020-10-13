@@ -8,8 +8,8 @@ open import Prelude
 open import Control.Lens
 open import Control.Monad.State.Trans
 open import Data.Constraint.Nonempty
-open import Data.List as List hiding (takeWhile; dropWhile)
-open import Data.String
+open import Data.List as List using ()
+open import Data.String as String using ()
 
 private variable a b c : Set
 
@@ -54,11 +54,11 @@ eitherP : Parser a -> Parser b -> Parser (a + b)
 eitherP a b = (| Left a | Right b |)
 
 choice : List (Parser a) -> Parser a
-choice ps = foldr _<|>_ empty ps
+choice ps = List.foldr _<|>_ empty ps
 
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
-exactly n p = sequence (replicate n p)
+exactly n p = List.sequence (List.replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> (q <* p')
@@ -120,9 +120,7 @@ parse p s with runParser p s
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: \ s -> case unpack s of \ where
-   [] -> []
-   (c :: cs) -> [ (c , pack cs) ]
+anyChar = Parser: (maybe [] [_] <<< String.uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -141,10 +139,10 @@ char : Char -> Parser Char
 char c = satisfy (c ==_)
 
 oneOf : List Char -> Parser Char
-oneOf cs = satisfy (\ c -> elem c cs)
+oneOf cs = satisfy (\ c -> List.elem c cs)
 
 noneOf : List Char -> Parser Char
-noneOf cs = satisfy (\ c -> notElem c cs)
+noneOf cs = satisfy (\ c -> List.notElem c cs)
 
 letter : Parser Char
 letter = satisfy isAlpha
@@ -187,11 +185,9 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string = unpacked string'
-  where
-    string' : Chars -> Parser Chars
-    string' [] = pure []
-    string' cs@(c :: cs') = char c *> string' cs' *> pure cs
+string s with String.uncons s
+... | Nothing = pure ""
+... | (Just (c , s')) = char c *> string s' *> pure (String.cons c s')
 
 word : Parser String
 word1 : Parser String
@@ -199,11 +195,10 @@ word = word1 <|> (pure "")
 word1 = do
   c <- letter
   s <- word
-  return (cons c s)
+  return (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = Parser: \ s ->
-  [ (List.takeWhile p s , List.dropWhile p s) ]
+takeWhile p = Parser: \ s -> [ String.break p s ]
 
 takeAll : Parser String
 takeAll = takeWhile (const True)
