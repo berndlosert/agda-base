@@ -48,10 +48,7 @@ length : String -> Nat
 length = List.count <<< unpack
 
 padRight : Nat -> Char -> String -> String
-padRight l c = under packed (padRight' l c)
-  where
-    padRight' : Nat -> Char -> Chars -> Chars
-    padRight' l c cs = cs <> List.replicate (l - List.count cs) c
+padRight l c s = s <> replicate (l - length s) (cons c "")
 
 padLeft : Nat -> Char -> String -> String
 padLeft l c = under packed (padLeft' l c)
