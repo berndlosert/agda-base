@@ -6,17 +6,33 @@ module Data.String where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (pack; unpack; empty)
 
 open import Data.List as List using ()
 open import Control.Lens
 
 -------------------------------------------------------------------------------
--- Constructors
+-- Creation and elimination
 -------------------------------------------------------------------------------
 
 Chars : Set
 Chars = List Char
+
+pack : Chars -> String
+pack = Prelude.pack
+
+unpack : String -> Chars
+unpack = Prelude.unpack
+
+singleton : Char -> String
+singleton = pack <<< [_]
+
+empty : String
+empty = ""
+
+-------------------------------------------------------------------------------
+-- Basic interface
+-------------------------------------------------------------------------------
 
 cons : Char -> String -> String
 cons c = under packed (c ::_)
@@ -24,15 +40,8 @@ cons c = under packed (c ::_)
 snoc : String -> Char -> String
 snoc s c = under packed (_<> [ c ]) s
 
-singleton : Char -> String
-singleton = pack <<< [_]
-
-replicate : Nat -> String -> String
-replicate n s = List.fold (List.replicate n s)
-
--------------------------------------------------------------------------------
--- Destructors
--------------------------------------------------------------------------------
+append : String -> String -> String
+append = _<>_
 
 uncons : String -> Maybe (Char * String)
 uncons s = maybe Nothing (Just <<< second pack) (List.uncons (unpack s))
@@ -44,20 +53,39 @@ tail : String -> Maybe String
 tail = map snd <<< uncons
 
 -------------------------------------------------------------------------------
--- Functions
+-- Generation and unfolding
+-------------------------------------------------------------------------------
+
+replicate : Nat -> String -> String
+replicate n s = List.fold (List.replicate n s)
+
+-------------------------------------------------------------------------------
+-- Folds
 -------------------------------------------------------------------------------
 
 length : String -> Nat
 length = List.count <<< unpack
 
+-------------------------------------------------------------------------------
+-- Transformations
+-------------------------------------------------------------------------------
+
 reverse : String -> String
 reverse = under packed List.reverse
 
-padRight : Nat -> Char -> String -> String
-padRight l c s = s <> replicate (l - length s) (singleton c)
+-------------------------------------------------------------------------------
+-- Justification
+-------------------------------------------------------------------------------
 
-padLeft : Nat -> Char -> String -> String
-padLeft l c s = replicate (l - length s) (singleton c) <> s
+justifyLeft : Nat -> Char -> String -> String
+justifyLeft l c s = s <> replicate (l - length s) (singleton c)
+
+justifyRight : Nat -> Char -> String -> String
+justifyRight l c s = replicate (l - length s) (singleton c) <> s
+
+-------------------------------------------------------------------------------
+-- Folds
+-------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 -- Parsing words and lines
@@ -104,9 +132,11 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC snoc = Text.snoc #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
 {-# COMPILE GHC uncons = Text.uncons #-}
-{-# COMPILE GHC replicate = \ n -> Text.replicate (fromInteger n) #-}
+{-# COMPILE GHC replicate = Text.replicate . fromInteger #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
 {-# COMPILE GHC reverse = Text.reverse #-}
+{-# COMPILE GHC justifyLeft = Text.justifyLeft . fromInteger #-}
+{-# COMPILE GHC justifyRight = Text.justifyRight . fromInteger #-}
 {-# COMPILE GHC words = Text.words #-}
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
