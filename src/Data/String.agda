@@ -46,6 +46,9 @@ append = _<>_
 uncons : String -> Maybe (Char * String)
 uncons s = maybe Nothing (Just <<< second pack) (List.uncons (unpack s))
 
+unsnoc : String -> Maybe (String * Char)
+unsnoc s = maybe Nothing (Just <<< first pack) (List.unsnoc (unpack s))
+
 head : String -> Maybe Char
 head = map fst <<< uncons
 
@@ -124,6 +127,7 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC snoc = Text.snoc #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
 {-# COMPILE GHC uncons = Text.uncons #-}
+{-# COMPILE GHC unsnoc = Text.unsnoc #-}
 {-# COMPILE GHC replicate = Text.replicate . fromInteger #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
 {-# COMPILE GHC reverse = Text.reverse #-}
