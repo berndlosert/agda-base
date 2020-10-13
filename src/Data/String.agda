@@ -107,6 +107,23 @@ justifyRight l c s = replicate (l - length s) (singleton c) <> s
 {-# COMPILE GHC justifyRight = Text.justifyRight . fromInteger #-}
 
 -------------------------------------------------------------------------------
+-- Breaking strings
+-------------------------------------------------------------------------------
+
+takeWhile : (Char -> Bool) -> String -> String
+takeWhile p = under packed (List.takeWhile p)
+
+dropWhile : (Char -> Bool) -> String -> String
+dropWhile p = under packed (List.dropWhile p)
+
+break : (Char -> Bool) -> String -> String * String
+break p s = bimap pack pack $ List.break p $ unpack s
+
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC takeWhile = Text.takeWhile #-}
+{-# COMPILE GHC dropWhile = Text.dropWhile #-}
+
+-------------------------------------------------------------------------------
 -- Breaking into lines and words
 -------------------------------------------------------------------------------
 
