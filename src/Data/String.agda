@@ -59,6 +59,10 @@ padRight l c s = s <> replicate (l - length s) (singleton c)
 padLeft : Nat -> Char -> String -> String
 padLeft l c s = replicate (l - length s) (singleton c) <> s
 
+-------------------------------------------------------------------------------
+-- Parsing words and lines
+-------------------------------------------------------------------------------
+
 {-# TERMINATING #-}
 words : String -> List String
 words = unpacked words'
