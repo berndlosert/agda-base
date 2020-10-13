@@ -116,12 +116,17 @@ takeWhile p = under packed (List.takeWhile p)
 dropWhile : (Char -> Bool) -> String -> String
 dropWhile p = under packed (List.dropWhile p)
 
+span : (Char -> Bool) -> String -> String * String
+span p s = bimap pack pack $ List.span p $ unpack s
+
 break : (Char -> Bool) -> String -> String * String
 break p s = bimap pack pack $ List.break p $ unpack s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC takeWhile = Text.takeWhile #-}
 {-# COMPILE GHC dropWhile = Text.dropWhile #-}
+{-# COMPILE GHC span = Text.span #-}
+{-# COMPILE GHC break = Text.break #-}
 
 -------------------------------------------------------------------------------
 -- Breaking into lines and words

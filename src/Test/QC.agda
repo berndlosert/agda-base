@@ -112,7 +112,7 @@ frequency {a} xs = choose (1 , tot) >>= (\ x -> pick x xs)
 elements : (xs : List a) {{_ : Nonempty xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{believeMe}})
-  (choose {Nat} (0 , List.length xs - 1))
+  (choose {Nat} (0 , List.count xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = replicateA
@@ -127,7 +127,7 @@ sublistOf = List.filterA \ _ -> map (_== 0) (choose {Nat} (0 , 1))
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
-  ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2 ^ 32))
+  ns <- vectorOf (List.count xs) (choose {Nat} (0 , 2 ^ 32))
   return (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
 
 promote : (a -> Gen b) -> Gen (a -> b)
@@ -297,7 +297,7 @@ private
 
       pairLength : List (List String) -> Nat * List String
       pairLength [] = (0 , [])
-      pairLength xss@(xs :: _) = (List.length xss , xs)
+      pairLength xss@(xs :: _) = (List.count xss , xs)
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
