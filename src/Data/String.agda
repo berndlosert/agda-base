@@ -20,21 +20,20 @@ Chars = List Char
 
 cons : Char -> String -> String
 cons c = under packed (c ::_)
---cons c = pack <<< (c ::_) <<< unpack
 
---snoc : List a -> a -> List a
---snoc xs x = xs <> [ x ]
---
---replicate : Nat -> a -> List a
---replicate n x = applyN (x ::_) n []
+snoc : String -> Char -> String
+snoc s c = under packed (_<> [ c ]) s
+
+replicate : Nat -> String -> String
+replicate n s = List.fold (List.replicate n s)
 
 -------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
 
---uncons : List a -> Maybe (a * List a)
---uncons = list Nothing (\ x xs -> Just (x , xs))
---
+uncons : String -> Maybe (Char * String)
+uncons s = maybe Nothing (Just <<< second pack) (List.uncons (unpack s))
+
 --head : List a -> Maybe a
 --head = list Nothing (\ x _ -> Just x)
 --
@@ -94,6 +93,10 @@ unlines = List.fold <<< map (_<> "\n")
 -------------------------------------------------------------------------------
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC cons = Text.cons #-}
+{-# COMPILE GHC snoc = Text.snoc #-}
+{-# COMPILE GHC uncons = Text.uncons #-}
+{-# COMPILE GHC replicate = \ n -> Text.replicate (fromInteger n) #-}
 {-# COMPILE GHC words = Text.words #-}
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
