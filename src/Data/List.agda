@@ -49,6 +49,13 @@ replicate n x = applyN (x ::_) n []
 uncons : List a -> Maybe (a * List a)
 uncons = list Nothing (\ x xs -> Just (x , xs))
 
+unsnoc : List a -> Maybe (List a * a)
+unsnoc = foldr go Nothing
+  where
+    go : a -> Maybe (List a * a) -> Maybe (List a * a)
+    go x Nothing = Just ([] , x)
+    go x (Just (xs , e)) = Just (x :: xs , e)
+
 head : List a -> Maybe a
 head = list Nothing (\ x _ -> Just x)
 
