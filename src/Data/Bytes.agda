@@ -59,5 +59,5 @@ instance
 {-# COMPILE GHC primAppend = BS.append #-}
 {-# COMPILE GHC primEmpty = BS.empty #-}
 {-# COMPILE GHC singleton = BS.singleton #-}
-{-# COMPILE GHC foldr = BS.foldr #-}
+{-# COMPILE GHC foldr = \ _ -> BS.foldr #-}
 {-# COMPILE GHC putStrLn = Char8.putStrLn #-}
