@@ -27,6 +27,7 @@ echo base-library >> ~/.agda/defaults
 # Needed to compile agda programs into executables
 cabal update
 cabal install --lib ieee754
+cabal install --lib network # Needed by Network.Socket code
 ```
 
 N.B. `brew install agda` will install a couple of "unnecessary" things:
@@ -66,3 +67,65 @@ Compile it like so:
 ```
 agda --compile hello.agda
 ```
+
+## A more complex example
+
+Save the following code into a file called echo-server.agda:
+
+```agda
+ open import Prelude
+
+ open import Data.Bytes as Bytes using ()
+ open import Data.List as List using ()
+ open import Data.String.Encoding
+ open import Network.Socket
+ open import System.IO
+
+ runTCPEchoServer : IO Unit
+ runTCPEchoServer = do
+   addrinfos <- getAddrInfo Nothing
+     (Just $ unpack "127.0.0.1")
+     (Just $ unpack "7000")
+   let serveraddr = fromJust (List.head addrinfos) {{believeMe}}
+   sock <- socket (addrFamily serveraddr) SOCK_STREAM defaultProtocol
+   bind sock (addrAddress serveraddr)
+   listen sock 1
+   accepted <- accept sock
+   let conn = fst accepted
+   print "Waiting for a message..."
+   msg <- recv conn 1024
+   unless (Bytes.null msg) do
+     print ("Received: " <> decodeUtf8 msg)
+     print "Echoing..."
+     sendAll conn msg
+   print "Closing..."
+   close conn
+   close sock
+
+ main : IO Unit
+ main = runTCPEchoServer
+```
+
+Compile this code by running `agda --compile echo-server.agda`. If you get the
+following errors:
+
+```
+Compilation error:
+
+MAlonzo/Code/Network/Socket.hs:17:1: error:
+    Could not find module ‘Network.Socket.ByteString’
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+17 | import Network.Socket.ByteString
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+MAlonzo/Code/Network/Socket.hs:18:1: error:
+    Could not find module ‘Network.Socket’
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+18 | import Network.Socket
+   | ^^^^^^^^^^^^^^^^^^^^^
+```
+
+then you need to make sure you have `network` package installed (run `cabal
+install --lib network` to install it).

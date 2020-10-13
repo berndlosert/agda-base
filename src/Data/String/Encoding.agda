@@ -16,6 +16,7 @@ open import Data.Bytes
 
 postulate
   encodeUtf8 : String -> Bytes
+  decodeUtf8 : Bytes -> String
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -23,3 +24,4 @@ postulate
 
 {-# FOREIGN GHC import Data.Text.Encoding #-}
 {-# COMPILE GHC encodeUtf8 = encodeUtf8 #-}
+{-# COMPILE GHC decodeUtf8 = decodeUtf8 #-}

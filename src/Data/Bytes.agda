@@ -32,8 +32,11 @@ private
     primUnpack : Bytes -> List Word8
     primAppend : Bytes -> Bytes -> Bytes
     primEmpty : Bytes
-    singleton : Word8 -> Bytes
-    foldr : (Word8 -> a -> a) -> a -> Bytes -> a
+
+postulate
+  singleton : Word8 -> Bytes
+  foldr : (Word8 -> a -> a) -> a -> Bytes -> a
+  null : Bytes -> Bool
 
 instance
   Packed-Bytes-Word8 : Packed Bytes Word8
@@ -60,4 +63,5 @@ instance
 {-# COMPILE GHC primEmpty = BS.empty #-}
 {-# COMPILE GHC singleton = BS.singleton #-}
 {-# COMPILE GHC foldr = \ _ -> BS.foldr #-}
+{-# COMPILE GHC null = BS.null #-}
 {-# COMPILE GHC putStrLn = Char8.putStrLn #-}
