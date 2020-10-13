@@ -50,6 +50,9 @@ tail = map snd <<< uncons
 length : String -> Nat
 length = List.count <<< unpack
 
+reverse : String -> String
+reverse = under packed List.reverse
+
 padRight : Nat -> Char -> String -> String
 padRight l c s = s <> replicate (l - length s) (singleton c)
 
@@ -99,6 +102,7 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC uncons = Text.uncons #-}
 {-# COMPILE GHC replicate = \ n -> Text.replicate (fromInteger n) #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
+{-# COMPILE GHC reverse = Text.reverse #-}
 {-# COMPILE GHC words = Text.words #-}
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
