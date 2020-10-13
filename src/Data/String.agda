@@ -30,6 +30,9 @@ singleton = pack <<< [_]
 empty : String
 empty = ""
 
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC singleton = Text.singleton #-}
+
 -------------------------------------------------------------------------------
 -- Basic interface
 -------------------------------------------------------------------------------
@@ -58,6 +61,13 @@ tail = map snd <<< uncons
 length : String -> Nat
 length = List.count <<< unpack
 
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC cons = Text.cons #-}
+{-# COMPILE GHC snoc = Text.snoc #-}
+{-# COMPILE GHC uncons = Text.uncons #-}
+{-# COMPILE GHC unsnoc = Text.unsnoc #-}
+{-# COMPILE GHC length = toInteger . Text.length #-}
+
 -------------------------------------------------------------------------------
 -- Generation and unfolding
 -------------------------------------------------------------------------------
@@ -65,12 +75,18 @@ length = List.count <<< unpack
 replicate : Nat -> String -> String
 replicate n s = List.fold (List.replicate n s)
 
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC replicate = Text.replicate . fromInteger #-}
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
 
 reverse : String -> String
 reverse = under packed List.reverse
+
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC reverse = Text.reverse #-}
 
 -------------------------------------------------------------------------------
 -- Justification
@@ -81,6 +97,10 @@ justifyLeft l c s = s <> replicate (l - length s) (singleton c)
 
 justifyRight : Nat -> Char -> String -> String
 justifyRight l c s = replicate (l - length s) (singleton c) <> s
+
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC justifyLeft = Text.justifyLeft . fromInteger #-}
+{-# COMPILE GHC justifyRight = Text.justifyRight . fromInteger #-}
 
 -------------------------------------------------------------------------------
 -- Breaking into lines and words
@@ -118,21 +138,7 @@ lines = unpacked lines'
 unlines : List String -> String
 unlines = List.fold <<< map (_<> "\n")
 
--------------------------------------------------------------------------------
--- FFI
--------------------------------------------------------------------------------
-
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
-{-# COMPILE GHC cons = Text.cons #-}
-{-# COMPILE GHC snoc = Text.snoc #-}
-{-# COMPILE GHC singleton = Text.singleton #-}
-{-# COMPILE GHC uncons = Text.uncons #-}
-{-# COMPILE GHC unsnoc = Text.unsnoc #-}
-{-# COMPILE GHC replicate = Text.replicate . fromInteger #-}
-{-# COMPILE GHC length = toInteger . Text.length #-}
-{-# COMPILE GHC reverse = Text.reverse #-}
-{-# COMPILE GHC justifyLeft = Text.justifyLeft . fromInteger #-}
-{-# COMPILE GHC justifyRight = Text.justifyRight . fromInteger #-}
 {-# COMPILE GHC words = Text.words #-}
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
