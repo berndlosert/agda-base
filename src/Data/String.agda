@@ -10,7 +10,6 @@ open import Prelude hiding (pack; unpack; empty)
 
 open import Data.Constraint.Nonempty
 open import Data.List as List using ()
-open import Control.Lens
 
 -------------------------------------------------------------------------------
 -- Creation and elimination
@@ -26,7 +25,7 @@ unpack : String -> Chars
 unpack = Prelude.unpack
 
 singleton : Char -> String
-singleton = pack <<< [_]
+singleton c = pack [ c ]
 
 empty : String
 empty = ""
@@ -39,10 +38,10 @@ empty = ""
 -------------------------------------------------------------------------------
 
 cons : Char -> String -> String
-cons c = under packed (c ::_)
+cons c s = pack $ c ::_ $ unpack s
 
 snoc : String -> Char -> String
-snoc s c = under packed (_<> [ c ]) s
+snoc s c = s <> singleton c
 
 append : String -> String -> String
 append = _<>_
@@ -54,10 +53,10 @@ unsnoc : String -> Maybe (String * Char)
 unsnoc s = maybe Nothing (Just <<< first pack) (List.unsnoc (unpack s))
 
 head : String -> Maybe Char
-head = map fst <<< uncons
+head s = map fst (uncons s)
 
 tail : String -> Maybe String
-tail = map snd <<< uncons
+tail s = map snd (uncons s)
 
 length : String -> Nat
 length = List.length <<< unpack
@@ -87,7 +86,7 @@ replicate n s = List.fold (List.replicate n s)
 -------------------------------------------------------------------------------
 
 reverse : String -> String
-reverse = under packed List.reverse
+reverse s = pack $ List.reverse $ unpack s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC reverse = Text.reverse #-}
@@ -111,10 +110,10 @@ justifyRight l c s = replicate (l - length s) (singleton c) <> s
 -------------------------------------------------------------------------------
 
 takeWhile : (Char -> Bool) -> String -> String
-takeWhile p = under packed (List.takeWhile p)
+takeWhile p s = pack $ List.takeWhile p $ unpack s
 
 dropWhile : (Char -> Bool) -> String -> String
-dropWhile p = under packed (List.dropWhile p)
+dropWhile p s = pack $ List.dropWhile p $ unpack s
 
 span : (Char -> Bool) -> String -> String * String
 span p s = bimap pack pack $ List.span p $ unpack s
@@ -134,7 +133,7 @@ break p s = bimap pack pack $ List.break p $ unpack s
 
 {-# TERMINATING #-}
 words : String -> List String
-words = unpacked words'
+words s = map pack $ words' $ unpack s
   where
     words' : Chars -> List (Chars)
     words' cs with List.dropWhile isSpace cs
@@ -150,7 +149,7 @@ unwords (w :: ws) = w <> go ws
     go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
-lines = unpacked lines'
+lines s = map pack $ lines' $ unpack s
   where
     lines' : Chars -> List (Chars)
     lines' cs =
