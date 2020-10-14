@@ -133,12 +133,10 @@ break p s = bimap pack pack $ List.break p $ unpack s
 
 {-# TERMINATING #-}
 words : String -> List String
-words s = map pack $ words' $ unpack s
-  where
-    words' : Chars -> List (Chars)
-    words' cs with List.dropWhile isSpace cs
-    ... | [] = []
-    ... | cs' = let (w , cs'') = List.break isSpace cs' in w :: words' cs''
+words s = let s' = dropWhile isSpace s in
+  if s' == ""
+    then []
+    else let (w , s'') = break isSpace s' in (w :: words s'')
 
 unwords : List String -> String
 unwords [] = ""
