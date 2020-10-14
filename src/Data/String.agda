@@ -12,6 +12,14 @@ open import Data.Constraint.Nonempty
 open import Data.List as List using ()
 
 -------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a : Set
+
+-------------------------------------------------------------------------------
 -- Creation and elimination
 -------------------------------------------------------------------------------
 
@@ -106,6 +114,13 @@ justifyRight l c s = replicate (l - length s) (singleton c) <> s
 {-# COMPILE GHC justifyRight = Text.justifyRight . fromInteger #-}
 
 -------------------------------------------------------------------------------
+-- Folds
+-------------------------------------------------------------------------------
+
+foldl : (a -> Char -> a) -> a -> String -> a
+foldl f z s = List.foldl f z (unpack s)
+
+-------------------------------------------------------------------------------
 -- Breaking strings
 -------------------------------------------------------------------------------
 
@@ -147,16 +162,13 @@ unwords (w :: ws) = w <> go ws
     go (v :: vs) = " " <> v <> go vs
 
 lines : String -> List String
-lines s = map pack $ lines' $ unpack s
+lines s =
+  let (l , ls) = foldl f ("" , []) s
+  in List.reverse (if l == "" then ls else (l :: ls))
   where
-    lines' : Chars -> List (Chars)
-    lines' cs =
-      let (l , ls) = List.foldl f ([] , []) cs
-      in List.reverse (if l == [] then ls else (l :: ls))
-      where
-        f : Chars * List (Chars) -> Char -> Chars * List (Chars)
-        f (l , ls) '\n' = ([] , l :: ls)
-        f (l , ls) c = (List.snoc l c , ls)
+    f : String * List String -> Char -> String * List String
+    f (l , ls) '\n' = ("" , l :: ls)
+    f (l , ls) c = (snoc l c , ls)
 
 unlines : List String -> String
 unlines = List.fold <<< map (_<> "\n")
