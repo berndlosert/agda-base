@@ -186,7 +186,7 @@ segments xs = [ [] ] <>
 segmentsOfSize : Nat -> List a -> List (List a)
 segmentsOfSize 0 _ = [ [] ]
 segmentsOfSize n xs =
-  filter (\ ys -> count ys == n) $ foldr _<>_ [] (tails <$> inits xs)
+  filter (\ ys -> length ys == n) $ foldr _<>_ [] (tails <$> inits xs)
 
 -------------------------------------------------------------------------------
 -- Scans
@@ -217,10 +217,10 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (count heads - count tails) []
+    padding = replicate (length heads - length tails) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
-    excess = snd (splitAt (count heads) tails)
+    excess = snd (splitAt (length heads) tails)
 
 -------------------------------------------------------------------------------
 -- Predicates
@@ -229,14 +229,14 @@ zipCons heads tails =
 module _ {{_ : Eq a}} where
 
   isPrefixOf : List a -> List a -> Bool
-  isPrefixOf xs ys = take (count xs) ys == xs
+  isPrefixOf xs ys = take (length xs) ys == xs
 
   isSuffixOf : List a -> List a -> Bool
-  isSuffixOf xs ys = isPrefixOf xs (drop (count xs) ys)
+  isSuffixOf xs ys = isPrefixOf xs (drop (length xs) ys)
 
   isInfixOf : List a -> List a -> Bool
   isInfixOf xs ys = maybe False (const True) $
-    find (_== xs) (segmentsOfSize (count xs) ys)
+    find (_== xs) (segmentsOfSize (length xs) ys)
 
   isSubsequenceOf : List a -> List a -> Bool
   isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
@@ -253,7 +253,7 @@ module _ {{_ : Eq a}} where
 
 stripPrefix : {{_ : Eq a}} -> List a -> List a -> Maybe (List a)
 stripPrefix xs ys =
-  if isPrefixOf xs ys then Just (drop (count xs) ys) else Nothing
+  if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
 
 {-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> List a -> List (List a)

@@ -176,8 +176,8 @@ foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: 
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
-countOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
-countOf l = foldlOf l (\ n _ -> Suc n) 0
+lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
+lengthOf l = foldlOf l (\ n _ -> Suc n) 0
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (Just <<< First:)

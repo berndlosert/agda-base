@@ -64,8 +64,8 @@ record Foldable (t : Set -> Set) : Set where
   toList : t a -> List a
   toList = foldMap [_]
 
-  count : t a -> Nat
-  count = foldr (const Suc) 0
+  length : t a -> Nat
+  length = foldr (const Suc) 0
 
   all : (a -> Bool) -> t a -> Bool
   all p = getAll <<< foldMap (All: <<< p)

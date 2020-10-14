@@ -60,7 +60,7 @@ tail : String -> Maybe String
 tail = map snd <<< uncons
 
 length : String -> Nat
-length = List.count <<< unpack
+length = List.length <<< unpack
 
 init : (s : String) {{_ : Nonempty s}} -> String
 init s = pack $ List.init (unpack s) {{believeMe}}
