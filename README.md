@@ -7,8 +7,8 @@ this library is meant to be a general purpose "batteries-included" base library
 that doesn't require emacs to use and is keyboard friendly.
 
 The design is mostly based on GHC's base library, but a lot of ideas were
-"stolen" from PureScript, agda-stdlib, agda-prelude, Idris and other sources
-that I can't remember now.
+"stolen" from libraries and packages from hackage, pursuit, agda-stdlib,
+agda-prelude, Idris and other sources.
 
 ## How to install with `brew` (macOS Mojave)
 
