@@ -6,7 +6,7 @@ module Data.Map where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (empty)
 
 open import Data.Foldable
 open import Data.List as List using ()
@@ -31,8 +31,8 @@ abstract
 -- Construction
 -------------------------------------------------------------------------------
 
-  nil : Map k v
-  nil = []
+  empty : Map k v
+  empty = []
 
   singleton : k -> v -> Map k v
   singleton k v = [(k , v)]
