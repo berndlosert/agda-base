@@ -39,10 +39,11 @@ open Traversable {{...}} public
 
 instance
   Traversable-Maybe : Traversable Maybe
-  Traversable-Maybe .traverse f = \ where
-    Nothing -> pure Nothing
-    (Just x) -> map Just (f x)
+  Traversable-Maybe .traverse f m with m
+  ... | Nothing = pure Nothing
+  ... | Just x = (| Just (f x) |)
 
   Traversable-List : Traversable List
-  Traversable-List .traverse f = listrec (pure []) \ where
-    x _ ys -> (| _::_ (f x) ys |)
+  Traversable-List .traverse f l with l
+  ... | [] = pure []
+  ... | x :: xs = (| _::_ (f x) (traverse f xs) |)
