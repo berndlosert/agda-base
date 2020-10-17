@@ -95,12 +95,12 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) {{_ : Nonempty gs}} -> Gen a
+oneof : (gs : List (Gen a)) {{_ : IsNonempty gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{believeMe}}
 
-frequency : (xs : List (Constrained Nat Positive * Gen a)) {{_ : Nonempty xs}}
+frequency : (xs : List (Constrained Nat IsPositive * Gen a)) {{_ : IsNonempty xs}}
   -> Gen a
 frequency xs =
     let xs' = map (bimap unconstrained id) xs
@@ -110,7 +110,7 @@ frequency xs =
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
-elements : (xs : List a) {{_ : Nonempty xs}} -> Gen a
+elements : (xs : List a) {{_ : IsNonempty xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{believeMe}})
   (choose {Nat} (0 , List.length xs - 1))

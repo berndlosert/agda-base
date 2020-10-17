@@ -27,15 +27,15 @@ private
 -------------------------------------------------------------------------------
 
 record NonemptyConstraint (a : Set) : Set where
-  field Nonempty : a -> Set
+  field IsNonempty : a -> Set
 
 open NonemptyConstraint {{...}} public
 
 instance
   NonemptyConstraint-List : NonemptyConstraint (List a)
-  NonemptyConstraint-List .Nonempty [] = Void
-  NonemptyConstraint-List .Nonempty _ = Unit
+  NonemptyConstraint-List .IsNonempty [] = Void
+  NonemptyConstraint-List .IsNonempty _ = Unit
 
   NonemptyConstraint-String : NonemptyConstraint String
-  NonemptyConstraint-String .Nonempty "" = Void
-  NonemptyConstraint-String .Nonempty _ = Unit
+  NonemptyConstraint-String .IsNonempty "" = Void
+  NonemptyConstraint-String .IsNonempty _ = Unit

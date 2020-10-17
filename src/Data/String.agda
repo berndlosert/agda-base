@@ -69,7 +69,7 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) {{_ : Nonempty s}} -> String
+init : (s : String) {{_ : IsNonempty s}} -> String
 init s = pack $ List.init (unpack s) {{believeMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}

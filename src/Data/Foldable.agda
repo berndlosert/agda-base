@@ -111,30 +111,30 @@ record Foldable (t : Set -> Set) : Set where
   module _ {{_ : NonemptyConstraint (t a)}} where
 
     foldMap1 : {{_ : Semigroup b}}
-      -> (a -> b) -> (xs : t a) {{_ : Nonempty xs}} -> b
+      -> (a -> b) -> (xs : t a) {{_ : IsNonempty xs}} -> b
     foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{believeMe}}
 
-    fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : Nonempty xs}} -> a
+    fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : IsNonempty xs}} -> a
     fold1 s = fromJust (foldMap Just s) {{believeMe}}
 
-    foldr1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
+    foldr1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
     foldr1 f s = fromJust (foldr g Nothing s) {{believeMe}}
       where
         g : a -> Maybe a -> Maybe a
         g x Nothing = Just x
         g x (Just y) = Just (f x y)
 
-    foldl1 : (a -> a -> a) -> (xs : t a) {{_ : Nonempty xs}} -> a
+    foldl1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
     foldl1 f s = fromJust (foldl g Nothing s) {{believeMe}}
       where
         g : Maybe a -> a -> Maybe a
         g Nothing x = Just x
         g (Just x) y = Just (f x y)
 
-    minimum : {{_ : Ord a}} (xs : t a) {{_ : Nonempty xs}} -> a
+    minimum : {{_ : Ord a}} (xs : t a) {{_ : IsNonempty xs}} -> a
     minimum = foldr1 min
 
-    maximum : {{_ : Ord a}} (xs : t a) {{_ : Nonempty xs}} -> a
+    maximum : {{_ : Ord a}} (xs : t a) {{_ : IsNonempty xs}} -> a
     maximum = foldr1 max
 
     module _ {{_ : Applicative f}} where

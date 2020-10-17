@@ -27,19 +27,19 @@ private
 -------------------------------------------------------------------------------
 
 record PositiveConstraint (a : Set) : Set where
-  field Positive : a -> Set
+  field IsPositive : a -> Set
 
 open PositiveConstraint {{...}} public
 
 instance
   PositiveConstraint-Nat : PositiveConstraint Nat
-  PositiveConstraint-Nat .Positive 0 = Void
-  PositiveConstraint-Nat .Positive _ = Unit
+  PositiveConstraint-Nat .IsPositive 0 = Void
+  PositiveConstraint-Nat .IsPositive _ = Unit
 
   PositiveConstraint-Int : PositiveConstraint Int
-  PositiveConstraint-Int .Positive (Pos 0) = Void
-  PositiveConstraint-Int .Positive (NegSuc _) = Void
-  PositiveConstraint-Int .Positive _ = Unit
+  PositiveConstraint-Int .IsPositive (Pos 0) = Void
+  PositiveConstraint-Int .IsPositive (NegSuc _) = Void
+  PositiveConstraint-Int .IsPositive _ = Unit
 
   PositiveConstraint-Float : PositiveConstraint Float
-  PositiveConstraint-Float .Positive x = Assert (x > 0.0)
+  PositiveConstraint-Float .IsPositive x = Assert (x > 0.0)
