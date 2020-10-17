@@ -1268,23 +1268,24 @@ record Enum (a : Set) : Set where
 open Enum {{...}} public
 
 instance
-  Enum-Int : Enum Int
-  Enum-Int .enumFromTo m n =
-      let k = toNat (abs (m - n)) {{believeMe}}
+  Enum-Nat : Enum Nat
+  Enum-Nat .enumFromTo m n =
+      let k = max (m - n) (n - m)
       in go k m n
     where
-      go : Nat -> Int -> Int -> List Int
+      go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = [ m ]
       go (Suc k) m n =
         let m' = if m < n then m + 1 else (m - 1)
         in m :: go k m' n
 
-  Enum-Nat : Enum Nat
-  Enum-Nat .enumFromTo m n = let toNat' k = toNat k {{believeMe}} in
-    (| toNat' (enumFromTo (Pos m) (Pos n)) |)
+  Enum-Int : Enum Int
+  Enum-Int .enumFromTo m n with m - n
+  ... | Pos k = (\ i -> Pos i + n) <$> enumFromTo k 0
+  ... | NegSuc k = (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
-  Enum-Char .enumFromTo c d = (| chr (enumFromTo (ord c) (ord d)) |)
+  Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
 -- Show
