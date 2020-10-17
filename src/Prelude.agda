@@ -1285,7 +1285,7 @@ instance
     (enumFromTo (Pos m) (Pos n))
 
   Enum-Char : Enum Char
-  Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
+  Enum-Char .enumFromTo c d = (| chr (enumFromTo (ord c) (ord d)) |)
 
 -------------------------------------------------------------------------------
 -- Show
