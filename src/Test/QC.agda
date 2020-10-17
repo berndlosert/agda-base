@@ -9,6 +9,7 @@ module Test.QC where
 open import Prelude
 
 open import Data.Constraint.Nonempty
+open import Data.Constraint.Positive
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
@@ -99,9 +100,11 @@ oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{believeMe}}
 
-frequency : (xs : List (Nat * Gen a)) {{_ : Assert (sum (map fst xs) > 0)}}
+frequency : (xs : List (Constrained Nat Positive * Gen a)) {{_ : Nonempty xs}}
   -> Gen a
-frequency xs = choose (1 , sum (map fst xs)) >>= flip pick xs
+frequency xs =
+    let xs' = map (bimap unconstrained id) xs
+    in choose (1 , sum (map fst xs')) >>= flip pick xs'
   where
     pick : Nat -> List (Nat * Gen a) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
