@@ -1280,9 +1280,8 @@ instance
         in m :: go k m' n
 
   Enum-Nat : Enum Nat
-  Enum-Nat .enumFromTo m n = map
-    (\ k -> toNat k {{believeMe}})
-    (enumFromTo (Pos m) (Pos n))
+  Enum-Nat .enumFromTo m n = let toNat' k = toNat k {{believeMe}} in
+    (| toNat' (enumFromTo (Pos m) (Pos n)) |)
 
   Enum-Char : Enum Char
   Enum-Char .enumFromTo c d = (| chr (enumFromTo (ord c) (ord d)) |)
