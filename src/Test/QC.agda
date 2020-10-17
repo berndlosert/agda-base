@@ -101,10 +101,8 @@ oneof gs = do
 
 frequency : (xs : List (Nat * Gen a)) {{_ : Assert (sum (map fst xs) > 0)}}
   -> Gen a
-frequency xs = choose (1 , total) >>= (\ x -> pick x xs)
+frequency xs = choose (1 , sum (map fst xs)) >>= flip pick xs
   where
-    total = sum (map fst xs)
-
     pick : Nat -> List (Nat * Gen a) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
