@@ -39,3 +39,10 @@ instance
   NonemptyConstraint-String : NonemptyConstraint String
   NonemptyConstraint-String .IsNonempty "" = Void
   NonemptyConstraint-String .IsNonempty _ = Unit
+
+-------------------------------------------------------------------------------
+-- Nonempty
+-------------------------------------------------------------------------------
+
+Nonempty : (a : Set) {{_ : NonemptyConstraint a}} -> Set
+Nonempty a = Constrained a IsNonempty
