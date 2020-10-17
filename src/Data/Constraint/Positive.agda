@@ -43,3 +43,10 @@ instance
 
   PositiveConstraint-Float : PositiveConstraint Float
   PositiveConstraint-Float .IsPositive x = Assert (x > 0.0)
+
+-------------------------------------------------------------------------------
+-- Positive
+-------------------------------------------------------------------------------
+
+Positive : (a : Set) {{_ : PositiveConstraint a}} -> Set
+Positive a = Constrained a IsPositive

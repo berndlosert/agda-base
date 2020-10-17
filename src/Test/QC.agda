@@ -100,8 +100,7 @@ oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{believeMe}}
 
-frequency : (xs : List (Constrained Nat IsPositive * Gen a)) {{_ : IsNonempty xs}}
-  -> Gen a
+frequency : (xs : List (Positive Nat * Gen a)) {{_ : IsNonempty xs}} -> Gen a
 frequency xs =
     let xs' = map (bimap unconstrained id) xs
     in choose (1 , sum (map fst xs')) >>= flip pick xs'
