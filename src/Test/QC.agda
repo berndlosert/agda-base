@@ -101,9 +101,9 @@ oneof gs = do
 
 frequency : (xs : List (Nat * Gen a)) {{_ : Assert (sum (map fst xs) > 0)}}
   -> Gen a
-frequency {a} xs = choose (1 , tot) >>= (\ x -> pick x xs)
+frequency xs = choose (1 , total) >>= (\ x -> pick x xs)
   where
-    tot = sum (map fst xs)
+    total = sum (map fst xs)
 
     pick : Nat -> List (Nat * Gen a) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
