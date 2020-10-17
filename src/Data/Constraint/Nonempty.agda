@@ -26,10 +26,6 @@ record NonemptyConstraint (a : Set) : Set where
 open NonemptyConstraint {{...}} public
 
 instance
-  NonemptyConstraint-Maybe : NonemptyConstraint (Maybe a)
-  NonemptyConstraint-Maybe .Nonempty Nothing = Void
-  NonemptyConstraint-Maybe .Nonempty _ = Unit
-
   NonemptyConstraint-List : NonemptyConstraint (List a)
   NonemptyConstraint-List .Nonempty [] = Void
   NonemptyConstraint-List .Nonempty _ = Unit
