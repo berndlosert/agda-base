@@ -12,14 +12,14 @@ open import Data.Bits
 
 postulate
   Word8 : Set
-  word8ToNat : Word8 -> Nat
-  natToWord8 : Nat -> Word8
 
 private
   2^8 : Nat
   2^8 = 256
 
   postulate
+    primWord8FromNat : Nat -> Word8
+    primWord8ToNat : Word8 -> Nat
     primEqWord8 : Word8 -> Word8 -> Bool
     primLessThanWord8 : Word8 -> Word8 -> Bool
     primOrWord8 : Word8 -> Word8 -> Word8
@@ -35,7 +35,11 @@ private
 instance
   FromNat-Word8 : FromNat Word8
   FromNat-Word8 .FromNatConstraint = const Unit
-  FromNat-Word8 .fromNat n = natToWord8 n
+  FromNat-Word8 .fromNat n = primWord8FromNat n
+
+  ToNat-Word8 : ToNat Word8
+  ToNat-Word8 .ToNatConstraint = const Unit
+  ToNat-Word8 .toNat w = primWord8ToNat w
 
   Eq-Word8 : Eq Word8
   Eq-Word8 ._==_ = primEqWord8
@@ -58,12 +62,10 @@ instance
   Bits-Word8 .popCount = primPopCountWord8
 
   Addition-Word8 : Addition Word8
-  Addition-Word8 ._+_ x y =
-    natToWord8 ((word8ToNat x + word8ToNat y) % 2^8)
+  Addition-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
 
   Multiplication-Word8 : Multiplication Word8
-  Multiplication-Word8 ._*_ x y =
-    natToWord8 ((word8ToNat x * word8ToNat y) % 2^8)
+  Multiplication-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -71,14 +73,14 @@ instance
 
 postulate
   Word16 : Set
-  word16ToNat : Word16 -> Nat
-  natToWord16 : Nat -> Word16
 
 private
   2^16 : Nat
   2^16 = 256
 
   postulate
+    primWord16FromNat : Nat -> Word16
+    primWord16ToNat : Word16 -> Nat
     primEqWord16 : Word16 -> Word16 -> Bool
     primLessThanWord16 : Word16 -> Word16 -> Bool
     primOrWord16 : Word16 -> Word16 -> Word16
@@ -94,7 +96,11 @@ private
 instance
   FromNat-Word16 : FromNat Word16
   FromNat-Word16 .FromNatConstraint = const Unit
-  FromNat-Word16 .fromNat n = natToWord16 n
+  FromNat-Word16 .fromNat n = primWord16FromNat n
+
+  ToNat-Word16 : ToNat Word16
+  ToNat-Word16 .ToNatConstraint _ = Unit
+  ToNat-Word16 .toNat w = primWord16ToNat w
 
   Eq-Word16 : Eq Word16
   Eq-Word16 ._==_ = primEqWord16
@@ -117,12 +123,10 @@ instance
   Bits-Word16 .popCount = primPopCountWord16
 
   Addition-Word16 : Addition Word16
-  Addition-Word16 ._+_ x y =
-    natToWord16 ((word16ToNat x + word16ToNat y) % 2^16)
+  Addition-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
 
   Multiplication-Word16 : Multiplication Word16
-  Multiplication-Word16 ._*_ x y =
-    natToWord16 ((word16ToNat x * word16ToNat y) % 2^16)
+  Multiplication-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -130,14 +134,14 @@ instance
 
 postulate
   Word32 : Set
-  word32ToNat : Word32 -> Nat
-  natToWord32 : Nat -> Word32
 
 private
   2^32 : Nat
   2^32 = 4294967296
 
   postulate
+    primWord32FromNat : Nat -> Word32
+    primWord32ToNat : Word32 -> Nat
     primEqWord32 : Word32 -> Word32 -> Bool
     primLessThanWord32 : Word32 -> Word32 -> Bool
     primOrWord32 : Word32 -> Word32 -> Word32
@@ -153,7 +157,11 @@ private
 instance
   FromNat-Word32 : FromNat Word32
   FromNat-Word32 .FromNatConstraint = const Unit
-  FromNat-Word32 .fromNat n = natToWord32 n
+  FromNat-Word32 .fromNat n = primWord32FromNat n
+
+  ToNat-Word32 : ToNat Word32
+  ToNat-Word32 .ToNatConstraint _ = Unit
+  ToNat-Word32 .toNat w = primWord32ToNat w
 
   Eq-Word32 : Eq Word32
   Eq-Word32 ._==_ = primEqWord32
@@ -176,12 +184,10 @@ instance
   Bits-Word32 .popCount = primPopCountWord32
 
   Addition-Word32 : Addition Word32
-  Addition-Word32 ._+_ x y =
-    natToWord32 ((word32ToNat x + word32ToNat y) % 2^32)
+  Addition-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
 
   Multiplication-Word32 : Multiplication Word32
-  Multiplication-Word32 ._*_ x y =
-    natToWord32 ((word32ToNat x * word32ToNat y) % 2^32)
+  Multiplication-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -196,8 +202,8 @@ private
   2^64 = 18446744073709551616
 
   primitive
-    primWord64ToNat : Word64 -> Nat
     primWord64FromNat : Nat -> Word64
+    primWord64ToNat : Word64 -> Nat
 
   postulate
     primEqWord64 : Word64 -> Word64 -> Bool
@@ -212,13 +218,10 @@ private
     primIsSignedWord64 : Word64 -> Bool
     primPopCountWord64 : Word64 -> Nat
 
-word64ToNat = primWord64ToNat
-natToWord64 = primWord64FromNat
-
 instance
   FromNat-Word64 : FromNat Word64
   FromNat-Word64 .FromNatConstraint = const Unit
-  FromNat-Word64 .fromNat n = natToWord64 n
+  FromNat-Word64 .fromNat n = primWord64FromNat n
 
   ToNat-Word64 : ToNat Word64
   ToNat-Word64 .ToNatConstraint _ = Unit
@@ -245,12 +248,10 @@ instance
   Bits-Word64 .popCount = primPopCountWord64
 
   Addition-Word64 : Addition Word64
-  Addition-Word64 ._+_ x y =
-    natToWord64 ((word64ToNat x + word64ToNat y) % 2^64)
+  Addition-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
 
   Multiplication-Word64 : Multiplication Word64
-  Multiplication-Word64 ._*_ x y =
-    natToWord64 ((word64ToNat x * word64ToNat y) % 2^64)
+  Multiplication-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -260,6 +261,8 @@ instance
 {-# FOREIGN GHC import Data.Bits #-}
 
 {-# COMPILE GHC Word8 = type Word8 #-}
+{-# COMPILE GHC primWord8FromNat = fromInteger #-}
+{-# COMPILE GHC primWord8ToNat = toInteger #-}
 {-# COMPILE GHC primEqWord8 = \ x y -> x == y #-}
 {-# COMPILE GHC primLessThanWord8 = \ x y -> x < y #-}
 {-# COMPILE GHC primOrWord8 = \ x y -> x .|. y #-}
@@ -273,6 +276,8 @@ instance
 {-# COMPILE GHC primPopCountWord8 = toInteger . popCount #-}
 
 {-# COMPILE GHC Word16 = type Word16 #-}
+{-# COMPILE GHC primWord16FromNat = fromInteger #-}
+{-# COMPILE GHC primWord16ToNat = toInteger #-}
 {-# COMPILE GHC primEqWord16 = \ x y -> x == y #-}
 {-# COMPILE GHC primLessThanWord16 = \ x y -> x < y #-}
 {-# COMPILE GHC primOrWord16 = \ x y -> x .|. y #-}
@@ -286,6 +291,8 @@ instance
 {-# COMPILE GHC primPopCountWord16 = toInteger . popCount #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
+{-# COMPILE GHC primWord32FromNat = fromInteger #-}
+{-# COMPILE GHC primWord32ToNat = toInteger #-}
 {-# COMPILE GHC primEqWord32 = \ x y -> x == y #-}
 {-# COMPILE GHC primLessThanWord32 = \ x y -> x < y #-}
 {-# COMPILE GHC primOrWord32 = \ x y -> x .|. y #-}

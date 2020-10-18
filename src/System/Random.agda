@@ -35,7 +35,7 @@ private
     where
       go : W64s -> Nat -> Nat
       go [] n = 0
-      go (w :: ws) n = (word64ToNat w) * 2 ^ (64 * n) + go ws (n + 1)
+      go (w :: ws) n = (toNat w) * 2 ^ (64 * n) + go ws (n + 1)
 
   -- Generates n random Word64 values.
   genW64s : {{_ : RandomGen g}} -> Nat -> g -> W64s * g
@@ -158,7 +158,7 @@ theStdGen : IO (IORef StdGen)
 theStdGen = do
   ctr <- map unSecond getTime
   key <- map unPicosecond getCPUTime
-  let seed = squares (natToWord64 ctr) (natToWord64 key)
+  let seed = squares (fromNat ctr) (fromNat key)
   newIORef (mkStdGen seed)
 
 newStdGen : IO StdGen
