@@ -159,6 +159,15 @@ instance
     0 -> choose (0 , 0)
     (Suc n) -> choose (NegSuc n , Pos (Suc n))
 
+  Arbitrary-Float : Arbitrary Float
+  Arbitrary-Float .arbitrary = sized \ n ->
+    let
+      n' = Pos n
+    in do
+      b <- choose {Int} (1 , 9999999999999)
+      a <- choose {Int} (- n' * b , n' * b)
+      return (toFloat a / toFloat b)
+
   Arbitrary-Tuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
   Arbitrary-Tuple .arbitrary = (| _,_ arbitrary arbitrary |)
 
