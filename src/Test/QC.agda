@@ -47,11 +47,11 @@ instance
   Applicative-Gen : Applicative Gen
   Applicative-Gen .pure x = Gen: \ _ _ -> x
   Applicative-Gen ._<*>_ (Gen: f) (Gen: x) = Gen: \ r n ->
-    let (r1 , r2) = split r in f r1 n (x r2 n)
+    let (r1 , r2) = splitGen r in f r1 n (x r2 n)
 
   Monad-Gen : Monad Gen
   Monad-Gen ._>>=_ (Gen: m) k = Gen: \ r n ->
-    let (r1 , r2) = split r; Gen: m' = k (m r1 n) in m' r2 n
+    let (r1 , r2) = splitGen r; Gen: m' = k (m r1 n) in m' r2 n
 
 -------------------------------------------------------------------------------
 -- Gen combinators
@@ -62,7 +62,7 @@ variant v (Gen: m) =
     Gen: \ r n -> m (Stream.at (Suc v) (rands r)) n
   where
     rands : {{_ : RandomGen g}} -> g -> Stream g
-    rands g = Stream.unfold split g
+    rands g = Stream.unfold splitGen g
 
 generate' : Nat -> StdGen -> Gen a -> a
 generate' n rnd (Gen: m) = let (size , rnd') = randomR (0 , n) rnd in
@@ -341,7 +341,7 @@ private
     then (do done "Arguments exhausted after" ntest stamps)
     else (
       let
-        (rnd1 , rnd2) = split rnd0
+        (rnd1 , rnd2) = splitGen rnd0
         result = generate' (Config.size config ntest) rnd2 gen
       in do
         putStr (Config.every config ntest (Result.arguments result))

@@ -30,7 +30,7 @@ private
 record RandomGen (g : Set) : Set where
   field
     genWord64 : g -> Word64 * g
-    split : g -> g * g
+    splitGen : g -> g * g
 
 open RandomGen {{...}} public
 
@@ -153,7 +153,7 @@ instance
       (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
-  RandomGen-StdGen .split (stdgen: seed gamma) =
+  RandomGen-StdGen .splitGen (stdgen: seed gamma) =
       (stdgen: seed'' gamma , stdgen: (mix64 seed') (mixgamma seed''))
     where
       seed' = seed + gamma
@@ -172,7 +172,7 @@ theStdGen = do
 newStdGen : IO StdGen
 newStdGen = do
   ref <- theStdGen
-  atomicModifyIORef ref split
+  atomicModifyIORef ref splitGen
 
 getStdGen : IO StdGen
 getStdGen = do
