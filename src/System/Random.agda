@@ -208,23 +208,23 @@ instance
 
   {-# TERMINATING #-}
   RandomR-Nat : RandomR Nat
-  RandomR-Nat .randomR (from , to) g with compare from to
-  ... | EQ = (from , g)
-  ... | GT = randomR (to , from) g
-  ... | LT = first (_+ from) (genNat' (to - from) g)
+  RandomR-Nat .randomR (lo , hi) g with compare lo hi
+  ... | EQ = (lo , g)
+  ... | GT = randomR (hi , lo) g
+  ... | LT = first (_+ lo) (genNat' (hi - lo) g)
 
   {-# TERMINATING #-}
   RandomR-Int : RandomR Int
-  RandomR-Int .randomR (from , to) g with compare from to
-  ... | EQ = (from , g)
-  ... | GT = randomR (to , from) g
+  RandomR-Int .randomR (lo , hi) g with compare lo hi
+  ... | EQ = (lo , g)
+  ... | GT = randomR (hi , lo) g
   ... | LT =
-    first (\ n -> fromNat n + from)
-      (genNat' (toNat (to - from) {{believeMe}}) g)
+    first (\ n -> fromNat n + lo)
+      (genNat' (toNat (hi - lo) {{believeMe}}) g)
 
   {-# TERMINATING #-}
   RandomR-Float : RandomR Float
-  RandomR-Float .randomR (from , to) g with compare from to
-  ... | EQ = (from , g)
-  ... | GT = randomR (to , from) g
-  ... | LT = first (\ x -> x * from + (1.0 - x) * to) (genFloat g)
+  RandomR-Float .randomR (lo , hi) g with compare lo hi
+  ... | EQ = (lo , g)
+  ... | GT = randomR (hi , lo) g
+  ... | LT = first (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
