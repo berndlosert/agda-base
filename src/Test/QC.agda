@@ -19,6 +19,12 @@ open import System.IO
 open import System.Random
 
 -------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open System.Random public
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
@@ -161,12 +167,8 @@ instance
 
   Arbitrary-Float : Arbitrary Float
   Arbitrary-Float .arbitrary = sized \ n ->
-    let
-      n' = Pos n
-    in do
-      b <- choose {Int} (1 , 9999999999999)
-      a <- choose {Int} (- n' * b , n' * b)
-      return (toFloat a / toFloat b)
+    let n' = toFloat n
+    in choose (- n' , n')
 
   Arbitrary-Tuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
   Arbitrary-Tuple .arbitrary = (| _,_ arbitrary arbitrary |)
