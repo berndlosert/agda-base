@@ -30,7 +30,6 @@ private
 record RandomGen (g : Set) : Set where
   field
     next : g -> Word64 * g
-    genRange : g -> Nat * Nat
     split : g -> g * g
 
 open RandomGen {{...}} public
@@ -154,7 +153,6 @@ instance
       (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
-  RandomGen-StdGen .genRange _ = (0 , 2 ^ 64 - 1)
   RandomGen-StdGen .split (stdgen: seed gamma) =
       (stdgen: seed'' gamma , stdgen: (mix64 seed') (mixgamma seed''))
     where
