@@ -212,7 +212,7 @@ instance
       lo = min m n
       hi = max m n
     in
-      if (lo == hi)
+      if lo == hi
         then (lo , g)
         else first (_+ lo) (genNat' (hi - lo) g)
 
@@ -222,7 +222,7 @@ instance
       lo = min i j
       hi = max i j
     in
-      if (lo == hi)
+      if lo == hi
         then (lo , g)
         else first (\ n -> fromNat n + lo)
           (genNat' (toNat (hi - lo) {{believeMe}}) g)
@@ -233,6 +233,6 @@ instance
       lo = min x y
       hi = max x y
     in
-      if (lo == hi)
+      if lo == hi
         then (lo , g)
         else first (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
