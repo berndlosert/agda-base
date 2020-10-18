@@ -80,6 +80,9 @@ private
   genFloat g = let (w , g') = next g in
       ((toFloat $ word64ToNat $ shiftR w 11) * ulpOfOne/2 , g')
     where
+      -- ulpOfOne is the smallest value v satisfying
+      --  * 1.0 + v /= 1.0
+      --  * 1.0 + v / 2 == 1.0
       ulpOfOne/2 = 1.1102230246251565e-16
 
 -------------------------------------------------------------------------------
