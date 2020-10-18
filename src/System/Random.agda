@@ -75,6 +75,13 @@ private
       loop g = let (m , g') = genNat k g in
         if m > n then loop g' else (m , g')
 
+  -- genFloat generates a Float value in the range [0, 1).
+  genFloat : {{_ : RandomGen g}} -> g -> Float * g
+  genFloat g = let (w , g') = next g in
+      ((toFloat $ word64ToNat $ shiftR w 11) * doubleUlp , g')
+    where
+      doubleUlp = 1.1102230246251565e-16
+
 -------------------------------------------------------------------------------
 -- StdGen (SplitMix version)
 -------------------------------------------------------------------------------
@@ -211,3 +218,13 @@ instance
   ... | LT =
     first (\ n -> fromNat n + from)
       (genNat' (toNat (to - from) {{believeMe}}) g)
+
+  {-# TERMINATING #-}
+  RandomR-Float : RandomR Float
+  RandomR-Float .randomR (from , to) g with compare from to
+  ... | EQ = (from , g)
+  ... | GT = randomR (to , from) g
+  ... | LT =
+    let (x , g') = genFloat g
+    in (x * from + (1.0 - x) * to , g')
+
