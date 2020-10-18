@@ -35,64 +35,62 @@ record RandomGen (g : Set) : Set where
 open RandomGen {{...}} public
 
 private
-  W64s = List Word64
-
   -- Convert a list of Word64 values, considered as one long word, into a Nat.
-  w64sToNat : W64s -> Nat
+  w64sToNat : List Word64 -> Nat
   w64sToNat [] = 0
   w64sToNat ws = go (reverse ws) 0
     where
-      go : W64s -> Nat -> Nat
+      go : List Word64 -> Nat -> Nat
       go [] n = 0
       go (w :: ws) n = (toNat w) * 2 ^ (64 * n) + go ws (n + 1)
 
-  -- Generates n random Word64 values.
-  genW64s : {{_ : RandomGen g}} -> Nat -> g -> W64s * g
-  genW64s 0 g0 = ([] , g0)
-  genW64s (Suc n) g0 =
-    let
-      (w , g1) = genWord64 g0
-      (ws , g) = genW64s n g1
-    in
-      (w :: ws , g)
+-- Generates n random Word64 values.
+genWord64s : {{_ : RandomGen g}} -> Nat -> g -> List Word64 * g
+genWord64s 0 g0 = ([] , g0)
+genWord64s (Suc n) g0 =
+  let
+    (w , g1) = genWord64 g0
+    (ws , g) = genWord64s n g1
+  in
+    (w :: ws , g)
 
-  -- genNat n generates a random Nat in the range [0, 2 ^ n).
-  genNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
-  genNat n g0 =
-    let
-      q = n / 64
-      r = n % 64
-      mask = shiftR oneBits (64 - r)
-      (ws , g) = genW64s (q + 1) g0
-    in
-      case ws of \ where
-        (h :: t) -> (w64sToNat ((h :&: mask) :: t) , g)
-        [] -> (0 , g)
+-- genNat n generates a random Nat in the range [0, 2 ^ n).
+genNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+genNat n g0 =
+  let
+    q = n / 64
+    r = n % 64
+    mask = shiftR oneBits (64 - r)
+    (ws , g) = genWord64s (q + 1) g0
+  in
+    case ws of \ where
+      (h :: t) -> (w64sToNat ((h :&: mask) :: t) , g)
+      [] -> (0 , g)
 
-  -- genNat' n generates a Nat in the range [0 , n].
-  {-# TERMINATING #-}
-  genNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
-  genNat' {g} n g0 = loop g0
-    where
-      log2 : Nat -> Nat
-      log2 0 = 1
-      log2 m = 1 + log2 (m / 2)
+-- genNat' n generates a Nat in the range [0 , n].
+{-# TERMINATING #-}
+genNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+genNat' {g} n g0 = loop g0
+  where
+    log2 : Nat -> Nat
+    log2 0 = 1
+    log2 m = 1 + log2 (m / 2)
 
-      k = log2 n
+    k = log2 n
 
-      loop : g -> Nat * g
-      loop g = let (m , g') = genNat k g in
-        if m > n then loop g' else (m , g')
+    loop : g -> Nat * g
+    loop g = let (m , g') = genNat k g in
+      if m > n then loop g' else (m , g')
 
-  -- genFloat generates a Float value in the range [0, 1).
-  genFloat : {{_ : RandomGen g}} -> g -> Float * g
-  genFloat g = let (w , g') = genWord64 g in
-      (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
-    where
-      -- ulpOfOne is the smallest value v satisfying
-      --  * 1.0 + v /= 1.0
-      --  * 1.0 + v / 2 == 1.0
-      ulpOfOne/2 = 1.1102230246251565e-16
+-- genFloat generates a Float value in the range [0, 1).
+genFloat : {{_ : RandomGen g}} -> g -> Float * g
+genFloat g = let (w , g') = genWord64 g in
+    (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
+  where
+    -- ulpOfOne is the smallest value v satisfying
+    --  * 1.0 + v /= 1.0
+    --  * 1.0 + v / 2 == 1.0
+    ulpOfOne/2 = 1.1102230246251565e-16
 
 -------------------------------------------------------------------------------
 -- StdGen (SplitMix version)
