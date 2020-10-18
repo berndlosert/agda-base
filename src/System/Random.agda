@@ -224,7 +224,4 @@ instance
   RandomR-Float .randomR (from , to) g with compare from to
   ... | EQ = (from , g)
   ... | GT = randomR (to , from) g
-  ... | LT =
-    let (x , g') = genFloat g
-    in (x * from + (1.0 - x) * to , g')
-
+  ... | LT = first (\ x -> x * from + (1.0 - x) * to) (genFloat g)
