@@ -192,7 +192,7 @@ getStdRandom f = do
   atomicModifyIORef ref (swap <<< f)
 
 -------------------------------------------------------------------------------
--- Random and RandomR
+-- Random
 -------------------------------------------------------------------------------
 
 record Random (a : Set) : Set where
@@ -203,6 +203,15 @@ record Random (a : Set) : Set where
 
 open Random {{...}} public
 
+instance
+  Random-Bool : Random Bool
+  Random-Bool .random g = let (n , g') = next g in
+    (testBit n 0 , g')
+
+-------------------------------------------------------------------------------
+-- RandomR
+-------------------------------------------------------------------------------
+
 record RandomR (a : Set) : Set where
   field randomR : {{_ : RandomGen g}} -> a * a -> g -> a * g
 
@@ -212,10 +221,6 @@ record RandomR (a : Set) : Set where
 open RandomR {{...}} public
 
 instance
-  Random-Bool : Random Bool
-  Random-Bool .random g = let (n , g') = next g in
-    (testBit n 0 , g')
-
   RandomR-Nat : RandomR Nat
   RandomR-Nat .randomR (m , n) g =
     let
