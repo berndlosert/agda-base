@@ -206,25 +206,33 @@ instance
   Random-Bool .random g = let (n , g') = next g in
     (testBit n 0 , g')
 
-  {-# TERMINATING #-}
   RandomR-Nat : RandomR Nat
-  RandomR-Nat .randomR (lo , hi) g with compare lo hi
-  ... | EQ = (lo , g)
-  ... | GT = randomR (hi , lo) g
-  ... | LT = first (_+ lo) (genNat' (hi - lo) g)
+  RandomR-Nat .randomR (m , n) g =
+    let
+      lo = min m n
+      hi = max m n
+    in
+      if (lo == hi)
+        then (lo , g)
+        else first (_+ lo) (genNat' (hi - lo) g)
 
-  {-# TERMINATING #-}
   RandomR-Int : RandomR Int
-  RandomR-Int .randomR (lo , hi) g with compare lo hi
-  ... | EQ = (lo , g)
-  ... | GT = randomR (hi , lo) g
-  ... | LT =
-    first (\ n -> fromNat n + lo)
-      (genNat' (toNat (hi - lo) {{believeMe}}) g)
+  RandomR-Int .randomR (i , j) g =
+    let
+      lo = min i j
+      hi = max i j
+    in
+      if (lo == hi)
+        then (lo , g)
+        else first (\ n -> fromNat n + lo)
+          (genNat' (toNat (hi - lo) {{believeMe}}) g)
 
-  {-# TERMINATING #-}
   RandomR-Float : RandomR Float
-  RandomR-Float .randomR (lo , hi) g with compare lo hi
-  ... | EQ = (lo , g)
-  ... | GT = randomR (hi , lo) g
-  ... | LT = first (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
+  RandomR-Float .randomR (x , y) g =
+    let
+      lo = min x y
+      hi = max x y
+    in
+      if (lo == hi)
+        then (lo , g)
+        else first (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
