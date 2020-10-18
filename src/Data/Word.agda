@@ -220,6 +220,10 @@ instance
   FromNat-Word64 .FromNatConstraint = const Unit
   FromNat-Word64 .fromNat n = natToWord64 n
 
+  ToNat-Word64 : ToNat Word64
+  ToNat-Word64 .ToNatConstraint _ = Unit
+  ToNat-Word64 .toNat w = primWord64ToNat w
+
   Eq-Word64 : Eq Word64
   Eq-Word64 ._==_ = primEqWord64
 
