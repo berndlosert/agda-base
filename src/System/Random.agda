@@ -78,7 +78,7 @@ private
   -- genFloat generates a Float value in the range [0, 1).
   genFloat : {{_ : RandomGen g}} -> g -> Float * g
   genFloat g = let (w , g') = next g in
-      ((toFloat $ word64ToNat $ shiftR w 11) * ulpOfOne/2 , g')
+      (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
     where
       -- ulpOfOne is the smallest value v satisfying
       --  * 1.0 + v /= 1.0
