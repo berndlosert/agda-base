@@ -29,7 +29,7 @@ private
 
 record RandomGen (g : Set) : Set where
   field
-    next : g -> Word64 * g
+    genWord64 : g -> Word64 * g
     split : g -> g * g
 
 open RandomGen {{...}} public
@@ -51,7 +51,7 @@ private
   genW64s 0 g0 = ([] , g0)
   genW64s (Suc n) g0 =
     let
-      (w , g1) = next g0
+      (w , g1) = genWord64 g0
       (ws , g) = genW64s n g1
     in
       (w :: ws , g)
@@ -86,7 +86,7 @@ private
 
   -- genFloat generates a Float value in the range [0, 1).
   genFloat : {{_ : RandomGen g}} -> g -> Float * g
-  genFloat g = let (w , g') = next g in
+  genFloat g = let (w , g') = genWord64 g in
       (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
     where
       -- ulpOfOne is the smallest value v satisfying
@@ -149,7 +149,7 @@ private
 
 instance
   RandomGen-StdGen : RandomGen StdGen
-  RandomGen-StdGen .next (stdgen: seed gamma) =
+  RandomGen-StdGen .genWord64 (stdgen: seed gamma) =
       (mix64 seed' , stdgen: seed' gamma)
     where
       seed' = seed + gamma
@@ -203,7 +203,7 @@ open Random {{...}} public
 
 instance
   Random-Bool : Random Bool
-  Random-Bool .random g = let (n , g') = next g in
+  Random-Bool .random g = let (n , g') = genWord64 g in
     (testBit n 0 , g')
 
 -------------------------------------------------------------------------------
