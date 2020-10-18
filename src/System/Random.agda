@@ -78,9 +78,9 @@ private
   -- genFloat generates a Float value in the range [0, 1).
   genFloat : {{_ : RandomGen g}} -> g -> Float * g
   genFloat g = let (w , g') = next g in
-      ((toFloat $ word64ToNat $ shiftR w 11) * doubleUlp , g')
+      ((toFloat $ word64ToNat $ shiftR w 11) * dblEpsilon/2 , g')
     where
-      doubleUlp = 1.1102230246251565e-16
+      dblEpsilon/2 = 1.1102230246251565e-16
 
 -------------------------------------------------------------------------------
 -- StdGen (SplitMix version)
