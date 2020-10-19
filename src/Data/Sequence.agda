@@ -65,6 +65,19 @@ instance
       (traverseDE f sf)
     |)
 
+private
+  bindSeq : Seq a -> (a -> Seq b) -> Seq b
+  bindSeq xs f = foldl (\ ys x -> ys <> f x) mempty xs
+
+instance
+  Applicative-Seq : Applicative Seq
+  Applicative-Seq .pure x = Seq: (Single (Elem: x))
+  Applicative-Seq ._<*>_ fs xs =
+    bindSeq xs (\ x -> bindSeq fs (\ f -> pure (f x)))
+
+  Monad-Seq : Monad Seq
+  Monad-Seq ._>>=_ = bindSeq
+
 -------------------------------------------------------------------------------
 -- Constructors
 -------------------------------------------------------------------------------
