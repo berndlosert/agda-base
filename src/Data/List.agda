@@ -42,6 +42,11 @@ snoc xs x = xs <> [ x ]
 replicate : Nat -> a -> List a
 replicate n x = applyN (x ::_) n []
 
+iterateN : Nat -> (a -> a) -> a -> List a
+iterateN 0 f x = []
+iterateN 1 f x = [ x ]
+iterateN (Suc n) f x = f x :: iterateN n f x
+
 -------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
