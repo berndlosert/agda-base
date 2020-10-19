@@ -73,7 +73,7 @@ instance
   Applicative-Seq : Applicative Seq
   Applicative-Seq .pure x = Seq: (Single (Elem: x))
   Applicative-Seq ._<*>_ fs xs =
-    bindSeq xs (\ x -> bindSeq fs (\ f -> pure (f x)))
+    bindSeq fs (\ f -> bindSeq xs (\ x -> pure (f x)))
 
   Monad-Seq : Monad Seq
   Monad-Seq ._>>=_ = bindSeq
