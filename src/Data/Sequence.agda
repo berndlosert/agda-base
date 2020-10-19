@@ -65,15 +65,13 @@ instance
       (traverseDE f sf)
     |)
 
-private
-  bindSeq : Seq a -> (a -> Seq b) -> Seq b
-  bindSeq = flip foldMap
-
-instance
   Applicative-Seq : Applicative Seq
   Applicative-Seq .pure x = Seq: (Single (Elem: x))
   Applicative-Seq ._<*>_ fs xs =
-    bindSeq fs \ f -> bindSeq xs \ x -> pure (f x)
+      bindSeq fs \ f -> bindSeq xs \ x -> pure (f x)
+    where
+      bindSeq : Seq a -> (a -> Seq b) -> Seq b
+      bindSeq = flip foldMap
 
   Monad-Seq : Monad Seq
   Monad-Seq ._>>=_ = flip foldMap
