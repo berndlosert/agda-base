@@ -161,52 +161,31 @@ instance
   Traversable-Elem .traverse f (Elem: x) = (| Elem: (f x) |)
 
 -------------------------------------------------------------------------------
--- Seq (type and instances)
+-- traverseNE & traveseDE helpers
 -------------------------------------------------------------------------------
 
-data Seq (a : Set) : Set where
-  Seq: : FingerTree (Elem a) -> Seq a
+traverseNE : {{_ : Applicative t}}
+  -> (a -> t b) -> Node (Elem a) -> t (Node (Elem b))
+traverseNE g node with node
+... | Node2 v (Elem: a) (Elem: b) =
+  (| (\ x y -> Node2 v (Elem: x) (Elem: y)) (g a) (g b) |)
+... | Node3 v (Elem: a) (Elem: b) (Elem: c) =
+  (| (\ x y z -> Node3 v (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
 
-instance
-  Functor-Seq : Functor Seq
-  Functor-Seq .map f (Seq: xs) = Seq: (map (map f) xs)
-
-  Foldable-Seq : Foldable Seq
-  Foldable-Seq .foldMap f (Seq: xs) = foldMap (f <<< getElem) xs
-
-  Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f seq with seq
-  ... | Seq: Empty = pure (Seq: Empty)
-  ... | Seq: (Single (Elem: x)) = (| (Seq: <<< Single <<< Elem:) (f x) |)
-  ... | Seq: (Deep s pr m sf) = (|
-      (\ pr' m' sf' -> Seq: (Deep s pr' m' sf'))
-      (traverseDE f pr)
-      (traverse (traverseNE f) m)
-      (traverseDE f sf)
-    |)
-    where
-      traverseNE : {{_ : Applicative t}}
-        -> (a -> t b) -> Node (Elem a) -> t (Node (Elem b))
-      traverseNE g node with node
-      ... | Node2 v (Elem: a) (Elem: b) =
-        (| (\ x y -> Node2 v (Elem: x) (Elem: y)) (g a) (g b) |)
-      ... | Node3 v (Elem: a) (Elem: b) (Elem: c) =
-        (| (\ x y z -> Node3 v (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
-
-      traverseDE : {{_ : Applicative t}}
-        -> (a -> t b) -> Digit (Elem a) -> t (Digit (Elem b))
-      traverseDE g digit with digit
-      ... | One (Elem: a) =
-        (| (\ x -> One (Elem: x)) (g a) |)
-      ... | Two (Elem: a) (Elem: b) =
-        (| (\ x y -> Two (Elem: x) (Elem: y)) (g a) (g b) |)
-      ... | Three (Elem: a) (Elem: b) (Elem: c) =
-        (| (\ x y z -> Three (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
-      ... | Four (Elem: a) (Elem: b) (Elem: c) (Elem: d) =
-        (| (\ w x y z -> Four (Elem: w) (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) (g d) |)
+traverseDE : {{_ : Applicative t}}
+  -> (a -> t b) -> Digit (Elem a) -> t (Digit (Elem b))
+traverseDE g digit with digit
+... | One (Elem: a) =
+  (| (\ x -> One (Elem: x)) (g a) |)
+... | Two (Elem: a) (Elem: b) =
+  (| (\ x y -> Two (Elem: x) (Elem: y)) (g a) (g b) |)
+... | Three (Elem: a) (Elem: b) (Elem: c) =
+  (| (\ x y z -> Three (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
+... | Four (Elem: a) (Elem: b) (Elem: c) (Elem: d) =
+  (| (\ w x y z -> Four (Elem: w) (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) (g d) |)
 
 -------------------------------------------------------------------------------
--- cons
+-- consTree
 -------------------------------------------------------------------------------
 
 consTree : {{_ : Sized a}} -> a -> FingerTree a -> FingerTree a
@@ -225,11 +204,8 @@ infixr 5 _<|_
 _<|_ : {{_ : Sized a}} -> a -> FingerTree a -> FingerTree a
 _<|_ = consTree
 
-cons : a -> Seq a -> Seq a
-cons x (Seq: xs) = Seq: (Elem: x <| xs)
-
 -------------------------------------------------------------------------------
--- snoc
+-- snocTree
 -------------------------------------------------------------------------------
 
 snocTree : {{_ : Sized a}} -> FingerTree a -> a -> FingerTree a
@@ -248,11 +224,8 @@ infixl 5 _|>_
 _|>_ : {{_ : Sized a}} -> FingerTree a -> a -> FingerTree a
 _|>_ = snocTree
 
-snoc : Seq a -> a -> Seq a
-snoc (Seq: xs) x = Seq: (xs |> Elem: x)
-
 -------------------------------------------------------------------------------
--- append
+-- appendTree & addDigits helpers
 -------------------------------------------------------------------------------
 
 -- Helper functions (declarations)
@@ -533,8 +506,3 @@ addDigits4 m1 (Four a b c d) e f g h (Three i j k) m2 =
   appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node2 j k) m2
 addDigits4 m1 (Four a b c d) e f g h (Four i j k l) m2 =
   appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node3 j k l) m2
-
--- Finally...
-
-append : Seq a -> Seq a -> Seq a
-append (Seq: xs) (Seq: ys) = Seq: (appendTree0 xs ys)
