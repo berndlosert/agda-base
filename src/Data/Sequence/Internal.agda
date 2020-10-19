@@ -506,26 +506,3 @@ addDigits4 m1 (Four a b c d) e f g h (Three i j k) m2 =
   appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node2 j k) m2
 addDigits4 m1 (Four a b c d) e f g h (Four i j k l) m2 =
   appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node3 j k l) m2
-
--------------------------------------------------------------------------------
--- apSeq
--------------------------------------------------------------------------------
-{-
-apSeq : Seq (a -> b) -> Seq a -> Seq b
-apSeq: fs xs@(Seq: xsFT) = case viewl fs of
-  EmptyL -> empty
-  firstf :< fs' -> case viewr fs' of
-    EmptyR -> map firstf xs
-    Seq: fs''FT :> lastf -> case rigidify xsFT of
-      RigidEmpty -> empty
-      RigidOne (Elem x) -> flap fs x
-      RigidTwo (Elem x1) (Elem x2) ->
-         Seq: $ ap2FT firstf fs''FT lastf (x1, x2)
-      RigidThree (Elem x1) (Elem x2) (Elem x3) ->
-         Seq: $ ap3FT firstf fs''FT lastf (x1, x2, x3)
-      RigidFull r@(Rigid s pr _m sf) -> Seq: $
-        Deep (s * length fs)
-          (map (map firstf) (nodeToDigit pr))
-          (liftA2Middle (map firstf) (map lastf) map fs''FT r)
-          (map (map lastf) (nodeToDigit sf))
--}
