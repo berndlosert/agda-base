@@ -76,7 +76,7 @@ instance
     bindSeq fs \ f -> bindSeq xs \ x -> pure (f x)
 
   Monad-Seq : Monad Seq
-  Monad-Seq ._>>=_ = bindSeq
+  Monad-Seq ._>>=_ = flip foldMap
 
 -------------------------------------------------------------------------------
 -- Constructors
