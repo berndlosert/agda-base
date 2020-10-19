@@ -67,7 +67,7 @@ instance
 
 private
   bindSeq : Seq a -> (a -> Seq b) -> Seq b
-  bindSeq xs f = foldl (\ ys x -> ys <> f x) mempty xs
+  bindSeq = flip foldMap
 
 instance
   Applicative-Seq : Applicative Seq
