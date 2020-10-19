@@ -73,6 +73,10 @@ instance
       bind : Seq a -> (a -> Seq b) -> Seq b
       bind = flip foldMap
 
+  Alternative-Seq : Alternative Seq
+  Alternative-Seq .empty = mempty
+  Alternative-Seq ._<|>_ = _<>_
+
   Monad-Seq : Monad Seq
   Monad-Seq ._>>=_ = flip foldMap
 
@@ -85,14 +89,32 @@ cons x (Seq: xs) = Seq: (Elem: x <| xs)
 
 snoc : Seq a -> a -> Seq a
 snoc (Seq: xs) x = Seq: (xs |> Elem: x)
-{-
+
+singleton : a -> Seq a
+singleton x = Seq: (Single (Elem: x))
+
+fromList : List a -> Seq a
+fromList = foldr cons empty
+
+iterateN : Nat -> (a -> a) -> a -> Seq a
+iterateN 0 f x = empty
+iterateN 1 f x = singleton x
+iterateN (Suc n) f x = cons (f x) (iterateN n f x)
+
 replicate : Nat -> a -> Seq a
-replicate n x = runIdentity (replicateA n (Identity: x))
+replicate n = iterateN n id
+
+replicateA : {{_ : Applicative f}} -> Nat -> f a -> f (Seq a)
+replicateA {f} {a} n0 fa = loop n0
+  where
+    loop : Nat -> f (Seq a)
+    loop 0 = pure empty
+    loop (Suc n) = (| cons fa (loop n) |)
 
 -------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
-
+{-
 uncons : Seq a -> Maybe (a * Seq a)
 uncons = list Nothing (\ x xs -> Just (x , xs))
 
