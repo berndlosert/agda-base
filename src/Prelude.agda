@@ -1097,13 +1097,6 @@ record Applicative (f : Set -> Set) : Set where
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 
-  replicateA : Nat -> f a -> f (List a)
-  replicateA {a} n0 fa = loop n0
-    where
-      loop : Nat -> f (List a)
-      loop 0 = pure []
-      loop (Suc n) = (| _::_ fa (loop n) |)
-
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
     where

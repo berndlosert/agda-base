@@ -121,7 +121,7 @@ elements xs = map
   (choose {Nat} (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
-vectorOf = replicateA
+vectorOf = List.replicateA
 
 listOf : Gen a -> Gen (List a)
 listOf gen = sized \ n -> do

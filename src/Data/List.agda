@@ -39,13 +39,20 @@ cons = _::_
 snoc : List a -> a -> List a
 snoc xs x = xs <> [ x ]
 
-replicate : Nat -> a -> List a
-replicate n x = applyN (x ::_) n []
-
 iterateN : Nat -> (a -> a) -> a -> List a
 iterateN 0 f x = []
 iterateN 1 f x = [ x ]
 iterateN (Suc n) f x = f x :: iterateN n f x
+
+replicate : Nat -> a -> List a
+replicate n = iterateN n id
+
+replicateA : {{_ : Applicative f}} -> Nat -> f a -> f (List a)
+replicateA {f} {a} n0 fa = loop n0
+  where
+    loop : Nat -> f (List a)
+    loop 0 = pure []
+    loop (Suc n) = (| _::_ fa (loop n) |)
 
 -------------------------------------------------------------------------------
 -- Destructors
