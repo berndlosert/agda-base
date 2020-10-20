@@ -10,9 +10,10 @@ open import Prelude
 
 open import Data.Constraint.Nonempty
 open import Data.Monoid.Endo
+open import Data.Monoid.Sum
 open import Data.Foldable
-open import Data.Sequence.Internal
 open import Data.Traversable
+open import Data.Tree.FingerTree
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -35,7 +36,7 @@ private
 -------------------------------------------------------------------------------
 
 data Seq (a : Set) : Set where
-  Seq: : FingerTree (Elem a) -> Seq a
+  Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
 
 -------------------------------------------------------------------------------
 -- Instances
