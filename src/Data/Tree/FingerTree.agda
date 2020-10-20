@@ -9,7 +9,6 @@ module Data.Tree.FingerTree where
 open import Prelude
 
 open import Data.Foldable
-open import Data.Functor.Compose
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -142,41 +141,6 @@ deep : {{_ : Measured v a}}
   -> Digit a
   -> FingerTree v a
 deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
-
--------------------------------------------------------------------------------
--- Elem
--------------------------------------------------------------------------------
-
-record Elem (a : Set) : Set where
-  constructor Elem:
-  field getElem : a
-
-open Elem public
-
-instance
-  Measured-Elem : Measured (Sum Nat) (Elem a)
-  Measured-Elem .measure _ = Sum: 1
-
-  Functor-Elem : Functor Elem
-  Functor-Elem .map f (Elem: x) = Elem: (f x)
-
-  Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldMap f (Elem: x) = f x
-
-  Traversable-Elem : Traversable Elem
-  Traversable-Elem .traverse f (Elem: x) = (| Elem: (f x) |)
-
--------------------------------------------------------------------------------
--- traverseNE & traveseDE helpers
--------------------------------------------------------------------------------
-
-traverseNE : {{_ : Applicative t}}
-  -> (a -> t b) -> Node v (Elem a) -> t (Node v (Elem b))
-traverseNE g node = (| getCompose (traverse g (Compose: node)) |)
-
-traverseDE : {{_ : Applicative t}}
-  -> (a -> t b) -> Digit (Elem a) -> t (Digit (Elem b))
-traverseDE g digit = (| getCompose (traverse g (Compose: digit)) |)
 
 -------------------------------------------------------------------------------
 -- consTree
