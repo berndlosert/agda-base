@@ -18,6 +18,7 @@ open import Data.Functor.Identity
 
 open Control.Monad.Reader.Class public
 open Control.Monad.Reader.Trans public
+open Data.Functor.Identity public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -33,6 +34,8 @@ private
 
 Reader : Set -> Set -> Set
 Reader r = ReaderT r Identity
+
+{-# DISPLAY ReaderT r Identity = Reader r #-}
 
 reader : (r -> a) -> Reader r a
 reader f = ReaderT: (Identity: <<< f)

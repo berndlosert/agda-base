@@ -18,6 +18,7 @@ open import Data.Functor.Identity
 
 open Control.Monad.State.Class public
 open Control.Monad.State.Trans public
+open Data.Functor.Identity public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -33,6 +34,8 @@ private
 
 State : Set -> Set -> Set
 State s = StateT s Identity
+
+{-# DISPLAY StateT s Identity = State s #-}
 
 runState : State s a -> s -> a * s
 runState m = runIdentity <<< runStateT m

@@ -18,6 +18,7 @@ open import Data.Functor.Identity
 
 open Control.Monad.Writer.Class public
 open Control.Monad.Writer.Trans public
+open Data.Functor.Identity public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -32,7 +33,9 @@ private
 -------------------------------------------------------------------------------
 
 Writer : Set -> Set -> Set
-Writer W = WriterT W Identity
+Writer w = WriterT w Identity
+
+{-# DISPLAY WriterT w Identity = Writer w #-}
 
 writer: : a * w -> Writer w a
 writer: = WriterT: <<< Identity:

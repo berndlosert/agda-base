@@ -16,6 +16,13 @@ open import Control.Monad.Trans.Class
 open import Data.Functor.Identity
 
 -------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Trans.Class public
+open Data.Functor.Identity public
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
@@ -36,6 +43,8 @@ open IterT public
 
 Iter : Set -> Set
 Iter = IterT Identity
+
+{-# DISPLAY IterT a Identity = Iter a #-}
 
 delay : {{_ : Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = return (Right iter)

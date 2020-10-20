@@ -18,6 +18,7 @@ open import Data.Functor.Identity
 
 open Control.Monad.Cont.Class public
 open Control.Monad.Cont.Trans public
+open Data.Functor.Identity public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -33,6 +34,8 @@ private
 
 Cont : Set -> Set -> Set
 Cont r a = ContT r Identity a
+
+{-# DISPLAY ContT r Identity = Cont r #-}
 
 cont : ((a -> r) -> r) -> Cont r a
 cont f = ContT: \ c -> Identity: (f (runIdentity <<< c))
