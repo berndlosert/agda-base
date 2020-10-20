@@ -58,6 +58,12 @@ replicateA {f} {a} n0 fa = loop n0
 -- Destructors
 -------------------------------------------------------------------------------
 
+head : List a -> Maybe a
+head = list Nothing (\ x _ -> Just x)
+
+tail : List a -> Maybe (List a)
+tail = list Nothing (\ _ xs -> Just xs )
+
 uncons : List a -> Maybe (a * List a)
 uncons = list Nothing (\ x xs -> Just (x , xs))
 
@@ -67,12 +73,6 @@ unsnoc = foldr go Nothing
     go : a -> Maybe (List a * a) -> Maybe (List a * a)
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
-
-head : List a -> Maybe a
-head = list Nothing (\ x _ -> Just x)
-
-tail : List a -> Maybe (List a)
-tail = list Nothing (\ _ xs -> Just xs )
 
 init : (xs : List a) {{_ : IsNonempty xs}} -> List a
 init (x :: []) = []
