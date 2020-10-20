@@ -2,14 +2,33 @@
 
 module Control.Monad.Identity.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.Morph public
-open import Control.Monad.Trans.Class public
+open import Control.Monad.Morph
+open import Control.Monad.Trans.Class
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Morph public
+open Control.Monad.Trans.Class public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
     m n : Set -> Set
+
+-------------------------------------------------------------------------------
+-- IdentityT
+-------------------------------------------------------------------------------
 
 record IdentityT (m : Set -> Set) (a : Set) : Set where
   constructor IdentityT:
