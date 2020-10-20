@@ -9,6 +9,7 @@ module Data.Tree.FingerTree where
 open import Prelude
 
 open import Data.Foldable
+open import Data.Functor.Compose
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -171,23 +172,11 @@ instance
 
 traverseNE : {{_ : Applicative t}}
   -> (a -> t b) -> Node v (Elem a) -> t (Node v (Elem b))
-traverseNE g node with node
-... | Node2 v (Elem: a) (Elem: b) =
-  (| (\ x y -> Node2 v (Elem: x) (Elem: y)) (g a) (g b) |)
-... | Node3 v (Elem: a) (Elem: b) (Elem: c) =
-  (| (\ x y z -> Node3 v (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
+traverseNE g node = (| getCompose (traverse g (Compose: node)) |)
 
 traverseDE : {{_ : Applicative t}}
   -> (a -> t b) -> Digit (Elem a) -> t (Digit (Elem b))
-traverseDE g digit with digit
-... | One (Elem: a) =
-  (| (\ x -> One (Elem: x)) (g a) |)
-... | Two (Elem: a) (Elem: b) =
-  (| (\ x y -> Two (Elem: x) (Elem: y)) (g a) (g b) |)
-... | Three (Elem: a) (Elem: b) (Elem: c) =
-  (| (\ x y z -> Three (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) |)
-... | Four (Elem: a) (Elem: b) (Elem: c) (Elem: d) =
-  (| (\ w x y z -> Four (Elem: w) (Elem: x) (Elem: y) (Elem: z)) (g a) (g b) (g c) (g d) |)
+traverseDE g digit = (| getCompose (traverse g (Compose: digit)) |)
 
 -------------------------------------------------------------------------------
 -- consTree
