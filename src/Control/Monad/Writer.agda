@@ -2,12 +2,34 @@
 
 module Control.Monad.Writer where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.Writer.Class public
-open import Control.Monad.Writer.Trans public
+open import Control.Monad.Writer.Class
+open import Control.Monad.Writer.Trans
+open import Data.Functor.Identity
 
-private variable a b w w' : Set
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Writer.Class public
+open Control.Monad.Writer.Trans public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b w w' : Set
+
+-------------------------------------------------------------------------------
+-- Writer
+-------------------------------------------------------------------------------
 
 Writer : Set -> Set -> Set
 Writer W = WriterT W Identity

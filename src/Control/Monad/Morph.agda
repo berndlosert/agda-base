@@ -9,6 +9,7 @@ module Control.Monad.Morph where
 open import Prelude
 
 open import Control.Monad.Trans.Class
+open import Data.Functor.Identity
 
 -------------------------------------------------------------------------------
 -- Variables

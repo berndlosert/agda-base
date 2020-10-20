@@ -2,12 +2,34 @@
 
 module Control.Monad.Cont where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.Cont.Class public
-open import Control.Monad.Cont.Trans public
+open import Control.Monad.Cont.Class
+open import Control.Monad.Cont.Trans
+open import Data.Functor.Identity
 
-private variable a b r r' : Set
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Cont.Class public
+open Control.Monad.Cont.Trans public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b r r' : Set
+
+-------------------------------------------------------------------------------
+-- Cont
+-------------------------------------------------------------------------------
 
 Cont : Set -> Set -> Set
 Cont r a = ContT r Identity a

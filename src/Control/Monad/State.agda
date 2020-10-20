@@ -2,12 +2,34 @@
 
 module Control.Monad.State where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Control.Monad.State.Class public
-open import Control.Monad.State.Trans public
+open import Control.Monad.State.Class
+open import Control.Monad.State.Trans
+open import Data.Functor.Identity
 
-private variable a b s : Set
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.State.Class public
+open Control.Monad.State.Trans public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b s : Set
+
+-------------------------------------------------------------------------------
+-- State
+-------------------------------------------------------------------------------
 
 State : Set -> Set -> Set
 State s = StateT s Identity

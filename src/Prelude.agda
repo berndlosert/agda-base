@@ -104,12 +104,6 @@ postulate IO : Set -> Set
 -- Wrappers
 -------------------------------------------------------------------------------
 
-record Identity (a : Set) : Set where
-  constructor Identity:
-  field runIdentity : a
-
-open Identity public
-
 record Const (a b : Set) : Set where
   constructor Const:
   field getConst : a
@@ -507,9 +501,6 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
-  Eq-Identity : {{_ : Eq a}} -> Eq (Identity a)
-  Eq-Identity ._==_ (Identity: x) (Identity: y) = x == y
-
   Eq-Const : {{_ : Eq a}} -> Eq (Const a b)
   Eq-Const ._==_ (Const: x) (Const: y) = x == y
 
@@ -592,9 +583,6 @@ instance
     _ Nothing -> False
     Nothing _ -> True
     (Just x) (Just y) -> x < y
-
-  Ord-Identity : {{_ : Ord a}} -> Ord (Identity a)
-  Ord-Identity ._<_ (Identity: x) (Identity: y) = x < y
 
   Ord-Const : {{_ : Ord a}} -> Ord (Const a b)
   Ord-Const ._<_ (Const: x) (Const: y) = x < y
@@ -930,10 +918,6 @@ instance
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
-  Semigroup-Identity : {{_ : Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity ._<>_ (Identity: x) (Identity: y) =
-    Identity: (x <> y)
-
   Semigroup-Const : {{_ : Semigroup a}} -> Semigroup (Const a b)
   Semigroup-Const ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
@@ -969,9 +953,6 @@ instance
 
   Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
   Monoid-IO .mempty = pureIO mempty
-
-  Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
-  Monoid-Identity .mempty = Identity: mempty
 
   Monoid-Const : {{_ : Monoid a}} -> Monoid (Const a b)
   Monoid-Const .mempty = Const: mempty
@@ -1063,9 +1044,6 @@ instance
   Functor-IO : Functor IO
   Functor-IO .map = mapIO
 
-  Functor-Identity : Functor Identity
-  Functor-Identity .map f = Identity: <<< f <<< runIdentity
-
   Bifunctor-Const : Bifunctor Const
   Bifunctor-Const .bimap f g = Const: <<< f <<< getConst
 
@@ -1142,10 +1120,6 @@ instance
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
-
-  Applicative-Identity : Applicative Identity
-  Applicative-Identity .pure = Identity:
-  Applicative-Identity ._<*>_ = map <<< runIdentity
 
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: mempty
@@ -1247,9 +1221,6 @@ instance
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
-
-  Monad-Identity : Monad Identity
-  Monad-Identity ._>>=_ (Identity: x) k = k x
 
 -------------------------------------------------------------------------------
 -- Enum
@@ -1367,10 +1338,6 @@ instance
           go : {{_ : Show a}} -> List a -> ShowS
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
-
-  Show-Identity : {{_ : Show a}} -> Show (Identity a)
-  Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec)
-    (showString "Identity: " <<< showsPrec appPrec+1 x)
 
   Show-Const : {{_ : Show a}} -> Show (Const a b)
   Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)

@@ -9,6 +9,7 @@ module Control.Lens where
 open import Prelude
 
 open import Data.Foldable
+open import Data.Functor.Identity
 open import Data.List as List using ()
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
