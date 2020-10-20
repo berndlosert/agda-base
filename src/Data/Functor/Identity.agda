@@ -8,6 +8,8 @@ module Data.Functor.Identity where
 
 open import Prelude
 
+open import Data.Foldable
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -39,6 +41,9 @@ instance
 
   Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .mempty = Identity: mempty
+
+  Foldable-Identity : Foldable Identity
+  Foldable-Identity .foldMap f (Identity: x) = f x
 
   Functor-Identity : Functor Identity
   Functor-Identity .map f = Identity: <<< f <<< runIdentity

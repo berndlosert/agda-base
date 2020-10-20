@@ -157,8 +157,5 @@ instance
   Foldable-Maybe : Foldable Maybe
   Foldable-Maybe .foldMap = maybe mempty
 
-  Foldable-Const : Foldable (Const a)
-  Foldable-Const .foldMap _ _ = mempty
-
   Foldable-List : Foldable List
   Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y

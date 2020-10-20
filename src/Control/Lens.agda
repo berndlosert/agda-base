@@ -10,6 +10,7 @@ open import Prelude
 
 open import Data.Foldable
 open import Data.Functor.Identity
+open import Data.Functor.Const
 open import Data.List as List using ()
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
@@ -31,6 +32,7 @@ private
 -------------------------------------------------------------------------------
 
 open Data.Functor.Identity public
+open Data.Functor.Const public
 
 -------------------------------------------------------------------------------
 -- Types and type classes used for characterizing optics

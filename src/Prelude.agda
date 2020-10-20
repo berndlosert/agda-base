@@ -101,16 +101,6 @@ postulate IO : Set -> Set
 {-# COMPILE GHC IO = type IO #-}
 
 -------------------------------------------------------------------------------
--- Wrappers
--------------------------------------------------------------------------------
-
-record Const (a b : Set) : Set where
-  constructor Const:
-  field getConst : a
-
-open Const public
-
--------------------------------------------------------------------------------
 -- Primitive functions and operations
 -------------------------------------------------------------------------------
 
@@ -501,9 +491,6 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
-  Eq-Const : {{_ : Eq a}} -> Eq (Const a b)
-  Eq-Const ._==_ (Const: x) (Const: y) = x == y
-
 -------------------------------------------------------------------------------
 -- Ord
 -------------------------------------------------------------------------------
@@ -583,9 +570,6 @@ instance
     _ Nothing -> False
     Nothing _ -> True
     (Just x) (Just y) -> x < y
-
-  Ord-Const : {{_ : Ord a}} -> Ord (Const a b)
-  Ord-Const ._<_ (Const: x) (Const: y) = x < y
 
 -------------------------------------------------------------------------------
 -- FromNat, ToNat, FromNeg, ToFloat
@@ -918,9 +902,6 @@ instance
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
-  Semigroup-Const : {{_ : Semigroup a}} -> Semigroup (Const a b)
-  Semigroup-Const ._<>_ (Const: x) (Const: y) = Const: (x <> y)
-
 -------------------------------------------------------------------------------
 -- Monoid
 -------------------------------------------------------------------------------
@@ -953,9 +934,6 @@ instance
 
   Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
   Monoid-IO .mempty = pureIO mempty
-
-  Monoid-Const : {{_ : Monoid a}} -> Monoid (Const a b)
-  Monoid-Const .mempty = Const: mempty
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
@@ -1044,15 +1022,6 @@ instance
   Functor-IO : Functor IO
   Functor-IO .map = mapIO
 
-  Bifunctor-Const : Bifunctor Const
-  Bifunctor-Const .bimap f g = Const: <<< f <<< getConst
-
-  Functor-Const : Functor (Const a)
-  Functor-Const .map = second
-
-  Contravariant-Const : Contravariant (Const a)
-  Contravariant-Const .contramap f = Const: <<< getConst
-
 -------------------------------------------------------------------------------
 -- Applicative
 -------------------------------------------------------------------------------
@@ -1120,10 +1089,6 @@ instance
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
-
-  Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
-  Applicative-Const .pure _ = Const: mempty
-  Applicative-Const ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
 -------------------------------------------------------------------------------
 -- Alternative
@@ -1338,10 +1303,6 @@ instance
           go : {{_ : Show a}} -> List a -> ShowS
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
-
-  Show-Const : {{_ : Show a}} -> Show (Const a b)
-  Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
-    (showString "Const: " <<< showsPrec appPrec+1 x)
 
 -------------------------------------------------------------------------------
 -- Size
