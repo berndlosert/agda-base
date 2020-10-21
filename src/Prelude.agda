@@ -946,7 +946,7 @@ open Category {{...}} public
 instance
   Category-Function : Category
   Category-Function .Ob = Set
-  Category-Function .Hom a b = a -> b
+  Category-Function .Hom = Function
   Category-Function ._<<<_ f g x = f (g x)
   Category-Function .id x = x
 
