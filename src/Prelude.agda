@@ -928,27 +928,28 @@ instance
 -- Category
 -------------------------------------------------------------------------------
 
-record Category : Set where
-  constructor Category:
-  infixr 9 _<<<_
+record Category (p : Set -> Set -> Set) : Set where
   field
-    Ob : Set
-    Hom : Ob ->  Ob -> Set
-    _<<<_ : {a b c : Ob} -> Hom b c -> Hom a b -> Hom a c
-    id : {a : Ob} -> Hom a a
+    compose : p b c -> p a b -> p a c
+    identity : p a a
+
+  infixr 9 _<<<_
+  _<<<_ : p b c -> p a b -> p a c
+  _<<<_ = compose
 
   infixr 9 _>>>_
-  _>>>_ : {a b c : Ob} -> Hom a b -> Hom b c -> Hom a c
-  _>>>_ = flip _<<<_
+  _>>>_ : p a b -> p b c -> p a c
+  _>>>_ = flip compose
 
 open Category {{...}} public
 
+id : forall {a} {p} {{_ : Category p}} -> p a a
+id = identity
+
 instance
-  Category-Function : Category
-  Category-Function .Ob = Set
-  Category-Function .Hom = Function
-  Category-Function ._<<<_ f g x = f (g x)
-  Category-Function .id x = x
+  Category-Function : Category Function
+  Category-Function .compose f g x = f (g x)
+  Category-Function .identity x = x
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
@@ -1004,6 +1005,9 @@ record Profunctor (p : Set -> Set -> Set) : Set where
 
   rmap : (b -> c) -> p a b -> p a c
   rmap f = dimap id f
+
+  arr : {{_ : Category p}} -> (a -> b) -> p a b
+  arr f = rmap f id
 
 open Profunctor {{...}} public
 
