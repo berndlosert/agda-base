@@ -944,11 +944,11 @@ record Category : Set where
 open Category {{...}} public
 
 instance
-  Sets : Category
-  Sets .Ob = Set
-  Sets .Hom a b = a -> b
-  Sets ._<<<_ f g x = f (g x)
-  Sets .id x = x
+  Category-Function : Category
+  Category-Function .Ob = Set
+  Category-Function .Hom a b = a -> b
+  Category-Function ._<<<_ f g x = f (g x)
+  Category-Function .id x = x
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
