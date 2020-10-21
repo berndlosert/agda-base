@@ -225,7 +225,7 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else first (_+ lo) (genNat' (hi - lo) g)
+        else map (_+ lo) (genNat' (hi - lo) g)
 
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (i , j) g =
@@ -235,7 +235,7 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else first (\ n -> fromNat n + lo)
+        else map (\ n -> fromNat n + lo)
           (genNat' (toNat (hi - lo) {{believeMe}}) g)
 
   RandomR-Float : RandomR Float
@@ -246,4 +246,4 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else first (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
+        else map (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)

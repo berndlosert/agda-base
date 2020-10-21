@@ -987,48 +987,55 @@ record Contravariant (f : Set -> Set) : Set where
 open Contravariant {{...}} public
 
 record Bifunctor (p : Set -> Set -> Set) : Set where
-  field bimap : (a -> b) -> (c -> d) -> p a c -> p b d
+  field
+    overlap {{Functor-first}} : Functor (flip p a)
+    overlap {{Functor-second}} : Functor (p a)
 
-  first : (a -> b) -> p a c -> p b c
-  first f = bimap f id
-
-  second : (b -> c) -> p a b -> p a c
-  second g = bimap id g
+  bimap : (a -> b) -> (c -> d) -> p a c -> p b d
+  bimap f g x = map g (map f x)
 
 open Bifunctor {{...}} public
 
 record Profunctor (p : Set -> Set -> Set) : Set where
-  field dimap : (a -> b) -> (c -> d) -> p b c -> p a d
+  field
+    overlap {{Contravariant-first}} : Contravariant (flip p a)
+    overlap {{Functor-second}} : Functor (p a)
 
-  lmap : (a -> b) -> p b c -> p a c
-  lmap f = dimap f id
-
-  rmap : (b -> c) -> p a b -> p a c
-  rmap f = dimap id f
+  dimap : (a -> b) -> (c -> d) -> p b c -> p a d
+  dimap f g = contramap f <<< map g
 
   arr : {{_ : Category p}} -> (a -> b) -> p a b
-  arr f = rmap f id
+  arr f = map f id
 
 open Profunctor {{...}} public
 
 instance
-  Profunctor-Function : Profunctor Function
-  Profunctor-Function .dimap f g h = g <<< h <<< f
-
   Functor-Function : Functor (Function a)
-  Functor-Function .map = rmap
+  Functor-Function .map = _<<<_
 
-  Bifunctor-Either : Bifunctor Either
-  Bifunctor-Either .bimap f g = either (Left <<< f) (Right <<< g)
+  Contravariant-flip-Function : Contravariant (flip Function b)
+  Contravariant-flip-Function .contramap = _>>>_
+
+  Profunctor-Function : Profunctor Function
+  Profunctor-Function = record {}
 
   Functor-Either : Functor (Either a)
-  Functor-Either .map = second
+  Functor-Either .map f = either Left (Right <<< f)
 
-  Bifunctor-Tuple : Bifunctor Tuple
-  Bifunctor-Tuple .bimap f g = tuple (f <<< fst) (g <<< snd)
+  Functor-flip-Either : Functor (flip Either b)
+  Functor-flip-Either .map f = either (Left <<< f) Right
+
+  Bifunctor-Either : Bifunctor Either
+  Bifunctor-Either = record {}
 
   Functor-Tuple : Functor (Tuple a)
-  Functor-Tuple .map = second
+  Functor-Tuple .map f (x , y) = (x , f y)
+
+  Functor-flip-Tuple : Functor (flip Tuple b)
+  Functor-flip-Tuple .map f (x , y) = (f x , y)
+
+  Bifunctor-Tuple : Bifunctor Tuple
+  Bifunctor-Tuple = record {}
 
   Functor-Maybe : Functor Maybe
   Functor-Maybe .map f = \ where

@@ -30,7 +30,7 @@ mapWriterT f (WriterT: m) = WriterT: (f m)
 
 instance
   Functor-WriterT : {{_ : Functor m}} -> Functor (WriterT w m)
-  Functor-WriterT .map f = mapWriterT (map (first f))
+  Functor-WriterT .map f = mapWriterT (map (map f))
 
   Applicative-WriterT : {{_ : Monoid w}} {{_ : Applicative m}}
     -> Applicative (WriterT w m)

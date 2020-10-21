@@ -69,8 +69,14 @@ record Tagged (s b : Set) : Set where
 open Tagged public
 
 instance
+  Functor-Tagged : Functor (Tagged s)
+  Functor-Tagged .map f (Tagged: x) = Tagged: (f x)
+
+  Contravariant-flip-Tagged : Contravariant (flip Tagged b)
+  Contravariant-flip-Tagged .contramap _ (Tagged: x) = Tagged: x
+
   Profunctor-Tagged : Profunctor Tagged
-  Profunctor-Tagged .dimap _ f (Tagged: x) = Tagged: (f x)
+  Profunctor-Tagged = record {}
 
   Choice-Tagged : Choice Tagged
   Choice-Tagged .lchoice (Tagged: x) = Tagged: (Left x)
@@ -82,9 +88,12 @@ instance
   Functor-Exchange : Functor (Exchange a b s)
   Functor-Exchange .map f (Exchange: sa bt) = Exchange: sa (f <<< bt)
 
+  Contravariant-flip-Exchange : Contravariant (flip (Exchange a b) t)
+  Contravariant-flip-Exchange .contramap f (Exchange: sa bt) =
+    Exchange: (sa <<< f) bt
+
   Profunctor-Exchange : Profunctor (Exchange a b)
-  Profunctor-Exchange .dimap f g (Exchange: sa bt) =
-    Exchange: (sa <<< f) (g <<< bt)
+  Profunctor-Exchange = record {}
 
 data Market (a b s t : Set) : Set where
   Market: : (b -> t) -> (s -> t + a) -> Market a b s t
@@ -94,9 +103,12 @@ instance
   Functor-Market .map f (Market: bt seta) =
     Market: (f <<< bt) (either (Left <<< f) Right <<< seta)
 
+  Contravariant-flip-Market : Contravariant (flip (Market a b) t)
+  Contravariant-flip-Market .contramap f (Market: bt seta) =
+    Market: bt (seta <<< f)
+
   Profunctor-Market : Profunctor (Market a b)
-  Profunctor-Market .dimap f g (Market: bt seta) =
-    Market: (g <<< bt) (either (Left <<< g) Right <<< seta <<< f)
+  Profunctor-Market = record {}
 
   Choice-Market : Choice (Market a b)
   Choice-Market .lchoice (Market: bt seta) =
@@ -180,7 +192,7 @@ foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l f z = flip appEndo z <<< foldMapOf l (Endo: <<< f)
 
 foldlOf : Getting (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
-foldlOf l f z = rmap (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
+foldlOf l f z = map (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
 
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []

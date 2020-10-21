@@ -44,11 +44,14 @@ instance
   Foldable-Const : Foldable (Const a)
   Foldable-Const .foldMap _ _ = mempty
 
-  Bifunctor-Const : Bifunctor Const
-  Bifunctor-Const .bimap f g = Const: <<< f <<< getConst
-
   Functor-Const : Functor (Const a)
-  Functor-Const .map = second
+  Functor-Const .map _ (Const: x) = Const: x
+
+  Functor-flip-Const : Functor (flip Const b)
+  Functor-flip-Const .map f (Const: x) = Const: (f x)
+
+  Bifunctor-Const : Bifunctor Const
+  Bifunctor-Const = record {}
 
   Contravariant-Const : Contravariant (Const a)
   Contravariant-Const .contramap f = Const: <<< getConst

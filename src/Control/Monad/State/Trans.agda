@@ -58,7 +58,7 @@ withStateT f (StateT: m) = StateT: (m <<< f)
 
 instance
   Functor-StateT : {{_ : Functor m}} -> Functor (StateT s m)
-  Functor-StateT .map f (StateT: m) = StateT: \ s0 -> map (first f) (m s0)
+  Functor-StateT .map f (StateT: m) = StateT: \ s0 -> map (map f) (m s0)
 
   Applicative-StateT : {{_ : Monad m}} -> Applicative (StateT s m)
   Applicative-StateT .pure a = StateT: \ s -> return (a , s)
