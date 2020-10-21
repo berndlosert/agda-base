@@ -114,22 +114,11 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
-id : a -> a
-id x = x
-
 const : a -> b -> a
 const x _ = x
 
 flip : (a -> b -> c) -> b -> a -> c
 flip f x y = f y x
-
-infixr 9 _<<<_
-_<<<_ : (b -> c) -> (a -> b) -> a -> c
-g <<< f = \ x -> g (f x)
-
-infixr 9 _>>>_
-_>>>_ : (a -> b) -> (b -> c) -> a -> c
-_>>>_ = flip _<<<_
 
 infixr 0 _$_
 _$_ : (a -> b) -> a -> b
@@ -934,6 +923,32 @@ instance
 
   Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
   Monoid-IO .mempty = pureIO mempty
+
+-------------------------------------------------------------------------------
+-- Category
+-------------------------------------------------------------------------------
+
+record Category : Set where
+  constructor Category:
+  infixr 9 _<<<_
+  field
+    Ob : Set
+    Hom : Ob ->  Ob -> Set
+    _<<<_ : {a b c : Ob} -> Hom b c -> Hom a b -> Hom a c
+    id : {a : Ob} -> Hom a a
+
+  infixr 9 _>>>_
+  _>>>_ : {a b c : Ob} -> Hom a b -> Hom b c -> Hom a c
+  _>>>_ = flip _<<<_
+
+open Category {{...}} public
+
+instance
+  Sets : Category
+  Sets .Ob = Set
+  Sets .Hom a b = a -> b
+  Sets ._<<<_ f g x = f (g x)
+  Sets .id x = x
 
 -------------------------------------------------------------------------------
 -- Functor, Contravariant, Bifunctor, Profunctor
