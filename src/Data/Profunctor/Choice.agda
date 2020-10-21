@@ -14,7 +14,7 @@ open import Prelude
 
 private
   variable
-    a b c : Set
+    a b c d : Set
 
 -------------------------------------------------------------------------------
 -- Choice
@@ -27,6 +27,14 @@ record Choice (p : Set -> Set -> Set) : Set where
 
   right : p a b -> p (c + a) (c + b)
   right = dimap (either Right Left) (either Right Left) <<< left
+
+  infixr 2 _+++_
+  _+++_ : {{_ : Category p}} -> p a b -> p c d -> p (a + c) (b + d)
+  f +++ g = left f >>> right g
+
+  infixr 2 _|||_
+  _|||_ : {{_ : Category p}} -> p a c -> p b c -> p (a + b) c
+  f ||| g = map fromEither (f +++ g)
 
 open Choice {{...}} public
 
