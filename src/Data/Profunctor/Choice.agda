@@ -22,7 +22,7 @@ private
 
 record Choice (p : Set -> Set -> Set) : Set where
   field
-    {{super}} : Profunctor p
+    overlap {{super}} : Profunctor p
     left : p a b -> p (a + c) (b + c)
 
   right : p a b -> p (c + a) (c + b)
