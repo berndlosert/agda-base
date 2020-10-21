@@ -14,6 +14,7 @@ open import Data.Functor.Const
 open import Data.List as List using ()
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
+open import Data.Profunctor.Choice
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
 open import Data.Traversable
@@ -46,21 +47,6 @@ open Copointed {{...}} public
 instance
   Copointed-Identity : Copointed Identity
   Copointed-Identity .extract = runIdentity
-
-record Choice (p : Set -> Set -> Set) : Set where
-  field
-    {{super}} : Profunctor p
-    left : p a b -> p (a + c) (b + c)
-
-  right : p a b -> p (c + a) (c + b)
-  right = dimap (either Right Left) (either Right Left) <<< left
-
-open Choice {{...}} public
-
-instance
-  Choice-Function : Choice Function
-  Choice-Function .left ab (Left a) = Left (ab a)
-  Choice-Function .left _ (Right c) = Right c
 
 record Tagged (s b : Set) : Set where
   constructor Tagged:
