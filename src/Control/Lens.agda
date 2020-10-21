@@ -50,17 +50,17 @@ instance
 record Choice (p : Set -> Set -> Set) : Set where
   field
     {{super}} : Profunctor p
-    lchoice : p a b -> p (a + c) (b + c)
+    left : p a b -> p (a + c) (b + c)
 
-  rchoice : p a b -> p (c + a) (c + b)
-  rchoice = dimap (either Right Left) (either Right Left) <<< lchoice
+  right : p a b -> p (c + a) (c + b)
+  right = dimap (either Right Left) (either Right Left) <<< left
 
 open Choice {{...}} public
 
 instance
   Choice-Function : Choice Function
-  Choice-Function .lchoice ab (Left a) = Left (ab a)
-  Choice-Function .lchoice _ (Right c) = Right c
+  Choice-Function .left ab (Left a) = Left (ab a)
+  Choice-Function .left _ (Right c) = Right c
 
 record Tagged (s b : Set) : Set where
   constructor Tagged:
@@ -79,7 +79,7 @@ instance
   Profunctor-Tagged = record {}
 
   Choice-Tagged : Choice Tagged
-  Choice-Tagged .lchoice (Tagged: x) = Tagged: (Left x)
+  Choice-Tagged .left (Tagged: x) = Tagged: (Left x)
 
 data Exchange (a b s t : Set) : Set where
   Exchange: : (s -> a) -> (b -> t) -> Exchange a b s t
@@ -111,7 +111,7 @@ instance
   Profunctor-Market = record {}
 
   Choice-Market : Choice (Market a b)
-  Choice-Market .lchoice (Market: bt seta) =
+  Choice-Market .left (Market: bt seta) =
     Market: (Left <<< bt) $ \ where
       (Left s) -> case seta s of \ where
         (Left t) -> Left (Left t)
@@ -161,7 +161,7 @@ lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
 
 prism : (b -> t)  -> (s -> t + a) -> Prism s t a b
-prism bt seta = dimap seta (either pure (map bt)) <<< rchoice
+prism bt seta = dimap seta (either pure (map bt)) <<< right
 
 prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
 prism' bs sma = prism bs (\ s -> maybe (Left s) Right (sma s))
