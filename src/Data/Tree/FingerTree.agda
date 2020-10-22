@@ -80,6 +80,10 @@ node2 a b = Node2 (measure a <> measure b) a b
 node3 : {{_ : Measured v a}} -> a -> a -> a -> Node v a
 node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
 
+nodeToDigit : Node v a -> Digit a
+nodeToDigit (Node2 _ a b) = Two a b
+nodeToDigit (Node3 _ a b c) = Three a b c
+
 instance
   Foldable-Node : Foldable (Node v)
   Foldable-Node .foldMap f node with node
@@ -141,6 +145,12 @@ deep : {{_ : Measured v a}}
   -> Digit a
   -> FingerTree v a
 deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
+
+digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
+digitToTree (One a) = Single a
+digitToTree (Two a b) = deep (One a) Empty (One b)
+digitToTree (Three a b c) = deep (Two a b) Empty (One c)
+digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
 
 -------------------------------------------------------------------------------
 -- Cons operator
@@ -499,3 +509,17 @@ instance
   Functor-ViewR : {{_ : Functor s}} -> Functor (ViewR s)
   Functor-ViewR .map _ EmptyR = EmptyR
   Functor-ViewR .map f (xs :> x) = map f xs :> f x
+
+viewl : {{_ : Measured v a}} -> FingerTree v a -> ViewL (FingerTree v) a
+rotL : {{_ : Measured v a}} -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
+
+viewl Empty = EmptyL
+viewl (Single x) = x :< Empty
+viewl (Deep _ (One x) m sf) = x :< rotL m sf
+viewl (Deep _ (Two a b) m sf) = a :< deep (One b) m sf
+viewl (Deep _ (Three a b c) m sf) = a :< deep (Two b c) m sf
+viewl (Deep _ (Four a b c d) m sf) = a :< deep (Three b c d) m sf
+
+rotL m sf with viewl m
+... | EmptyL = digitToTree sf
+... | a :< m' = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
