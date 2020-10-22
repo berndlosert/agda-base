@@ -8,6 +8,7 @@ module Data.Tree.FingerTree where
 
 open import Prelude
 
+open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Traversable
 
@@ -139,6 +140,10 @@ instance
   ... | Single x = (| Single (f x) |)
   ... | (Deep v pr m sf) =
     (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
+
+  NonemptyConstraint-FingerTree : NonemptyConstraint (FingerTree v a)
+  NonemptyConstraint-FingerTree .IsNonempty Empty = Void
+  NonemptyConstraint-FingerTree .IsNonempty _ = Unit
 
 private
   deep : {{_ : Measured v a}}
@@ -556,3 +561,38 @@ rotL m sf with viewl m
 rotR pr m with viewr m
 ... | EmptyR = digitToTree pr
 ... | m' :> a = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
+
+-------------------------------------------------------------------------------
+-- Split
+-------------------------------------------------------------------------------
+
+data Split (t a : Set) : Set where
+  Split: : t -> a -> t -> Split t a
+
+splitDigit : {{_ : Measured v a }}
+  -> (v -> Bool) -> v -> Digit a -> Split (Maybe (Digit a)) a
+splitDigit _ i (One a) = Split: Nothing a Nothing
+splitDigit p i (Two a b) =
+  let
+    va = i <> measure a
+  in
+    if p va then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
+splitDigit p i (Three a b c) =
+  let
+    va = i <> measure a
+    vab = va <> measure b
+  in
+    if p va then Split: Nothing a (Just (Two b c))
+    else if p vab then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
+splitDigit p i (Four a b c d) =
+  let
+    va = i <> measure a
+    vab = va <> measure b
+    vabc = vab <> measure c
+  in
+    if p va then Split: Nothing a (Just (Three b c d))
+    else if p vab then Split: (Just (One a)) b (Just (Two c d))
+    else if p vabc then Split: (Just (Two a b)) c (Just (One d))
+    else Split: (Just (Three a b c)) d Nothing
