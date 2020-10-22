@@ -74,16 +74,6 @@ data Node (v a : Set) : Set where
   Node2 : v -> a -> a -> Node v a
   Node3 : v -> a -> a -> a -> Node v a
 
-node2 : {{_ : Measured v a}} -> a -> a -> Node v a
-node2 a b = Node2 (measure a <> measure b) a b
-
-node3 : {{_ : Measured v a}} -> a -> a -> a -> Node v a
-node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
-
-nodeToDigit : Node v a -> Digit a
-nodeToDigit (Node2 _ a b) = Two a b
-nodeToDigit (Node3 _ a b c) = Three a b c
-
 instance
   Foldable-Node : Foldable (Node v)
   Foldable-Node .foldMap f node with node
@@ -103,6 +93,17 @@ instance
   Measured-Node : {{_ : Monoid v}} -> Measured v (Node v a)
   Measured-Node .measure (Node2 v _ _) = v
   Measured-Node .measure (Node3 v _ _ _) = v
+
+private
+  node2 : {{_ : Measured v a}} -> a -> a -> Node v a
+  node2 a b = Node2 (measure a <> measure b) a b
+
+  node3 : {{_ : Measured v a}} -> a -> a -> a -> Node v a
+  node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
+
+  nodeToDigit : Node v a -> Digit a
+  nodeToDigit (Node2 _ a b) = Two a b
+  nodeToDigit (Node3 _ a b c) = Three a b c
 
 -------------------------------------------------------------------------------
 -- FingerTree
@@ -139,18 +140,19 @@ instance
   ... | (Deep v pr m sf) =
     (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
-deep : {{_ : Measured v a}}
-  -> Digit a
-  -> FingerTree v (Node v a)
-  -> Digit a
-  -> FingerTree v a
-deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
+private
+  deep : {{_ : Measured v a}}
+    -> Digit a
+    -> FingerTree v (Node v a)
+    -> Digit a
+    -> FingerTree v a
+  deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
 
-digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
-digitToTree (One a) = Single a
-digitToTree (Two a b) = deep (One a) Empty (One b)
-digitToTree (Three a b c) = deep (Two a b) Empty (One c)
-digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
+  digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
+  digitToTree (One a) = Single a
+  digitToTree (Two a b) = deep (One a) Empty (One b)
+  digitToTree (Three a b c) = deep (Two a b) Empty (One c)
+  digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
 
 -------------------------------------------------------------------------------
 -- Cons operator
@@ -510,8 +512,15 @@ instance
   Functor-ViewR .map _ EmptyR = EmptyR
   Functor-ViewR .map f (xs :> x) = map f xs :> f x
 
-viewl : {{_ : Measured v a}} -> FingerTree v a -> ViewL (FingerTree v) a
-rotL : {{_ : Measured v a}} -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
+viewl : {{_ : Measured v a}}
+  -> FingerTree v a
+  -> ViewL (FingerTree v) a
+
+private
+  rotL : {{_ : Measured v a}}
+    -> FingerTree v (Node v a)
+    -> Digit a
+    -> FingerTree v a
 
 viewl Empty = EmptyL
 viewl (Single x) = x :< Empty
