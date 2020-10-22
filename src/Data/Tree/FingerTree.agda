@@ -532,3 +532,24 @@ viewl (Deep _ (Four a b c d) m sf) = a :< deep (Three b c d) m sf
 rotL m sf with viewl m
 ... | EmptyL = digitToTree sf
 ... | a :< m' = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
+
+viewr : {{_ : Measured v a}}
+  -> FingerTree v a
+  -> ViewR (FingerTree v) a
+
+private
+  rotR : {{_ : Measured v a}}
+    -> Digit a
+    -> FingerTree v (Node v a)
+    -> FingerTree v a
+
+viewr Empty = EmptyR
+viewr (Single x) = Empty :> x
+viewr (Deep _ pr m (One x)) = rotR pr m :> x
+viewr (Deep _ pr m (Two a b)) = deep pr m (One a) :> b
+viewr (Deep _ pr m (Three a b c)) = deep pr m (Two a b) :> c
+viewr (Deep _ pr m (Four a b c d)) = deep pr m (Three a b c) :> d
+
+rotR pr m with viewr m
+... | EmptyR = digitToTree pr
+... | m' :> a = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
