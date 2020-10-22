@@ -18,7 +18,7 @@ open import Data.Traversable
 private
   variable
     a b v : Set
-    t : Set -> Set
+    s t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Measured
@@ -109,22 +109,7 @@ data FingerTree (v a : Set) : Set where
   Single : a -> FingerTree v a
   Deep : v -> Digit a -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
 
-infixr 5 _<|_
-_<|_ : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
-
-infixl 5 _|>_
-_|>_ : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
-
-_><_ : {{_ : Measured v a}}
-  -> FingerTree v a -> FingerTree v a -> FingerTree v a
-
 instance
-  Semigroup-FingerTree : {{_ : Measured v a}} -> Semigroup (FingerTree v a)
-  Semigroup-FingerTree ._<>_ = _><_
-
-  Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
-  Monoid-FingerTree .mempty = Empty
-
   Measured-FingerTree : {{_ : Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure tree with tree
   ... | Empty = mempty
@@ -158,8 +143,11 @@ deep : {{_ : Measured v a}}
 deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
 
 -------------------------------------------------------------------------------
--- cons
+-- Cons operator
 -------------------------------------------------------------------------------
+
+infixr 5 _<|_
+_<|_ : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
 a <| Empty = Single a
 a <| Single b = deep (One a) Empty (One b)
@@ -173,8 +161,11 @@ a <| (Deep s (One b) m sf) =
   Deep (measure a <> s) (Two a b) m sf
 
 -------------------------------------------------------------------------------
--- snoc
+-- Snoc operator
 -------------------------------------------------------------------------------
+
+infixl 5 _|>_
+_|>_ : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
 Empty |> a = Single a
 Single a |>  b = deep (One a) Empty (One b)
@@ -188,7 +179,7 @@ Deep s pr m (One a) |> b =
   Deep (s <> measure b) pr m (Two a b)
 
 -------------------------------------------------------------------------------
--- append
+-- Semigroup & Monoid instances
 -------------------------------------------------------------------------------
 
 private
@@ -479,4 +470,32 @@ private
 
 -- Finally...
 
-_><_ = appendTree0
+instance
+  Semigroup-FingerTree : {{_ : Measured v a}} -> Semigroup (FingerTree v a)
+  Semigroup-FingerTree ._<>_ = appendTree0
+
+  Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
+  Monoid-FingerTree .mempty = Empty
+
+-------------------------------------------------------------------------------
+-- ViewL & ViewR
+-------------------------------------------------------------------------------
+
+infixr 5 _:<_
+data ViewL (s : Set -> Set) (a : Set) : Set where
+  EmptyL : ViewL s a
+  _:<_ : a -> s a -> ViewL s a
+
+infixr 5 _:>_
+data ViewR (s : Set -> Set) (a : Set) : Set where
+  EmptyR : ViewR s a
+  _:>_ : s a -> a -> ViewR s a
+
+instance
+  Functor-ViewL : {{_ : Functor s}} -> Functor (ViewL s)
+  Functor-ViewL .map _ EmptyL = EmptyL
+  Functor-ViewL .map f (x :< xs) = f x :< map f xs
+
+  Functor-ViewR : {{_ : Functor s}} -> Functor (ViewR s)
+  Functor-ViewR .map _ EmptyR = EmptyR
+  Functor-ViewR .map f (xs :> x) = map f xs :> f x
