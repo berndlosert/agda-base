@@ -596,3 +596,23 @@ splitDigit p i (Four a b c d) =
     else if p vab then Split: (Just (One a)) b (Just (Two c d))
     else if p vabc then Split: (Just (Two a b)) c (Just (One d))
     else Split: (Just (Three a b c)) d Nothing
+
+splitNode : {{_ : Measured v a}}
+  -> (v -> Bool)
+  -> v
+  -> Node v a
+  -> Split (Maybe (Digit a)) a
+splitNode p i (Node2 _ a b) =
+  let
+    va = i <> measure a
+  in
+    if p va then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
+splitNode p i (Node3 _ a b c) =
+  let
+    va = i <> measure a
+    vab = va <> measure b
+  in
+    if p va then Split: Nothing a (Just (Two b c))
+    else if p vab then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
