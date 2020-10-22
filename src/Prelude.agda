@@ -986,23 +986,29 @@ record Contravariant (f : Set -> Set) : Set where
 
 open Contravariant {{...}} public
 
+record Flip (p : Set -> Set -> Set) (a b : Set) : Set where
+  constructor Flip:
+  field runFlip : p b a
+
+open Flip public
+
 record Bifunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Functor-first}} : Functor (flip p a)
+    overlap {{Functor-first}} : Functor (Flip p b)
     overlap {{Functor-second}} : Functor (p a)
 
   bimap : (a -> b) -> (c -> d) -> p a c -> p b d
-  bimap f g x = map g (map f x)
+  bimap f g x = map g $ runFlip $ map f $ Flip: x
 
 open Bifunctor {{...}} public
 
 record Profunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Contravariant-first}} : Contravariant (flip p a)
+    overlap {{Contravariant-first}} : Contravariant (Flip p b)
     overlap {{Functor-second}} : Functor (p a)
 
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
-  dimap f g = contramap f <<< map g
+  dimap f g x = runFlip $ contramap f $ Flip: $ map g x
 
   arr : {{_ : Category p}} -> (a -> b) -> p a b
   arr f = map f id
@@ -1013,8 +1019,8 @@ instance
   Functor-Function : Functor (Function a)
   Functor-Function .map = _<<<_
 
-  Contravariant-flip-Function : Contravariant (flip Function b)
-  Contravariant-flip-Function .contramap = _>>>_
+  Contravariant-Flip-Function : Contravariant (Flip Function b)
+  Contravariant-Flip-Function .contramap f (Flip: g) = Flip: (f >>> g)
 
   Profunctor-Function : Profunctor Function
   Profunctor-Function = record {}
@@ -1022,8 +1028,8 @@ instance
   Functor-Either : Functor (Either a)
   Functor-Either .map f = either Left (Right <<< f)
 
-  Functor-flip-Either : Functor (flip Either b)
-  Functor-flip-Either .map f = either (Left <<< f) Right
+  Functor-Flip-Either : Functor (Flip Either b)
+  Functor-Flip-Either .map f (Flip: x) = Flip: (either (Left <<< f) Right x)
 
   Bifunctor-Either : Bifunctor Either
   Bifunctor-Either = record {}
@@ -1031,8 +1037,8 @@ instance
   Functor-Tuple : Functor (Tuple a)
   Functor-Tuple .map f (x , y) = (x , f y)
 
-  Functor-flip-Tuple : Functor (flip Tuple b)
-  Functor-flip-Tuple .map f (x , y) = (f x , y)
+  Functor-Flip-Tuple : Functor (Flip Tuple b)
+  Functor-Flip-Tuple .map f (Flip: (x , y)) = Flip: (f x , y)
 
   Bifunctor-Tuple : Bifunctor Tuple
   Bifunctor-Tuple = record {}
