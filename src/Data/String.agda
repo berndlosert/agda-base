@@ -58,7 +58,7 @@ uncons : String -> Maybe (Char * String)
 uncons s = maybe Nothing (Just <<< map pack) (List.uncons (unpack s))
 
 unsnoc : String -> Maybe (String * Char)
-unsnoc s = maybe Nothing (Just <<< map pack) (List.unsnoc (unpack s))
+unsnoc s = maybe Nothing (Just <<< lmap pack) (List.unsnoc (unpack s))
 
 head : String -> Maybe Char
 head s = map fst (uncons s)

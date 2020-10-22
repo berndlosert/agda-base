@@ -10,6 +10,7 @@ private
   variable
     a b c d r s : Set
     f m : Set -> Set
+    p : Set -> Set -> Set
 
 -------------------------------------------------------------------------------
 -- Primitive types and type constructors
@@ -992,10 +993,22 @@ record Flip (p : Set -> Set -> Set) (a b : Set) : Set where
 
 open Flip public
 
+lmap : {{_ : forall {b} -> Functor (Flip p b)}}
+  -> (a -> b) -> p a c -> p b c
+lmap f x = runFlip (map f (Flip: x))
+
+lcmap : {{_ : forall {b} -> Contravariant (Flip p b)}}
+  -> (b -> a) -> p a c -> p b c
+lcmap f x = runFlip (contramap f (Flip: x))
+
+rmap : {{_ : forall {a} -> Functor (p a)}}
+  -> (b -> c) -> p a b -> p a c
+rmap = map
+
 record Bifunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Functor-first}} : Functor (Flip p b)
-    overlap {{Functor-second}} : Functor (p a)
+    overlap {{Functor-Flip-super}} : Functor (Flip p b)
+    overlap {{Functor-super}} : Functor (p a)
 
   bimap : (a -> b) -> (c -> d) -> p a c -> p b d
   bimap f g x = map g $ runFlip $ map f $ Flip: x
@@ -1004,8 +1017,8 @@ open Bifunctor {{...}} public
 
 record Profunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Contravariant-first}} : Contravariant (Flip p b)
-    overlap {{Functor-second}} : Functor (p a)
+    overlap {{Contravariant-Flip-super}} : Contravariant (Flip p b)
+    overlap {{Functor-super}} : Functor (p a)
 
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
   dimap f g x = runFlip $ contramap f $ Flip: $ map g x
