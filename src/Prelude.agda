@@ -953,7 +953,7 @@ instance
   Category-Function .identity x = x
 
 -------------------------------------------------------------------------------
--- Functor, Contravariant, Bifunctor, Profunctor
+-- Functor
 -------------------------------------------------------------------------------
 
 record Functor (f : Set -> Set) : Set where
@@ -979,6 +979,31 @@ record Functor (f : Set -> Set) : Set where
 
 open Functor {{...}} public
 
+instance
+  Functor-Function : Functor (Function a)
+  Functor-Function .map = _<<<_
+
+  Functor-Either : Functor (Either a)
+  Functor-Either .map f = either Left (Right <<< f)
+
+  Functor-Tuple : Functor (Tuple a)
+  Functor-Tuple .map f (x , y) = (x , f y)
+
+  Functor-Maybe : Functor Maybe
+  Functor-Maybe .map f = \ where
+    Nothing -> Nothing
+    (Just a) -> Just (f a)
+
+  Functor-List : Functor List
+  Functor-List .map f = listrec [] \ a _ bs -> f a :: bs
+
+  Functor-IO : Functor IO
+  Functor-IO .map = mapIO
+
+-------------------------------------------------------------------------------
+-- Contravariant
+-------------------------------------------------------------------------------
+
 record Contravariant (f : Set -> Set) : Set where
   field contramap : (a -> b) -> f b -> f a
 
@@ -986,6 +1011,10 @@ record Contravariant (f : Set -> Set) : Set where
   phantom x = contramap (const unit) (map (const unit) x)
 
 open Contravariant {{...}} public
+
+-------------------------------------------------------------------------------
+-- Flip
+-------------------------------------------------------------------------------
 
 record Flip (p : Set -> Set -> Set) (a b : Set) : Set where
   constructor Flip:
@@ -1005,6 +1034,20 @@ rmap : {{_ : forall {a} -> Functor (p a)}}
   -> (b -> c) -> p a b -> p a c
 rmap = map
 
+instance
+  Contravariant-Flip-Function : Contravariant (Flip Function b)
+  Contravariant-Flip-Function .contramap f (Flip: g) = Flip: (f >>> g)
+
+  Functor-Flip-Either : Functor (Flip Either b)
+  Functor-Flip-Either .map f (Flip: x) = Flip: (either (Left <<< f) Right x)
+
+  Functor-Flip-Tuple : Functor (Flip Tuple b)
+  Functor-Flip-Tuple .map f (Flip: (x , y)) = Flip: (f x , y)
+
+-------------------------------------------------------------------------------
+-- Bifunctor
+-------------------------------------------------------------------------------
+
 record Bifunctor (p : Set -> Set -> Set) : Set where
   field
     overlap {{Functor-Flip-super}} : Functor (Flip p b)
@@ -1014,6 +1057,17 @@ record Bifunctor (p : Set -> Set -> Set) : Set where
   bimap f g x = map g $ runFlip $ map f $ Flip: x
 
 open Bifunctor {{...}} public
+
+instance
+  Bifunctor-Either : Bifunctor Either
+  Bifunctor-Either = record {}
+
+  Bifunctor-Tuple : Bifunctor Tuple
+  Bifunctor-Tuple = record {}
+
+-------------------------------------------------------------------------------
+-- Profunctor
+-------------------------------------------------------------------------------
 
 record Profunctor (p : Set -> Set -> Set) : Set where
   field
@@ -1029,43 +1083,8 @@ record Profunctor (p : Set -> Set -> Set) : Set where
 open Profunctor {{...}} public
 
 instance
-  Functor-Function : Functor (Function a)
-  Functor-Function .map = _<<<_
-
-  Contravariant-Flip-Function : Contravariant (Flip Function b)
-  Contravariant-Flip-Function .contramap f (Flip: g) = Flip: (f >>> g)
-
   Profunctor-Function : Profunctor Function
   Profunctor-Function = record {}
-
-  Functor-Either : Functor (Either a)
-  Functor-Either .map f = either Left (Right <<< f)
-
-  Functor-Flip-Either : Functor (Flip Either b)
-  Functor-Flip-Either .map f (Flip: x) = Flip: (either (Left <<< f) Right x)
-
-  Bifunctor-Either : Bifunctor Either
-  Bifunctor-Either = record {}
-
-  Functor-Tuple : Functor (Tuple a)
-  Functor-Tuple .map f (x , y) = (x , f y)
-
-  Functor-Flip-Tuple : Functor (Flip Tuple b)
-  Functor-Flip-Tuple .map f (Flip: (x , y)) = Flip: (f x , y)
-
-  Bifunctor-Tuple : Bifunctor Tuple
-  Bifunctor-Tuple = record {}
-
-  Functor-Maybe : Functor Maybe
-  Functor-Maybe .map f = \ where
-    Nothing -> Nothing
-    (Just a) -> Just (f a)
-
-  Functor-List : Functor List
-  Functor-List .map f = listrec [] \ a _ bs -> f a :: bs
-
-  Functor-IO : Functor IO
-  Functor-IO .map = mapIO
 
 -------------------------------------------------------------------------------
 -- Applicative
