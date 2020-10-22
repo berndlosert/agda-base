@@ -1024,15 +1024,11 @@ open Flip public
 
 lmap : {{_ : forall {b} -> Functor (Flip p b)}}
   -> (a -> b) -> p a c -> p b c
-lmap f x = runFlip (map f (Flip: x))
+lmap f = runFlip <<< map f <<< Flip:
 
 lcmap : {{_ : forall {b} -> Contravariant (Flip p b)}}
   -> (b -> a) -> p a c -> p b c
-lcmap f x = runFlip (contramap f (Flip: x))
-
-rmap : {{_ : forall {a} -> Functor (p a)}}
-  -> (b -> c) -> p a b -> p a c
-rmap = map
+lcmap f = runFlip <<< contramap f <<< Flip:
 
 instance
   Contravariant-Flip-Function : Contravariant (Flip Function b)
@@ -1054,7 +1050,7 @@ record Bifunctor (p : Set -> Set -> Set) : Set where
     overlap {{Functor-super}} : Functor (p a)
 
   bimap : (a -> b) -> (c -> d) -> p a c -> p b d
-  bimap f g x = map g $ runFlip $ map f $ Flip: x
+  bimap f g = lmap f <<< map g
 
 open Bifunctor {{...}} public
 
@@ -1075,7 +1071,7 @@ record Profunctor (p : Set -> Set -> Set) : Set where
     overlap {{Functor-super}} : Functor (p a)
 
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
-  dimap f g x = runFlip $ contramap f $ Flip: $ map g x
+  dimap f g = lcmap f <<< map g
 
   arr : {{_ : Category p}} -> (a -> b) -> p a b
   arr f = map f id
