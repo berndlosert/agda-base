@@ -1013,41 +1013,13 @@ record Contravariant (f : Set -> Set) : Set where
 open Contravariant {{...}} public
 
 -------------------------------------------------------------------------------
--- Flip
--------------------------------------------------------------------------------
-
-record Flip (p : Set -> Set -> Set) (a b : Set) : Set where
-  constructor Flip:
-  field runFlip : p b a
-
-open Flip public
-
-lmap : {{_ : forall {b} -> Functor (Flip p b)}}
-  -> (a -> b) -> p a c -> p b c
-lmap f = runFlip <<< map f <<< Flip:
-
-lcmap : {{_ : forall {b} -> Contravariant (Flip p b)}}
-  -> (b -> a) -> p a c -> p b c
-lcmap f = runFlip <<< contramap f <<< Flip:
-
-instance
-  Contravariant-Flip-Function : Contravariant (Flip Function b)
-  Contravariant-Flip-Function .contramap f (Flip: g) = Flip: (f >>> g)
-
-  Functor-Flip-Either : Functor (Flip Either b)
-  Functor-Flip-Either .map f (Flip: x) = Flip: (either (Left <<< f) Right x)
-
-  Functor-Flip-Tuple : Functor (Flip Tuple b)
-  Functor-Flip-Tuple .map f (Flip: (x , y)) = Flip: (f x , y)
-
--------------------------------------------------------------------------------
 -- Bifunctor
 -------------------------------------------------------------------------------
 
 record Bifunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Functor-Flip-super}} : Functor (Flip p b)
     overlap {{Functor-super}} : Functor (p a)
+    lmap : (a -> b) -> p a c -> p b c
 
   bimap : (a -> b) -> (c -> d) -> p a c -> p b d
   bimap f g = lmap f <<< map g
@@ -1056,10 +1028,10 @@ open Bifunctor {{...}} public
 
 instance
   Bifunctor-Either : Bifunctor Either
-  Bifunctor-Either = record {}
+  Bifunctor-Either .lmap f = either (Left <<< f) Right
 
   Bifunctor-Tuple : Bifunctor Tuple
-  Bifunctor-Tuple = record {}
+  Bifunctor-Tuple .lmap f (x , y) = (f x , y)
 
 -------------------------------------------------------------------------------
 -- Profunctor
@@ -1067,8 +1039,8 @@ instance
 
 record Profunctor (p : Set -> Set -> Set) : Set where
   field
-    overlap {{Contravariant-Flip-super}} : Contravariant (Flip p b)
     overlap {{Functor-super}} : Functor (p a)
+    lcmap : (b -> a) -> p a c -> p b c
 
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
   dimap f g = lcmap f <<< map g
@@ -1080,7 +1052,7 @@ open Profunctor {{...}} public
 
 instance
   Profunctor-Function : Profunctor Function
-  Profunctor-Function = record {}
+  Profunctor-Function .lcmap = _>>>_
 
 -------------------------------------------------------------------------------
 -- Applicative

@@ -47,11 +47,8 @@ instance
   Functor-Const : Functor (Const a)
   Functor-Const .map _ (Const: x) = Const: x
 
-  Functor-Flip-Const : Functor (Flip Const b)
-  Functor-Flip-Const .map f (Flip: (Const: x)) = Flip: (Const: (f x))
-
   Bifunctor-Const : Bifunctor Const
-  Bifunctor-Const = record {}
+  Bifunctor-Const .lmap f (Const: x) = Const: (f x)
 
   Contravariant-Const : Contravariant (Const a)
   Contravariant-Const .contramap f = Const: <<< getConst

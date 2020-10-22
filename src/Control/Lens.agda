@@ -58,12 +58,8 @@ instance
   Functor-Tagged : Functor (Tagged s)
   Functor-Tagged .map f (Tagged: x) = Tagged: (f x)
 
-  Contravariant-Flip-Tagged : Contravariant (Flip Tagged b)
-  Contravariant-Flip-Tagged .contramap _ (Flip: (Tagged: x)) =
-    Flip: (Tagged: x)
-
   Profunctor-Tagged : Profunctor Tagged
-  Profunctor-Tagged = record {}
+  Profunctor-Tagged .lcmap _ (Tagged: x) = Tagged: x
 
   Choice-Tagged : Choice Tagged
   Choice-Tagged .left (Tagged: x) = Tagged: (Left x)
@@ -75,12 +71,8 @@ instance
   Functor-Exchange : Functor (Exchange a b s)
   Functor-Exchange .map f (Exchange: sa bt) = Exchange: sa (f <<< bt)
 
-  Contravariant-Flip-Exchange : Contravariant (Flip (Exchange a b) t)
-  Contravariant-Flip-Exchange .contramap f (Flip: (Exchange: sa bt)) =
-    Flip: (Exchange: (sa <<< f) bt)
-
   Profunctor-Exchange : Profunctor (Exchange a b)
-  Profunctor-Exchange = record {}
+  Profunctor-Exchange .lcmap f (Exchange: sa bt) = Exchange: (sa <<< f) bt
 
 data Market (a b s t : Set) : Set where
   Market: : (b -> t) -> (s -> t + a) -> Market a b s t
@@ -90,12 +82,8 @@ instance
   Functor-Market .map f (Market: bt seta) =
     Market: (f <<< bt) (either (Left <<< f) Right <<< seta)
 
-  Contravariant-flip-Market : Contravariant (Flip (Market a b) t)
-  Contravariant-flip-Market .contramap f (Flip: (Market: bt seta)) =
-    Flip: (Market: bt (seta <<< f))
-
   Profunctor-Market : Profunctor (Market a b)
-  Profunctor-Market = record {}
+  Profunctor-Market .lcmap f (Market: bt seta) = Market: bt (seta <<< f)
 
   Choice-Market : Choice (Market a b)
   Choice-Market .left (Market: bt seta) =
