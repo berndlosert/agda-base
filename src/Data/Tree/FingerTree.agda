@@ -616,3 +616,19 @@ splitNode p i (Node3 _ a b c) =
     if p va then Split: Nothing a (Just (Two b c))
     else if p vab then Split: (Just (One a)) b (Just (One c))
     else Split: (Just (Two a b)) c Nothing
+
+deepL : {{_ : Measured v a}}
+  -> Maybe (Digit a)
+  -> FingerTree v (Node v a)
+  -> Digit a
+  -> FingerTree v a
+deepL Nothing m sf = rotL m sf
+deepL (Just pr) m sf = deep pr m sf
+
+deepR : {{_ : Measured v a}}
+  -> Digit a
+  -> FingerTree v (Node v a)
+  -> Maybe (Digit a)
+  -> FingerTree v a
+deepR pr m Nothing = rotR pr m
+deepR pr m (Just sf) =  deep pr m sf
