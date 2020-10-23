@@ -14,9 +14,9 @@ open import Data.Monoid.Sum
 open import Data.Foldable
 open import Data.Functor.Compose
 open import Data.Traversable
-open import Data.Tree.FingerTree
-open import Data.Tree.FingerTree.Digit
-open import Data.Tree.FingerTree.Measured
+open import Data.FingerTree
+open import Data.FingerTree.Digit
+open import Data.FingerTree.Measured
 
 -------------------------------------------------------------------------------
 -- Re-exports

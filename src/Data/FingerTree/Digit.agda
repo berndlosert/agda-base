@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Tree.FingerTree.Digit where
+module Data.FingerTree.Digit where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -9,7 +9,7 @@ module Data.Tree.FingerTree.Digit where
 open import Prelude
 
 open import Data.Foldable
-open import Data.Tree.FingerTree.Measured
+open import Data.FingerTree.Measured
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
