@@ -44,3 +44,14 @@ open Monobuildable {{...}} public
 
 Buildable : (Set -> Set) -> Set
 Buildable t = forall {a} -> Monobuildable (t a) a
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Buildable-List : Buildable List
+  Buildable-List .singleton = _:: []
+
+  Monobuildable-String-Char : Monobuildable String Char
+  Monobuildable-String-Char .singleton = pack <<< singleton
