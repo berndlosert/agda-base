@@ -563,7 +563,7 @@ rotR pr m with viewr m
 ... | m' :> a = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
--- Split
+-- split
 -------------------------------------------------------------------------------
 
 private
@@ -658,3 +658,41 @@ split : {{_ : Measured v a}}
 split _ Empty  =  (Empty , Empty)
 split p xs with splitTree p mempty xs {{believeMe}}
 ... | Split: l x r = if p (measure xs) then (l , x <| r) else (xs , Empty)
+
+-------------------------------------------------------------------------------
+-- search
+-------------------------------------------------------------------------------
+
+searchDigit : {{_ : Measured v a}}
+  -> (v -> v -> Bool) -> v -> Digit a -> v -> Split (Maybe (Digit a)) a
+searchDigit _ vl (One a) vr = Split: Nothing a Nothing
+searchDigit p vl (Two a b) vr =
+  let
+    va = vl <> measure a
+    vb = measure b <> vr
+  in
+    if p va vb then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
+searchDigit p vl (Three a b c) vr =
+  let
+    va = vl <> measure a
+    vab = va <> measure b
+    vc = measure c <> vr
+    vbc = measure b <> vc
+  in
+    if p va vbc then Split: Nothing a (Just (Two b c))
+    else if p vab vc then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
+searchDigit p vl (Four a b c d) vr =
+  let
+    va = vl <> measure a
+    vd = measure d <> vr
+    vab = va <> measure b
+    vcd = measure c <> vd
+    vabc = vab <> measure c
+    vbcd = measure b <> vcd
+  in
+    if p va vbcd then Split: Nothing a (Just (Three b c d))
+    else if p vab vcd then Split: (Just (One a)) b (Just (Two c d))
+    else if p vabc vd then Split: (Just (Two a b)) c (Just (One d))
+    else Split: (Just (Three a b c)) d Nothing
