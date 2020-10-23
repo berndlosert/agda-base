@@ -77,7 +77,7 @@ data Seq (a : Set) : Set where
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ (Seq: xs) (Seq: ys) = Seq: (appendTree0 xs ys)
+  Semigroup-Seq ._<>_ (Seq: xs) (Seq: ys) = Seq: (xs <> ys)
 
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = Seq: Empty
@@ -150,12 +150,9 @@ replicateA {f} {a} n0 fa = loop n0
 -------------------------------------------------------------------------------
 
 head : Seq a -> Maybe a
-head (Seq: Empty) = Nothing
-head (Seq: (Single (Elem: a))) = Just a
-head (Seq: (Deep _ (One (Elem: a)) _ _)) = Just a
-head (Seq: (Deep _ (Two (Elem: a) _ ) _ _)) = Just a
-head (Seq: (Deep _ (Three (Elem: a) _ _) _ _)) = Just a
-head (Seq: (Deep _ (Four (Elem: a) _ _ _) _ _)) = Just a
+head (Seq: t) with viewl t
+... | EmptyL = Nothing
+... | (Elem: x) :< _ = Just x
 
 {-
 tail : Seq a -> Maybe (Seq a)
