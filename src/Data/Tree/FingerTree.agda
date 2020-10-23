@@ -668,6 +668,12 @@ split p xs with splitTree p mempty xs {{believeMe}}
 -- search
 -------------------------------------------------------------------------------
 
+data SearchResult (v a : Set) : Set where
+  Position : FingerTree v a -> a -> FingerTree v a -> SearchResult v a
+  OnLeft : SearchResult v a
+  OnRight : SearchResult v a
+  Nowhere : SearchResult v a
+
 private
   searchDigit : {{_ : Measured v a}}
     -> (v -> v -> Bool)
@@ -731,25 +737,42 @@ private
       else if p vab vc then Split: (Just (One a)) b (Just (One c))
       else Split: (Just (Two a b)) c Nothing
 
-searchTree : {{_ : Measured v a}}
+  searchTree : {{_ : Measured v a}}
+    -> (v -> v -> Bool)
+    -> v
+    -> (t : FingerTree v a) {{_ : IsNonempty t}}
+    -> v
+    -> Split (FingerTree v a) a
+  searchTree _ _ (Single x) _ = Split: Empty x Empty
+  searchTree p vl (Deep _ pr m sf) vr =
+    let
+      vm =  measure m
+      vlp =  vl <> measure pr
+      vsr =  measure sf <> vr
+      vlpm =  vlp <> vm
+      vmsr =  vm <> vsr
+    in
+      if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
+        (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+      else if p vlpm vsr then (case searchTree p vlp m {{believeMe}} vsr of \ where
+        (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
+          (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
+      else (case searchDigit p vlpm sf vr of \ where
+        (Split: l x r) ->  Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+
+search : {{_ : Measured v a}}
   -> (v -> v -> Bool)
-  -> v
-  -> (t : FingerTree v a) {{_ : IsNonempty t}}
-  -> v
-  -> Split (FingerTree v a) a
-searchTree _ _ (Single x) _ = Split: Empty x Empty
-searchTree p vl (Deep _ pr m sf) vr =
+  -> FingerTree v a
+  -> SearchResult v a
+search p t =
   let
-    vm =  measure m
-    vlp =  vl <> measure pr
-    vsr =  measure sf <> vr
-    vlpm =  vlp <> vm
-    vmsr =  vm <> vsr
+    vt = measure t
+    pleft = p mempty vt
+    pright = p vt mempty
   in
-    if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-      (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
-    else if p vlpm vsr then (case searchTree p vlp m {{believeMe}} vsr of \ where
-      (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
-        (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
-    else (case searchDigit p vlpm sf vr of \ where
-      (Split: l x r) ->  Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+    if pleft && pright then OnLeft
+    else if not pleft && pright then
+      (case searchTree p mempty t {{believeMe}} mempty of \ where
+        (Split: l x r) -> Position l x r)
+    else if not pleft && not pright then OnRight
+    else Nowhere
