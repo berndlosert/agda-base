@@ -39,6 +39,13 @@ nodeToDigit : Node v a -> Digit a
 nodeToDigit (Node2 _ a b) = Two a b
 nodeToDigit (Node3 _ a b c) = Three a b c
 
+nodes : {{_ : Measured v a}} -> List a -> List (Node v a)
+nodes (a :: b :: []) = [ node2 a b ]
+nodes (a :: b :: c :: []) = [ node3 a b c ]
+nodes (a :: b :: c :: d :: []) = node2 a b :: node2 c d :: []
+nodes (a :: b :: c :: xs) = node3 a b c :: nodes xs
+nodes _ = []
+
 instance
   Foldable-Node : Foldable (Node v)
   Foldable-Node .foldMap f node with node
