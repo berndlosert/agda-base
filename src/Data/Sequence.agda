@@ -14,7 +14,7 @@ open import Data.Monoid.Sum
 open import Data.Foldable
 open import Data.Functor.Compose
 open import Data.Traversable
-open import Data.FingerTree
+open import Data.FingerTree as Tree hiding (cons; snoc)
 open import Data.FingerTree.Digit
 open import Data.FingerTree.Measured
 open import Data.FingerTree.Node
@@ -122,10 +122,10 @@ instance
 -------------------------------------------------------------------------------
 
 cons : a -> Seq a -> Seq a
-cons x (Seq: xs) = Seq: (Elem: x <| xs)
+cons x (Seq: xs) = Seq: (Tree.cons (Elem: x) xs)
 
 snoc : Seq a -> a -> Seq a
-snoc (Seq: xs) x = Seq: (xs |> Elem: x)
+snoc (Seq: xs) x = Seq: (Tree.snoc xs (Elem: x))
 
 singleton : a -> Seq a
 singleton x = Seq: (Single (Elem: x))
