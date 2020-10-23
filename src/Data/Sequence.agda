@@ -149,25 +149,23 @@ replicateA {f} {a} n0 fa = loop n0
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : Seq a -> Maybe a
-head (Seq: t) with viewl t
-... | EmptyL = Nothing
-... | (Elem: x) :< _ = Just x
-
-{-
-tail : Seq a -> Maybe (Seq a)
-tail = list Nothing (\ _ xs -> Just xs )
-
 uncons : Seq a -> Maybe (a * Seq a)
-uncons = list Nothing (\ x xs -> Just (x , xs))
+uncons (Seq: t) with viewl t
+... | EmptyL = Nothing
+... | (Elem: x) :< xs = Just (x , Seq: xs)
+
+head : Seq a -> Maybe a
+head = map fst <<< uncons
+
+tail : Seq a -> Maybe (Seq a)
+tail = map snd <<< uncons
 
 unsnoc : Seq a -> Maybe (Seq a * a)
-unsnoc = foldr go Nothing
-  where
-    go : a -> Maybe (Seq a * a) -> Maybe (Seq a * a)
-    go x Nothing = Just ([] , x)
-    go x (Just (xs , e)) = Just (x :: xs , e)
+unsnoc (Seq: t) with viewr t
+... | EmptyR = Nothing
+... | xs :> (Elem: x) = Just (Seq: xs , x)
 
+{-
 init : (xs : Seq a) {{_ : IsNonempty xs}} -> Seq a
 init (x :: []) = []
 init (x :: x' :: xs) = x :: init (x' :: xs)
