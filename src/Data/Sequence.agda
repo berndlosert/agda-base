@@ -165,18 +165,17 @@ unsnoc (Seq: t) with viewr t
 ... | EmptyR = Nothing
 ... | xs :> (Elem: x) = Just (Seq: xs , x)
 
-{-
-init : (xs : Seq a) {{_ : IsNonempty xs}} -> Seq a
-init (x :: []) = []
-init (x :: x' :: xs) = x :: init (x' :: xs)
+--init : (xs : Seq a) {{_ : IsNonempty xs}} -> Seq a
+--init (x :: []) = []
+--init (x :: x' :: xs) = x :: init (x' :: xs)
 
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
 
 reverse : Seq a -> Seq a
-reverse = foldl (flip cons) []
-
+reverse = foldl (flip cons) empty
+{-
 intersperse : a -> Seq a -> Seq a
 intersperse sep = flip foldr [] \ where
   x [] -> [ x ]
