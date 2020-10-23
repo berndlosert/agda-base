@@ -632,3 +632,22 @@ deepR : {{_ : Measured v a}}
   -> FingerTree v a
 deepR pr m Nothing = rotR pr m
 deepR pr m (Just sf) =  deep pr m sf
+
+splitTree : {{_ : Measured v a}}
+  -> (v -> Bool)
+  -> v
+  -> (t : FingerTree v a) {{_ : IsNonempty t}}
+  -> Split (FingerTree v a) a
+splitTree _ _ (Single x) = Split: Empty x Empty
+splitTree p i (Deep _ pr m sf) =
+  let
+    vpr = i <> measure pr
+    vm = vpr <> measure m
+  in
+    if p vpr then (case splitDigit p i pr of \ where
+      (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+    else if p vm then (case splitTree p vpr m {{believeMe}} of \ where
+      (Split: ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
+        (Split: l x r) -> Split: (deepR pr ml l) x (deepL r mr sf))
+    else (case splitDigit p vm sf of \ where
+      (Split: l x r) -> Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
