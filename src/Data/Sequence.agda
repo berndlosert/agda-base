@@ -15,6 +15,8 @@ open import Data.Foldable
 open import Data.Functor.Compose
 open import Data.Traversable
 open import Data.Tree.FingerTree
+open import Data.Tree.FingerTree.Digit
+open import Data.Tree.FingerTree.Measured
 
 -------------------------------------------------------------------------------
 -- Re-exports

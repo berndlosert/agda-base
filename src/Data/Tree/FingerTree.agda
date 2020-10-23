@@ -12,6 +12,8 @@ open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Sequence.View
 open import Data.Traversable
+open import Data.Tree.FingerTree.Digit
+open import Data.Tree.FingerTree.Measured
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -27,52 +29,6 @@ private
   variable
     a b v : Set
     s t : Set -> Set
-
--------------------------------------------------------------------------------
--- Measured
--------------------------------------------------------------------------------
-
-record Measured (v a : Set) : Set where
-  field
-    overlap {{Monoid-v}} : Monoid v
-    measure : a -> v
-
-open Measured {{...}} public
-
--------------------------------------------------------------------------------
--- Digit
--------------------------------------------------------------------------------
-
-data Digit (a : Set) : Set where
-  One : a -> Digit a
-  Two : a -> a -> Digit a
-  Three : a -> a -> a -> Digit a
-  Four : a -> a -> a -> a -> Digit a
-
-instance
-  Foldable-Digit : Foldable Digit
-  Foldable-Digit .foldMap f digit with digit
-  ... | One a = f a
-  ... | Two a b = f a <> f b
-  ... | Three a b c = f a <> f b <> f c
-  ... | Four a b c d = f a <> f b <> f c <> f d
-
-  Functor-Digit : Functor Digit
-  Functor-Digit .map f digit with digit
-  ... | One a = One (f a)
-  ... | Two a b = Two (f a) (f b)
-  ... | Three a b c = Three (f a) (f b) (f c)
-  ... | Four a b c d = Four (f a) (f b) (f c) (f d)
-
-  Traversable-Digit : Traversable Digit
-  Traversable-Digit .traverse f digit with digit
-  ... | One a = (| One (f a) |)
-  ... | Two a b = (| Two (f a) (f b) |)
-  ... | Three a b c = (| Three (f a) (f b) (f c) |)
-  ... | Four a b c d = (| Four (f a) (f b) (f c) (f d) |)
-
-  Measured-Digit : {{_ : Measured v a}} -> Measured v (Digit a)
-  Measured-Digit .measure = foldMap measure
 
 -------------------------------------------------------------------------------
 -- Node
