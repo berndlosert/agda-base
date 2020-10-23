@@ -88,45 +88,43 @@ private
 -- Cons operator
 -------------------------------------------------------------------------------
 
-infixr 5 _<|_
-_<|_ : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
+cons : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
-a <| Empty = Single a
-a <| Single b = deep (One a) Empty (One b)
-a <| Deep s (Four b c d e) m sf =
-  Deep (measure a <> s) (Two a b) (node3 c d e <| m) sf
-a <| (Deep s (Three b c d) m sf) =
+cons a Empty = Single a
+cons a (Single b) = deep (One a) Empty (One b)
+cons a (Deep s (Four b c d e) m sf) =
+  Deep (measure a <> s) (Two a b) (cons (node3 c d e) m) sf
+cons a (Deep s (Three b c d) m sf) =
   Deep (measure a <> s) (Four a b c d) m sf
-a <| (Deep s (Two b c) m sf) =
+cons a (Deep s (Two b c) m sf) =
   Deep (measure a <> s) (Three a b c) m sf
-a <| (Deep s (One b) m sf) =
+cons a (Deep s (One b) m sf) =
   Deep (measure a <> s) (Two a b) m sf
 
 consAll : {{_ : Measured v a}} {{_ : Foldable f}}
   -> f a -> FingerTree v a -> FingerTree v a
-consAll = flip (foldr _<|_)
+consAll = flip (foldr cons)
 
 -------------------------------------------------------------------------------
 -- Snoc operator
 -------------------------------------------------------------------------------
 
-infixl 5 _|>_
-_|>_ : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
+snoc : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
-Empty |> a = Single a
-Single a |>  b = deep (One a) Empty (One b)
-Deep s pr m (Four a b c d) |> e =
-  Deep (s <> measure e) pr (m |> node3 a b c) (Two d e)
-Deep s pr m (Three a b c) |> d =
+snoc Empty a = Single a
+snoc (Single a) b = deep (One a) Empty (One b)
+snoc (Deep s pr m (Four a b c d)) e =
+  Deep (s <> measure e) pr (snoc m (node3 a b c)) (Two d e)
+snoc (Deep s pr m (Three a b c)) d =
   Deep (s <> measure d) pr m (Four a b c d)
-Deep s pr m (Two a b) |> c =
+snoc (Deep s pr m (Two a b)) c =
   Deep (s <> measure c) pr m (Three a b c)
-Deep s pr m (One a) |> b =
+snoc (Deep s pr m (One a)) b =
   Deep (s <> measure b) pr m (Two a b)
 
 snocAll : {{_ : Measured v a}} {{_ : Foldable f}}
   -> FingerTree v a -> f a -> FingerTree v a
-snocAll = foldl _|>_
+snocAll = foldl snoc
 
 -------------------------------------------------------------------------------
 -- Semigroup & Monoid instances
@@ -140,8 +138,8 @@ private
     -> FingerTree v a
   app3 Empty ts xs = consAll ts xs
   app3 xs ts Empty = snocAll xs ts
-  app3 (Single x) ts xs = x <| (consAll ts xs)
-  app3 xs ts (Single x) = (snocAll xs ts) |> x
+  app3 (Single x) ts xs = cons x (consAll ts xs)
+  app3 xs ts (Single x) = snoc (snocAll xs ts) x
   app3 (Deep _ pr1 m1 sf1) ts (Deep _ pr2 m2 sf2) =
     deep pr1 (app3 m1 (nodes (toList sf1 <> ts <> toList pr2)) m2) sf2
 
@@ -297,7 +295,7 @@ split : {{_ : Measured v a}}
   -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
 split p xs with splitTree p mempty xs {{believeMe}}
-... | Split: l x r = if p (measure xs) then (l , x <| r) else (xs , Empty)
+... | Split: l x r = if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
 -- search
