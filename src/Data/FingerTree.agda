@@ -92,14 +92,14 @@ cons : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
 cons a Empty = Single a
 cons a (Single b) = deep (One a) Empty (One b)
-cons a (Deep s (Four b c d e) m sf) =
-  Deep (measure a <> s) (Two a b) (cons (node3 c d e) m) sf
-cons a (Deep s (Three b c d) m sf) =
-  Deep (measure a <> s) (Four a b c d) m sf
-cons a (Deep s (Two b c) m sf) =
-  Deep (measure a <> s) (Three a b c) m sf
 cons a (Deep s (One b) m sf) =
   Deep (measure a <> s) (Two a b) m sf
+cons a (Deep s (Two b c) m sf) =
+  Deep (measure a <> s) (Three a b c) m sf
+cons a (Deep s (Three b c d) m sf) =
+  Deep (measure a <> s) (Four a b c d) m sf
+cons a (Deep s (Four b c d e) m sf) =
+  Deep (measure a <> s) (Two a b) (cons (node3 c d e) m) sf
 
 consAll : {{_ : Measured v a}} {{_ : Foldable f}}
   -> f a -> FingerTree v a -> FingerTree v a
@@ -113,14 +113,14 @@ snoc : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
 snoc Empty a = Single a
 snoc (Single a) b = deep (One a) Empty (One b)
-snoc (Deep s pr m (Four a b c d)) e =
-  Deep (s <> measure e) pr (snoc m (node3 a b c)) (Two d e)
-snoc (Deep s pr m (Three a b c)) d =
-  Deep (s <> measure d) pr m (Four a b c d)
-snoc (Deep s pr m (Two a b)) c =
-  Deep (s <> measure c) pr m (Three a b c)
 snoc (Deep s pr m (One a)) b =
   Deep (s <> measure b) pr m (Two a b)
+snoc (Deep s pr m (Two a b)) c =
+  Deep (s <> measure c) pr m (Three a b c)
+snoc (Deep s pr m (Three a b c)) d =
+  Deep (s <> measure d) pr m (Four a b c d)
+snoc (Deep s pr m (Four a b c d)) e =
+  Deep (s <> measure e) pr (snoc m (node3 a b c)) (Two d e)
 
 snocAll : {{_ : Measured v a}} {{_ : Foldable f}}
   -> FingerTree v a -> f a -> FingerTree v a
