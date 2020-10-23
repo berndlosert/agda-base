@@ -571,7 +571,10 @@ private
     Split: : t -> a -> t -> Split t a
 
   splitDigit : {{_ : Measured v a }}
-    -> (v -> Bool) -> v -> Digit a -> Split (Maybe (Digit a)) a
+    -> (v -> Bool)
+    -> v
+    -> Digit a
+    -> Split (Maybe (Digit a)) a
   splitDigit _ i (One a) = Split: Nothing a Nothing
   splitDigit p i (Two a b) =
     let
@@ -654,7 +657,9 @@ private
         (Split: l x r) -> Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
 
 split : {{_ : Measured v a}}
-  -> (v -> Bool) -> FingerTree v a -> FingerTree v a * FingerTree v a
+  -> (v -> Bool)
+  -> FingerTree v a
+  -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
 split p xs with splitTree p mempty xs {{believeMe}}
 ... | Split: l x r = if p (measure xs) then (l , x <| r) else (xs , Empty)
@@ -665,7 +670,11 @@ split p xs with splitTree p mempty xs {{believeMe}}
 
 private
   searchDigit : {{_ : Measured v a}}
-    -> (v -> v -> Bool) -> v -> Digit a -> v -> Split (Maybe (Digit a)) a
+    -> (v -> v -> Bool)
+    -> v
+    -> Digit a
+    -> v
+    -> Split (Maybe (Digit a)) a
   searchDigit _ vl (One a) vr = Split: Nothing a Nothing
   searchDigit p vl (Two a b) vr =
     let
@@ -699,7 +708,11 @@ private
       else Split: (Just (Three a b c)) d Nothing
 
   searchNode : {{_ : Measured v a}}
-    -> (v -> v -> Bool) -> v -> Node v a -> v -> Split (Maybe (Digit a)) a
+    -> (v -> v -> Bool)
+    -> v
+    -> Node v a
+    -> v
+    -> Split (Maybe (Digit a)) a
   searchNode p vl (Node2 _ a b) vr =
     let
       va = vl <> measure a
@@ -717,3 +730,26 @@ private
       if p va vbc then Split: Nothing a (Just (Two b c))
       else if p vab vc then Split: (Just (One a)) b (Just (One c))
       else Split: (Just (Two a b)) c Nothing
+
+searchTree : {{_ : Measured v a}}
+  -> (v -> v -> Bool)
+  -> v
+  -> (t : FingerTree v a) {{_ : IsNonempty t}}
+  -> v
+  -> Split (FingerTree v a) a
+searchTree _ _ (Single x) _ = Split: Empty x Empty
+searchTree p vl (Deep _ pr m sf) vr =
+  let
+    vm =  measure m
+    vlp =  vl <> measure pr
+    vsr =  measure sf <> vr
+    vlpm =  vlp <> vm
+    vmsr =  vm <> vsr
+  in
+    if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
+      (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+    else if p vlpm vsr then (case searchTree p vlp m {{believeMe}} vsr of \ where
+      (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
+        (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
+    else (case searchDigit p vlpm sf vr of \ where
+      (Split: l x r) ->  Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
