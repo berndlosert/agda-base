@@ -14,6 +14,7 @@ open import Data.Sequence.View
 open import Data.Traversable
 open import Data.FingerTree.Digit
 open import Data.FingerTree.Measured
+open import Data.FingerTree.Node
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -29,45 +30,6 @@ private
   variable
     a b v : Set
     s t : Set -> Set
-
--------------------------------------------------------------------------------
--- Node
--------------------------------------------------------------------------------
-
-data Node (v a : Set) : Set where
-  Node2 : v -> a -> a -> Node v a
-  Node3 : v -> a -> a -> a -> Node v a
-
-instance
-  Foldable-Node : Foldable (Node v)
-  Foldable-Node .foldMap f node with node
-  ... | Node2 _ a b = f a <> f b
-  ... | Node3 _ a b c = f a <> f b <> f c
-
-  Functor-Node : Functor (Node v)
-  Functor-Node .map f node with node
-  ... | Node2 v a b = Node2 v (f a) (f b)
-  ... | Node3 v a b c = Node3 v (f a) (f b) (f c)
-
-  Traversable-Node : Traversable (Node v)
-  Traversable-Node .traverse f node with node
-  ... | Node2 v a b = (| (Node2 v) (f a) (f b) |)
-  ... | Node3 v a b c = (| (Node3 v) (f a) (f b) (f c) |)
-
-  Measured-Node : {{_ : Monoid v}} -> Measured v (Node v a)
-  Measured-Node .measure (Node2 v _ _) = v
-  Measured-Node .measure (Node3 v _ _ _) = v
-
-private
-  node2 : {{_ : Measured v a}} -> a -> a -> Node v a
-  node2 a b = Node2 (measure a <> measure b) a b
-
-  node3 : {{_ : Measured v a}} -> a -> a -> a -> Node v a
-  node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
-
-  nodeToDigit : Node v a -> Digit a
-  nodeToDigit (Node2 _ a b) = Two a b
-  nodeToDigit (Node3 _ a b c) = Three a b c
 
 -------------------------------------------------------------------------------
 -- FingerTree

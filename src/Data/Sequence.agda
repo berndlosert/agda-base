@@ -17,6 +17,7 @@ open import Data.Traversable
 open import Data.FingerTree
 open import Data.FingerTree.Digit
 open import Data.FingerTree.Measured
+open import Data.FingerTree.Node
 
 -------------------------------------------------------------------------------
 -- Re-exports
