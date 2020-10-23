@@ -29,7 +29,7 @@ open Data.Sequence.View public
 private
   variable
     a b v : Set
-    s t : Set -> Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- FingerTree
@@ -102,6 +102,10 @@ a <| (Deep s (Two b c) m sf) =
 a <| (Deep s (One b) m sf) =
   Deep (measure a <> s) (Two a b) m sf
 
+consAll : {{_ : Measured v a}} {{_ : Foldable f}}
+  -> f a -> FingerTree v a -> FingerTree v a
+consAll = flip (foldr _<|_)
+
 -------------------------------------------------------------------------------
 -- Snoc operator
 -------------------------------------------------------------------------------
@@ -120,301 +124,30 @@ Deep s pr m (Two a b) |> c =
 Deep s pr m (One a) |> b =
   Deep (s <> measure b) pr m (Two a b)
 
+snocAll : {{_ : Measured v a}} {{_ : Foldable f}}
+  -> FingerTree v a -> f a -> FingerTree v a
+snocAll = foldl _|>_
+
 -------------------------------------------------------------------------------
 -- Semigroup & Monoid instances
 -------------------------------------------------------------------------------
 
 private
-
-  -- Helpers (declarations)
-
-  appendTree0 : {{_ : Measured v a}}
+  app3 : {{_ : Measured v a}}
+    -> FingerTree v a
+    -> List a
     -> FingerTree v a
     -> FingerTree v a
-    -> FingerTree v a
-
-  appendTree1 : {{_ : Measured v a}}
-    -> FingerTree v a
-    -> a
-    -> FingerTree v a
-    -> FingerTree v a
-
-  appendTree2 : {{_ : Measured v a}}
-    -> FingerTree v a
-    -> a
-    -> a
-    -> FingerTree v a
-    -> FingerTree v a
-
-  appendTree3 : {{_ : Measured v a}}
-    -> FingerTree v a
-    -> a
-    -> a
-    -> a
-    -> FingerTree v a
-    -> FingerTree v a
-
-  appendTree4 : {{_ : Measured v a}}
-    -> FingerTree v a
-    -> a
-    -> a
-    -> a
-    -> a
-    -> FingerTree v a
-    -> FingerTree v a
-
-  addDigits0 : {{_ : Measured v a}}
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> FingerTree v (Node v a)
-
-  addDigits1 : {{_ : Measured v a}}
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> a
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> FingerTree v (Node v a)
-
-  addDigits2 : {{_ : Measured v a}}
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> a
-    -> a
-     -> Digit a
-    -> FingerTree v (Node v a)
-    -> FingerTree v (Node v a)
-
-  addDigits3 : {{_ : Measured v a}}
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> a
-    -> a
-    -> a
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> FingerTree v (Node v a)
-
-  addDigits4 : {{_ : Measured v a}}
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> a
-    -> a
-    -> a
-    -> a
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> FingerTree v (Node v a)
-
-  -- Helpers (definitions)
-
-  appendTree0 Empty xs = xs
-  appendTree0 xs Empty = xs
-  appendTree0 (Single x) xs = x <| xs
-  appendTree0 xs (Single x) = xs |> x
-  appendTree0 (Deep s1 pr1 m1 sf1) (Deep s2 pr2 m2 sf2) =
-    deep pr1 (addDigits0 m1 sf1 pr2 m2) sf2
-
-  appendTree1 Empty a xs = a <| xs
-  appendTree1 xs a Empty = xs |> a
-  appendTree1 (Single x) a xs = x <| a <| xs
-  appendTree1 xs a (Single x) = xs |> a |> x
-  appendTree1 (Deep s1 pr1 m1 sf1) a (Deep s2 pr2 m2 sf2) =
-    deep pr1 (addDigits1 m1 sf1 a pr2 m2) sf2
-
-  appendTree2 Empty a b xs = a <| b <| xs
-  appendTree2 xs a b Empty = xs |> a |> b
-  appendTree2 (Single x) a b xs = x <| a <| b <| xs
-  appendTree2 xs a b (Single x) = xs |> a |> b |> x
-  appendTree2 (Deep s1 pr1 m1 sf1) a b (Deep s2 pr2 m2 sf2) =
-    deep pr1 (addDigits2 m1 sf1 a b pr2 m2) sf2
-
-  appendTree3 Empty a b c xs = a <| b <| c <| xs
-  appendTree3 xs a b c Empty = xs |> a |> b |> c
-  appendTree3 (Single x) a b c xs = x <| a <| b <| c <| xs
-  appendTree3 xs a b c (Single x) = xs |> a |> b |> c |> x
-  appendTree3 (Deep s1 pr1 m1 sf1) a b c (Deep s2 pr2 m2 sf2) =
-    deep pr1 (addDigits3 m1 sf1 a b c pr2 m2) sf2
-
-  appendTree4 Empty a b c d xs = a <| b <| c <| d <| xs
-  appendTree4 xs a b c d Empty = xs |> a |> b |> c |> d
-  appendTree4 (Single x) a b c d xs = x <| a <| b <| c <| d <| xs
-  appendTree4 xs a b c d (Single x) = xs |> a |> b |> c |> d |> x
-  appendTree4 (Deep s1 pr1 m1 sf1) a b c d (Deep s2 pr2 m2 sf2) =
-    deep pr1 (addDigits4 m1 sf1 a b c d pr2 m2) sf2
-
-  addDigits0 m1 (One a) (One b) m2 =
-    appendTree1 m1 (node2 a b) m2
-  addDigits0 m1 (One a) (Two b c) m2 =
-    appendTree1 m1 (node3 a b c) m2
-  addDigits0 m1 (One a) (Three b c d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits0 m1 (One a) (Four b c d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits0 m1 (Two a b) (One c) m2 =
-    appendTree1 m1 (node3 a b c) m2
-  addDigits0 m1 (Two a b) (Two c d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits0 m1 (Two a b) (Three c d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits0 m1 (Two a b) (Four c d e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits0 m1 (Three a b c) (One d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits0 m1 (Three a b c) (Two d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits0 m1 (Three a b c) (Three d e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits0 m1 (Three a b c) (Four d e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits0 m1 (Four a b c d) (One e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits0 m1 (Four a b c d) (Two e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits0 m1 (Four a b c d) (Three e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits0 m1 (Four a b c d) (Four e f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-
-  addDigits1 m1 (One a) b (One c) m2 =
-    appendTree1 m1 (node3 a b c) m2
-  addDigits1 m1 (One a) b (Two c d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits1 m1 (One a) b (Three c d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits1 m1 (One a) b (Four c d e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits1 m1 (Two a b) c (One d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits1 m1 (Two a b) c (Two d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits1 m1 (Two a b) c (Three d e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits1 m1 (Two a b) c (Four d e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits1 m1 (Three a b c) d (One e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits1 m1 (Three a b c) d (Two e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits1 m1 (Three a b c) d (Three e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits1 m1 (Three a b c) d (Four e f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits1 m1 (Four a b c d) e (One f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits1 m1 (Four a b c d) e (Two f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits1 m1 (Four a b c d) e (Three f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits1 m1 (Four a b c d) e (Four f g h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-
-  addDigits2 m1 (One a) b c (One d) m2 =
-    appendTree2 m1 (node2 a b) (node2 c d) m2
-  addDigits2 m1 (One a) b c (Two d e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits2 m1 (One a) b c (Three d e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits2 m1 (One a) b c (Four d e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits2 m1 (Two a b) c d (One e) m2 =
-    appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits2 m1 (Two a b) c d (Two e f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits2 m1 (Two a b) c d (Three e f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits2 m1 (Two a b) c d (Four e f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits2 m1 (Three a b c) d e (One f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits2 m1 (Three a b c) d e (Two f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits2 m1 (Three a b c) d e (Three f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits2 m1 (Three a b c) d e (Four f g h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits2 m1 (Four a b c d) e f (One g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits2 m1 (Four a b c d) e f (Two g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits2 m1 (Four a b c d) e f (Three g h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits2 m1 (Four a b c d) e f (Four g h i j) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-
-  addDigits3 m1 (One a) b c d (One e) m2 =
-      appendTree2 m1 (node3 a b c) (node2 d e) m2
-  addDigits3 m1 (One a) b c d (Two e f) m2 =
-      appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits3 m1 (One a) b c d (Three e f g) m2 =
-      appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits3 m1 (One a) b c d (Four e f g h) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits3 m1 (Two a b) c d e (One f) m2 =
-      appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits3 m1 (Two a b) c d e (Two f g) m2 =
-      appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits3 m1 (Two a b) c d e (Three f g h) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits3 m1 (Two a b) c d e (Four f g h i) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits3 m1 (Three a b c) d e f (One g) m2 =
-      appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits3 m1 (Three a b c) d e f (Two g h) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits3 m1 (Three a b c) d e f (Three g h i) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits3 m1 (Three a b c) d e f (Four g h i j) m2 =
-      appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-  addDigits3 m1 (Four a b c d) e f g (One h) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits3 m1 (Four a b c d) e f g (Two h i) m2 =
-      appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits3 m1 (Four a b c d) e f g (Three h i j) m2 =
-      appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-  addDigits3 m1 (Four a b c d) e f g (Four h i j k) m2 =
-      appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node2 j k) m2
-
-  addDigits4 m1 (One a) b c d e (One f) m2 =
-    appendTree2 m1 (node3 a b c) (node3 d e f) m2
-  addDigits4 m1 (One a) b c d e (Two f g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits4 m1 (One a) b c d e (Three f g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits4 m1 (One a) b c d e (Four f g h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits4 m1 (Two a b) c d e f (One g) m2 =
-    appendTree3 m1 (node3 a b c) (node2 d e) (node2 f g) m2
-  addDigits4 m1 (Two a b) c d e f (Two g h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits4 m1 (Two a b) c d e f (Three g h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits4 m1 (Two a b) c d e f (Four g h i j) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-  addDigits4 m1 (Three a b c) d e f g (One h) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node2 g h) m2
-  addDigits4 m1 (Three a b c) d e f g (Two h i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits4 m1 (Three a b c) d e f g (Three h i j) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-  addDigits4 m1 (Three a b c) d e f g (Four h i j k) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node2 j k) m2
-  addDigits4 m1 (Four a b c d) e f g h (One i) m2 =
-    appendTree3 m1 (node3 a b c) (node3 d e f) (node3 g h i) m2
-  addDigits4 m1 (Four a b c d) e f g h (Two i j) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node2 g h) (node2 i j) m2
-  addDigits4 m1 (Four a b c d) e f g h (Three i j k) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node2 j k) m2
-  addDigits4 m1 (Four a b c d) e f g h (Four i j k l) m2 =
-    appendTree4 m1 (node3 a b c) (node3 d e f) (node3 g h i) (node3 j k l) m2
-
--- Finally...
+  app3 Empty ts xs = consAll ts xs
+  app3 xs ts Empty = snocAll xs ts
+  app3 (Single x) ts xs = x <| (consAll ts xs)
+  app3 xs ts (Single x) = (snocAll xs ts) |> x
+  app3 (Deep _ pr1 m1 sf1) ts (Deep _ pr2 m2 sf2) =
+    deep pr1 (app3 m1 (nodes (toList sf1 <> ts <> toList pr2)) m2) sf2
 
 instance
   Semigroup-FingerTree : {{_ : Measured v a}} -> Semigroup (FingerTree v a)
-  Semigroup-FingerTree ._<>_ = appendTree0
+  Semigroup-FingerTree ._<>_ xs ys = app3 xs [] ys
 
   Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
   Monoid-FingerTree .mempty = Empty
