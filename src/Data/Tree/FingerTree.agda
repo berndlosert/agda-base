@@ -10,7 +10,14 @@ open import Prelude
 
 open import Data.Constraint.Nonempty
 open import Data.Foldable
+open import Data.Sequence.View
 open import Data.Traversable
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Sequence.View public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -493,29 +500,6 @@ instance
 
   Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
   Monoid-FingerTree .mempty = Empty
-
--------------------------------------------------------------------------------
--- ViewL & ViewR
--------------------------------------------------------------------------------
-
-infixr 5 _:<_
-data ViewL (s : Set -> Set) (a : Set) : Set where
-  EmptyL : ViewL s a
-  _:<_ : a -> s a -> ViewL s a
-
-infixr 5 _:>_
-data ViewR (s : Set -> Set) (a : Set) : Set where
-  EmptyR : ViewR s a
-  _:>_ : s a -> a -> ViewR s a
-
-instance
-  Functor-ViewL : {{_ : Functor s}} -> Functor (ViewL s)
-  Functor-ViewL .map _ EmptyL = EmptyL
-  Functor-ViewL .map f (x :< xs) = f x :< map f xs
-
-  Functor-ViewR : {{_ : Functor s}} -> Functor (ViewR s)
-  Functor-ViewR .map _ EmptyR = EmptyR
-  Functor-ViewR .map f (xs :> x) = map f xs :> f x
 
 -------------------------------------------------------------------------------
 -- viewl & viewr
