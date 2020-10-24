@@ -196,7 +196,7 @@ rotR pr m with viewr m
 ... | m' :> a = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
--- split
+-- Splitting
 -------------------------------------------------------------------------------
 
 private
@@ -298,7 +298,7 @@ split p xs with splitTree p mempty xs {{believeMe}}
 ... | Split: l x r = if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
--- search
+-- Searching
 -------------------------------------------------------------------------------
 
 data SearchResult (v a : Set) : Set where
