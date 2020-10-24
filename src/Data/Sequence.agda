@@ -172,11 +172,13 @@ intersperse sep s with viewl s
 -------------------------------------------------------------------------------
 -- Extracting sublists
 -------------------------------------------------------------------------------
-{-
-takeWhile : (a -> Bool) -> Seq a -> Seq a
-takeWhile _ [] = []
-takeWhile p (x :: xs) = if p x then x :: takeWhile p xs else []
 
+{-# TERMINATING #-}
+takeWhile : (a -> Bool) -> Seq a -> Seq a
+takeWhile p s with viewl s
+... | EmptyL = empty
+... | x :< xs = if p x then cons x (takeWhile p xs) else empty
+{-
 dropWhile : (a -> Bool) -> Seq a -> Seq a
 dropWhile _ [] = []
 dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
