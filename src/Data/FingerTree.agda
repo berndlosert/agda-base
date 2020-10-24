@@ -214,7 +214,7 @@ private
     -> Maybe (Digit a)
     -> FingerTree v a
   deepR pr m Nothing = rotR pr m
-  deepR pr m (Just sf) =  deep pr m sf
+  deepR pr m (Just sf) = deep pr m sf
 
   splitTree : {{_ : Measured v a}}
     -> (v -> Bool)
