@@ -160,15 +160,15 @@ init s with viewl s
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
-{-
+
 reverse : Seq a -> Seq a
 reverse = foldl (flip cons) empty
 
 intersperse : a -> Seq a -> Seq a
-intersperse sep = flip foldr [] \ where
-  x [] -> [ x ]
-  x xs -> x :: sep :: xs
-
+intersperse sep s with viewl s
+... | EmptyL = empty
+... | x :< xs = cons x (cons (const sep) (singleton id) <*> xs)
+{-
 -------------------------------------------------------------------------------
 -- Extracting sublists
 -------------------------------------------------------------------------------
