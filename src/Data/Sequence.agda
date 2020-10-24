@@ -170,54 +170,26 @@ intersperse sep s with viewl s
 ... | x :< xs = cons x (xs <**> cons (const sep) (singleton id))
 
 -------------------------------------------------------------------------------
--- Extracting sublists
--------------------------------------------------------------------------------
-
-{-# TERMINATING #-}
-takeWhile : (a -> Bool) -> Seq a -> Seq a
-takeWhile p s with viewl s
-... | EmptyL = empty
-... | x :< xs = if p x then cons x (takeWhile p xs) else empty
-{-
-dropWhile : (a -> Bool) -> Seq a -> Seq a
-dropWhile _ [] = []
-dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
-
-take : Nat -> Seq a -> Seq a
-take _ [] = []
-take 0 xs = []
-take (Suc n) (x :: xs) = x :: take n xs
-
-drop : Nat -> Seq a -> Seq a
-drop _ [] = []
-drop 0 xs = xs
-drop (Suc n) (x :: xs) = drop n xs
-
-span : (a -> Bool) -> Seq a -> Seq a * Seq a
-span p xs = (takeWhile p xs , dropWhile p xs)
-
-break : (a -> Bool) -> Seq a -> Seq a * Seq a
-break p = span (not <<< p)
-
--------------------------------------------------------------------------------
 -- Indexed functions
 -------------------------------------------------------------------------------
 
-indexed : Seq a -> Seq (Nat * a)
-indexed [] = []
-indexed xs = go 0 xs
-  where
-    go : Nat -> Seq a -> Seq (Nat * a)
-    go _ [] = []
-    go n (y :: ys) = (n , y) :: go (Suc n) ys
+--indexed : Seq a -> Seq (Nat * a)
+--indexed [] = []
+--indexed xs = go 0 xs
+--  where
+--    go : Nat -> Seq a -> Seq (Nat * a)
+--    go _ [] = []
+--    go n (y :: ys) = (n , y) :: go (Suc n) ys
 
 splitAt : Nat -> Seq a -> Seq a * Seq a
-splitAt n xs = (take n xs , drop n xs)
+splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
 
 at : Nat -> Seq a -> Maybe a
-at n = leftToMaybe <<< flip foldlM 0 \
-  k x -> if k == n then Left x else Right (Suc k)
-
+at n xs@(Seq: t) with n < length xs
+... | False = Nothing
+... | True = case Tree.splitTree (\ m -> n < getSum m) (Sum: 0) t {{believeMe}} of \ where
+  (_ , x , _) -> Just (getElem x)
+{-
 infixl 9 _!!_
 _!!_ : Seq a -> Nat -> Maybe a
 _!!_ = flip at
@@ -246,11 +218,41 @@ insertAt : Nat -> a -> Seq a -> Seq a
 insertAt 0 x (y :: ys) = x :: y :: ys
 insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
 insertAt _ _ [] = []
+-}
+-------------------------------------------------------------------------------
+-- Extracting sublists
+-------------------------------------------------------------------------------
 
+{-# TERMINATING #-}
+takeWhile : (a -> Bool) -> Seq a -> Seq a
+takeWhile p s with viewl s
+... | EmptyL = empty
+... | x :< xs = if p x then cons x (takeWhile p xs) else empty
+{-
+dropWhile : (a -> Bool) -> Seq a -> Seq a
+dropWhile _ [] = []
+dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
+
+take : Nat -> Seq a -> Seq a
+take _ [] = []
+take 0 xs = []
+take (Suc n) (x :: xs) = x :: take n xs
+
+drop : Nat -> Seq a -> Seq a
+drop _ [] = []
+drop 0 xs = xs
+drop (Suc n) (x :: xs) = drop n xs
+
+span : (a -> Bool) -> Seq a -> Seq a * Seq a
+span p xs = (takeWhile p xs , dropWhile p xs)
+
+break : (a -> Bool) -> Seq a -> Seq a * Seq a
+break p = span (not <<< p)
+-}
 -------------------------------------------------------------------------------
 -- Searching with a predicate
 -------------------------------------------------------------------------------
-
+{-
 filter : (a -> Bool) -> Seq a -> Seq a
 filter p = foldr (\ x xs -> if p x then x :: xs else xs) []
 
@@ -260,11 +262,11 @@ filterA p = flip foldr (pure []) \ where
 
 partition : (a -> Bool) -> Seq a -> Seq a * Seq a
 partition p xs = (filter p xs , filter (not <<< p) xs)
-
+-}
 -------------------------------------------------------------------------------
 -- Segments
 -------------------------------------------------------------------------------
-
+{-
 inits : Seq a -> Seq (Seq a)
 inits = foldr (\ x ys -> [ [] ] <> map (x ::_) ys) [ [] ]
 
@@ -280,21 +282,21 @@ segmentsOfSize : Nat -> Seq a -> Seq (Seq a)
 segmentsOfSize 0 _ = [ [] ]
 segmentsOfSize n xs =
   filter (\ ys -> length ys == n) $ foldr _<>_ [] (tails <$> inits xs)
-
+-}
 -------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
-
+{-
 scanl : (b -> a -> b) -> b -> Seq a -> Seq b
 scanl f b xs = foldl f b <$> inits xs
 
 scanr : (a -> b -> b) -> b -> Seq a -> Seq b
 scanr f b xs = foldr f b <$> tails xs
-
+-}
 -------------------------------------------------------------------------------
 -- Zipping functions
 -------------------------------------------------------------------------------
-
+{-
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
 zipWith f [] _ = []
 zipWith f _ [] = []
@@ -314,11 +316,11 @@ zipCons heads tails =
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
-
+-}
 -------------------------------------------------------------------------------
 -- Predicates
 -------------------------------------------------------------------------------
-
+{-
 module _ {{_ : Eq a}} where
 
   isPrefixOf : Seq a -> Seq a -> Bool
@@ -339,11 +341,11 @@ module _ {{_ : Eq a}} where
         if null s'
           then Nothing
           else tail s'
-
+-}
 -------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
-
+{-
 stripPrefix : {{_ : Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
 stripPrefix xs ys =
   if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
@@ -356,11 +358,11 @@ groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
 
 group : {{_ : Eq a}} -> Seq a -> Seq (Seq a)
 group = groupBy _==_
-
+-}
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
-
+{-
 intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
 intercalate sep [] = mempty
 intercalate sep (s :: []) = s
@@ -369,11 +371,11 @@ intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 transpose : Seq (Seq a) -> Seq (Seq a)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
-
+-}
 -------------------------------------------------------------------------------
 -- Set-like operations
 -------------------------------------------------------------------------------
-
+{-
 deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
 deleteBy _ _ [] = []
 deleteBy eq x (y :: ys) = if eq x y then ys else (y :: deleteBy eq x ys)
@@ -405,11 +407,11 @@ module _ {{_ : Eq a}} where
 
   union : Seq a -> Seq a -> Seq a
   union = unionBy _==_
-
+-}
 -------------------------------------------------------------------------------
 -- Sorting
 -------------------------------------------------------------------------------
-
+{-
 insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
 insertBy cmp x [] = x :: []
 insertBy cmp x (y :: xs) with cmp x y
@@ -430,11 +432,11 @@ module _ {{_ : Ord a}} where
 
   sortOn : (b -> a) -> Seq b -> Seq b
   sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
-
+-}
 -------------------------------------------------------------------------------
 -- Searching
 -------------------------------------------------------------------------------
-
+{-
 lookup : {{_ : Eq a}} -> a -> Seq (a * b) -> Maybe b
 lookup a [] = Nothing
 lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
