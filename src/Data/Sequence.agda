@@ -13,7 +13,7 @@ open import Data.Monoid.Endo
 open import Data.Monoid.Sum
 open import Data.Foldable
 open import Data.Traversable
-open import Data.FingerTree as Tree hiding (cons; snoc)
+open import Data.FingerTree as Tree hiding (cons; snoc; viewl; viewr)
 open import Data.FingerTree.Digit
 open import Data.FingerTree.Measured
 open import Data.FingerTree.Node
@@ -85,6 +85,10 @@ instance
   Monad-Seq : Monad Seq
   Monad-Seq ._>>=_ = flip foldMap
 
+  NonemptyConstraint-Seq : NonemptyConstraint (Seq a)
+  NonemptyConstraint-Seq .IsNonempty (Seq: Empty) = Void
+  NonemptyConstraint-Seq .IsNonempty _ = Unit
+
 -------------------------------------------------------------------------------
 -- Constructors
 -------------------------------------------------------------------------------
@@ -120,10 +124,20 @@ replicateA {f} {a} n0 fa = loop n0
 -- Destructors
 -------------------------------------------------------------------------------
 
+viewl : Seq a -> ViewL Seq a
+viewl (Seq: t) with Tree.viewl t
+... | EmptyL = EmptyL
+... | (Elem: x) :< xs = x :< (Seq: xs)
+
+viewr : Seq a -> ViewR Seq a
+viewr (Seq: t) with Tree.viewr t
+... | EmptyR = EmptyR
+... | xs :> (Elem: x) = Seq: xs :> x
+
 uncons : Seq a -> Maybe (a * Seq a)
-uncons (Seq: t) with viewl t
+uncons s with viewl s
 ... | EmptyL = Nothing
-... | (Elem: x) :< xs = Just (x , Seq: xs)
+... | x :< xs = Just (x , xs)
 
 head : Seq a -> Maybe a
 head = map fst <<< uncons
@@ -132,21 +146,24 @@ tail : Seq a -> Maybe (Seq a)
 tail = map snd <<< uncons
 
 unsnoc : Seq a -> Maybe (Seq a * a)
-unsnoc (Seq: t) with viewr t
+unsnoc s with viewr s
 ... | EmptyR = Nothing
-... | xs :> (Elem: x) = Just (Seq: xs , x)
+... | xs :> x = Just (xs , x)
 
---init : (xs : Seq a) {{_ : IsNonempty xs}} -> Seq a
---init (x :: []) = []
---init (x :: x' :: xs) = x :: init (x' :: xs)
+{-# TERMINATING #-}
+init : (s : Seq a) {{_ : IsNonempty s}} -> Seq a
+init s with viewl s
+... | EmptyL = undefined -- No worries, this is impossible.
+... | x :< (Seq: Empty) = empty
+... | x :< xs = cons x (init xs {{believeMe}})
 
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
-
+{-
 reverse : Seq a -> Seq a
 reverse = foldl (flip cons) empty
-{-
+
 intersperse : a -> Seq a -> Seq a
 intersperse sep = flip foldr [] \ where
   x [] -> [ x ]

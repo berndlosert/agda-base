@@ -8,12 +8,15 @@ module Data.Sequence.View where
 
 open import Prelude
 
+open import Data.Constraint.Nonempty
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
 private
   variable
+    a : Set
     f : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -30,6 +33,10 @@ instance
   Functor-ViewL .map _ EmptyL = EmptyL
   Functor-ViewL .map f (x :< xs) = f x :< map f xs
 
+  NonemptyConstraint-ViewL : NonemptyConstraint (ViewL f a)
+  NonemptyConstraint-ViewL .IsNonempty EmptyL = Void
+  NonemptyConstraint-ViewL .IsNonempty _ = Unit
+
 -------------------------------------------------------------------------------
 -- ViewR
 -------------------------------------------------------------------------------
@@ -43,3 +50,7 @@ instance
   Functor-ViewR : {{_ : Functor f}} -> Functor (ViewR f)
   Functor-ViewR .map _ EmptyR = EmptyR
   Functor-ViewR .map f (xs :> x) = map f xs :> f x
+
+  NonemptyConstraint-ViewR : NonemptyConstraint (ViewR f a)
+  NonemptyConstraint-ViewR .IsNonempty EmptyR = Void
+  NonemptyConstraint-ViewR .IsNonempty _ = Unit
