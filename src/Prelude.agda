@@ -1073,6 +1073,10 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
+  infixl 4 _<**>_
+  _<**>_ : f a -> f (a -> b) -> f b
+  a <**> f = (| _#_ a f |)
+
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 

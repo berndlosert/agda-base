@@ -167,12 +167,12 @@ reverse = foldl (flip cons) empty
 intersperse : a -> Seq a -> Seq a
 intersperse sep s with viewl s
 ... | EmptyL = empty
-... | x :< xs = cons x (cons (const sep) (singleton id) <*> xs)
-{-
+... | x :< xs = cons x (xs <**> cons (const sep) (singleton id))
+
 -------------------------------------------------------------------------------
 -- Extracting sublists
 -------------------------------------------------------------------------------
-
+{-
 takeWhile : (a -> Bool) -> Seq a -> Seq a
 takeWhile _ [] = []
 takeWhile p (x :: xs) = if p x then x :: takeWhile p xs else []
