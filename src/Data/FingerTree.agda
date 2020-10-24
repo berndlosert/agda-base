@@ -200,60 +200,6 @@ rotR pr m with viewr m
 -------------------------------------------------------------------------------
 
 private
-  data Split (t a : Set) : Set where
-    Split: : t -> a -> t -> Split t a
-
-  splitDigit : {{_ : Measured v a }}
-    -> (v -> Bool)
-    -> v
-    -> Digit a
-    -> Split (Maybe (Digit a)) a
-  splitDigit _ i (One a) = Split: Nothing a Nothing
-  splitDigit p i (Two a b) =
-    let
-      va = i <> measure a
-    in
-      if p va then Split: Nothing a (Just (One b))
-      else Split: (Just (One a)) b Nothing
-  splitDigit p i (Three a b c) =
-    let
-      va = i <> measure a
-      vab = va <> measure b
-    in
-      if p va then Split: Nothing a (Just (Two b c))
-      else if p vab then Split: (Just (One a)) b (Just (One c))
-      else Split: (Just (Two a b)) c Nothing
-  splitDigit p i (Four a b c d) =
-    let
-      va = i <> measure a
-      vab = va <> measure b
-      vabc = vab <> measure c
-    in
-      if p va then Split: Nothing a (Just (Three b c d))
-      else if p vab then Split: (Just (One a)) b (Just (Two c d))
-      else if p vabc then Split: (Just (Two a b)) c (Just (One d))
-      else Split: (Just (Three a b c)) d Nothing
-
-  splitNode : {{_ : Measured v a}}
-    -> (v -> Bool)
-    -> v
-    -> Node v a
-    -> Split (Maybe (Digit a)) a
-  splitNode p i (Node2 _ a b) =
-    let
-      va = i <> measure a
-    in
-      if p va then Split: Nothing a (Just (One b))
-      else Split: (Just (One a)) b Nothing
-  splitNode p i (Node3 _ a b c) =
-    let
-      va = i <> measure a
-      vab = va <> measure b
-    in
-      if p va then Split: Nothing a (Just (Two b c))
-      else if p vab then Split: (Just (One a)) b (Just (One c))
-      else Split: (Just (Two a b)) c Nothing
-
   deepL : {{_ : Measured v a}}
     -> Maybe (Digit a)
     -> FingerTree v (Node v a)
@@ -274,20 +220,20 @@ private
     -> (v -> Bool)
     -> v
     -> (t : FingerTree v a) {{_ : IsNonempty t}}
-    -> Split (FingerTree v a) a
-  splitTree _ _ (Single x) = Split: Empty x Empty
+    -> FingerTree v a * a * FingerTree v a
+  splitTree _ _ (Single x) = (Empty , x , Empty)
   splitTree p i (Deep _ pr m sf) =
     let
       vpr = i <> measure pr
       vm = vpr <> measure m
     in
       if p vpr then (case splitDigit p i pr of \ where
-        (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+        (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
       else if p vm then (case splitTree p vpr m {{believeMe}} of \ where
-        (Split: ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
-          (Split: l x r) -> Split: (deepR pr ml l) x (deepL r mr sf))
+        (ml , xs , mr) -> case splitNode p (vpr <> measure ml) xs of \ where
+          (l , x , r) -> (deepR pr ml l , x , deepL r mr sf))
       else (case splitDigit p vm sf of \ where
-        (Split: l x r) -> Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+        (l , x , r) -> (deepR pr  m  l , x , maybe Empty digitToTree r))
 
 split : {{_ : Measured v a}}
   -> (v -> Bool)
@@ -295,7 +241,7 @@ split : {{_ : Measured v a}}
   -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
 split p xs with splitTree p mempty xs {{believeMe}}
-... | Split: l x r = if p (measure xs) then (l , cons x r) else (xs , Empty)
+... | (l , x , r) = if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -308,75 +254,13 @@ data SearchResult (v a : Set) : Set where
   Nowhere : SearchResult v a
 
 private
-  searchDigit : {{_ : Measured v a}}
-    -> (v -> v -> Bool)
-    -> v
-    -> Digit a
-    -> v
-    -> Split (Maybe (Digit a)) a
-  searchDigit _ vl (One a) vr = Split: Nothing a Nothing
-  searchDigit p vl (Two a b) vr =
-    let
-      va = vl <> measure a
-      vb = measure b <> vr
-    in
-      if p va vb then Split: Nothing a (Just (One b))
-      else Split: (Just (One a)) b Nothing
-  searchDigit p vl (Three a b c) vr =
-    let
-      va = vl <> measure a
-      vab = va <> measure b
-      vc = measure c <> vr
-      vbc = measure b <> vc
-    in
-      if p va vbc then Split: Nothing a (Just (Two b c))
-      else if p vab vc then Split: (Just (One a)) b (Just (One c))
-      else Split: (Just (Two a b)) c Nothing
-  searchDigit p vl (Four a b c d) vr =
-    let
-      va = vl <> measure a
-      vd = measure d <> vr
-      vab = va <> measure b
-      vcd = measure c <> vd
-      vabc = vab <> measure c
-      vbcd = measure b <> vcd
-    in
-      if p va vbcd then Split: Nothing a (Just (Three b c d))
-      else if p vab vcd then Split: (Just (One a)) b (Just (Two c d))
-      else if p vabc vd then Split: (Just (Two a b)) c (Just (One d))
-      else Split: (Just (Three a b c)) d Nothing
-
-  searchNode : {{_ : Measured v a}}
-    -> (v -> v -> Bool)
-    -> v
-    -> Node v a
-    -> v
-    -> Split (Maybe (Digit a)) a
-  searchNode p vl (Node2 _ a b) vr =
-    let
-      va = vl <> measure a
-      vb = measure b <> vr
-    in
-      if p va vb then Split: Nothing a (Just (One b))
-      else Split: (Just (One a)) b Nothing
-  searchNode p vl (Node3 _ a b c) vr =
-    let
-      va = vl <> measure a
-      vab = va <> measure b
-      vc = measure c <> vr
-      vbc = measure b <> vc
-    in
-      if p va vbc then Split: Nothing a (Just (Two b c))
-      else if p vab vc then Split: (Just (One a)) b (Just (One c))
-      else Split: (Just (Two a b)) c Nothing
-
   searchTree : {{_ : Measured v a}}
     -> (v -> v -> Bool)
     -> v
     -> (t : FingerTree v a) {{_ : IsNonempty t}}
     -> v
-    -> Split (FingerTree v a) a
-  searchTree _ _ (Single x) _ = Split: Empty x Empty
+    -> FingerTree v a * a * FingerTree v a
+  searchTree _ _ (Single x) _ = (Empty , x , Empty)
   searchTree p vl (Deep _ pr m sf) vr =
     let
       vm =  measure m
@@ -386,12 +270,12 @@ private
       vmsr =  vm <> vsr
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-        (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+        (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
       else if p vlpm vsr then (case searchTree p vlp m {{believeMe}} vsr of \ where
-        (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
-          (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
+        (ml , xs , mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
+          (l , x , r) -> (deepR pr  ml l , x , deepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
-        (Split: l x r) ->  Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+        (l , x , r) ->  (deepR pr m l , x , maybe Empty digitToTree r))
 
 search : {{_ : Measured v a}}
   -> (v -> v -> Bool)
@@ -406,6 +290,6 @@ search p t =
     if pleft && pright then OnLeft
     else if not pleft && pright then
       (case searchTree p mempty t {{believeMe}} mempty of \ where
-        (Split: l x r) -> Position l x r)
+        (l , x , r) -> Position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
