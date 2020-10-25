@@ -6,7 +6,7 @@ module Data.String where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (pack; unpack; empty)
+open import Prelude
 
 open import Data.Constraint.Nonempty
 open import Data.List as List using ()
@@ -22,15 +22,6 @@ private
 -------------------------------------------------------------------------------
 -- Creation and elimination
 -------------------------------------------------------------------------------
-
-Chars : Set
-Chars = List Char
-
-pack : Chars -> String
-pack = Prelude.pack
-
-unpack : String -> Chars
-unpack = Prelude.unpack
 
 singleton : Char -> String
 singleton c = pack [ c ]

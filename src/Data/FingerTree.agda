@@ -6,7 +6,7 @@ module Data.FingerTree where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (empty)
+open import Prelude
 
 open import Data.Constraint.Nonempty
 open import Data.Foldable

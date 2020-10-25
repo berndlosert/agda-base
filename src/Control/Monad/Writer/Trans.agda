@@ -2,16 +2,29 @@
 
 module Control.Monad.Writer.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
+open import Control.Alternative
 open import Control.Monad.Morph public
 open import Control.Monad.Trans.Class public
 open import Control.Monad.Writer.Class public
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
     a b w w' : Set
     m n : Set -> Set
+
+-------------------------------------------------------------------------------
+-- WriterT
+-------------------------------------------------------------------------------
 
 record WriterT (w : Set) (m : Set -> Set) (a : Set) : Set where
   constructor WriterT:

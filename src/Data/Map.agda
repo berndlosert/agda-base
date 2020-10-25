@@ -6,7 +6,7 @@ module Data.Map where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (empty)
+open import Prelude
 
 open import Data.Foldable
 open import Data.List as List using ()

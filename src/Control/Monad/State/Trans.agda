@@ -5,8 +5,10 @@ module Control.Monad.State.Trans where
 -------------------------------------------------------------------------------
 -- Imports
 -------------------------------------------------------------------------------
+
 open import Prelude
 
+open import Control.Alternative
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Except.Class

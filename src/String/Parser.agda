@@ -5,6 +5,7 @@ module String.Parser where
 
 open import Prelude
 
+open import Control.Alternative
 open import Control.Lens
 open import Control.Monad.State.Trans
 open import Data.Constraint.Nonempty

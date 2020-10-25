@@ -16,6 +16,7 @@ open import Data.Foldable
 
 private
   variable
+    a : Set
     f : Set -> Set
 
 -------------------------------------------------------------------------------

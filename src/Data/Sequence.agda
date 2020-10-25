@@ -8,6 +8,7 @@ module Data.Sequence where
 
 open import Prelude
 
+open import Control.Alternative
 open import Data.Constraint.Nonempty
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum

@@ -8,6 +8,7 @@ module Data.Foldable where
 
 open import Prelude
 
+open import Control.Alternative
 open import Data.Constraint.Nonempty
 open import Data.Monoid.All
 open import Data.Monoid.Any
