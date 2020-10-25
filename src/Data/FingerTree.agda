@@ -315,3 +315,17 @@ inits f (Deep n pr m sf) =
     Deep n (map (f <<< digitToTree) (initsDigit pr))
       (inits f' m)
       (map (f <<< deep pr m) (initsDigit sf))
+
+tails : {{_ : Measured v a}}
+  -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
+tails _ Empty = Empty
+tails f (Single x) = Single (f (Single x))
+tails f (Deep n pr m sf) =
+  let
+    f' ms = case viewl ms of \ where
+      EmptyL -> undefined -- Oops!
+      (node :< m') -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
+  in
+    Deep n (map (\ pr' -> f (deep pr' m sf)) (tailsDigit pr))
+      (tails f' m)
+      (map (f <<< digitToTree) (tailsDigit sf))

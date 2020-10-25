@@ -123,5 +123,9 @@ searchNode p vl (Node3 _ a b c) vr =
 -------------------------------------------------------------------------------
 
 initsNode : Node v a -> Node v (Digit a)
-initsNode (Node2 s a b) = Node2 s (One a) (Two a b)
-initsNode (Node3 s a b c) = Node3 s (One a) (Two a b) (Three a b c)
+initsNode (Node2 v a b) = Node2 v (One a) (Two a b)
+initsNode (Node3 v a b c) = Node3 v (One a) (Two a b) (Three a b c)
+
+tailsNode : Node v a -> Node v (Digit a)
+tailsNode (Node2 v a b) = Node2 v (Two a b) (One b)
+tailsNode (Node3 v a b c) = Node3 v (Three a b c) (Two b c) (One c)

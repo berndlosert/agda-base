@@ -267,11 +267,10 @@ dropWhileR p = snd <<< spanr p
 
 inits : Seq a -> Seq (Seq a)
 inits (Seq: t) = cons empty (Seq: (Tree.inits (Elem: <<< Seq:) t))
-{-
-tails : Seq a -> Seq (Seq a)
-tails [] = [ [] ]
-tails xs@(_ :: xs') = [ xs ] <> tails xs'
 
+tails : Seq a -> Seq (Seq a)
+tails (Seq: t) = snoc (Seq: (Tree.tails (Elem: <<< Seq:) t))  empty
+{-
 segments : Seq a -> Seq (Seq a)
 segments xs = [ [] ] <>
   (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
