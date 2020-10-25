@@ -71,22 +71,11 @@ instance
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = Seq: Empty
 
-  Functor-Seq : Functor Seq
-  Functor-Seq .map f (Seq: xs) = Seq: (map (map f) xs)
-
   Foldable-Seq : Foldable Seq
   Foldable-Seq .foldMap f (Seq: xs) = foldMap (f <<< getElem) xs
 
-  Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f seq with seq
-  ... | Seq: Empty = pure (Seq: Empty)
-  ... | Seq: (Single (Elem: x)) = (| (Seq: <<< Single <<< Elem:) (f x) |)
-  ... | Seq: (Deep s pr m sf) = (|
-      (\ pr' m' sf' -> Seq: (Deep s pr' m' sf'))
-      (traverseDE f pr)
-      (traverse (traverseNE f) m)
-      (traverseDE f sf)
-    |)
+  Functor-Seq : Functor Seq
+  Functor-Seq .map f (Seq: xs) = Seq: (map (map f) xs)
 
   Applicative-Seq : Applicative Seq
   Applicative-Seq .pure x = Seq: (Single (Elem: x))
@@ -102,6 +91,9 @@ instance
 
   Monad-Seq : Monad Seq
   Monad-Seq ._>>=_ = flip foldMap
+
+  Traversable-Seq : Traversable Seq
+  Traversable-Seq .traverse f (Seq: t) = Seq: <$> traverse (traverse f) t
 
   NonemptyConstraint-Seq : NonemptyConstraint (Seq a)
   NonemptyConstraint-Seq .IsNonempty (Seq: Empty) = Void
