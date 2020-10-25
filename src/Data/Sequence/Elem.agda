@@ -46,11 +46,3 @@ instance
 
   Traversable-Elem : Traversable Elem
   Traversable-Elem .traverse f (Elem: x) = (| Elem: (f x) |)
-
-traverseNE : {{_ : Applicative t}}
-  -> (a -> t b) -> Node v (Elem a) -> t (Node v (Elem b))
-traverseNE g node = (| getCompose (traverse g (Compose: node)) |)
-
-traverseDE : {{_ : Applicative t}}
-  -> (a -> t b) -> Digit (Elem a) -> t (Digit (Elem b))
-traverseDE g digit = (| getCompose (traverse g (Compose: digit)) |)

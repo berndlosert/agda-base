@@ -199,41 +199,40 @@ rotR pr m with viewr m
 -- Splitting
 -------------------------------------------------------------------------------
 
-private
-  deepL : {{_ : Measured v a}}
-    -> Maybe (Digit a)
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> FingerTree v a
-  deepL Nothing m sf = rotL m sf
-  deepL (Just pr) m sf = deep pr m sf
+deepL : {{_ : Measured v a}}
+  -> Maybe (Digit a)
+  -> FingerTree v (Node v a)
+  -> Digit a
+  -> FingerTree v a
+deepL Nothing m sf = rotL m sf
+deepL (Just pr) m sf = deep pr m sf
 
-  deepR : {{_ : Measured v a}}
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> Maybe (Digit a)
-    -> FingerTree v a
-  deepR pr m Nothing = rotR pr m
-  deepR pr m (Just sf) = deep pr m sf
+deepR : {{_ : Measured v a}}
+  -> Digit a
+  -> FingerTree v (Node v a)
+  -> Maybe (Digit a)
+  -> FingerTree v a
+deepR pr m Nothing = rotR pr m
+deepR pr m (Just sf) = deep pr m sf
 
-  splitTree : {{_ : Measured v a}}
-    -> (v -> Bool)
-    -> v
-    -> (t : FingerTree v a) {{_ : IsNonempty t}}
-    -> FingerTree v a * a * FingerTree v a
-  splitTree _ _ (Single x) = (Empty , x , Empty)
-  splitTree p i (Deep _ pr m sf) =
-    let
-      vpr = i <> measure pr
-      vm = vpr <> measure m
-    in
-      if p vpr then (case splitDigit p i pr of \ where
-        (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
-      else if p vm then (case splitTree p vpr m {{believeMe}} of \ where
-        (ml , xs , mr) -> case splitNode p (vpr <> measure ml) xs of \ where
-          (l , x , r) -> (deepR pr ml l , x , deepL r mr sf))
-      else (case splitDigit p vm sf of \ where
-        (l , x , r) -> (deepR pr  m  l , x , maybe Empty digitToTree r))
+splitTree : {{_ : Measured v a}}
+  -> (v -> Bool)
+  -> v
+  -> (t : FingerTree v a) {{_ : IsNonempty t}}
+  -> FingerTree v a * a * FingerTree v a
+splitTree _ _ (Single x) = (Empty , x , Empty)
+splitTree p i (Deep _ pr m sf) =
+  let
+    vpr = i <> measure pr
+    vm = vpr <> measure m
+  in
+    if p vpr then (case splitDigit p i pr of \ where
+      (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
+    else if p vm then (case splitTree p vpr m {{believeMe}} of \ where
+      (ml , xs , mr) -> case splitNode p (vpr <> measure ml) xs of \ where
+        (l , x , r) -> (deepR pr ml l , x , deepL r mr sf))
+    else (case splitDigit p vm sf of \ where
+      (l , x , r) -> (deepR pr  m  l , x , maybe Empty digitToTree r))
 
 split : {{_ : Measured v a}}
   -> (v -> Bool)
