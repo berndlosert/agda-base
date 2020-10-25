@@ -185,10 +185,12 @@ splitAt : Nat -> Seq a -> Seq a * Seq a
 splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
 
 at : Nat -> Seq a -> Maybe a
-at n xs@(Seq: t) with n < length xs
-... | False = Nothing
-... | True = case Tree.splitTree (\ m -> n < getSum m) (Sum: 0) t {{believeMe}} of \ where
-  (_ , x , _) -> Just (getElem x)
+at n xs = splitAt n xs # snd # head
+
+--at n xs@(Seq: t) with n < length xs
+--... | False = Nothing
+--... | True = case Tree.splitTree (\ m -> n < getSum m) (Sum: 0) t {{believeMe}} of \ where
+--  (_ , x , _) -> Just (getElem x)
 {-
 infixl 9 _!!_
 _!!_ : Seq a -> Nat -> Maybe a
