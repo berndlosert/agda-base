@@ -205,12 +205,13 @@ modifyAt n f = updateAt n (f >>> Just)
 
 setAt : Nat -> a -> Seq a -> Seq a
 setAt n x = modifyAt n (const x)
-{-
+
 insertAt : Nat -> a -> Seq a -> Seq a
-insertAt 0 x (y :: ys) = x :: y :: ys
-insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
-insertAt _ _ [] = []
--}
+insertAt n x xs = let (l , r) = splitAt n xs in
+  case viewl r of \ where
+    EmptyL -> l <> singleton x
+    _ -> l <> cons x r
+
 -------------------------------------------------------------------------------
 -- Extracting sublists
 -------------------------------------------------------------------------------
