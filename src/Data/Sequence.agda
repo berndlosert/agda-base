@@ -187,20 +187,16 @@ splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
 at : Nat -> Seq a -> Maybe a
 at n xs = splitAt n xs # snd # head
 
---at n xs@(Seq: t) with n < length xs
---... | False = Nothing
---... | True = case Tree.splitTree (\ m -> n < getSum m) (Sum: 0) t {{believeMe}} of \ where
---  (_ , x , _) -> Just (getElem x)
-{-
 infixl 9 _!!_
 _!!_ : Seq a -> Nat -> Maybe a
 _!!_ = flip at
 
 deleteAt : Nat -> Seq a -> Seq a
-deleteAt 0 (_ :: xs) = xs
-deleteAt (Suc n) (x :: xs) = x :: deleteAt n xs
-deleteAt _ [] = []
-
+deleteAt n xs = let (l , r) = splitAt n xs in
+  case viewl r of \ where
+    EmptyL -> l <> empty
+    (x :< r') -> l <> r'
+{-
 modifyAt : Nat -> (a -> a) -> Seq a -> Seq a
 modifyAt 0 f (x :: xs) = f x :: xs
 modifyAt (Suc n) f (x :: xs) = x :: modifyAt n f xs
