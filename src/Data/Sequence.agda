@@ -270,16 +270,16 @@ inits (Seq: t) = cons empty (Seq: (Tree.inits (Elem: <<< Seq:) t))
 
 tails : Seq a -> Seq (Seq a)
 tails (Seq: t) = snoc (Seq: (Tree.tails (Elem: <<< Seq:) t))  empty
-{-
+
 segments : Seq a -> Seq (Seq a)
-segments xs = [ [] ] <>
-  (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
+segments xs = singleton empty <>
+  (filter (not <<< null) $ foldr _<>_ empty (tails <$> inits xs))
 
 segmentsOfSize : Nat -> Seq a -> Seq (Seq a)
-segmentsOfSize 0 _ = [ [] ]
+segmentsOfSize 0 _ = singleton empty
 segmentsOfSize n xs =
-  filter (\ ys -> length ys == n) $ foldr _<>_ [] (tails <$> inits xs)
--}
+  filter (\ ys -> length ys == n) $ foldr _<>_ empty (tails <$> inits xs)
+
 -------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
