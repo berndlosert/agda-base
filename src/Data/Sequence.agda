@@ -42,11 +42,29 @@ private
 data Seq (a : Set) : Set where
   Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
 
+viewl : Seq a -> ViewL Seq a
+viewl (Seq: t) with Tree.viewl t
+... | EmptyL = EmptyL
+... | (Elem: x) :< xs = x :< (Seq: xs)
+
+viewr : Seq a -> ViewR Seq a
+viewr (Seq: t) with Tree.viewr t
+... | EmptyR = EmptyR
+... | xs :> (Elem: x) = Seq: xs :> x
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
 instance
+  {-# TERMINATING #-}
+  Eq-Seq : {{_ : Eq a}} -> Eq (Seq a)
+  Eq-Seq ._==_ l r with viewl l | viewl r
+  ... | EmptyL | EmptyL = True
+  ... | EmptyL | _ = False
+  ... | _ | EmptyL = False
+  ... | x :< xs | y :< ys = x == y && xs == ys
+
   Semigroup-Seq : Semigroup (Seq a)
   Semigroup-Seq ._<>_ (Seq: xs) (Seq: ys) = Seq: (xs <> ys)
 
@@ -123,16 +141,6 @@ replicateA {f} {a} n0 fa = loop n0
 -------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
-
-viewl : Seq a -> ViewL Seq a
-viewl (Seq: t) with Tree.viewl t
-... | EmptyL = EmptyL
-... | (Elem: x) :< xs = x :< (Seq: xs)
-
-viewr : Seq a -> ViewR Seq a
-viewr (Seq: t) with Tree.viewr t
-... | EmptyR = EmptyR
-... | xs :> (Elem: x) = Seq: xs :> x
 
 uncons : Seq a -> Maybe (a * Seq a)
 uncons s with viewl s
