@@ -16,8 +16,8 @@ open import Data.Foldable
 
 private
   variable
-    a b : Set
-    f : Set -> Set
+    a b c s : Set
+    f t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Traversable
@@ -47,3 +47,57 @@ instance
   Traversable-List .traverse f l with l
   ... | [] = pure []
   ... | x :: xs = (| _::_ (f x) (traverse f xs) |)
+
+-------------------------------------------------------------------------------
+-- StateL, StateR helpers
+-------------------------------------------------------------------------------
+
+private
+  record StateL (s a : Set) : Set where
+    constructor StateL:
+    field runStateL : s -> s * a
+
+  open StateL
+
+  record StateR (s a : Set) : Set where
+    constructor StateR:
+    field runStateR : s -> s * a
+
+  open StateR
+
+  instance
+    Functor-StateL : Functor (StateL s)
+    Functor-StateL .map f (StateL: k) = StateL: \ s ->
+      let (s' , v) = k s in (s' , f v)
+
+    Functor-StateR : Functor (StateR s)
+    Functor-StateR .map f (StateR: k) = StateR: \ s ->
+      let (s' , v) = k s in (s' , f v)
+
+    Applicative-StateL : Applicative (StateL s)
+    Applicative-StateL .pure x = StateL: \ s -> (s , x)
+    Applicative-StateL ._<*>_ (StateL: kf) (StateL: kv) = StateL: \ s ->
+      let
+        (s' , f) = kf s
+        (s'' , v) = kv s'
+      in
+        (s'' , f v)
+
+    Applicative-StateR : Applicative (StateR s)
+    Applicative-StateR .pure x = StateR: \ s -> (s , x)
+    Applicative-StateR ._<*>_ (StateR: kf) (StateR: kv) = StateR: \ s ->
+      let
+        (s' , v) = kv s
+        (s'' , f) = kf s'
+      in
+        (s'' , f v)
+
+-------------------------------------------------------------------------------
+-- mapAccumL & mapAccumR
+-------------------------------------------------------------------------------
+
+mapAccumL : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumL f s t = runStateL (traverse (StateL: <<< flip f) t) s
+
+mapAccumR : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumR f s t = runStateR (traverse (StateR: <<< flip f) t) s
