@@ -66,16 +66,16 @@ instance
   ... | x :< xs | y :< ys = x == y && xs == ys
 
   Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ (Seq: xs) (Seq: ys) = Seq: (xs <> ys)
+  Semigroup-Seq ._<>_ (Seq: l) (Seq: r) = Seq: (l <> r)
 
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = Seq: Empty
 
   Foldable-Seq : Foldable Seq
-  Foldable-Seq .foldMap f (Seq: xs) = foldMap (f <<< getElem) xs
+  Foldable-Seq .foldMap f (Seq: t) = foldMap (f <<< getElem) t
 
   Functor-Seq : Functor Seq
-  Functor-Seq .map f (Seq: xs) = Seq: (map (map f) xs)
+  Functor-Seq .map f (Seq: t) = Seq: (map (map f) t)
 
   Applicative-Seq : Applicative Seq
   Applicative-Seq .pure x = Seq: (Single (Elem: x))
