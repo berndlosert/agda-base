@@ -283,13 +283,13 @@ segmentsOfSize n xs =
 -------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
-{-
+
 scanl : (b -> a -> b) -> b -> Seq a -> Seq b
-scanl f b xs = foldl f b <$> inits xs
+scanl f b xs = cons b (snd $ mapAccumL (\ x z -> dupe (f x z)) b xs)
 
 scanr : (a -> b -> b) -> b -> Seq a -> Seq b
-scanr f b xs = foldr f b <$> tails xs
--}
+scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dupe (f x z)) b xs) b
+
 -------------------------------------------------------------------------------
 -- Zipping functions
 -------------------------------------------------------------------------------
