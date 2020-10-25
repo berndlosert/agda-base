@@ -198,16 +198,10 @@ updateAt n f xs = let (l , r) = splitAt n xs in
     (x :< r') -> l <> maybe r' (flip cons r') (f x)
 
 deleteAt : Nat -> Seq a -> Seq a
-deleteAt n xs = let (l , r) = splitAt n xs in
-  case viewl r of \ where
-    EmptyL -> l <> empty
-    (x :< r') -> l <> r'
+deleteAt n = updateAt n (const Nothing)
 
 modifyAt : Nat -> (a -> a) -> Seq a -> Seq a
-modifyAt n f xs = let (l , r) = splitAt n xs in
-  case viewl r of \ where
-    EmptyL -> xs
-    (x :< r') -> l <> (cons (f x) r')
+modifyAt n f = updateAt n (f >>> Just)
 
 setAt : Nat -> a -> Seq a -> Seq a
 setAt n x = modifyAt n (const x)
