@@ -191,6 +191,12 @@ infixl 9 _!!_
 _!!_ : Seq a -> Nat -> Maybe a
 _!!_ = flip at
 
+updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
+updateAt n f xs = let (l , r) = splitAt n xs in
+  case viewl r of \ where
+    EmptyL -> xs
+    (x :< r') -> l <> maybe r' (flip cons r') (f x)
+
 deleteAt : Nat -> Seq a -> Seq a
 deleteAt n xs = let (l , r) = splitAt n xs in
   case viewl r of \ where
@@ -206,13 +212,6 @@ modifyAt n f xs = let (l , r) = splitAt n xs in
 setAt : Nat -> a -> Seq a -> Seq a
 setAt n x = modifyAt n (const x)
 {-
-updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
-updateAt 0 f (x :: xs) with f x
-... | Nothing = xs
-... | Just x' = x' :: xs
-updateAt (Suc n) f (x :: xs) = x :: updateAt n f xs
-updateAt _ _ [] = []
-
 insertAt : Nat -> a -> Seq a -> Seq a
 insertAt 0 x (y :: ys) = x :: y :: ys
 insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
