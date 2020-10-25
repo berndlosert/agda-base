@@ -196,15 +196,16 @@ deleteAt n xs = let (l , r) = splitAt n xs in
   case viewl r of \ where
     EmptyL -> l <> empty
     (x :< r') -> l <> r'
-{-
+
 modifyAt : Nat -> (a -> a) -> Seq a -> Seq a
-modifyAt 0 f (x :: xs) = f x :: xs
-modifyAt (Suc n) f (x :: xs) = x :: modifyAt n f xs
-modifyAt _ _ [] = []
+modifyAt n f xs = let (l , r) = splitAt n xs in
+  case viewl r of \ where
+    EmptyL -> xs
+    (x :< r') -> l <> (cons (f x) r')
 
 setAt : Nat -> a -> Seq a -> Seq a
 setAt n x = modifyAt n (const x)
-
+{-
 updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
 updateAt 0 f (x :: xs) with f x
 ... | Nothing = xs
