@@ -168,7 +168,7 @@ intersperse sep s with viewl s
 ... | x :< xs = cons x (xs <**> cons (const sep) (singleton id))
 
 -------------------------------------------------------------------------------
--- Indexed functions
+-- Indexed folds
 -------------------------------------------------------------------------------
 
 ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
@@ -178,19 +178,30 @@ ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
 ifoldl f z xs =
   foldl (\ g x n -> f (g (n - 1)) n x) (const z) xs (length xs - 1)
 
+-------------------------------------------------------------------------------
+-- Searching with a predicate
+-------------------------------------------------------------------------------
+
 indicesl : (a -> Bool) -> Seq a -> List Nat
 indicesl p = ifoldr (\ n x ns -> if p x then n :: ns else ns) []
 
 indicesr : (a -> Bool) -> Seq a -> List Nat
 indicesr p = ifoldl (\ ns n x -> if p x then n :: ns else ns) []
 
---indexed : Seq a -> Seq (Nat * a)
---indexed [] = []
---indexed xs = go 0 xs
---  where
---    go : Nat -> Seq a -> Seq (Nat * a)
---    go _ [] = []
---    go n (y :: ys) = (n , y) :: go (Suc n) ys
+filter : (a -> Bool) -> Seq a -> Seq a
+filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
+
+filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
+filterA p = flip foldr (pure empty) \ where
+    x xs -> (| if_then_else_ (p x) (| (cons x) xs |) xs |)
+
+partition : (a -> Bool) -> Seq a -> Seq a * Seq a
+partition p = flip foldl (empty , empty) \ where
+  (xs , ys) x -> if p x then (snoc xs x , ys) else (xs , snoc ys x)
+
+-------------------------------------------------------------------------------
+-- Indexed functions
+-------------------------------------------------------------------------------
 
 splitAt : Nat -> Seq a -> Seq a * Seq a
 splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
@@ -251,21 +262,6 @@ dropWhileL p = snd <<< spanl p
 
 dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
-
--------------------------------------------------------------------------------
--- Searching with a predicate
--------------------------------------------------------------------------------
-
-filter : (a -> Bool) -> Seq a -> Seq a
-filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
-
-partition : (a -> Bool) -> Seq a -> Seq a * Seq a
-partition p = flip foldl (empty , empty) \ where
-  (xs , ys) x -> if p x then (snoc xs x , ys) else (xs , snoc ys x)
-
---filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
---filterA p = flip foldr (pure []) \ where
---    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
 
 -------------------------------------------------------------------------------
 -- Segments
