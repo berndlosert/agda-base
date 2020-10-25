@@ -150,12 +150,10 @@ unsnoc s with viewr s
 ... | EmptyR = Nothing
 ... | xs :> x = Just (xs , x)
 
-{-# TERMINATING #-}
 init : (s : Seq a) {{_ : IsNonempty s}} -> Seq a
-init s with viewl s
-... | EmptyL = undefined -- No worries, this is impossible.
-... | x :< (Seq: Empty) = empty
-... | x :< xs = cons x (init xs {{believeMe}})
+init s with viewr s
+... | EmptyR = undefined -- No worries, this is impossible.
+... | xs :> _ = xs
 
 -------------------------------------------------------------------------------
 -- Transformations
