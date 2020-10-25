@@ -8,50 +8,53 @@ module Data.Buildable where
 
 open import Prelude
 
+open import Data.Foldable
+
 -------------------------------------------------------------------------------
--- Monobuildable
+-- Variables
 -------------------------------------------------------------------------------
 
-record Monobuildable (s a : Set) : Set where
-  field
-    {{Monoid-s}} : Monoid s
-    singleton : a -> s
-
-  infixr 5 _<|_
-  _<|_ : a -> s -> s
-  x <| xs = singleton x <> xs
-
-  infixl 5 _|>_
-  _|>_ : s -> a -> s
-  xs |> x = xs <> singleton x
-
-  fromList : List a -> s
-  fromList [] = mempty
-  fromList (a :: as) = a <| (fromList as)
-
-  fromMaybe : Maybe a -> s
-  fromMaybe Nothing = mempty
-  fromMaybe (Just a) = singleton a
-
-  replicate : Nat -> a -> s
-  replicate n a = applyN (a <|_) n mempty
-
-open Monobuildable {{...}} public
+private
+  variable
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Buildable
 -------------------------------------------------------------------------------
 
-Buildable : (Set -> Set) -> Set
-Buildable t = forall {a} -> Monobuildable (t a) a
+record Buildable (s a : Set) : Set where
+  field
+    nil : s
+    singleton : a -> s
+    cons : a -> s -> s
+    snoc : s -> a -> s
+    append : s -> s -> s
+
+  consAll : {{_ : Foldable f}} -> f a -> s -> s
+  consAll = flip (foldr cons)
+
+  snocAll : {{_ : Foldable f}} -> s -> f a -> s
+  snocAll = foldl snoc
+
+  fromList : List a -> s
+  fromList xs = consAll xs nil
+
+  fromMaybe : Maybe a -> s
+  fromMaybe m = consAll m nil
+
+  replicate : Nat -> a -> s
+  replicate n a = applyN (cons a) n nil
+
+open Buildable {{...}} public
 
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
 instance
-  Buildable-List : Buildable List
+  Buildable-List : Buildable (List a) a
+  Buildable-List .nil = []
   Buildable-List .singleton = _:: []
-
-  Monobuildable-String-Char : Monobuildable String Char
-  Monobuildable-String-Char .singleton = pack <<< singleton
+  Buildable-List .cons = _::_
+  Buildable-List .snoc xs x = xs <> [ x ]
+  Buildable-List .append = _<>_

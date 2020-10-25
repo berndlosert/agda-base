@@ -70,19 +70,21 @@ instance
   NonemptyConstraint-FingerTree .IsNonempty Empty = Void
   NonemptyConstraint-FingerTree .IsNonempty _ = Unit
 
-private
-  deep : {{_ : Measured v a}}
-    -> Digit a
-    -> FingerTree v (Node v a)
-    -> Digit a
-    -> FingerTree v a
-  deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
+singleton : a -> FingerTree v a
+singleton = Single
 
-  digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
-  digitToTree (One a) = Single a
-  digitToTree (Two a b) = deep (One a) Empty (One b)
-  digitToTree (Three a b c) = deep (Two a b) Empty (One c)
-  digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
+deep : {{_ : Measured v a}}
+  -> Digit a
+  -> FingerTree v (Node v a)
+  -> Digit a
+  -> FingerTree v a
+deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
+
+digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
+digitToTree (One a) = Single a
+digitToTree (Two a b) = deep (One a) Empty (One b)
+digitToTree (Three a b c) = deep (Two a b) Empty (One c)
+digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
 
 -------------------------------------------------------------------------------
 -- Cons operator
