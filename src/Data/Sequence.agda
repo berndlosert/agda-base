@@ -255,17 +255,17 @@ dropWhileR p = snd <<< spanr p
 -------------------------------------------------------------------------------
 -- Searching with a predicate
 -------------------------------------------------------------------------------
-{-
+
 filter : (a -> Bool) -> Seq a -> Seq a
-filter p = foldr (\ x xs -> if p x then x :: xs else xs) []
+filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
 
-filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
-filterA p = flip foldr (pure []) \ where
-    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
+--partition : (a -> Bool) -> Seq a -> Seq a * Seq a
+--partition p xs = (filter p xs , filter (not <<< p) xs)
 
-partition : (a -> Bool) -> Seq a -> Seq a * Seq a
-partition p xs = (filter p xs , filter (not <<< p) xs)
--}
+--filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
+--filterA p = flip foldr (pure []) \ where
+--    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
+
 -------------------------------------------------------------------------------
 -- Segments
 -------------------------------------------------------------------------------
