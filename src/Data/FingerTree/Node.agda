@@ -117,3 +117,11 @@ searchNode p vl (Node3 _ a b c) vr =
     if p va vbc then (Nothing , a , Just (Two b c))
     else if p vab vc then (Just (One a) , b , Just (One c))
     else (Just (Two a b) , c , Nothing)
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+initsNode : Node v a -> Node v (Digit a)
+initsNode (Node2 s a b) = Node2 s (One a) (Two a b)
+initsNode (Node3 s a b c) = Node3 s (One a) (Two a b) (Three a b c)

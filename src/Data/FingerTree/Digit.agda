@@ -131,3 +131,13 @@ searchDigit p vl (Four a b c d) vr =
     else if p vab vcd then (Just (One a) , b , Just (Two c d))
     else if p vabc vd then (Just (Two a b) , c , Just (One d))
     else (Just (Three a b c) , d , Nothing)
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+initsDigit : Digit a -> Digit (Digit a)
+initsDigit (One a) = One (One a)
+initsDigit (Two a b) = Two (One a) (Two a b)
+initsDigit (Three a b c) = Three (One a) (Two a b) (Three a b c)
+initsDigit (Four a b c d) = Four (One a) (Two a b) (Three a b c) (Four a b c d)

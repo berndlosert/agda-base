@@ -264,10 +264,10 @@ dropWhileR p = snd <<< spanr p
 -------------------------------------------------------------------------------
 -- Segments
 -------------------------------------------------------------------------------
-{-
-inits : Seq a -> Seq (Seq a)
-inits (Seq: t) = cons empty (Seq:
 
+inits : Seq a -> Seq (Seq a)
+inits (Seq: t) = cons empty (Seq: (Tree.inits (Elem: <<< Seq:) t))
+{-
 tails : Seq a -> Seq (Seq a)
 tails [] = [ [] ]
 tails xs@(_ :: xs') = [ xs ] <> tails xs'

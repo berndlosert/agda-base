@@ -297,3 +297,21 @@ search p t =
         (l , x , r) -> Position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+inits : {{_ : Measured v a}}
+  -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
+inits _ Empty = Empty
+inits f (Single x) = Single (f (Single x))
+inits f (Deep n pr m sf) =
+  let
+    f' ms = case viewr ms of \ where
+      EmptyR -> undefined -- Oops!
+      (m' :> node) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
+  in
+    Deep n (map (f <<< digitToTree) (initsDigit pr))
+      (inits f' m)
+      (map (f <<< deep pr m) (initsDigit sf))
