@@ -171,6 +171,19 @@ intersperse sep s with viewl s
 -- Indexed functions
 -------------------------------------------------------------------------------
 
+ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
+ifoldr f z xs = foldr (\ x g n -> f n x (g (Suc n))) (const z) xs 0
+
+ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
+ifoldl f z xs =
+  foldl (\ g x n -> f (g (n - 1)) n x) (const z) xs (length xs - 1)
+
+indicesl : (a -> Bool) -> Seq a -> List Nat
+indicesl p = ifoldr (\ n x ns -> if p x then n :: ns else ns) []
+
+indicesr : (a -> Bool) -> Seq a -> List Nat
+indicesr p = ifoldl (\ ns n x -> if p x then n :: ns else ns) []
+
 --indexed : Seq a -> Seq (Nat * a)
 --indexed [] = []
 --indexed xs = go 0 xs
@@ -214,32 +227,31 @@ insertAt n x xs = let (l , r) = splitAt n xs in
 -- Extracting sublists
 -------------------------------------------------------------------------------
 
-{-# TERMINATING #-}
-takeWhile : (a -> Bool) -> Seq a -> Seq a
-takeWhile p s with viewl s
-... | EmptyL = empty
-... | x :< xs = if p x then cons x (takeWhile p xs) else empty
-{-
-dropWhile : (a -> Bool) -> Seq a -> Seq a
-dropWhile _ [] = []
-dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
+breakl : (a -> Bool) -> Seq a -> Seq a * Seq a
+breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , empty) (indicesl p xs)
 
-take : Nat -> Seq a -> Seq a
-take _ [] = []
-take 0 xs = []
-take (Suc n) (x :: xs) = x :: take n xs
+breakr : (a -> Bool) -> Seq a -> Seq a * Seq a
+breakr p xs =
+  foldr (\ n _ -> swap (splitAt (Suc n) xs)) (xs , empty) (indicesr p xs)
 
-drop : Nat -> Seq a -> Seq a
-drop _ [] = []
-drop 0 xs = xs
-drop (Suc n) (x :: xs) = drop n xs
+spanl : (a -> Bool) -> Seq a -> Seq a * Seq a
+spanl p = breakl (not <<< p)
 
-span : (a -> Bool) -> Seq a -> Seq a * Seq a
-span p xs = (takeWhile p xs , dropWhile p xs)
+spanr : (a -> Bool) -> Seq a -> Seq a * Seq a
+spanr p = breakr (not <<< p)
 
-break : (a -> Bool) -> Seq a -> Seq a * Seq a
-break p = span (not <<< p)
--}
+takeWhileL : (a -> Bool) -> Seq a -> Seq a
+takeWhileL p = fst <<< spanl p
+
+takeWhileR : (a -> Bool) -> Seq a -> Seq a
+takeWhileR p = fst <<< spanr p
+
+dropWhileL : (a -> Bool) -> Seq a -> Seq a
+dropWhileL p = snd <<< spanl p
+
+dropWhileR : (a -> Bool) -> Seq a -> Seq a
+dropWhileR p = snd <<< spanr p
+
 -------------------------------------------------------------------------------
 -- Searching with a predicate
 -------------------------------------------------------------------------------
