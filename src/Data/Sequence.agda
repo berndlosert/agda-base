@@ -13,10 +13,8 @@ open import Data.Monoid.Endo
 open import Data.Monoid.Sum
 open import Data.Foldable
 open import Data.Traversable
-open import Data.FingerTree as Tree hiding (cons; snoc; viewl; viewr)
-open import Data.FingerTree.Digit
-open import Data.FingerTree.Measured
-open import Data.FingerTree.Node
+open import Data.FingerTree as Tree
+  hiding (cons; snoc; viewl; viewr; singleton)
 open import Data.Sequence.Elem
 
 -------------------------------------------------------------------------------
@@ -78,7 +76,7 @@ instance
   Functor-Seq .map f (Seq: t) = Seq: (map (map f) t)
 
   Applicative-Seq : Applicative Seq
-  Applicative-Seq .pure x = Seq: (Single (Elem: x))
+  Applicative-Seq .pure = Seq: <<< Tree.singleton <<< Elem:
   Applicative-Seq ._<*>_ fs xs =
       bind fs \ f -> bind xs \ x -> pure (f x)
     where
@@ -110,7 +108,7 @@ snoc : Seq a -> a -> Seq a
 snoc (Seq: xs) x = Seq: (Tree.snoc xs (Elem: x))
 
 singleton : a -> Seq a
-singleton x = Seq: (Single (Elem: x))
+singleton x = Seq: (Tree.singleton (Elem: x))
 
 fromList : List a -> Seq a
 fromList = foldr cons empty
