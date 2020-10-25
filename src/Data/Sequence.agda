@@ -259,8 +259,9 @@ dropWhileR p = snd <<< spanr p
 filter : (a -> Bool) -> Seq a -> Seq a
 filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
 
---partition : (a -> Bool) -> Seq a -> Seq a * Seq a
---partition p xs = (filter p xs , filter (not <<< p) xs)
+partition : (a -> Bool) -> Seq a -> Seq a * Seq a
+partition p = flip foldl (empty , empty) \ where
+  (xs , ys) x -> if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
 --filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
 --filterA p = flip foldr (pure []) \ where
@@ -271,7 +272,7 @@ filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
 -------------------------------------------------------------------------------
 {-
 inits : Seq a -> Seq (Seq a)
-inits = foldr (\ x ys -> [ [] ] <> map (x ::_) ys) [ [] ]
+inits (Seq: t) = cons empty (Seq:
 
 tails : Seq a -> Seq (Seq a)
 tails [] = [ [] ]
