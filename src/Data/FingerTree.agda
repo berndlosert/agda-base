@@ -6,7 +6,7 @@ module Data.FingerTree where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (empty)
 
 open import Data.Constraint.Nonempty
 open import Data.Foldable
@@ -69,6 +69,9 @@ instance
   NonemptyConstraint-FingerTree : NonemptyConstraint (FingerTree v a)
   NonemptyConstraint-FingerTree .IsNonempty Empty = Void
   NonemptyConstraint-FingerTree .IsNonempty _ = Unit
+
+empty : FingerTree v a
+empty = Empty
 
 singleton : a -> FingerTree v a
 singleton = Single

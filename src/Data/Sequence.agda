@@ -13,9 +13,9 @@ open import Data.Monoid.Endo
 open import Data.Monoid.Sum
 open import Data.Foldable
 open import Data.Traversable
-open import Data.FingerTree as Tree
-  hiding (cons; snoc; viewl; viewr; singleton)
+open import Data.FingerTree as Tree using (FingerTree)
 open import Data.Sequence.Elem
+open import Data.Sequence.View
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -67,7 +67,7 @@ instance
   Semigroup-Seq ._<>_ (Seq: l) (Seq: r) = Seq: (l <> r)
 
   Monoid-Seq : Monoid (Seq a)
-  Monoid-Seq .mempty = Seq: Empty
+  Monoid-Seq .mempty = Seq: Tree.empty
 
   Foldable-Seq : Foldable Seq
   Foldable-Seq .foldMap f (Seq: t) = foldMap (f <<< getElem) t
@@ -94,8 +94,7 @@ instance
   Traversable-Seq .traverse f (Seq: t) = Seq: <$> traverse (traverse f) t
 
   NonemptyConstraint-Seq : NonemptyConstraint (Seq a)
-  NonemptyConstraint-Seq .IsNonempty (Seq: Empty) = Void
-  NonemptyConstraint-Seq .IsNonempty _ = Unit
+  NonemptyConstraint-Seq .IsNonempty (Seq: t) = IsNonempty t
 
 -------------------------------------------------------------------------------
 -- Constructors
