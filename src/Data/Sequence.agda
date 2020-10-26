@@ -354,16 +354,17 @@ module _ {{_ : Eq a}} where
 stripPrefix : {{_ : Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
 stripPrefix xs ys =
   if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
-{-
+
 {-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
-groupBy eq [] = []
-groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
-  (x :: ys) :: groupBy eq zs
+groupBy eq as with viewl as
+... | EmptyL = empty
+... | x :< xs = let (ys , zs) = spanl (eq x) xs in
+  cons (cons x ys) (groupBy eq zs)
 
 group : {{_ : Eq a}} -> Seq a -> Seq (Seq a)
 group = groupBy _==_
--}
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
