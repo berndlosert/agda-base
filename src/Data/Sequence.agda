@@ -393,20 +393,22 @@ deleteBy eq x xs with viewl xs
 ... | EmptyL = empty
 ... | y :< ys = if eq x y then ys else (cons y (deleteBy eq x ys))
 
-{-
+{-# TERMINATING #-}
 nubBy : (a -> a -> Bool) -> Seq a -> Seq a
-nubBy {a} eq l = nubBy' l []
+nubBy {a} eq l = nubBy' l empty
   where
     elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
-    elemBy _ _ [] = False
-    elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
+    elemBy eq y ys with viewl ys
+    ... | EmptyL = False
+    ... | x :< xs = eq x y || elemBy eq y xs
 
     nubBy' : Seq a -> Seq a -> Seq a
-    nubBy' [] _ = []
-    nubBy' (y :: ys) xs =
+    nubBy' as xs with viewl as
+    ... | EmptyL = empty
+    ... | y :< ys =
       if elemBy eq y xs
       then nubBy' ys xs
-      else (y :: nubBy' ys (y :: xs))
+      else (cons y (nubBy' ys (cons y xs)))
 
 unionBy : (a -> a -> Bool) -> Seq a -> Seq a -> Seq a
 unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
@@ -421,7 +423,7 @@ module _ {{_ : Eq a}} where
 
   union : Seq a -> Seq a -> Seq a
   union = unionBy _==_
--}
+
 -------------------------------------------------------------------------------
 -- Sorting
 -------------------------------------------------------------------------------
