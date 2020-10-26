@@ -386,11 +386,14 @@ transpose ass with viewl ass
 -------------------------------------------------------------------------------
 -- Set-like operations
 -------------------------------------------------------------------------------
-{-
-deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
-deleteBy _ _ [] = []
-deleteBy eq x (y :: ys) = if eq x y then ys else (y :: deleteBy eq x ys)
 
+{-# TERMINATING #-}
+deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
+deleteBy eq x xs with viewl xs
+... | EmptyL = empty
+... | y :< ys = if eq x y then ys else (cons y (deleteBy eq x ys))
+
+{-
 nubBy : (a -> a -> Bool) -> Seq a -> Seq a
 nubBy {a} eq l = nubBy' l []
   where
