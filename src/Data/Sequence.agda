@@ -427,16 +427,20 @@ module _ {{_ : Eq a}} where
 -------------------------------------------------------------------------------
 -- Sorting
 -------------------------------------------------------------------------------
-{-
-insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
-insertBy cmp x [] = x :: []
-insertBy cmp x (y :: xs) with cmp x y
-... | LT = x :: y :: xs
-... | _ = y :: insertBy cmp x xs
 
+{-# TERMINATING #-}
+insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
+insertBy cmp x as with viewl as
+... | EmptyL = singleton x
+... | y :< xs = case cmp x y of \ where
+  LT -> cons x (cons y xs)
+  _ -> cons y (insertBy cmp x xs)
+
+{-# TERMINATING #-}
 sortBy : (a -> a -> Ordering) -> Seq a -> Seq a
-sortBy cmp [] = []
-sortBy cmp (x :: xs) = insertBy cmp x (sortBy cmp xs)
+sortBy cmp as with viewl as
+... | EmptyL = empty
+... | x :< xs = insertBy cmp x (sortBy cmp xs)
 
 module _ {{_ : Ord a}} where
 
@@ -448,7 +452,7 @@ module _ {{_ : Ord a}} where
 
   sortOn : (b -> a) -> Seq b -> Seq b
   sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
--}
+
 -------------------------------------------------------------------------------
 -- Searching
 -------------------------------------------------------------------------------
