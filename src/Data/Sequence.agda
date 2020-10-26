@@ -369,6 +369,7 @@ group = groupBy _==_
 -- Transformations
 -------------------------------------------------------------------------------
 
+{-# TERMINATING #-} 
 intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
 intercalate sep as with viewl as
 ... | EmptyL = mempty
@@ -376,11 +377,12 @@ intercalate sep as with viewl as
   EmptyL -> a
   (x :< xs) -> a <> sep <> intercalate sep (cons x xs)
 
-{-
+{-# TERMINATING #-}
 transpose : Seq (Seq a) -> Seq (Seq a)
-transpose [] = []
-transpose (heads :: tails) = zipCons heads (transpose tails)
--}
+transpose ass with viewl ass
+... | EmptyL = empty
+... | heads :< tails = zipCons heads (transpose tails)
+
 -------------------------------------------------------------------------------
 -- Set-like operations
 -------------------------------------------------------------------------------
