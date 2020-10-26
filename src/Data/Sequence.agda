@@ -368,12 +368,15 @@ group = groupBy _==_
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
-{-
-intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
-intercalate sep [] = mempty
-intercalate sep (s :: []) = s
-intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 
+intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
+intercalate sep as with viewl as
+... | EmptyL = mempty
+... | a :< as' = case viewl as' of \ where
+  EmptyL -> a
+  (x :< xs) -> a <> sep <> intercalate sep (cons x xs)
+
+{-
 transpose : Seq (Seq a) -> Seq (Seq a)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
