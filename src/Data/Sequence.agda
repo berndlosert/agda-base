@@ -441,8 +441,9 @@ module _ {{_ : Ord a}} where
 -------------------------------------------------------------------------------
 -- Searching
 -------------------------------------------------------------------------------
-{-
+
+{-# TERMINATING #-}
 lookup : {{_ : Eq a}} -> a -> Seq (a * b) -> Maybe b
-lookup a [] = Nothing
-lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
--}
+lookup a s with viewl s
+... | EmptyL = Nothing
+... | (a' , b) :< xs = if a == a' then Just b else lookup a xs
