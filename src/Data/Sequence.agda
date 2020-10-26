@@ -299,11 +299,13 @@ scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dupe (f x z)) b xs) b
 -------------------------------------------------------------------------------
 -- Zipping functions
 -------------------------------------------------------------------------------
-{-
+
+{-# TERMINATING #-}
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
-zipWith f [] _ = []
-zipWith f _ [] = []
-zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
+zipWith f as bs with viewl as | viewl bs
+... | EmptyL | _ = empty
+... | _ | EmptyL = empty
+... | x :< xs | y :< ys = cons (f x y) (zipWith f xs ys)
 
 zip : Seq a -> Seq b -> Seq (a * b)
 zip = zipWith _,_
@@ -311,15 +313,15 @@ zip = zipWith _,_
 -- Zips together a list of heads and a list of tails.
 zipCons : Seq a -> Seq (Seq a) -> Seq (Seq a)
 zipCons heads tails =
-    (zipWith _::_ heads (tails <> padding)) <> excess
+    (zipWith cons heads (tails <> padding)) <> excess
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (length heads - length tails) []
+    padding = replicate (length heads - length tails) empty
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
--}
+
 -------------------------------------------------------------------------------
 -- Predicates
 -------------------------------------------------------------------------------
