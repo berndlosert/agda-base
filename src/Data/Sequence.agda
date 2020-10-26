@@ -325,7 +325,7 @@ zipCons heads tails =
 -------------------------------------------------------------------------------
 -- Predicates
 -------------------------------------------------------------------------------
-{-
+
 module _ {{_ : Eq a}} where
 
   isPrefixOf : Seq a -> Seq a -> Bool
@@ -342,11 +342,11 @@ module _ {{_ : Eq a}} where
   isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
     where
       g : Seq a -> a -> Maybe (Seq a)
-      g s a = let s' = dropWhile (_/= a) s in
+      g s a = let s' = dropWhileL (_/= a) s in
         if null s'
           then Nothing
           else tail s'
--}
+
 -------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
