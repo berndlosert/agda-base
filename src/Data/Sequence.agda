@@ -16,7 +16,6 @@ open import Data.Foldable
 open import Data.Traversable
 open import Data.FingerTree as Tree using (FingerTree)
 open import Data.Sequence.Elem
-open import Data.Sequence.View
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -41,15 +40,15 @@ private
 data Seq (a : Set) : Set where
   Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
 
-viewl : Seq a -> ViewL Seq a
-viewl (Seq: t) with Tree.viewl t
-... | EmptyL = EmptyL
-... | (Elem: x) :< xs = x :< (Seq: xs)
+uncons : Seq a -> Maybe (a * Seq a)
+uncons (Seq: t) with Tree.uncons t
+... | Nothing = Nothing
+... | Just (Elem: x , xs) = Just (x , Seq: xs)
 
-viewr : Seq a -> ViewR Seq a
-viewr (Seq: t) with Tree.viewr t
-... | EmptyR = EmptyR
-... | xs :> (Elem: x) = Seq: xs :> x
+unsnoc : Seq a -> Maybe (Seq a * a)
+unsnoc (Seq: t) with Tree.unsnoc t
+... | Nothing = Nothing
+... | Just (xs , Elem: x) = Just (Seq: xs , x)
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -58,11 +57,11 @@ viewr (Seq: t) with Tree.viewr t
 instance
   {-# TERMINATING #-}
   Eq-Seq : {{_ : Eq a}} -> Eq (Seq a)
-  Eq-Seq ._==_ l r with viewl l | viewl r
-  ... | EmptyL | EmptyL = True
-  ... | EmptyL | _ = False
-  ... | _ | EmptyL = False
-  ... | x :< xs | y :< ys = x == y && xs == ys
+  Eq-Seq ._==_ l r with uncons l | uncons r
+  ... | Nothing | Nothing = True
+  ... | Nothing | _ = False
+  ... | _ | Nothing = False
+  ... | Just (x , xs) | Just (y , ys) = x == y && xs == ys
 
   Semigroup-Seq : Semigroup (Seq a)
   Semigroup-Seq ._<>_ (Seq: l) (Seq: r) = Seq: (l <> r)
@@ -132,26 +131,16 @@ replicateA {f} {a} n0 fa = loop n0
 -- Destructors
 -------------------------------------------------------------------------------
 
-uncons : Seq a -> Maybe (a * Seq a)
-uncons s with viewl s
-... | EmptyL = Nothing
-... | x :< xs = Just (x , xs)
-
 head : Seq a -> Maybe a
 head = map fst <<< uncons
 
 tail : Seq a -> Maybe (Seq a)
 tail = map snd <<< uncons
 
-unsnoc : Seq a -> Maybe (Seq a * a)
-unsnoc s with viewr s
-... | EmptyR = Nothing
-... | xs :> x = Just (xs , x)
-
 init : (s : Seq a) {{_ : IsNonempty s}} -> Seq a
-init s with viewr s
-... | EmptyR = undefined -- No worries, this is impossible.
-... | xs :> _ = xs
+init s with unsnoc s
+... | Nothing = undefined -- No worries, this is impossible.
+... | Just (xs , _) = xs
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -161,9 +150,9 @@ reverse : Seq a -> Seq a
 reverse = foldl (flip cons) empty
 
 intersperse : a -> Seq a -> Seq a
-intersperse sep s with viewl s
-... | EmptyL = empty
-... | x :< xs = cons x (xs <**> cons (const sep) (singleton id))
+intersperse sep s with uncons s
+... | Nothing = empty
+... | Just (x , xs) = cons x (xs <**> cons (const sep) (singleton id))
 
 -------------------------------------------------------------------------------
 -- Indexed folds
@@ -213,9 +202,9 @@ _!!_ = flip at
 
 updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
 updateAt n f xs = let (l , r) = splitAt n xs in
-  case viewl r of \ where
-    EmptyL -> xs
-    (x :< r') -> l <> maybe r' (flip cons r') (f x)
+  case uncons r of \ where
+    Nothing -> xs
+    (Just (x , r')) -> l <> maybe r' (flip cons r') (f x)
 
 deleteAt : Nat -> Seq a -> Seq a
 deleteAt n = updateAt n (const Nothing)
@@ -228,8 +217,8 @@ setAt n x = modifyAt n (const x)
 
 insertAt : Nat -> a -> Seq a -> Seq a
 insertAt n x xs = let (l , r) = splitAt n xs in
-  case viewl r of \ where
-    EmptyL -> l <> singleton x
+  case uncons r of \ where
+    Nothing -> l <> singleton x
     _ -> l <> cons x r
 
 -------------------------------------------------------------------------------
@@ -302,10 +291,10 @@ scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dupe (f x z)) b xs) b
 
 {-# TERMINATING #-}
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
-zipWith f as bs with viewl as | viewl bs
-... | EmptyL | _ = empty
-... | _ | EmptyL = empty
-... | x :< xs | y :< ys = cons (f x y) (zipWith f xs ys)
+zipWith f as bs with uncons as | uncons bs
+... | Nothing | _ = empty
+... | _ | Nothing = empty
+... | Just (x , xs) | Just (y , ys) = cons (f x y) (zipWith f xs ys)
 
 zip : Seq a -> Seq b -> Seq (a * b)
 zip = zipWith _,_
@@ -357,9 +346,9 @@ stripPrefix xs ys =
 
 {-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
-groupBy eq as with viewl as
-... | EmptyL = empty
-... | x :< xs = let (ys , zs) = spanl (eq x) xs in
+groupBy eq as with uncons as
+... | Nothing = empty
+... | Just (x , xs) = let (ys , zs) = spanl (eq x) xs in
   cons (cons x ys) (groupBy eq zs)
 
 group : {{_ : Eq a}} -> Seq a -> Seq (Seq a)
@@ -371,17 +360,17 @@ group = groupBy _==_
 
 {-# TERMINATING #-} 
 intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
-intercalate sep as with viewl as
-... | EmptyL = mempty
-... | a :< as' = case viewl as' of \ where
-  EmptyL -> a
-  (x :< xs) -> a <> sep <> intercalate sep (cons x xs)
+intercalate sep as with uncons as
+... | Nothing = mempty
+... | Just (a , as') = case uncons as' of \ where
+  Nothing -> a
+  (Just (x , xs)) -> a <> sep <> intercalate sep (cons x xs)
 
 {-# TERMINATING #-}
 transpose : Seq (Seq a) -> Seq (Seq a)
-transpose ass with viewl ass
-... | EmptyL = empty
-... | heads :< tails = zipCons heads (transpose tails)
+transpose ass with uncons ass
+... | Nothing = empty
+... | Just (heads , tails) = zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
 -- Set-like operations
@@ -389,23 +378,23 @@ transpose ass with viewl ass
 
 {-# TERMINATING #-}
 deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
-deleteBy eq x xs with viewl xs
-... | EmptyL = empty
-... | y :< ys = if eq x y then ys else (cons y (deleteBy eq x ys))
+deleteBy eq x xs with uncons xs
+... | Nothing = empty
+... | Just (y , ys) = if eq x y then ys else (cons y (deleteBy eq x ys))
 
 {-# TERMINATING #-}
 nubBy : (a -> a -> Bool) -> Seq a -> Seq a
 nubBy {a} eq l = nubBy' l empty
   where
     elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
-    elemBy eq y ys with viewl ys
-    ... | EmptyL = False
-    ... | x :< xs = eq x y || elemBy eq y xs
+    elemBy eq y ys with uncons ys
+    ... | Nothing = False
+    ... | Just (x , xs) = eq x y || elemBy eq y xs
 
     nubBy' : Seq a -> Seq a -> Seq a
-    nubBy' as xs with viewl as
-    ... | EmptyL = empty
-    ... | y :< ys =
+    nubBy' as xs with uncons as
+    ... | Nothing = empty
+    ... | Just (y , ys) =
       if elemBy eq y xs
       then nubBy' ys xs
       else (cons y (nubBy' ys (cons y xs)))
@@ -430,17 +419,17 @@ module _ {{_ : Eq a}} where
 
 {-# TERMINATING #-}
 insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
-insertBy cmp x as with viewl as
-... | EmptyL = singleton x
-... | y :< xs = case cmp x y of \ where
+insertBy cmp x as with uncons as
+... | Nothing = singleton x
+... | Just (y , xs) = case cmp x y of \ where
   LT -> cons x (cons y xs)
   _ -> cons y (insertBy cmp x xs)
 
 {-# TERMINATING #-}
 sortBy : (a -> a -> Ordering) -> Seq a -> Seq a
-sortBy cmp as with viewl as
-... | EmptyL = empty
-... | x :< xs = insertBy cmp x (sortBy cmp xs)
+sortBy cmp as with uncons as
+... | Nothing = empty
+... | Just (x , xs) = insertBy cmp x (sortBy cmp xs)
 
 module _ {{_ : Ord a}} where
 
@@ -459,6 +448,6 @@ module _ {{_ : Ord a}} where
 
 {-# TERMINATING #-}
 lookup : {{_ : Eq a}} -> a -> Seq (a * b) -> Maybe b
-lookup a s with viewl s
-... | EmptyL = Nothing
-... | (a' , b) :< xs = if a == a' then Just b else lookup a xs
+lookup a s with uncons s
+... | Nothing = Nothing
+... | Just ((a' , b) , xs) = if a == a' then Just b else lookup a xs

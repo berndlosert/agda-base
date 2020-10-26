@@ -10,17 +10,10 @@ open import Prelude
 
 open import Data.Constraint.Nonempty
 open import Data.Foldable
-open import Data.Sequence.View
 open import Data.Traversable
 open import Data.FingerTree.Digit
 open import Data.FingerTree.Measured
 open import Data.FingerTree.Node
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Sequence.View public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -156,16 +149,16 @@ instance
   Monoid-FingerTree .mempty = Empty
 
 -------------------------------------------------------------------------------
--- viewl & viewr
+-- uncons & unsnoc
 -------------------------------------------------------------------------------
 
-viewl : {{_ : Measured v a}}
+uncons : {{_ : Measured v a}}
   -> FingerTree v a
-  -> ViewL (FingerTree v) a
+  -> Maybe (a * FingerTree v a)
 
-viewr : {{_ : Measured v a}}
+unsnoc : {{_ : Measured v a}}
   -> FingerTree v a
-  -> ViewR (FingerTree v) a
+  -> Maybe (FingerTree v a * a)
 
 private
   rotL : {{_ : Measured v a}}
@@ -178,27 +171,27 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-viewl Empty = EmptyL
-viewl (Single x) = x :< Empty
-viewl (Deep _ (One x) m sf) = x :< rotL m sf
-viewl (Deep _ (Two a b) m sf) = a :< deep (One b) m sf
-viewl (Deep _ (Three a b c) m sf) = a :< deep (Two b c) m sf
-viewl (Deep _ (Four a b c d) m sf) = a :< deep (Three b c d) m sf
+uncons Empty = Nothing
+uncons (Single x) = Just (x , Empty)
+uncons (Deep _ (One x) m sf) = Just (x , rotL m sf)
+uncons (Deep _ (Two a b) m sf) = Just (a , deep (One b) m sf)
+uncons (Deep _ (Three a b c) m sf) = Just (a , deep (Two b c) m sf)
+uncons (Deep _ (Four a b c d) m sf) = Just (a , deep (Three b c d) m sf)
 
-viewr Empty = EmptyR
-viewr (Single x) = Empty :> x
-viewr (Deep _ pr m (One x)) = rotR pr m :> x
-viewr (Deep _ pr m (Two a b)) = deep pr m (One a) :> b
-viewr (Deep _ pr m (Three a b c)) = deep pr m (Two a b) :> c
-viewr (Deep _ pr m (Four a b c d)) = deep pr m (Three a b c) :> d
+unsnoc Empty = Nothing
+unsnoc (Single x) = Just (Empty , x)
+unsnoc (Deep _ pr m (One x)) = Just (rotR pr m , x)
+unsnoc (Deep _ pr m (Two a b)) = Just (deep pr m (One a) , b)
+unsnoc (Deep _ pr m (Three a b c)) = Just (deep pr m (Two a b) , c)
+unsnoc (Deep _ pr m (Four a b c d)) = Just (deep pr m (Three a b c) , d)
 
-rotL m sf with viewl m
-... | EmptyL = digitToTree sf
-... | a :< m' = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
+rotL m sf with uncons m
+... | Nothing = digitToTree sf
+... | Just (a , m') = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
-rotR pr m with viewr m
-... | EmptyR = digitToTree pr
-... | m' :> a = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
+rotR pr m with unsnoc m
+... | Nothing = digitToTree pr
+... | Just (m' , a) = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
 -- Splitting
@@ -308,9 +301,9 @@ inits _ Empty = Empty
 inits f (Single x) = Single (f (Single x))
 inits f (Deep n pr m sf) =
   let
-    f' ms = case viewr ms of \ where
-      EmptyR -> undefined -- Oops!
-      (m' :> node) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
+    f' ms = case unsnoc ms of \ where
+      Nothing -> undefined -- Oops!
+      (Just (m' , node)) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
   in
     Deep n (map (f <<< digitToTree) (initsDigit pr))
       (inits f' m)
@@ -322,9 +315,9 @@ tails _ Empty = Empty
 tails f (Single x) = Single (f (Single x))
 tails f (Deep n pr m sf) =
   let
-    f' ms = case viewl ms of \ where
-      EmptyL -> undefined -- Oops!
-      (node :< m') -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
+    f' ms = case uncons ms of \ where
+      Nothing -> undefined -- Oops!
+      (Just (node , m')) -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
   in
     Deep n (map (\ pr' -> f (deep pr' m sf)) (tailsDigit pr))
       (tails f' m)
