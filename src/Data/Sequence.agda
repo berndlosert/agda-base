@@ -350,11 +350,11 @@ module _ {{_ : Eq a}} where
 -------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
-{-
+
 stripPrefix : {{_ : Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
 stripPrefix xs ys =
   if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
-
+{-
 {-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
 groupBy eq [] = []
