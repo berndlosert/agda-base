@@ -261,6 +261,12 @@ dropWhileL p = snd <<< spanl p
 dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
 
+take : Nat -> Seq a -> Seq a
+take n = fst <<< splitAt n
+
+drop : Nat -> Seq a -> Seq a
+drop n = snd <<< splitAt n
+
 -------------------------------------------------------------------------------
 -- Segments
 -------------------------------------------------------------------------------
