@@ -21,4 +21,4 @@ instance
   Monoid-Predicate .mempty = Predicate: (const True)
 
   Contravariant-Predicate : Contravariant Predicate
-  Contravariant-Predicate .contramap f (Predicate: p) = Predicate: (p <<< f)
+  Contravariant-Predicate .cmap f (Predicate: p) = Predicate: (p <<< f)

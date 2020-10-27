@@ -1005,10 +1005,10 @@ instance
 -------------------------------------------------------------------------------
 
 record Contravariant (f : Set -> Set) : Set where
-  field contramap : (a -> b) -> f b -> f a
+  field cmap : (a -> b) -> f b -> f a
 
   phantom : {{_ : Functor f}} -> f a -> f b
-  phantom x = contramap (const unit) (map (const unit) x)
+  phantom x = cmap (const unit) (map (const unit) x)
 
 open Contravariant {{...}} public
 

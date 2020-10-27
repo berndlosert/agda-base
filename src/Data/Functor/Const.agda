@@ -51,7 +51,7 @@ instance
   Bifunctor-Const .lmap f (Const: x) = Const: (f x)
 
   Contravariant-Const : Contravariant (Const a)
-  Contravariant-Const .contramap f = Const: <<< getConst
+  Contravariant-Const .cmap f = Const: <<< getConst
 
   Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: mempty
