@@ -37,7 +37,7 @@ insert x (Node l y r) with compare x y
 
 private splitMax : Tree a -> a -> Tree a -> Tree a * a
 splitMax t x Leaf = (t , x)
-splitMax t x (Node l y r) = let (r , z) = splitMax l y r in (Node t x r , z)
+splitMax t x (Node l y r) = let (r' , z) = splitMax l y r in (Node t x r' , z)
 
 join : Tree a -> Tree a -> Tree a
 join Leaf t = t
