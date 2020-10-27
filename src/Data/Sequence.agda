@@ -41,10 +41,6 @@ abstract
   data Seq (a : Set) : Set where
     Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
 
--------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
   instance
     Semigroup-Seq : Semigroup (Seq a)
     Semigroup-Seq ._<>_ (Seq: l) (Seq: r) = Seq: (l <> r)
