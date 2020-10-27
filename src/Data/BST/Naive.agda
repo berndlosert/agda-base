@@ -41,7 +41,7 @@ splitMax t x (Node l y r) = let (r , z) = splitMax l y r in (Node t x r , z)
 
 join : Tree a -> Tree a -> Tree a
 join Leaf t = t
-join (Node l x r) t = let (l , y) = splitMax l x r in Node l y r
+join (Node l x r) t = let (l' , y) = splitMax l x r in Node l' y r
 
 delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
 delete _ Leaf = Leaf
