@@ -53,6 +53,12 @@ abstract
   union : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
   union = Tree.merge
 
+  difference : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
+  difference xs ys = foldr Tree.delete xs ys
+
+  intersection : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
+  intersection xs ys = difference xs (difference xs ys)
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
