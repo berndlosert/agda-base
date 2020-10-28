@@ -6,7 +6,7 @@ module Data.Subset where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (map)
 
 open import Data.Foldable
 open import Data.BST.Naive as Tree using (Tree; Leaf; Node)
@@ -18,7 +18,7 @@ open import Data.Traversable
 
 private
   variable
-    a : Set
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Subset
@@ -62,19 +62,16 @@ abstract
   fromList : {{_ : Ord a}} -> List a -> Subset a
   fromList = Tree.fromList
 
+  map : {{_ : Ord b}} -> (a -> b) -> Subset a -> Subset b
+  map = Tree.map
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
   instance
-    Functor-Subset : Functor Subset
-    Functor-Subset .map = map {{Tree.Functor-Tree}}
-
     Foldable-Subset : Foldable Subset
     Foldable-Subset .foldMap = foldMap {{Tree.Foldable-Tree}}
-
-    Traversable-Subset : Traversable Subset
-    Traversable-Subset .traverse = traverse {{Tree.Traversable-Tree}}
 
     Eq-Subset : {{_ : Ord a}} -> Eq (Subset a)
     Eq-Subset ._==_ xs ys = all (flip member ys) xs && all (flip member xs) ys

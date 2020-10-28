@@ -6,7 +6,7 @@ module Data.BST.Naive where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (map)
 
 open import Data.Foldable
 open import Data.Traversable
@@ -17,7 +17,7 @@ open import Data.Traversable
 
 private
   variable
-    a : Set
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Tree
@@ -28,20 +28,10 @@ data Tree (a : Set) : Set where
   Node : Tree a -> a -> Tree a -> Tree a
 
 instance
-  Functor-Tree : Functor Tree
-  Functor-Tree .map f t with t
-  ... | Leaf = Leaf
-  ... | Node l x r =  Node (map f l) (f x) (map f r)
-
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldMap f t with t
   ... | Leaf = mempty
   ... | Node l x r = foldMap f l <> f x <> foldMap f r
-
-  Traversable-Tree : Traversable Tree
-  Traversable-Tree .traverse f t with t
-  ... | Leaf = pure Leaf
-  ... | Node l x r = (| Node (traverse f l) (f x) (traverse f r) |)
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ l r with l | r
@@ -97,3 +87,6 @@ module _ {{_ : Ord a}} where
 
   fromList : List a -> Tree a
   fromList = foldr insert Leaf
+
+map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
+map f = fromList <<< Prelude.map f <<< toList
