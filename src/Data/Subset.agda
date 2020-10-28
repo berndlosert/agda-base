@@ -59,6 +59,9 @@ abstract
   intersection : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
   intersection xs ys = difference xs (difference xs ys)
 
+  fromList : {{_ : Ord a}} -> List a -> Subset a
+  fromList = Tree.fromList
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
@@ -75,3 +78,9 @@ abstract
 
     Eq-Subset : {{_ : Ord a}} -> Eq (Subset a)
     Eq-Subset ._==_ xs ys = all (flip member ys) xs && all (flip member xs) ys
+
+    Semigroup-Subset : {{_ : Ord a}} -> Semigroup (Subset a)
+    Semigroup-Subset ._<>_ = union
+
+    Monoid-Subset : {{_ : Ord a}} -> Monoid (Subset a)
+    Monoid-Subset .mempty = empty

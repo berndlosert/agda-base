@@ -94,3 +94,6 @@ module _ {{_ : Ord a}} where
   ... | EQ = True
   ... | LT = member x l
   ... | GT = member x r
+
+  fromList : List a -> Tree a
+  fromList = foldr insert Leaf
