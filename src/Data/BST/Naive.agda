@@ -6,7 +6,7 @@ module Data.BST.Naive where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (join)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -39,14 +39,14 @@ private splitMax : Tree a -> a -> Tree a -> Tree a * a
 splitMax t x Leaf = (t , x)
 splitMax t x (Node l y r) = let (r' , z) = splitMax l y r in (Node t x r' , z)
 
-join : Tree a -> Tree a -> Tree a
-join Leaf t = t
-join (Node l x r) t = let (l' , y) = splitMax l x r in Node l' y t
+merge : Tree a -> Tree a -> Tree a
+merge Leaf t = t
+merge (Node l x r) t = let (l' , y) = splitMax l x r in Node l' y t
 
 delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
 delete _ Leaf = Leaf
 delete x (Node l y r) with compare x y
-... | EQ = join l r
+... | EQ = merge l r
 ... | LT = Node (delete x l) y r
 ... | GT = Node l y (delete x r)
 
