@@ -90,3 +90,12 @@ module _ {{_ : Ord a}} where
 
 map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
+
+filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
+filter _ Leaf = Leaf
+filter p (Node l x r) =
+  let
+    l' = filter p l
+    r' = filter p r
+  in
+    if p x then Node l' x r' else merge l' r'

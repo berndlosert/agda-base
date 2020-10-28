@@ -65,6 +65,9 @@ abstract
   map : {{_ : Ord b}} -> (a -> b) -> Subset a -> Subset b
   map = Tree.map
 
+  filter : {{_ : Ord a}} -> (a -> Bool) -> Subset a -> Subset a
+  filter = Tree.filter
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
