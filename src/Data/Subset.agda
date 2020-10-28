@@ -9,7 +9,7 @@ module Data.Subset where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.BST.Naive as Tree using (Tree; Leaf; Node)
+open import Data.BST.Naive as Tree using (Tree)
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -33,10 +33,10 @@ abstract
 -------------------------------------------------------------------------------
 
   empty : Subset a
-  empty = Leaf
+  empty = Tree.empty
 
   singleton : a -> Subset a
-  singleton a = Node Leaf a Leaf
+  singleton = Tree.singleton
 
   elems : Subset a -> List a
   elems = toList

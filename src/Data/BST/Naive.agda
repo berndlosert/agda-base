@@ -27,6 +27,10 @@ data Tree (a : Set) : Set where
   Leaf : Tree a
   Node : Tree a -> a -> Tree a -> Tree a
 
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
 instance
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldMap f t with t
@@ -53,6 +57,12 @@ instance
 -------------------------------------------------------------------------------
 -- Basic operations
 -------------------------------------------------------------------------------
+
+empty : Tree a
+empty = Leaf
+
+singleton : a -> Tree a
+singleton x = Node Leaf x Leaf
 
 module _ {{_ : Ord a}} where
 
