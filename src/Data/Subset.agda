@@ -84,3 +84,7 @@ abstract
 
     Monoid-Subset : {{_ : Ord a}} -> Monoid (Subset a)
     Monoid-Subset .mempty = empty
+
+    Show-Subset : {{_ : Show a}} -> Show (Subset a)
+    Show-Subset .showsPrec d xs = showParen (d > appPrec)
+      (showString "fromList" <<< shows (toList xs))
