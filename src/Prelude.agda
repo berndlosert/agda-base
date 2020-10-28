@@ -1303,7 +1303,8 @@ instance
 
   Show-List : {{_ : Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"
-  Show-List .showsPrec d (x :: xs) = showString "[" <<< content <<< showString "]"
+  Show-List .showsPrec d (x :: xs) =
+      showString "[" <<< content <<< showString "]"
     where
       content : ShowS
       content = showsPrec d x <<< go xs
