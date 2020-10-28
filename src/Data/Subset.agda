@@ -9,7 +9,8 @@ module Data.Subset where
 open import Prelude
 
 open import Data.Foldable
-open import Data.List as List using ()
+open import Data.BST.Naive as Tree using (Tree; Leaf; Node)
+open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -25,48 +26,45 @@ private
 
 abstract
   Subset : Set -> Set
-  Subset a = List a
+  Subset a = Tree a
 
 -------------------------------------------------------------------------------
 -- Construction
 -------------------------------------------------------------------------------
 
-  nil : Subset a
-  nil = []
+  empty : Subset a
+  empty = Leaf
 
   singleton : a -> Subset a
-  singleton a = [ a ]
+  singleton a = Node Leaf a Leaf
 
 -------------------------------------------------------------------------------
 -- Destruction
 -------------------------------------------------------------------------------
 
   elems : Subset a -> List a
-  elems = id
+  elems = toList
 
 -------------------------------------------------------------------------------
 -- Inserting
 -------------------------------------------------------------------------------
 
-  insert : {{_ : Eq a}} -> a -> Subset a -> Subset a
-  insert a [] = singleton a
-  insert a (h :: t) = if h == a then h :: t else h :: insert a t
+  insert : {{_ : Ord a}} -> a -> Subset a -> Subset a
+  insert = Tree.insert
 
 -------------------------------------------------------------------------------
 -- Deleting
 -------------------------------------------------------------------------------
 
-  delete : {{_ : Eq a}} -> a -> Subset a -> Subset a
-  delete _ [] = []
-  delete a (h :: t) = if h == a then t else delete a t
+  delete : {{_ : Ord a}} -> a -> Subset a -> Subset a
+  delete = Tree.delete
 
 -------------------------------------------------------------------------------
 -- Querying
 -------------------------------------------------------------------------------
 
-  member : {{_ : Eq a}} -> a -> Subset a -> Bool
-  member _ [] = False
-  member a (h :: t) = if h == a then True else member a t
+  member : {{_ : Ord a}} -> a -> Subset a -> Bool
+  member = Tree.member
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -74,7 +72,13 @@ abstract
 
   instance
     Functor-Subset : Functor Subset
-    Functor-Subset .map = map {{Functor-List}}
+    Functor-Subset .map = map {{Tree.Functor-Tree}}
 
     Foldable-Subset : Foldable Subset
-    Foldable-Subset .foldMap = foldMap {{List.Foldable-List}}
+    Foldable-Subset .foldMap = foldMap {{Tree.Foldable-Tree}}
+
+    Traversable-Subset : Traversable Subset
+    Traversable-Subset .traverse = traverse {{Tree.Traversable-Tree}}
+
+    Eq-Subset : {{_ : Ord a}} -> Eq (Subset a)
+    Eq-Subset ._==_ xs ys = all (flip member ys) xs && all (flip member xs) ys
