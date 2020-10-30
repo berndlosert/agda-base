@@ -8,6 +8,7 @@ module Data.BST.Naive where
 
 open import Prelude hiding (map)
 
+open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Traversable
 
@@ -54,6 +55,11 @@ instance
     <<< showString " "
     <<< showsPrec appPrec+1 z)
 
+  NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
+  NonemptyConstraint-Tree .IsNonempty t with t
+  ... | Leaf = Void
+  ... | _ = Unit
+
 -------------------------------------------------------------------------------
 -- Basic operations
 -------------------------------------------------------------------------------
@@ -81,12 +87,21 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
+  delMin : (t : Tree a) {{_ : IsNonempty t}} -> a * Tree a
+  delMin (Node Leaf x r) = (x , r)
+  delMin (Node l@(Node _ _ _) x r) =
+    let (y , l') = delMin l
+    in (y , Node l' x r)
+
   delete : a -> Tree a -> Tree a
   delete _ Leaf = Leaf
   delete x (Node l y r) with compare x y
-  ... | EQ = merge l r
   ... | LT = Node (delete x l) y r
   ... | GT = Node l y (delete x r)
+  ... | EQ = case (l , r) of \ where
+    (Leaf , _) -> r
+    (_ , Leaf) -> l
+    (Node _ _ _ , r@(Node _ _ _)) -> let (z , r') = delMin r in Node l z r'
 
   member : a -> Tree a -> Bool
   member x Leaf = False
