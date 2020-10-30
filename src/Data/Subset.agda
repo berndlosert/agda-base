@@ -9,7 +9,7 @@ module Data.Subset where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.BST.Naive as Tree using (Tree)
+open import Data.Tree.Unbalanced.Binary as Tree using (Tree)
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

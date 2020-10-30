@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.BST.Naive where
+module Data.Tree.Unbalanced.Binary where
 
 -------------------------------------------------------------------------------
 -- Imports
