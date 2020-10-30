@@ -63,7 +63,7 @@ private
   data KickUp (a : Set) : Set where
     KickUp: : Tree a -> a -> Tree a -> KickUp a
 
-  fromZipper : {{_ : Ord a}} -> List (TreeContext a) -> Tree a -> Tree a
+  fromZipper : List (TreeContext a) -> Tree a -> Tree a
   fromZipper [] t = t
   fromZipper (h :: ctx) t with h
   ... | TwoLeft x r = fromZipper ctx (Two t x r)
@@ -111,7 +111,7 @@ insert {a} x = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
-pop : {{_ : Ord a}} -> (a -> Ordering) -> Tree a -> Maybe (a * Tree a)
+pop : (a -> Ordering) -> Tree a -> Maybe (a * Tree a)
 pop {a} p = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
@@ -193,7 +193,7 @@ pop {a} p = down []
     ... | _ | _ | _ |  _ | _  =
       down (ThreeRight l y m z :: ctx) r
 
-delete : {{_ : Ord a}} -> (a -> Ordering) -> Tree a -> Tree a
+delete : (a -> Ordering) -> Tree a -> Tree a
 delete p t = maybe t snd (pop p t)
 
 -------------------------------------------------------------------------------
