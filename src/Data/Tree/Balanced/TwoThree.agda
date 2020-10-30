@@ -68,40 +68,40 @@ private
     ... | ThreeMiddle l x y r = fromZipper ctx (Three l x t y r)
     ... | ThreeRight l x m y = fromZipper ctx (Three l x m y t)
 
-    insertUp : List (TreeContext a) -> KickUp a -> Tree a
-    insertUp [] (KickUp: l x r) = Two l x r
-    insertUp (h :: ctx) kup with h | kup
-    ... | TwoLeft x r | KickUp: l z m =
-      fromZipper ctx (Three l z m x r)
-    ... | TwoRight l x | KickUp: m z r =
-      fromZipper ctx (Three l x m z r)
-    ... | ThreeLeft x c y d | KickUp: a z b =
-      insertUp ctx (KickUp: (Two a z b) x (Two c y d))
-    ... | ThreeMiddle a x y d | KickUp: b z c =
-      insertUp ctx (KickUp: (Two a x b) z (Two c y d))
-    ... | ThreeRight a x b y | KickUp: c z d =
-      insertUp ctx (KickUp: (Two a x b) y (Two c z d))
-
-    insertDown : a -> List (TreeContext a) -> Tree a -> Tree a
-    insertDown x ctx Leaf = insertUp ctx (KickUp: Leaf x Leaf)
-    insertDown x ctx (Two l y r) with compare x y
-    ... | EQ = fromZipper ctx (Two l x r)
-    ... | LT = insertDown x (TwoLeft y r :: ctx) l
-    ... | GT = insertDown x (TwoRight l y :: ctx) r
-    insertDown x ctx (Three l y m z r)
-      with compare x y | compare x z
-    ... | EQ | _ = fromZipper ctx (Three l x m z r)
-    ... | _ | EQ = fromZipper ctx (Three l y m x r)
-    ... | LT | _ = insertDown x (ThreeLeft y m z r :: ctx) l
-    ... | GT | LT = insertDown x (ThreeMiddle l y z r :: ctx) m
-    ... | _ | _ = insertDown x (ThreeRight l y m z :: ctx) r
-
 -------------------------------------------------------------------------------
 -- Inserting
 -------------------------------------------------------------------------------
 
 insert : {{_ : Ord a}} -> a -> Tree a -> Tree a
-insert x = insertDown x []
+insert {a} x = down []
+  where
+    up : List (TreeContext a) -> KickUp a -> Tree a
+    up [] (KickUp: l x' r) = Two l x' r
+    up (h :: ctx') kup with h | kup
+    ... | TwoLeft x' r | KickUp: l z m =
+      fromZipper ctx' (Three l z m x' r)
+    ... | TwoRight l x' | KickUp: m z r =
+      fromZipper ctx' (Three l x' m z r)
+    ... | ThreeLeft x' c y d | KickUp: a z b =
+      up ctx' (KickUp: (Two a z b) x' (Two c y d))
+    ... | ThreeMiddle a x' y d | KickUp: b z c =
+      up ctx' (KickUp: (Two a x' b) z (Two c y d))
+    ... | ThreeRight a x' b y | KickUp: c z d =
+      up ctx' (KickUp: (Two a x' b) y (Two c z d))
+
+    down : List (TreeContext a) -> Tree a -> Tree a
+    down ctx Leaf = up ctx (KickUp: Leaf x Leaf)
+    down ctx (Two l y r) with compare x y
+    ... | EQ = fromZipper ctx (Two l x r)
+    ... | LT = down (TwoLeft y r :: ctx) l
+    ... | GT = down (TwoRight l y :: ctx) r
+    down ctx (Three l y m z r)
+      with compare x y | compare x z
+    ... | EQ | _ = fromZipper ctx (Three l x m z r)
+    ... | _ | EQ = fromZipper ctx (Three l y m x r)
+    ... | LT | _ = down (ThreeLeft y m z r :: ctx) l
+    ... | GT | LT = down (ThreeMiddle l y z r :: ctx) m
+    ... | _ | _ = down (ThreeRight l y m z :: ctx) r
 
 -------------------------------------------------------------------------------
 -- Deleting
