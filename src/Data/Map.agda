@@ -101,7 +101,8 @@ private
     ... | EQ = fromZipper ctx (Two l k v r)
     ... | LT = insertDown k v (TwoLeft k1 v1 r :: ctx) l
     ... | GT = insertDown k v (TwoRight l k1 v1 :: ctx) r
-    insertDown k v ctx (Three l k1 v1 m k2 v2 r) with compare k k1 | compare k k2
+    insertDown k v ctx (Three l k1 v1 m k2 v2 r)
+      with compare k k1 | compare k k2
     ... | EQ | _ = fromZipper ctx (Three l k v m k2 v2 r)
     ... | _ | EQ = fromZipper ctx (Three l k1 v1 m k v r)
     ... | LT | _ = insertDown k v (ThreeLeft k1 v1 m k2 v2 r :: ctx) l
