@@ -39,21 +39,21 @@ instance
   ... | Node l x r = foldMap f l <> f x <> foldMap f r
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
-  Eq-Tree ._==_ l r with l | r
+  Eq-Tree ._==_ t1 t2 with t1 | t2
   ... | Leaf | Leaf = True
   ... | Leaf | _ = False
   ... | _ | Leaf = False
-  ... | Node u v w | Node x y z = v == y && u == x && w == z
+  ... | Node l x r | Node l' x' r' = x == x' && l == l' && r == r'
 
   Show-Tree : {{_ : Show a}} -> Show (Tree a)
   Show-Tree .showsPrec _ Leaf = showString "Leaf"
-  Show-Tree .showsPrec d (Node x y z) = showParen (d > appPrec)
+  Show-Tree .showsPrec d (Node l x r) = showParen (d > appPrec)
     (showString "Node "
+    <<< showsPrec appPrec+1 l
+    <<< showString " "
     <<< showsPrec appPrec+1 x
     <<< showString " "
-    <<< showsPrec appPrec+1 y
-    <<< showString " "
-    <<< showsPrec appPrec+1 z)
+    <<< showsPrec appPrec+1 r)
 
   NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
   NonemptyConstraint-Tree .IsNonempty t with t
