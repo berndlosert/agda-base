@@ -113,9 +113,8 @@ private
 -- Inserting
 -------------------------------------------------------------------------------
 
---insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
---insert k v = down []
---  where
+insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
+insert k v = insertDown k v []
 
 -------------------------------------------------------------------------------
 -- Deleting
