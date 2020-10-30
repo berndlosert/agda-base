@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.FingerTree where
+module Data.Tree.Finger where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -11,9 +11,9 @@ open import Prelude
 open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Traversable
-open import Data.FingerTree.Digit
-open import Data.FingerTree.Measured
-open import Data.FingerTree.Node
+open import Data.Tree.Finger.Digit
+open import Data.Tree.Finger.Measured
+open import Data.Tree.Finger.Node
 
 -------------------------------------------------------------------------------
 -- Variables

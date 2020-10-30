@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.FingerTree.Measured where
+module Data.Tree.Finger.Measured where
 
 -------------------------------------------------------------------------------
 -- Imports

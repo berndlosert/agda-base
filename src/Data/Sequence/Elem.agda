@@ -8,9 +8,9 @@ module Data.Sequence.Elem where
 
 open import Prelude
 
-open import Data.FingerTree.Digit
-open import Data.FingerTree.Measured
-open import Data.FingerTree.Node
+open import Data.Tree.Finger.Digit
+open import Data.Tree.Finger.Measured
+open import Data.Tree.Finger.Node
 open import Data.Foldable
 open import Data.Functor.Compose
 open import Data.Traversable
