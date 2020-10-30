@@ -116,7 +116,7 @@ pop {a} x = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
     up [] t = t
-    up (x :: ctx) t with x | t
+    up (h :: ctx) t with h | t
     ... | TwoLeft y Leaf | Leaf = fromZipper ctx (Two Leaf y Leaf)
     ... | TwoRight Leaf y | Leaf = fromZipper ctx (Two Leaf y Leaf)
     ... | TwoLeft y (Two m z r) | l = up ctx (Three l y m z r)
