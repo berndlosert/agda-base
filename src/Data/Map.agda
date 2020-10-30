@@ -82,7 +82,7 @@ private
     ... | ThreeRight l k v m k' v' = fromZipper ctx (Three l k v m k' v' t)
 
     insertUp : List (TreeContext k v) -> KickUp k v -> Map k v
-    insertUp [] (KickUp: l k v r) = Two l k v r
+    insertUp [] (KickUp: l k' v' r) = Two l k' v' r
     insertUp (x :: ctx) kup with x | kup
     ... | TwoLeft k1 v1 r | KickUp: l k' v' m =
       fromZipper ctx (Three l k' v' m k1 v1 r)
@@ -115,9 +115,6 @@ private
 --insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
 --insert k v = down []
 --  where
---    down :: List (TreeContext k v) -> Map k v -> Map k v
---    down ctx Leaf = up ctx (KickUp: Leaf k v Leaf)
---    down ctx (Two l k v r) with compare
 
 -------------------------------------------------------------------------------
 -- Deleting
