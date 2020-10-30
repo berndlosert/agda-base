@@ -111,8 +111,8 @@ insert {a} x = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
-pop : {{_ : Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
-pop {a} x = down []
+pop : {{_ : Ord a}} -> (a -> Ordering) -> Tree a -> Maybe (a * Tree a)
+pop {a} p = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
     up [] t = t
@@ -171,13 +171,13 @@ pop {a} x = down []
 
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
-    down ctx (Two l y r) with r | compare x y
+    down ctx (Two l y r) with r | p y
     ... | Leaf | EQ = Just (y , up ctx Leaf)
     ... | _ | EQ =
       Just (y , removeMaxNode (TwoLeft (maxNode l) r :: ctx) l)
     ... | _ | LT = down (TwoLeft y r :: ctx) l
     ... | _ | _  = down (TwoRight l y :: ctx) r
-    down ctx (Three l y m z r) with l | m | r | compare x y | compare x z
+    down ctx (Three l y m z r) with l | m | r | p y | p z
     ... | Leaf | Leaf | Leaf | EQ | _  =
       Just (y , fromZipper ctx (Two Leaf z Leaf))
     ... | Leaf | Leaf | Leaf | _ | EQ =
@@ -193,8 +193,8 @@ pop {a} x = down []
     ... | _ | _ | _ |  _ | _  =
       down (ThreeRight l y m z :: ctx) r
 
-delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
-delete x t = maybe t snd (pop x t)
+delete : {{_ : Ord a}} -> (a -> Ordering) -> Tree a -> Tree a
+delete p t = maybe t snd (pop p t)
 
 -------------------------------------------------------------------------------
 -- Updating
