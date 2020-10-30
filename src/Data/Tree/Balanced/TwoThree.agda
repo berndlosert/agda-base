@@ -57,16 +57,14 @@ private
   data KickUp (a : Set) : Set where
     KickUp: : Tree a -> a -> Tree a -> KickUp a
 
-  module _ {{_ : Ord a}} where
-
-    fromZipper : List (TreeContext a) -> Tree a -> Tree a
-    fromZipper [] t = t
-    fromZipper (h :: ctx) t with h
-    ... | TwoLeft x r = fromZipper ctx (Two t x r)
-    ... | TwoRight l x = fromZipper ctx (Two l x t)
-    ... | ThreeLeft x m y r = fromZipper ctx (Three t x m y r)
-    ... | ThreeMiddle l x y r = fromZipper ctx (Three l x t y r)
-    ... | ThreeRight l x m y = fromZipper ctx (Three l x m y t)
+  fromZipper : {{_ : Ord a}} -> List (TreeContext a) -> Tree a -> Tree a
+  fromZipper [] t = t
+  fromZipper (h :: ctx) t with h
+  ... | TwoLeft x r = fromZipper ctx (Two t x r)
+  ... | TwoRight l x = fromZipper ctx (Two l x t)
+  ... | ThreeLeft x m y r = fromZipper ctx (Three t x m y r)
+  ... | ThreeMiddle l x y r = fromZipper ctx (Three l x t y r)
+  ... | ThreeRight l x m y = fromZipper ctx (Three l x m y t)
 
 -------------------------------------------------------------------------------
 -- Inserting
