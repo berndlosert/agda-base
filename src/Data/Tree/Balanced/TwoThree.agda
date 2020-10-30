@@ -8,6 +8,7 @@ module Data.Tree.Balanced.TwoThree where
 
 open import Prelude
 
+open import Data.Constraint.Nonempty
 open import Data.Foldable
 
 -------------------------------------------------------------------------------
@@ -26,6 +27,11 @@ data Tree (a : Set) : Set where
   Leaf : Tree a
   Two : Tree a -> a -> Tree a -> Tree a
   Three : Tree a -> a -> Tree a -> a -> Tree a -> Tree a
+
+instance
+  NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
+  NonemptyConstraint-Tree .IsNonempty Leaf = Void
+  NonemptyConstraint-Tree .IsNonempty _ = Unit
 
 -------------------------------------------------------------------------------
 -- Construction
@@ -105,9 +111,71 @@ insert {a} x = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
---delete : {{_ : Eq k}} -> k -> Tree a -> Tree a
---delete _ [] = []
---delete k (h :: t) = if fst h == k then t else delete k t
+pop : {{_ : Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
+pop {a} x = down []
+  where
+    up : List (TreeContext a) -> Tree a -> Tree a
+    up [] t = t
+    up (x :: ctx) t with x | t
+    ... | TwoLeft y Leaf | Leaf = fromZipper ctx (Two Leaf y Leaf)
+    ... | TwoRight Leaf y | Leaf = fromZipper ctx (Two Leaf y Leaf)
+    ... | TwoLeft y (Two m z r) | l = up ctx (Three l y m z r)
+    ... | TwoRight (Two l y m) z | r = up ctx (Three l y m z r)
+    ... | TwoLeft y (Three b z c u d) | a = fromZipper ctx (Two (Two a y b) z (Two c u d))
+    ... | TwoRight (Three a y b z c) u | d = fromZipper ctx (Two (Two a y b) z (Two c u d))
+    ... | ThreeLeft y Leaf z Leaf | Leaf = fromZipper ctx (Three Leaf y Leaf z Leaf)
+    ... | ThreeMiddle Leaf y z Leaf | Leaf = fromZipper ctx (Three Leaf y Leaf z Leaf)
+    ... | ThreeRight Leaf y Leaf z | Leaf = fromZipper ctx (Three Leaf y Leaf z Leaf)
+    ... | ThreeLeft y (Two b z c) u d | a = fromZipper ctx (Two (Three a y b z c) u d)
+    ... | ThreeMiddle (Two a y b) z u d | c = fromZipper ctx (Two (Three a y b z c) u d)
+    ... | ThreeMiddle a y z (Two c u d) | b = fromZipper ctx (Two a y (Three b z c u d))
+    ... | ThreeRight a y (Two b z c) u | d = fromZipper ctx (Two a y (Three b z c u d))
+    ... | ThreeLeft y (Three b z c u d) v e | a = fromZipper ctx (Three (Two a y b) z (Two c u d) v e)
+    ... | ThreeMiddle (Three a y b z c) u v e | d = fromZipper ctx (Three (Two a y b) z (Two c u d) v e)
+    ... | ThreeMiddle a y z (Three c u d v e) | b = fromZipper ctx (Three a y (Two b z c) u (Two d v e))
+    ... | ThreeRight a y (Three b z c u d) v | e = fromZipper ctx (Three a y (Two b z c) u (Two d v e))
+    ... | _ | _ = undefined -- Oops!
+
+    maxNode :  Tree a -> a
+    maxNode t with t
+    ... | Two _ x Leaf = x
+    ... | Two _ _ r = maxNode r
+    ... | Three _ _ _ x Leaf = x
+    ... | Three _ _ _ _ r = maxNode r
+    ... | _ = undefined
+
+    removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
+    removeMaxNode ctx t with t
+    ... | Two Leaf _ Leaf = up ctx Leaf
+    ... | Two l x r = removeMaxNode (TwoRight l x :: ctx) r
+    ... | Three Leaf x Leaf _ Leaf = up (TwoRight Leaf x :: ctx) Leaf
+    ... | Three l x m y r = removeMaxNode (ThreeRight l x m y :: ctx) r
+    ... | _ = undefined
+
+    down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
+    down ctx Leaf = Nothing
+    down ctx (Two l y r) with r | compare x y
+    ... | Leaf | EQ = Just (y , up ctx Leaf)
+    ... | _ | EQ =
+      Just (y , removeMaxNode (TwoLeft (maxNode l) r :: ctx) l)
+    ... | _ | LT = down (TwoLeft y r :: ctx) l
+    ... | _ | _  = down (TwoRight l y :: ctx) r
+    down ctx (Three l y m z r) with l | m | r | compare x y | compare x z
+    ... | Leaf | Leaf | Leaf | EQ | _  =
+      Just (y , fromZipper ctx (Two Leaf z Leaf))
+    ... | Leaf | Leaf | Leaf | _ | EQ =
+      Just (z , fromZipper ctx (Two Leaf y Leaf))
+    ... | _ | _ | _ | EQ | _ =
+      Just (y , removeMaxNode (ThreeLeft (maxNode l) m z r :: ctx) l)
+    ... | _ | _ | _ | _ | EQ =
+      Just (y , removeMaxNode (ThreeMiddle l y (maxNode m) r :: ctx) m)
+    ... | _ | _ | _ |  LT | _  =
+      down (ThreeLeft y m z r :: ctx) l
+    ... | _ | _ | _ |  GT | LT =
+      down (ThreeMiddle l y z r :: ctx) m
+    ... | _ | _ | _ |  _ | _  =
+      down (ThreeRight l y m z :: ctx) r
+
 
 -------------------------------------------------------------------------------
 -- Updating
