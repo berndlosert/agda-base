@@ -193,6 +193,8 @@ pop {a} x = down []
     ... | _ | _ | _ |  _ | _  =
       down (ThreeRight l y m z :: ctx) r
 
+delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
+delete x t = maybe t snd (pop x t)
 
 -------------------------------------------------------------------------------
 -- Updating
