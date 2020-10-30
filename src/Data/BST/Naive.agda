@@ -95,13 +95,12 @@ module _ {{_ : Ord a}} where
 
   delete : a -> Tree a -> Tree a
   delete _ Leaf = Leaf
-  delete x (Node l y r) with compare x y
-  ... | LT = Node (delete x l) y r
-  ... | GT = Node l y (delete x r)
-  ... | EQ with l | r
-  ... |  Leaf |  _  = r
-  ... | _ | Leaf = l
-  ... | _ | s@(Node _ _ _) = let (z , r') = delMin s in Node l z r'
+  delete x (Node l y r) with compare x y | l | r
+  ... | LT | _ | _ = Node (delete x l) y r
+  ... | GT | _ | _ = Node l y (delete x r)
+  ... | EQ | Leaf |  _  = r
+  ... | EQ | _ | Leaf = l
+  ... | EQ | _ | t@(Node _ _ _) = let (z , r') = delMin t in Node l z r'
 
   member : a -> Tree a -> Bool
   member x Leaf = False
