@@ -98,10 +98,10 @@ module _ {{_ : Ord a}} where
   delete x (Node l y r) with compare x y
   ... | LT = Node (delete x l) y r
   ... | GT = Node l y (delete x r)
-  ... | EQ = case (l , r) of \ where
-    (Leaf , _) -> r
-    (_ , Leaf) -> l
-    (Node _ _ _ , r@(Node _ _ _)) -> let (z , r') = delMin r in Node l z r'
+  ... | EQ with l | r
+  ... |  Leaf |  _  = r
+  ... | _ | Leaf = l
+  ... | _ | s@(Node _ _ _) = let (z , r') = delMin s in Node l z r'
 
   member : a -> Tree a -> Bool
   member x Leaf = False
