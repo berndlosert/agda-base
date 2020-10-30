@@ -39,7 +39,7 @@ instance
   ... | Node l x r = foldMap f l <> f x <> foldMap f r
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
-  Eq-Tree ._==_ t1 t2 with t1 | t2
+  Eq-Tree ._==_ t s with t | s
   ... | Leaf | Leaf = True
   ... | Leaf | _ = False
   ... | _ | Leaf = False
