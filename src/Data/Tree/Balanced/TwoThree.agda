@@ -151,7 +151,7 @@ pop {a} p = down []
       fromZipper ctx (Three a y (Two b z c) u (Two d v e))
     ... | ThreeRight a y (Three b z c u d) v | e =
       fromZipper ctx (Three a y (Two b z c) u (Two d v e))
-    ... | _ | _ = undefined -- Oops!
+    ... | _ | _ = t
 
     maxNode :  Tree a -> a
     maxNode t with t
