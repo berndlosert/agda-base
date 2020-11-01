@@ -24,8 +24,13 @@ private
 -------------------------------------------------------------------------------
 
 private
-  data KVPair (k v : Set) : Set where
-    KVPair: : k -> v -> KVPair k v
+  record KVPair (k v : Set) : Set where
+    constructor KVPair:
+    field
+      getKey : k
+      getValue : v
+
+  open KVPair
 
   data Map' (k v : Set) : Set where
     Map: : Tree (KVPair k v) -> Map' k v
@@ -34,10 +39,10 @@ Map = Map'
 
 instance
   Eq-KVPair : {{_ : Eq k}} -> Eq (KVPair k v)
-  Eq-KVPair ._==_ (KVPair: k _) (KVPair: k' _) = k == k'
+  Eq-KVPair ._==_ x y = getKey x == getKey y
 
   Ord-KVPair : {{_ : Ord k}} -> Ord (KVPair k v)
-  Ord-KVPair ._<_ (KVPair: k _) (KVPair: k' _) = k < k'
+  Ord-KVPair ._<_ x y = getKey x < getKey y
 
 -------------------------------------------------------------------------------
 -- Construction
