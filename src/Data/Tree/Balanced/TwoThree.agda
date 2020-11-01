@@ -227,21 +227,34 @@ delete p t = maybe t snd (pop p t)
 -- Querying
 -------------------------------------------------------------------------------
 
---lookup : {{_ : Eq k}} -> k -> Tree a -> Maybe v
---lookup _ [] = Nothing
---lookup k (h :: t) = if fst h == k then Just (snd h) else lookup k t
-
---member : {{_ : Eq k}} -> k -> Tree a -> Bool
---member _ [] = False
---member k (h :: t) = if fst h == k then True else member k t
+lookup : (a -> Ordering) -> Tree a -> Maybe a
+lookup p Leaf = Nothing
+lookup p (Two l x r) with p x
+... | EQ = Just x
+... | LT = lookup p l
+... | GT = lookup p r
+lookup p (Three l x m y r) with p x | p y
+... | EQ | _ = Just x
+... | LT | _ = lookup p l
+... | GT | EQ = Just y
+... | GT | LT = lookup p m
+... | GT | GT = lookup p r
 
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
---instance
+instance
+  Foldable-Map : Foldable Tree
+  Foldable-Map .foldMap f t with t
+  ... | Leaf =
+    mempty
+  ... | Two l x r =
+    foldMap f l <> f x <> foldMap f r
+  ... | Three l x m y r =
+    foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
+
 --  Functor-Map : Functor (Map k)
 --  Functor-Map .map f = map \ {(k , v) -> (k , f v)}
 --
---  Foldable-Map : Foldable (Map k)
---  Foldable-Map .foldMap f = List.foldMap \ {(k , v) ->  f v}
+
