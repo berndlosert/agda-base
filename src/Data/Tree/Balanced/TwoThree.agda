@@ -6,7 +6,7 @@ module Data.Tree.Balanced.TwoThree where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (map)
 
 open import Data.Constraint.Nonempty
 open import Data.Foldable
@@ -245,8 +245,8 @@ lookup p (Three l x m y r) with p x | p y
 -------------------------------------------------------------------------------
 
 instance
-  Foldable-Map : Foldable Tree
-  Foldable-Map .foldMap f t with t
+  Foldable-Tree : Foldable Tree
+  Foldable-Tree .foldMap f t with t
   ... | Leaf =
     mempty
   ... | Two l x r =
@@ -254,7 +254,12 @@ instance
   ... | Three l x m y r =
     foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
 
---  Functor-Map : Functor (Map k)
---  Functor-Map .map f = map \ {(k , v) -> (k , f v)}
---
+-------------------------------------------------------------------------------
+--  Misc.
+-------------------------------------------------------------------------------
 
+fromList : {{_ : Ord a}} -> List a -> Tree a
+fromList xs = foldr insert Leaf xs
+
+map : forall {a b} {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
+map f = fromList <<< Prelude.map f <<< toList
