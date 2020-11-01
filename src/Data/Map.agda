@@ -60,8 +60,12 @@ elems : Map k v -> List v
 elems (Map: t) = foldMap (\ { (KVPair: k v) -> [ v ] }) t
 
 -------------------------------------------------------------------------------
--- Insertion
+-- Insertion & Deletion
 -------------------------------------------------------------------------------
 
 insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
 insert k v (Map: t) = Map: $ Tree.insert (KVPair: k v) t
+
+delete : {{_ : Ord k}} -> k -> Map k v -> Map k v
+delete k (Map: t) = Map: $
+  Tree.delete (\ { (KVPair: k' _) -> compare k k' }) t
