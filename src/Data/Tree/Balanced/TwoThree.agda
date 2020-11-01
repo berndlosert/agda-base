@@ -250,5 +250,5 @@ instance
 fromList : {{_ : Ord a}} -> List a -> Tree a
 fromList xs = foldr insert Leaf xs
 
-map : forall {a b} {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
+map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
