@@ -20,12 +20,15 @@ private
     k v : Set
 
 -------------------------------------------------------------------------------
--- Map
+-- KVPair & Map
 -------------------------------------------------------------------------------
 
 private
+  data KVPair (k v : Set) : Set where
+    KVPair: : k -> v -> KVPair k v
+
   data Map' (k v : Set) : Set where
-    Map: : Tree (k * v) -> Map' k v
+    Map: : Tree (KVPair k v) -> Map' k v
 
 Map = Map'
 
@@ -37,14 +40,21 @@ empty : Map k v
 empty = Map: Tree.empty
 
 singleton : k -> v -> Map k v
-singleton k v = Map: $ Tree.singleton (k , v)
+singleton k v = Map: $ Tree.singleton $ KVPair: k v
 
 -------------------------------------------------------------------------------
 -- Destruction
 -------------------------------------------------------------------------------
 
 keys : Map k v -> List k
-keys (Map: t) = foldMap (fst >>> [_]) t
+keys (Map: t) = foldMap (\ { (KVPair: k v) -> [ k ] }) t
 
 elems : Map k v -> List v
-elems (Map: t) = foldMap (snd >>> [_]) t
+elems (Map: t) = foldMap (\ { (KVPair: k v) -> [ v ] }) t
+
+-------------------------------------------------------------------------------
+-- Insertion
+-------------------------------------------------------------------------------
+
+insert : k -> v -> Map k v -> Map k v
+insert k v (Map: t) = {!!}
