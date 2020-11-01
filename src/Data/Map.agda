@@ -36,6 +36,9 @@ instance
   Eq-KVPair : {{_ : Eq k}} -> Eq (KVPair k v)
   Eq-KVPair ._==_ (KVPair: k _) (KVPair: k' _) = k == k'
 
+  Ord-KVPair : {{_ : Ord k}} -> Ord (KVPair k v)
+  Ord-KVPair ._<_ (KVPair: k _) (KVPair: k' _) = k < k'
+
 -------------------------------------------------------------------------------
 -- Construction
 -------------------------------------------------------------------------------
@@ -60,5 +63,5 @@ elems (Map: t) = foldMap (\ { (KVPair: k v) -> [ v ] }) t
 -- Insertion
 -------------------------------------------------------------------------------
 
-insert : k -> v -> Map k v -> Map k v
-insert k v (Map: t) = {!!}
+insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
+insert k v (Map: t) = Map: $ Tree.insert (KVPair: k v) t
