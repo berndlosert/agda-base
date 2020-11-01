@@ -59,10 +59,10 @@ singleton k v = Map: $ Tree.singleton $ KVPair: k v
 -------------------------------------------------------------------------------
 
 keys : Map k v -> List k
-keys (Map: t) = foldMap (\ { (KVPair: k v) -> [ k ] }) t
+keys (Map: t) = foldMap (getKey >>> [_]) t
 
-elems : Map k v -> List v
-elems (Map: t) = foldMap (\ { (KVPair: k v) -> [ v ] }) t
+values : Map k v -> List v
+values (Map: t) = foldMap (getValue >>> [_]) t
 
 -------------------------------------------------------------------------------
 -- Insertion & Deletion
@@ -72,5 +72,4 @@ insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
 insert k v (Map: t) = Map: $ Tree.insert (KVPair: k v) t
 
 delete : {{_ : Ord k}} -> k -> Map k v -> Map k v
-delete k (Map: t) = Map: $
-  Tree.delete (\ { (KVPair: k' _) -> compare k k' }) t
+delete k (Map: t) = Map: $ Tree.delete (compare k <<< getKey) t
