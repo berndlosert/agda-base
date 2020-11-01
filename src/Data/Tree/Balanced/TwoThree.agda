@@ -153,28 +153,36 @@ pop {a} p = down []
       fromZipper ctx (Three a y (Two b z c) u (Two d v e))
     ... | _ | _ = t
 
-    maxNode :  Tree a -> a
+    maxNode :  (t : Tree a) {{_ : IsNonempty t}} -> a
     maxNode t with t
     ... | Two _ x Leaf = x
-    ... | Two _ _ r = maxNode r
+    ... | Two _ _ r@(Two _ _ _) = maxNode r
+    ... | Two _ _ r@(Three _ _ _ _ _) = maxNode r
     ... | Three _ _ _ x Leaf = x
-    ... | Three _ _ _ _ r = maxNode r
-    ... | _ = undefined
+    ... | Three _ _ _ _ r@(Two _ _ _) = maxNode r
+    ... | Three _ _ _ _ r@(Three _ _ _ _ _) = maxNode r
 
-    removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
+    removeMaxNode : List (TreeContext a)
+      -> (t : Tree a) {{_ : IsNonempty t}} -> Tree a
     removeMaxNode ctx t with t
     ... | Two Leaf _ Leaf = up ctx Leaf
-    ... | Two l x r = removeMaxNode (TwoRight l x :: ctx) r
+    ... | Two l x r@(Two _ _ _) = removeMaxNode (TwoRight l x :: ctx) r
+    ... | Two l x r@(Three _ _ _ _ _) = removeMaxNode (TwoRight l x :: ctx) r
     ... | Three Leaf x Leaf _ Leaf = up (TwoRight Leaf x :: ctx) Leaf
-    ... | Three l x m y r = removeMaxNode (ThreeRight l x m y :: ctx) r
-    ... | _ = undefined
+    ... | Three l x m y r@(Two _ _ _) = removeMaxNode (ThreeRight l x m y :: ctx) r
+    ... | Three l x m y r@(Three _ _ _ _ _) = removeMaxNode (ThreeRight l x m y :: ctx) r
+    ... | _ = t
 
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
     down ctx (Two l y r) with r | p y
     ... | Leaf | EQ = Just (y , up ctx Leaf)
-    ... | _ | EQ =
-      Just (y , removeMaxNode (TwoLeft (maxNode l) r :: ctx) l)
+    ... | _ | EQ = case l of \ where
+      Leaf -> Nothing
+      l'@(Two _ _ _) ->
+        Just (y , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+      l'@(Three _ _ _ _ _) ->
+        Just (y , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
     ... | _ | LT = down (TwoLeft y r :: ctx) l
     ... | _ | _  = down (TwoRight l y :: ctx) r
     down ctx (Three l y m z r) with l | m | r | p y | p z
@@ -182,10 +190,18 @@ pop {a} p = down []
       Just (y , fromZipper ctx (Two Leaf z Leaf))
     ... | Leaf | Leaf | Leaf | _ | EQ =
       Just (z , fromZipper ctx (Two Leaf y Leaf))
-    ... | _ | _ | _ | EQ | _ =
-      Just (y , removeMaxNode (ThreeLeft (maxNode l) m z r :: ctx) l)
-    ... | _ | _ | _ | _ | EQ =
-      Just (y , removeMaxNode (ThreeMiddle l y (maxNode m) r :: ctx) m)
+    ... | _ | _ | _ | EQ | _ = case l of \ where
+      Leaf -> Nothing
+      l'@(Two _ _ _) ->
+        Just (y , removeMaxNode (ThreeLeft (maxNode l') m z r :: ctx) l')
+      l'@(Three _ _ _ _ _) ->
+        Just (y , removeMaxNode (ThreeLeft (maxNode l') m z r :: ctx) l')
+    ... | _ | _ | _ | _ | EQ = case m of \ where
+      Leaf -> Nothing
+      m'@(Two _ _ _) ->
+        Just (y , removeMaxNode (ThreeMiddle l y (maxNode m') r :: ctx) m')
+      m'@(Three _ _ _ _ _) ->
+        Just (y , removeMaxNode (ThreeMiddle l y (maxNode m') r :: ctx) m')
     ... | _ | _ | _ |  LT | _  =
       down (ThreeLeft y m z r :: ctx) l
     ... | _ | _ | _ |  GT | LT =
