@@ -106,8 +106,8 @@ insert {a} v = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
-pop : (a -> Ordering) -> Tree a -> Maybe (a * Tree a)
-pop {a} p = down []
+pop : {{_ : Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
+pop {a} v = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
     up [] t = t
@@ -176,7 +176,7 @@ pop {a} p = down []
 
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
-    down ctx (Two l x r) with l | r | p x
+    down ctx (Two l x r) with l | r | compare v x
     ... | _ | Leaf | EQ =
       Just (x , up ctx Leaf)
     ... | l'@(Two _ _ _) | _ | EQ =
@@ -187,7 +187,7 @@ pop {a} p = down []
       down (TwoLeft x r :: ctx) l
     ... | _ | _ | _  =
       down (TwoRight l x :: ctx) r
-    down ctx (Three l x m y r) with l | m | r | p x | p y
+    down ctx (Three l x m y r) with l | m | r | compare v x | compare v y
     ... | Leaf | Leaf | Leaf | EQ | _  =
       Just (x , fromZipper ctx (Two Leaf y Leaf))
     ... | Leaf | Leaf | Leaf | _ | EQ =
@@ -207,25 +207,25 @@ pop {a} p = down []
     ... | _ | _ | _ |  _ | _  =
       down (ThreeRight l x m y :: ctx) r
 
-delete : (a -> Ordering) -> Tree a -> Tree a
-delete p t = maybe t snd (pop p t)
+delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
+delete x t = maybe t snd (pop x t)
 
 -------------------------------------------------------------------------------
 -- Querying
 -------------------------------------------------------------------------------
 
-lookup : (a -> Ordering) -> Tree a -> Maybe a
-lookup p Leaf = Nothing
-lookup p (Two l x r) with p x
+lookup : {{_ : Ord a}} -> a -> Tree a -> Maybe a
+lookup a Leaf = Nothing
+lookup a (Two l x r) with compare a x
 ... | EQ = Just x
-... | LT = lookup p l
-... | GT = lookup p r
-lookup p (Three l x m y r) with p x | p y
+... | LT = lookup a l
+... | GT = lookup a r
+lookup a (Three l x m y r) with compare a x | compare a y
 ... | EQ | _ = Just x
-... | LT | _ = lookup p l
+... | LT | _ = lookup a l
 ... | GT | EQ = Just y
-... | GT | LT = lookup p m
-... | GT | GT = lookup p r
+... | GT | LT = lookup a m
+... | GT | GT = lookup a r
 
 -------------------------------------------------------------------------------
 -- Instances

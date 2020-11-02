@@ -69,7 +69,9 @@ values (Map: t) = foldMap (getValue >>> [_]) t
 -------------------------------------------------------------------------------
 
 insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
-insert k v (Map: t) = Map: $ Tree.insert (KVPair: k v) t
+insert k v (Map: t) = Map: (Tree.insert (KVPair: k v) t)
 
 delete : {{_ : Ord k}} -> k -> Map k v -> Map k v
-delete k (Map: t) = Map: $ Tree.delete (compare k <<< getKey) t
+delete k (Map: t) with find (\ p -> k == getKey p) t
+... | Nothing = Map: t
+... | Just p = Map: (Tree.delete p t)
