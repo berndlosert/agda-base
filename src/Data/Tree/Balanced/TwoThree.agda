@@ -288,8 +288,13 @@ filter p (Two l x r) =
     r' = filter p r
   in
     if p x then Two l' x r' else merge l' r'
-filter p (Three l x m y r) with p x | p y
-... | False | False = merge (merge (filter p l) (filter p m)) (filter p r)
-... | True | True = Three (filter p l) x (filter p m) y (filter p r)
-... | False | True = Two (merge (filter p l) (filter p m)) y (filter p r)
-... | True | False = Two (filter p l) x (merge (filter p m) (filter p r))
+filter p (Three l x m y r) =
+  let
+    l' = filter p l
+    m' = filter p m
+    r' = filter p r
+  in case (p x , p y) of \ where
+    (False , False) -> merge (merge l' m') r'
+    (True , True) -> Three l' x m' y r'
+    (False , True) -> Two (merge l' m') y r'
+    (True , False) -> Two l' x (merge m' r')
