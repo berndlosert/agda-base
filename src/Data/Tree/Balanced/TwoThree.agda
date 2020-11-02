@@ -28,10 +28,47 @@ data Tree (a : Set) : Set where
   Two : Tree a -> a -> Tree a -> Tree a
   Three : Tree a -> a -> Tree a -> a -> Tree a -> Tree a
 
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
 instance
   NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
   NonemptyConstraint-Tree .IsNonempty Leaf = Void
   NonemptyConstraint-Tree .IsNonempty _ = Unit
+
+  Foldable-Tree : Foldable Tree
+  Foldable-Tree .foldMap f t with t
+  ... | Leaf =
+    mempty
+  ... | Two l x r =
+    foldMap f l <> f x <> foldMap f r
+  ... | Three l x m y r =
+    foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
+
+  Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
+  Eq-Tree ._==_ t t' = toList t == toList t'
+
+  Show-Tree : {{_ : Show a}} -> Show (Tree a)
+  Show-Tree .showsPrec _ Leaf = showString "Leaf"
+  Show-Tree .showsPrec d (Two l x r) = showParen (d > appPrec)
+    (showString "Two "
+    <<< showsPrec appPrec+1 l
+    <<< showString " "
+    <<< showsPrec appPrec+1 x
+    <<< showString " "
+    <<< showsPrec appPrec+1 r)
+  Show-Tree .showsPrec d (Three l x m y r) = showParen (d > appPrec)
+    (showString "Three "
+    <<< showsPrec appPrec+1 l
+    <<< showString " "
+    <<< showsPrec appPrec+1 x
+    <<< showString " "
+    <<< showsPrec appPrec+1 m
+    <<< showString " "
+    <<< showsPrec appPrec+1 y
+    <<< showString " "
+    <<< showsPrec appPrec+1 r)
 
 -------------------------------------------------------------------------------
 -- Construction
@@ -231,44 +268,6 @@ member : {{_ : Ord a}} -> a -> Tree a -> Bool
 member a t = maybe False (const True) (lookup a t)
 
 -------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldMap f t with t
-  ... | Leaf =
-    mempty
-  ... | Two l x r =
-    foldMap f l <> f x <> foldMap f r
-  ... | Three l x m y r =
-    foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
-
-  Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
-  Eq-Tree ._==_ t t' = toList t == toList t'
-
-  Show-Tree : {{_ : Show a}} -> Show (Tree a)
-  Show-Tree .showsPrec _ Leaf = showString "Leaf"
-  Show-Tree .showsPrec d (Two l x r) = showParen (d > appPrec)
-    (showString "Two "
-    <<< showsPrec appPrec+1 l
-    <<< showString " "
-    <<< showsPrec appPrec+1 x
-    <<< showString " "
-    <<< showsPrec appPrec+1 r)
-  Show-Tree .showsPrec d (Three l x m y r) = showParen (d > appPrec)
-    (showString "Three "
-    <<< showsPrec appPrec+1 l
-    <<< showString " "
-    <<< showsPrec appPrec+1 x
-    <<< showString " "
-    <<< showsPrec appPrec+1 m
-    <<< showString " "
-    <<< showsPrec appPrec+1 y
-    <<< showString " "
-    <<< showsPrec appPrec+1 r)
-
--------------------------------------------------------------------------------
 --  Misc.
 -------------------------------------------------------------------------------
 
@@ -279,7 +278,7 @@ map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
 
 merge : {{_ : Ord a}} -> Tree a -> Tree a -> Tree a
-merge t1 t2 = foldr insert t1 t2
+merge t t' = foldr insert t t'
 
 filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
 filter p Leaf = Leaf
