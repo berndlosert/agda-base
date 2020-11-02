@@ -193,13 +193,13 @@ pop {a} p = down []
     ... | Leaf | Leaf | Leaf | _ | EQ =
       Just (y , fromZipper ctx (Two Leaf x Leaf))
     ... | l'@(Two _ _ _) | _ | _ | EQ | _ =
-        Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+      Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
     ... | l'@(Three _ _ _ _ _) | _ | _ | EQ | _ =
-        Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+      Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
     ... | _ | m'@(Two _ _ _) | _ | _ | EQ =
-        Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+      Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
     ... | _ | m'@(Three _ _ _ _ _) | _ | _ | EQ =
-        Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+      Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
     ... | _ | _ | _ |  LT | _  =
       down (ThreeLeft x m y r :: ctx) l
     ... | _ | _ | _ |  GT | LT =
