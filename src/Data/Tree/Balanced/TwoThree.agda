@@ -72,7 +72,7 @@ private
 -------------------------------------------------------------------------------
 
 insert : {{_ : Ord a}} -> a -> Tree a -> Tree a
-insert {a} x = down []
+insert {a} v = down []
   where
     up : List (TreeContext a) -> KickUp a -> Tree a
     up [] (KickUp: l x r) = Two l x r
@@ -89,15 +89,15 @@ insert {a} x = down []
       up ctx (KickUp: (Two a x b) y (Two c w d))
 
     down : List (TreeContext a) -> Tree a -> Tree a
-    down ctx Leaf = up ctx (KickUp: Leaf x Leaf)
-    down ctx (Two l y r) with compare x y
-    ... | EQ = fromZipper ctx (Two l x r)
+    down ctx Leaf = up ctx (KickUp: Leaf v Leaf)
+    down ctx (Two l y r) with compare v y
+    ... | EQ = fromZipper ctx (Two l v r)
     ... | LT = down (TwoLeft y r :: ctx) l
     ... | GT = down (TwoRight l y :: ctx) r
     down ctx (Three l y m z r)
-      with compare x y | compare x z
-    ... | EQ | _ = fromZipper ctx (Three l x m z r)
-    ... | _ | EQ = fromZipper ctx (Three l y m x r)
+      with compare v y | compare v z
+    ... | EQ | _ = fromZipper ctx (Three l v m z r)
+    ... | _ | EQ = fromZipper ctx (Three l y m v r)
     ... | LT | _ = down (ThreeLeft y m z r :: ctx) l
     ... | GT | LT = down (ThreeMiddle l y z r :: ctx) m
     ... | _ | _ = down (ThreeRight l y m z :: ctx) r
