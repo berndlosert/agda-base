@@ -65,9 +65,37 @@ module _ {{_ : Exception e}} where
 -- FFI
 -------------------------------------------------------------------------------
 
-{-# FOREIGN GHC import Control.Exception #-}
-{-# FOREIGN GHC import Data.Text (pack) #-}
-{-# FOREIGN GHC data ExceptionDict e = Exception e => ExceptionDict #-}
+{-# FOREIGN GHC
+  import Control.Exception
+  import Data.Text (pack)
+
+  data ExceptionDict e = Exception e => ExceptionDict
+
+  saferBracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+  saferBracket before after thing = mask $ \ restore -> do
+    x <- run before
+    res1 <- try $ restore $ run $ thing x
+    case res1 of
+      Left (e1 :: SomeException) -> do
+        _ :: Either SomeException b <-
+            try $ uninterruptibleMask_ $ run $ after x
+        throwIO e1
+      Right y -> do
+        _ <- uninterruptibleMask_ $ run $ after x
+        return y
+
+  saferBracketOnError :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+  saferBracketOnError before after thing = mask $ \ restore -> do
+    x <- run before
+    res1 <- try $ restore $ run $ thing x
+    case res1 of
+      Left (e1 :: SomeException) -> do
+        _ :: Either SomeException b <-
+          try $ uninterruptibleMask_ $ run $ after x
+        throwIO e1
+      Right y -> return y
+#-}
+
 {-# COMPILE GHC Exception = type ExceptionDict #-}
 {-# COMPILE GHC SomeException = type SomeException #-}
 {-# COMPILE GHC IOException = type IOException #-}
@@ -79,7 +107,7 @@ module _ {{_ : Exception e}} where
 {-# COMPILE GHC unsafeThrow = \ _ ExceptionDict _ -> throw #-}
 {-# COMPILE GHC throwIO = \ _ ExceptionDict _ -> throwIO #-}
 {-# COMPILE GHC catchIO = \ _ ExceptionDict _ -> catch #-}
-{-# COMPILE GHC bracket = \ _ _ _ -> bracket #-}
-{-# COMPILE GHC bracketOnError = \ _ _ _ -> bracketOnError #-}
+{-# COMPILE GHC bracket = \ _ _ _ -> saferBracket #-}
+{-# COMPILE GHC bracketOnError = \ _ _ _ -> saferBracketOnError #-}
 {-# COMPILE GHC finally = \ _ _ -> finally #-}
-{-# COMPILE GHC finally = \ _ _ -> onException #-}
+{-# COMPILE GHC onException = \ _ _ -> onException #-}
