@@ -282,9 +282,12 @@ merge t t' = foldr insert t t'
 
 filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
 filter p Leaf = Leaf
-filter p (Two l x r) with p x
-... | False = merge (filter p l) (filter p r)
-... | True = Two (filter p l) x (filter p r)
+filter p (Two l x r) =
+  let
+    l' = filter p l
+    r' = filter p r
+  in
+    if p x then Two l' x r' else merge l' r'
 filter p (Three l x m y r) with p x | p y
 ... | False | False = merge (merge (filter p l) (filter p m)) (filter p r)
 ... | True | True = Three (filter p l) x (filter p m) y (filter p r)
