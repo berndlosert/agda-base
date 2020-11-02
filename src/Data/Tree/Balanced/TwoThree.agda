@@ -176,39 +176,39 @@ pop {a} p = down []
 
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
-    down ctx (Two l y r) with r | p y
-    ... | Leaf | EQ = Just (y , up ctx Leaf)
+    down ctx (Two l x r) with r | p x
+    ... | Leaf | EQ = Just (x , up ctx Leaf)
     ... | _ | EQ = case l of \ where
       Leaf -> Nothing
       l'@(Two _ _ _) ->
-        Just (y , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+        Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
       l'@(Three _ _ _ _ _) ->
-        Just (y , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
-    ... | _ | LT = down (TwoLeft y r :: ctx) l
-    ... | _ | _  = down (TwoRight l y :: ctx) r
-    down ctx (Three l y m z r) with l | m | r | p y | p z
+        Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+    ... | _ | LT = down (TwoLeft x r :: ctx) l
+    ... | _ | _  = down (TwoRight l x :: ctx) r
+    down ctx (Three l x m y r) with l | m | r | p x | p y
     ... | Leaf | Leaf | Leaf | EQ | _  =
-      Just (y , fromZipper ctx (Two Leaf z Leaf))
+      Just (x , fromZipper ctx (Two Leaf y Leaf))
     ... | Leaf | Leaf | Leaf | _ | EQ =
-      Just (z , fromZipper ctx (Two Leaf y Leaf))
+      Just (y , fromZipper ctx (Two Leaf x Leaf))
     ... | _ | _ | _ | EQ | _ = case l of \ where
       Leaf -> Nothing
       l'@(Two _ _ _) ->
-        Just (y , removeMaxNode (ThreeLeft (maxNode l') m z r :: ctx) l')
+        Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
       l'@(Three _ _ _ _ _) ->
-        Just (y , removeMaxNode (ThreeLeft (maxNode l') m z r :: ctx) l')
+        Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
     ... | _ | _ | _ | _ | EQ = case m of \ where
       Leaf -> Nothing
       m'@(Two _ _ _) ->
-        Just (y , removeMaxNode (ThreeMiddle l y (maxNode m') r :: ctx) m')
+        Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
       m'@(Three _ _ _ _ _) ->
-        Just (y , removeMaxNode (ThreeMiddle l y (maxNode m') r :: ctx) m')
+        Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
     ... | _ | _ | _ |  LT | _  =
-      down (ThreeLeft y m z r :: ctx) l
+      down (ThreeLeft x m y r :: ctx) l
     ... | _ | _ | _ |  GT | LT =
-      down (ThreeMiddle l y z r :: ctx) m
+      down (ThreeMiddle l x y r :: ctx) m
     ... | _ | _ | _ |  _ | _  =
-      down (ThreeRight l y m z :: ctx) r
+      down (ThreeRight l x m y :: ctx) r
 
 delete : (a -> Ordering) -> Tree a -> Tree a
 delete p t = maybe t snd (pop p t)
