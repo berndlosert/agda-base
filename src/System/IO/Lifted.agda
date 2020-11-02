@@ -25,7 +25,9 @@ open Base public
     FilePath;
     IOMode; ReadMode; WriteMode; AppendMode; ReadWriteMode;
     BufferMode; NoBuffering; LineBuffering; BlockBuffering;
-    Handle; stdin; stdout; stderr
+    Handle; stdin; stdout; stderr;
+    TextEncoding; latin1; utf8; utf8-bom; utf16; utf16le; utf16be;
+    utf32; utf32le; utf32be; localeEncoding; char8
   )
 
 -------------------------------------------------------------------------------
@@ -72,20 +74,26 @@ withFile path mode handler = withRunInIO \ run ->
 
 module _ {{_ : MonadIO m}} where
 
+  hSetEncoding : Handle -> TextEncoding -> m Unit
+  hSetEncoding h = liftIO <<< Base.hSetEncoding h
+
+  hGetEncoding : Handle -> m (Maybe TextEncoding)
+  hGetEncoding = liftIO <<< Base.hGetEncoding
+
   openFile : FilePath -> IOMode -> m Handle
   openFile path mode = liftIO (Base.openFile path mode)
 
   hClose : Handle -> m Unit
   hClose = liftIO <<< Base.hClose
 
-  readFile : FilePath -> m String
-  readFile = liftIO <<< Base.readFile
+  readFile : TextEncoding -> FilePath -> m String
+  readFile enc = liftIO <<< Base.readFile enc
 
-  writeFile : FilePath -> String -> m Unit
-  writeFile path = liftIO <<< Base.writeFile path
+  writeFile : TextEncoding -> FilePath -> String -> m Unit
+  writeFile enc path = liftIO <<< Base.writeFile enc path
 
-  appendFile : FilePath -> String -> m Unit
-  appendFile path = liftIO <<< Base.appendFile path
+  appendFile : TextEncoding -> FilePath -> String -> m Unit
+  appendFile enc path = liftIO <<< Base.appendFile enc path
 
   hFileSize : Handle -> m Nat
   hFileSize = liftIO <<< Base.hFileSize
