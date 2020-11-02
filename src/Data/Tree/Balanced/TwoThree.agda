@@ -195,11 +195,9 @@ pop {a} p = down []
         Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
     ... | l'@(Three _ _ _ _ _) | _ | _ | EQ | _ =
         Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
-    ... | _ | _ | _ | _ | EQ = case m of \ where
-      Leaf -> Nothing
-      m'@(Two _ _ _) ->
+    ... | _ | m'@(Two _ _ _) | _ | _ | EQ =
         Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
-      m'@(Three _ _ _ _ _) ->
+    ... | _ | m'@(Three _ _ _ _ _) | _ | _ | EQ =
         Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
     ... | _ | _ | _ |  LT | _  =
       down (ThreeLeft x m y r :: ctx) l
