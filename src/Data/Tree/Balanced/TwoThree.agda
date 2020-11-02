@@ -90,17 +90,17 @@ insert {a} v = down []
 
     down : List (TreeContext a) -> Tree a -> Tree a
     down ctx Leaf = up ctx (KickUp: Leaf v Leaf)
-    down ctx (Two l y r) with compare v y
+    down ctx (Two l x r) with compare v x
     ... | EQ = fromZipper ctx (Two l v r)
-    ... | LT = down (TwoLeft y r :: ctx) l
-    ... | GT = down (TwoRight l y :: ctx) r
-    down ctx (Three l y m z r)
-      with compare v y | compare v z
-    ... | EQ | _ = fromZipper ctx (Three l v m z r)
-    ... | _ | EQ = fromZipper ctx (Three l y m v r)
-    ... | LT | _ = down (ThreeLeft y m z r :: ctx) l
-    ... | GT | LT = down (ThreeMiddle l y z r :: ctx) m
-    ... | _ | _ = down (ThreeRight l y m z :: ctx) r
+    ... | LT = down (TwoLeft x r :: ctx) l
+    ... | GT = down (TwoRight l x :: ctx) r
+    down ctx (Three l x m y r)
+      with compare v x | compare v y
+    ... | EQ | _ = fromZipper ctx (Three l v m y r)
+    ... | _ | EQ = fromZipper ctx (Three l x m v r)
+    ... | LT | _ = down (ThreeLeft x m y r :: ctx) l
+    ... | GT | LT = down (ThreeMiddle l x y r :: ctx) m
+    ... | _ | _ = down (ThreeRight l x m y :: ctx) r
 
 -------------------------------------------------------------------------------
 -- Deleting
