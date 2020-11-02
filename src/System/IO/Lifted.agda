@@ -83,6 +83,12 @@ module _ {{_ : MonadIO m}} where
   openFile : FilePath -> IOMode -> m Handle
   openFile path mode = liftIO (Base.openFile path mode)
 
+  hGetContents : Handle -> m String
+  hGetContents = liftIO <<< Base.hGetContents
+
+  hGetLine : Handle -> m String
+  hGetLine = liftIO <<< Base.hGetLine
+
   hClose : Handle -> m Unit
   hClose = liftIO <<< Base.hClose
 
