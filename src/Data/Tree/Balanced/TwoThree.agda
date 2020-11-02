@@ -177,14 +177,16 @@ pop {a} p = down []
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
     down ctx (Two l x r) with l | r | p x
-    ... | _ | Leaf | EQ = Just (x , up ctx Leaf)
-    ... | Leaf | _ | EQ = Nothing
+    ... | _ | Leaf | EQ =
+      Just (x , up ctx Leaf)
     ... | l'@(Two _ _ _) | _ | EQ =
-        Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+      Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
     ... | l'@(Three _ _ _ _ _) | _ | EQ =
-        Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
-    ... | _ | _ | LT = down (TwoLeft x r :: ctx) l
-    ... | _ | _ | _  = down (TwoRight l x :: ctx) r
+      Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+    ... | _ | _ | LT =
+      down (TwoLeft x r :: ctx) l
+    ... | _ | _ | _  =
+      down (TwoRight l x :: ctx) r
     down ctx (Three l x m y r) with l | m | r | p x | p y
     ... | Leaf | Leaf | Leaf | EQ | _  =
       Just (x , fromZipper ctx (Two Leaf y Leaf))
