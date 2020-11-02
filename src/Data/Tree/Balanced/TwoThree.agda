@@ -75,18 +75,18 @@ insert : {{_ : Ord a}} -> a -> Tree a -> Tree a
 insert {a} x = down []
   where
     up : List (TreeContext a) -> KickUp a -> Tree a
-    up [] (KickUp: l x' r) = Two l x' r
+    up [] (KickUp: l x r) = Two l x r
     up (h :: ctx) kup with h | kup
-    ... | TwoLeft x' r | KickUp: l w m =
-      fromZipper ctx (Three l w m x' r)
-    ... | TwoRight l x' | KickUp: m w r =
-      fromZipper ctx (Three l x' m w r)
-    ... | ThreeLeft x' c y d | KickUp: a w b =
-      up ctx (KickUp: (Two a w b) x' (Two c y d))
-    ... | ThreeMiddle a x' y d | KickUp: b w c =
-      up ctx (KickUp: (Two a x' b) w (Two c y d))
-    ... | ThreeRight a x' b y | KickUp: c w d =
-      up ctx (KickUp: (Two a x' b) y (Two c w d))
+    ... | TwoLeft x r | KickUp: l w m =
+      fromZipper ctx (Three l w m x r)
+    ... | TwoRight l x | KickUp: m w r =
+      fromZipper ctx (Three l x m w r)
+    ... | ThreeLeft x c y d | KickUp: a w b =
+      up ctx (KickUp: (Two a w b) x (Two c y d))
+    ... | ThreeMiddle a x y d | KickUp: b w c =
+      up ctx (KickUp: (Two a x b) w (Two c y d))
+    ... | ThreeRight a x b y | KickUp: c w d =
+      up ctx (KickUp: (Two a x b) y (Two c w d))
 
     down : List (TreeContext a) -> Tree a -> Tree a
     down ctx Leaf = up ctx (KickUp: Leaf x Leaf)
