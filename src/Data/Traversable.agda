@@ -8,7 +8,10 @@ module Data.Traversable where
 
 open import Prelude
 
+open import Control.Applicative.Backwards
+open import Control.Monad.State
 open import Data.Foldable
+open import Data.Foldable.Reverse
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -48,56 +51,17 @@ instance
   ... | [] = pure []
   ... | x :: xs = (| _::_ (f x) (traverse f xs) |)
 
+  Traversable-Reverse : {{_ : Traversable f}} -> Traversable (Reverse f)
+  Traversable-Reverse .traverse f (Reverse: x) =
+    map Reverse: <<< forwards $ traverse (Backwards: <<< f) x
+
 -------------------------------------------------------------------------------
--- mapAccumL
+-- mapAccumL, mapAccumR
 -------------------------------------------------------------------------------
 
 mapAccumL : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
-mapAccumL f s t = runStateL (traverse (StateL: <<< flip f) t) s
-  where
-    record StateL (s a : Set) : Set where
-      constructor StateL:
-      field runStateL : s -> s * a
-
-    open StateL
-
-    instance
-      Functor-StateL : forall {s} -> Functor (StateL s)
-      Functor-StateL .map f (StateL: k) = StateL: \ s ->
-        let (s' , v) = k s in (s' , f v)
-
-      Applicative-StateL : forall {s} -> Applicative (StateL s)
-      Applicative-StateL .pure x = StateL: \ s -> (s , x)
-      Applicative-StateL ._<*>_ (StateL: kf) (StateL: kv) = StateL: \ s ->
-        let
-          (s' , f) = kf s
-          (s'' , v) = kv s'
-        in
-          (s'' , f v)
-
--------------------------------------------------------------------------------
--- mapAccumR
--------------------------------------------------------------------------------
+mapAccumL f z bs = swap $ flip runState z $ for bs \ b ->
+  state (flip f b >>> swap)
 
 mapAccumR : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
-mapAccumR f s t = runStateR (traverse (StateR: <<< flip f) t) s
-  where
-    record StateR (s a : Set) : Set where
-      constructor StateR:
-      field runStateR : s -> s * a
-
-    open StateR
-
-    instance
-      Functor-StateR : forall {s} -> Functor (StateR s)
-      Functor-StateR .map f (StateR: k) = StateR: \ s ->
-        let (s' , v) = k s in (s' , f v)
-
-      Applicative-StateR : forall {s} -> Applicative (StateR s)
-      Applicative-StateR .pure x = StateR: \ s -> (s , x)
-      Applicative-StateR ._<*>_ (StateR: kf) (StateR: kv) = StateR: \ s ->
-        let
-          (s' , v) = kv s
-          (s'' , f) = kf s'
-        in
-          (s'' , f v)
+mapAccumR f z = map getReverse <<< mapAccumL f z <<< Reverse:
