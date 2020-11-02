@@ -227,6 +227,9 @@ lookup a (Three l x m y r) with compare a x | compare a y
 ... | GT | LT = lookup a m
 ... | GT | GT = lookup a r
 
+member : {{_ : Ord a}} -> a -> Tree a -> Bool
+member a t = maybe False (const True) (lookup a t)
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
@@ -250,3 +253,17 @@ fromList xs = foldr insert Leaf xs
 
 map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
+
+merge : {{_ : Ord a}} -> Tree a -> Tree a -> Tree a
+merge t1 t2 = foldr insert t1 t2
+
+filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
+filter p Leaf = Leaf
+filter p (Two l x r) with p x
+... | False = merge (filter p l) (filter p r)
+... | True = Two (filter p l) x (filter p r)
+filter p (Three l x m y r) with p x | p y
+... | False | False = merge (merge (filter p l) (filter p m)) (filter p r)
+... | True | True = Three (filter p l) x (filter p m) y (filter p r)
+... | False | True = Two (merge (filter p l) (filter p m)) y (filter p r)
+... | True | False = Two (filter p l) x (merge (filter p m) (filter p r))
