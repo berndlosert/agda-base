@@ -244,6 +244,30 @@ instance
   ... | Three l x m y r =
     foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
 
+  Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
+  Eq-Tree ._==_ t t' = toList t == toList t'
+
+  Show-Tree : {{_ : Show a}} -> Show (Tree a)
+  Show-Tree .showsPrec _ Leaf = showString "Leaf"
+  Show-Tree .showsPrec d (Two l x r) = showParen (d > appPrec)
+    (showString "Two "
+    <<< showsPrec appPrec+1 l
+    <<< showString " "
+    <<< showsPrec appPrec+1 x
+    <<< showString " "
+    <<< showsPrec appPrec+1 r)
+  Show-Tree .showsPrec d (Three l x m y r) = showParen (d > appPrec)
+    (showString "Three "
+    <<< showsPrec appPrec+1 l
+    <<< showString " "
+    <<< showsPrec appPrec+1 x
+    <<< showString " "
+    <<< showsPrec appPrec+1 m
+    <<< showString " "
+    <<< showsPrec appPrec+1 y
+    <<< showString " "
+    <<< showsPrec appPrec+1 r)
+
 -------------------------------------------------------------------------------
 --  Misc.
 -------------------------------------------------------------------------------
