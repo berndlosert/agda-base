@@ -28,7 +28,7 @@ record MonadThrow (e : Set) (m : Set -> Set) : Set where
 open MonadThrow {{...}} public
 
 -------------------------------------------------------------------------------
--- MonadError
+-- MonadExcept
 -------------------------------------------------------------------------------
 
 record MonadExcept (e : Set) (m : Set -> Set) : Set where
