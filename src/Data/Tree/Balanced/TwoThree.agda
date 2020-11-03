@@ -251,21 +251,21 @@ delete x t = maybe t snd (pop x t)
 -- Querying
 -------------------------------------------------------------------------------
 
-lookup : {{_ : Ord a}} -> a -> Tree a -> Maybe a
+lookup : {{_ : Ord a}} -> a -> Tree (a * b) -> Maybe b
 lookup a Leaf = Nothing
-lookup a (Two l x r) with compare a x
-... | EQ = Just x
+lookup a (Two l (x , b) r) with compare a x
+... | EQ = Just b
 ... | LT = lookup a l
 ... | GT = lookup a r
-lookup a (Three l x m y r) with compare a x | compare a y
-... | EQ | _ = Just x
+lookup a (Three l (x , b) m (y , c) r) with compare a x | compare a y
+... | EQ | _ = Just b
 ... | LT | _ = lookup a l
-... | GT | EQ = Just y
+... | GT | EQ = Just c
 ... | GT | LT = lookup a m
 ... | GT | GT = lookup a r
 
-member : {{_ : Ord a}} -> a -> Tree a -> Bool
-member a t = maybe False (const True) (lookup a t)
+member : {{_ : Eq a}} -> a -> Tree a -> Bool
+member a t = maybe False (const True) (find (_== a) t)
 
 -------------------------------------------------------------------------------
 --  Misc.
