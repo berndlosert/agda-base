@@ -1102,7 +1102,7 @@ forever as = as *> forever as
 instance
   Applicative-Function : Applicative (Function a)
   Applicative-Function .pure = const
-  Applicative-Function ._<*>_ f x = \ a -> f a (x a)
+  Applicative-Function ._<*>_ f g = \ x -> f x (g x)
 
   Applicative-Either : Applicative (Either a)
   Applicative-Either .pure = Right
