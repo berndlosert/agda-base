@@ -9,6 +9,7 @@ module Data.List where
 open import Prelude
 
 open import Data.Constraint.Nonempty
+open import Data.Constraint.Positive
 open import Data.Monoid.Endo
 open import Data.Foldable
 open import Data.Traversable
@@ -53,6 +54,9 @@ replicateA {f} {a} n0 fa = loop n0
     loop : Nat -> f (List a)
     loop 0 = pure []
     loop (Suc n) = (| _::_ fa (loop n) |)
+
+build : (forall {b} -> (a -> b -> b) -> b -> b) -> List a
+build g = g _::_ []
 
 -------------------------------------------------------------------------------
 -- Destructors
@@ -271,6 +275,11 @@ groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
 
 group : {{_ : Eq a}} -> List a -> List (List a)
 group = groupBy _==_
+
+{-# TERMINATING #-}
+chunksOf : (n : Nat) {{_ : IsPositive n}} -> List a -> List (List a)
+chunksOf _ [] = []
+chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
 -------------------------------------------------------------------------------
 -- Transformations
