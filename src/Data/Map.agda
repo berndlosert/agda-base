@@ -88,3 +88,11 @@ instance
   Foldable-Map : Foldable (Map k)
   Foldable-Map .foldMap f (Map: t) = flip foldMap t \ where
     (KVPair: k v) -> f v
+
+-------------------------------------------------------------------------------
+-- Queries
+-------------------------------------------------------------------------------
+
+lookup : {{_ : Ord k}} -> k -> Map k v -> Maybe v
+lookup k (Map: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
+  (KVPair: k v) -> (k , v))
