@@ -20,7 +20,7 @@ private
     a b k v : Set
 
 -------------------------------------------------------------------------------
--- KVPair & Map
+-- KVPair
 -------------------------------------------------------------------------------
 
 private
@@ -32,17 +32,32 @@ private
 
   open KVPair
 
-  data Map' (k v : Set) : Set where
-    Map: : Tree (KVPair k v) -> Map' k v
-
-Map = Map'
-
 instance
   Eq-KVPair : {{_ : Eq k}} -> Eq (KVPair k v)
   Eq-KVPair ._==_ x y = getKey x == getKey y
 
   Ord-KVPair : {{_ : Ord k}} -> Ord (KVPair k v)
   Ord-KVPair ._<_ x y = getKey x < getKey y
+
+
+-------------------------------------------------------------------------------
+-- Map
+-------------------------------------------------------------------------------
+
+private
+  data Map' (k v : Set) : Set where
+    Map: : Tree (KVPair k v) -> Map' k v
+
+Map = Map'
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Foldable-Map : Foldable (Map k)
+  Foldable-Map .foldMap f (Map: t) = flip foldMap t \ where
+    (KVPair: k v) -> f v
 
 -------------------------------------------------------------------------------
 -- Construction
@@ -65,7 +80,7 @@ values : Map k v -> List v
 values (Map: t) = foldMap (getValue >>> [_]) t
 
 -------------------------------------------------------------------------------
--- Insertion & Deletion
+-- Other operations
 -------------------------------------------------------------------------------
 
 insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
@@ -76,23 +91,10 @@ delete k (Map: t) with find (\ p -> k == getKey p) t
 ... | Nothing = Map: t
 ... | Just p = Map: (Tree.delete p t)
 
--------------------------------------------------------------------------------
--- Misc.
--------------------------------------------------------------------------------
+lookup : {{_ : Ord k}} -> k -> Map k v -> Maybe v
+lookup k (Map: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
+  (KVPair: k v) -> (k , v))
 
 map : {{_ : Ord k}} -> (a -> b) -> Map k a -> Map k b
 map f (Map: t) = Map: $ flip Tree.map t \ where
   (KVPair: k v) -> KVPair: k (f v)
-
-instance
-  Foldable-Map : Foldable (Map k)
-  Foldable-Map .foldMap f (Map: t) = flip foldMap t \ where
-    (KVPair: k v) -> f v
-
--------------------------------------------------------------------------------
--- Queries
--------------------------------------------------------------------------------
-
-lookup : {{_ : Ord k}} -> k -> Map k v -> Maybe v
-lookup k (Map: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
-  (KVPair: k v) -> (k , v))
