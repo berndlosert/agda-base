@@ -6,7 +6,7 @@ module Data.Map where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (map)
 
 open import Data.Foldable
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
@@ -17,7 +17,7 @@ open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 private
   variable
-    k v : Set
+    a b k v : Set
 
 -------------------------------------------------------------------------------
 -- KVPair & Map
@@ -75,3 +75,16 @@ delete : {{_ : Ord k}} -> k -> Map k v -> Map k v
 delete k (Map: t) with find (\ p -> k == getKey p) t
 ... | Nothing = Map: t
 ... | Just p = Map: (Tree.delete p t)
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+map : {{_ : Ord k}} -> (a -> b) -> Map k a -> Map k b
+map f (Map: t) = Map: $ flip Tree.map t \ where
+  (KVPair: k v) -> KVPair: k (f v)
+
+instance
+  Foldable-Map : Foldable (Map k)
+  Foldable-Map .foldMap f (Map: t) = flip foldMap t \ where
+    (KVPair: k v) -> f v
