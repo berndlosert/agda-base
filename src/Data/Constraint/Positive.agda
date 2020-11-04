@@ -50,3 +50,10 @@ instance
 
 Positive : (a : Set) {{_ : PositiveConstraint a}} -> Set
 Positive a = Constrained a IsPositive
+
+instance
+  Eq-Positive : {{_ : Eq a}} {{_ : PositiveConstraint a}} -> Eq (Positive a)
+  Eq-Positive ._==_ x y = unconstrained x == unconstrained y
+
+  Ord-Positive : {{_ : Ord a}} {{_ : PositiveConstraint a}} -> Ord (Positive a)
+  Ord-Positive ._<_ x y = unconstrained x < unconstrained y
