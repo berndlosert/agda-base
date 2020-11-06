@@ -18,6 +18,7 @@ open import Data.Traversable
 -- Re-exports
 -------------------------------------------------------------------------------
 
+open Data.Constraint.Nonempty public
 open Data.Foldable public
 open Data.Traversable public
 
