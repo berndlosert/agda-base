@@ -1286,6 +1286,9 @@ instance
   Show-String : Show String
   Show-String .showsPrec _ = showString <<< primShowString
 
+  Show-Function : Show (Function a b)
+  Show-Function .showsPrec _ _ = showString "<function>"
+
   Show-Tuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
   Show-Tuple .showsPrec d (x , y) = showString "(" <<< showsPrec d x
     <<< showString " , " <<< showsPrec d y <<< showString ")"
