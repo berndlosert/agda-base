@@ -136,6 +136,9 @@ Assert : Bool -> Set
 Assert False = Void
 Assert True = Unit
 
+absurd : Void -> a
+absurd ()
+
 infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
 if True then x else _ = x
@@ -973,6 +976,9 @@ record Functor (f : Set -> Set) : Set where
 
   void : f a -> f Unit
   void = unit <$_
+
+  vacuous : f Void -> f a
+  vacuous = map absurd
 
   flap : f (a -> b) -> a -> f b
   flap f x = map (_$ x) f
