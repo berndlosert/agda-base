@@ -276,8 +276,7 @@ traversed : {{_ : Traversable f}} -> Traversal (f a) (f b) a b
 traversed = traverse
 
 record Folded (s a : Set) : Set where
-  field
-    folded : {{_ : Monoid r}} -> Getting r s a
+  field folded : {{_ : Monoid r}} -> Getting r s a
 
 open Folded {{...}} public
 
