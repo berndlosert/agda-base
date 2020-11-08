@@ -132,11 +132,13 @@ record Foldable (t : Set -> Set) : Set where
         g Nothing x = Just x
         g (Just x) y = Just (f x y)
 
-    minimum : {{_ : Ord a}} (xs : t a) {{_ : IsNonempty xs}} -> a
-    minimum = foldr1 min
+    module _ {{_ : Ord a}} where
 
-    maximum : {{_ : Ord a}} (xs : t a) {{_ : IsNonempty xs}} -> a
-    maximum = foldr1 max
+      minimum : (xs : t a) {{_ : IsNonempty xs}} -> a
+      minimum = foldr1 min
+
+      maximum : (xs : t a) {{_ : IsNonempty xs}} -> a
+      maximum = foldr1 max
 
     module _ {{_ : Applicative f}} where
 
