@@ -34,6 +34,8 @@ private
 
 open Data.Functor.Identity public
 open Data.Functor.Const public
+open Data.Semigroup.First public
+open Data.Semigroup.Last public
 
 -------------------------------------------------------------------------------
 -- Types and type classes used for characterizing optics
@@ -305,6 +307,17 @@ instance
   Each-List .each f = listrec (pure []) \ where
     x _ ys -> (| _::_ (f x) ys |)
 
+record Cons (s t a b : Set) : Set where
+  field #Cons : Prism s t (a * s) (b * t)
+
+open Cons {{...}} public
+
+instance
+  Cons-List : Cons (List a) (List b) a b
+  Cons-List .#Cons = prism (uncurry _::_) \ where
+    (a :: as) -> Right (a , as)
+    [] -> Left []
+
 -------------------------------------------------------------------------------
 -- Some specific optics
 -------------------------------------------------------------------------------
@@ -330,3 +343,9 @@ instance
 #Nothing : Simple Traversal (Maybe a) Unit
 #Nothing f Nothing = map (const Nothing) (f unit)
 #Nothing _ j = pure j
+
+#head : {{_ : Cons s s a a}} -> Simple Traversal s a
+#head = #Cons <<< #fst
+
+#tail : {{_ : Cons s s a a}} -> Simple Traversal s s
+#tail = #Cons <<< #snd
