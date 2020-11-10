@@ -524,6 +524,20 @@ record Ord (a : Set) : Set where
 open Ord {{...}} public
 
 instance
+  Eq-Ordering : Eq (Ordering)
+  Eq-Ordering ._==_ x y with x | y
+  ... | LT | LT = True
+  ... | EQ | EQ = True
+  ... | GT | GT = True
+  ... | _ | _ = False
+
+  Ord-Ordering : Ord (Ordering)
+  Ord-Ordering ._<_ x y with x | y
+  ... | LT | EQ = True
+  ... | LT | LT = True
+  ... | EQ | GT = True
+  ... | _ | _ = False
+
   Ord-Void : Ord Void
   Ord-Void ._<_ = \ ()
 
@@ -861,6 +875,12 @@ record Semigroup (a : Set) : Set where
 open Semigroup {{...}} public
 
 instance
+  Semigroup-Ordering : Semigroup Ordering
+  Semigroup-Ordering ._<>_ x y with x | y
+  ... | LT | _ = LT
+  ... | EQ | _ = y
+  ... | GT | _ = GT
+
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
 
@@ -907,6 +927,9 @@ record Monoid (a : Set) : Set where
 open Monoid {{...}} public
 
 instance
+  Monoid-Ordering : Monoid Ordering
+  Monoid-Ordering .mempty = EQ
+
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = unit
 
@@ -1267,6 +1290,12 @@ private
     primShowString : String -> String
 
 instance
+  Show-Ordering : Show Ordering
+  Show-Ordering .showsPrec _ x with x
+  ... | LT = showString "LT"
+  ... | EQ = showString "EQ"
+  ... | GT = showString "GT"
+
   Show-Void : Show Void
   Show-Void .showsPrec _ ()
 
