@@ -448,7 +448,7 @@ instance
     False False -> False
     _ _ -> False
 
-  Eq-Ordering : Eq (Ordering)
+  Eq-Ordering : Eq Ordering
   Eq-Ordering ._==_ = \ where
     LT LT -> True
     EQ EQ -> True
@@ -542,7 +542,7 @@ instance
     False True -> True
     _ _ -> False
 
-  Ord-Ordering : Ord (Ordering)
+  Ord-Ordering : Ord Ordering
   Ord-Ordering ._<_ = \ where
     LT EQ -> True
     LT LT -> True
