@@ -1328,15 +1328,17 @@ instance
     <<< showString " , " <<< showsPrec d y <<< showString ")"
 
   Show-Either : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
-  Show-Either .showsPrec d (Left x) = showParen (d > appPrec)
-    (showString "Left " <<< showsPrec appPrec+1 x)
-  Show-Either .showsPrec d (Right x) = showParen (d > appPrec)
-    (showString "Right " <<< showsPrec appPrec+1 x)
+  Show-Either .showsPrec d e = case e of \ where
+    (Left x) -> showParen (d > appPrec)
+      (showString "Left " <<< showsPrec appPrec+1 x)
+    (Right x) -> showParen (d > appPrec)
+      (showString "Right " <<< showsPrec appPrec+1 x)
 
   Show-Maybe : {{_ : Show a}} -> Show (Maybe a)
-  Show-Maybe .showsPrec d (Just x) = showParen (d > appPrec)
-    (showString "Just " <<< showsPrec appPrec+1 x)
-  Show-Maybe .showsPrec d Nothing = showString "Nothing"
+  Show-Maybe .showsPrec d m = case m of \ where
+    (Just x) -> showParen (d > appPrec)
+      (showString "Just " <<< showsPrec appPrec+1 x)
+    Nothing -> showString "Nothing"
 
   Show-List : {{_ : Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"
