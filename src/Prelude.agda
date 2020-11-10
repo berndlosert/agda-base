@@ -791,19 +791,19 @@ instance
 
   Division-Int : Division Int
   Division-Int .DivisionConstraint n = Assert (n > 0)
-  Division-Int ._/_ x y with x | y
-  ... | Pos m | Pos (Suc n) = Pos (m / Suc n)
-  ... | NegSuc m | Pos (Suc n) = neg (Suc m / Suc n)
-  ... | Pos m | NegSuc n = neg (m / Suc n)
-  ... | NegSuc m | NegSuc n = Pos (Suc m / Suc n)
+  Division-Int ._/_ = \ where
+    (Pos m) (Pos (Suc n)) -> Pos (m / Suc n)
+    (NegSuc m) (Pos (Suc n)) -> neg (Suc m / Suc n)
+    (Pos m) (NegSuc n) -> neg (m / Suc n)
+    (NegSuc m) (NegSuc n) -> Pos (Suc m / Suc n)
 
   Modulus-Int : Modulus Int
   Modulus-Int .ModulusConstraint n = Assert (n > 0)
-  Modulus-Int ._%_ x y with x | y
-  ... | Pos m | Pos (Suc n) = Pos (m % Suc n)
-  ... | NegSuc m | Pos (Suc n) = neg (Suc m % Suc n)
-  ... | Pos m | NegSuc n = Pos (m % Suc n)
-  ... | NegSuc m | NegSuc n = neg (Suc m % Suc n)
+  Modulus-Int ._%_ = \ where
+    (Pos m) (Pos (Suc n)) -> Pos (m % Suc n)
+    (NegSuc m) (Pos (Suc n)) -> neg (Suc m % Suc n)
+    (Pos m) (NegSuc n) -> Pos (m % Suc n)
+    (NegSuc m) (NegSuc n) -> neg (Suc m % Suc n)
 
   Signed-Int : Signed Int
   Signed-Int .abs = \ where
@@ -841,10 +841,10 @@ instance
 
   Signed-Float : Signed Float
   Signed-Float .abs x = if x < 0.0 then - x else x
-  Signed-Float .signum x with compare x 0.0
-  ... | EQ = 0.0
-  ... | LT = -1.0
-  ... | GT = 1.0
+  Signed-Float .signum x = case compare x 0.0 of \ where
+    EQ -> 0.0
+    LT -> -1.0
+    GT -> 1.0
 
   Addition-Function : {{_ : Addition b}} -> Addition (a -> b)
   Addition-Function ._+_ f g x = f x + g x
@@ -1246,9 +1246,9 @@ instance
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .enumFromTo m n with m - n
-  ... | Pos k = (\ i -> Pos i + n) <$> enumFromTo k 0
-  ... | NegSuc k = (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
+  Enum-Int .enumFromTo m n = case m - n of \ where
+   (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
+   (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
   Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
@@ -1297,8 +1297,7 @@ instance
   Show-Unit .showsPrec _ unit = showString "unit"
 
   Show-Bool : Show Bool
-  Show-Bool .showsPrec _ True = showString "True"
-  Show-Bool .showsPrec _ False = showString "False"
+  Show-Bool .showsPrec _ b = showString (if b then "True" else "False")
 
   Show-Ordering : Show Ordering
   Show-Ordering .showsPrec _ = \ where
