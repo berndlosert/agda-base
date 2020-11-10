@@ -31,6 +31,9 @@ data Bool : Set where
 {-# BUILTIN FALSE False #-}
 {-# BUILTIN TRUE True #-}
 
+data Ordering : Set where
+  LT EQ GT : Ordering
+
 data Nat : Set where
   Zero : Nat
   Suc  : Nat -> Nat
@@ -445,6 +448,13 @@ instance
     False False -> False
     _ _ -> False
 
+  Eq-Ordering : Eq (Ordering)
+  Eq-Ordering ._==_ = \ where
+    LT LT -> True
+    EQ EQ -> True
+    GT GT -> True
+    _ _ -> False
+
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = natEquality
 
@@ -488,9 +498,6 @@ instance
 -- Ord
 -------------------------------------------------------------------------------
 
-data Ordering : Set where
-  LT EQ GT : Ordering
-
 record Ord (a : Set) : Set where
   infixl 4 _<_
   field
@@ -524,20 +531,6 @@ record Ord (a : Set) : Set where
 open Ord {{...}} public
 
 instance
-  Eq-Ordering : Eq (Ordering)
-  Eq-Ordering ._==_ x y with x | y
-  ... | LT | LT = True
-  ... | EQ | EQ = True
-  ... | GT | GT = True
-  ... | _ | _ = False
-
-  Ord-Ordering : Ord (Ordering)
-  Ord-Ordering ._<_ x y with x | y
-  ... | LT | EQ = True
-  ... | LT | LT = True
-  ... | EQ | GT = True
-  ... | _ | _ = False
-
   Ord-Void : Ord Void
   Ord-Void ._<_ = \ ()
 
@@ -547,6 +540,13 @@ instance
   Ord-Bool : Ord Bool
   Ord-Bool ._<_ = \ where
     False True -> True
+    _ _ -> False
+
+  Ord-Ordering : Ord (Ordering)
+  Ord-Ordering ._<_ = \ where
+    LT EQ -> True
+    LT LT -> True
+    EQ GT -> True
     _ _ -> False
 
   Ord-Nat : Ord Nat
@@ -875,17 +875,17 @@ record Semigroup (a : Set) : Set where
 open Semigroup {{...}} public
 
 instance
-  Semigroup-Ordering : Semigroup Ordering
-  Semigroup-Ordering ._<>_ x y with x | y
-  ... | LT | _ = LT
-  ... | EQ | _ = y
-  ... | GT | _ = GT
-
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
 
   Semigroup-Unit : Semigroup Unit
   Semigroup-Unit ._<>_ unit unit = unit
+
+  Semigroup-Ordering : Semigroup Ordering
+  Semigroup-Ordering ._<>_ = \ where
+    LT _ -> LT
+    EQ y -> y
+    GT _ -> GT
 
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = primStringAppend
@@ -927,11 +927,11 @@ record Monoid (a : Set) : Set where
 open Monoid {{...}} public
 
 instance
-  Monoid-Ordering : Monoid Ordering
-  Monoid-Ordering .mempty = EQ
-
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = unit
+
+  Monoid-Ordering : Monoid Ordering
+  Monoid-Ordering .mempty = EQ
 
   Monoid-String : Monoid String
   Monoid-String .mempty = ""
@@ -1290,12 +1290,6 @@ private
     primShowString : String -> String
 
 instance
-  Show-Ordering : Show Ordering
-  Show-Ordering .showsPrec _ x with x
-  ... | LT = showString "LT"
-  ... | EQ = showString "EQ"
-  ... | GT = showString "GT"
-
   Show-Void : Show Void
   Show-Void .showsPrec _ ()
 
@@ -1305,6 +1299,12 @@ instance
   Show-Bool : Show Bool
   Show-Bool .showsPrec _ True = showString "True"
   Show-Bool .showsPrec _ False = showString "False"
+
+  Show-Ordering : Show Ordering
+  Show-Ordering .showsPrec _ = \ where
+    LT -> showString "LT"
+    EQ -> showString "EQ"
+    GT -> showString "GT"
 
   Show-Nat : Show Nat
   Show-Nat .showsPrec _ = showString <<< primShowNat
