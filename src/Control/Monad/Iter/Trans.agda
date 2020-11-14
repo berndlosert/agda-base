@@ -74,11 +74,9 @@ instance
     (Right iter') -> return (Right (iter' <*> x))
 
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
-  Monad-IterT ._>>=_ iter k .runIterT = do
-    result <- runIterT iter
-    case result of \ where
-      (Left m) -> runIterT (k m)
-      (Right iter') -> return (Right (iter' >>= k))
+  Monad-IterT ._>>=_ iter k .runIterT = caseM runIterT iter of \ where
+    (Left m) -> runIterT (k m)
+    (Right iter') -> return (Right (iter' >>= k))
 
   Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
