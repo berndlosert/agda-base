@@ -8,6 +8,7 @@ module Control.Monad.Identity.Trans where
 
 open import Prelude
 
+open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
@@ -81,3 +82,7 @@ instance
     -> MonadExcept e (IdentityT m)
   MonadExcept-IdentityT .catch m h = IdentityT: $
     catch (runIdentityT m) (\ e -> runIdentityT (h e))
+
+  MonadCont-IdentityT : {{_ : MonadCont m}} -> MonadCont (IdentityT m)
+  MonadCont-IdentityT .callCC f = IdentityT: $
+    callCC \ c -> runIdentityT (f (IdentityT: <<< c))
