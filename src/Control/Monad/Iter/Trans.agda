@@ -109,7 +109,7 @@ instance
 
   MonadWriter-IterT : {{_ : MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
-  MonadWriter-IterT {w = w} {m = m} .listen iter .runIterT =
+  MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
       map concat' $ listen (map listen <$> runIterT iter)
     where
       concat' : (a + IterT m (a * w)) * w -> (a * w) + IterT m (a * w)
