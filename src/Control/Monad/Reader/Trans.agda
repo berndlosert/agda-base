@@ -11,9 +11,9 @@ open import Prelude
 open import Control.Alternative
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph public
-open import Control.Monad.Reader.Class public
-open import Control.Monad.Trans.Class public
+open import Control.Monad.Morph
+open import Control.Monad.Reader.Class
+open import Control.Monad.Trans.Class
 
 -------------------------------------------------------------------------------
 -- Re-exports
