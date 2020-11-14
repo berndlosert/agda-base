@@ -80,15 +80,15 @@ instance
 
   Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
-  Alternative-IterT ._<|>_ liter riter .runIterT = do
-    resultl <- runIterT liter
+  Alternative-IterT ._<|>_ l r .runIterT = do
+    resultl <- runIterT l
     case resultl of \ where
       (Left _) -> return resultl
-      (Right iter) -> do
-        resultr <- runIterT riter
+      (Right l') -> do
+        resultr <- runIterT r
         case resultr of \ where
           (Left _) -> return resultr
-          (Right iter') -> return $ Right (iter <|> iter')
+          (Right r') -> return $ Right (l' <|> r')
 
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
