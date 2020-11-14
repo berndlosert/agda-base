@@ -29,7 +29,7 @@ open Control.Monad.Writer.Class public
 
 private
   variable
-    a b w w' : Set
+    a b e w w' : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -96,3 +96,12 @@ instance
   MonadWriter-WriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
     return (a , f w)
+
+  MonadThrow-ReaderT : {{_ : Monoid w}} {{_ : MonadThrow e m}}
+    -> MonadThrow e (WriterT w m)
+  MonadThrow-ReaderT .throw = lift <<< throw
+
+  MonadExcept-ReaderT : {{_ : Monoid w}} {{_ : MonadExcept e m}}
+    -> MonadExcept e (WriterT w m)
+  MonadExcept-ReaderT .catch m h = WriterT: $
+    catch (runWriterT m) (\ e -> runWriterT (h e))
