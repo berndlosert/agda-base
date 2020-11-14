@@ -96,7 +96,8 @@ instance
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
   MFunctor-IterT : MFunctor IterT
-  MFunctor-IterT .hoist f as .runIterT = (map $ hoist f) <$> (f $ runIterT as)
+  MFunctor-IterT .hoist t iter .runIterT =
+    (map $ hoist t) <$> (t $ runIterT iter)
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
