@@ -106,3 +106,8 @@ instance
     -> MonadExcept e (WriterT w m)
   MonadExcept-WriterT .catch m h = WriterT: $
     catch (runWriterT m) (\ e -> runWriterT (h e))
+
+  MonadCont-WriterT : {{_ : Monoid w}} {{_ : MonadCont m}}
+    -> MonadCont (WriterT w m)
+  MonadCont-WriterT .callCC f = WriterT: $
+    callCC \ c -> runWriterT (f (\ a -> WriterT: $ c (a , mempty)))
