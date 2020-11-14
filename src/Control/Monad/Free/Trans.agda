@@ -9,6 +9,7 @@ module Control.Monad.Free.Trans where
 open import Prelude
 
 open import Control.Monad.Free.Class
+open import Control.Monad.Except.Class
 open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -28,7 +29,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a r s : Set
+    a e r s : Set
     f m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -76,3 +77,6 @@ instance
 
   MonadState-FreeT : {{_ : MonadState s m}} -> MonadState s (FreeT f m)
   MonadState-FreeT .state f = lift (state f)
+
+  MonadThrow-FreeT : {{_ : MonadThrow e m}} -> MonadThrow e (FreeT f m)
+  MonadThrow-FreeT .throw = lift <<< throw
