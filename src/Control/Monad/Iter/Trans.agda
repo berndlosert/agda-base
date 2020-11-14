@@ -12,6 +12,8 @@ open import Prelude
 
 open import Control.Alternative
 open import Control.Monad.Free.Class
+open import Control.Monad.Morph
+open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Data.Functor.Identity
@@ -29,7 +31,7 @@ open Data.Functor.Identity public
 
 private
   variable
-    a s : Set
+    a r s : Set
     m : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -93,8 +95,16 @@ instance
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
+  MFunctor-IterT : MFunctor IterT
+  MFunctor-IterT .hoist f as .runIterT =
+    map (map (hoist f)) (f $ runIterT as)
+
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
+
+  MonadReader-IterT : {{_ : MonadReader r m}} -> MonadReader r (IterT m)
+  MonadReader-IterT .ask = lift ask
+  MonadReader-IterT .local f = hoist (local f)
 
   MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)
