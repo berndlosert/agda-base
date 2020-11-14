@@ -8,6 +8,7 @@ module Control.Monad.Except.Trans where
 
 open import Prelude
 
+open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
@@ -96,3 +97,7 @@ instance
 
   MonadState-ExceptT : {{_ : MonadState s m}} -> MonadState s (ExceptT e m)
   MonadState-ExceptT .state = lift <<< state
+
+  MonadCont-ExceptT : {{_ : MonadCont m}} -> MonadCont (ExceptT e m)
+  MonadCont-ExceptT .callCC f = ExceptT: $
+    callCC \ c -> runExceptT (f (\ a -> ExceptT: $ c (Right a)))
