@@ -9,6 +9,7 @@ module Control.Monad.State.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Except.Class
@@ -100,3 +101,7 @@ instance
   MonadExcept-StateT : {{_ : MonadExcept e m}} -> MonadExcept e (StateT s m)
   MonadExcept-StateT .catch m h = StateT: \ s ->
     catch (runStateT m s) (\ e -> runStateT (h e) s)
+
+  MonadCont-StateT : {{_ : MonadCont m}} -> MonadCont (StateT s m)
+  MonadCont-StateT .callCC f = StateT: \ s ->
+    callCC \ c -> runStateT (f (\ a -> StateT: \ _ -> c (a , s))) s
