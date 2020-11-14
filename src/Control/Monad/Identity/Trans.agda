@@ -8,8 +8,12 @@ module Control.Monad.Identity.Trans where
 
 open import Prelude
 
+open import Control.Monad.Except.Class
+open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Trans.Class
+open import Data.Foldable
+open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -24,7 +28,8 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    m n : Set -> Set
+    e : Set
+    f m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- IdentityT
@@ -39,6 +44,13 @@ open IdentityT public
 instance
   Functor-IdentityT : {{_ : Functor m}} -> Functor (IdentityT m)
   Functor-IdentityT .map f (IdentityT: m) = IdentityT: (map f m)
+
+  Foldable-IdentityT : {{_ : Foldable f}} -> Foldable (IdentityT f)
+  Foldable-IdentityT .foldMap f (IdentityT: x) = foldMap f x
+
+  Traversable-IdentityT : {{_ : Traversable f}} -> Traversable (IdentityT f)
+  Traversable-IdentityT .traverse f (IdentityT: x) =
+    (| IdentityT: (traverse f x) |)
 
   Applicative-IdentityT : {{_ : Applicative m}} -> Applicative (IdentityT m)
   Applicative-IdentityT .pure x = IdentityT: (pure x)
@@ -58,3 +70,14 @@ instance
 
   MMonad-IdentityT : MMonad IdentityT
   MMonad-IdentityT .embed k (IdentityT: m) = k m
+
+  MonadIO-IdentityT : {{_ : MonadIO m}} -> MonadIO (IdentityT m)
+  MonadIO-IdentityT .liftIO = IdentityT: <<< liftIO
+
+  MonadThrow-IdentityT : {{_ : MonadThrow e m}} -> MonadThrow e (IdentityT m)
+  MonadThrow-IdentityT .throw = lift <<< throw
+
+  MonadExcept-IdentityT : {{_ : MonadExcept e m}}
+    -> MonadExcept e (IdentityT m)
+  MonadExcept-IdentityT .catch m h = IdentityT: $
+    catch (runIdentityT m) (\ e -> runIdentityT (h e))
