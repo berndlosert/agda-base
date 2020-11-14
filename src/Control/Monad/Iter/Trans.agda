@@ -11,6 +11,7 @@ module Control.Monad.Iter.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Monad.Except.Class
 open import Control.Monad.Free.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
@@ -32,7 +33,7 @@ open Data.Functor.Identity public
 
 private
   variable
-    a r s : Set
+    a e r s : Set
     m : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -112,3 +113,10 @@ instance
 
   MonadIO-IterT : {{_ : MonadIO m}} -> MonadIO (IterT m)
   MonadIO-IterT .liftIO = lift <<< liftIO
+
+  MonadThrow-IterT : {{_ : MonadThrow e m}} -> MonadThrow e (IterT m)
+  MonadThrow-IterT .throw = lift <<< throw
+
+  MonadExcept-IterT : {{_ : MonadExcept e m}} -> MonadExcept e (IterT m)
+  MonadExcept-IterT .catch iter f .runIterT =
+    catch (map (flip catch f) <$> runIterT iter) (runIterT <<< f)
