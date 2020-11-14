@@ -63,16 +63,15 @@ retract iter = runIterT iter >>= either return retract
 
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
-  Functor-IterT .map f iter .runIterT =
-    runIterT iter >>= bimap f (map f) >>> return
+  Functor-IterT .map f iter .runIterT = runIterT iter <#> \ where
+    (Left x) -> Left (f x)
+    (Right iter') -> Right (map f iter')
 
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
   Applicative-IterT .pure x .runIterT = return (Left x)
-  Applicative-IterT ._<*>_ iter x .runIterT = do
-    result <- runIterT iter
-    case result of \ where
-      (Left f) -> runIterT (map f x)
-      (Right iter') -> return (Right (iter' <*> x))
+  Applicative-IterT ._<*>_ iter x .runIterT = caseM runIterT iter of \ where
+    (Left f) -> runIterT (map f x)
+    (Right iter') -> return (Right (iter' <*> x))
 
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = do
