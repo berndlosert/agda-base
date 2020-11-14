@@ -80,12 +80,12 @@ instance
 
   Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
-  Alternative-IterT ._<|>_ l r .runIterT = do
-    resultl <- runIterT l
+  Alternative-IterT ._<|>_ liter riter .runIterT = do
+    resultl <- runIterT liter
     case resultl of \ where
       (Left _) -> return resultl
       (Right iter) -> do
-        resultr <- runIterT r
+        resultr <- runIterT riter
         case resultr of \ where
           (Left _) -> return resultr
           (Right iter') -> return $ Right (iter <|> iter')
