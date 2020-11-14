@@ -9,9 +9,19 @@ module Control.Monad.Writer.Trans where
 open import Prelude
 
 open import Control.Alternative
-open import Control.Monad.Morph public
-open import Control.Monad.Trans.Class public
-open import Control.Monad.Writer.Class public
+open import Control.Monad.Except.Class
+open import Control.Monad.IO.Class
+open import Control.Monad.Morph
+open import Control.Monad.Trans.Class
+open import Control.Monad.Writer.Class
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Morph public
+open Control.Monad.Trans.Class public
+open Control.Monad.Writer.Class public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -53,6 +63,11 @@ instance
       k : _
       k (f , w) (x , w') = (f x , w <> w')
 
+  Alternative-WriterT : {{_ : Monoid w}} {{_ : Alternative m}}
+    -> Alternative (WriterT w m)
+  Alternative-WriterT .empty = WriterT: empty
+  Alternative-WriterT ._<|>_ (WriterT: m) (WriterT: n) = WriterT: (m <|> n)
+
   Monad-WriterT : {{_ : Monoid w}} {{_ : Monad m}} -> Monad (WriterT w m)
   Monad-WriterT ._>>=_ (WriterT: m) k = WriterT: do
     (a , w) <- m
@@ -81,8 +96,3 @@ instance
   MonadWriter-WriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
     return (a , f w)
-
-  Alternative-WriterT : {{_ : Monoid w}} {{_ : Alternative m}}
-    -> Alternative (WriterT w m)
-  Alternative-WriterT .empty = WriterT: empty
-  Alternative-WriterT ._<|>_ (WriterT: m) (WriterT: n) = WriterT: (m <|> n)
