@@ -10,8 +10,10 @@ open import Prelude
 
 open import Control.Monad.Except.Class
 open import Control.Monad.Morph
+open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
+open import Control.Monad.Writer.Class
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -27,7 +29,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e e' s : Set
+    a b e e' r s w : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -75,6 +77,22 @@ instance
 
   MonadTrans-ExceptT : MonadTrans (ExceptT e)
   MonadTrans-ExceptT .lift = ExceptT: <<< map Right
+
+  MonadReader-ExceptT : {{_ : MonadReader r m}} -> MonadReader r (ExceptT e m)
+  MonadReader-ExceptT .ask = lift ask
+  MonadReader-ExceptT .local f = mapExceptT (local f)
+
+  MonadWriter-ExceptT : {{_ : MonadWriter w m}} -> MonadWriter w (ExceptT e m)
+  MonadWriter-ExceptT .tell = lift <<< tell
+  MonadWriter-ExceptT .listen = mapExceptT \ m -> do
+    p <- listen m
+    case p of \ where
+      (a , w) -> pure $ (_, w) <$> a
+  MonadWriter-ExceptT .pass = mapExceptT \ m -> pass do
+    a <- m
+    pure $ case a of \ where
+      (Left e) -> (Left e , id)
+      (Right (r , f)) -> (Right r , f)
 
   MonadState-ExceptT : {{_ : MonadState s m}} -> MonadState s (ExceptT e m)
   MonadState-ExceptT .state = lift <<< state
