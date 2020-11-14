@@ -12,6 +12,7 @@ open import Prelude
 
 open import Control.Alternative
 open import Control.Monad.Free.Class
+open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -108,3 +109,6 @@ instance
 
   MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)
+
+  MonadIO-IterT : {{_ : MonadIO m}} -> MonadIO (IterT m)
+  MonadIO-IterT .liftIO = lift <<< liftIO
