@@ -9,6 +9,7 @@ module Control.Monad.Reader.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
@@ -92,3 +93,7 @@ instance
   MonadExcept-ReaderT : {{_ : MonadExcept e m}} -> MonadExcept e (ReaderT r m)
   MonadExcept-ReaderT .catch m h = ReaderT: \ r ->
     catch (runReaderT m r) (\ e -> runReaderT (h e) r)
+
+  MonadCont-ReaderT : {{_ : MonadCont m}} -> MonadCont (ReaderT r m)
+  MonadCont-ReaderT .callCC f = ReaderT: \ r ->
+    callCC \ c -> runReaderT (f (ReaderT: <<< const <<< c)) r
