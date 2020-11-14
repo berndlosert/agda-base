@@ -11,6 +11,7 @@ open import Prelude
 open import Control.Monad.Free.Class
 open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
 --------------------------------------------------------------------------------
@@ -27,7 +28,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a r : Set
+    a r s : Set
     f m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -72,3 +73,6 @@ instance
   MonadReader-FreeT : {{_ : MonadReader r m}} -> MonadReader r (FreeT f m)
   MonadReader-FreeT .ask = lift ask
   MonadReader-FreeT .local f = hoist (local f)
+
+  MonadState-FreeT : {{_ : MonadState s m}} -> MonadState s (FreeT f m)
+  MonadState-FreeT .state f = lift (state f)
