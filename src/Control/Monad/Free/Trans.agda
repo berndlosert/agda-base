@@ -2,16 +2,36 @@
 
 module Control.Monad.Free.Trans where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
 open import Control.Monad.Free.Class
 open import Control.Monad.Morph
 open import Control.Monad.Trans.Class
 
+--------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Control.Monad.Free.Class public
+open Control.Monad.Morph public
+open Control.Monad.Trans.Class public
+
+------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
 private
   variable
     a r : Set
     f m n : Set -> Set
+
+-------------------------------------------------------------------------------
+-- FreeT
+-------------------------------------------------------------------------------
 
 record FreeT (f : Set -> Set) (m : Set -> Set) (a : Set) : Set where
   constructor FreeT:
