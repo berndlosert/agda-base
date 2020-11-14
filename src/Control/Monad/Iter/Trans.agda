@@ -84,11 +84,11 @@ instance
     resultl <- runIterT l
     case resultl of \ where
       (Left _) -> return resultl
-      (Right iter') -> do
+      (Right iter) -> do
         resultr <- runIterT r
         case resultr of \ where
           (Left _) -> return resultr
-          (Right iter'') -> return (Right (iter' <|> iter''))
+          (Right iter') -> return (Right (iter <|> iter'))
 
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
