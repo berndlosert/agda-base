@@ -61,11 +61,6 @@ never .runIterT = return (Right never)
 retract : {{_ : Monad m}} -> IterT m a -> m a
 retract iter = runIterT iter >>= either return retract
 
-hoistIterT : {{_ : Monad n}}
-  -> (forall {a} -> m a -> n a)
-  -> IterT m b -> IterT n b
-hoistIterT t iter .runIterT = (map $ hoistIterT t) <$> (t $ runIterT iter)
-
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT =
@@ -102,7 +97,8 @@ instance
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
   MFunctor-IterT : MFunctor IterT
-  MFunctor-IterT .hoist = hoistIterT
+  MFunctor-IterT .hoist t iter .runIterT =
+    (map $ hoist t) <$> (t $ runIterT iter)
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
@@ -120,7 +116,7 @@ instance
       concat' (Left x , w) = Left (x , w)
       concat' (Right y , w) = Right $ map (w <>_) <$> y
   MonadWriter-IterT {w = w} {m = m} .pass {a = a} iter .runIterT =
-      pass' $ runIterT $ hoistIterT clean $ listen iter
+      pass' $ runIterT $ hoist clean $ listen iter
     where
       clean : forall {a} -> m a -> m a
       clean = pass <<< map (_, const mempty)
