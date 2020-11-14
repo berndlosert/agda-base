@@ -18,6 +18,7 @@ open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
+open import Control.Monad.Writer.Class
 open import Data.Functor.Identity
 
 -------------------------------------------------------------------------------
@@ -33,8 +34,8 @@ open Data.Functor.Identity public
 
 private
   variable
-    a e r s : Set
-    m : Set -> Set
+    a b e r s w : Set
+    m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- IterT
@@ -49,8 +50,6 @@ open IterT public
 Iter : Set -> Set
 Iter = IterT Identity
 
-{-# DISPLAY IterT a Identity = Iter a #-}
-
 delay : {{_ : Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = return (Right iter)
 
@@ -61,6 +60,11 @@ never .runIterT = return (Right never)
 -- terminates. If it doesn't terminate, this will loop forever.
 retract : {{_ : Monad m}} -> IterT m a -> m a
 retract iter = runIterT iter >>= either return retract
+
+hoistIterT : {{_ : Monad n}}
+  -> (forall {a} -> m a -> n a)
+  -> IterT m b -> IterT n b
+hoistIterT t iter .runIterT = (map $ hoistIterT t) <$> (t $ runIterT iter)
 
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
@@ -98,8 +102,7 @@ instance
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
   MFunctor-IterT : MFunctor IterT
-  MFunctor-IterT .hoist t iter .runIterT =
-    (map $ hoist t) <$> (t $ runIterT iter)
+  MFunctor-IterT .hoist = hoistIterT
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
@@ -107,6 +110,32 @@ instance
   MonadReader-IterT : {{_ : MonadReader r m}} -> MonadReader r (IterT m)
   MonadReader-IterT .ask = lift ask
   MonadReader-IterT .local f = hoist (local f)
+
+  MonadWriter-IterT : {{_ : MonadWriter w m}} -> MonadWriter w (IterT m)
+  MonadWriter-IterT .tell = lift <<< tell
+  MonadWriter-IterT {w = w} {m = m} .listen iter .runIterT =
+      map concat' $ listen (map listen <$> runIterT iter)
+    where
+      concat' : (a + IterT m (a * w)) * w -> (a * w) + IterT m (a * w)
+      concat' (Left x , w) = Left (x , w)
+      concat' (Right y , w) = Right $ map (w <>_) <$> y
+  MonadWriter-IterT {w = w} {m = m} .pass {a = a} iter .runIterT =
+      pass' $ runIterT $ hoistIterT clean $ listen iter
+    where
+      clean : forall {a} -> m a -> m a
+      clean = pass <<< map (_, const mempty)
+
+      c : Set
+      c = a * (w -> w) * w
+
+      pass' : m (c + IterT m c) -> m (a + IterT m a)
+      g : (c + IterT m c) -> m (a + IterT m a)
+
+      pass' = join <<< map g
+
+      g (Left (x , f , w)) = tell (f w) >> return (Left x)
+      g (Right iter') =
+        return (Right (\ where .runIterT -> pass' (runIterT iter')))
 
   MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)
