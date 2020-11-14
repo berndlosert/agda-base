@@ -9,6 +9,7 @@ module Control.Monad.Writer.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
@@ -97,11 +98,11 @@ instance
     ((a , f) , w) <- m
     return (a , f w)
 
-  MonadThrow-ReaderT : {{_ : Monoid w}} {{_ : MonadThrow e m}}
+  MonadThrow-WriterT : {{_ : Monoid w}} {{_ : MonadThrow e m}}
     -> MonadThrow e (WriterT w m)
-  MonadThrow-ReaderT .throw = lift <<< throw
+  MonadThrow-WriterT .throw = lift <<< throw
 
-  MonadExcept-ReaderT : {{_ : Monoid w}} {{_ : MonadExcept e m}}
+  MonadExcept-WriterT : {{_ : Monoid w}} {{_ : MonadExcept e m}}
     -> MonadExcept e (WriterT w m)
-  MonadExcept-ReaderT .catch m h = WriterT: $
+  MonadExcept-WriterT .catch m h = WriterT: $
     catch (runWriterT m) (\ e -> runWriterT (h e))
