@@ -989,6 +989,10 @@ record Functor (f : Set -> Set) : Set where
   _<$>_ : (a -> b) -> f a -> f b
   _<$>_ = map
 
+  infixl 1 _<#>_
+  _<#>_ : f a -> (a -> b) -> f b
+  _<#>_ = flip map
+
   infixl 4 _<$_
   _<$_ : b -> f a -> f b
   _<$_ = map <<< const
@@ -1164,6 +1168,10 @@ record Monad (m : Set -> Set) : Set where
   field
     overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
+
+  infixr 0 caseM_of_
+  caseM_of_ : m a -> (a -> m b) -> m b
+  caseM_of_ = _>>=_
 
   join : m (m a) -> m a
   join = _>>= id
