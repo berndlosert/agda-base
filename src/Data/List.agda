@@ -285,6 +285,12 @@ chunksOf : (n : Nat) {{_ : IsPositive n}} -> List a -> List (List a)
 chunksOf _ [] = []
 chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
+breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a
+breakOn needle haystack with haystack | isPrefixOf needle haystack
+... | _ | True = ([] , haystack)
+... | [] | False = ([] , [])
+... | x :: xs | False  = lmap (x ::_) $ breakOn needle xs
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
