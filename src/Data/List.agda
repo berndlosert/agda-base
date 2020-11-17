@@ -291,6 +291,13 @@ breakOn needle haystack with haystack | isPrefixOf needle haystack
 ... | [] | False = ([] , [])
 ... | x :: xs | False  = lmap (x ::_) $ breakOn needle xs
 
+{-# TERMINATING #-}
+splitOn : {{_ : Eq a}} (needle : List a) {{_ : IsNonempty needle}}
+  -> List a -> List (List a)
+splitOn needle [] = [ [] ]
+splitOn needle haystack = let (l , r) = breakOn needle haystack in
+  l :: (if null r then [] else splitOn needle $ drop (length needle) r)
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
