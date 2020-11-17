@@ -133,6 +133,9 @@ span p s = bimap pack pack $ List.span p $ unpack s
 break : (Char -> Bool) -> String -> String * String
 break p s = bimap pack pack $ List.break p $ unpack s
 
+breakOn : String -> String -> String * String
+breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
+
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC take = Text.take . fromInteger #-}
 {-# COMPILE GHC takeWhile = Text.takeWhile #-}
@@ -140,21 +143,14 @@ break p s = bimap pack pack $ List.break p $ unpack s
 {-# COMPILE GHC dropWhile = Text.dropWhile #-}
 {-# COMPILE GHC span = Text.span #-}
 {-# COMPILE GHC break = Text.break #-}
+{-# COMPILE GHC breakOn = Text.breakOn #-}
 
 -------------------------------------------------------------------------------
 -- Breaking into many substrings
 -------------------------------------------------------------------------------
 
-splitOn : (pat : String) {{_ : Nonempty pat}} -> String -> List String
-splitOn pat s =
-  let
-    l = length pat in
-    prefix = take l s
-    rest = drop l s
-  in
-    if prefix == pat
-      then splitOn pat rest
-      else head s <> splitOn pat tail s
+splitOn : (delim : String) {{_ : IsNonempty delim}} -> String -> List String
+splitOn delim s = map pack $ List.splitOn (unpack delim) {{believeMe}} (unpack s)
 
 -------------------------------------------------------------------------------
 -- Breaking into lines and words

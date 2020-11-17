@@ -61,6 +61,9 @@ never .runIterT = return (Right never)
 retract : {{_ : Monad m}} -> IterT m a -> m a
 retract iter = runIterT iter >>= either return retract
 
+unsafeIter : Iter a -> a
+unsafeIter = runIdentity <<< retract
+
 instance
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT = runIterT iter <#> \ where
