@@ -214,10 +214,6 @@ neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
-isPos : Int -> Bool
-isPos (Pos _) = True
-isPos _ = False
-
 private
   -- Workaround for https://github.com/agda/agda/issues/4967
   intLessThan : Int -> Int -> Bool
@@ -364,8 +360,8 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (m : Maybe a) {{_ : Assert (isJust m)}} -> a
-fromJust (Just x) = x
+fromJust : (x : Maybe a) {{_ : Assert (isJust x)}} -> a
+fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f Nothing = b
@@ -634,7 +630,7 @@ instance
   ToNat-Nat .toNat n = n
 
   ToNat-Int : ToNat Int
-  ToNat-Int .ToNatConstraint i = Assert (isPos i)
+  ToNat-Int .ToNatConstraint n = Assert (n >= 0)
   ToNat-Int .toNat (Pos n) = n
 
   FromNeg-Int : FromNeg Int
