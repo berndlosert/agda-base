@@ -38,10 +38,10 @@ To uninstall emacs, do the following:
 
 ```sh
 # Uninstall emacs
-brew uninstall emacs
+brew uninstall --ignore-dependencies emacs
 
 # Uninstall emacs dependencies (brew really needs an option for this)
-brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencie
+brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencies
 
 # Uninstall leftover files
 rm -rf /usr/local/etc/unbound
