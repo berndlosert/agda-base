@@ -142,10 +142,6 @@ at : Nat -> List a -> Maybe a
 at n = leftToMaybe <<< flip foldlM 0 \
   k x -> if k == n then Left x else Right (Suc k)
 
-infixl 9 _!!_
-_!!_ : List a -> Nat -> Maybe a
-_!!_ = flip at
-
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) with f x
 ... | Nothing = xs
