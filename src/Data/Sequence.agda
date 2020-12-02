@@ -188,10 +188,6 @@ abstract
   at : Nat -> Seq a -> Maybe a
   at n xs = splitAt n xs # snd # head
 
-  infixl 9 _!!_
-  _!!_ : Seq a -> Nat -> Maybe a
-  _!!_ = flip at
-
   updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
   updateAt n f xs = let (l , r) = splitAt n xs in
     case uncons r of \ where
