@@ -294,6 +294,15 @@ splitOn needle [] = [ [] ]
 splitOn needle haystack = let (l , r) = breakOn needle haystack in
   l :: (if null r then [] else splitOn needle $ drop (length needle) r)
 
+split : (a -> Bool) -> List a -> List (List a)
+split f [] = [ [] ]
+split f (x :: xs) =
+  if f x
+    then [] :: split f xs
+    else case split f xs of \ where
+      [] -> [ [] ]
+      (y :: ys) -> (x :: y) :: ys
+
 -------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------

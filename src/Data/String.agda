@@ -150,7 +150,14 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -------------------------------------------------------------------------------
 
 splitOn : (delim : String) {{_ : IsNonempty delim}} -> String -> List String
-splitOn delim s = map pack $ List.splitOn (unpack delim) {{believeMe}} (unpack s)
+splitOn delim s =
+  map pack $ List.splitOn (unpack delim) {{believeMe}} (unpack s)
+
+split : (Char -> Bool) -> String -> List String
+split f s = map pack $ List.split f (unpack s)
+
+{-# FOREIGN GHC import qualified Data.Text as Text #-}
+{-# COMPILE GHC split = Text.split #-}
 
 -------------------------------------------------------------------------------
 -- Breaking into lines and words
