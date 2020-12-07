@@ -54,6 +54,7 @@ data Fixity : Set where
 -------------------------------------------------------------------------------
 
 postulate Name : Set
+
 {-# BUILTIN QNAME Name #-}
 
 primitive
@@ -67,6 +68,7 @@ primitive
 -------------------------------------------------------------------------------
 
 postulate Meta : Set
+
 {-# BUILTIN AGDAMETA Meta #-}
 
 primitive
