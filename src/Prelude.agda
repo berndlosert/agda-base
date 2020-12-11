@@ -999,9 +999,6 @@ record Functor (f : Set -> Set) : Set where
   vacuous : f Void -> f a
   vacuous = map absurd
 
-  flap : f (a -> b) -> a -> f b
-  flap f x = map (_$ x) f
-
 open Functor {{...}} public
 
 instance
