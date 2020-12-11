@@ -11,6 +11,7 @@ open import Prelude
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
 -------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b r r' : Set
+    a b r r' s : Set
     f m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -72,6 +73,9 @@ instance
   MonadReader-ContT .local f (ContT: c) = ContT: \ k -> do
     r <- ask
     local f (c (local (const r) <<< k))
+
+  MonadState-ContT : {{_ : MonadState s m}} -> MonadState s (ContT r m)
+  MonadState-ContT .state = lift <<< state
 
   MonadIO-ContT : {{_ : MonadIO m}} -> MonadIO (ContT r m)
   MonadIO-ContT .liftIO = lift <<< liftIO
