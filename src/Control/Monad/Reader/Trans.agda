@@ -16,6 +16,7 @@ open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
+open import Control.Monad.Writer.Class
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -31,7 +32,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e r r' s : Set
+    a b e r r' s w : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -84,6 +85,11 @@ instance
 
   MMonad-ReaderT : MMonad (ReaderT r)
   MMonad-ReaderT .embed k (ReaderT: f) = ReaderT: \ r -> runReaderT (k (f r)) r
+
+  MonadWriter-ReaderT : {{_ : MonadWriter w m}} -> MonadWriter w (ReaderT r m)
+  MonadWriter-ReaderT .tell = lift <<< tell
+  MonadWriter-ReaderT .listen = mapReaderT listen
+  MonadWriter-ReaderT .pass = mapReaderT pass
 
   MonadState-ReaderT : {{_ : MonadState s m}} -> MonadState s (ReaderT r m)
   MonadState-ReaderT .state = lift <<< state
