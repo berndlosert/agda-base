@@ -140,15 +140,15 @@ record Foldable (t : Set -> Set) : Set where
       maximum : (xs : t a) {{_ : IsNonempty xs}} -> a
       maximum = foldr1 max
 
-    module _ {{_ : Applicative f}} where
+  module _ {{_ : Applicative f}} where
 
-      sequence! : t (f a) -> f Unit
-      sequence! = traverse! id
+    sequence! : t (f a) -> f Unit
+    sequence! = traverse! id
 
-    module _ {{_ : Alternative f}} where
+  module _ {{_ : Alternative f}} where
 
-      asum : t (f a) -> f a
-      asum = foldr _<|>_ empty
+    asum : t (f a) -> f a
+    asum = foldr _<|>_ empty
 
 open Foldable {{...}} public
 
