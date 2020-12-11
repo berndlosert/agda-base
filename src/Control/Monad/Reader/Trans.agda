@@ -14,6 +14,7 @@ open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 
 -------------------------------------------------------------------------------
@@ -30,7 +31,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e r r' : Set
+    a b e r r' s : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -83,6 +84,9 @@ instance
 
   MMonad-ReaderT : MMonad (ReaderT r)
   MMonad-ReaderT .embed k (ReaderT: f) = ReaderT: \ r -> runReaderT (k (f r)) r
+
+  MonadState-ReaderT : {{_ : MonadState s m}} -> MonadState s (ReaderT r m)
+  MonadState-ReaderT .state = lift <<< state
 
   MonadIO-ReaderT : {{_ : MonadIO m}} -> MonadIO (ReaderT r m)
   MonadIO-ReaderT .liftIO = lift <<< liftIO
