@@ -144,7 +144,7 @@ abstract
   intersperse : a -> Seq a -> Seq a
   intersperse sep s with uncons s
   ... | Nothing = empty
-  ... | Just (x , xs) = cons x (xs <**> cons (const sep) (singleton id))
+  ... | Just (x , xs) = cons x (| _#_ xs (cons (const sep) (singleton id)) |)
 
 -------------------------------------------------------------------------------
 -- Indexed folds

@@ -69,20 +69,20 @@ unsafeIter = runIdentity <<< retract
 instance
   {-# NON_TERMINATING #-}
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
-  Functor-IterT .map f iter .runIterT = runIterT iter <#> \ where
+  Functor-IterT .map f iter .runIterT = flip map (runIterT iter) \ where
     (Left x) -> Left (f x)
     (Right iter') -> Right (map f iter')
 
   {-# NON_TERMINATING #-}
   Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
   Applicative-IterT .pure x .runIterT = return (Left x)
-  Applicative-IterT ._<*>_ iter x .runIterT = caseM runIterT iter of \ where
+  Applicative-IterT ._<*>_ iter x .runIterT = runIterT iter >>= \ where
     (Left f) -> runIterT (map f x)
     (Right iter') -> return (Right (iter' <*> x))
 
   {-# NON_TERMINATING #-}
   Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
-  Monad-IterT ._>>=_ iter k .runIterT = caseM runIterT iter of \ where
+  Monad-IterT ._>>=_ iter k .runIterT = runIterT iter >>= \ where
     (Left m) -> runIterT (k m)
     (Right iter') -> return (Right (iter' >>= k))
 

@@ -130,10 +130,10 @@ f $ x = f x
 
 infixl 1 _#_
 _#_ : a -> (a -> b) -> b
-_#_ = flip _$_
+_#_ x f = f x
 
 case_of_ : a -> (a -> b) -> b
-case_of_ = _#_
+case_of_ x f = f x
 
 Assert : Bool -> Set
 Assert False = Void
@@ -985,10 +985,6 @@ record Functor (f : Set -> Set) : Set where
   _<$>_ : (a -> b) -> f a -> f b
   _<$>_ = map
 
-  infixl 1 _<#>_
-  _<#>_ : f a -> (a -> b) -> f b
-  _<#>_ = flip map
-
   infixl 4 _<$_
   _<$_ : b -> f a -> f b
   _<$_ = map <<< const
@@ -1102,10 +1098,6 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
-  infixl 4 _<**>_
-  _<**>_ : f a -> f (a -> b) -> f b
-  a <**> f = (| _#_ a f |)
-
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 
@@ -1164,10 +1156,6 @@ record Monad (m : Set -> Set) : Set where
   field
     overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
-
-  infixr 0 caseM_of_
-  caseM_of_ : m a -> (a -> m b) -> m b
-  caseM_of_ = _>>=_
 
   join : m (m a) -> m a
   join = _>>= id
