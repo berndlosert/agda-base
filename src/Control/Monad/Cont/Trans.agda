@@ -10,6 +10,7 @@ open import Prelude
 
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
+open import Control.Monad.Reader.Class
 open import Control.Monad.Trans.Class
 
 -------------------------------------------------------------------------------
@@ -65,6 +66,12 @@ instance
   MonadCont-ContT : MonadCont (ContT r m)
   MonadCont-ContT .callCC f =
     ContT: \ c -> runContT (f \ x -> ContT: \ _ -> c x) c
+
+  MonadReader-ContT : {{_ : MonadReader r m}} -> MonadReader r (ContT r' m)
+  MonadReader-ContT .ask = lift ask
+  MonadReader-ContT .local f (ContT: c) = ContT: \ k -> do
+    r <- ask
+    local f (c (local (const r) <<< k))
 
   MonadIO-ContT : {{_ : MonadIO m}} -> MonadIO (ContT r m)
   MonadIO-ContT .liftIO = lift <<< liftIO
