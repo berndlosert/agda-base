@@ -13,6 +13,8 @@ open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
+open import Control.Monad.Reader.Class
+open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
 
@@ -30,7 +32,7 @@ open Control.Monad.Writer.Class public
 
 private
   variable
-    a b e w w' : Set
+    a b e r s w w' : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -97,6 +99,15 @@ instance
   MonadWriter-WriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
     return (a , f w)
+
+  MonadReader-WriterT : {{_ : Monoid w}} {{_ : MonadReader r m}}
+    -> MonadReader r (WriterT w m)
+  MonadReader-WriterT .ask = lift ask
+  MonadReader-WriterT .local f = mapWriterT (local f)
+
+  MonadState-WriterT : {{_ : Monoid w}} {{_ : MonadState s m}}
+    -> MonadState s (WriterT w m)
+  MonadState-WriterT .state f = lift (state f)
 
   MonadThrow-WriterT : {{_ : Monoid w}} {{_ : MonadThrow e m}}
     -> MonadThrow e (WriterT w m)
