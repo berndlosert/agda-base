@@ -13,8 +13,10 @@ open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Morph
 open import Control.Monad.Except.Class
+open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
+open import Control.Monad.Writer.Class
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -30,7 +32,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e s : Set
+    a b e r s w : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -84,13 +86,26 @@ instance
   MFunctor-StateT : MFunctor (StateT s)
   MFunctor-StateT .hoist f = mapStateT f
 
-  MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
-  MonadState-StateT .state f = StateT: (return <<< f)
-
   MonadTrans-StateT : MonadTrans (StateT s)
   MonadTrans-StateT .lift m = StateT: \ s -> do
     a <- m
     return (a , s)
+
+  MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
+  MonadState-StateT .state f = StateT: (return <<< f)
+
+  MonadReader-StateT : {{_ : MonadReader r m}} -> MonadReader r (StateT s m)
+  MonadReader-StateT .ask = lift ask
+  MonadReader-StateT .local = mapStateT <<< local
+
+  MonadWriter-StateT : {{_ : MonadWriter w m}} -> MonadWriter w (StateT s m)
+  MonadWriter-StateT .tell = lift <<< tell
+  MonadWriter-StateT .listen (StateT: m) = StateT: \ s -> do
+    (x , s' , w) <- listen (m s)
+    pure $ (x , w , s')
+  MonadWriter-StateT .pass (StateT: m) = StateT: \ s -> pass do
+     (x , f , s') <- m s
+     pure $ (x , s' , f)
 
   MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
