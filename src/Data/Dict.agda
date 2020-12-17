@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Map where
+module Data.Dict where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -41,60 +41,60 @@ instance
 
 
 -------------------------------------------------------------------------------
--- Map
+-- Dict
 -------------------------------------------------------------------------------
 
 private
-  data Map' (k v : Set) : Set where
-    Map: : Tree (KVPair k v) -> Map' k v
+  data Dict' (k v : Set) : Set where
+    Dict: : Tree (KVPair k v) -> Dict' k v
 
-Map = Map'
+Dict = Dict'
 
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
 instance
-  Foldable-Map : Foldable (Map k)
-  Foldable-Map .foldMap f (Map: t) = flip foldMap t \ where
+  Foldable-Dict : Foldable (Dict k)
+  Foldable-Dict .foldMap f (Dict: t) = flip foldMap t \ where
     (KVPair: k v) -> f v
 
 -------------------------------------------------------------------------------
 -- Construction
 -------------------------------------------------------------------------------
 
-empty : Map k v
-empty = Map: Tree.empty
+empty : Dict k v
+empty = Dict: Tree.empty
 
-singleton : k -> v -> Map k v
-singleton k v = Map: $ Tree.singleton $ KVPair: k v
+singleton : k -> v -> Dict k v
+singleton k v = Dict: $ Tree.singleton $ KVPair: k v
 
 -------------------------------------------------------------------------------
 -- Destruction
 -------------------------------------------------------------------------------
 
-keys : Map k v -> List k
-keys (Map: t) = foldMap (getKey >>> [_]) t
+keys : Dict k v -> List k
+keys (Dict: t) = foldMap (getKey >>> [_]) t
 
-values : Map k v -> List v
-values (Map: t) = foldMap (getValue >>> [_]) t
+values : Dict k v -> List v
+values (Dict: t) = foldMap (getValue >>> [_]) t
 
 -------------------------------------------------------------------------------
 -- Other operations
 -------------------------------------------------------------------------------
 
-insert : {{_ : Ord k}} -> k -> v -> Map k v -> Map k v
-insert k v (Map: t) = Map: (Tree.insert (KVPair: k v) t)
+insert : {{_ : Ord k}} -> k -> v -> Dict k v -> Dict k v
+insert k v (Dict: t) = Dict: (Tree.insert (KVPair: k v) t)
 
-delete : {{_ : Ord k}} -> k -> Map k v -> Map k v
-delete k (Map: t) with find (\ p -> k == getKey p) t
-... | Nothing = Map: t
-... | Just p = Map: (Tree.delete p t)
+delete : {{_ : Ord k}} -> k -> Dict k v -> Dict k v
+delete k (Dict: t) with find (\ p -> k == getKey p) t
+... | Nothing = Dict: t
+... | Just p = Dict: (Tree.delete p t)
 
-lookup : {{_ : Ord k}} -> k -> Map k v -> Maybe v
-lookup k (Map: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
+lookup : {{_ : Ord k}} -> k -> Dict k v -> Maybe v
+lookup k (Dict: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
   (KVPair: k v) -> (k , v))
 
-map : {{_ : Ord k}} -> (a -> b) -> Map k a -> Map k b
-map f (Map: t) = Map: $ flip Tree.map t \ where
+map : {{_ : Ord k}} -> (a -> b) -> Dict k a -> Dict k b
+map f (Dict: t) = Dict: $ flip Tree.map t \ where
   (KVPair: k v) -> KVPair: k (f v)
