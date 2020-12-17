@@ -34,7 +34,7 @@ private
 {-# NO_POSITIVITY_CHECK #-}
 record ListT (m : Set -> Set) (a : Set) : Set where
   constructor ListT:
-  field uncons : m (Maybe (a * ListT m a))
+  field unconsT : m (Maybe (a * ListT m a))
 
 open ListT public
 
@@ -83,15 +83,15 @@ instance
   {-# TERMINATING #-}
   Applicative-ListT : {{_ : Monad m}} -> Applicative (ListT m)
   Applicative-ListT .pure x = ListT: (return (Just (x , mempty)))
-  Applicative-ListT ._<*>_ fs xs = ListT: $ uncons fs >>= \ where
+  Applicative-ListT ._<*>_ fs xs = ListT: $ unconsT fs >>= \ where
     Nothing -> return Nothing
-    (Just (f , fs')) -> uncons $ (map f xs) <> (fs' <*> xs)
+    (Just (f , fs')) -> unconsT $ (map f xs) <> (fs' <*> xs)
 
   {-# TERMINATING #-}
   Monad-ListT : {{_ : Monad m}} -> Monad (ListT m)
   Monad-ListT ._>>=_ (ListT: m) k = ListT: $ m >>= \ where
     Nothing -> return Nothing
-    (Just (x , xs)) -> uncons $ k x <> (xs >>= k)
+    (Just (x , xs)) -> unconsT $ k x <> (xs >>= k)
 
   Alternative-ListT : {{_ : Monad m}} -> Alternative (ListT m)
   Alternative-ListT .empty = mempty
@@ -106,7 +106,7 @@ instance
   {-# TERMINATING #-}
   MFunctor-ListT : MFunctor ListT
   MFunctor-ListT .hoist f =
-    ListT: <<< f <<< (map <<< map) (bimap id (hoist f)) <<< uncons
+    ListT: <<< f <<< (map <<< map) (bimap id (hoist f)) <<< unconsT
 
   {-# TERMINATING #-}
   MMonad-ListT : MMonad ListT
@@ -119,7 +119,7 @@ instance
 
   MonadExcept-ListT : {{_ : MonadExcept e m}} -> MonadExcept e (ListT m)
   MonadExcept-ListT .catch m handler =
-    ListT: (catch (uncons m) (uncons <<< handler))
+    ListT: (catch (unconsT m) (unconsT <<< handler))
 
   MonadReader-ListT : {{_ : MonadReader r m}} -> MonadReader r (ListT m)
   MonadReader-ListT .ask = lift ask
