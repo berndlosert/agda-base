@@ -16,6 +16,12 @@ open import Data.Traversable
 -- String optics
 -------------------------------------------------------------------------------
 
+packed : Simple Iso (List Char) String
+packed = iso pack unpack
+
+unpacked : Simple Iso String (List Char)
+unpacked = iso unpack pack
+
 worded : Simple Traversal String String
 worded f str = (| String.unwords (traverse f (String.words str)) |)
 

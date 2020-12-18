@@ -265,12 +265,6 @@ is ap = not <<< isn't ap
 -- Some general optics
 -------------------------------------------------------------------------------
 
-packed : {{_ : Packed s a}} -> Simple Iso (List a) s
-packed = iso pack unpack
-
-unpacked : {{_ : Packed s a}} -> Simple Iso s (List a)
-unpacked = iso unpack pack
-
 mapped : {{_ : Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 

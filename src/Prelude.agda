@@ -296,6 +296,9 @@ private
     primStringFromList : List Char -> String
     primStringAppend : String -> String -> String
 
+pack = primStringFromList
+unpack = primStringToList
+
 either : (a -> c) -> (b -> c) -> Either a b -> c
 either f g (Left a) = f a
 either f g (Right b) = g b
@@ -400,22 +403,6 @@ private
 {-# COMPILE GHC pureIO = \ _ -> pure #-}
 {-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
-
--------------------------------------------------------------------------------
--- Packed
--------------------------------------------------------------------------------
-
-record Packed (s a : Set) : Set where
-  field
-    pack : List a -> s
-    unpack : s -> List a
-
-open Packed {{...}} public
-
-instance
-  Packed-String-Char : Packed String Char
-  Packed-String-Char .pack = primStringFromList
-  Packed-String-Char .unpack = primStringToList
 
 -------------------------------------------------------------------------------
 -- Eq
