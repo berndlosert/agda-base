@@ -23,7 +23,7 @@ private
 record Alternative (f : Set -> Set) : Set where
   infixl 3 _<|>_
   field
-    overlap {{Alternative-super}} : Applicative f
+    overlap {{Applicative-super}} : Applicative f
     _<|>_ : f a -> f a -> f a
     empty : f a
 
