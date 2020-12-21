@@ -139,7 +139,7 @@ splitAt : Nat -> List a -> List a * List a
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List a -> Maybe a
-at n = leftToMaybe <<< flip foldlM 0 \
+at n = either Just (const Nothing) <<< flip foldlM 0 \
   k x -> if k == n then Left x else Right (Suc k)
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
