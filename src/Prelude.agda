@@ -324,19 +324,6 @@ fromLeft (Left a) = a
 fromRight : (x : Either a b) {{_ : Assert (isRight x)}} -> b
 fromRight (Right b) = b
 
-lefts : List (Either a b) -> List a
-lefts [] = []
-lefts (Left a :: xs) = a :: lefts xs
-lefts (_ :: xs) = lefts xs
-
-rights : List (Either a b) -> List b
-rights [] = []
-rights (Right b :: xs) = b :: rights xs
-rights (_ :: xs) = rights xs
-
-partitionEithers : List (Either a b) -> Tuple (List a) (List b)
-partitionEithers xs = (lefts xs , rights xs)
-
 tuple : (a -> b) -> (a -> c) -> a -> Tuple b c
 tuple f g x = (f x , g x)
 
@@ -369,18 +356,6 @@ fromJust (Just a) = a
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f Nothing = b
 maybe b f (Just a) = f a
-
-maybeToLeft : b -> Maybe a -> Either a b
-maybeToLeft b = maybe (Right b) Left
-
-maybeToRight : b -> Maybe a -> Either b a
-maybeToRight b = maybe (Left b) Right
-
-leftToMaybe : Either a b -> Maybe a
-leftToMaybe = either Just (const Nothing)
-
-rightToMaybe : Either a b -> Maybe b
-rightToMaybe = either (const Nothing) Just
 
 pattern [_] x = x :: []
 
