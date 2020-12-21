@@ -90,7 +90,7 @@ record Foldable (t : Set -> Set) : Set where
   and = foldr _&&_ True
 
   find : (a -> Bool) -> t a -> Maybe a
-  find p = leftToMaybe <<<
+  find p = either Just (const Nothing) <<<
     foldlM (\ _ a ->  if p a then Left a else Right unit) unit
 
   module _ {{_ : Eq a}} where
