@@ -35,10 +35,10 @@ instance
   Semigroup-Product-Int ._<>_ (Product: m) (Product: n) = Product: (m * n)
 
   Monoid-Product-Nat : Monoid (Product Nat)
-  Monoid-Product-Nat .mempty = Product: 1
+  Monoid-Product-Nat .neutral = Product: 1
 
   Monoid-Product-Int : Monoid (Product Int)
-  Monoid-Product-Int .mempty = Product: 1
+  Monoid-Product-Int .neutral = Product: 1
 
   Functor-Product : Functor Product
   Functor-Product .map f = Product: <<< f <<< getProduct

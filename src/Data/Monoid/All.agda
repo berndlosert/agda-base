@@ -24,7 +24,7 @@ instance
   Semigroup-All ._<>_ (All: x) (All: y) = All: (x && y)
 
   Monoid-All : Monoid All
-  Monoid-All .mempty = All: True
+  Monoid-All .neutral = All: True
 
   Show-All : Show All
   Show-All .showsPrec d (All: x) = showParen (d > appPrec)

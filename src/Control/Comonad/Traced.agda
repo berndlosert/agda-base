@@ -17,4 +17,4 @@ instance
 
   Comonad-Traced : {{_ : Monoid m}} -> Comonad (Traced m)
   Comonad-Traced .extend h t m = h (\ m' -> t (m <> m'))
-  Comonad-Traced .extract f = f mempty
+  Comonad-Traced .extract f = f neutral

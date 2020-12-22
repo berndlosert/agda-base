@@ -32,7 +32,7 @@ instance
   Semigroup-First ._<>_ x _ = x
 
   Monoid-First : {{_ : Monoid a}} -> Monoid (First a)
-  Monoid-First .mempty = First: mempty
+  Monoid-First .neutral = First: neutral
 
   Functor-First : Functor First
   Functor-First .map f = First: <<< f <<< getFirst

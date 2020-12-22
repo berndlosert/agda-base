@@ -40,7 +40,7 @@ instance
     Identity: (x <> y)
 
   Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
-  Monoid-Identity .mempty = Identity: mempty
+  Monoid-Identity .neutral = Identity: neutral
 
   Foldable-Identity : Foldable Identity
   Foldable-Identity .foldMap f (Identity: x) = f x

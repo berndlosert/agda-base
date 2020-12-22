@@ -132,7 +132,7 @@ instance
       pass' $ runIterT $ hoist clean $ listen iter
     where
       clean : forall {a} -> m a -> m a
-      clean = pass <<< map (_, const mempty)
+      clean = pass <<< map (_, const neutral)
 
       c : Set
       c = a * (w -> w) * w

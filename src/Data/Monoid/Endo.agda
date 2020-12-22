@@ -31,4 +31,4 @@ instance
   Semigroup-Endo ._<>_ g f = Endo: \ x -> appEndo g (appEndo f x)
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .mempty = Endo: \ x -> x
+  Monoid-Endo .neutral = Endo: \ x -> x

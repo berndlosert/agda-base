@@ -308,7 +308,7 @@ split f (x :: xs) =
 -------------------------------------------------------------------------------
 
 intercalate : {{_ : Monoid a}} -> a -> List a -> a
-intercalate sep [] = mempty
+intercalate sep [] = neutral
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 

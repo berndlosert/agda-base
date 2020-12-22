@@ -40,7 +40,7 @@ instance
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldMap f t with t
   ... | Leaf =
-    mempty
+    neutral
   ... | Two l x r =
     foldMap f l <> f x <> foldMap f r
   ... | Three l x m y r =

@@ -279,7 +279,7 @@ open Folded {{...}} public
 instance
   Folded-List : Folded (List a) a
   Folded-List .folded f xs =
-    Const: (listrec mempty (\ x _ y -> getConst (f x) <> y) xs)
+    Const: (listrec neutral (\ x _ y -> getConst (f x) <> y) xs)
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b

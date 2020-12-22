@@ -32,7 +32,7 @@ instance
   Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
   Monoid-Dual : {{_ : Monoid a}} -> Monoid (Dual a)
-  Monoid-Dual .mempty = Dual: mempty
+  Monoid-Dual .neutral = Dual: neutral
 
   Functor-Dual : Functor Dual
   Functor-Dual .map f = Dual: <<< f <<< getDual

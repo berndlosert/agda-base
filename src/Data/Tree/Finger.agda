@@ -36,13 +36,13 @@ data FingerTree (v a : Set) : Set where
 instance
   Measured-FingerTree : {{_ : Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure tree with tree
-  ... | Empty = mempty
+  ... | Empty = neutral
   ... | Single x = measure x
   ... | Deep v _ _ _ = v
 
   Foldable-FingerTree : Foldable (FingerTree v)
   Foldable-FingerTree .foldMap f tree with tree
-  ... | Empty = mempty
+  ... | Empty = neutral
   ... | Single x = f x
   ... | Deep _ pr m sf = foldMap f pr <> foldMap (foldMap f) m <> foldMap f sf
 
@@ -146,7 +146,7 @@ instance
   Semigroup-FingerTree ._<>_ xs ys = app3 xs [] ys
 
   Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
-  Monoid-FingerTree .mempty = Empty
+  Monoid-FingerTree .neutral = Empty
 
 -------------------------------------------------------------------------------
 -- uncons & unsnoc
@@ -237,7 +237,7 @@ split : {{_ : Measured v a}}
   -> FingerTree v a
   -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
-split p xs with splitTree p mempty xs {{believeMe}}
+split p xs with splitTree p neutral xs {{believeMe}}
 ... | (l , x , r) = if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
@@ -281,12 +281,12 @@ search : {{_ : Measured v a}}
 search p t =
   let
     vt = measure t
-    pleft = p mempty vt
-    pright = p vt mempty
+    pleft = p neutral vt
+    pright = p vt neutral
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p mempty t {{believeMe}} mempty of \ where
+      (case searchTree p neutral t {{believeMe}} neutral of \ where
         (l , x , r) -> Position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere

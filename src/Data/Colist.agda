@@ -31,4 +31,4 @@ instance
   Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .force -> (xs .force <> ys)
 
   Monoid-Colist : Monoid (Colist i a)
-  Monoid-Colist .mempty = []
+  Monoid-Colist .neutral = []

@@ -32,7 +32,7 @@ instance
   Semigroup-Last ._<>_ _ y = y
 
   Monoid-Last : {{_ : Monoid a}} -> Monoid (Last a)
-  Monoid-Last .mempty = Last: mempty
+  Monoid-Last .neutral = Last: neutral
 
   Functor-Last : Functor Last
   Functor-Last .map f = Last: <<< f <<< getLast

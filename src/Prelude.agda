@@ -880,34 +880,34 @@ instance
 record Monoid (a : Set) : Set where
   field
     overlap {{Semigroup-super}} : Semigroup a
-    mempty : a
+    neutral : a
 
 open Monoid {{...}} public
 
 instance
   Monoid-Unit : Monoid Unit
-  Monoid-Unit .mempty = unit
+  Monoid-Unit .neutral = unit
 
   Monoid-Ordering : Monoid Ordering
-  Monoid-Ordering .mempty = EQ
+  Monoid-Ordering .neutral = EQ
 
   Monoid-String : Monoid String
-  Monoid-String .mempty = ""
+  Monoid-String .neutral = ""
 
   Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
-  Monoid-Function .mempty = const mempty
+  Monoid-Function .neutral = const neutral
 
   Monoid-Tuple : {{_ : Monoid a}} {{_ : Monoid b}} -> Monoid (Tuple a b)
-  Monoid-Tuple .mempty = (mempty , mempty)
+  Monoid-Tuple .neutral = (neutral , neutral)
 
   Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
-  Monoid-Maybe .mempty = Nothing
+  Monoid-Maybe .neutral = Nothing
 
   Monoid-List : Monoid (List a)
-  Monoid-List .mempty = []
+  Monoid-List .neutral = []
 
   Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
-  Monoid-IO .mempty = pureIO mempty
+  Monoid-IO .neutral = pureIO neutral
 
 -------------------------------------------------------------------------------
 -- Category

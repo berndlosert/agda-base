@@ -158,7 +158,7 @@ open Foldable {{...}} public
 
 instance
   Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldMap = maybe mempty
+  Foldable-Maybe .foldMap = maybe neutral
 
   Foldable-List : Foldable List
-  Foldable-List .foldMap f = listrec mempty \ x _ y -> f x <> y
+  Foldable-List .foldMap f = listrec neutral \ x _ y -> f x <> y
