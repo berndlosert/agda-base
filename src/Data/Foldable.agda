@@ -47,8 +47,7 @@ record Foldable (t : Set -> Set) : Set where
   foldr f b as = appEndo (foldMap (Endo: <<< f) as) b
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl f b as =
-    (appEndo <<< getDual) (foldMap (Dual: <<< Endo: <<< flip f) as) b
+  foldl f b as = foldr (_>>>_ <<< flip f) id as b
 
   foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM f b as = let g k a b' = f a b' >>= k in
@@ -64,11 +63,15 @@ record Foldable (t : Set -> Set) : Set where
   length : t a -> Nat
   length = foldr (const Suc) 0
 
-  all : (a -> Bool) -> t a -> Bool
-  all p = getAll <<< foldMap (All: <<< p)
+  find : (a -> Bool) -> t a -> Maybe a
+  find p = either Just (const Nothing) <<<
+    foldlM (\ _ a ->  if p a then Left a else Right unit) unit
 
   any : (a -> Bool) -> t a -> Bool
-  any p = getAny <<< foldMap (Any: <<< p)
+  any p xs = maybe False (const True) (find p xs)
+
+  all : (a -> Bool) -> t a -> Bool
+  all p = not <<< any (not <<< p)
 
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
@@ -84,10 +87,6 @@ record Foldable (t : Set -> Set) : Set where
 
   and : t Bool -> Bool
   and = foldr _&&_ True
-
-  find : (a -> Bool) -> t a -> Maybe a
-  find p = either Just (const Nothing) <<<
-    foldlM (\ _ a ->  if p a then Left a else Right unit) unit
 
   module _ {{_ : Eq a}} where
 
