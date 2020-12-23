@@ -49,7 +49,7 @@ abstract
     Monoid-Seq .neutral = Seq: Tree.empty
 
     Foldable-Seq : Foldable Seq
-    Foldable-Seq .foldMap f (Seq: t) = foldMap (f <<< getElem) t
+    Foldable-Seq .foldr f z (Seq: t) = foldr (f <<< getElem) z t
 
     Functor-Seq : Functor Seq
     Functor-Seq .map f (Seq: t) = Seq: (map (map f) t)

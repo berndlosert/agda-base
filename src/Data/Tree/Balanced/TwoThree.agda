@@ -38,13 +38,10 @@ instance
   NonemptyConstraint-Tree .IsNonempty _ = Unit
 
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldMap f t with t
-  ... | Leaf =
-    neutral
-  ... | Two l x r =
-    foldMap f l <> f x <> foldMap f r
-  ... | Three l x m y r =
-    foldMap f l <> f x <> foldMap f m <> f y <> foldMap f r
+  Foldable-Tree .foldr f z t with t
+  ... | Leaf = z
+  ... | Two l x r = foldr f (f x (foldr f z r)) l
+  ... | Three l x m y r = foldr f (f x (foldr f (f y (foldr f z r)) m)) l
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t t' = toList t == toList t'

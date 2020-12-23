@@ -74,7 +74,7 @@ abstract
 
   instance
     Foldable-Subset : Foldable Subset
-    Foldable-Subset .foldMap = foldMap {{Tree.Foldable-Tree}}
+    Foldable-Subset .foldr = foldr {{Tree.Foldable-Tree}}
 
     Eq-Subset : {{_ : Ord a}} -> Eq (Subset a)
     Eq-Subset ._==_ xs ys = all (flip member ys) xs && all (flip member xs) ys

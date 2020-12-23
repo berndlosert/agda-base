@@ -56,8 +56,8 @@ Dict = Dict'
 
 instance
   Foldable-Dict : Foldable (Dict k)
-  Foldable-Dict .foldMap f (Dict: t) = flip foldMap t \ where
-    (KVPair: k v) -> f v
+  Foldable-Dict .foldr f z (Dict: t) =
+    foldr (\ where (KVPair: k v) y -> f v y) z t
 
 -------------------------------------------------------------------------------
 -- Construction

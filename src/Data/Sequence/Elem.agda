@@ -43,7 +43,7 @@ instance
   Functor-Elem .map f (Elem: x) = Elem: (f x)
 
   Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldMap f (Elem: x) = f x
+  Foldable-Elem .foldr f z (Elem: x) = f x z
 
   Traversable-Elem : Traversable Elem
   Traversable-Elem .traverse f (Elem: x) = (| Elem: (f x) |)

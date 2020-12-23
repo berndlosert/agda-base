@@ -34,9 +34,9 @@ data Tree (a : Set) : Set where
 
 instance
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldMap f t with t
-  ... | Leaf = neutral
-  ... | Node l x r = foldMap f l <> f x <> foldMap f r
+  Foldable-Tree .foldr f z t with t
+  ... | Leaf = z
+  ... | Node l x r = foldr f (f x (foldr f z r)) l
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t s with t | s

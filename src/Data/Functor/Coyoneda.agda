@@ -68,7 +68,7 @@ instance
     liftCoyoneda $ v >>= f >>> k >>> lowerCoyoneda
 
   Foldable-Coyoneda : {{_ : Foldable f}} -> Foldable (Coyoneda f)
-  Foldable-Coyoneda .foldMap f (Coyoneda: k a) = foldMap (f <<< k) a
+  Foldable-Coyoneda .foldr f z (Coyoneda: k a) = foldr (\ x y -> f (k x) y) z a
 
   Traversable-Coyoneda : {{_ : Traversable f}} -> Traversable (Coyoneda f)
   Traversable-Coyoneda .traverse f (Coyoneda: k a) =

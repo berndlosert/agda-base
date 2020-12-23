@@ -32,11 +32,11 @@ data Digit (a : Set) : Set where
 
 instance
   Foldable-Digit : Foldable Digit
-  Foldable-Digit .foldMap f digit with digit
-  ... | One a = f a
-  ... | Two a b = f a <> f b
-  ... | Three a b c = f a <> f b <> f c
-  ... | Four a b c d = f a <> f b <> f c <> f d
+  Foldable-Digit .foldr f z digit with digit
+  ... | One a = f a z
+  ... | Two a b = f a (f b z)
+  ... | Three a b c = f a (f b (f c z))
+  ... | Four a b c d = f a (f b (f c (f d z)))
 
   Functor-Digit : Functor Digit
   Functor-Digit .map f digit with digit

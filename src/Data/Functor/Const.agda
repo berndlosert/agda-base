@@ -42,7 +42,7 @@ instance
   Monoid-Const .neutral = Const: neutral
 
   Foldable-Const : Foldable (Const a)
-  Foldable-Const .foldMap _ _ = neutral
+  Foldable-Const .foldr _ z _ = z
 
   Functor-Const : Functor (Const a)
   Functor-Const .map _ (Const: x) = Const: x

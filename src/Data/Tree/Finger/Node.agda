@@ -48,9 +48,9 @@ nodes _ = []
 
 instance
   Foldable-Node : Foldable (Node v)
-  Foldable-Node .foldMap f node with node
-  ... | Node2 _ a b = f a <> f b
-  ... | Node3 _ a b c = f a <> f b <> f c
+  Foldable-Node .foldr f z node with node
+  ... | Node2 _ a b = f a (f b z)
+  ... | Node3 _ a b c = f a (f b (f c z))
 
   Functor-Node : Functor (Node v)
   Functor-Node .map f node with node

@@ -38,13 +38,13 @@ private
 -------------------------------------------------------------------------------
 
 record Foldable (t : Set -> Set) : Set where
-  field foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b
+  field foldr : (a -> b -> b) -> b -> t a -> b
+
+  foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b
+  foldMap f = foldr (_<>_ <<< f) neutral
 
   fold : {{_ : Monoid a}} -> t a -> a
   fold = foldMap id
-
-  foldr : (a -> b -> b) -> b -> t a -> b
-  foldr f b as = appEndo (foldMap (Endo: <<< f) as) b
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl f b as = foldr (_>>>_ <<< flip f) id as b
@@ -153,7 +153,7 @@ open Foldable {{...}} public
 
 instance
   Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldMap = maybe neutral
+  Foldable-Maybe .foldr f b = maybe b (flip f b)
 
   Foldable-List : Foldable List
-  Foldable-List .foldMap f = listrec neutral \ x _ y -> f x <> y
+  Foldable-List .foldr f b = listrec b (\ x _ y -> f x y)
