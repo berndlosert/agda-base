@@ -199,8 +199,16 @@ private
 
   natModAux : (k m n j : Nat) -> Nat
   natModAux k m  Zero j = k
-  natModAux k m (Suc n) Zero = natModAux 0 m n m
+  natModAux k m (Suc n) Zero = natModAux Zero m n m
   natModAux k m (Suc n) (Suc j) = natModAux (Suc k) m n j
+
+  natDiv : Nat -> Nat -> Nat
+  natDiv m (Suc n) = natDivAux Zero n m n
+  natDiv _ _ = undefined
+
+  natMod : Nat -> Nat -> Nat
+  natMod m (Suc n) = natModAux Zero n m n
+  natMod _ _ = undefined
 
 {-# BUILTIN NATEQUALS natEquality #-}
 {-# BUILTIN NATLESS natLessThan #-}
@@ -221,6 +229,44 @@ private
   intLessThan (NegSuc m) (NegSuc n) = natLessThan n m
   intLessThan (NegSuc _) (Pos _) = True
   intLessThan (Pos _) (NegSuc _) = False
+
+  intNegate : Int -> Int
+  intNegate = \ where
+    (Pos Zero) -> Pos Zero
+    (Pos (Suc n)) -> NegSuc n
+    (NegSuc n) -> Pos (Suc n)
+
+  intMinus : Nat -> Nat -> Int
+  intMinus m Zero = Pos m
+  intMinus Zero (Suc n) = NegSuc n
+  intMinus (Suc m) (Suc n) = intMinus m n
+
+  intPlus : Int -> Int -> Int
+  intPlus (NegSuc m) (NegSuc n) = NegSuc (Suc (natPlus m n))
+  intPlus (NegSuc m) (Pos n) = intMinus n (Suc m)
+  intPlus (Pos m) (NegSuc n) = intMinus m (Suc n)
+  intPlus (Pos m) (Pos n) = Pos (natPlus m n)
+
+  intTimes : Int -> Int -> Int
+  intTimes = \ where
+    (Pos n) (Pos m) -> Pos (natTimes n m)
+    (NegSuc n) (NegSuc m) -> Pos (natTimes (Suc n) (Suc m))
+    (Pos n) (NegSuc m) -> neg (natTimes n (Suc m))
+    (NegSuc n) (Pos m) -> neg (natTimes (Suc n) m)
+
+  intDiv : Int -> Int -> Int
+  intDiv = \ where
+    (Pos m) (Pos n) -> Pos (natDiv m n)
+    (Pos m) (NegSuc n) -> neg (natDiv m (Suc n))
+    (NegSuc m) (Pos n) -> neg (natDiv (Suc m) n)
+    (NegSuc m) (NegSuc n) -> Pos (natDiv (Suc m) (Suc n))
+
+  intMod : Int -> Int -> Int
+  intMod = \ where
+    (Pos m) (Pos n) -> Pos (natMod m n)
+    (Pos m) (NegSuc n) -> Pos (natMod m (Suc n))
+    (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
 
 private
   primitive
@@ -599,10 +645,6 @@ instance
   FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
 
-  FromNeg-Float : FromNeg Float
-  FromNeg-Float .FromNegConstraint _ = Unit
-  FromNeg-Float .fromNeg x = primFloatNegate (primNatToFloat x)
-
   ToFloat-Nat : ToFloat Nat
   ToFloat-Nat .toFloat = primNatToFloat
 
@@ -611,216 +653,146 @@ instance
   ToFloat-Int .toFloat (NegSuc n) = primFloatMinus -1.0 (primNatToFloat n)
 
 -------------------------------------------------------------------------------
--- Arithmetic operations
+-- Additive
 -------------------------------------------------------------------------------
 
-record Addition (a : Set) : Set where
+record Additive (a : Set) : Set where
   infixl 6 _+_
-  field _+_ : a -> a -> a
+  field
+    _+_ : a -> a -> a
+    zero : a
 
-open Addition {{...}} public
+open Additive {{...}} public
 
-record Multiplication (a : Set) : Set where
-  infixl 7 _*_
-  field _*_ : a -> a -> a
+instance
+  Additive-Set : Additive Set
+  Additive-Set ._+_ = Either
+  Additive-Set .zero = Void
 
-open Multiplication {{...}} public
+  Additive-Nat : Additive Nat
+  Additive-Nat ._+_ = natPlus
+  Additive-Nat .zero = 0
 
-record Power (a : Set) : Set where
-  infixr 10 _^_
-  field _^_ : a -> Nat -> a
+  Additive-Int : Additive Int
+  Additive-Int .zero = 1
+  Additive-Int ._+_ = intPlus
 
-open Power {{...}} public
+  Additive-Float : Additive Float
+  Additive-Float ._+_ = primFloatPlus
+  Additive-Float .zero = 0.0
 
-record Exponentiation (a : Set) : Set where
-  infixr 8 _**_
-  field _**_ : a -> a -> a
+  Additive-Function : {{_ : Additive b}} -> Additive (a -> b)
+  Additive-Function ._+_ f g x = f x + g x
+  Additive-Function .zero = const zero
 
-open Exponentiation {{...}} public
+-------------------------------------------------------------------------------
+-- Substractable
+-------------------------------------------------------------------------------
 
-record Negation (a : Set) : Set where
-  field -_ : a -> a
-
-open Negation {{...}} public
-
-record Subtraction (a : Set) : Set where
+record Subtractable (a : Set) : Set where
   infixl 6 _-_
   field _-_ : a -> a -> a
 
-open Subtraction {{...}} public
-
-record Division (a : Set) : Set where
-  infixl 7 _/_
-  field
-    DivisionConstraint : a -> Set
-    _/_ : (x y : a) {{_ : DivisionConstraint y}} -> a
-
-open Division {{...}} public
-
-record Modulus (a : Set) : Set where
-  infixl 7 _%_
-  field
-    ModulusConstraint : a -> Set
-    _%_ : (x y : a) {{_ : ModulusConstraint y}} -> a
-
-open Modulus {{...}} public
-
-record Signed (a : Set) : Set where
-  field
-    abs : a -> a
-    signum : a -> a
-
-open Signed {{...}} public
+open Subtractable {{...}} public
 
 instance
-  Addition-Set : Addition Set
-  Addition-Set ._+_ = Either
+  Subtractable-Nat : Subtractable Nat
+  Subtractable-Nat ._-_ = natMinus
 
-  Multiplication-Set : Multiplication Set
-  Multiplication-Set ._*_ = Tuple
+  Subtractable-Int : Subtractable Int
+  Subtractable-Int ._-_ m n = m + intNegate n
 
-  Power-Set : Power Set
-  Power-Set ._^_ a = \ where
-    0 -> Unit
-    1 -> a
-    (Suc n) -> a ^ n * a
+  Subtractable-Float : Subtractable Float
+  Subtractable-Float ._-_ = primFloatMinus
 
-  Addition-Nat : Addition Nat
-  Addition-Nat ._+_ = natPlus
+  Subtractable-Function : {{_ : Subtractable b}} -> Subtractable (a -> b)
+  Subtractable-Function ._-_ f g x = f x - g x
 
-  Multiplication-Nat : Multiplication Nat
-  Multiplication-Nat ._*_ = natTimes
+-------------------------------------------------------------------------------
+-- Negatable
+-------------------------------------------------------------------------------
 
-  Power-Nat : Power Nat
-  Power-Nat ._^_ a = \ where
-    0 -> 1
-    1 -> a
-    (Suc n) -> a ^ n * a
+record Negatable (a : Set) : Set where
+  field -_ : a -> a
 
-  Exponentiation-Nat : Exponentiation Nat
-  Exponentiation-Nat ._**_ = _^_
+open Negatable {{...}} public
 
-  Subtraction-Nat : Subtraction Nat
-  Subtraction-Nat ._-_ = natMinus
+instance
+  Negatable-Int : Negatable Int
+  Negatable-Int .-_ = intNegate
 
-  Division-Nat : Division Nat
-  Division-Nat .DivisionConstraint n = Assert (n > 0)
-  Division-Nat ._/_ m (Suc n) = natDivAux 0 n m n
+  Negatable-Float : Negatable Float
+  Negatable-Float .-_ = primFloatNegate
 
-  Modulus-Nat : Modulus Nat
-  Modulus-Nat .ModulusConstraint n = Assert (n > 0)
-  Modulus-Nat ._%_ m (Suc n) = natModAux 0 n m n
+  Negatable-Function : {{_ : Negatable b}} -> Negatable (a -> b)
+  Negatable-Function .-_ f x = - (f x)
 
-  Addition-Int : Addition Int
-  Addition-Int ._+_ = add
-    where
-      sub' : Nat -> Nat -> Int
-      sub' m 0 = Pos m
-      sub' 0 (Suc n) = NegSuc n
-      sub' (Suc m) (Suc n) = sub' m n
+-------------------------------------------------------------------------------
+-- Multiplicative
+-------------------------------------------------------------------------------
 
-      add : Int -> Int -> Int
-      add (NegSuc m) (NegSuc n) = NegSuc (Suc (m + n))
-      add (NegSuc m) (Pos n) = sub' n (Suc m)
-      add (Pos m) (NegSuc n) = sub' m (Suc n)
-      add (Pos m) (Pos n) = Pos (m + n)
+record Multiplicative (a : Set) : Set where
+  infixl 7 _*_
+  field
+    _*_ : a -> a -> a
+    one : a
 
-  Multiplication-Int : Multiplication Int
-  Multiplication-Int ._*_ = \ where
-    (Pos n) (Pos m) -> Pos (n * m)
-    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
-    (Pos n) (NegSuc m) -> neg (n * Suc m)
-    (NegSuc n) (Pos m) -> neg (Suc n * m)
+  infixr 8 _^_
+  _^_ : a -> Nat -> a
+  a ^ 0 = one
+  a ^ (Suc n) = a ^ n * a
 
-  Power-Int : Power Int
-  Power-Int ._^_ a = \ where
-    0 -> 1
-    1 -> a
-    (Suc n) -> a ^ n * a
+open Multiplicative {{...}} public
 
-  Negation-Int : Negation Int
-  Negation-Int .-_ = \ where
-    (Pos 0) -> Pos 0
-    (Pos (Suc n)) -> NegSuc n
-    (NegSuc n) -> Pos (Suc n)
+instance
+  Multiplicative-Set : Multiplicative Set
+  Multiplicative-Set ._*_ = Tuple
+  Multiplicative-Set .one = Unit
 
-  Subtraction-Int : Subtraction Int
-  Subtraction-Int ._-_ m n = m + (- n)
+  Multiplicative-Nat : Multiplicative Nat
+  Multiplicative-Nat ._*_ = natTimes
+  Multiplicative-Nat .one = 1
 
-  Division-Int : Division Int
-  Division-Int .DivisionConstraint n = Assert (n > 0)
-  Division-Int ._/_ = \ where
-    (Pos m) (Pos (Suc n)) -> Pos (m / Suc n)
-    (NegSuc m) (Pos (Suc n)) -> neg (Suc m / Suc n)
-    (Pos m) (NegSuc n) -> neg (m / Suc n)
-    (NegSuc m) (NegSuc n) -> Pos (Suc m / Suc n)
+  Multiplicative-Int : Multiplicative Int
+  Multiplicative-Int .one = 1
+  Multiplicative-Int ._*_ = intTimes
 
-  Modulus-Int : Modulus Int
-  Modulus-Int .ModulusConstraint n = Assert (n > 0)
-  Modulus-Int ._%_ = \ where
-    (Pos m) (Pos (Suc n)) -> Pos (m % Suc n)
-    (NegSuc m) (Pos (Suc n)) -> neg (Suc m % Suc n)
-    (Pos m) (NegSuc n) -> Pos (m % Suc n)
-    (NegSuc m) (NegSuc n) -> neg (Suc m % Suc n)
+  Multiplicative-Float : Multiplicative Float
+  Multiplicative-Float ._*_ = primFloatTimes
+  Multiplicative-Float .one = 1.0
 
-  Signed-Int : Signed Int
-  Signed-Int .abs = \ where
-    (Pos n) -> Pos n
-    (NegSuc n) -> Pos (Suc n)
-  Signed-Int .signum = \ where
-    (Pos 0) -> Pos 0
-    (Pos (Suc _)) -> Pos 1
-    (NegSuc _) -> NegSuc 0
+  Multiplicative-Function : {{_ : Multiplicative b}} -> Multiplicative (a -> b)
+  Multiplicative-Function ._*_ f g x = f x * g x
+  Multiplicative-Function .one = const one
 
-  Addition-Float : Addition Float
-  Addition-Float ._+_ = primFloatPlus
+-------------------------------------------------------------------------------
+-- Dividable
+-------------------------------------------------------------------------------
 
-  Multiplication-Float : Multiplication Float
-  Multiplication-Float ._*_ = primFloatTimes
+record Dividable (a : Set) : Set where
+  infixl 7 _/_
+  infixl 7 _%_
+  field
+    DividableConstraint : a -> Set
+    _/_ _%_ : (x y : a) {{_ : DividableConstraint y}} -> a
 
-  Power-Float : Power Float
-  Power-Float ._^_ a = \ where
-    0 -> 1.0
-    1 -> a
-    (Suc n) -> a ^ n * a
+open Dividable {{...}} public
 
-  Exponentiation-Float : Exponentiation Float
-  Exponentiation-Float ._**_ x y = exp (y * log x)
+instance
+  Dividable-Nat : Dividable Nat
+  Dividable-Nat .DividableConstraint n = Assert (n /= 0)
+  Dividable-Nat ._/_ m n = natDiv m n
+  Dividable-Nat ._%_ m n = natMod m n
 
-  Negation-Float : Negation Float
-  Negation-Float .-_ = primFloatNegate
+  Dividable-Int : Dividable Int
+  Dividable-Int .DividableConstraint n = Assert (n /= 0)
+  Dividable-Int ._/_ m n = intDiv m n
+  Dividable-Int ._%_ m n = intMod m n
 
-  Subtraction-Float : Subtraction Float
-  Subtraction-Float ._-_ = primFloatMinus
-
-  Division-Float : Division Float
-  Division-Float .DivisionConstraint _ = Unit
-  Division-Float ._/_ x y = primFloatDiv x y
-
-  Signed-Float : Signed Float
-  Signed-Float .abs x = if x < 0.0 then - x else x
-  Signed-Float .signum x = case compare x 0.0 of \ where
-    EQ -> 0.0
-    LT -> -1.0
-    GT -> 1.0
-
-  Addition-Function : {{_ : Addition b}} -> Addition (a -> b)
-  Addition-Function ._+_ f g x = f x + g x
-
-  Multiplication-Function : {{_ : Multiplication b}} -> Multiplication (a -> b)
-  Multiplication-Function ._*_ f g x = f x * g x
-
-  Negation-Function : {{_ : Negation b}} -> Negation (a -> b)
-  Negation-Function .-_ f x = - (f x)
-
-  Subtraction-Function : {{_ : Subtraction b}} -> Subtraction (a -> b)
-  Subtraction-Function ._-_ f g x = f x - g x
-
-  Power-Function : Power (a -> a)
-  Power-Function ._^_ f = \ where
-    0 x -> x
-    1 x -> f x
-    (Suc n) x -> (f ^ n) (f x)
+  Dividable-Float : Dividable Float
+  Dividable-Float .DividableConstraint _ = Unit
+  Dividable-Float ._/_ x y = primFloatDiv x y
+  Dividable-Float ._%_ _ _ = 0.0
 
 -------------------------------------------------------------------------------
 -- Semigroup

@@ -61,11 +61,13 @@ instance
   Bits-Word8 .isSigned = primIsSignedWord8
   Bits-Word8 .popCount = primPopCountWord8
 
-  Addition-Word8 : Addition Word8
-  Addition-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
+  Additive-Word8 : Additive Word8
+  Additive-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
+  Additive-Word8 .zero = fromNat 0
 
-  Multiplication-Word8 : Multiplication Word8
-  Multiplication-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
+  Multiplicative-Word8 : Multiplicative Word8
+  Multiplicative-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
+  Multiplicative-Word8 .one = fromNat 1
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -122,11 +124,13 @@ instance
   Bits-Word16 .isSigned = primIsSignedWord16
   Bits-Word16 .popCount = primPopCountWord16
 
-  Addition-Word16 : Addition Word16
-  Addition-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
+  Additive-Word16 : Additive Word16
+  Additive-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
+  Additive-Word16 .zero = fromNat 0
 
-  Multiplication-Word16 : Multiplication Word16
-  Multiplication-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
+  Multiplicative-Word16 : Multiplicative Word16
+  Multiplicative-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
+  Multiplicative-Word16 .one = fromNat 1
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -183,11 +187,13 @@ instance
   Bits-Word32 .isSigned = primIsSignedWord32
   Bits-Word32 .popCount = primPopCountWord32
 
-  Addition-Word32 : Addition Word32
-  Addition-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
+  Additive-Word32 : Additive Word32
+  Additive-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
+  Additive-Word32 .zero = fromNat 0
 
-  Multiplication-Word32 : Multiplication Word32
-  Multiplication-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
+  Multiplicative-Word32 : Multiplicative Word32
+  Multiplicative-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
+  Multiplicative-Word32 .one = fromNat 1
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -247,11 +253,13 @@ instance
   Bits-Word64 .isSigned = primIsSignedWord64
   Bits-Word64 .popCount = primPopCountWord64
 
-  Addition-Word64 : Addition Word64
-  Addition-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
+  Additive-Word64 : Additive Word64
+  Additive-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
+  Additive-Word64 .zero = fromNat 0
 
-  Multiplication-Word64 : Multiplication Word64
-  Multiplication-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
+  Multiplicative-Word64 : Multiplicative Word64
+  Multiplicative-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
+  Multiplicative-Word64 .one = fromNat 1
 
 -------------------------------------------------------------------------------
 -- FFI

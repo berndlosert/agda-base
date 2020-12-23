@@ -14,8 +14,6 @@ open import Data.Monoid.All
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
-open import Data.Monoid.Product
-open import Data.Monoid.Sum
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -25,8 +23,6 @@ open Data.Monoid.All public
 open Data.Monoid.Any public
 open Data.Monoid.Dual public
 open Data.Monoid.Endo public
-open Data.Monoid.Product public
-open Data.Monoid.Sum public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -77,11 +73,11 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  sum : {{ _ : Monoid (Sum a)}} -> t a -> a
-  sum = getSum <<< foldMap Sum:
+  sum : {{ _ : Additive a}} -> t a -> a
+  sum = foldr _+_ zero
 
-  product : {{ _ : Monoid (Product a)}} -> t a -> a
-  product = getProduct <<< foldMap Product:
+  product : {{ _ : Multiplicative a}} -> t a -> a
+  product = foldr _*_ one
 
   or : t Bool -> Bool
   or = foldr _||_ False
