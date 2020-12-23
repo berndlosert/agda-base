@@ -12,8 +12,6 @@ open import Control.Alternative
 open import Data.Constraint.Nonempty
 open import Data.Monoid.All
 open import Data.Monoid.Any
-open import Data.Monoid.Dual
-open import Data.Monoid.Endo
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -21,8 +19,6 @@ open import Data.Monoid.Endo
 
 open Data.Monoid.All public
 open Data.Monoid.Any public
-open Data.Monoid.Dual public
-open Data.Monoid.Endo public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -73,6 +69,12 @@ record Foldable (t : Set -> Set) : Set where
   all : (a -> Bool) -> t a -> Bool
   all p = not <<< any (not <<< p)
 
+  or : t Bool -> Bool
+  or = any (_== True)
+
+  and : t Bool -> Bool
+  and = all (_== True)
+
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
@@ -81,12 +83,6 @@ record Foldable (t : Set -> Set) : Set where
 
   product : {{ _ : Multiplicative a}} -> t a -> a
   product = foldr _*_ one
-
-  or : t Bool -> Bool
-  or = foldr _||_ False
-
-  and : t Bool -> Bool
-  and = foldr _&&_ True
 
   module _ {{_ : Eq a}} where
 
