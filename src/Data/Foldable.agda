@@ -10,15 +10,6 @@ open import Prelude
 
 open import Control.Alternative
 open import Data.Constraint.Nonempty
-open import Data.Monoid.All
-open import Data.Monoid.Any
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Monoid.All public
-open Data.Monoid.Any public
 
 -------------------------------------------------------------------------------
 -- Variables
