@@ -30,7 +30,7 @@ open Reverse public
 
 instance
   Foldable-Reverse : {{_ : Foldable f}} -> Foldable (Reverse f)
-  Foldable-Reverse .foldr f b (Reverse: as) = foldl (flip f) b as
+  Foldable-Reverse .foldr f z (Reverse: xs) = foldl (flip f) z xs
 
   Functor-Reverse : {{_ : Functor f}} -> Functor (Reverse f)
   Functor-Reverse .map f (Reverse: x) = Reverse: (map f x)
