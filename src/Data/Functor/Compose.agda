@@ -43,8 +43,7 @@ instance
 
   Foldable-Compose : {{_ : Foldable f}} {{_ : Foldable g}}
     -> Foldable (Compose f g)
-  Foldable-Compose {{Foldable-f}} {{Foldable-g}} .foldr f b (Compose: a) =
-    foldr {{Foldable-f}} (\ x y -> foldr {{Foldable-g}} f y x) b a
+  Foldable-Compose .foldr f z (Compose: x) = foldr (flip (foldr f)) z x
 
   Traversable-Compose : {{_ : Traversable f}} {{_ : Traversable g}}
     -> Traversable (Compose f g)
