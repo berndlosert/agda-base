@@ -34,15 +34,15 @@ record Foldable (t : Set -> Set) : Set where
   fold = foldMap id
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl f b as = foldr (_>>>_ <<< flip f) id as b
+  foldl f z xs = foldr (_>>>_ <<< flip f) id xs z
 
   foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM f b as = let g k a b' = f a b' >>= k in
-    foldl g return as b
+  foldrM f z xs = let g k y z' = f y z' >>= k in
+    foldl g return xs z
 
   foldlM : {{_ : Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
-  foldlM f b as = let g a k b' = f b' a >>= k in
-    foldr g return as b
+  foldlM f z xs = let g y k z' = f z' y >>= k in
+    foldr g return xs z
 
   toList : t a -> List a
   toList = foldMap [_]
@@ -52,7 +52,7 @@ record Foldable (t : Set -> Set) : Set where
 
   find : (a -> Bool) -> t a -> Maybe a
   find p = either Just (const Nothing) <<<
-    foldlM (\ _ a ->  if p a then Left a else Right unit) unit
+    foldlM (\ _ x ->  if p x then Left x else Right unit) unit
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe False (const True) (find p xs)
@@ -140,7 +140,7 @@ open Foldable {{...}} public
 
 instance
   Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldr f b = maybe b (flip f b)
+  Foldable-Maybe .foldr f z = maybe z (flip f z)
 
   Foldable-List : Foldable List
-  Foldable-List .foldr f b = listrec b (\ x _ y -> f x y)
+  Foldable-List .foldr f z = listrec z (\ x _ y -> f x y)
