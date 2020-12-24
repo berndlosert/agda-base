@@ -42,26 +42,10 @@ instance
   ... | Deep v _ _ _ = v
 
   Foldable-FingerTree : Foldable (FingerTree v)
-  Foldable-FingerTree .foldr _ z' Empty = z'
-  Foldable-FingerTree .foldr f' z' (Single x') = f' x' z'
-  Foldable-FingerTree .foldr f' z' (Deep _ pr' m' sf') =
-        foldrDigit f' (foldrTree (foldrNode f') (foldrDigit f' z' sf') m') pr'
-      where
-        foldrTree : (Node v a -> b -> b) -> b -> FingerTree v (Node v a) -> b
-        foldrDigit : (a -> b -> b) -> b -> Digit a -> b
-        foldrDigitN : (Node v a -> b -> b) -> b -> Digit (Node v a) -> b
-        foldrNode : (a -> b -> b) -> Node v a -> b -> b
-        foldrNodeN : (Node v a -> b -> b) -> Node v (Node v a) -> b -> b
-
-        foldrTree _ z Empty = z
-        foldrTree f z (Single x) = f x z
-        foldrTree f z (Deep _ pr m sf) =
-            foldrDigitN f (foldrTree (foldrNodeN f) (foldrDigitN f z sf) m) pr
-
-        foldrDigit f z t = foldr f z t
-        foldrDigitN f z t = foldr f z t
-        foldrNode f t z = foldr f z t
-        foldrNodeN f t z = foldr f z t
+  Foldable-FingerTree .foldr _ z Empty = z
+  Foldable-FingerTree .foldr f z (Single x) = f x z
+  Foldable-FingerTree .foldr f z (Deep _ pr m sf) =
+    foldr f (foldr (flip (foldr f)) (foldr f z sf) m) pr
 
   Functor-FingerTree : Functor (FingerTree v)
   Functor-FingerTree .map f tree with tree
