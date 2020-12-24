@@ -43,7 +43,7 @@ instance
   Monoid-Identity .neutral = Identity: neutral
 
   Foldable-Identity : Foldable Identity
-  Foldable-Identity .foldr f b (Identity: a) = f a b
+  Foldable-Identity .foldr f z (Identity: x) = f x z
 
   Functor-Identity : Functor Identity
   Functor-Identity .map f = Identity: <<< f <<< runIdentity
