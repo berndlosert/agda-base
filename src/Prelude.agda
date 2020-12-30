@@ -946,9 +946,7 @@ instance
   Functor-Tuple .map f (x , y) = (x , f y)
 
   Functor-Maybe : Functor Maybe
-  Functor-Maybe .map f = \ where
-    Nothing -> Nothing
-    (Just a) -> Just (f a)
+  Functor-Maybe .map f = maybe Nothing (Just <<< f)
 
   Functor-List : Functor List
   Functor-List .map f = listrec [] \ a _ bs -> f a :: bs
