@@ -11,7 +11,6 @@ open import Prelude
 open import Control.Alternative
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Except.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -22,7 +21,6 @@ open import Control.Monad.Writer.Class
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Morph public
 open Control.Monad.State.Class public
 open Control.Monad.Trans.Class public
 
@@ -82,9 +80,6 @@ instance
   Monad-StateT ._>>=_ (StateT: m) k = StateT: \ s0 -> do
     (a , s1) <- m s0
     runStateT (k a) s1
-
-  MFunctor-StateT : MFunctor (StateT s)
-  MFunctor-StateT .hoist f = mapStateT f
 
   MonadTrans-StateT : MonadTrans (StateT s)
   MonadTrans-StateT .lift m = StateT: \ s -> do

@@ -10,7 +10,6 @@ open import Prelude
 
 open import Control.Monad.Free.Class
 open import Control.Monad.Except.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -20,7 +19,6 @@ open import Control.Monad.Trans.Class
 -------------------------------------------------------------------------------
 
 open Control.Monad.Free.Class public
-open Control.Monad.Morph public
 open Control.Monad.Trans.Class public
 
 ------------------------------------------------------------------------------
@@ -29,7 +27,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a e r s : Set
+    a b e r s : Set
     f m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -46,6 +44,13 @@ open FreeT
 liftFreeT : f a -> FreeT f m a
 liftFreeT x = FreeT: \ ret bnd -> bnd x ret
 
+hoistFreeT : {{_ : Monad m}} {{_ : Monad n}}
+  -> (forall {a} -> m a -> n a)
+  -> FreeT f m b
+  -> FreeT f n b
+hoistFreeT t (FreeT: m) = FreeT: \ ret bnd ->
+  (join <<< t) (m (return <<< ret) (\ x f -> return (bnd x (join <<< t <<< f))))
+
 instance
   Functor-FreeT : Functor (FreeT f m)
   Functor-FreeT .map f (FreeT: h) = FreeT: \ ret bnd ->
@@ -60,10 +65,6 @@ instance
   Monad-FreeT ._>>=_ (FreeT: m) k = FreeT: \ ret bnd ->
     m (\ a -> runFreeT (k a) ret bnd) bnd
 
-  MFunctor-FreeT : MFunctor (FreeT f)
-  MFunctor-FreeT .hoist t (FreeT: m) = FreeT: \ ret bnd ->
-    (join <<< t) (m (return <<< ret) (\ x f -> return (bnd x (join <<< t <<< f))))
-
   MonadTrans-FreeT : MonadTrans (FreeT f)
   MonadTrans-FreeT .lift m = FreeT: \ ret jn -> join ((map ret) m)
 
@@ -73,7 +74,7 @@ instance
 
   MonadReader-FreeT : {{_ : MonadReader r m}} -> MonadReader r (FreeT f m)
   MonadReader-FreeT .ask = lift ask
-  MonadReader-FreeT .local f = hoist (local f)
+  MonadReader-FreeT .local f = hoistFreeT (local f)
 
   MonadState-FreeT : {{_ : MonadState s m}} -> MonadState s (FreeT f m)
   MonadState-FreeT .state f = lift (state f)

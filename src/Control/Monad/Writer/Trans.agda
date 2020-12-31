@@ -12,7 +12,6 @@ open import Control.Alternative
 open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -22,7 +21,6 @@ open import Control.Monad.Writer.Class
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Morph public
 open Control.Monad.Trans.Class public
 open Control.Monad.Writer.Class public
 
@@ -77,18 +75,10 @@ instance
     (b , w') <- runWriterT (k a)
     return (b , w <> w')
 
-  MFunctor-WriterT : MFunctor (WriterT w)
-  MFunctor-WriterT .hoist f = mapWriterT f
-
   MonadTrans-WriterT : {{_ : Monoid w}} -> MonadTrans (WriterT w)
   MonadTrans-WriterT .lift m = WriterT: do
     a <- m
     return (a , neutral)
-
-  MMonad-WriterT : {{_ : Monoid w}} -> MMonad (WriterT w)
-  MMonad-WriterT .embed k (WriterT: m) = WriterT: do
-    ((a , w) , w') <- runWriterT (k m)
-    return (a , w <> w')
 
   MonadWriter-WriterT : {{_ : Monoid w}} {{_ : Monad m}}
     -> MonadWriter w (WriterT w m)

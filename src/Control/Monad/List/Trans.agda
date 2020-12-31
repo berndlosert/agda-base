@@ -11,7 +11,6 @@ open import Prelude
 open import Control.Alternative
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -25,7 +24,7 @@ open import Data.Foldable
 private
   variable
     a b e r s w : Set
-    f m : Set -> Set
+    f m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- ListT
@@ -63,6 +62,11 @@ module _ {{_ : Monad m}} where
   runListT (ListT: m) = m >>= \ where
     Nothing -> return []
     (Just (x , xs)) -> (| _::_ (return x) (runListT xs) |)
+
+  {-# TERMINATING #-}
+  hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
+  hoistListT f =
+    ListT: <<< f <<< (map <<< map) (bimap id (hoistListT f)) <<< unconsT
 
 instance
   {-# TERMINATING #-}
@@ -103,17 +107,6 @@ instance
   MonadIO-ListT : {{_ : MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
 
-  {-# TERMINATING #-}
-  MFunctor-ListT : MFunctor ListT
-  MFunctor-ListT .hoist f =
-    ListT: <<< f <<< (map <<< map) (bimap id (hoist f)) <<< unconsT
-
-  {-# TERMINATING #-}
-  MMonad-ListT : MMonad ListT
-  MMonad-ListT .embed f (ListT: m) = f m >>= \ where
-    Nothing -> empty
-    (Just (h , t)) -> ListT: (return (Just (h , embed f t)))
-
   MonadThrow-ListT : {{_ : MonadThrow e m}} -> MonadThrow e (ListT m)
   MonadThrow-ListT .throw = ListT: <<< throw
 
@@ -123,7 +116,7 @@ instance
 
   MonadReader-ListT : {{_ : MonadReader r m}} -> MonadReader r (ListT m)
   MonadReader-ListT .ask = lift ask
-  MonadReader-ListT .local f = hoist (local f)
+  MonadReader-ListT .local f = hoistListT (local f)
 
   MonadState-ListT : {{_ : MonadState s m}} -> MonadState s (ListT m)
   MonadState-ListT .state = lift <<< state

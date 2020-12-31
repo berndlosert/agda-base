@@ -12,7 +12,6 @@ open import Control.Alternative
 open import Control.Monad.Except.Class
 open import Control.Monad.Free.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -66,6 +65,14 @@ retract iter = runIterT iter >>= either return retract
 unsafeIter : Iter a -> a
 unsafeIter = runIdentity <<< retract
 
+{-# NON_TERMINATING #-}
+hoistIterT : {{_ : Monad n}}
+  -> (forall {a} -> m a -> n a)
+  -> IterT m a
+  -> IterT n a
+hoistIterT t iter .runIterT =
+  (map $ hoistIterT t) <$> (t $ runIterT iter)
+
 instance
   {-# NON_TERMINATING #-}
   Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
@@ -102,17 +109,12 @@ instance
   MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
-  {-# NON_TERMINATING #-}
-  MFunctor-IterT : MFunctor IterT
-  MFunctor-IterT .hoist t iter .runIterT =
-    (map $ hoist t) <$> (t $ runIterT iter)
-
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
 
   MonadReader-IterT : {{_ : MonadReader r m}} -> MonadReader r (IterT m)
   MonadReader-IterT .ask = lift ask
-  MonadReader-IterT .local f = hoist (local f)
+  MonadReader-IterT .local f = hoistIterT (local f)
 
   {-# NON_TERMINATING #-}
   MonadWriter-IterT : {{_ : MonadWriter w m}} -> MonadWriter w (IterT m)
@@ -129,7 +131,7 @@ instance
       concat' (Right y , w) = Right $ map (w <>_) <$> y
 
   MonadWriter-IterT {w = w} {m = m} .pass {a = a} iter .runIterT =
-      pass' $ runIterT $ hoist clean $ listen iter
+      pass' $ runIterT $ hoistIterT clean $ listen iter
     where
       clean : forall {a} -> m a -> m a
       clean = pass <<< map (_, const neutral)

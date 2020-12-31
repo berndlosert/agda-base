@@ -11,7 +11,6 @@ open import Prelude
 open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Trans.Class
 open import Data.Foldable
 open import Data.Traversable
@@ -20,7 +19,6 @@ open import Data.Traversable
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Morph public
 open Control.Monad.Trans.Class public
 
 -------------------------------------------------------------------------------
@@ -63,14 +61,8 @@ instance
     a <- m
     runIdentityT (k a)
 
-  Mfunctor-IdentityT : MFunctor IdentityT
-  Mfunctor-IdentityT .hoist t (IdentityT: m) = IdentityT: (t m)
-
   MonadTrans-IdentityT : MonadTrans IdentityT
   MonadTrans-IdentityT .lift = IdentityT:
-
-  MMonad-IdentityT : MMonad IdentityT
-  MMonad-IdentityT .embed k (IdentityT: m) = k m
 
   MonadIO-IdentityT : {{_ : MonadIO m}} -> MonadIO (IdentityT m)
   MonadIO-IdentityT .liftIO = IdentityT: <<< liftIO

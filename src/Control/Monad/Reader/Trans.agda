@@ -12,7 +12,6 @@ open import Control.Alternative
 open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -22,7 +21,6 @@ open import Control.Monad.Writer.Class
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Morph public
 open Control.Monad.Reader.Class public
 open Control.Monad.Trans.Class public
 
@@ -77,14 +75,8 @@ instance
   MonadReader-ReaderT .ask = ReaderT: return
   MonadReader-ReaderT .local f = withReaderT f
 
-  MFunctor-ReaderT : MFunctor (ReaderT r)
-  MFunctor-ReaderT .hoist t = mapReaderT t
-
   MonadTrans-ReaderT : MonadTrans (ReaderT r)
   MonadTrans-ReaderT .lift = ReaderT: <<< const
-
-  MMonad-ReaderT : MMonad (ReaderT r)
-  MMonad-ReaderT .embed k (ReaderT: f) = ReaderT: \ r -> runReaderT (k (f r)) r
 
   MonadWriter-ReaderT : {{_ : MonadWriter w m}} -> MonadWriter w (ReaderT r m)
   MonadWriter-ReaderT .tell = lift <<< tell

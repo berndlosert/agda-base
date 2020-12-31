@@ -10,7 +10,6 @@ open import Prelude
 
 open import Control.Monad.Cont.Class
 open import Control.Monad.Except.Class
-open import Control.Monad.Morph
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -21,7 +20,6 @@ open import Control.Monad.Writer.Class
 -------------------------------------------------------------------------------
 
 open Control.Monad.Except.Class public
-open Control.Monad.Morph public
 open Control.Monad.Trans.Class public
 
 -------------------------------------------------------------------------------
@@ -72,9 +70,6 @@ instance
   MonadExcept-ExceptT : {{_ : Monad m}} -> MonadExcept e (ExceptT e m)
   MonadExcept-ExceptT .catch (ExceptT: m) k =
     ExceptT: (m >>= either (runExceptT <<< k) (pure <<< Right))
-
-  MFunctor-ExceptT : MFunctor (ExceptT e)
-  MFunctor-ExceptT .hoist t = mapExceptT t
 
   MonadTrans-ExceptT : MonadTrans (ExceptT e)
   MonadTrans-ExceptT .lift = ExceptT: <<< map Right
