@@ -73,25 +73,25 @@ module _ {{_ : Exception e}} where
 
   saferBracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
   saferBracket before after thing = mask $ \ restore -> do
-    x <- run before
-    res1 <- try $ restore $ run $ thing x
+    x <- before
+    res1 <- try $ restore (thing x)
     case res1 of
       Left (e1 :: SomeException) -> do
         _ :: Either SomeException b <-
-            try $ uninterruptibleMask_ $ run $ after x
+            try $ uninterruptibleMask_ $ after x
         throwIO e1
       Right y -> do
-        _ <- uninterruptibleMask_ $ run $ after x
+        _ <- uninterruptibleMask_ $ after x
         return y
 
   saferBracketOnError :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
   saferBracketOnError before after thing = mask $ \ restore -> do
-    x <- run before
-    res1 <- try $ restore $ run $ thing x
+    x <- before
+    res1 <- try $ restore (thing x)
     case res1 of
       Left (e1 :: SomeException) -> do
         _ :: Either SomeException b <-
-          try $ uninterruptibleMask_ $ run $ after x
+          try $ uninterruptibleMask_ $ after x
         throwIO e1
       Right y -> return y
 #-}
