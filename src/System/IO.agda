@@ -95,6 +95,11 @@ postulate
   hPutStr : Handle -> String -> IO Unit
   hPutStrLn : Handle -> String -> IO Unit
 
+private
+  postulate
+    hEq : Handle -> Handle -> Bool
+    hShow : Handle -> String
+
 readFile : TextEncoding -> FilePath -> IO String
 readFile enc fp = withFile fp ReadMode \ h -> do
   hSetEncoding h enc
@@ -110,12 +115,19 @@ appendFile enc fp str = withFile fp AppendMode \ h -> do
   hSetEncoding h utf8
   hPutStr h str
 
+instance
+  Eq-Handle : Eq Handle
+  Eq-Handle ._==_ = hEq
+
+  Show-Handle : Show Handle
+  Show-Handle .showsPrec _ h = showString $ hShow h
+
 -------------------------------------------------------------------------------
 -- File IO FFI
 -------------------------------------------------------------------------------
 
 {-# FOREIGN GHC import System.IO (IOMode (..), BufferMode (..)) #-}
-{-# FOREIGN GHC import Data.Text (unpack) #-}
+{-# FOREIGN GHC import Data.Text (unpack, pack) #-}
 {-# FOREIGN GHC import qualified System.IO as IO #-}
 {-# FOREIGN GHC import qualified Data.Text.IO as T #-}
 {-# COMPILE GHC IOMode = data IOMode (ReadMode | WriteMode | AppendMode | ReadWriteMode) #-}
@@ -153,3 +165,5 @@ appendFile enc fp str = withFile fp AppendMode \ h -> do
 {-# COMPILE GHC hPutChar = IO.hPutChar #-}
 {-# COMPILE GHC hPutStr = \ h s -> IO.hPutStr h (unpack s) #-}
 {-# COMPILE GHC hPutStrLn = \ h s -> IO.hPutStrLn h (unpack s) #-}
+{-# COMPILE GHC hEq = (==) #-}
+{-# COMPILE GHC hShow = pack . show #-}
