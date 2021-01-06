@@ -39,8 +39,6 @@ postulate
   finally : IO a -> IO b -> IO a
   onException : IO a -> IO b -> IO a
 
-  mask : (forall {a} -> IO a -> a) -> IO b) -> IO b
-
   instance
     Exception-SomeException : Exception SomeException
     Exception-IOException : Exception IOException
