@@ -9,7 +9,7 @@ module Control.Monad.Iter.Trans where
 open import Prelude
 
 open import Control.Alternative
-open import Control.Monad.Except.Class
+open import Control.Exception
 open import Control.Monad.Free.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
@@ -154,10 +154,10 @@ instance
   MonadIO-IterT : {{_ : MonadIO m}} -> MonadIO (IterT m)
   MonadIO-IterT .liftIO = lift <<< liftIO
 
-  MonadThrow-IterT : {{_ : MonadThrow e m}} -> MonadThrow e (IterT m)
+  MonadThrow-IterT : {{_ : MonadThrow m}} -> MonadThrow (IterT m)
   MonadThrow-IterT .throw = lift <<< throw
 
   {-# NON_TERMINATING #-}
-  MonadExcept-IterT : {{_ : MonadExcept e m}} -> MonadExcept e (IterT m)
-  MonadExcept-IterT .catch iter f .runIterT =
+  MonadCatch-IterT : {{_ : MonadCatch m}} -> MonadCatch (IterT m)
+  MonadCatch-IterT .catch iter f .runIterT =
     catch (map (flip catch f) <$> runIterT iter) (runIterT <<< f)

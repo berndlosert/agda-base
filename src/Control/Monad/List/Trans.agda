@@ -9,7 +9,7 @@ module Control.Monad.List.Trans where
 open import Prelude
 
 open import Control.Alternative
-open import Control.Monad.Except.Class
+open import Control.Exception
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -107,11 +107,11 @@ instance
   MonadIO-ListT : {{_ : MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
 
-  MonadThrow-ListT : {{_ : MonadThrow e m}} -> MonadThrow e (ListT m)
+  MonadThrow-ListT : {{_ : MonadThrow m}} -> MonadThrow (ListT m)
   MonadThrow-ListT .throw = ListT: <<< throw
 
-  MonadExcept-ListT : {{_ : MonadExcept e m}} -> MonadExcept e (ListT m)
-  MonadExcept-ListT .catch m handler =
+  MonadCatch-ListT : {{_ : MonadCatch m}} -> MonadCatch (ListT m)
+  MonadCatch-ListT .catch m handler =
     ListT: (catch (unconsT m) (unconsT <<< handler))
 
   MonadReader-ListT : {{_ : MonadReader r m}} -> MonadReader r (ListT m)

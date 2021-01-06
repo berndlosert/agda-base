@@ -8,8 +8,8 @@ module Control.Monad.Identity.Trans where
 
 open import Prelude
 
+open import Control.Exception
 open import Control.Monad.Cont.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
 open import Data.Foldable
@@ -67,12 +67,11 @@ instance
   MonadIO-IdentityT : {{_ : MonadIO m}} -> MonadIO (IdentityT m)
   MonadIO-IdentityT .liftIO = IdentityT: <<< liftIO
 
-  MonadThrow-IdentityT : {{_ : MonadThrow e m}} -> MonadThrow e (IdentityT m)
+  MonadThrow-IdentityT : {{_ : MonadThrow m}} -> MonadThrow (IdentityT m)
   MonadThrow-IdentityT .throw = lift <<< throw
 
-  MonadExcept-IdentityT : {{_ : MonadExcept e m}}
-    -> MonadExcept e (IdentityT m)
-  MonadExcept-IdentityT .catch m h = IdentityT: $
+  MonadCatch-IdentityT : {{_ : MonadCatch m}} -> MonadCatch (IdentityT m)
+  MonadCatch-IdentityT .catch m h = IdentityT: $
     catch (runIdentityT m) (\ e -> runIdentityT (h e))
 
   MonadCont-IdentityT : {{_ : MonadCont m}} -> MonadCont (IdentityT m)

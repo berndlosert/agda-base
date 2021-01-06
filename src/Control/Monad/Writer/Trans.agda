@@ -9,8 +9,8 @@ module Control.Monad.Writer.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Exception
 open import Control.Monad.Cont.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -99,13 +99,13 @@ instance
     -> MonadState s (WriterT w m)
   MonadState-WriterT .state f = lift (state f)
 
-  MonadThrow-WriterT : {{_ : Monoid w}} {{_ : MonadThrow e m}}
-    -> MonadThrow e (WriterT w m)
+  MonadThrow-WriterT : {{_ : Monoid w}} {{_ : MonadThrow m}}
+    -> MonadThrow (WriterT w m)
   MonadThrow-WriterT .throw = lift <<< throw
 
-  MonadExcept-WriterT : {{_ : Monoid w}} {{_ : MonadExcept e m}}
-    -> MonadExcept e (WriterT w m)
-  MonadExcept-WriterT .catch m h = WriterT: $
+  MonadCatch-WriterT : {{_ : Monoid w}} {{_ : MonadCatch m}}
+    -> MonadCatch (WriterT w m)
+  MonadCatch-WriterT .catch m h = WriterT: $
     catch (runWriterT m) (\ e -> runWriterT (h e))
 
   MonadCont-WriterT : {{_ : Monoid w}} {{_ : MonadCont m}}

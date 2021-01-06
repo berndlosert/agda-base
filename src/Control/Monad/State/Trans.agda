@@ -9,9 +9,9 @@ module Control.Monad.State.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Exception
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -105,11 +105,11 @@ instance
   MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
 
-  MonadThrow-StateT : {{_ : MonadThrow e m}} -> MonadThrow e (StateT s m)
+  MonadThrow-StateT : {{_ : MonadThrow m}} -> MonadThrow (StateT s m)
   MonadThrow-StateT .throw = lift <<< throw
 
-  MonadExcept-StateT : {{_ : MonadExcept e m}} -> MonadExcept e (StateT s m)
-  MonadExcept-StateT .catch m h = StateT: \ s ->
+  MonadCatch-StateT : {{_ : MonadCatch m}} -> MonadCatch (StateT s m)
+  MonadCatch-StateT .catch m h = StateT: \ s ->
     catch (runStateT m s) (\ e -> runStateT (h e) s)
 
   MonadCont-StateT : {{_ : MonadCont m}} -> MonadCont (StateT s m)

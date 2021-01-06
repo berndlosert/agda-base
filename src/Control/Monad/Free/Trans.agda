@@ -8,8 +8,8 @@ module Control.Monad.Free.Trans where
 
 open import Prelude
 
+open import Control.Exception
 open import Control.Monad.Free.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -79,5 +79,5 @@ instance
   MonadState-FreeT : {{_ : MonadState s m}} -> MonadState s (FreeT f m)
   MonadState-FreeT .state f = lift (state f)
 
-  MonadThrow-FreeT : {{_ : MonadThrow e m}} -> MonadThrow e (FreeT f m)
+  MonadThrow-FreeT : {{_ : MonadThrow m}} -> MonadThrow (FreeT f m)
   MonadThrow-FreeT .throw = lift <<< throw

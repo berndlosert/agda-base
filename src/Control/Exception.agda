@@ -8,14 +8,6 @@ module Control.Exception where
 
 open import Prelude
 
-open import Control.Monad.Except.Class
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Control.Monad.Except.Class public
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -25,41 +17,122 @@ private
     a b c e : Set
 
 -------------------------------------------------------------------------------
--- Exception, SomeException, and related functions
+-- Exception, SomeException, IOException
 -------------------------------------------------------------------------------
 
 postulate
   Exception : Set -> Set
-
   SomeException : Set
   IOException : Set
 
-  bracket : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-  bracketOnError : IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-  finally : IO a -> IO b -> IO a
-  onException : IO a -> IO b -> IO a
+  toException : {{_ : Exception e}} -> SomeException
+  fromException : {{_ : Exception e}} -> SomeException -> Maybe e
+  displayException : {{_ : Exception e}} -> e -> String
 
+-------------------------------------------------------------------------------
+-- MonadThrow
+-------------------------------------------------------------------------------
+
+record MonadThrow (m : Set -> Set) : Set where
+  field
+    overlap {{Monad-super}} : Monad m
+    throw : {{_ : Exception e}} -> e -> m a
+
+open MonadThrow {{...}} public
+
+-------------------------------------------------------------------------------
+-- MonadCatch
+-------------------------------------------------------------------------------
+
+record MonadCatch (m : Set -> Set) : Set where
+  field
+    overlap {{MonadThrow-super}} : MonadThrow m
+    catch : {{_ : Exception e}} -> m a -> (e -> m a) -> m a
+
+  catchJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
+  catchJust p a handler = catch a (\ e -> maybe (throw e) handler (p e))
+
+  handle : {{_ : Exception e}} -> (e -> m a) -> m a -> m a
+  handle = flip catch
+
+  handleJust : {{_ : Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
+  handleJust = flip <<< catchJust
+
+  try : {{_ : Exception e}} -> m a -> m (e + a)
+  try a = catch (map Right a) (pure <<< Left)
+
+  tryJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
+  tryJust p a = do
+    r <- try a
+    case r of \ where
+      (Right v) -> return (Right v)
+      (Left e) -> maybe (throw e) (return <<< Left) (p e)
+
+open MonadCatch {{...}} public
+
+-------------------------------------------------------------------------------
+-- MonadBracket
+-------------------------------------------------------------------------------
+
+data ExitCase (a : Set) : Set where
+  ExitCaseSuccess : a -> ExitCase a
+  ExitCaseException : SomeException -> ExitCase a
+  ExitCaseAbort : ExitCase a
+
+record MonadBracket (m : Set -> Set) : Set where
+  field
+    overlap {{MonadCatch-super}} : MonadCatch m
+    generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (b * c)
+
+  bracket : m a -> (a -> m c) -> (a -> m b) -> m b
+  bracket acquire release =
+    map fst <<< generalBracket acquire (\ a _ -> release a)
+
+  bracket' : m a -> m c -> m b -> m b
+  bracket' before after action = bracket before (const after) (const action)
+
+  bracketOnError : m a -> (a -> m c) -> (a -> m b) -> m b
+  bracketOnError acquire release =
+    map fst <<< generalBracket acquire \ where
+      _ (ExitCaseSuccess _) -> return unit
+      a _ -> do
+        release a
+        return unit
+
+  onError : m a -> m b -> m a
+  onError action handler =
+    bracketOnError (return unit) (const handler) (const action)
+
+  finally : m a -> m b -> m a
+  finally action finalizer = bracket' (return unit) finalizer action
+
+open MonadBracket {{...}} public
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+postulate
   instance
     Exception-SomeException : Exception SomeException
     Exception-IOException : Exception IOException
 
-module _ {{_ : Exception e}} where
-
+private
   postulate
-    toException : e -> SomeException
-    fromException : SomeException -> Maybe e
-    displayException : e -> String
+    throwIO : {{_ : Exception e}} -> e -> IO a
+    catchIO : {{_ : Exception e}} -> IO a -> (e -> IO a) -> IO a
+    generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
+      -> (a -> IO b) -> IO (b * c)
 
-    unsafeThrow : e -> a
-    throwIO : e -> IO a
-    catchIO : IO a -> (e -> IO a) -> IO a
+instance
+  MonadThrow-IO : MonadThrow IO
+  MonadThrow-IO .throw = throwIO
 
-  instance
-    MonadThrow-IO : MonadThrow e IO
-    MonadThrow-IO .throw = throwIO
+  MonadCatch-IO : MonadCatch IO
+  MonadCatch-IO .catch = catchIO
 
-    MonadExcept-IO : MonadExcept e IO
-    MonadExcept-IO .catch = catchIO
+  MonadBracket-IO : MonadBracket IO
+  MonadBracket-IO .generalBracket = generalBracketIO
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -71,29 +144,20 @@ module _ {{_ : Exception e}} where
 
   data ExceptionDict e = Exception e => ExceptionDict
 
-  saferBracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-  saferBracket before after thing = mask $ \ restore -> do
-    x <- before
-    res1 <- try $ restore (thing x)
-    case res1 of
-      Left (e1 :: SomeException) -> do
-        _ :: Either SomeException b <-
-            try $ uninterruptibleMask_ $ after x
-        throwIO e1
-      Right y -> do
-        _ <- uninterruptibleMask_ $ after x
-        return y
+  data ExitCase
+    = ExitCaseSuccess a
+    | ExitCaseException SomeException
+    | ExitCaseAbort
 
-  saferBracketOnError :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-  saferBracketOnError before after thing = mask $ \ restore -> do
-    x <- before
-    res1 <- try $ restore (thing x)
-    case res1 of
-      Left (e1 :: SomeException) -> do
-        _ :: Either SomeException b <-
-          try $ uninterruptibleMask_ $ after x
-        throwIO e1
-      Right y -> return y
+  generalBracket ::
+    IO a -> (a -> ExitCase b -> IO c) -> (a -> IO b) -> IO (b, c)
+  generalBracket acquire release use = mask $ \ unmasked -> do
+    resource <- acquire
+    b <- unmasked (use resource) `catch` \ e -> do
+      _ <- release resource (ExitCaseException e)
+      throwIO e
+    c <- release resource (ExitCaseSuccess b)
+    return (b, c)
 #-}
 
 {-# COMPILE GHC Exception = type ExceptionDict #-}
@@ -104,10 +168,7 @@ module _ {{_ : Exception e}} where
 {-# COMPILE GHC toException = \ _ ExceptionDict -> toException #-}
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
-{-# COMPILE GHC unsafeThrow = \ _ ExceptionDict _ -> throw #-}
+{-# COMPILE GHC ExitCase = data ExitCase (ExitCaseSuccess a | ExitCaseException SomeException | ExitCaseAbort) #-}
 {-# COMPILE GHC throwIO = \ _ ExceptionDict _ -> throwIO #-}
 {-# COMPILE GHC catchIO = \ _ ExceptionDict _ -> catch #-}
-{-# COMPILE GHC bracket = \ _ _ _ -> saferBracket #-}
-{-# COMPILE GHC bracketOnError = \ _ _ _ -> saferBracketOnError #-}
-{-# COMPILE GHC finally = \ _ _ -> finally #-}
-{-# COMPILE GHC onException = \ _ _ -> onException #-}
+{-# COMPILE GHC generalBracketIO = \ _ _ _ -> generalBracket #-}

@@ -8,8 +8,8 @@ module Control.Monad.Except.Trans where
 
 open import Prelude
 
+open import Control.Exception
 open import Control.Monad.Cont.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -19,7 +19,6 @@ open import Control.Monad.Writer.Class
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Control.Monad.Except.Class public
 open Control.Monad.Trans.Class public
 
 -------------------------------------------------------------------------------
@@ -64,15 +63,34 @@ instance
   Monad-ExceptT ._>>=_ (ExceptT: m) k =
     ExceptT: (m >>= either (pure <<< Left) (runExceptT <<< k))
 
-  MonadThrow-ExceptT : {{_ : Monad m}} -> MonadThrow e (ExceptT e m)
-  MonadThrow-ExceptT .throw = ExceptT: <<< pure <<< Left
-
-  MonadExcept-ExceptT : {{_ : Monad m}} -> MonadExcept e (ExceptT e m)
-  MonadExcept-ExceptT .catch (ExceptT: m) k =
-    ExceptT: (m >>= either (runExceptT <<< k) (pure <<< Right))
-
   MonadTrans-ExceptT : MonadTrans (ExceptT e)
   MonadTrans-ExceptT .lift = ExceptT: <<< map Right
+
+  MonadThrow-ExceptT : {{_ : MonadThrow m}} -> MonadThrow (ExceptT e m)
+  MonadThrow-ExceptT .throw = lift <<< throw
+
+  MonadCatch-ExceptT : {{_ : MonadCatch m}} -> MonadCatch (ExceptT e m)
+  MonadCatch-ExceptT .catch (ExceptT: m) k =
+    ExceptT: $ catch m (runExceptT <<< k)
+
+  MonadBracket-ExceptT : {{_ : MonadBracket m}} -> MonadBracket (ExceptT e m)
+  MonadBracket-ExceptT .generalBracket acquire release use = ExceptT: do
+    (eb , ec) <- generalBracket
+      (runExceptT acquire)
+      (\ eresource exitCase -> case eresource of \ where
+        (Left e) -> return (Left e)
+        (Right resource) -> case exitCase of \ where
+          (ExitCaseSuccess (Right b)) ->
+            runExceptT (release resource (ExitCaseSuccess b))
+          (ExitCaseException e) ->
+            runExceptT (release resource (ExitCaseException e))
+          _ ->
+            runExceptT (release resource ExitCaseAbort))
+      (either (return <<< Left) (runExceptT <<< use))
+    return do
+      c <- ec
+      b <- eb
+      return (b , c)
 
   MonadReader-ExceptT : {{_ : MonadReader r m}} -> MonadReader r (ExceptT e m)
   MonadReader-ExceptT .ask = lift ask

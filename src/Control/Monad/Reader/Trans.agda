@@ -9,8 +9,8 @@ module Control.Monad.Reader.Trans where
 open import Prelude
 
 open import Control.Alternative
+open import Control.Exception
 open import Control.Monad.Cont.Class
-open import Control.Monad.Except.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -89,11 +89,11 @@ instance
   MonadIO-ReaderT : {{_ : MonadIO m}} -> MonadIO (ReaderT r m)
   MonadIO-ReaderT .liftIO = lift <<< liftIO
 
-  MonadThrow-ReaderT : {{_ : MonadThrow e m}} -> MonadThrow e (ReaderT r m)
+  MonadThrow-ReaderT : {{_ : MonadThrow m}} -> MonadThrow (ReaderT r m)
   MonadThrow-ReaderT .throw = lift <<< throw
 
-  MonadExcept-ReaderT : {{_ : MonadExcept e m}} -> MonadExcept e (ReaderT r m)
-  MonadExcept-ReaderT .catch m h = ReaderT: \ r ->
+  MonadCatch-ReaderT : {{_ : MonadCatch m}} -> MonadCatch (ReaderT r m)
+  MonadCatch-ReaderT .catch m h = ReaderT: \ r ->
     catch (runReaderT m r) (\ e -> runReaderT (h e) r)
 
   MonadCont-ReaderT : {{_ : MonadCont m}} -> MonadCont (ReaderT r m)
