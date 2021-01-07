@@ -25,7 +25,7 @@ postulate
   SomeException : Set
   IOException : Set
 
-  toException : {{_ : Exception e}} -> SomeException
+  toException : {{_ : Exception e}} -> e -> SomeException
   fromException : {{_ : Exception e}} -> SomeException -> Maybe e
   displayException : {{_ : Exception e}} -> e -> String
 
@@ -144,7 +144,7 @@ instance
 
   data ExceptionDict e = Exception e => ExceptionDict
 
-  data ExitCase
+  data ExitCase a
     = ExitCaseSuccess a
     | ExitCaseException SomeException
     | ExitCaseAbort
@@ -168,7 +168,7 @@ instance
 {-# COMPILE GHC toException = \ _ ExceptionDict -> toException #-}
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
-{-# COMPILE GHC ExitCase = data ExitCase (ExitCaseSuccess a | ExitCaseException SomeException | ExitCaseAbort) #-}
-{-# COMPILE GHC throwIO = \ _ ExceptionDict _ -> throwIO #-}
-{-# COMPILE GHC catchIO = \ _ ExceptionDict _ -> catch #-}
+{-# COMPILE GHC ExitCase = data ExitCase (ExitCaseSuccess | ExitCaseException | ExitCaseAbort) #-}
+{-# COMPILE GHC throwIO = \ _ _ ExceptionDict -> throwIO #-}
+{-# COMPILE GHC catchIO = \ _ _ ExceptionDict -> catch #-}
 {-# COMPILE GHC generalBracketIO = \ _ _ _ -> generalBracket #-}
