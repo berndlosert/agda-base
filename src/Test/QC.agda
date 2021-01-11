@@ -104,7 +104,7 @@ sample g = do
 oneof : (gs : List (Gen a)) {{_ : IsNonempty gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , length gs - 1)
-  fromJust (List.at n gs) {{believeMe}}
+  fromJust (List.at n gs) {{trustMe}}
 
 frequency : (xs : List (Positive Nat * Gen a)) {{_ : IsNonempty xs}} -> Gen a
 frequency xs =
@@ -117,7 +117,7 @@ frequency xs =
 
 elements : (xs : List a) {{_ : IsNonempty xs}} -> Gen a
 elements xs = map
-  (\ n -> fromJust (List.at n xs) {{believeMe}})
+  (\ n -> fromJust (List.at n xs) {{trustMe}})
   (choose {Nat} (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)

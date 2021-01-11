@@ -61,7 +61,7 @@ length : String -> Nat
 length = List.length <<< unpack
 
 init : (s : String) {{_ : IsNonempty s}} -> String
-init s = pack $ List.init (unpack s) {{believeMe}}
+init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
@@ -151,7 +151,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 
 splitOn : (delim : String) {{_ : IsNonempty delim}} -> String -> List String
 splitOn delim s =
-  map pack $ List.splitOn (unpack delim) {{believeMe}} (unpack s)
+  map pack $ List.splitOn (unpack delim) {{trustMe}} (unpack s)
 
 split : (Char -> Bool) -> String -> List String
 split f s = map pack $ List.split f (unpack s)

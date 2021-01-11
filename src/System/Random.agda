@@ -236,7 +236,7 @@ instance
       if lo == hi
         then (lo , g)
         else lmap (\ n -> fromNat n + lo)
-          (genNat' (toNat (hi - lo) {{believeMe}}) g)
+          (genNat' (toNat (hi - lo) {{trustMe}}) g)
 
   RandomR-Float : RandomR Float
   RandomR-Float .randomR (x , y) g =

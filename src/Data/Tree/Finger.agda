@@ -227,7 +227,7 @@ splitTree p i (Deep _ pr m sf) =
   in
     if p vpr then (case splitDigit p i pr of \ where
       (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
-    else if p vm then (case splitTree p vpr m {{believeMe}} of \ where
+    else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
       (ml , xs , mr) -> case splitNode p (vpr <> measure ml) xs of \ where
         (l , x , r) -> (deepR pr ml l , x , deepL r mr sf))
     else (case splitDigit p vm sf of \ where
@@ -238,7 +238,7 @@ split : {{_ : Measured v a}}
   -> FingerTree v a
   -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
-split p xs with splitTree p neutral xs {{believeMe}}
+split p xs with splitTree p neutral xs {{trustMe}}
 ... | (l , x , r) = if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ private
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
         (l , x , r) -> (maybe Empty digitToTree l , x , deepL r m sf))
-      else if p vlpm vsr then (case searchTree p vlp m {{believeMe}} vsr of \ where
+      else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
         (ml , xs , mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
           (l , x , r) -> (deepR pr  ml l , x , deepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
@@ -287,7 +287,7 @@ search p t =
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p neutral t {{believeMe}} neutral of \ where
+      (case searchTree p neutral t {{trustMe}} neutral of \ where
         (l , x , r) -> Position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere

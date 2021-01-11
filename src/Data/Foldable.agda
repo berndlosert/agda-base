@@ -95,20 +95,20 @@ record Foldable (t : Set -> Set) : Set where
 
     foldMap1 : {{_ : Semigroup b}}
       -> (a -> b) -> (xs : t a) {{_ : IsNonempty xs}} -> b
-    foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{believeMe}}
+    foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{trustMe}}
 
     fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : IsNonempty xs}} -> a
-    fold1 s = fromJust (foldMap Just s) {{believeMe}}
+    fold1 s = fromJust (foldMap Just s) {{trustMe}}
 
     foldr1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
-    foldr1 f s = fromJust (foldr g Nothing s) {{believeMe}}
+    foldr1 f s = fromJust (foldr g Nothing s) {{trustMe}}
       where
         g : a -> Maybe a -> Maybe a
         g x Nothing = Just x
         g x (Just y) = Just (f x y)
 
     foldl1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
-    foldl1 f s = fromJust (foldl g Nothing s) {{believeMe}}
+    foldl1 f s = fromJust (foldl g Nothing s) {{trustMe}}
       where
         g : Maybe a -> a -> Maybe a
         g Nothing x = Just x

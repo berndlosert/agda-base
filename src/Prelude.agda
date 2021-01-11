@@ -109,7 +109,7 @@ postulate IO : Set -> Set
 -------------------------------------------------------------------------------
 
 postulate
-  believeMe : a
+  trustMe : a
   error : String -> a
 
 {-# FOREIGN GHC import qualified Data.Text #-}
