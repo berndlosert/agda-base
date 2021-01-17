@@ -30,7 +30,7 @@ instance
   ToNat-Fin .toNat Zero = 0
   ToNat-Fin .toNat (Suc n) = Suc (toNat n)
 
-  FromNat-Fin : forall {n} -> FromNat (Fin (Suc n))
+  FromNat-Fin : FromNat (Fin (Suc n))
   FromNat-Fin {n} .FromNatConstraint m = Assert (m <= n)
   FromNat-Fin {n} .fromNat m {{p}} = go m n {p}
     where
