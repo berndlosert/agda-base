@@ -8,6 +8,9 @@ module Data.Vector where
 
 open import Prelude
 
+open import Data.Foldable
+open import Data.Traversable
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -40,6 +43,14 @@ instance
   Applicative-Vector ._<*>_ [] [] = []
   Applicative-Vector ._<*>_ (f :: fs) (x :: xs) = f x :: (fs <*> xs)
 
+  Foldable-Vector : Foldable (Vector n)
+  Foldable-Vector .foldr _ z [] = z
+  Foldable-Vector .foldr f z (x :: xs) = f x (foldr f z xs)
+
+  Traversable-Vector : Traversable (Vector n)
+  Traversable-Vector .traverse f [] = (| [] |)
+  Traversable-Vector .traverse f (x :: xs) = (| _::_ (f x) (traverse f xs) |)
+
 -------------------------------------------------------------------------------
 -- Functions
 -------------------------------------------------------------------------------
@@ -56,5 +67,5 @@ splitAt 0 xs = ([] , xs)
 splitAt (Suc k) (x :: xs) with (splitAt k xs)
 ... | (l , r) = (x :: l , r)
 
-transpose : Vector n (Vector m a) -> Vector m (Vector n a)
-transpose = traverse id
+--transpose : Vector n (Vector m a) -> Vector m (Vector n a)
+--transpose = traverse id
