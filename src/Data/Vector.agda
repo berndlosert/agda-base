@@ -34,8 +34,9 @@ data Vector : Nat -> Set -> Set where
 
 instance
   Functor-Vector : Functor (Vector n)
-  Functor-Vector .map f [] = []
-  Functor-Vector .map f (x :: xs) = f x :: map f xs
+  Functor-Vector .map f = \ where
+    [] -> []
+    (x :: xs) -> f x :: map f xs
 
   Applicative-Vector : Applicative (Vector n)
   Applicative-Vector {n = Zero} .pure _ = []
