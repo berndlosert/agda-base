@@ -54,6 +54,11 @@ diag : Vector n (Vector n a) -> Vector n a
 diag [] = []
 diag ((x :: xs) :: xss) = x :: diag (map tail xss)
 
+zipWith : (a -> b -> c) -> Vector n a -> Vector n b -> Vector n c
+zipWith f = \ where
+  [] [] -> []
+  (x :: xs) (y :: ys) -> f x y :: zipWith f xs ys
+
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
@@ -63,10 +68,8 @@ instance
   Functor-Vector = record { map = map }
 
   Applicative-Vector : Applicative (Vector n)
-  Applicative-Vector {n = Zero} .pure _ = []
-  Applicative-Vector {n = Suc _} .pure x = x :: pure x
-  Applicative-Vector ._<*>_ [] [] = []
-  Applicative-Vector ._<*>_ (f :: fs) (x :: xs) = f x :: (fs <*> xs)
+  Applicative-Vector {n} .pure = replicate n
+  Applicative-Vector ._<*>_ fs xs = zipWith _$_ fs xs
 
   Monad-Vector : Monad (Vector n)
   Monad-Vector ._>>=_ m k = diag (map k m)
@@ -82,7 +85,7 @@ instance
     (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
 
 -------------------------------------------------------------------------------
--- Functions
+-- More functions
 -------------------------------------------------------------------------------
 
 splitAt : (m : Nat) -> Vector (m + n) a -> Vector m a * Vector n a
@@ -93,12 +96,5 @@ splitAt (Suc k) (x :: xs) with (splitAt k xs)
 transpose : Vector n (Vector m a) -> Vector m (Vector n a)
 transpose = sequence
 
-zipWith : (a -> b -> c) -> Vector n a -> Vector n b -> Vector n c
-zipWith f = \ where
-  [] [] -> []
-  (x :: xs) (y :: ys) -> f x y :: zipWith f xs ys
-
 zip : Vector n a -> Vector n b -> Vector n (a * b)
 zip = zipWith _,_
-
-
