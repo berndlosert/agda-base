@@ -46,18 +46,16 @@ replicate : (n : Nat) -> a -> Vector n a
 replicate Zero x = []
 replicate (Suc n) x = x :: replicate n x
 
+zipWith : (a -> b -> c) -> Vector n a -> Vector n b -> Vector n c
+zipWith _ [] [] = []
+zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
+
 map : (a -> b) -> Vector n a -> Vector n b
-map f [] = []
-map f (x :: xs) = f x :: map f xs
+map {n = n} f = zipWith _$_ (replicate n f)
 
 diag : Vector n (Vector n a) -> Vector n a
 diag [] = []
 diag ((x :: xs) :: xss) = x :: diag (map tail xss)
-
-zipWith : (a -> b -> c) -> Vector n a -> Vector n b -> Vector n c
-zipWith f = \ where
-  [] [] -> []
-  (x :: xs) (y :: ys) -> f x y :: zipWith f xs ys
 
 -------------------------------------------------------------------------------
 -- Instances
