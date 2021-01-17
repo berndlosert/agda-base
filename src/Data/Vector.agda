@@ -45,8 +45,9 @@ instance
   Applicative-Vector ._<*>_ (f :: fs) (x :: xs) = f x :: (fs <*> xs)
 
   Foldable-Vector : Foldable (Vector n)
-  Foldable-Vector .foldr _ z [] = z
-  Foldable-Vector .foldr f z (x :: xs) = f x (foldr f z xs)
+  Foldable-Vector .foldr f z = \ where
+    [] -> z
+    (x :: xs) -> f x (foldr f z xs)
 
   Traversable-Vector : Traversable (Vector n)
   Traversable-Vector .traverse f [] = (| [] |)
