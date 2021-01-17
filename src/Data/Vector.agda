@@ -44,6 +44,9 @@ instance
 -- Functions
 -------------------------------------------------------------------------------
 
+tail : Vector (Suc n) a -> Vector n a
+tail (x :: xs) = xs
+
 append : Vector m a -> Vector n a -> Vector (m + n) a
 append [] xs = xs
 append (x :: xs) ys = x :: append xs ys
