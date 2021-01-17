@@ -50,8 +50,9 @@ instance
     (x :: xs) -> f x (foldr f z xs)
 
   Traversable-Vector : Traversable (Vector n)
-  Traversable-Vector .traverse f [] = (| [] |)
-  Traversable-Vector .traverse f (x :: xs) = (| _::_ (f x) (traverse f xs) |)
+  Traversable-Vector .traverse f = \ where
+    [] -> (| [] |)
+    (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
 
 -------------------------------------------------------------------------------
 -- Functions
