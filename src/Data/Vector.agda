@@ -2,22 +2,53 @@
 
 module Data.Vector where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
 
 private
   variable
     a : Set
     m n : Nat
 
-data Vector (a : Set) : Nat -> Set where
-  [] : Vector a 0
-  _::_ : forall {n} -> a -> Vector a n -> Vector a (Suc n)
+-------------------------------------------------------------------------------
+-- Vector
+-------------------------------------------------------------------------------
 
-append : Vector a m -> Vector a n -> Vector a (m + n)
-append [] as = as
-append (a :: as) as' = a :: append as as'
+data Vector : Nat -> Set -> Set where
+  [] : Vector 0 a
+  _::_ : a -> Vector n a -> Vector (Suc n) a
 
-splitAt : (m : Nat) -> Vector a (m + n) -> Vector a m * Vector a n
-splitAt 0 as = ([] , as)
-splitAt (Suc k) (a :: as) with (splitAt k as)
-... | (l , r) = (a :: l , r)
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Functor-Vector : Functor (Vector n)
+  Functor-Vector .map f [] = []
+  Functor-Vector .map f (x :: xs) = f x :: map f xs
+
+  Applicative-Vector : Applicative (Vector n)
+  Applicative-Vector {n = Zero} .pure _ = []
+  Applicative-Vector {n = Suc _} .pure x = x :: pure x
+  Applicative-Vector ._<*>_ [] [] = []
+  Applicative-Vector ._<*>_ (f :: fs) (x :: xs) = f x :: (fs <*> xs)
+
+-------------------------------------------------------------------------------
+-- Functions
+-------------------------------------------------------------------------------
+
+append : Vector m a -> Vector n a -> Vector (m + n) a
+append [] xs = xs
+append (x :: xs) ys = x :: append xs ys
+
+splitAt : (m : Nat) -> Vector (m + n) a -> Vector m a * Vector n a
+splitAt 0 xs = ([] , xs)
+splitAt (Suc k) (x :: xs) with (splitAt k xs)
+... | (l , r) = (x :: l , r)
