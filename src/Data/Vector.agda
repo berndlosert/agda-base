@@ -29,7 +29,7 @@ data Vector : Nat -> Set -> Set where
   _::_ : a -> Vector n a -> Vector (Suc n) a
 
 -------------------------------------------------------------------------------
--- Some elementary functions
+-- Elementary functions
 -------------------------------------------------------------------------------
 
 head : Vector (Suc n) a -> a
