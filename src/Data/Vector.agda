@@ -17,7 +17,7 @@ open import Data.Traversable
 
 private
   variable
-    a : Set
+    a b c : Set
     m n : Nat
 
 -------------------------------------------------------------------------------
@@ -72,3 +72,11 @@ splitAt (Suc k) (x :: xs) with (splitAt k xs)
 
 transpose : Vector n (Vector m a) -> Vector m (Vector n a)
 transpose = sequence
+
+zipWith : (a -> b -> c) -> Vector n a -> Vector n b -> Vector n c
+zipWith f = \ where
+  [] [] -> []
+  (x :: xs) (y :: ys) -> f x y :: zipWith f xs ys
+
+zip : Vector n a -> Vector n b -> Vector n (a * b)
+zip = zipWith _,_
