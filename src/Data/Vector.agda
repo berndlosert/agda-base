@@ -70,5 +70,5 @@ splitAt 0 xs = ([] , xs)
 splitAt (Suc k) (x :: xs) with (splitAt k xs)
 ... | (l , r) = (x :: l , r)
 
---transpose : Vector n (Vector m a) -> Vector m (Vector n a)
---transpose = traverse id
+transpose : Vector n (Vector m a) -> Vector m (Vector n a)
+transpose = traverse id
