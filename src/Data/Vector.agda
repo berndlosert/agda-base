@@ -9,6 +9,7 @@ module Data.Vector where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.List as List using ()
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -96,3 +97,14 @@ transpose = sequence
 
 zip : Vector n a -> Vector n b -> Vector n (a * b)
 zip = zipWith _,_
+
+fromList : (xs : List a) -> Vector (length xs) a
+fromList [] = []
+fromList (x :: xs) = x :: fromList xs
+
+take : (n : Nat) (xs : List a) {{_ : Assert (length xs >= n)}} -> Vector n a
+take Zero _ = []
+take (Suc n) (x :: xs) = x :: take n xs
+
+reverse : Vector n a -> Vector n a
+reverse {n = n} xs = take n (List.reverse (toList xs)) {{trustMe}}
