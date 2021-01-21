@@ -8,7 +8,6 @@ module Data.Subset where
 
 open import Prelude hiding (map)
 
-open import Control.Monad.Normal
 open import Data.Foldable
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
@@ -75,12 +74,6 @@ abstract
 
   bind : {{_ : Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
   bind m k = unions (Prelude.map k (toList m))
-
-  lift : Subset a -> NM (const Unit) Subset a
-  lift = liftNM
-
-  lower : {{_ : Ord a}} -> NM (const Unit) Subset a -> Subset a
-  lower = lowerNM singleton bind
 
 -------------------------------------------------------------------------------
 -- Instances
