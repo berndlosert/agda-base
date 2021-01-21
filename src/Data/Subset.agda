@@ -8,6 +8,7 @@ module Data.Subset where
 
 open import Prelude hiding (map)
 
+open import Control.Monad.Normal
 open import Data.Foldable
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
@@ -19,6 +20,7 @@ open import Data.Traversable
 private
   variable
     a b : Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Subset
@@ -53,6 +55,9 @@ abstract
   union : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
   union = Tree.merge
 
+  unions : {{_ : Foldable f}} {{_ : Ord a}} -> f (Subset a) -> Subset a
+  unions = foldl union empty
+
   difference : {{_ : Ord a}} -> Subset a -> Subset a -> Subset a
   difference xs ys = foldr Tree.delete xs ys
 
@@ -67,6 +72,12 @@ abstract
 
   filter : {{_ : Ord a}} -> (a -> Bool) -> Subset a -> Subset a
   filter = Tree.filter
+
+  bind : {{_ : Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
+  bind m k = unions (Prelude.map k (toList m))
+
+  fromNM : {{_ : Ord a}} -> NM (const Unit) Subset a -> Subset a
+  fromNM = lowerNM singleton bind
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -87,4 +98,4 @@ abstract
 
     Show-Subset : {{_ : Show a}} -> Show (Subset a)
     Show-Subset .showsPrec d xs = showParen (d > appPrec)
-      (showString "fromList" <<< shows (toList xs))
+      (showString "fromList " <<< shows (toList xs))
