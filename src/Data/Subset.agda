@@ -76,8 +76,11 @@ abstract
   bind : {{_ : Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
   bind m k = unions (Prelude.map k (toList m))
 
-  fromNM : {{_ : Ord a}} -> NM (const Unit) Subset a -> Subset a
-  fromNM = lowerNM singleton bind
+  lift : Subset a -> NM (const Unit) Subset a
+  lift = liftNM
+
+  lower : {{_ : Ord a}} -> NM (const Unit) Subset a -> Subset a
+  lower = lowerNM singleton bind
 
 -------------------------------------------------------------------------------
 -- Instances
