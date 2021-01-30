@@ -376,8 +376,8 @@ tuple f g x = (f x , g x)
 swap : Tuple a b -> Tuple b a
 swap = tuple snd fst
 
-dupe : a -> Tuple a a
-dupe x = (x , x)
+dup : a -> Tuple a a
+dup x = (x , x)
 
 uncurry : (a -> b -> c) -> Tuple a b -> c
 uncurry f (x , y) = f x y
