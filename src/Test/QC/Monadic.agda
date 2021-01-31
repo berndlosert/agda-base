@@ -20,7 +20,7 @@ open import System.IO.Unsafe
 
 private
   variable
-    a b prop : Set
+    a b : Set
     m : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -72,8 +72,8 @@ module _ {{_ : Monad m}} where
   run : m a -> PropertyT m a
   run = lift
 
-  stop : {{_ : Testable prop}} -> prop -> PropertyT m a
-  stop p = PropertyT: \ _ -> return (return (property p))
+  stop : {{_ : Testable b}} -> b -> PropertyT m a
+  stop b = PropertyT: \ _ -> return (return (property b))
 
   pre : Bool -> PropertyT m Unit
   pre True  = return unit
