@@ -217,9 +217,8 @@ record Result : Set where
     stamp : List String
     arguments : List String
 
-record Property : Set where
-  constructor Property:
-  field result : Gen Result
+Property : Set
+Property = Gen Result
 
 succeeded : Result
 succeeded = record { ok = Just True; stamp = []; arguments = [] }
@@ -231,7 +230,7 @@ rejected : Result
 rejected = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
-result res = Property: (return res)
+result res = return res
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -243,10 +242,10 @@ record Testable (a : Set) : Set where
 open Testable {{...}} public
 
 evaluate : {{_ : Testable a}} -> a -> Gen Result
-evaluate a = let (Property: gen) = property a in gen
+evaluate a = property a
 
 forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
-forAll gen body = Property: do
+forAll gen body = do
   a <- gen
   res <- evaluate (body a)
   return (record res { arguments = show a :: Result.arguments res })
@@ -257,7 +256,7 @@ True ==> a = property a
 False ==> a = result rejected
 
 label : {{_ : Testable a}} -> String -> a -> Property
-label s a = Property: (map add (evaluate a))
+label s a = map add (evaluate a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
