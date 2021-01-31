@@ -268,14 +268,19 @@ collect v = label (show v)
 
 instance
   Testable-Unit : Testable Unit
-  Testable-Unit .property unit = result succeeded
+  Testable-Unit .property _ = result succeeded
 
   Testable-Bool : Testable Bool
-  Testable-Bool .property True = result succeeded
-  Testable-Bool .property False = result failed
+  Testable-Bool .property b = result (if b then succeeded else failed)
+
+  Testable-Result : Testable Result
+  Testable-Result .property = return <<< return
 
   Testable-Property : Testable Property
-  Testable-Property .property prop = prop
+  Testable-Property .property = id
+
+  Testable-Gen : {{_ : Testable a}} -> Testable (Gen a)
+  Testable-Gen .property = _>>= property
 
   Testable-Function : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
     -> Testable (a -> b)
