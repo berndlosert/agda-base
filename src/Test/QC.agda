@@ -16,6 +16,7 @@ open import Data.String as String using ()
 open import Data.Foldable
 open import Data.Traversable
 open import System.IO
+open import System.IO.Unsafe
 open import System.Random
 
 -------------------------------------------------------------------------------
@@ -218,7 +219,7 @@ record Result : Set where
     arguments : List String
 
 Property : Set
-Property = Gen Result
+Property = Gen (IO Result)
 
 succeeded : Result
 succeeded = record { ok = Just True; stamp = []; arguments = [] }
@@ -230,7 +231,7 @@ rejected : Result
 rejected = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
-result res = return res
+result res = return (return res)
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -241,14 +242,11 @@ record Testable (a : Set) : Set where
 
 open Testable {{...}} public
 
-evaluate : {{_ : Testable a}} -> a -> Gen Result
-evaluate a = property a
-
 forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
 forAll gen body = do
   a <- gen
-  res <- evaluate (body a)
-  return (record res { arguments = show a :: Result.arguments res })
+  res <- property (body a)
+  return $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
 
 infixr 0 _==>_
 _==>_ : {{_ : Testable a}} -> Bool -> a -> Property
@@ -256,7 +254,7 @@ True ==> a = property a
 False ==> a = result rejected
 
 label : {{_ : Testable a}} -> String -> a -> Property
-label s a = map add (evaluate a)
+label s a = map (map add) (property a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
@@ -349,7 +347,7 @@ private
         ) stamps
 
   {-# TERMINATING #-}
-  tests : Config -> Gen Result -> StdGen -> Nat -> Nat
+  tests : Config -> Property -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
   tests config gen rnd0 ntest nfail stamps =
     if ntest == Config.maxTest config
@@ -359,8 +357,8 @@ private
     else (
       let
         (rnd1 , rnd2) = splitGen rnd0
-        result = generate' (Config.size config ntest) rnd2 gen
       in do
+        result <- generate' (Config.size config ntest) rnd2 gen
         putStr (Config.every config ntest (Result.arguments result))
         case Result.ok result of \ where
           Nothing -> tests
@@ -374,9 +372,9 @@ private
       )
 
 check : {{_ : Testable a}} -> Config -> a -> IO Unit
-check config a = do
+check cfg a = do
   rnd <- newStdGen
-  tests config (evaluate a) rnd 0 0 []
+  tests cfg (property a) rnd 0 0 []
 
 quickCheck : {{_ : Testable a}} -> a -> IO Unit
 quickCheck = check quick
