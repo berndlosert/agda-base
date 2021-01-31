@@ -218,8 +218,11 @@ record Result : Set where
     stamp : List String
     arguments : List String
 
-Property : Set
-Property = Gen (IO Result)
+record Property : Set where
+  constructor Property:
+  field unProperty : Gen (IO Result)
+
+open Property public
 
 succeeded : Result
 succeeded = record { ok = Just True; stamp = []; arguments = [] }
@@ -231,7 +234,7 @@ rejected : Result
 rejected = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
-result res = return (return res)
+result res = Property: $ return (return res)
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -243,9 +246,9 @@ record Testable (a : Set) : Set where
 open Testable {{...}} public
 
 forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
-forAll gen body = do
+forAll gen body = Property: do
   a <- gen
-  res <- property (body a)
+  res <- unProperty $ property (body a)
   return $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
 
 infixr 0 _==>_
@@ -254,7 +257,7 @@ True ==> a = property a
 False ==> a = result rejected
 
 label : {{_ : Testable a}} -> String -> a -> Property
-label s a = map (map add) (property a)
+label s a = Property: $ map (map add) (unProperty $ property a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
@@ -274,13 +277,13 @@ instance
   Testable-Bool .property b = result (if b then succeeded else failed)
 
   Testable-Result : Testable Result
-  Testable-Result .property = return <<< return
+  Testable-Result .property = Property: <<< return <<< return
 
   Testable-Property : Testable Property
   Testable-Property .property = id
 
   Testable-Gen : {{_ : Testable a}} -> Testable (Gen a)
-  Testable-Gen .property = _>>= property
+  Testable-Gen .property gen = Property: (gen >>= property >>> unProperty)
 
   Testable-Function : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
     -> Testable (a -> b)
@@ -354,7 +357,7 @@ private
   {-# TERMINATING #-}
   tests : Config -> Property -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
-  tests config gen rnd0 ntest nfail stamps =
+  tests config prop@(Property: gen) rnd0 ntest nfail stamps =
     if ntest == Config.maxTest config
     then (do done "OK, passed" ntest stamps)
     else if nfail == Config.maxFail config
@@ -367,9 +370,9 @@ private
         putStr (Config.every config ntest (Result.arguments result))
         case Result.ok result of \ where
           Nothing -> tests
-            config gen rnd1 ntest (nfail + 1) stamps
+            config prop rnd1 ntest (nfail + 1) stamps
           (Just True) -> tests
-            config gen rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
+            config prop rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
           (Just False) -> putStr ("Falsifiable, after "
             <> show ntest
             <> " tests:\n"
