@@ -234,7 +234,7 @@ rejected : Result
 rejected = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
-result res = Property: $ return (return res)
+result = Property: <<< return <<< return
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -269,6 +269,9 @@ classify False _ = property
 collect : {{_ : Show a}} {{_ : Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
+ioProperty : IO Property -> Property
+ioProperty = map unProperty >>> promote >>> map join >>> Property:
+
 instance
   Testable-Unit : Testable Unit
   Testable-Unit .property _ = result succeeded
@@ -277,7 +280,7 @@ instance
   Testable-Bool .property b = result (if b then succeeded else failed)
 
   Testable-Result : Testable Result
-  Testable-Result .property = Property: <<< return <<< return
+  Testable-Result .property = result
 
   Testable-Property : Testable Property
   Testable-Property .property = id

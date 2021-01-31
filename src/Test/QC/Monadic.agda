@@ -12,7 +12,6 @@ open import Test.QC
 open import Control.Monad.Cont.Trans
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
-open import System.IO.Unsafe
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -63,10 +62,6 @@ instance
 -- Functions
 -------------------------------------------------------------------------------
 
-monadicIO : PropertyT IO a -> Property
-monadicIO m = property $ unsafePerformIO <$>
-  (unPropertyT m $ const $ return $ return $ property True)
-
 module _ {{_ : Monad m}} where
 
   run : m a -> PropertyT m a
@@ -86,14 +81,6 @@ module _ {{_ : Monad m}} where
   monitor : (Property -> Property) -> PropertyT m Unit
   monitor f = PropertyT: \ k -> map f <$> k unit
 
-  module _ {{_ : Testable a}} where
-
-    monadic' : PropertyT m a -> Gen (m Property)
-    monadic' m = unPropertyT m \ prop -> return $ return $ property prop
-
-    monadic : (m Property -> Property) -> PropertyT m a -> Property
-    monadic runner m = property (map runner (monadic' m))
-
   module _ {{_ : Show a}} where
 
     pick : Gen a -> PropertyT m a
@@ -106,3 +93,14 @@ module _ {{_ : Monad m}} where
 
     forAllM : Gen a -> (a -> PropertyT m b) -> PropertyT m b
     forAllM gen k = pick gen >>= k
+
+  module _ {{_ : Testable a}} where
+
+    monadic' : PropertyT m a -> Gen (m Property)
+    monadic' m = unPropertyT m \ prop -> return $ return $ property prop
+
+    monadic : (m Property -> Property) -> PropertyT m a -> Property
+    monadic runner m = property (map runner (monadic' m))
+
+monadicIO : {{_ : Testable a}} -> PropertyT IO a -> Property
+monadicIO = monadic ioProperty
