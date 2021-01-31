@@ -384,3 +384,10 @@ module _ {{_ : Ord a}} where
 lookup : {{_ : Eq a}} -> a -> List (a * b) -> Maybe b
 lookup a [] = Nothing
 lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
+
+-------------------------------------------------------------------------------
+-- Misc.
+-------------------------------------------------------------------------------
+
+countElem : {{_ : Eq a}} -> a -> List a -> Nat
+countElem x = length <<< filter (x ==_)
