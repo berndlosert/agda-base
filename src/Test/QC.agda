@@ -31,6 +31,7 @@ open System.Random public
 private
   variable
     a b g : Set
+    m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Gen
@@ -39,6 +40,8 @@ private
 record Gen (a : Set) : Set where
   constructor Gen:
   field unGen : StdGen -> Nat -> a
+
+open Gen public
 
 instance
   Functor-Gen : Functor Gen
@@ -136,8 +139,13 @@ shuffle xs = do
   ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2 ^ 32))
   return (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
 
-promote : (a -> Gen b) -> Gen (a -> b)
-promote f = Gen: \ r n a -> let (Gen: m) = f a in m r n
+delay : Gen (Gen a -> a)
+delay = Gen: \ r n g -> unGen g r n
+
+promote : {{_ : Monad m}} -> m (Gen a) -> Gen (m a)
+promote m = do
+  eval <- delay
+  return (map eval m)
 
 -------------------------------------------------------------------------------
 -- Arbitrary & Coarbitrary
@@ -210,14 +218,20 @@ record Result : Set where
     arguments : List String
 
 record Property : Set where
-  constructor property:
+  constructor Property:
   field result : Gen Result
 
-none : Result
-none = record { ok = Nothing; stamp = []; arguments = [] }
+succeeded : Result
+succeeded = record { ok = Just True; stamp = []; arguments = [] }
+
+failed : Result
+failed = record { ok = Just False; stamp = []; arguments = [] }
+
+rejected : Result
+rejected = record { ok = Nothing; stamp = []; arguments = [] }
 
 result : Result -> Property
-result res = property: (return res)
+result res = Property: (return res)
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -226,13 +240,13 @@ result res = property: (return res)
 record Testable (a : Set) : Set where
   field property : a -> Property
 
-open Testable {{...}}
+open Testable {{...}} public
 
 evaluate : {{_ : Testable a}} -> a -> Gen Result
-evaluate a = let (property: gen) = property a in gen
+evaluate a = let (Property: gen) = property a in gen
 
 forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
-forAll gen body = property: do
+forAll gen body = Property: do
   a <- gen
   res <- evaluate (body a)
   return (record res { arguments = show a :: Result.arguments res })
@@ -240,10 +254,10 @@ forAll gen body = property: do
 infixr 0 _==>_
 _==>_ : {{_ : Testable a}} -> Bool -> a -> Property
 True ==> a = property a
-False ==> a = result none
+False ==> a = result rejected
 
 label : {{_ : Testable a}} -> String -> a -> Property
-label s a = property: (map add (evaluate a))
+label s a = Property: (map add (evaluate a))
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
@@ -256,8 +270,12 @@ collect : {{_ : Show a}} {{_ : Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
 instance
+  Testable-Unit : Testable Unit
+  Testable-Unit .property unit = result succeeded
+
   Testable-Bool : Testable Bool
-  Testable-Bool .property b = result (record none { ok = Just b })
+  Testable-Bool .property True = result succeeded
+  Testable-Bool .property False = result failed
 
   Testable-Property : Testable Property
   Testable-Property .property prop = prop
