@@ -388,17 +388,17 @@ private
       let
         (rnd1 , rnd2) = splitGen rnd0
       in do
-        result <- generate' (Config.size config ntest) rnd2 gen
-        putStr (Config.every config ntest (Result.arguments result))
-        case Result.ok result of \ where
+        res <- generate' (Config.size config ntest) rnd2 gen
+        putStr (Config.every config ntest (Result.arguments res))
+        case Result.ok res of \ where
           Nothing -> tests
             config prop rnd1 ntest (nfail + 1) stamps
           (Just True) -> tests
-            config prop rnd1 (ntest + 1) nfail (Result.stamp result :: stamps)
+            config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
           (Just False) -> putStr ("Falsifiable, after "
             <> show ntest
             <> " tests:\n"
-            <> String.unlines (Result.arguments result))
+            <> String.unlines (Result.arguments res))
       )
 
 check : {{_ : Testable a}} -> Config -> a -> IO Unit
