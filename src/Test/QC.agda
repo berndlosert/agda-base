@@ -157,6 +157,9 @@ record Arbitrary (a : Set) : Set where
 
 open Arbitrary {{...}} public
 
+arbitrary' : (a : Set) {{_ : Arbitrary a}} -> Gen a
+arbitrary' _ = arbitrary
+
 record Coarbitrary (a : Set) : Set where
   field coarbitrary : a -> Gen b -> Gen b
 
