@@ -381,25 +381,24 @@ private
     -> List (List String) -> IO Unit
   tests config prop@(Property: gen) rnd0 ntest nfail stamps =
     if ntest == Config.maxTest config
-    then (do done "OK, passed" ntest stamps)
-    else if nfail == Config.maxFail config
-    then (do done "Arguments exhausted after" ntest stamps)
-    else (
-      let
-        (rnd1 , rnd2) = splitGen rnd0
-      in do
-        res <- generate' (Config.size config ntest) rnd2 gen
-        putStr (Config.every config ntest (Result.arguments res))
-        case Result.ok res of \ where
-          Nothing -> tests
-            config prop rnd1 ntest (nfail + 1) stamps
-          (Just True) -> tests
-            config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
-          (Just False) -> putStr ("Falsifiable, after "
-            <> show ntest
-            <> " tests:\n"
-            <> String.unlines (Result.arguments res))
-      )
+      then done "OK, passed" ntest stamps
+      else if nfail == Config.maxFail config
+        then done "Arguments exhausted after" ntest stamps
+        else
+          let
+            (rnd1 , rnd2) = splitGen rnd0
+          in do
+            res <- generate' (Config.size config ntest) rnd2 gen
+            putStr $ Config.every config ntest (Result.arguments res)
+            case Result.ok res of \ where
+              Nothing -> tests
+                config prop rnd1 ntest (nfail + 1) stamps
+              (Just True) -> tests
+                config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
+              (Just False) -> putStr $ "Falsifiable, after "
+                <> show ntest
+                <> " tests:\n"
+                <> String.unlines (Result.arguments res)
 
 check : {{_ : Testable a}} -> Config -> a -> IO Unit
 check cfg a = do
