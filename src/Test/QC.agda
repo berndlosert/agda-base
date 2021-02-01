@@ -220,6 +220,7 @@ record Result : Set where
     ok : Maybe Bool
     stamp : List String
     arguments : List String
+    reason : String
 
 record Property : Set where
   constructor Property:
@@ -228,13 +229,28 @@ record Property : Set where
 open Property public
 
 succeeded : Result
-succeeded = record { ok = Just True; stamp = []; arguments = [] }
+succeeded = record {
+    ok = Just True;
+    stamp = [];
+    arguments = [];
+    reason = ""
+  }
 
 failed : Result
-failed = record { ok = Just False; stamp = []; arguments = [] }
+failed = record {
+    ok = Just False;
+    stamp = [];
+    arguments = [];
+    reason = ""
+  }
 
 rejected : Result
-rejected = record { ok = Nothing; stamp = []; arguments = [] }
+rejected = record {
+    ok = Nothing;
+    stamp = [];
+    arguments = [];
+    reason = ""
+  }
 
 result : Result -> Property
 result = Property: <<< return <<< return
