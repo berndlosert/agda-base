@@ -86,7 +86,7 @@ Save the following code into a file called `echo-server.agda`:
    addrinfos <- getAddrInfo Nothing
      (Just $ unpack "127.0.0.1")
      (Just $ unpack "7000")
-   let serveraddr = fromJust (List.head addrinfos) {{believeMe}}
+   let serveraddr = fromJust (List.head addrinfos) {{trustMe}}
    sock <- socket (addrFamily serveraddr) SOCK_STREAM defaultProtocol
    bind sock (addrAddress serveraddr)
    listen sock 1
