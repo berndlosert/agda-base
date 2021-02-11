@@ -11,7 +11,6 @@ open import Prelude
 open import Data.Bits
 open import Data.IORef
 open import Data.List
-open import Data.Time.Units
 open import Data.Word
 open import System.Time
 
@@ -162,8 +161,8 @@ mkStdGen s = stdgen: (mix64 s) (mixgamma (s + goldengamma))
 
 theStdGen : IO (IORef StdGen)
 theStdGen = do
-  ctr <- map unSecond getTime
-  key <- map unPicosecond getCPUTime
+  ctr <- getPOSIXTime
+  key <- getCPUTime
   let seed = squares (fromNat ctr) (fromNat key)
   newIORef (mkStdGen seed)
 

@@ -2,23 +2,24 @@
 
 module System.Time where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude
 
-open import Data.Time.Units
-
-private
-  postulate
-    primGetTime : IO Nat
-    primGetCPUTime : IO Nat
+-------------------------------------------------------------------------------
+-- Functions
+-------------------------------------------------------------------------------
 
 postulate
+  getPOSIXTime : IO Nat -- in seconds
+  getCPUTime : IO Nat -- in picoseconds
   cpuTimePrecision : Nat
 
-getTime : IO Second
-getTime = map _<s> primGetTime
-
-getCPUTime : IO Picosecond
-getCPUTime = map _<ps> primGetCPUTime
+-------------------------------------------------------------------------------
+-- FFI
+-------------------------------------------------------------------------------
 
 {-# FOREIGN GHC
   import Foreign.C (CTime (..))
@@ -26,12 +27,12 @@ getCPUTime = map _<ps> primGetCPUTime
   import System.CPUTime (getCPUTime, cpuTimePrecision)
 
   foreign import ccall "time" readtime :: Ptr a -> IO CTime
-  primGetTime :: IO Integer
-  primGetTime = do
+  getPOSIXTime :: IO Integer
+  getPOSIXTime = do
     CTime t <- readtime nullPtr
     return (toInteger t)
 #-}
 
-{-# COMPILE GHC primGetTime = primGetTime #-}
-{-# COMPILE GHC primGetCPUTime = getCPUTime #-}
+{-# COMPILE GHC getPOSIXTime = getPOSIXTime #-}
+{-# COMPILE GHC getCPUTime = getCPUTime #-}
 {-# COMPILE GHC cpuTimePrecision = cpuTimePrecision #-}

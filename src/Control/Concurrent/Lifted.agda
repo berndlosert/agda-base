@@ -11,7 +11,6 @@ open import Prelude
 open import Control.Concurrent as Base using ()
 open import Control.Monad.IO.Class
 open import Control.Monad.IO.Unlift
-open import Data.Time.Units
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -44,7 +43,7 @@ module _ {{_ : MonadIO m}} where
   yield : m Unit
   yield = liftIO Base.yield
 
-  threadDelay : {{_ : TimeUnit a}} -> a -> m Unit
+  threadDelay : (microseconds : Nat) -> m Unit
   threadDelay = liftIO <<< Base.threadDelay
 
 forkIO : {{_ : MonadUnliftIO m}} -> m Unit -> m ThreadId

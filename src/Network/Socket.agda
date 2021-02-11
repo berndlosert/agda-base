@@ -10,7 +10,6 @@ open import Prelude
 
 open import Data.Bytes
 open import Data.Word
-open import Data.Time.Units
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -138,8 +137,8 @@ private
     primListen : Socket -> Nat -> IO Unit
     primGracefulClose : Socket -> Nat -> IO Unit
 
-gracefulClose : Socket -> Millisecond -> IO Unit
-gracefulClose sock timeout = primGracefulClose sock (unMillisecond timeout)
+gracefulClose : Socket -> (milliseconds : Nat) -> IO Unit
+gracefulClose sock timeout = primGracefulClose sock timeout
 
 listen : Socket -> (n : Nat) {{_ : Assert (n > 0)}} -> IO Unit
 listen s n = primListen s n

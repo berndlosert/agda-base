@@ -34,6 +34,6 @@ record Strong (p : Set -> Set -> Set) : Set where
 
   infixr 3 _&&&_
   _&&&_ : {{_ : Category p}} -> p a b -> p a c -> p a (b * c)
-  f &&& g = arr dupe >>> second g >>> first f
+  f &&& g = arr dup >>> second g >>> first f
 
 open Strong {{...}} public

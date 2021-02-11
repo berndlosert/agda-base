@@ -11,7 +11,6 @@ open import Prelude
 open import Control.Alternative
 open import Control.Concurrent
 open import Data.List as List using ()
-open import Data.Time.Units
 open import Data.Foldable
 open import Data.Traversable
 
@@ -201,7 +200,7 @@ instance
 
   Alternative-Concurrently : Alternative Concurrently
   Alternative-Concurrently .empty =
-    Concurrently: $ forever $ threadDelay $ (2 ^ 32) <μs>
+    Concurrently: $ forever $ threadDelay (2 ^ 32)
   Alternative-Concurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
     Concurrently: $ fromEither <$> race as bs
 
