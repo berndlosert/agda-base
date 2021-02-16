@@ -40,6 +40,10 @@ data Nat : Set where
 
 {-# BUILTIN NATURAL Nat #-}
 
+data Fin : Nat -> Set where
+  Zero : {n : Nat} -> Fin (Suc n)
+  Suc : {n : Nat} -> Fin n -> Fin (Suc n)
+
 data Int : Set where
   Pos : Nat -> Int
   NegSuc : Nat -> Int
@@ -223,6 +227,11 @@ neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
 private
+  finToNat : {n : Nat} -> Fin n -> Nat
+  finToNat Zero = Zero
+  finToNat (Suc n) = Suc (finToNat n)
+
+private
   -- Workaround for https://github.com/agda/agda/issues/4967
   intLessThan : Int -> Int -> Bool
   intLessThan (Pos m) (Pos n) = natLessThan m n
@@ -322,9 +331,9 @@ private
     primCharToNat : Char -> Nat
     primNatToChar : Nat -> Char
 
-  minChar maxChar : Char
-  minChar = '\NUL'
-  maxChar = '\1114111'
+minChar maxChar : Char
+minChar = '\NUL'
+maxChar = '\1114111'
 
 isLower = primIsLower
 isDigit = primIsDigit
@@ -337,8 +346,8 @@ isHexDigit = primIsHexDigit
 toUpper = primToUpper
 toLower = primToLower
 ord = primCharToNat
-chr : (n : Nat) {{_ : Assert (natLessThan n (Suc (ord maxChar)))}}  -> Char
-chr n = primNatToChar n
+chr : Fin (Suc (ord maxChar)) -> Char
+chr n = primNatToChar (finToNat n)
 
 private
   primitive
@@ -628,6 +637,14 @@ instance
   FromNat-Nat .FromNatConstraint _ = Unit
   FromNat-Nat .fromNat n = n
 
+  FromNat-Fin : {n : Nat} -> FromNat (Fin (Suc n))
+  FromNat-Fin {n} .FromNatConstraint m = Assert (m <= n)
+  FromNat-Fin {n} .fromNat m {{p}} = go m n {p}
+    where
+      go : (m n : Nat) {_ : Assert (m <= n)} -> Fin (Suc n)
+      go Zero _ = Zero
+      go (Suc m) (Suc n) {p} = Suc (go m n {p})
+
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
@@ -641,6 +658,10 @@ instance
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint _ = Unit
   ToNat-Nat .toNat n = n
+
+  ToNat-Fin : {n : Nat} -> ToNat (Fin n)
+  ToNat-Fin .ToNatConstraint _ = Unit
+  ToNat-Fin .toNat n = finToNat n
 
   ToNat-Int : ToNat Int
   ToNat-Int .ToNatConstraint n = Assert (n >= 0)
@@ -1193,7 +1214,7 @@ instance
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
   Enum-Char .PredConstraint c = Assert (c > minChar)
-  Enum-Char .suc c = chr (suc (ord c))
+  Enum-Char .suc c = primNatToChar (suc (ord c))
   Enum-Char .pred c = primNatToChar (pred (ord c) {{trustMe}})
   Enum-Char .enumFromTo c d = primNatToChar <$> enumFromTo (ord c) (ord d)
 
