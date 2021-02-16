@@ -231,6 +231,16 @@ private
   finToNat Zero = Zero
   finToNat (Suc n) = Suc (finToNat n)
 
+  finEquality : {n : Nat} -> Fin n -> Fin n -> Bool
+  finEquality Zero Zero = True
+  finEquality (Suc n) (Suc m) = finEquality n m
+  finEquality _ _ = False
+
+  finLessThan : {n : Nat} -> Fin n -> Fin n -> Bool
+  finLessThan _ Zero = False
+  finLessThan Zero (Suc _) = True
+  finLessThan (Suc n) (Suc m) = finLessThan n m
+
 private
   -- Workaround for https://github.com/agda/agda/issues/4967
   intLessThan : Int -> Int -> Bool
@@ -314,6 +324,13 @@ asin = primASin
 acos = primACos
 atan = primATan
 atan2 = primATan2
+
+NaN : Float
+NaN = primFloatDiv 0.0 0.0
+
+Infinity -Infinity : Float
+Infinity = primFloatDiv 1.0 0.0
+-Infinity = primFloatNegate Infinity
 
 private
   primitive
@@ -476,6 +493,9 @@ instance
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = natEquality
 
+  Eq-Fin : {n : Nat} -> Eq (Fin n)
+  Eq-Fin ._==_ = finEquality
+
   Eq-Int : Eq Int
   Eq-Int ._==_ = \ where
     (Pos m) (Pos n) -> m == n
@@ -569,6 +589,9 @@ instance
 
   Ord-Nat : Ord Nat
   Ord-Nat ._<_ = natLessThan
+
+  Ord-Fin : {n : Nat} -> Ord (Fin n)
+  Ord-Fin ._<_ = finLessThan
 
   Ord-Int : Ord Int
   Ord-Int ._<_ = intLessThan
@@ -1177,6 +1200,7 @@ instance
 
 record Enum (a : Set) : Set where
   field
+    {{Ord-super}} : Ord a
     SucConstraint : a -> Set
     PredConstraint : a -> Set
     suc : (x : a) {{_ : SucConstraint x}} -> a
@@ -1217,6 +1241,27 @@ instance
   Enum-Char .suc c = primNatToChar (suc (ord c))
   Enum-Char .pred c = primNatToChar (pred (ord c) {{trustMe}})
   Enum-Char .enumFromTo c d = primNatToChar <$> enumFromTo (ord c) (ord d)
+
+-------------------------------------------------------------------------------
+-- Bounded
+-------------------------------------------------------------------------------
+
+record Bounded (a : Set) : Set where
+  field
+    overlap {{Ord-super}} : Ord a
+    minBound : a
+    maxBound : a
+
+open Bounded {{...}} public
+
+instance
+  Bounded-Char : Bounded Char
+  Bounded-Char .minBound = minChar
+  Bounded-Char .maxBound = maxChar
+
+  Bounded-Float : Bounded Float
+  Bounded-Float .minBound = Infinity
+  Bounded-Float .maxBound = -Infinity
 
 -------------------------------------------------------------------------------
 -- Show
