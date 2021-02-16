@@ -322,6 +322,10 @@ private
     primCharToNat : Char -> Nat
     primNatToChar : Nat -> Char
 
+  minChar maxChar : Char
+  minChar = '\NUL'
+  maxChar = '\1114111'
+
 isLower = primIsLower
 isDigit = primIsDigit
 isAlpha = primIsAlpha
@@ -333,7 +337,8 @@ isHexDigit = primIsHexDigit
 toUpper = primToUpper
 toLower = primToLower
 ord = primCharToNat
-chr = primNatToChar
+chr : (n : Nat) {{_ : Assert (natLessThan n (Suc (ord maxChar)))}}  -> Char
+chr n = primNatToChar n
 
 private
   primitive
@@ -1150,12 +1155,22 @@ instance
 -------------------------------------------------------------------------------
 
 record Enum (a : Set) : Set where
-  field enumFromTo : a -> a -> List a
+  field
+    SucConstraint : a -> Set
+    PredConstraint : a -> Set
+    suc : (x : a) {{_ : SucConstraint x}} -> a
+    pred : (x : a) {{_ : PredConstraint x}} -> a
+    enumFromTo : a -> a -> List a
 
 open Enum {{...}} public
 
 instance
   Enum-Nat : Enum Nat
+  Enum-Nat .SucConstraint _ = Unit
+  Enum-Nat .PredConstraint 0 = Void
+  Enum-Nat .PredConstraint _ = Unit
+  Enum-Nat .suc x = Suc x
+  Enum-Nat .pred (Suc n) = n
   Enum-Nat .enumFromTo m n =
       let k = max (m - n) (n - m)
       in go k m n
@@ -1167,12 +1182,20 @@ instance
         in m :: go k m' n
 
   Enum-Int : Enum Int
+  Enum-Int .SucConstraint _ = Unit
+  Enum-Int .PredConstraint _ = Unit
+  Enum-Int .suc n = n + 1
+  Enum-Int .pred n = n - 1
   Enum-Int .enumFromTo m n = case m - n of \ where
    (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
    (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
-  Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
+  Enum-Char .SucConstraint c = Assert (c < maxChar)
+  Enum-Char .PredConstraint c = Assert (c > minChar)
+  Enum-Char .suc c = chr (suc (ord c))
+  Enum-Char .pred c = primNatToChar (pred (ord c) {{trustMe}})
+  Enum-Char .enumFromTo c d = primNatToChar <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
 -- Show
