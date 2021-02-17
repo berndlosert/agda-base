@@ -1356,8 +1356,8 @@ instance
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
   Enum-Char .PredConstraint c = Assert (c > minChar)
-  Enum-Char .suc c = primNatToChar (suc (ord c))
-  Enum-Char .pred c = primNatToChar (pred (ord c) {{trustMe}})
+  Enum-Char .suc c = primNatToChar $ suc (ord c)
+  Enum-Char .pred c = primNatToChar $ pred (ord c) {{trustMe}}
   Enum-Char .enumFromTo c d = primNatToChar <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
