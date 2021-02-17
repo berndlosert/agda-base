@@ -13,7 +13,7 @@ private
     p : Set -> Set -> Set
 
 -------------------------------------------------------------------------------
--- Primitive types and type constructors
+-- Primitive types
 -------------------------------------------------------------------------------
 
 data Void : Set where
@@ -109,7 +109,7 @@ postulate IO : Set -> Set
 {-# COMPILE GHC IO = type IO #-}
 
 -------------------------------------------------------------------------------
--- Primitive functions and operations
+-- Primitive functions
 -------------------------------------------------------------------------------
 
 postulate
@@ -143,8 +143,16 @@ Assert : Bool -> Set
 Assert False = Void
 Assert True = Unit
 
+-------------------------------------------------------------------------------
+-- Void primitives
+-------------------------------------------------------------------------------
+
 absurd : Void -> a
 absurd ()
+
+-------------------------------------------------------------------------------
+-- Bool primitives
+-------------------------------------------------------------------------------
 
 infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
@@ -164,6 +172,10 @@ infixr 3 _&&_
 _&&_ : Bool -> Bool -> Bool
 False && _ = False
 True && x = x
+
+-----------------------------------------------------------------------------------------
+-- Nat primitives
+-----------------------------------------------------------------------------------------
 
 natrec : a -> (Nat -> a -> a) -> Nat -> a
 natrec x _ 0 = x
@@ -226,6 +238,10 @@ neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
+-------------------------------------------------------------------------------
+-- Fin primitives
+-------------------------------------------------------------------------------
+
 private
   finToNat : {n : Nat} -> Fin n -> Nat
   finToNat Zero = Zero
@@ -266,6 +282,10 @@ private
     with natToFin (natMod (natTimes (finToNat k) (finToNat m)) n) n
   ... | Just k' = k'
   ... | Nothing = undefined
+
+-------------------------------------------------------------------------------
+-- Int primitives
+-------------------------------------------------------------------------------
 
 private
   intLessThan : Int -> Int -> Bool
@@ -312,6 +332,10 @@ private
     (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
     (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
 
+-------------------------------------------------------------------------------
+-- Float primitives
+-------------------------------------------------------------------------------
+
 private
   primitive
     primFloatNumericalEquality : Float -> Float -> Bool
@@ -357,6 +381,10 @@ Infinity -Infinity : Float
 Infinity = primFloatDiv 1.0 0.0
 -Infinity = primFloatNegate Infinity
 
+-------------------------------------------------------------------------------
+-- Char primitives
+-------------------------------------------------------------------------------
+
 private
   primitive
     primCharEquality : Char -> Char -> Bool
@@ -391,6 +419,10 @@ ord = primCharToNat
 chr : Fin (Suc (ord maxChar)) -> Char
 chr n = primNatToChar (finToNat n)
 
+-------------------------------------------------------------------------------
+-- String primitives
+-------------------------------------------------------------------------------
+
 private
   primitive
     primStringEquality : String -> String -> Bool
@@ -400,6 +432,10 @@ private
 
 pack = primStringFromList
 unpack = primStringToList
+
+-------------------------------------------------------------------------------
+-- Either primitives
+-------------------------------------------------------------------------------
 
 either : (a -> c) -> (b -> c) -> Either a b -> c
 either f g (Left a) = f a
@@ -426,6 +462,10 @@ fromLeft (Left a) = a
 fromRight : (x : Either a b) {{_ : Assert (isRight x)}} -> b
 fromRight (Right b) = b
 
+-------------------------------------------------------------------------------
+-- Tuple primitives
+-------------------------------------------------------------------------------
+
 tuple : (a -> b) -> (a -> c) -> a -> Tuple b c
 tuple f g x = (f x , g x)
 
@@ -444,6 +484,10 @@ curry f x y = f (x , y)
 apply : Tuple (a -> b) a -> b
 apply (f , x) = f x
 
+-------------------------------------------------------------------------------
+-- Maybe primitives
+-------------------------------------------------------------------------------
+
 isJust : Maybe a -> Bool
 isJust (Just _) = True
 isJust _ = False
@@ -459,6 +503,10 @@ maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f Nothing = b
 maybe b f (Just a) = f a
 
+-------------------------------------------------------------------------------
+-- List primitives
+-------------------------------------------------------------------------------
+
 pattern [_] x = x :: []
 
 list : b -> (a -> List a -> b) -> List a -> b
@@ -468,6 +516,10 @@ list b f (a :: as) = f a as
 listrec : b -> (a -> List a -> b -> b) -> List a -> b
 listrec b f [] = b
 listrec b f (a :: as) = f a as (listrec b f as)
+
+-------------------------------------------------------------------------------
+-- IO primitives
+-------------------------------------------------------------------------------
 
 private
   postulate
