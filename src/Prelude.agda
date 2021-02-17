@@ -108,8 +108,31 @@ postulate IO : Set -> Set
 {-# BUILTIN IO IO #-}
 {-# COMPILE GHC IO = type IO #-}
 
+{-# BUILTIN SIZEUNIV SizeU #-}
+{-# BUILTIN SIZE Size #-}
+{-# BUILTIN SIZELT Size<_ #-}
+{-# BUILTIN SIZESUC SizeSuc #-}
+{-# BUILTIN SIZEINF Inf #-}
+{-# BUILTIN SIZEMAX SizeMax #-}
+
+{-# FOREIGN GHC
+  type SizeLT i = ()
+#-}
+
+{-# COMPILE GHC Size = type () #-}
+{-# COMPILE GHC Size<_ = type SizeLT #-}
+{-# COMPILE GHC SizeSuc = \_ -> () #-}
+{-# COMPILE GHC Inf = () #-}
+{-# COMPILE GHC SizeMax = \_ _ -> () #-}
+
+record Thunk (i : Size) (f : Size -> Set) : Set where
+  coinductive
+  field force : {j : Size< i} -> f j
+
+open Thunk public
+
 -------------------------------------------------------------------------------
--- Primitive functions
+-- Dangerous primitives
 -------------------------------------------------------------------------------
 
 postulate
@@ -121,6 +144,10 @@ postulate
 
 undefined : a
 undefined = error "Prelude.undefined"
+
+-------------------------------------------------------------------------------
+-- Function primitives
+-------------------------------------------------------------------------------
 
 const : a -> b -> a
 const x _ = x
@@ -139,10 +166,6 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
-Assert : Bool -> Set
-Assert False = Void
-Assert True = Unit
-
 -------------------------------------------------------------------------------
 -- Void primitives
 -------------------------------------------------------------------------------
@@ -153,6 +176,10 @@ absurd ()
 -------------------------------------------------------------------------------
 -- Bool primitives
 -------------------------------------------------------------------------------
+
+Assert : Bool -> Set
+Assert False = Void
+Assert True = Unit
 
 infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
@@ -1455,34 +1482,3 @@ instance
           go : {{_ : Show a}} -> List a -> ShowS
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
-
--------------------------------------------------------------------------------
--- Size
--------------------------------------------------------------------------------
-
-{-# BUILTIN SIZEUNIV SizeU #-}
-{-# BUILTIN SIZE Size #-}
-{-# BUILTIN SIZELT Size<_ #-}
-{-# BUILTIN SIZESUC SizeSuc #-}
-{-# BUILTIN SIZEINF Inf #-}
-{-# BUILTIN SIZEMAX SizeMax #-}
-
-{-# FOREIGN GHC
-  type SizeLT i = ()
-#-}
-
-{-# COMPILE GHC Size = type () #-}
-{-# COMPILE GHC Size<_ = type SizeLT #-}
-{-# COMPILE GHC SizeSuc = \_ -> () #-}
-{-# COMPILE GHC Inf = () #-}
-{-# COMPILE GHC SizeMax = \_ _ -> () #-}
-
--------------------------------------------------------------------------------
--- Thunk
--------------------------------------------------------------------------------
-
-record Thunk (i : Size) (f : Size -> Set) : Set where
-  coinductive
-  field force : {j : Size< i} -> f j
-
-open Thunk public
