@@ -1341,7 +1341,7 @@ instance
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = [ m ]
       go (Suc k) m n =
-        let m' = if m < n then m + 1 else (m - 1)
+        let m' = if m < n then m + 1 else m - 1
         in m :: go k m' n
 
   Enum-Int : Enum Int
