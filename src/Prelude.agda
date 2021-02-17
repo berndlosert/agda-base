@@ -734,6 +734,10 @@ instance
   Additive-Nat ._+_ = natPlus
   Additive-Nat .zero = 0
 
+  Additive-Fin : {n : Nat} -> Additive (Fin (Suc n))
+  Additive-Fin ._+_ = finPlus
+  Additive-Fin .zero = Zero
+
   Additive-Int : Additive Int
   Additive-Int .zero = 1
   Additive-Int ._+_ = intPlus
@@ -1243,9 +1247,9 @@ instance
   Enum-Int .PredConstraint _ = Unit
   Enum-Int .suc n = n + 1
   Enum-Int .pred n = n - 1
-  Enum-Int .enumFromTo m n = case m - n of \ where
-   (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
-   (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
+  Enum-Int .enumFromTo m n with m - n
+  ... | Pos k = (\ i -> Pos i + n) <$> enumFromTo k 0
+  ... | NegSuc k = (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
