@@ -231,6 +231,13 @@ private
   finToNat Zero = Zero
   finToNat (Suc n) = Suc (finToNat n)
 
+  natToFin : (m n : Nat) -> Maybe (Fin n)
+  natToFin Zero (Suc j) = Just Zero
+  natToFin (Suc m) (Suc n) with natToFin m n
+  ... | Just k' = Just (Suc k')
+  ... | Nothing = Nothing
+  natToFin _ _ = Nothing
+
   finEquality : {n : Nat} -> Fin n -> Fin n -> Bool
   finEquality Zero Zero = True
   finEquality (Suc n) (Suc m) = finEquality n m
@@ -240,6 +247,11 @@ private
   finLessThan _ Zero = False
   finLessThan Zero (Suc _) = True
   finLessThan (Suc n) (Suc m) = finLessThan n m
+
+  finPlus : {n : Nat} -> Fin n -> Fin n -> Fin n
+  finPlus {n} k m with natToFin (natMod (natPlus (finToNat k) (finToNat m)) n) n
+  ... | Just k' = k'
+  ... | Nothing = undefined
 
 private
   -- Workaround for https://github.com/agda/agda/issues/4967
@@ -1317,6 +1329,9 @@ instance
 
   Show-Nat : Show Nat
   Show-Nat .showsPrec _ = showString <<< primShowNat
+
+  Show-Fin : {n : Nat} -> Show (Fin n)
+  Show-Fin .showsPrec _ = showString <<< primShowNat <<< finToNat
 
   Show-Int : Show Int
   Show-Int .showsPrec _ = showString <<< primShowInteger
