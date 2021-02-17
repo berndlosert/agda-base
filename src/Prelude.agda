@@ -253,8 +253,15 @@ private
   ... | Just k' = k'
   ... | Nothing = undefined
 
+  finNegate : {n : Nat} -> Fin n -> Fin n
+  finNegate {n} m with natToFin (natMinus n (finToNat m)) n
+  ... | Just k = k
+  ... | Nothing = undefined
+
+  finMinus : {n : Nat} -> Fin n -> Fin n -> Fin n
+  finMinus k m = finPlus k (finNegate m)
+
 private
-  -- Workaround for https://github.com/agda/agda/issues/4967
   intLessThan : Int -> Int -> Bool
   intLessThan (Pos m) (Pos n) = natLessThan m n
   intLessThan (NegSuc m) (NegSuc n) = natLessThan n m
@@ -764,6 +771,9 @@ instance
   Subtractable-Nat : Subtractable Nat
   Subtractable-Nat ._-_ = natMinus
 
+  Subtractable-Fin : {n : Nat} -> Subtractable (Fin (Suc n))
+  Subtractable-Fin ._-_ = finMinus
+
   Subtractable-Int : Subtractable Int
   Subtractable-Int ._-_ m n = m + intNegate n
 
@@ -783,6 +793,9 @@ record Negatable (a : Set) : Set where
 open Negatable {{...}} public
 
 instance
+  Negatable-Fin : {n : Nat} -> Negatable (Fin (Suc n))
+  Negatable-Fin .-_ = finNegate
+
   Negatable-Int : Negatable Int
   Negatable-Int .-_ = intNegate
 
