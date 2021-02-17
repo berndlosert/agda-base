@@ -261,6 +261,12 @@ private
   finMinus : {n : Nat} -> Fin n -> Fin n -> Fin n
   finMinus k m = finPlus k (finNegate m)
 
+  finTimes : {n : Nat} -> Fin n -> Fin n -> Fin n
+  finTimes {n} k m
+    with natToFin (natMod (natTimes (finToNat k) (finToNat m)) n) n
+  ... | Just k' = k'
+  ... | Nothing = undefined
+
 private
   intLessThan : Int -> Int -> Bool
   intLessThan (Pos m) (Pos n) = natLessThan m n
@@ -830,6 +836,10 @@ instance
   Multiplicative-Nat : Multiplicative Nat
   Multiplicative-Nat ._*_ = natTimes
   Multiplicative-Nat .one = 1
+
+  Multiplicative-Fin : {n : Nat} -> Multiplicative (Fin (Suc (Suc n)))
+  Multiplicative-Fin .one = Suc Zero
+  Multiplicative-Fin ._*_ = finTimes
 
   Multiplicative-Int : Multiplicative Int
   Multiplicative-Int .one = 1
