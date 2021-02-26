@@ -47,6 +47,12 @@ record Foldable (t : Set -> Set) : Set where
   toList : t a -> List a
   toList = foldMap [_]
 
+  concat : t (List a) -> List a
+  concat = fold
+
+  concatMap : (a -> List b) -> t a -> List b
+  concatMap = foldMap
+
   length : t a -> Nat
   length = foldr (const Suc) 0
 
