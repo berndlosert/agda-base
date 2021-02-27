@@ -83,9 +83,7 @@ Save the following code into a file called `echo-server.agda`:
 
  runTCPEchoServer : IO Unit
  runTCPEchoServer = do
-   addrinfos <- getAddrInfo Nothing
-     (Just $ unpack "127.0.0.1")
-     (Just $ unpack "7000")
+   addrinfos <- getAddrInfo Nothing (Just "127.0.0.1") (Just "7000")
    let serveraddr = fromJust (List.head addrinfos) {{trustMe}}
    sock <- socket (addrFamily serveraddr) SOCK_STREAM defaultProtocol
    bind sock (addrAddress serveraddr)
