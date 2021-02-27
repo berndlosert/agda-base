@@ -114,7 +114,7 @@ defaultHints = record {
 
 postulate
   getAddrInfo : Maybe AddrInfo -> Maybe HostName -> Maybe ServiceName
-    -> IO (List AddrInfo)
+    -> IO (AddrInfo * List AddrInfo)
 
 -------------------------------------------------------------------------------
 -- Socket
@@ -156,9 +156,21 @@ postulate
 -- FFI
 -------------------------------------------------------------------------------
 
-{-# FOREIGN GHC import Network.Socket #-}
-{-# FOREIGN GHC import Network.Socket.ByteString #-}
-{-# FOREIGN GHC import Data.Text (pack, unpack) #-}
+{-# FOREIGN GHC
+
+  import Network.Socket
+  import Network.Socket.ByteString
+  import Data.Text (Text, pack, unpack)
+
+  getAddrInfo'
+    :: Maybe AddrInfo
+    -> Maybe Text
+    -> Maybe Text
+    -> IO (AddrInfo, [AddrInfo])
+  getAddrInfo' ai hostname servicename = do
+    result <- getAddrInfo ai (unpack <$> hostname) (unpack <$> servicename)
+    return (head result, tail result)
+#-}
 
 {-# COMPILE GHC Socket = type Socket #-}
 {-# COMPILE GHC socket = socket #-}
@@ -196,4 +208,4 @@ postulate
 {-# COMPILE GHC PortNumber = type PortNumber #-}
 {-# COMPILE GHC defaultPort = defaultPort #-}
 {-# COMPILE GHC SocketAddrIPv4 = SockAddrInet #-}
-{-# COMPILE GHC getAddrInfo = \ a h s -> getAddrInfo a (unpack <$> h) (unpack <$> s) #-}
+{-# COMPILE GHC getAddrInfo = getAddrInfo' #-}
