@@ -125,7 +125,7 @@ MAlonzo/Code/Network/Socket.hs:18:1: error:
    | ^^^^^^^^^^^^^^^^^^^^^
 ```
 
-then you need to make sure you have `network` package installed. Run `cabal
+then you need to make sure you have the `network` package installed. Run `cabal
 install --lib network` to install it and try compiling again. Once it compiles,
 start the program by running `./echo-server`. In a different terminal
 tab/window, run `telnet localhost 7000` and type in `Hello World!`. The
