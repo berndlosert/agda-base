@@ -31,13 +31,13 @@ postulate
   defaultPort : PortNumber
 
 HostName : Set
-HostName = List Char
+HostName = String
 
 HostIPv4Addr : Set
 HostIPv4Addr = Word32
 
 ServiceName : Set
-ServiceName = List Char
+ServiceName = String
 
 -------------------------------------------------------------------------------
 -- SocketAddr
@@ -158,7 +158,7 @@ postulate
 
 {-# FOREIGN GHC import Network.Socket #-}
 {-# FOREIGN GHC import Network.Socket.ByteString #-}
-{-# FOREIGN GHC import Data.Text (pack) #-}
+{-# FOREIGN GHC import Data.Text (pack, unpack) #-}
 
 {-# COMPILE GHC Socket = type Socket #-}
 {-# COMPILE GHC socket = socket #-}
@@ -196,4 +196,4 @@ postulate
 {-# COMPILE GHC PortNumber = type PortNumber #-}
 {-# COMPILE GHC defaultPort = defaultPort #-}
 {-# COMPILE GHC SocketAddrIPv4 = SockAddrInet #-}
-{-# COMPILE GHC getAddrInfo = getAddrInfo #-}
+{-# COMPILE GHC getAddrInfo = \ a h s -> getAddrInfo a (unpack <$> h) (unpack <$> s) #-}
