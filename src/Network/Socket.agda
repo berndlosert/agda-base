@@ -131,14 +131,11 @@ postulate
   send : Socket -> Bytes -> IO Nat
   sendAll : Socket -> Bytes -> IO Unit
   recv : Socket -> Nat -> IO Bytes
+  gracefulClose : Socket -> (milliseconds : Nat) -> IO Unit
 
 private
   postulate
     primListen : Socket -> Nat -> IO Unit
-    primGracefulClose : Socket -> Nat -> IO Unit
-
-gracefulClose : Socket -> (milliseconds : Nat) -> IO Unit
-gracefulClose sock timeout = primGracefulClose sock timeout
 
 listen : Socket -> (n : Nat) {{_ : Assert (n > 0)}} -> IO Unit
 listen s n = primListen s n
@@ -180,7 +177,7 @@ postulate
 {-# COMPILE GHC primListen = \ s n -> listen s (fromInteger n) #-}
 {-# COMPILE GHC accept = accept #-}
 {-# COMPILE GHC close = close #-}
-{-# COMPILE GHC primGracefulClose = \ s n -> gracefulClose s (fromInteger n) #-}
+{-# COMPILE GHC gracefulClose = \ s n -> gracefulClose s (fromInteger n) #-}
 {-# COMPILE GHC send = \ s bs -> send s bs >>= return . toInteger  #-}
 {-# COMPILE GHC sendAll = sendAll  #-}
 {-# COMPILE GHC recv = \ s n -> recv s (fromInteger n)  #-}

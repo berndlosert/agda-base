@@ -85,6 +85,7 @@ Save the following code into a file called `echo-server.agda`:
  runTCPEchoServer = do
    (serveraddr , _) <- getAddrInfo Nothing (Just "127.0.0.1") (Just "7000")
    sock <- socket (addrFamily serveraddr) SOCK_STREAM defaultProtocol
+   setSocketOption sock ReuseAddr 1
    bind sock (addrAddress serveraddr)
    listen sock 1
    accepted <- accept sock
