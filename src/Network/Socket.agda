@@ -104,12 +104,12 @@ open AddrInfo public
 
 defaultHints : AddrInfo
 defaultHints = record {
-     addrFlags      = [];
-     addrFamily     = AF_UNSPEC;
+     addrFlags = [];
+     addrFamily = AF_UNSPEC;
      addrSocketType = SOCK_NONE;
-     addrProtocol   = defaultProtocol;
-     addrAddress    = SocketAddrIPv4 defaultPort 0;
-     addrCanonName  = Nothing
+     addrProtocol = defaultProtocol;
+     addrAddress = SocketAddrIPv4 defaultPort 0;
+     addrCanonName = Nothing
   }
 
 postulate
