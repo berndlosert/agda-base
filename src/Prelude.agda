@@ -483,10 +483,10 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
-fromLeft : (x : Either a b) {{_ : Assert (isLeft x)}} -> a
+fromLeft : (x : Either a b) {{_ : Assert $ isLeft x}} -> a
 fromLeft (Left a) = a
 
-fromRight : (x : Either a b) {{_ : Assert (isRight x)}} -> b
+fromRight : (x : Either a b) {{_ : Assert $ isRight x}} -> b
 fromRight (Right b) = b
 
 -------------------------------------------------------------------------------
@@ -523,7 +523,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (x : Maybe a) {{_ : Assert (isJust x)}} -> a
+fromJust : (x : Maybe a) {{_ : Assert $ isJust x}} -> a
 fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
@@ -768,7 +768,7 @@ instance
   FromNat-Fin {n} .FromNatConstraint m = Assert (m <= n)
   FromNat-Fin {n} .fromNat m {{p}} = go m n {p}
     where
-      go : (m n : Nat) {_ : Assert (m <= n)} -> Fin (Suc n)
+      go : (m n : Nat) {_ : Assert $ m <= n} -> Fin (Suc n)
       go Zero _ = Zero
       go (Suc m) (Suc n) {p} = Suc (go m n {p})
 

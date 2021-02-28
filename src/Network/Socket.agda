@@ -137,7 +137,7 @@ private
   postulate
     primListen : Socket -> Nat -> IO Unit
 
-listen : Socket -> (n : Nat) {{_ : Assert (n > 0)}} -> IO Unit
+listen : Socket -> (n : Nat) {{_ : Assert $ n > 0}} -> IO Unit
 listen s n = primListen s n
 
 -------------------------------------------------------------------------------

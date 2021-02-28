@@ -102,7 +102,7 @@ fromList : (xs : List a) -> Vector (length xs) a
 fromList [] = []
 fromList (x :: xs) = x :: fromList xs
 
-take : (n : Nat) (xs : List a) {{_ : Assert (length xs >= n)}} -> Vector n a
+take : (n : Nat) (xs : List a) {{_ : Assert $ length xs >= n}} -> Vector n a
 take Zero _ = []
 take (Suc n) (x :: xs) = x :: take n xs
 
