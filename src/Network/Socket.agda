@@ -61,8 +61,8 @@ instance
 
 postulate
   SocketType : Set
-  SOCK_NONE : SocketType
-  SOCK_STREAM : SocketType
+  SockNone : SocketType
+  SockStream : SocketType
 
 -------------------------------------------------------------------------------
 -- AddrFamily
@@ -70,21 +70,21 @@ postulate
 
 postulate
   AddrFamily : Set
-  AF_INET : AddrFamily
-  AF_UNSPEC : AddrFamily
+  AFInet : AddrFamily
+  AFUnspec : AddrFamily
 
 -------------------------------------------------------------------------------
 -- AddrInfoFlag
 -------------------------------------------------------------------------------
 
 data AddrInfoFlag : Set where
-  AI_ADDRCONFIG : AddrInfoFlag
-  AI_ALL : AddrInfoFlag
-  AI_CANONNAME : AddrInfoFlag
-  AI_NUMERICHOST : AddrInfoFlag
-  AI_NUMERICSERV : AddrInfoFlag
-  AI_PASSIVE : AddrInfoFlag
-  AI_V4MAPPED : AddrInfoFlag
+  AIAddrConfig : AddrInfoFlag
+  AIAll : AddrInfoFlag
+  AICanonName : AddrInfoFlag
+  AINumericHost : AddrInfoFlag
+  AINumericServ : AddrInfoFlag
+  AIPassive : AddrInfoFlag
+  AIV4Mapped : AddrInfoFlag
 
 -------------------------------------------------------------------------------
 -- AddrInfo
@@ -105,8 +105,8 @@ open AddrInfo public
 defaultHints : AddrInfo
 defaultHints = record {
      addrFlags = [];
-     addrFamily = AF_UNSPEC;
-     addrSocketType = SOCK_NONE;
+     addrFamily = AFUnspec;
+     addrSocketType = SockNone;
      addrProtocol = defaultProtocol;
      addrAddress = SocketAddrIPv4 defaultPort 0;
      addrCanonName = Nothing
@@ -193,12 +193,12 @@ postulate
 {-# COMPILE GHC AddrInfoFlag = data AddrInfoFlag (AI_ADDRCONFIG | AI_ALL | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE | AI_V4MAPPED) #-}
 
 {-# COMPILE GHC AddrFamily = type Family #-}
-{-# COMPILE GHC AF_INET = AF_INET #-}
-{-# COMPILE GHC AF_UNSPEC = AF_UNSPEC #-}
+{-# COMPILE GHC AFInet = AF_INET #-}
+{-# COMPILE GHC AFUnspec = AF_UNSPEC #-}
 
 {-# COMPILE GHC SocketType = type SocketType #-}
-{-# COMPILE GHC SOCK_STREAM = Stream #-}
-{-# COMPILE GHC SOCK_NONE = NoSocketType #-}
+{-# COMPILE GHC SockStream = Stream #-}
+{-# COMPILE GHC SockNone = NoSocketType #-}
 
 {-# COMPILE GHC ProtocolNumber = type ProtocolNumber #-}
 {-# COMPILE GHC defaultProtocol = defaultProtocol #-}
