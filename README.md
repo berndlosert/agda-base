@@ -83,22 +83,21 @@ Save the following code into a file called `echo-server.agda`:
 
  runTCPEchoServer : IO Unit
  runTCPEchoServer = do
-   (serveraddr , _) <- getAddrInfo Nothing (Just "127.0.0.1") (Just "7000")
-   sock <- socket (addrFamily serveraddr) SockStream defaultProtocol
-   setSocketOption sock ReuseAddr 1
-   bind sock (addrAddress serveraddr)
-   listen sock 1
-   accepted <- accept sock
-   let conn = fst accepted
+   (serverAddr , _) <- getAddrInfo Nothing (Just "127.0.0.1") (Just "7000")
+   serverSocket <- socket (addrFamily serverAddr) SockStream defaultProtocol
+   setSocketOption serverSocket ReuseAddr 1
+   bind serverSocket (addrAddress serverAddr)
+   listen serverSocket 1
+   (clientSocket , _) <- accept serverSocket
    print "Waiting for a message..."
-   msg <- recv conn 1024
-   unless (Bytes.null msg) do
-     print ("Received: " <> decodeUtf8 msg)
+   message <- recv clientSocket 1024
+   unless (Bytes.null message) do
+     print ("Received: " <> decodeUtf8 message)
      print "Echoing..."
-     sendAll conn msg
+     sendAll clientSocket message
    print "Closing..."
-   close conn
-   close sock
+   close clientSocket
+   close serverSocket
 
  main : IO Unit
  main = runTCPEchoServer
