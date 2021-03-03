@@ -38,6 +38,9 @@ record Filtrable (t : Set -> Set) : Set where
   partition : (a -> Bool) -> t a -> t a * t a
   partition p xs = (filter p xs , filter (not <<< p) xs)
 
+  catMaybes : t (Maybe a) -> t a
+  catMaybes = mapMaybe id
+
 open Filtrable {{...}} public
 
 -------------------------------------------------------------------------------
