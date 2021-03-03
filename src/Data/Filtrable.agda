@@ -56,3 +56,7 @@ instance
     maybe Nothing (\ x -> bool (p x) Nothing (Just x))
   Filtrable-Maybe .filterA p =
     maybe (| Nothing |) (\ x -> (| bool (p x) (| Nothing |) (| (Just x) |) |))
+  Filtrable-Maybe .mapMaybe f =
+    maybe Nothing f
+  Filtrable-Maybe .mapMaybeA f =
+    maybe (| Nothing |) f
