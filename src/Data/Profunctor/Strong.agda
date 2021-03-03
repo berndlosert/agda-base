@@ -37,3 +37,11 @@ record Strong (p : Set -> Set -> Set) : Set where
   f &&& g = arr dup >>> second g >>> first f
 
 open Strong {{...}} public
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Strong-Function : Strong Function
+  Strong-Function .first f (a , c) = (f a , c)
