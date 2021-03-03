@@ -49,3 +49,8 @@ open Filtrable {{...}} public
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
+
+instance
+  Filtrable-Maybe : Filtrable Maybe
+  Filtrable-Maybe .filter p =
+    maybe Nothing (\ x -> bool (p x) Nothing (Just x))
