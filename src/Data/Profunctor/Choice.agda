@@ -38,6 +38,10 @@ record Choice (p : Set -> Set -> Set) : Set where
 
 open Choice {{...}} public
 
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
 instance
   Choice-Function : Choice Function
   Choice-Function .left ab (Left a) = Left (ab a)
