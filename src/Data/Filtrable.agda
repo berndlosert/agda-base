@@ -8,6 +8,7 @@ module Data.Filtrable where
 
 open import Prelude
 
+open import Data.Foldable
 open import Data.Traversable
 open import Data.Profunctor.Strong
 
@@ -63,3 +64,18 @@ instance
     either (Just &&& const Nothing) (const Nothing &&& Just) (f x)
   Filtrable-Maybe .mapEitherA f = maybe (| (Nothing , Nothing) |) \ x ->
     (| (either (Just &&& const Nothing) (const Nothing &&& Just)) (f x) |)
+
+  Filtrable-List : Filtrable List
+  Filtrable-List .filter p = flip foldr [] \ where
+    x xs -> bool (p x) xs (x :: xs)
+  Filtrable-List .filterA p = flip (foldr {{Foldable-List}}) (| [] |) \ where
+    x xs -> (| bool (p x) xs (| (x ::_) xs |) |)
+  Filtrable-List .mapMaybe f = flip foldr [] \ where
+    x xs -> maybe xs (_:: xs) (f x)
+  Filtrable-List .mapMaybeA f = flip (foldr {{Foldable-List}}) (| [] |) \ where
+    x xs -> (| maybe xs (| (flip _::_) xs |) (f x) |)
+  Filtrable-List .mapEither f = flip foldr ([] , []) \ where
+    x (ls , rs) -> either (_:: ls &&& const rs) (const ls &&& _:: rs) (f x)
+  Filtrable-List .mapEitherA f = undefined
+  --Filtrable-List .mapEitherA f = flip foldr (| ([] , []) |) \ where
+  --  x (ls , rs) -> (| (either (_:: ls &&& const rs) (const ls &&& _:: rs)) (f x) |)
