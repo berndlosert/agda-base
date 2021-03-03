@@ -42,7 +42,8 @@ record Filtrable (t : Set -> Set) : Set where
   catMaybes = mapMaybe id
 
   partitionEithers : t (Either a b) -> t a * t b
-  partitionEithers = mapEitherA id
+  partitionEithers = mapEither id
+
 open Filtrable {{...}} public
 
 -------------------------------------------------------------------------------
