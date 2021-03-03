@@ -14,4 +14,7 @@ open import Data.Traversable
 -- Variables
 -------------------------------------------------------------------------------
 
-
+private
+  variable
+    a b c : Set
+    f t : Set -> Set
