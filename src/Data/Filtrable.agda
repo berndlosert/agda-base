@@ -9,6 +9,7 @@ module Data.Filtrable where
 open import Prelude
 
 open import Data.Traversable
+open import Data.Profunctor.Strong
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -52,15 +53,13 @@ open Filtrable {{...}} public
 
 instance
   Filtrable-Maybe : Filtrable Maybe
-  Filtrable-Maybe .filter p =
-    maybe Nothing (\ x -> bool (p x) Nothing (Just x))
-  Filtrable-Maybe .filterA p =
-    maybe (| Nothing |) (\ x -> (| bool (p x) (| Nothing |) (| (Just x) |) |))
-  Filtrable-Maybe .mapMaybe f =
-    maybe Nothing f
-  Filtrable-Maybe .mapMaybeA f =
-    maybe (| Nothing |) f
-  Filtrable-Maybe .mapEither f =
-    maybe (Nothing , Nothing) (\ x -> either (\ l -> (Just l , Nothing)) (\ r -> (Nothing , Just r)) (f x))
-  Filtrable-Maybe .mapEitherA f =
-    maybe (| (Nothing , Nothing) |) (\ x -> (| (either (\ l -> (Just l , Nothing)) (\ r -> (Nothing , Just r))) (f x) |))
+  Filtrable-Maybe .filter p = maybe Nothing \ x ->
+    bool (p x) Nothing (Just x)
+  Filtrable-Maybe .filterA p = maybe (| Nothing |) \ x ->
+    (| bool (p x) (| Nothing |) (| (Just x) |) |)
+  Filtrable-Maybe .mapMaybe f = maybe Nothing f
+  Filtrable-Maybe .mapMaybeA f = maybe (| Nothing |) f
+  Filtrable-Maybe .mapEither f = maybe (Nothing , Nothing) \ x ->
+    either (Just &&& const Nothing) (const Nothing &&& Just) (f x)
+  Filtrable-Maybe .mapEitherA f = maybe (| (Nothing , Nothing) |) \ x ->
+    (| (either (Just &&& const Nothing) (const Nothing &&& Just)) (f x) |)
