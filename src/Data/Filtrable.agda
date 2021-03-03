@@ -60,3 +60,5 @@ instance
     maybe Nothing f
   Filtrable-Maybe .mapMaybeA f =
     maybe (| Nothing |) f
+  Filtrable-Maybe .mapEither f =
+    maybe (Nothing , Nothing) (\ x -> either (\ l -> (Just l , Nothing)) (\ r -> (Nothing , Just r)) (f x))
