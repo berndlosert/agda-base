@@ -35,4 +35,11 @@ record Filtrable (t : Set -> Set) : Set where
     mapEitherA : {{_ : Traversable t}} {{_ : Applicative f}}
       -> (a -> f (Either b c)) -> t a -> f (t b * t c)
 
+  partition : (a -> Bool) -> t a -> t a * t a
+  partition p xs = (filter p xs , filter (not <<< p) xs)
+
 open Filtrable {{...}} public
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
