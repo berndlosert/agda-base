@@ -1200,6 +1200,9 @@ record Applicative (f : Set -> Set) : Set where
   liftA : (a -> b) -> f a -> f b
   liftA f x = (| f x |)
 
+  liftA2 : (a -> b -> c) -> f a -> f b -> f c
+  liftA2 f x y = (| f x y |)
+
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
     where

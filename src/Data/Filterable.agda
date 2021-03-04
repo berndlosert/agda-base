@@ -10,7 +10,6 @@ open import Prelude
 
 open import Data.Foldable
 open import Data.Traversable
-open import Data.Profunctor.Strong
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -27,15 +26,17 @@ private
 
 record Filterable (t : Set -> Set) : Set where
   field
-    filter : (a -> Bool) -> t a -> t a
-    filterA : {{_ : Traversable t}} {{_ : Applicative f}}
-      -> (a -> f Bool) -> t a -> f (t a)
     mapMaybe : (a -> Maybe b) -> t a -> t b
-    mapMaybeA : {{_ : Traversable t}} {{_ : Applicative f}}
-      -> (a -> f (Maybe b)) -> t a -> f (t b)
-    mapEither : (a -> Either b c) -> t a -> t b * t c
-    mapEitherA : {{_ : Traversable t}} {{_ : Applicative f}}
-      -> (a -> f (Either b c)) -> t a -> f (t b * t c)
+
+  mapEither : (a -> Either b c) -> t a -> t b * t c
+  mapEither t = (|
+      _,_
+      (mapMaybe (either Just (pure Nothing) <<< t))
+      (mapMaybe (either (pure Nothing) Just <<< t))
+    |)
+
+  filter : (a -> Bool) -> t a -> t a
+  filter p = mapMaybe (\ x -> if p x then Just x else Nothing)
 
   partition : (a -> Bool) -> t a -> t a * t a
   partition p xs = (filter p xs , filter (not <<< p) xs)
@@ -46,6 +47,23 @@ record Filterable (t : Set -> Set) : Set where
   partitionEithers : t (Either a b) -> t a * t b
   partitionEithers = mapEither id
 
+  module _ {{_ : Traversable t}} where
+
+    mapMaybeA : {{_ : Applicative f}} -> (a -> f (Maybe b)) -> t a -> f (t b)
+    mapMaybeA f xs = (| catMaybes (traverse f xs) |)
+
+    filterA : {{_ : Applicative f}} -> (a -> f Bool) -> t a -> f (t a)
+    filterA p =
+      mapMaybeA (\ x -> (| bool (p x) (| Nothing |) (| (Just x) |) |))
+
+    mapEitherA : {{_ : Applicative f}}
+        -> (a -> f (Either b c)) -> t a -> f (t b * t c)
+    mapEitherA f = (|
+        (liftA2 _,_)
+        (mapMaybeA (map (either Just (pure Nothing)) <<< f))
+        (mapMaybeA (map (either (pure Nothing) Just) <<< f))
+      |)
+
 open Filterable {{...}} public
 
 -------------------------------------------------------------------------------
@@ -54,28 +72,7 @@ open Filterable {{...}} public
 
 instance
   Filterable-Maybe : Filterable Maybe
-  Filterable-Maybe .filter p = maybe Nothing \ x ->
-    bool (p x) Nothing (Just x)
-  Filterable-Maybe .filterA p = maybe (| Nothing |) \ x ->
-    (| bool (p x) (| Nothing |) (| (Just x) |) |)
-  Filterable-Maybe .mapMaybe f = maybe Nothing f
-  Filterable-Maybe .mapMaybeA f = maybe (| Nothing |) f
-  Filterable-Maybe .mapEither f = maybe (Nothing , Nothing) \ x ->
-    either (Just &&& const Nothing) (const Nothing &&& Just) (f x)
-  Filterable-Maybe .mapEitherA f = maybe (| (Nothing , Nothing) |) \ x ->
-    (| (either (Just &&& const Nothing) (const Nothing &&& Just)) (f x) |)
+  Filterable-Maybe .mapMaybe = _=<<_
 
   Filterable-List : Filterable List
-  Filterable-List .filter p = flip foldr [] \ where
-    x xs -> bool (p x) xs (x :: xs)
-  Filterable-List .filterA p = flip (foldr {{Foldable-List}}) (| [] |) \ where
-    x xs -> (| bool (p x) xs (| (x ::_) xs |) |)
-  Filterable-List .mapMaybe f = flip foldr [] \ where
-    x xs -> maybe xs (_:: xs) (f x)
-  Filterable-List .mapMaybeA f = flip (foldr {{Foldable-List}}) (| [] |) \ where
-    x xs -> (| maybe xs (| (flip _::_) xs |) (f x) |)
-  Filterable-List .mapEither f = flip foldr ([] , []) \ where
-    x (ls , rs) -> either (_:: ls &&& const rs) (const ls &&& _:: rs) (f x)
-  Filterable-List .mapEitherA f = undefined
-  --Filterable-List .mapEitherA f = flip foldr (| ([] , []) |) \ where
-  --  x (ls , rs) -> (| (either (_:: ls &&& const rs) (const ls &&& _:: rs)) (f x) |)
+  Filterable-List .mapMaybe f = foldr (maybe id (_::_) <<< f) []
