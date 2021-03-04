@@ -11,6 +11,7 @@ open import Prelude
 open import Data.Constraint.Nonempty
 open import Data.Constraint.Positive
 open import Data.Monoid.Endo
+open import Data.Filterable
 open import Data.Foldable
 open import Data.Traversable
 
@@ -19,6 +20,7 @@ open import Data.Traversable
 -------------------------------------------------------------------------------
 
 open Data.Constraint.Nonempty public
+open Data.Filterable public
 open Data.Foldable public
 open Data.Traversable public
 
@@ -162,20 +164,6 @@ insertAt : Nat -> a -> List a -> List a
 insertAt 0 x (y :: ys) = x :: y :: ys
 insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
 insertAt _ _ [] = []
-
--------------------------------------------------------------------------------
--- Searching with a predicate
--------------------------------------------------------------------------------
-
-filter : (a -> Bool) -> List a -> List a
-filter p = foldr (\ x xs -> if p x then x :: xs else xs) []
-
-filterA : {{_ : Applicative f}} -> (a -> f Bool) -> List a -> f (List a)
-filterA p = flip foldr (pure []) \ where
-    x xs -> (| if_then_else_ (p x) (| (x ::_) xs |) xs |)
-
-partition : (a -> Bool) -> List a -> List a * List a
-partition p xs = (filter p xs , filter (not <<< p) xs)
 
 -------------------------------------------------------------------------------
 -- Segments
