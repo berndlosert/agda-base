@@ -88,9 +88,10 @@ insert : {{_ : Ord k}} -> k -> v -> Dict k v -> Dict k v
 insert k v (Dict: t) = Dict: (Tree.insert (KVPair: k v) t)
 
 delete : {{_ : Ord k}} -> k -> Dict k v -> Dict k v
-delete k (Dict: t) with find (\ p -> k == getKey p) t
-... | Nothing = Dict: t
-... | Just p = Dict: (Tree.delete p t)
+delete k (Dict: t) =
+  case find (\ p -> k == getKey p) t of \ where
+     Nothing -> Dict: t
+     (Just p) -> Dict: (Tree.delete p t)
 
 lookup : {{_ : Ord k}} -> k -> Dict k v -> Maybe v
 lookup k (Dict: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
