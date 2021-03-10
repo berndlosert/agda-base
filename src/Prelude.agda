@@ -533,10 +533,6 @@ list : b -> (a -> List a -> b) -> List a -> b
 list b f [] = b
 list b f (a :: as) = f a as
 
-listrec : b -> (a -> List a -> b -> b) -> List a -> b
-listrec b f [] = b
-listrec b f (a :: as) = f a as (listrec b f as)
-
 -------------------------------------------------------------------------------
 -- IO primitives
 -------------------------------------------------------------------------------
@@ -999,7 +995,9 @@ instance
     (Just x) (Just y) -> Just (x <> y)
 
   Semigroup-List : Semigroup (List a)
-  Semigroup-List ._<>_ xs ys = listrec ys (\ z _ zs -> z :: zs) xs
+  Semigroup-List ._<>_ = \ where
+    [] ys -> ys
+    (x :: xs) ys -> x :: (xs <> ys)
 
   Semigroup-IO : {{_ : Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
@@ -1109,7 +1107,9 @@ instance
   Functor-Maybe .map f = maybe Nothing (Just <<< f)
 
   Functor-List : Functor List
-  Functor-List .map f = listrec [] \ a _ bs -> f a :: bs
+  Functor-List .map f = \ where
+    [] -> []
+    (x :: xs) -> f x :: map f xs
 
   Functor-IO : Functor IO
   Functor-IO .map = mapIO

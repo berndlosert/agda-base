@@ -277,7 +277,7 @@ open Folded {{...}} public
 instance
   Folded-List : Folded (List a) a
   Folded-List .folded f xs =
-    Const: (listrec neutral (\ x _ y -> getConst (f x) <> y) xs)
+    Const: $ foldr (\ x y -> getConst (f x) <> y) neutral xs
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b
@@ -296,8 +296,8 @@ instance
   Each-Either .each f (Right a) = map Right (f a)
 
   Each-List : Each (List a) (List b) a b
-  Each-List .each f = listrec (pure []) \ where
-    x _ ys -> (| _::_ (f x) ys |)
+  Each-List .each f = flip foldr (| [] |) \ where
+    x ys -> (| _::_ (f x) ys |)
 
 record Cons (s t a b : Set) : Set where
   field #Cons : Prism s t (a * s) (b * t)

@@ -149,4 +149,6 @@ instance
   Foldable-Maybe .foldr f z = maybe z (flip f z)
 
   Foldable-List : Foldable List
-  Foldable-List .foldr f z = listrec z (\ x _ y -> f x y)
+  Foldable-List .foldr f z = \ where
+    [] -> z
+    (x :: xs) -> f x (foldr f z xs)
