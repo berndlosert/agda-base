@@ -8,6 +8,7 @@ module Control.Monad.Except.Trans where
 
 open import Prelude
 
+open import Control.Alternative
 open import Control.Exception
 open import Control.Monad.Cont.Class
 open import Control.Monad.Reader.Class
@@ -48,16 +49,17 @@ instance
   Functor-ExceptT .map f = ExceptT: <<< map (map f) <<< runExceptT
 
   Applicative-ExceptT : {{_ : Monad m}} -> Applicative (ExceptT e m)
-  Applicative-ExceptT .pure = ExceptT: <<< pure <<< Right
-  Applicative-ExceptT ._<*>_ (ExceptT: mf) (ExceptT: mx) = ExceptT: do
-    f <- mf
-    case f of \ where
-      (Left e) -> return (Left e)
-      (Right g) -> do
-        x <- mx
-        case x of \ where
-          (Left e) -> return (Left e)
-          (Right y) -> return (Right (g y))
+  Applicative-ExceptT .pure = ExceptT: <<< pure <<< pure
+  Applicative-ExceptT ._<*>_ (ExceptT: mf) (ExceptT: mx) =
+    ExceptT: (| _<*>_ mf mx |)
+
+  Alternative-ExceptT : {{_ : Monoid e}} {{_ : Monad m}}
+    -> Alternative (ExceptT e m)
+  Alternative-ExceptT .empty = ExceptT: $ pure (Left neutral)
+  Alternative-ExceptT ._<|>_ (ExceptT: mx) (ExceptT: my) =
+    ExceptT: $ mx >>= \ where
+      (Left e) -> map (either (Left <<< (e <>_)) Right) my
+      (Right x) -> return (Right x)
 
   Monad-ExceptT : {{_ : Monad m}} -> Monad (ExceptT e m)
   Monad-ExceptT ._>>=_ (ExceptT: m) k =
