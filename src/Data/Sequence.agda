@@ -114,14 +114,16 @@ abstract
 -------------------------------------------------------------------------------
 
   uncons : Seq a -> Maybe (a * Seq a)
-  uncons (Seq: t) with Tree.uncons t
-  ... | Nothing = Nothing
-  ... | Just (Elem: x , xs) = Just (x , Seq: xs)
+  uncons (Seq: t) =
+    case Tree.uncons t of \ where
+      Nothing -> Nothing
+      (Just (Elem: x , xs)) -> Just (x , Seq: xs)
 
   unsnoc : Seq a -> Maybe (Seq a * a)
-  unsnoc (Seq: t) with Tree.unsnoc t
-  ... | Nothing = Nothing
-  ... | Just (xs , Elem: x) = Just (Seq: xs , x)
+  unsnoc (Seq: t) =
+    case Tree.unsnoc t of \ where
+      Nothing -> Nothing
+      (Just (xs , Elem: x)) -> Just (Seq: xs , x)
 
   head : Seq a -> Maybe a
   head = map fst <<< uncons
@@ -130,9 +132,10 @@ abstract
   tail = map snd <<< uncons
 
   init : (s : Seq a) {{_ : IsNonempty s}} -> Seq a
-  init s with unsnoc s
-  ... | Nothing = undefined -- No worries, this is impossible.
-  ... | Just (xs , _) = xs
+  init s =
+    case unsnoc s of \ where
+      Nothing -> undefined -- No worries, this is impossible.
+      (Just (xs , _)) -> xs
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -142,9 +145,10 @@ abstract
   reverse = foldl (flip cons) empty
 
   intersperse : a -> Seq a -> Seq a
-  intersperse sep s with uncons s
-  ... | Nothing = empty
-  ... | Just (x , xs) = cons x (| _#_ xs (cons (const sep) (singleton id)) |)
+  intersperse sep s =
+    case uncons s of \ where
+      Nothing -> empty
+      (Just (x , xs)) -> cons x (| _#_ xs (cons (const sep) (singleton id)) |)
 
 -------------------------------------------------------------------------------
 -- Indexed folds
@@ -279,10 +283,13 @@ abstract
 
   {-# TERMINATING #-}
   zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
-  zipWith f as bs with uncons as | uncons bs
-  ... | Nothing | _ = empty
-  ... | _ | Nothing = empty
-  ... | Just (x , xs) | Just (y , ys) = cons (f x y) (zipWith f xs ys)
+  zipWith f as bs =
+    case uncons as of \ where
+      Nothing -> empty
+      (Just (x , xs)) ->
+        case uncons bs of \ where
+          Nothing -> empty
+          (Just (y , ys)) -> cons (f x y) (zipWith f xs ys)
 
   zip : Seq a -> Seq b -> Seq (a * b)
   zip = zipWith _,_
@@ -334,10 +341,12 @@ abstract
 
   {-# TERMINATING #-}
   groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
-  groupBy eq as with uncons as
-  ... | Nothing = empty
-  ... | Just (x , xs) = let (ys , zs) = spanl (eq x) xs in
-    cons (cons x ys) (groupBy eq zs)
+  groupBy eq as =
+    case uncons as of \ where
+      Nothing -> empty
+      (Just (x , xs)) ->
+        let (ys , zs) = spanl (eq x) xs
+        in cons (cons x ys) (groupBy eq zs)
 
   group : {{_ : Eq a}} -> Seq a -> Seq (Seq a)
   group = groupBy _==_
@@ -348,17 +357,20 @@ abstract
 
   {-# TERMINATING #-} 
   intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
-  intercalate sep as with uncons as
-  ... | Nothing = neutral
-  ... | Just (a , as') = case uncons as' of \ where
-    Nothing -> a
-    (Just (x , xs)) -> a <> sep <> intercalate sep (cons x xs)
+  intercalate sep as =
+    case uncons as of \ where
+      Nothing -> neutral
+      (Just (a , as')) ->
+        case uncons as' of \ where
+          Nothing -> a
+          (Just (x , xs)) -> a <> sep <> intercalate sep (cons x xs)
 
   {-# TERMINATING #-}
   transpose : Seq (Seq a) -> Seq (Seq a)
-  transpose ass with uncons ass
-  ... | Nothing = empty
-  ... | Just (heads , tails) = zipCons heads (transpose tails)
+  transpose ass =
+    case uncons ass of \ where
+      Nothing -> empty
+      (Just (heads , tails)) -> zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
 -- Set-like operations
@@ -366,26 +378,32 @@ abstract
 
   {-# TERMINATING #-}
   deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
-  deleteBy eq x xs with uncons xs
-  ... | Nothing = empty
-  ... | Just (y , ys) = if eq x y then ys else (cons y (deleteBy eq x ys))
+  deleteBy eq x xs =
+    case uncons xs of \ where
+      Nothing -> empty
+      (Just (y , ys)) ->
+        if eq x y
+          then ys
+          else (cons y (deleteBy eq x ys))
 
   {-# TERMINATING #-}
   nubBy : (a -> a -> Bool) -> Seq a -> Seq a
   nubBy {a} eq l = nubBy' l empty
     where
       elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
-      elemBy eq y ys with uncons ys
-      ... | Nothing = False
-      ... | Just (x , xs) = eq x y || elemBy eq y xs
+      elemBy eq y ys =
+        case uncons ys of \ where
+           Nothing -> False
+           (Just (x , xs)) -> eq x y || elemBy eq y xs
 
       nubBy' : Seq a -> Seq a -> Seq a
-      nubBy' as xs with uncons as
-      ... | Nothing = empty
-      ... | Just (y , ys) =
-        if elemBy eq y xs
-        then nubBy' ys xs
-        else (cons y (nubBy' ys (cons y xs)))
+      nubBy' as xs =
+        case uncons as of \ where
+          Nothing -> empty
+          (Just (y , ys)) ->
+            if elemBy eq y xs
+              then nubBy' ys xs
+              else cons y (nubBy' ys (cons y xs))
 
   unionBy : (a -> a -> Bool) -> Seq a -> Seq a -> Seq a
   unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
@@ -407,17 +425,20 @@ abstract
 
   {-# TERMINATING #-}
   insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
-  insertBy cmp x as with uncons as
-  ... | Nothing = singleton x
-  ... | Just (y , xs) = case cmp x y of \ where
-    LT -> cons x (cons y xs)
-    _ -> cons y (insertBy cmp x xs)
+  insertBy cmp x as =
+    case uncons as of \ where
+      Nothing -> singleton x
+      (Just (y , xs)) ->
+        case cmp x y of \ where
+          LT -> cons x (cons y xs)
+          _ -> cons y (insertBy cmp x xs)
 
   {-# TERMINATING #-}
   sortBy : (a -> a -> Ordering) -> Seq a -> Seq a
-  sortBy cmp as with uncons as
-  ... | Nothing = empty
-  ... | Just (x , xs) = insertBy cmp x (sortBy cmp xs)
+  sortBy cmp as =
+    case uncons as of \ where
+      Nothing -> empty
+      (Just (x , xs)) -> insertBy cmp x (sortBy cmp xs)
 
   module _ {{_ : Ord a}} where
 
@@ -436,6 +457,7 @@ abstract
 
   {-# TERMINATING #-}
   lookup : {{_ : Eq a}} -> a -> Seq (a * b) -> Maybe b
-  lookup a s with uncons s
-  ... | Nothing = Nothing
-  ... | Just ((a' , b) , xs) = if a == a' then Just b else lookup a xs
+  lookup a s =
+    case uncons s of \ where
+      Nothing -> Nothing
+      (Just ((a' , b) , xs)) -> if a == a' then Just b else lookup a xs
