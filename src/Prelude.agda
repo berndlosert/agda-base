@@ -269,9 +269,10 @@ private
 
   natToFin : (m n : Nat) -> Maybe (Fin n)
   natToFin Zero (Suc j) = Just Zero
-  natToFin (Suc m) (Suc n) with natToFin m n
-  ... | Just k' = Just (Suc k')
-  ... | Nothing = Nothing
+  natToFin (Suc m) (Suc n) =
+    case natToFin m n of \ where
+      (Just k') -> Just (Suc k')
+      Nothing -> Nothing
   natToFin _ _ = Nothing
 
   finEquality : {n : Nat} -> Fin n -> Fin n -> Bool
@@ -285,23 +286,25 @@ private
   finLessThan (Suc n) (Suc m) = finLessThan n m
 
   finPlus : {n : Nat} -> Fin n -> Fin n -> Fin n
-  finPlus {n} k m with natToFin (natMod (natPlus (finToNat k) (finToNat m)) n) n
-  ... | Just k' = k'
-  ... | Nothing = undefined
+  finPlus {n} k m =
+    case natToFin (natMod (natPlus (finToNat k) (finToNat m)) n) n of \ where
+      (Just k') -> k'
+      Nothing -> undefined
 
   finNegate : {n : Nat} -> Fin n -> Fin n
-  finNegate {n} m with natToFin (natMinus n (finToNat m)) n
-  ... | Just k = k
-  ... | Nothing = undefined
+  finNegate {n} m =
+    case natToFin (natMinus n (finToNat m)) n of \ where
+      (Just k) -> k
+      Nothing -> undefined
 
   finMinus : {n : Nat} -> Fin n -> Fin n -> Fin n
   finMinus k m = finPlus k (finNegate m)
 
   finTimes : {n : Nat} -> Fin n -> Fin n -> Fin n
-  finTimes {n} k m
-    with natToFin (natMod (natTimes (finToNat k) (finToNat m)) n) n
-  ... | Just k' = k'
-  ... | Nothing = undefined
+  finTimes {n} k m =
+    case natToFin (natMod (natTimes (finToNat k) (finToNat m)) n) n of \ where
+      (Just k') -> k'
+      Nothing -> undefined
 
 -------------------------------------------------------------------------------
 -- Int primitives
@@ -1335,9 +1338,10 @@ instance
   Enum-Int .PredConstraint _ = Unit
   Enum-Int .suc n = n + 1
   Enum-Int .pred n = n - 1
-  Enum-Int .enumFromTo m n with m - n
-  ... | Pos k = (\ i -> Pos i + n) <$> enumFromTo k 0
-  ... | NegSuc k = (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
+  Enum-Int .enumFromTo m n =
+    case m - n of \ where
+      (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
+      (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
