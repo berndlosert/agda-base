@@ -37,15 +37,18 @@ private
 -- Constructors
 -------------------------------------------------------------------------------
 
+singleton : a -> List a
+singleton = _:: []
+
 cons : a -> List a -> List a
 cons = _::_
 
 snoc : List a -> a -> List a
-snoc xs x = xs <> [ x ]
+snoc xs x = xs <> singleton x
 
 iterateN : Nat -> (a -> a) -> a -> List a
 iterateN 0 f x = []
-iterateN 1 f x = [ x ]
+iterateN 1 f x = singleton x
 iterateN (Suc n) f x = f x :: iterateN n f x
 
 replicate : Nat -> a -> List a
@@ -97,7 +100,7 @@ reverse = foldl (flip cons) []
 
 intersperse : a -> List a -> List a
 intersperse sep = flip foldr [] \ where
-  x [] -> [ x ]
+  x [] -> singleton x
   x xs -> x :: sep :: xs
 
 -------------------------------------------------------------------------------
@@ -173,18 +176,18 @@ insertAt _ _ [] = []
 -------------------------------------------------------------------------------
 
 inits : List a -> List (List a)
-inits = foldr (\ x ys -> [ [] ] <> map (x ::_) ys) [ [] ]
+inits = foldr (\ x ys -> singleton [] <> map (x ::_) ys) (singleton [])
 
 tails : List a -> List (List a)
-tails [] = [ [] ]
-tails xs@(_ :: xs') = [ xs ] <> tails xs'
+tails [] = singleton []
+tails xs@(_ :: xs') = singleton xs <> tails xs'
 
 segments : List a -> List (List a)
-segments xs = [ [] ] <>
+segments xs = singleton [] <>
   (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
 
 segmentsOfSize : Nat -> List a -> List (List a)
-segmentsOfSize 0 _ = [ [] ]
+segmentsOfSize 0 _ = singleton []
 segmentsOfSize n xs =
   filter (\ ys -> length ys == n) $ foldr _<>_ [] (tails <$> inits xs)
 
@@ -281,17 +284,17 @@ breakOn needle haystack with haystack | isPrefixOf needle haystack
 {-# TERMINATING #-}
 splitOn : {{_ : Eq a}} (needle : List a) {{_ : IsNonempty needle}}
   -> List a -> List (List a)
-splitOn needle [] = [ [] ]
+splitOn needle [] = singleton []
 splitOn needle haystack = let (l , r) = breakOn needle haystack in
   l :: (if null r then [] else splitOn needle $ drop (length needle) r)
 
 split : (a -> Bool) -> List a -> List (List a)
-split f [] = [ [] ]
+split f [] = singleton []
 split f (x :: xs) =
   if f x
     then [] :: split f xs
     else case split f xs of \ where
-      [] -> [ [] ]
+      [] -> singleton []
       (y :: ys) -> (x :: y) :: ys
 
 -------------------------------------------------------------------------------

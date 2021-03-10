@@ -24,7 +24,7 @@ private
 -------------------------------------------------------------------------------
 
 singleton : Char -> String
-singleton c = pack [ c ]
+singleton = pack <<< List.singleton
 
 empty : String
 empty = ""

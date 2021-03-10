@@ -75,5 +75,5 @@ at (Suc n) as = at n (tail as)
 cycle : (as : List a) {{_ : IsNonempty as}} -> Stream a
 cycle as = flip unfold as \ where
   [] -> undefined -- We never use this case anyways.
-  [ x ] -> (x , as)
+  (x :: []) -> (x , as)
   (x :: xs) -> (x , xs)

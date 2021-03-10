@@ -121,7 +121,7 @@ parse p s with runParser p s
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: (maybe [] [_] <<< String.uncons)
+anyChar = Parser: (maybe [] List.singleton <<< String.uncons)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -199,7 +199,7 @@ word1 = do
   return (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = Parser: \ s -> [ String.break p s ]
+takeWhile p = Parser: \ s -> List.singleton (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const True)

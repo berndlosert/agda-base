@@ -348,7 +348,7 @@ private
     where
       display : List String -> String
       display [] = ".\n"
-      display [ x ] = " (" <> x <> ").\n"
+      display (x :: []) = " (" <> x <> ").\n"
       display xs = ".\n" <> String.unlines (map (_<> ".") xs)
 
       pairLength : List (List String) -> Nat * List String

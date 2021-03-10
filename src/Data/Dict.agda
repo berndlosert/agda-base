@@ -9,6 +9,7 @@ module Data.Dict where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.List as List using ()
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 -------------------------------------------------------------------------------
@@ -74,10 +75,10 @@ singleton k v = Dict: $ Tree.singleton $ KVPair: k v
 -------------------------------------------------------------------------------
 
 keys : Dict k v -> List k
-keys (Dict: t) = foldMap (getKey >>> [_]) t
+keys (Dict: t) = foldMap (getKey >>> List.singleton) t
 
 values : Dict k v -> List v
-values (Dict: t) = foldMap (getValue >>> [_]) t
+values (Dict: t) = foldMap (getValue >>> List.singleton) t
 
 -------------------------------------------------------------------------------
 -- Other operations

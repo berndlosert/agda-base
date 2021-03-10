@@ -45,7 +45,7 @@ record Foldable (t : Set -> Set) : Set where
     foldr g return xs z
 
   toList : t a -> List a
-  toList = foldMap [_]
+  toList = foldMap (_:: [])
 
   concat : t (List a) -> List a
   concat = fold
