@@ -77,15 +77,14 @@ instance
   MonadBracket-ExceptT .generalBracket acquire release use = ExceptT: do
     (eb , ec) <- generalBracket
       (runExceptT acquire)
-      (\ eresource exitCase -> case eresource of \ where
-        (Left e) -> return (Left e)
-        (Right resource) -> case exitCase of \ where
-          (ExitCaseSuccess (Right b)) ->
-            runExceptT (release resource (ExitCaseSuccess b))
-          (ExitCaseException e) ->
-            runExceptT (release resource (ExitCaseException e))
-          _ ->
-            runExceptT (release resource ExitCaseAbort))
+      (\ where
+        (Left e) _ -> return (Left e)
+        (Right resource) (ExitCaseSuccess (Right b)) ->
+          runExceptT (release resource (ExitCaseSuccess b))
+        (Right resource) (ExitCaseException e) ->
+          runExceptT (release resource (ExitCaseException e))
+        (Right resource) _ ->
+          runExceptT (release resource ExitCaseAbort))
       (either (return <<< Left) (runExceptT <<< use))
     return do
       c <- ec
@@ -99,14 +98,10 @@ instance
   MonadWriter-ExceptT : {{_ : MonadWriter w m}} -> MonadWriter w (ExceptT e m)
   MonadWriter-ExceptT .tell = lift <<< tell
   MonadWriter-ExceptT .listen = mapExceptT \ m -> do
-    p <- listen m
-    case p of \ where
-      (a , w) -> pure $ (_, w) <$> a
-  MonadWriter-ExceptT .pass = mapExceptT \ m -> pass do
-    a <- m
-    pure $ case a of \ where
-      (Left e) -> (Left e , id)
-      (Right (r , f)) -> (Right r , f)
+    (a , w) <- listen m
+    pure $ (_, w) <$> a
+  MonadWriter-ExceptT .pass = mapExceptT \ m ->
+    pass $ m >>= pure <<< either (tuple Left (const id)) (bimap Right id)
 
   MonadState-ExceptT : {{_ : MonadState s m}} -> MonadState s (ExceptT e m)
   MonadState-ExceptT .state = lift <<< state
