@@ -226,8 +226,9 @@ AnIso : (s t a b : Set) -> Set
 AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
-withIso ai k with ai (Exchange: id Identity:)
-... | Exchange: sa bt = k sa (runIdentity <<< bt)
+withIso ai k =
+  case ai (Exchange: id Identity:) of \ where
+    (Exchange: sa bt) -> k sa (runIdentity <<< bt)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
@@ -244,17 +245,16 @@ APrism : (s t a b : Set) -> Set
 APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> t + a) -> r) -> r
-withPrism ap f with ap (Market: Identity: Right)
-... | Market: bt seta =
-  f (runIdentity <<< bt) (either (Left <<< runIdentity) Right <<< seta)
+withPrism ap f =
+  case ap (Market: Identity: Right) of \ where
+    (Market: bt seta) ->
+      f (runIdentity <<< bt) (either (Left <<< runIdentity) Right <<< seta)
 
 matching : APrism s t a b -> s -> t + a
 matching ap = withPrism ap \ _ seta -> seta
 
 isn't : APrism s t a b -> s -> Bool
-isn't ap s with matching ap s
-... | Left _ = True
-... | Right _ = False
+isn't ap s = either (const True) (const False) (matching ap s)
 
 is : APrism s t a b -> s -> Bool
 is ap = not <<< isn't ap
