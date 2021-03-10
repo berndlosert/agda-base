@@ -151,9 +151,7 @@ at n = either Just (const Nothing) <<< flip foldlM 0 \
   k x -> if k == n then Left x else Right (Suc k)
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
-updateAt 0 f (x :: xs) with f x
-... | Nothing = xs
-... | Just x' = x' :: xs
+updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
 updateAt (Suc n) f (x :: xs) = x :: updateAt n f xs
 updateAt _ _ [] = []
 
