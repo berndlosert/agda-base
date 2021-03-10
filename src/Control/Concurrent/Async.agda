@@ -58,7 +58,7 @@ concurrently l r =
   waitBoth a b
 
 concurrently! : IO a -> IO b -> IO Unit
-concurrently! l r = void (concurrently l r)
+concurrently! l r = ignore (concurrently l r)
 
 -------------------------------------------------------------------------------
 -- Async FFI
@@ -214,7 +214,7 @@ mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
 mapConcurrently f = runConcurrently <<< traverse (Concurrently: <<< f)
 
 mapConcurrently! : {{_ : Foldable f}} -> (a -> IO b) -> f a -> IO Unit
-mapConcurrently! f = runConcurrently <<< foldMap (Concurrently: <<< void <<< f)
+mapConcurrently! f = runConcurrently <<< foldMap (Concurrently: <<< ignore <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
 replicateConcurrently cnt =
@@ -222,4 +222,4 @@ replicateConcurrently cnt =
 
 replicateConcurrently! : Nat -> IO a -> IO Unit
 replicateConcurrently! cnt =
-  runConcurrently <<< fold <<< List.replicate cnt <<< Concurrently: <<< void
+  runConcurrently <<< fold <<< List.replicate cnt <<< Concurrently: <<< ignore

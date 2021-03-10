@@ -1090,8 +1090,8 @@ record Functor (f : Set -> Set) : Set where
   _$>_ : f a -> b -> f b
   _$>_ = flip _<$_
 
-  void : f a -> f Unit
-  void = unit <$_
+  ignore : f a -> f Unit
+  ignore = unit <$_
 
   vacuous : f Void -> f a
   vacuous = map \ ()
