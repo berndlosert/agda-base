@@ -200,12 +200,9 @@ True && x = x
 -- Nat primitives
 -----------------------------------------------------------------------------------------
 
-natrec : a -> (Nat -> a -> a) -> Nat -> a
-natrec x _ 0 = x
-natrec x h n@(Suc n-1) = h n-1 (natrec x h n-1)
-
 applyN : (a -> a) -> Nat -> a -> a
-applyN f n x = natrec x (const f) n
+applyN _ 0 x = x
+applyN f (Suc n) x = f (applyN f n x)
 
 private
   natEquality : Nat -> Nat -> Bool
