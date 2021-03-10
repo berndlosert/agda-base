@@ -50,7 +50,7 @@ record MonadCatch (m : Set -> Set) : Set where
     catch : {{_ : Exception e}} -> m a -> (e -> m a) -> m a
 
   catchJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
-  catchJust p a handler = catch a (\ e -> maybe (throw e) handler (p e))
+  catchJust p ma handler = catch ma \ e -> maybe (throw e) handler (p e)
 
   handle : {{_ : Exception e}} -> (e -> m a) -> m a -> m a
   handle = flip catch
@@ -59,14 +59,12 @@ record MonadCatch (m : Set -> Set) : Set where
   handleJust = flip <<< catchJust
 
   try : {{_ : Exception e}} -> m a -> m (e + a)
-  try a = catch (map Right a) (pure <<< Left)
+  try ma = catch (map Right ma) (pure <<< Left)
 
   tryJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
-  tryJust p a = do
-    r <- try a
-    case r of \ where
-      (Right v) -> return (Right v)
-      (Left e) -> maybe (throw e) (return <<< Left) (p e)
+  tryJust p ma = try ma >>= \ where
+    (Right v) -> return (Right v)
+    (Left e) -> maybe (throw e) (return <<< Left) (p e)
 
 open MonadCatch {{...}} public
 
