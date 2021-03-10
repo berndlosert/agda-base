@@ -66,13 +66,16 @@ build g = g _::_ []
 -------------------------------------------------------------------------------
 
 head : List a -> Maybe a
-head = list Nothing (\ x _ -> Just x)
+head [] = Nothing
+head (x :: _) = Just x
 
 tail : List a -> Maybe (List a)
-tail = list Nothing (\ _ xs -> Just xs )
+tail [] = Nothing
+tail (_ :: xs) = Just xs
 
 uncons : List a -> Maybe (a * List a)
-uncons = list Nothing (\ x xs -> Just (x , xs))
+uncons [] = Nothing
+uncons (x :: xs) = Just (x , xs)
 
 unsnoc : List a -> Maybe (List a * a)
 unsnoc = foldr go Nothing
