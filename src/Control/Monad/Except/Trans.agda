@@ -108,4 +108,4 @@ instance
 
   MonadCont-ExceptT : {{_ : MonadCont m}} -> MonadCont (ExceptT e m)
   MonadCont-ExceptT .callCC f = ExceptT: $
-    callCC \ c -> runExceptT (f (\ a -> ExceptT: $ c (Right a)))
+    callCC \ c -> runExceptT (f \ a -> ExceptT: $ c (Right a))
