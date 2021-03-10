@@ -89,10 +89,8 @@ instance
 
   Choice-Market : Choice (Market a b)
   Choice-Market .left (Market: bt seta) =
-    Market: (Left <<< bt) $ \ where
-      (Left s) -> case seta s of \ where
-        (Left t) -> Left (Left t)
-        (Right a) -> Right a
+    Market: (Left <<< bt) \ where
+      (Left s) -> either (Left <<< Left) Right (seta s)
       (Right c) -> Left (Right c)
 
 -------------------------------------------------------------------------------
