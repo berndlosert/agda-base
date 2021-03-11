@@ -42,14 +42,14 @@ open Traversable {{...}} public
 
 instance
   Traversable-Maybe : Traversable Maybe
-  Traversable-Maybe .traverse f m with m
-  ... | Nothing = (| Nothing |)
-  ... | Just x = (| Just (f x) |)
+  Traversable-Maybe .traverse f = \ where
+    Nothing -> (| Nothing |)
+    (Just x) -> (| Just (f x) |)
 
   Traversable-List : Traversable List
-  Traversable-List .traverse f l with l
-  ... | [] = (| [] |)
-  ... | x :: xs = (| _::_ (f x) (traverse f xs) |)
+  Traversable-List .traverse f = \ where
+    [] -> (| [] |)
+    (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
 
   Traversable-Reverse : {{_ : Traversable f}} -> Traversable (Reverse f)
   Traversable-Reverse .traverse f (Reverse: x) =
