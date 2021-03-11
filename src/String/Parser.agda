@@ -112,9 +112,10 @@ chainr p op a = chainr1 p op <|> pure a
 
 -- Run a parser on a string and get the first result.
 parse : Parser a -> String -> Maybe a
-parse p s with runParser p s
-... | [] = Nothing
-... | ((a , _) :: _) = Just a
+parse p s =
+  case runParser p s of \ where
+    [] -> Nothing
+    ((a , _) :: _) -> Just a
 
 -------------------------------------------------------------------------------
 -- Char parsers
@@ -186,9 +187,10 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string s with String.uncons s
-... | Nothing = pure ""
-... | (Just (c , s')) = char c *> string s' *> pure (String.cons c s')
+string s =
+  case String.uncons s of \ where
+    Nothing -> pure ""
+    (Just (c , s')) -> char c *> string s' *> pure (String.cons c s')
 
 word : Parser String
 word1 : Parser String
