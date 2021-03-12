@@ -226,25 +226,26 @@ pop {a} v = down []
           down (TwoLeft x r :: ctx) l
         (_ , _ , _ ) ->
           down (TwoRight l x :: ctx) r
-    down ctx (Three l x m y r) with l | m | r | compare v x | compare v y
-    ... | Leaf | Leaf | Leaf | EQ | _  =
-      Just (x , fromZipper ctx (Two Leaf y Leaf))
-    ... | Leaf | Leaf | Leaf | _ | EQ =
-      Just (y , fromZipper ctx (Two Leaf x Leaf))
-    ... | l'@(Two _ _ _) | _ | _ | EQ | _ =
-      Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
-    ... | l'@(Three _ _ _ _ _) | _ | _ | EQ | _ =
-      Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
-    ... | _ | m'@(Two _ _ _) | _ | _ | EQ =
-      Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
-    ... | _ | m'@(Three _ _ _ _ _) | _ | _ | EQ =
-      Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
-    ... | _ | _ | _ |  LT | _  =
-      down (ThreeLeft x m y r :: ctx) l
-    ... | _ | _ | _ |  GT | LT =
-      down (ThreeMiddle l x y r :: ctx) m
-    ... | _ | _ | _ |  _ | _  =
-      down (ThreeRight l x m y :: ctx) r
+    down ctx (Three l x m y r) =
+      case (l , m , r , compare v x , compare v y) of \ where
+        (Leaf , Leaf , Leaf , EQ , _) ->
+          Just (x , fromZipper ctx (Two Leaf y Leaf))
+        (Leaf , Leaf , Leaf , _ , EQ) ->
+          Just (y , fromZipper ctx (Two Leaf x Leaf))
+        (l'@(Two _ _ _) , _ , _ , EQ , _) ->
+          Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+        (l'@(Three _ _ _ _ _) , _ , _ , EQ , _) ->
+          Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+        (_ , m'@(Two _ _ _) , _ , _ , EQ) ->
+          Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+        (_ , m'@(Three _ _ _ _ _) , _ , _ , EQ) ->
+          Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+        (_ , _ , _ ,  LT , _) ->
+          down (ThreeLeft x m y r :: ctx) l
+        (_ , _ , _ ,  GT , LT) ->
+          down (ThreeMiddle l x y r :: ctx) m
+        (_ , _ , _ ,  _ , _ ) ->
+          down (ThreeRight l x m y :: ctx) r
 
 delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
 delete x t = maybe t snd (pop x t)
