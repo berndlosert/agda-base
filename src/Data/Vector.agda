@@ -89,8 +89,7 @@ instance
 
 splitAt : (m : Nat) -> Vector (m + n) a -> Vector m a * Vector n a
 splitAt 0 xs = ([] , xs)
-splitAt (Suc k) (x :: xs) with (splitAt k xs)
-... | (l , r) = (x :: l , r)
+splitAt (Suc k) (x :: xs) = let (l , r) = splitAt k xs in (x :: l , r)
 
 transpose : Vector n (Vector m a) -> Vector m (Vector n a)
 transpose = sequence
