@@ -187,13 +187,13 @@ pop {a} v = down []
         (_ , _) -> t
 
     maxNode :  (t : Tree a) {{_ : IsNonempty t}} -> a
-    maxNode t with t
-    ... | Two _ x Leaf = x
-    ... | Two _ _ r@(Two _ _ _) = maxNode r
-    ... | Two _ _ r@(Three _ _ _ _ _) = maxNode r
-    ... | Three _ _ _ x Leaf = x
-    ... | Three _ _ _ _ r@(Two _ _ _) = maxNode r
-    ... | Three _ _ _ _ r@(Three _ _ _ _ _) = maxNode r
+    maxNode = \ where
+      (Two _ x Leaf) -> x
+      (Two _ _ r@(Two _ _ _)) -> maxNode r
+      (Two _ _ r@(Three _ _ _ _ _)) -> maxNode r
+      (Three _ _ _ x Leaf) -> x
+      (Three _ _ _ _ r@(Two _ _ _)) -> maxNode r
+      (Three _ _ _ _ r@(Three _ _ _ _ _)) -> maxNode r
 
     removeMaxNode : List (TreeContext a)
       -> (t : Tree a) {{_ : IsNonempty t}} -> Tree a
