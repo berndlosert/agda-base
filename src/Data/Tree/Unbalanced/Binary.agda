@@ -56,9 +56,9 @@ instance
     <<< showsPrec appPrec+1 r)
 
   NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
-  NonemptyConstraint-Tree .IsNonempty t with t
-  ... | Leaf = Void
-  ... | _ = Unit
+  NonemptyConstraint-Tree .IsNonempty = \ where
+    Leaf -> Void
+    _ -> Unit
 
 -------------------------------------------------------------------------------
 -- Basic operations
@@ -74,10 +74,11 @@ module _ {{_ : Ord a}} where
 
   insert : a -> Tree a -> Tree a
   insert x Leaf = Node Leaf x Leaf
-  insert x (Node l y r) with compare x y
-  ... | EQ = Node l x r
-  ... | LT = Node (insert x l) y r
-  ... | GT = Node l y (insert x r)
+  insert x (Node l y r) =
+    case compare x y of \ where
+      EQ -> Node l x r
+      LT -> Node (insert x l) y r
+      GT -> Node l y (insert x r)
 
   merge : Tree a -> Tree a -> Tree a
   merge Leaf t = t
