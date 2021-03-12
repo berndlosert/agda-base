@@ -106,10 +106,11 @@ module _ {{_ : Ord a}} where
 
   member : a -> Tree a -> Bool
   member x Leaf = False
-  member x (Node l y r) with compare x y
-  ... | EQ = True
-  ... | LT = member x l
-  ... | GT = member x r
+  member x (Node l y r) =
+    case compare x y of \ where
+      EQ -> True
+      LT -> member x l
+      GT -> member x r
 
   fromList : List a -> Tree a
   fromList = foldr insert Leaf
