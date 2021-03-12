@@ -197,20 +197,20 @@ pop {a} v = down []
 
     removeMaxNode : List (TreeContext a)
       -> (t : Tree a) {{_ : IsNonempty t}} -> Tree a
-    removeMaxNode ctx t with t
-    ... | Two Leaf _ Leaf =
-      up ctx Leaf
-    ... | Two l x r@(Two _ _ _) =
-      removeMaxNode (TwoRight l x :: ctx) r
-    ... | Two l x r@(Three _ _ _ _ _) =
-      removeMaxNode (TwoRight l x :: ctx) r
-    ... | Three Leaf x Leaf _ Leaf =
-      up (TwoRight Leaf x :: ctx) Leaf
-    ... | Three l x m y r@(Two _ _ _) =
-      removeMaxNode (ThreeRight l x m y :: ctx) r
-    ... | Three l x m y r@(Three _ _ _ _ _) =
-      removeMaxNode (ThreeRight l x m y :: ctx) r
-    ... | _ = t
+    removeMaxNode ctx = \ where
+      (Two Leaf _ Leaf) ->
+        up ctx Leaf
+      (Two l x r@(Two _ _ _)) ->
+        removeMaxNode (TwoRight l x :: ctx) r
+      (Two l x r@(Three _ _ _ _ _)) ->
+        removeMaxNode (TwoRight l x :: ctx) r
+      (Three Leaf x Leaf _ Leaf) ->
+        up (TwoRight Leaf x :: ctx) Leaf
+      (Three l x m y r@(Two _ _ _)) ->
+        removeMaxNode (ThreeRight l x m y :: ctx) r
+      (Three l x m y r@(Three _ _ _ _ _)) ->
+        removeMaxNode (ThreeRight l x m y :: ctx) r
+      t -> t
 
     down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
     down ctx Leaf = Nothing
