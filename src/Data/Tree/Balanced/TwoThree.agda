@@ -283,13 +283,13 @@ map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
 
 mapMonotonic : (a -> b) -> Tree a -> Tree b
-mapMonotonic f t with t
-... | Leaf =
-  Leaf
-... | Two l x r =
-  Two (mapMonotonic f l) (f x) (mapMonotonic f r)
-... | Three l x m y r =
-  Three (mapMonotonic f l) (f x) (mapMonotonic f m) (f y) (mapMonotonic f r)
+mapMonotonic f = \ where
+  Leaf ->
+    Leaf
+  (Two l x r) ->
+    Two (mapMonotonic f l) (f x) (mapMonotonic f r)
+  (Three l x m y r) ->
+    Three (mapMonotonic f l) (f x) (mapMonotonic f m) (f y) (mapMonotonic f r)
 
 merge : {{_ : Ord a}} -> Tree a -> Tree a -> Tree a
 merge t t' = foldr insert t t'
