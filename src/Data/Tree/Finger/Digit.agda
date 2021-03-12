@@ -32,25 +32,25 @@ data Digit (a : Set) : Set where
 
 instance
   Foldable-Digit : Foldable Digit
-  Foldable-Digit .foldr f z digit with digit
-  ... | One a = f a z
-  ... | Two a b = f a (f b z)
-  ... | Three a b c = f a (f b (f c z))
-  ... | Four a b c d = f a (f b (f c (f d z)))
+  Foldable-Digit .foldr f z = \ where
+    (One a) -> f a z
+    (Two a b) -> f a (f b z)
+    (Three a b c) -> f a (f b (f c z))
+    (Four a b c d) -> f a (f b (f c (f d z)))
 
   Functor-Digit : Functor Digit
-  Functor-Digit .map f digit with digit
-  ... | One a = One (f a)
-  ... | Two a b = Two (f a) (f b)
-  ... | Three a b c = Three (f a) (f b) (f c)
-  ... | Four a b c d = Four (f a) (f b) (f c) (f d)
+  Functor-Digit .map f = \ where
+    (One a) -> One (f a)
+    (Two a b) -> Two (f a) (f b)
+    (Three a b c) -> Three (f a) (f b) (f c)
+    (Four a b c d) -> Four (f a) (f b) (f c) (f d)
 
   Traversable-Digit : Traversable Digit
-  Traversable-Digit .traverse f digit with digit
-  ... | One a = (| One (f a) |)
-  ... | Two a b = (| Two (f a) (f b) |)
-  ... | Three a b c = (| Three (f a) (f b) (f c) |)
-  ... | Four a b c d = (| Four (f a) (f b) (f c) (f d) |)
+  Traversable-Digit .traverse f = \ where
+    (One a) -> (| One (f a) |)
+    (Two a b) -> (| Two (f a) (f b) |)
+    (Three a b c) -> (| Three (f a) (f b) (f c) |)
+    (Four a b c d) -> (| Four (f a) (f b) (f c) (f d) |)
 
   Measured-Digit : {{_ : Measured v a}} -> Measured v (Digit a)
   Measured-Digit .measure = foldMap measure
