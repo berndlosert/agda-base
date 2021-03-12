@@ -274,10 +274,12 @@ chunksOf _ [] = []
 chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
 breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a
-breakOn needle haystack with haystack | isPrefixOf needle haystack
-... | _ | True = ([] , haystack)
-... | [] | False = ([] , [])
-... | x :: xs | False  = lmap (x ::_) $ breakOn needle xs
+breakOn needle haystack =
+  if isPrefixOf needle haystack
+    then ([] , haystack)
+    else case haystack of \ where
+      [] -> ([] , [])
+      (x :: xs) -> lmap (x ::_) $ breakOn needle xs
 
 {-# TERMINATING #-}
 splitOn : {{_ : Eq a}} (needle : List a) {{_ : IsNonempty needle}}
@@ -350,9 +352,10 @@ module _ {{_ : Eq a}} where
 
 insertBy : (a -> a -> Ordering) -> a -> List a -> List a
 insertBy cmp x [] = x :: []
-insertBy cmp x (y :: xs) with cmp x y
-... | LT = x :: y :: xs
-... | _ = y :: insertBy cmp x xs
+insertBy cmp x (y :: xs) =
+  case cmp x y of \ where
+    LT -> x :: y :: xs
+    _ -> y :: insertBy cmp x xs
 
 sortBy : (a -> a -> Ordering) -> List a -> List a
 sortBy cmp [] = []

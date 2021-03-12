@@ -38,10 +38,10 @@ instance
   NonemptyConstraint-Tree .IsNonempty _ = Unit
 
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldr f z t with t
-  ... | Leaf = z
-  ... | Two l x r = foldr f (f x (foldr f z r)) l
-  ... | Three l x m y r = foldr f (f x (foldr f (f y (foldr f z r)) m)) l
+  Foldable-Tree .foldr f z = \ where
+    Leaf -> z
+    (Two l x r) -> foldr f (f x (foldr f z r)) l
+    (Three l x m y r) -> foldr f (f x (foldr f (f y (foldr f z r)) m)) l
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t t' = toList t == toList t'
@@ -94,12 +94,13 @@ private
 
   fromZipper : List (TreeContext a) -> Tree a -> Tree a
   fromZipper [] t = t
-  fromZipper (h :: ctx) t with h
-  ... | TwoLeft x r = fromZipper ctx (Two t x r)
-  ... | TwoRight l x = fromZipper ctx (Two l x t)
-  ... | ThreeLeft x m y r = fromZipper ctx (Three t x m y r)
-  ... | ThreeMiddle l x y r = fromZipper ctx (Three l x t y r)
-  ... | ThreeRight l x m y = fromZipper ctx (Three l x m y t)
+  fromZipper (h :: ctx) t =
+    case h of \ where
+      (TwoLeft x r) -> fromZipper ctx (Two t x r)
+      (TwoRight l x) -> fromZipper ctx (Two l x t)
+      (ThreeLeft x m y r) -> fromZipper ctx (Three t x m y r)
+      (ThreeMiddle l x y r) -> fromZipper ctx (Three l x t y r)
+      (ThreeRight l x m y) -> fromZipper ctx (Three l x m y t)
 
 -------------------------------------------------------------------------------
 -- Inserting
