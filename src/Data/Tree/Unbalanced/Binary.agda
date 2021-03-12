@@ -34,16 +34,16 @@ data Tree (a : Set) : Set where
 
 instance
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldr f z t with t
-  ... | Leaf = z
-  ... | Node l x r = foldr f (f x (foldr f z r)) l
+  Foldable-Tree .foldr f z = \ where
+    Leaf -> z
+    (Node l x r) -> foldr f (f x (foldr f z r)) l
 
   Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
-  Eq-Tree ._==_ t s with t | s
-  ... | Leaf | Leaf = True
-  ... | Leaf | _ = False
-  ... | _ | Leaf = False
-  ... | Node l x r | Node l' x' r' = x == x' && l == l' && r == r'
+  Eq-Tree ._==_ = \ where
+    Leaf Leaf -> True
+    Leaf _ -> False
+    _ Leaf -> False
+    (Node l x r) (Node l' x' r') -> x == x' && l == l' && r == r'
 
   Show-Tree : {{_ : Show a}} -> Show (Tree a)
   Show-Tree .showsPrec _ Leaf = showString "Leaf"
