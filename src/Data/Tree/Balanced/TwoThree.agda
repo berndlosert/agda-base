@@ -148,42 +148,43 @@ pop {a} v = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
     up [] t = t
-    up (h :: ctx) t with h | t
-    ... | TwoLeft x Leaf | Leaf =
-      fromZipper ctx (Two Leaf x Leaf)
-    ... | TwoRight Leaf x | Leaf =
-      fromZipper ctx (Two Leaf x Leaf)
-    ... | TwoLeft x (Two m y r) | l =
-      up ctx (Three l x m y r)
-    ... | TwoRight (Two l x m) y | r =
-      up ctx (Three l x m y r)
-    ... | TwoLeft x (Three b y c z d) | a =
-      fromZipper ctx (Two (Two a x b) y (Two c z d))
-    ... | TwoRight (Three a x b y c) z | d =
-      fromZipper ctx (Two (Two a x b) y (Two c z d))
-    ... | ThreeLeft x Leaf y Leaf | Leaf =
-      fromZipper ctx (Three Leaf x Leaf y Leaf)
-    ... | ThreeMiddle Leaf x y Leaf | Leaf =
-      fromZipper ctx (Three Leaf x Leaf y Leaf)
-    ... | ThreeRight Leaf x Leaf y | Leaf =
-      fromZipper ctx (Three Leaf x Leaf y Leaf)
-    ... | ThreeLeft x (Two b y c) z d | a =
-      fromZipper ctx (Two (Three a x b y c) z d)
-    ... | ThreeMiddle (Two a x b) y z d | c =
-      fromZipper ctx (Two (Three a x b y c) z d)
-    ... | ThreeMiddle a x y (Two c z d) | b =
-      fromZipper ctx (Two a x (Three b y c z d))
-    ... | ThreeRight a x (Two b y c) z | d =
-      fromZipper ctx (Two a x (Three b y c z d))
-    ... | ThreeLeft w (Three b x c y d) z e | a =
-      fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
-    ... | ThreeMiddle (Three a w b x c) y z e | d =
-      fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
-    ... | ThreeMiddle a w x (Three c y d z e) | b =
-      fromZipper ctx (Three a w (Two b x c) y (Two d z e))
-    ... | ThreeRight a w (Three b x c y d) z | e =
-      fromZipper ctx (Three a w (Two b x c) y (Two d z e))
-    ... | _ | _ = t
+    up (h :: ctx) t =
+      case (h , t) of \ where
+        (TwoLeft x Leaf , Leaf) ->
+          fromZipper ctx (Two Leaf x Leaf)
+        (TwoRight Leaf x , Leaf) ->
+          fromZipper ctx (Two Leaf x Leaf)
+        (TwoLeft x (Two m y r) , l) ->
+          up ctx (Three l x m y r)
+        (TwoRight (Two l x m) y , r) ->
+          up ctx (Three l x m y r)
+        (TwoLeft x (Three b y c z d) , a) ->
+          fromZipper ctx (Two (Two a x b) y (Two c z d))
+        (TwoRight (Three a x b y c) z , d) ->
+          fromZipper ctx (Two (Two a x b) y (Two c z d))
+        (ThreeLeft x Leaf y Leaf , Leaf) ->
+          fromZipper ctx (Three Leaf x Leaf y Leaf)
+        (ThreeMiddle Leaf x y Leaf , Leaf) ->
+          fromZipper ctx (Three Leaf x Leaf y Leaf)
+        (ThreeRight Leaf x Leaf y , Leaf) ->
+          fromZipper ctx (Three Leaf x Leaf y Leaf)
+        (ThreeLeft x (Two b y c) z d , a) ->
+          fromZipper ctx (Two (Three a x b y c) z d)
+        (ThreeMiddle (Two a x b) y z d , c) ->
+          fromZipper ctx (Two (Three a x b y c) z d)
+        (ThreeMiddle a x y (Two c z d) , b) ->
+          fromZipper ctx (Two a x (Three b y c z d))
+        (ThreeRight a x (Two b y c) z , d) ->
+          fromZipper ctx (Two a x (Three b y c z d))
+        (ThreeLeft w (Three b x c y d) z e , a) ->
+          fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
+        (ThreeMiddle (Three a w b x c) y z e , d) ->
+          fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
+        (ThreeMiddle a w x (Three c y d z e) , b) ->
+          fromZipper ctx (Three a w (Two b x c) y (Two d z e))
+        (ThreeRight a w (Three b x c y d) z , e) ->
+          fromZipper ctx (Three a w (Two b x c) y (Two d z e))
+        (_ , _) -> t
 
     maxNode :  (t : Tree a) {{_ : IsNonempty t}} -> a
     maxNode t with t
