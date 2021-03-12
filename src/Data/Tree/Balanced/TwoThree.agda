@@ -256,16 +256,18 @@ delete x t = maybe t snd (pop x t)
 
 lookup : {{_ : Ord a}} -> a -> Tree (a * b) -> Maybe b
 lookup a Leaf = Nothing
-lookup a (Two l (x , b) r) with compare a x
-... | EQ = Just b
-... | LT = lookup a l
-... | GT = lookup a r
-lookup a (Three l (x , b) m (y , c) r) with compare a x | compare a y
-... | EQ | _ = Just b
-... | LT | _ = lookup a l
-... | GT | EQ = Just c
-... | GT | LT = lookup a m
-... | GT | GT = lookup a r
+lookup a (Two l (x , b) r) =
+  case compare a x of \ where
+    EQ -> Just b
+    LT -> lookup a l
+    GT -> lookup a r
+lookup a (Three l (x , b) m (y , c) r) =
+  case (compare a x , compare a y) of \ where
+    (EQ , _) -> Just b
+    (LT , _) -> lookup a l
+    (GT , EQ) -> Just c
+    (GT , LT) -> lookup a m
+    (GT , GT) -> lookup a r
 
 member : {{_ : Eq a}} -> a -> Tree a -> Bool
 member a t = maybe False (const True) (find (_== a) t)
