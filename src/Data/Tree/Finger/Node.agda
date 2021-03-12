@@ -48,19 +48,19 @@ nodes _ = []
 
 instance
   Foldable-Node : Foldable (Node v)
-  Foldable-Node .foldr f z node with node
-  ... | Node2 _ a b = f a (f b z)
-  ... | Node3 _ a b c = f a (f b (f c z))
+  Foldable-Node .foldr f z = \ where
+    (Node2 _ a b) -> f a (f b z)
+    (Node3 _ a b c) -> f a (f b (f c z))
 
   Functor-Node : Functor (Node v)
-  Functor-Node .map f node with node
-  ... | Node2 v a b = Node2 v (f a) (f b)
-  ... | Node3 v a b c = Node3 v (f a) (f b) (f c)
+  Functor-Node .map f = \ where
+    (Node2 v a b) -> Node2 v (f a) (f b)
+    (Node3 v a b c) -> Node3 v (f a) (f b) (f c)
 
   Traversable-Node : Traversable (Node v)
-  Traversable-Node .traverse f node with node
-  ... | Node2 v a b = (| (Node2 v) (f a) (f b) |)
-  ... | Node3 v a b c = (| (Node3 v) (f a) (f b) (f c) |)
+  Traversable-Node .traverse f = \ where
+    (Node2 v a b) -> (| (Node2 v) (f a) (f b) |)
+    (Node3 v a b c) -> (| (Node3 v) (f a) (f b) (f c) |)
 
   Measured-Node : {{_ : Monoid v}} -> Measured v (Node v a)
   Measured-Node .measure (Node2 v _ _) = v
