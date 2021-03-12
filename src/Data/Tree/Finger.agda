@@ -188,8 +188,8 @@ unsnoc (Deep _ pr m (Four a b c d)) = Just (deep pr m (Three a b c) , d)
 
 rotL m sf =
   case uncons m of \ where
-    Nothing = digitToTree sf
-    (Just (a , m')) = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
+    Nothing -> digitToTree sf
+    (Just (a , m')) -> Deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
 rotR pr m =
   case unsnoc m of \ where
