@@ -36,10 +36,10 @@ data FingerTree (v a : Set) : Set where
 
 instance
   Measured-FingerTree : {{_ : Measured v a}} -> Measured v (FingerTree v a)
-  Measured-FingerTree .measure tree with tree
-  ... | Empty = neutral
-  ... | Single x = measure x
-  ... | Deep v _ _ _ = v
+  Measured-FingerTree .measure = \ where
+    Empty -> neutral
+    (Single x) -> measure x
+    (Deep v _ _ _) -> v
 
   Foldable-FingerTree : Foldable (FingerTree v)
   Foldable-FingerTree .foldr _ z Empty = z
@@ -48,17 +48,17 @@ instance
     foldr f (foldr (flip (foldr f)) (foldr f z sf) m) pr
 
   Functor-FingerTree : Functor (FingerTree v)
-  Functor-FingerTree .map f tree with tree
-  ... | Empty = Empty
-  ... | Single x = Single (f x)
-  ... | Deep v pr m sf = Deep v (map f pr) (map (map f) m) (map f sf)
+  Functor-FingerTree .map f = \ where
+    Empty -> Empty
+    (Single x) -> Single (f x)
+    (Deep v pr m sf) -> Deep v (map f pr) (map (map f) m) (map f sf)
 
   Traversable-FingerTree : Traversable (FingerTree v)
-  Traversable-FingerTree .traverse f tree with tree
-  ... | Empty = pure Empty
-  ... | Single x = (| Single (f x) |)
-  ... | (Deep v pr m sf) =
-    (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
+  Traversable-FingerTree .traverse f = \ where
+    Empty -> pure Empty
+    (Single x) -> (| Single (f x) |)
+    (Deep v pr m sf) ->
+      (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
   NonemptyConstraint-FingerTree : NonemptyConstraint (FingerTree v a)
   NonemptyConstraint-FingerTree .IsNonempty Empty = Void
@@ -186,13 +186,15 @@ unsnoc (Deep _ pr m (Two a b)) = Just (deep pr m (One a) , b)
 unsnoc (Deep _ pr m (Three a b c)) = Just (deep pr m (Two a b) , c)
 unsnoc (Deep _ pr m (Four a b c d)) = Just (deep pr m (Three a b c) , d)
 
-rotL m sf with uncons m
-... | Nothing = digitToTree sf
-... | Just (a , m') = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
+rotL m sf =
+  case uncons m of \ where
+    Nothing = digitToTree sf
+    (Just (a , m')) = Deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
-rotR pr m with unsnoc m
-... | Nothing = digitToTree pr
-... | Just (m' , a) = Deep (measure pr <> measure m) pr m' (nodeToDigit a)
+rotR pr m =
+  case unsnoc m of \ where
+    Nothing -> digitToTree pr
+    (Just (m' , a)) -> Deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
 -- Splitting
@@ -238,8 +240,9 @@ split : {{_ : Measured v a}}
   -> FingerTree v a
   -> FingerTree v a * FingerTree v a
 split _ Empty  =  (Empty , Empty)
-split p xs with splitTree p neutral xs {{trustMe}}
-... | (l , x , r) = if p (measure xs) then (l , cons x r) else (xs , Empty)
+split p xs =
+  let (l , x , r) = splitTree p neutral xs {{trustMe}}
+  in if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
 -- Searching
