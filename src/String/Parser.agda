@@ -2,7 +2,7 @@
 
 module String.Parser where
 
-open import Prelude
+open import Prelude hiding (bool)
 
 open import Control.Alternative
 open import Control.Lens
@@ -188,12 +188,13 @@ tab = char '\t'
 -- String parsers
 -------------------------------------------------------------------------------
 
-{-# NON_TERMINATING #-}
 string : String -> Parser String
-string s =
-  case String.uncons s of \ where
-    Nothing -> pure ""
-    (Just (c , s')) -> char c *> string s' *> pure (String.cons c s')
+string s = String.fromList <$> aux (String.asList s)
+  where
+    open String using (AsList; []; _::_)
+    aux : {s : String} -> AsList s -> Parser (AsList s)
+    aux [] = pure []
+    aux s@(c :: s') = char c *> aux s' *> pure s
 
 {-# NON_TERMINATING #-}
 word : Parser String
@@ -231,3 +232,10 @@ lexeme p = p <* skipSpaces
 
 symbol : (s : String) {{_ : IsNonempty s}} -> Parser String
 symbol s = lexeme (string s)
+
+bool : Parser Bool
+bool = (| strToBool (string "False" <|> string "True") |)
+  where
+    strToBool : String -> Bool
+    strToBool "False" = False
+    strToBool _ = True

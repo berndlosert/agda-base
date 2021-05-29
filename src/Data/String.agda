@@ -37,7 +37,7 @@ empty = ""
 -------------------------------------------------------------------------------
 
 cons : Char -> String -> String
-cons c s = pack $ c ::_ $ unpack s
+cons c s = singleton c <> s
 
 snoc : String -> Char -> String
 snoc s c = s <> singleton c
@@ -195,3 +195,37 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
+
+-------------------------------------------------------------------------------
+-- View types
+-------------------------------------------------------------------------------
+
+data Uncons : String -> Set where
+  [] : Uncons ""
+  _::_ : (c : Char) (s : String) -> Uncons (cons c s)
+
+unconsCorrect : (s : String) -> case uncons s of \ where
+   Nothing -> s === ""
+   (Just (c , s')) -> s === cons c s'
+unconsCorrect = trustMe
+
+asUncons : (s : String) -> Uncons s
+asUncons s with uncons s | unconsCorrect s
+... | Nothing | Refl = []
+... | Just (c , s') | Refl = c :: s'
+
+fromUncons : {s : String} -> Uncons s -> String
+fromUncons {s} _ = s
+
+data AsList : String -> Set where
+  [] : AsList ""
+  _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
+
+{-# TERMINATING #-}
+asList : (s : String) -> AsList s
+asList s with asUncons s
+... | [] = []
+... | c :: s' = c :: asList s'
+
+fromList : {s : String} -> AsList s -> String
+fromList {s} _ = s
