@@ -66,7 +66,7 @@ postulate String : Set
 
 infix 4 _===_
 data _===_ {a : Set} (x : a) : a -> Set where
- instance Refl : x === x
+  instance Refl : x === x
 
 {-# BUILTIN EQUALITY _===_ #-}
 
