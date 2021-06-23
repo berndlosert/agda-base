@@ -20,18 +20,10 @@ private
 -- ST
 -------------------------------------------------------------------------------
 
--- When using ST, you will need to compile with the option
---
---   --ghc-flag="-XImpredicativeTypes"
---
--- to prevent
---
---   GHC doesn't yet support impredicative polymorphism
---
--- errors.
-
 postulate
   ST : Set -> Set -> Set
+  -- N.B. Requires adding -XImpredicativeTypes to the --ghc-flag option when
+  -- compiling. Otherwise, you will get impredicativity errors.
   runST : (forall {s} -> ST s a) -> a
 
 private
