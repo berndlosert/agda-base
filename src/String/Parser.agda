@@ -221,10 +221,3 @@ lexeme p = p <* skipSpaces
 
 symbol : (s : String) {{_ : IsNonempty s}} -> Parser String
 symbol s = lexeme (string s)
-
-bool : Parser Bool
-bool = (| strToBool (string "False" <|> string "True") |)
-  where
-    strToBool : String -> Bool
-    strToBool "False" = False
-    strToBool _ = True
