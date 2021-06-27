@@ -174,13 +174,13 @@ Assert : Bool -> Set
 Assert False = Void
 Assert True = Unit
 
-bool : Bool -> a -> a -> a
-bool False x _ = x
-bool True _ x = x
+bool : a -> a -> Bool -> a
+bool x _ False = x
+bool _ x True = x
 
 infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
-if b then x else y = bool b y x
+if b then x else y = bool y x b
 
 not : Bool -> Bool
 not False = True
