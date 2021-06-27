@@ -88,13 +88,10 @@ endBy1 p sep = many1 (p <* sep)
 
 {-# NON_TERMINATING #-}
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
-chainl1 p op = p >>= rest
+chainl1 {a} p op = (| _#_ p rest |)
   where
-    rest : _
-    rest x = (do
-      f <- op
-      y <- p
-      rest (f x y)) <|> return x
+    rest : Parser (a -> a)
+    rest = (| _>>>_ (| flip op p |) rest | id |)
 
 chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op a = chainl1 p op <|> pure a
