@@ -1180,8 +1180,6 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
-  infixl 4
-
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
     where
@@ -1227,24 +1225,6 @@ instance
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
-
---------------------------------------------------------------------------------
--- Selective
--------------------------------------------------------------------------------
-
-record Selective (f : Set -> Set) : Set where
-  field
-    overlap {{Applicative-super}} : Applicative f
-    select : f (Either a b) -> f (a -> b) -> f b
-
-  infixl 4 _<*?_
-  _<*?_ : f (Either a b) -> f (a -> b) -> f b
-  _<*?_ = select
-
-  branch : f (Either a b) -> f (a -> c) -> f (b -> c) -> f c
-  branch x f g = (| map g x |)  <*? f
-
-open Selective {{...}} public
 
 --------------------------------------------------------------------------------
 -- Monad
