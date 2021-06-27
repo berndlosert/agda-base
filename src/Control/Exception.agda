@@ -79,7 +79,7 @@ data ExitCase (a : Set) : Set where
 
 record MonadBracket (m : Set -> Set) : Set where
   field
-    overlap {{MonadCatch-super}} : MonadCatch m
+    overlap {{Monad-super}} : Monad m
     generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (b * c)
 
   bracket : m a -> (a -> m c) -> (a -> m b) -> m b
