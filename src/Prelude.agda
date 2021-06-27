@@ -1210,6 +1210,10 @@ instance
     (Left a) _ -> Left a
     (Right f) -> map f
 
+  Applicative-Tuple : {{_ : Monoid a}} -> Applicative (Tuple a)
+  Applicative-Tuple .pure = (neutral ,_)
+  Applicative-Tuple ._<*>_ (u , f) (v , x) = (u <> v , f x)
+
   Applicative-Maybe : Applicative Maybe
   Applicative-Maybe .pure = Just
   Applicative-Maybe ._<*>_ = \ where
@@ -1272,6 +1276,9 @@ instance
   Monad-Either ._>>=_ = \ where
     (Left a) _ -> Left a
     (Right x) k -> k x
+
+  Monad-Tuple : {{_ : Monoid a}} -> Monad (Tuple a)
+  Monad-Tuple ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
 
   Monad-Maybe : Monad Maybe
   Monad-Maybe ._>>=_ = \ where
