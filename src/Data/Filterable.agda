@@ -54,12 +54,12 @@ record Filterable (t : Set -> Set) : Set where
 
     filterA : {{_ : Applicative f}} -> (a -> f Bool) -> t a -> f (t a)
     filterA p =
-      mapMaybeA (\ x -> (| bool (p x) (| Nothing |) (| (Just x) |) |))
+      mapMaybeA (\ x -> (| bool (| Nothing |) (| (Just x) |) (p x) |))
 
     mapEitherA : {{_ : Applicative f}}
         -> (a -> f (Either b c)) -> t a -> f (t b * t c)
     mapEitherA f = (|
-        (liftA2 _,_)
+        (\ x y -> (| _,_ x y |))
         (mapMaybeA (map (either Just (pure Nothing)) <<< f))
         (mapMaybeA (map (either (pure Nothing) Just) <<< f))
       |)
