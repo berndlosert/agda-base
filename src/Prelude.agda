@@ -1180,12 +1180,6 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
-  liftA : (a -> b) -> f a -> f b
-  liftA f x = (| f x |)
-
-  liftA2 : (a -> b -> c) -> f a -> f b -> f c
-  liftA2 f x y = (| f x y |)
-
   replicateA! : Nat -> f a -> f Unit
   replicateA! n0 fa = loop n0
     where
@@ -1264,15 +1258,6 @@ record Monad (m : Set -> Set) : Set where
   infixr 1 _<=<_
   _<=<_ : (b -> m c) -> (a -> m b) -> a -> m c
   _<=<_ = flip _>=>_
-
-  liftM : (a -> b) -> m a -> m b
-  liftM f x = x >>= pure <<< f
-
-  ap : m (a -> b) -> m a -> m b
-  ap f x = do
-    g <- f
-    y <- x
-    pure (g y)
 
 open Monad {{...}} public
 
