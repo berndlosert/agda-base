@@ -10,6 +10,7 @@ open import Control.Monad.State.Trans
 open import Data.Constraint.Nonempty
 open import Data.List as List using ()
 open import Data.String as String using ()
+open import Data.Traversable
 
 private variable a b c : Set
 
@@ -189,12 +190,7 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string s = String.fromList <$> aux (String.asList s)
-  where
-    open String using (AsList; []; _::_)
-    aux : {s : String} -> AsList s -> Parser (AsList s)
-    aux [] = pure []
-    aux s@(c :: s') = char c *> aux s' *> pure s
+string = map pack <<< traverse char <<< unpack
 
 {-# NON_TERMINATING #-}
 word : Parser String
