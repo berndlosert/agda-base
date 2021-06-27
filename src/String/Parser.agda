@@ -101,14 +101,10 @@ chainl p op a = chainl1 p op <|> pure a
 
 {-# NON_TERMINATING #-}
 chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
-chainr1 p op = scan
+chainr1 {a} p op = (| _#_ p rest |)
   where
-    scan rest : _
-    scan = p >>= rest
-    rest x = (do
-      f <- op
-      y <- scan
-      rest (f x y)) <|> return x
+    rest : Parser (a -> a)
+    rest = (| flip op (chainr1 p op) | id |)
 
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
