@@ -296,14 +296,16 @@ abstract
 
   -- Zips together a list of heads and a list of tails.
   zipCons : Seq a -> Seq (Seq a) -> Seq (Seq a)
-  zipCons heads tails =
+  zipCons {a} heads tails =
       (zipWith cons heads (tails <> padding)) <> excess
     where
       -- Extra tails that will be zipped with those heads that have no
       -- corresponding tail in tails.
+      padding : Seq (Seq a)
       padding = replicate (length heads - length tails) empty
       -- The tails that cannot be zipped because they have no corresponding
       -- head in heads.
+      excess : Seq (Seq a)
       excess = snd (splitAt (length heads) tails)
 
 -------------------------------------------------------------------------------

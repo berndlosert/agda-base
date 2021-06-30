@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type #-}
+{-# OPTIONS --type-in-type --sized-types #-}
 
 module Data.Colist where
 
@@ -7,6 +7,8 @@ module Data.Colist where
 -------------------------------------------------------------------------------
 
 open import Prelude
+
+open import Data.Size
 
 -------------------------------------------------------------------------------
 -- Variables

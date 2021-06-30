@@ -33,6 +33,7 @@ private
 {-# NO_POSITIVITY_CHECK #-}
 record ListT (m : Set -> Set) (a : Set) : Set where
   constructor ListT:
+  pattern
   field unconsT : m (Maybe (a * ListT m a))
 
 open ListT public

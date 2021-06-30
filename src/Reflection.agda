@@ -98,8 +98,23 @@ data Relevance : Set where
 {-# BUILTIN RELEVANT Relevant #-}
 {-# BUILTIN IRRELEVANT Irrelevant #-}
 
+-- Arguments also have a quantity.
+data Quantity : Set where
+  Quantity0 QuantityOmega : Quantity
+
+{-# BUILTIN QUANTITY Quantity #-}
+{-# BUILTIN QUANTITY-0 Quantity0 #-}
+{-# BUILTIN QUANTITY-ω QuantityOmega #-}
+
+-- Relevance and quantity are combined into a modality.
+data Modality : Set where
+  Modality: : (r : Relevance) (q : Quantity) -> Modality
+
+{-# BUILTIN MODALITY Modality #-}
+{-# BUILTIN MODALITY-CONSTRUCTOR Modality: #-}
+
 data ArgInfo : Set where
-  ArgInfo: : (v : Visibility) (r : Relevance) -> ArgInfo
+  ArgInfo: : (v : Visibility) (m : Modality) -> ArgInfo
 
 data Arg (a : Set) : Set where
   Arg: : (i : ArgInfo) (x : a) -> Arg a
@@ -142,31 +157,12 @@ data Literal : Set where
 {-# BUILTIN AGDALITMETA MetaLit #-}
 
 -------------------------------------------------------------------------------
--- Pattern
--------------------------------------------------------------------------------
-
-data Pattern : Set where
-  ConPat : (c : Name) (ps : List (Arg Pattern)) -> Pattern
-  DotPat : Pattern
-  VarPat : (s : String) -> Pattern
-  LitPat : (l : Literal) -> Pattern
-  ProjPat : (f : Name) -> Pattern
-  AbsurdPat : Pattern
-
-{-# BUILTIN AGDAPATTERN Pattern #-}
-{-# BUILTIN AGDAPATCON ConPat #-}
-{-# BUILTIN AGDAPATDOT DotPat #-}
-{-# BUILTIN AGDAPATVAR VarPat #-}
-{-# BUILTIN AGDAPATLIT LitPat #-}
-{-# BUILTIN AGDAPATPROJ ProjPat #-}
-{-# BUILTIN AGDAPATABSURD AbsurdPat #-}
-
--------------------------------------------------------------------------------
--- Term, Sort, Clause
+-- Term, Sort, Pattern, Clause
 -------------------------------------------------------------------------------
 
 data Term : Set
 data Sort : Set
+data Pattern : Set
 data Clause : Set
 Type = Term
 
@@ -185,11 +181,27 @@ data Term where
 data Sort where
   SetSort : (t : Term) -> Sort
   LitSort : (n : Nat) -> Sort
+  PropSort : (t : Term) -> Sort
+  PropLitSort : (n : Nat) -> Sort
+  InfSort : (n : Nat) -> Sort
   UnknownSort : Sort
 
+data Pattern where
+  ConPat : (c : Name) (ps : List (Arg Pattern)) -> Pattern
+  DotPat : (t : Term) -> Pattern
+  VarPat : (x : Nat) -> Pattern
+  LitPat : (l : Literal) -> Pattern
+  ProjPat : (f : Name) -> Pattern
+  AbsurdPat : (x : Nat) -> Pattern -- absurd patterns counts as variables
+
 data Clause where
-  NormalClause : (ps : List (Arg Pattern)) (t : Term) -> Clause
-  AbsurdClause : (ps : List (Arg Pattern)) -> Clause
+  NormalClause : (tel : List (Exists String \ _ -> Arg Type))
+    -> (ps : List (Arg Pattern))
+    -> (t : Term)
+    -> Clause
+  AbsurdClause : (tel : List (Exists String \ _ -> Arg Type))
+    -> (ps : List (Arg Pattern))
+    -> Clause
 
 {-# BUILTIN AGDATERM Term #-}
 {-# BUILTIN AGDASORT Sort #-}
@@ -208,7 +220,18 @@ data Clause where
 
 {-# BUILTIN AGDASORTSET SetSort #-}
 {-# BUILTIN AGDASORTLIT LitSort #-}
+{-# BUILTIN AGDASORTPROP PropSort #-}
+{-# BUILTIN AGDASORTPROPLIT PropLitSort #-}
+{-# BUILTIN AGDASORTINF InfSort #-}
 {-# BUILTIN AGDASORTUNSUPPORTED UnknownSort #-}
+
+{-# BUILTIN AGDAPATTERN Pattern #-}
+{-# BUILTIN AGDAPATCON ConPat #-}
+{-# BUILTIN AGDAPATDOT DotPat #-}
+{-# BUILTIN AGDAPATVAR VarPat #-}
+{-# BUILTIN AGDAPATLIT LitPat #-}
+{-# BUILTIN AGDAPATPROJ ProjPat #-}
+{-# BUILTIN AGDAPATABSURD AbsurdPat #-}
 
 {-# BUILTIN AGDACLAUSECLAUSE NormalClause #-}
 {-# BUILTIN AGDACLAUSEABSURD AbsurdClause #-}
@@ -289,6 +312,11 @@ postulate
   -- "blocking" constraints.
   noConstraints : TC a -> TC a
 
+  -- Run the given TC action and return the first component. Resets to
+  -- the old TC state if the second component is 'false', or keep the
+  -- new TC state if it is 'true'.
+  runSpeculative : TC (Exists a \ _ -> Bool) -> TC a
+
 {-# BUILTIN AGDATCM TC #-}
 {-# BUILTIN AGDATCMRETURN returnTC #-}
 {-# BUILTIN AGDATCMBIND bindTC #-}
@@ -316,3 +344,4 @@ postulate
 {-# BUILTIN AGDATCMWITHNORMALISATION withNormalisation #-}
 {-# BUILTIN AGDATCMDEBUGPRINT debugPrint #-}
 {-# BUILTIN AGDATCMNOCONSTRAINTS noConstraints #-}
+{-# BUILTIN AGDATCMRUNSPECULATIVE runSpeculative #-}

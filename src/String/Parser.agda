@@ -19,6 +19,7 @@ private variable a b c : Set
 -------------------------------------------------------------------------------
 
 abstract
+  Parser : Set -> Set
   Parser = StateT String List
 
   Parser: : (String -> List (a * String)) -> Parser a

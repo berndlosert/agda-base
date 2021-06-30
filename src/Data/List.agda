@@ -273,6 +273,7 @@ chunksOf : (n : Nat) {{_ : IsPositive n}} -> List a -> List (List a)
 chunksOf _ [] = []
 chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
+{-# TERMINATING #-}
 breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a
 breakOn needle haystack =
   if isPrefixOf needle haystack

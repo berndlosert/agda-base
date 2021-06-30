@@ -79,6 +79,16 @@ data Either (a b : Set) : Set where
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
+record Exists (a : Set) (b : a -> Set) : Set where
+  constructor Exists:
+  field
+    witness : a
+    proof : b witness
+
+open Exists public
+
+{-# BUILTIN SIGMA Exists #-}
+
 infixl 1 _,_
 record Tuple (a b : Set) : Set where
   constructor _,_
@@ -94,7 +104,7 @@ data Maybe (a : Set) : Set where
   Nothing : Maybe a
   Just : a -> Maybe a
 
-{-# COMPILE GHC Maybe = data Maybe (Nothing | Just) #-}
+{-# BUILTIN MAYBE Maybe #-}
 
 infixr 5 _::_
 data List (a : Set) : Set where
@@ -107,29 +117,6 @@ postulate IO : Set -> Set
 
 {-# BUILTIN IO IO #-}
 {-# COMPILE GHC IO = type IO #-}
-
-{-# BUILTIN SIZEUNIV SizeU #-}
-{-# BUILTIN SIZE Size #-}
-{-# BUILTIN SIZELT Size<_ #-}
-{-# BUILTIN SIZESUC SizeSuc #-}
-{-# BUILTIN SIZEINF Inf #-}
-{-# BUILTIN SIZEMAX SizeMax #-}
-
-{-# FOREIGN GHC
-  type SizeLT i = ()
-#-}
-
-{-# COMPILE GHC Size = type () #-}
-{-# COMPILE GHC Size<_ = type SizeLT #-}
-{-# COMPILE GHC SizeSuc = \_ -> () #-}
-{-# COMPILE GHC Inf = () #-}
-{-# COMPILE GHC SizeMax = \_ _ -> () #-}
-
-record Thunk (i : Size) (f : Size -> Set) : Set where
-  coinductive
-  field force : {j : Size< i} -> f j
-
-open Thunk public
 
 -------------------------------------------------------------------------------
 -- Dangerous primitives
@@ -361,41 +348,55 @@ private
 
 private
   primitive
-    primFloatNumericalEquality : Float -> Float -> Bool
-    primFloatNumericalLess : Float -> Float -> Bool
+    primFloatInequality : Float -> Float -> Bool
+    primFloatEquality : Float -> Float -> Bool
+    primFloatLess : Float -> Float -> Bool
     primNatToFloat : Nat -> Float
+    primFloatRound : Float -> Maybe Int
+    primFloatFloor : Float -> Maybe Int
+    primFloatCeiling : Float -> Maybe Int
     primFloatPlus : Float -> Float -> Float
     primFloatMinus : Float -> Float -> Float
     primFloatTimes : Float -> Float -> Float
-    primFloatNegate : Float -> Float
     primFloatDiv : Float -> Float -> Float
+    primFloatPow : Float -> Float -> Float
+    primFloatNegate : Float -> Float
     primFloatSqrt : Float -> Float
-    primRound : Float -> Int
-    primFloor : Float -> Int
-    primCeiling : Float -> Int
-    primExp : Float -> Float
-    primLog : Float -> Float
-    primSin : Float -> Float
-    primCos : Float -> Float
-    primTan : Float -> Float
-    primASin : Float -> Float
-    primACos : Float -> Float
-    primATan : Float -> Float
-    primATan2 : Float -> Float -> Float
+    primFloatExp : Float -> Float
+    primFloatLog : Float -> Float
+    primFloatSin : Float -> Float
+    primFloatCos : Float -> Float
+    primFloatTan : Float -> Float
+    primFloatASin : Float -> Float
+    primFloatACos : Float -> Float
+    primFloatATan : Float -> Float
+    primFloatATan2 : Float -> Float -> Float
+    primFloatSinh : Float -> Float
+    primFloatCosh : Float -> Float
+    primFloatTanh : Float -> Float
+    primFloatASinh : Float -> Float
+    primFloatACosh : Float -> Float
+    primFloatATanh : Float -> Float
 
 sqrt = primFloatSqrt
-round = primRound
-floor = primFloor
-ceil = primCeiling
-exp = primExp
-log = primLog
-sin = primSin
-cos = primCos
-tan = primTan
-asin = primASin
-acos = primACos
-atan = primATan
-atan2 = primATan2
+round = primFloatRound
+floor = primFloatFloor
+ceil = primFloatCeiling
+exp = primFloatExp
+log = primFloatLog
+sin = primFloatSin
+cos = primFloatCos
+tan = primFloatTan
+asin = primFloatASin
+acos = primFloatACos
+atan = primFloatATan
+atan2 = primFloatATan2
+sinh = primFloatSinh
+cosh = primFloatCosh
+tanh = primFloatTanh
+asinh = primFloatASinh
+acosh = primFloatACosh
+atanh = primFloatATanh
 
 NaN : Float
 NaN = primFloatDiv 0.0 0.0
@@ -589,7 +590,7 @@ instance
     _ _ -> False
 
   Eq-Float : Eq Float
-  Eq-Float ._==_ = primFloatNumericalEquality
+  Eq-Float ._==_ = primFloatEquality
 
   Eq-Char : Eq Char
   Eq-Char ._==_ = primCharEquality
@@ -683,7 +684,7 @@ instance
   Ord-Int ._<_ = intLessThan
 
   Ord-Float : Ord Float
-  Ord-Float ._<_ = primFloatNumericalLess
+  Ord-Float ._<_ = primFloatLess
 
   Ord-Char : Ord Char
   Ord-Char ._<_ x y = ord x < ord y

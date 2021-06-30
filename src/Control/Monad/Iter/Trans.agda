@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type #-}
+{-# OPTIONS --type-in-type --guardedness #-}
 
 module Control.Monad.Iter.Trans where
 
