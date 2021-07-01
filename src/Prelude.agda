@@ -89,14 +89,16 @@ open DPair public
 
 {-# BUILTIN SIGMA DPair #-}
 
-infixl 1 _,_
 record Pair (a b : Set) : Set where
-  constructor _,_
+  constructor Pair:
   field
     fst : a
     snd : b
 
 open Pair public
+
+infixl 1 _,_
+pattern _,_ x y = Pair: x y
 
 {-# COMPILE GHC Pair = data (,) ((,)) #-}
 
