@@ -79,9 +79,8 @@ data Either (a b : Set) : Set where
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
-infixl 1 _,_
 record DPair (a : Set) (b : a -> Set) : Set where
-  constructor _,_
+  constructor DPair:
   field
     fst : a
     snd : b fst
@@ -90,6 +89,7 @@ open DPair public
 
 {-# BUILTIN SIGMA DPair #-}
 
+infixl 1 _,_
 record Pair (a b : Set) : Set where
   constructor _,_
   field
