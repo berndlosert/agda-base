@@ -371,7 +371,7 @@ module _ {{_ : Ord a}} where
   sort = sortBy compare
 
   sortOn : (b -> a) -> List b -> List b
-  sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
+  sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
 
 -------------------------------------------------------------------------------
 -- Searching

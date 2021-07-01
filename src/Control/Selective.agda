@@ -75,8 +75,8 @@ instance
   Selective-Either : Selective (a +_)
   Selective-Either .select = selectM
 
-  Selective-Tuple : {{_ : Monoid a}} -> Selective (a *_)
-  Selective-Tuple .select = selectM
+  Selective-Pair : {{_ : Monoid a}} -> Selective (a *_)
+  Selective-Pair .select = selectM
 
   Selective-Maybe : Selective Maybe
   Selective-Maybe .select = selectM

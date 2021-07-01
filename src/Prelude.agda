@@ -90,15 +90,15 @@ open Exists public
 {-# BUILTIN SIGMA Exists #-}
 
 infixl 1 _,_
-record Tuple (a b : Set) : Set where
+record Pair (a b : Set) : Set where
   constructor _,_
   field
     fst : a
     snd : b
 
-open Tuple public
+open Pair public
 
-{-# COMPILE GHC Tuple = data (,) ((,)) #-}
+{-# COMPILE GHC Pair = data (,) ((,)) #-}
 
 data Maybe (a : Set) : Set where
   Nothing : Maybe a
@@ -487,25 +487,25 @@ fromRight : (x : Either a b) {{_ : Assert $ isRight x}} -> b
 fromRight (Right b) = b
 
 -------------------------------------------------------------------------------
--- Tuple primitives
+-- Pair primitives
 -------------------------------------------------------------------------------
 
-tuple : (a -> b) -> (a -> c) -> a -> Tuple b c
-tuple f g x = (f x , g x)
+pair : (a -> b) -> (a -> c) -> a -> Pair b c
+pair f g x = (f x , g x)
 
-swap : Tuple a b -> Tuple b a
-swap = tuple snd fst
+swap : Pair a b -> Pair b a
+swap = pair snd fst
 
-dup : a -> Tuple a a
+dup : a -> Pair a a
 dup x = (x , x)
 
-uncurry : (a -> b -> c) -> Tuple a b -> c
+uncurry : (a -> b -> c) -> Pair a b -> c
 uncurry f (x , y) = f x y
 
-curry : (Tuple a b -> c) -> a -> b -> c
+curry : (Pair a b -> c) -> a -> b -> c
 curry f x y = f (x , y)
 
-apply : Tuple (a -> b) a -> b
+apply : Pair (a -> b) a -> b
 apply (f , x) = f x
 
 -------------------------------------------------------------------------------
@@ -604,8 +604,8 @@ instance
     (Right x) (Right y) -> x == y
     _ _ -> False
 
-  Eq-Tuple : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Tuple a b)
-  Eq-Tuple ._==_ (x , y) (w , z) = (x == w) && (y == z)
+  Eq-Pair : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Pair a b)
+  Eq-Pair ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
   Eq-Maybe : {{_ : Eq a}} -> Eq (Maybe a)
   Eq-Maybe ._==_ = \ where
@@ -697,8 +697,8 @@ instance
   Ord-String : Ord String
   Ord-String ._<_ l r = unpack l < unpack r
 
-  Ord-Tuple : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Tuple a b)
-  Ord-Tuple ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
+  Ord-Pair : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Pair a b)
+  Ord-Pair ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
 
   Ord-Maybe : {{_ : Ord a}} -> Ord (Maybe a)
   Ord-Maybe ._<_ = \ where
@@ -892,7 +892,7 @@ open Multiplicative {{...}} public
 
 instance
   Multiplicative-Set : Multiplicative Set
-  Multiplicative-Set ._*_ = Tuple
+  Multiplicative-Set ._*_ = Pair
   Multiplicative-Set .one = Unit
 
   Multiplicative-Nat : Multiplicative Nat
@@ -978,9 +978,9 @@ instance
   Semigroup-Either ._<>_ (Left _) x = x
   Semigroup-Either ._<>_ x _ = x
 
-  Semigroup-Tuple : {{_ : Semigroup a}} {{_ : Semigroup b}}
-    -> Semigroup (Tuple a b)
-  Semigroup-Tuple ._<>_ (x , y) (w , z) = (x <> w , y <> z)
+  Semigroup-Pair : {{_ : Semigroup a}} {{_ : Semigroup b}}
+    -> Semigroup (Pair a b)
+  Semigroup-Pair ._<>_ (x , y) (w , z) = (x <> w , y <> z)
 
   Semigroup-Maybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
   Semigroup-Maybe ._<>_ = \ where
@@ -1021,8 +1021,8 @@ instance
   Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
   Monoid-Function .neutral = const neutral
 
-  Monoid-Tuple : {{_ : Monoid a}} {{_ : Monoid b}} -> Monoid (Tuple a b)
-  Monoid-Tuple .neutral = (neutral , neutral)
+  Monoid-Pair : {{_ : Monoid a}} {{_ : Monoid b}} -> Monoid (Pair a b)
+  Monoid-Pair .neutral = (neutral , neutral)
 
   Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
   Monoid-Maybe .neutral = Nothing
@@ -1094,8 +1094,8 @@ instance
   Functor-Either : Functor (Either a)
   Functor-Either .map f = either Left (Right <<< f)
 
-  Functor-Tuple : Functor (Tuple a)
-  Functor-Tuple .map f (x , y) = (x , f y)
+  Functor-Pair : Functor (Pair a)
+  Functor-Pair .map f (x , y) = (x , f y)
 
   Functor-Maybe : Functor Maybe
   Functor-Maybe .map f = maybe Nothing (Just <<< f)
@@ -1138,8 +1138,8 @@ instance
   Bifunctor-Either : Bifunctor Either
   Bifunctor-Either .lmap f = either (Left <<< f) Right
 
-  Bifunctor-Tuple : Bifunctor Tuple
-  Bifunctor-Tuple .lmap f (x , y) = (f x , y)
+  Bifunctor-Pair : Bifunctor Pair
+  Bifunctor-Pair .lmap f (x , y) = (f x , y)
 
 -------------------------------------------------------------------------------
 -- Profunctor
@@ -1211,9 +1211,9 @@ instance
     (Left a) _ -> Left a
     (Right f) -> map f
 
-  Applicative-Tuple : {{_ : Monoid a}} -> Applicative (Tuple a)
-  Applicative-Tuple .pure = (neutral ,_)
-  Applicative-Tuple ._<*>_ (u , f) (v , x) = (u <> v , f x)
+  Applicative-Pair : {{_ : Monoid a}} -> Applicative (Pair a)
+  Applicative-Pair .pure = (neutral ,_)
+  Applicative-Pair ._<*>_ (u , f) (v , x) = (u <> v , f x)
 
   Applicative-Maybe : Applicative Maybe
   Applicative-Maybe .pure = Just
@@ -1278,8 +1278,8 @@ instance
     (Left a) _ -> Left a
     (Right x) k -> k x
 
-  Monad-Tuple : {{_ : Monoid a}} -> Monad (Tuple a)
-  Monad-Tuple ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
+  Monad-Pair : {{_ : Monoid a}} -> Monad (Pair a)
+  Monad-Pair ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
 
   Monad-Maybe : Monad Maybe
   Monad-Maybe ._>>=_ = \ where
@@ -1437,8 +1437,8 @@ instance
   Show-Function : Show (Function a b)
   Show-Function .showsPrec _ _ = showString "<function>"
 
-  Show-Tuple : {{_ : Show a}} {{_ : Show b}} -> Show (Tuple a b)
-  Show-Tuple .showsPrec d (x , y) = showString "(" <<< showsPrec d x
+  Show-Pair : {{_ : Show a}} {{_ : Show b}} -> Show (Pair a b)
+  Show-Pair .showsPrec d (x , y) = showString "(" <<< showsPrec d x
     <<< showString " , " <<< showsPrec d y <<< showString ")"
 
   Show-Either : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)

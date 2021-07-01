@@ -182,8 +182,8 @@ instance
     let n' = toFloat n
     in choose (- n' , n')
 
-  Arbitrary-Tuple : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
-  Arbitrary-Tuple .arbitrary = (| _,_ arbitrary arbitrary |)
+  Arbitrary-Pair : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
+  Arbitrary-Pair .arbitrary = (| _,_ arbitrary arbitrary |)
 
   Arbitrary-List : {{_ : Arbitrary a}} -> Arbitrary (List a)
   Arbitrary-List .arbitrary = sized \ n -> do
@@ -193,9 +193,9 @@ instance
   Coarbitrary-Bool : Coarbitrary Bool
   Coarbitrary-Bool .coarbitrary b = variant (if b then 0 else 1)
 
-  Coarbitrary-Tuple : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
+  Coarbitrary-Pair : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
     -> Coarbitrary (a * b)
-  Coarbitrary-Tuple .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
+  Coarbitrary-Pair .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
 
   Coarbitrary-List : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
   Coarbitrary-List .coarbitrary [] = variant 0

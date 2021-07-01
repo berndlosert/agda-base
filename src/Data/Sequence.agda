@@ -451,7 +451,7 @@ abstract
     sort = sortBy compare
 
     sortOn : (b -> a) -> Seq b -> Seq b
-    sortOn f = map snd <<< sortBy (comparing fst) <<< map (tuple f id)
+    sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
 
 -------------------------------------------------------------------------------
 -- Searching

@@ -285,8 +285,8 @@ record Each (s t a b : Set) : Set where
 open Each {{...}} public
 
 instance
-  Each-Tuple : Each (a * a) (b * b) a b
-  Each-Tuple .each f (a , b) = (| _,_ (f a) (f b) |)
+  Each-Pair : Each (a * a) (b * b) a b
+  Each-Pair .each f (a , b) = (| _,_ (f a) (f b) |)
 
   Each-Maybe : Each (Maybe a) (Maybe b) a b
   Each-Maybe .each = traverse

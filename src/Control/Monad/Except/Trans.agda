@@ -103,7 +103,7 @@ instance
     (a , w) <- listen m
     pure $ (_, w) <$> a
   MonadWriter-ExceptT .pass = mapExceptT \ m ->
-    pass $ m >>= pure <<< either (tuple Left (const id)) (bimap Right id)
+    pass $ m >>= pure <<< either (pair Left (const id)) (bimap Right id)
 
   MonadState-ExceptT : {{_ : MonadState s m}} -> MonadState s (ExceptT e m)
   MonadState-ExceptT .state = lift <<< state
