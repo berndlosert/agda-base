@@ -79,17 +79,17 @@ data Either (a b : Set) : Set where
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
-record Exists (a : Set) (b : a -> Set) : Set where
-  constructor Exists:
-  field
-    witness : a
-    proof : b witness
-
-open Exists public
-
-{-# BUILTIN SIGMA Exists #-}
-
 infixl 1 _,_
+record DPair (a : Set) (b : a -> Set) : Set where
+  constructor _,_
+  field
+    fst : a
+    snd : b fst
+
+open DPair public
+
+{-# BUILTIN SIGMA DPair #-}
+
 record Pair (a b : Set) : Set where
   constructor _,_
   field

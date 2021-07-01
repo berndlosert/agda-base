@@ -195,11 +195,11 @@ data Pattern where
   AbsurdPat : (x : Nat) -> Pattern -- absurd patterns counts as variables
 
 data Clause where
-  NormalClause : (tel : List (Exists String \ _ -> Arg Type))
+  NormalClause : (tel : List (DPair String \ _ -> Arg Type))
     -> (ps : List (Arg Pattern))
     -> (t : Term)
     -> Clause
-  AbsurdClause : (tel : List (Exists String \ _ -> Arg Type))
+  AbsurdClause : (tel : List (DPair String \ _ -> Arg Type))
     -> (ps : List (Arg Pattern))
     -> Clause
 
@@ -315,7 +315,7 @@ postulate
   -- Run the given TC action and return the first component. Resets to
   -- the old TC state if the second component is 'false', or keep the
   -- new TC state if it is 'true'.
-  runSpeculative : TC (Exists a \ _ -> Bool) -> TC a
+  runSpeculative : TC (DPair a \ _ -> Bool) -> TC a
 
 {-# BUILTIN AGDATCM TC #-}
 {-# BUILTIN AGDATCMRETURN returnTC #-}
