@@ -23,7 +23,6 @@ open import Data.Functor.Identity
 -------------------------------------------------------------------------------
 
 open Control.Monad.Trans.Class public
-open Data.Functor.Identity public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -45,9 +44,6 @@ record IterT (m : Set -> Set) (a : Set) : Set where
 
 open IterT public
 
-Iter : Set -> Set
-Iter = IterT Identity
-
 delay : {{_ : Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = return (Right iter)
 
@@ -58,12 +54,8 @@ never .runIterT = return (Right never)
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
 {-# NON_TERMINATING #-}
-retract : {{_ : Monad m}} -> IterT m a -> m a
-retract iter = runIterT iter >>= either return retract
-
-{-# NON_TERMINATING #-}
-unsafeIter : Iter a -> a
-unsafeIter = runIdentity <<< retract
+execIterT : {{_ : Monad m}} -> IterT m a -> m a
+execIterT iter = runIterT iter >>= either return execIterT
 
 {-# NON_TERMINATING #-}
 hoistIterT : {{_ : Monad n}}
