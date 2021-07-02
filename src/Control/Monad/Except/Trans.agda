@@ -44,6 +44,9 @@ open ExceptT public
 mapExceptT : (m (e + a) -> n (e' + b)) -> ExceptT e m a -> ExceptT e' n b
 mapExceptT f m = ExceptT: (f (runExceptT m))
 
+withExceptT : {{_ : Functor m}} -> (e -> e') -> ExceptT e m a -> ExceptT e' m a
+withExceptT f (ExceptT: t) = ExceptT: $ map (lmap f) t
+
 instance
   Functor-ExceptT : {{_ : Functor m}} -> Functor (ExceptT e m)
   Functor-ExceptT .map f = ExceptT: <<< map (map f) <<< runExceptT
