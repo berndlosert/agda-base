@@ -8,57 +8,44 @@ module Prelude where
 
 data Void : Set where
 
-record Unit : Set where
-  instance constructor unit
+open import Agda.Builtin.Unit public
+  renaming (⊤ to Unit)
+  renaming (tt to unit)
 
-{-# BUILTIN UNIT Unit #-}
-{-# COMPILE GHC Unit = data () (()) #-}
-
-data Bool : Set where
-  False True : Bool
-
-{-# BUILTIN BOOL Bool #-}
-{-# BUILTIN FALSE False #-}
-{-# BUILTIN TRUE True #-}
+open import Agda.Builtin.Bool public
+  using (Bool)
+  renaming (false to False)
+  renaming (true to True)
 
 data Ordering : Set where
   LT EQ GT : Ordering
 
-data Nat : Set where
-  Zero : Nat
-  Suc  : Nat -> Nat
-
-{-# BUILTIN NATURAL Nat #-}
+open import Agda.Builtin.Nat public
+  using (Nat)
+  renaming (zero to Zero)
+  renaming (suc to Suc)
 
 data Fin : Nat -> Set where
   Zero : {n : Nat} -> Fin (Suc n)
   Suc : {n : Nat} -> Fin n -> Fin (Suc n)
 
-data Int : Set where
-  Pos : Nat -> Int
-  NegSuc : Nat -> Int
+open import Agda.Builtin.Int public
+  using (Int)
+  renaming (pos to Pos)
+  renaming (negsuc to NegSuc)
 
-{-# BUILTIN INTEGER Int #-}
-{-# BUILTIN INTEGERPOS Pos #-}
-{-# BUILTIN INTEGERNEGSUC NegSuc #-}
+open import Agda.Builtin.Float public
+  using (Float)
 
-postulate Float : Set
+open import Agda.Builtin.Char public
+  using (Char)
 
-{-# BUILTIN FLOAT Float #-}
+open import Agda.Builtin.String public
+  using (String)
 
-postulate Char : Set
-
-{-# BUILTIN CHAR Char #-}
-
-postulate String : Set
-
-{-# BUILTIN STRING String #-}
-
-infix 4 _===_
-data _===_ {a : Set} (x : a) : a -> Set where
-  instance Refl : x === x
-
-{-# BUILTIN EQUALITY _===_ #-}
+open import Agda.Builtin.Equality public
+  renaming (_≡_ to _===_)
+  renaming (refl to Refl)
 
 Function : Set -> Set -> Set
 Function a b = a -> b
@@ -69,15 +56,9 @@ data Either (a b : Set) : Set where
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
-record DPair (a : Set) (b : a -> Set) : Set where
-  constructor DPair:
-  field
-    fst : a
-    snd : b fst
-
-open DPair public
-
-{-# BUILTIN SIGMA DPair #-}
+open import Agda.Builtin.Sigma public
+  renaming (Σ to DPair)
+  renaming (_,_ to DPair:)
 
 record Pair (a b : Set) : Set where
   constructor Pair:
@@ -92,23 +73,18 @@ pattern _,_ x y = Pair: x y
 
 {-# COMPILE GHC Pair = data (,) ((,)) #-}
 
-data Maybe (a : Set) : Set where
-  Nothing : Maybe a
-  Just : a -> Maybe a
+open import Agda.Builtin.Maybe public
+  using (Maybe)
+  renaming (nothing to Nothing)
+  renaming (just to Just)
 
-{-# BUILTIN MAYBE Maybe #-}
+open import Agda.Builtin.List public
+  using (List)
+  using ([])
+  renaming (_∷_ to _::_)
 
-infixr 5 _::_
-data List (a : Set) : Set where
-  [] : List a
-  _::_ : a -> List a -> List a
-
-{-# BUILTIN LIST List #-}
-
-postulate IO : Set -> Set
-
-{-# BUILTIN IO IO #-}
-{-# COMPILE GHC IO = type IO #-}
+open import Agda.Builtin.IO public
+  using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -195,37 +171,25 @@ applyN f (Suc n) x = f (applyN f n x)
 
 private
   natEquality : Nat -> Nat -> Bool
-  natEquality Zero Zero = True
-  natEquality (Suc n) (Suc m) = natEquality n m
-  natEquality _ _ = False
+  natEquality = Agda.Builtin.Nat._==_
 
   natLessThan : Nat -> Nat -> Bool
-  natLessThan _ Zero = False
-  natLessThan Zero (Suc _) = True
-  natLessThan (Suc n) (Suc m) = natLessThan n m
+  natLessThan = Agda.Builtin.Nat._<_
 
   natPlus : Nat -> Nat -> Nat
-  natPlus Zero m = m
-  natPlus (Suc n) m = Suc (natPlus n m)
+  natPlus = Agda.Builtin.Nat._+_
 
   natMinus : Nat -> Nat -> Nat
-  natMinus n Zero = n
-  natMinus Zero (Suc m) = Zero
-  natMinus (Suc n) (Suc m) = natMinus n m
+  natMinus = Agda.Builtin.Nat._-_
 
   natTimes : Nat -> Nat -> Nat
-  natTimes Zero _ = Zero
-  natTimes (Suc n) m = natPlus m (natTimes n m)
+  natTimes = Agda.Builtin.Nat._*_
 
   natDivAux : (k m n j : Nat) -> Nat
-  natDivAux k m Zero j = k
-  natDivAux k m (Suc n) Zero = natDivAux (Suc k) m n m
-  natDivAux k m (Suc n) (Suc j) = natDivAux k m n j
+  natDivAux = Agda.Builtin.Nat.div-helper
 
   natModAux : (k m n j : Nat) -> Nat
-  natModAux k m  Zero j = k
-  natModAux k m (Suc n) Zero = natModAux Zero m n m
-  natModAux k m (Suc n) (Suc j) = natModAux (Suc k) m n j
+  natModAux = Agda.Builtin.Nat.mod-helper
 
   natDiv : Nat -> Nat -> Nat
   natDiv m (Suc n) = natDivAux Zero n m n
@@ -234,14 +198,6 @@ private
   natMod : Nat -> Nat -> Nat
   natMod m (Suc n) = natModAux Zero n m n
   natMod _ _ = undefined
-
-{-# BUILTIN NATEQUALS natEquality #-}
-{-# BUILTIN NATLESS natLessThan #-}
-{-# BUILTIN NATPLUS natPlus #-}
-{-# BUILTIN NATMINUS natMinus #-}
-{-# BUILTIN NATTIMES natTimes #-}
-{-# BUILTIN NATDIVSUCAUX natDivAux #-}
-{-# BUILTIN NATMODSUCAUX natModAux #-}
 
 neg : Nat -> Int
 neg 0 = Pos 0
@@ -348,116 +304,61 @@ private
 -- Float primitives
 -------------------------------------------------------------------------------
 
-private
-  primitive
-    primFloatInequality : Float -> Float -> Bool
-    primFloatEquality : Float -> Float -> Bool
-    primFloatLess : Float -> Float -> Bool
-    primNatToFloat : Nat -> Float
-    primFloatRound : Float -> Maybe Int
-    primFloatFloor : Float -> Maybe Int
-    primFloatCeiling : Float -> Maybe Int
-    primFloatPlus : Float -> Float -> Float
-    primFloatMinus : Float -> Float -> Float
-    primFloatTimes : Float -> Float -> Float
-    primFloatDiv : Float -> Float -> Float
-    primFloatPow : Float -> Float -> Float
-    primFloatNegate : Float -> Float
-    primFloatSqrt : Float -> Float
-    primFloatExp : Float -> Float
-    primFloatLog : Float -> Float
-    primFloatSin : Float -> Float
-    primFloatCos : Float -> Float
-    primFloatTan : Float -> Float
-    primFloatASin : Float -> Float
-    primFloatACos : Float -> Float
-    primFloatATan : Float -> Float
-    primFloatATan2 : Float -> Float -> Float
-    primFloatSinh : Float -> Float
-    primFloatCosh : Float -> Float
-    primFloatTanh : Float -> Float
-    primFloatASinh : Float -> Float
-    primFloatACosh : Float -> Float
-    primFloatATanh : Float -> Float
-
-sqrt = primFloatSqrt
-round = primFloatRound
-floor = primFloatFloor
-ceil = primFloatCeiling
-exp = primFloatExp
-log = primFloatLog
-sin = primFloatSin
-cos = primFloatCos
-tan = primFloatTan
-asin = primFloatASin
-acos = primFloatACos
-atan = primFloatATan
-atan2 = primFloatATan2
-sinh = primFloatSinh
-cosh = primFloatCosh
-tanh = primFloatTanh
-asinh = primFloatASinh
-acosh = primFloatACosh
-atanh = primFloatATanh
+sqrt = Agda.Builtin.Float.primFloatSqrt
+round = Agda.Builtin.Float.primFloatRound
+floor = Agda.Builtin.Float.primFloatFloor
+ceil = Agda.Builtin.Float.primFloatCeiling
+exp = Agda.Builtin.Float.primFloatExp
+log = Agda.Builtin.Float.primFloatLog
+sin = Agda.Builtin.Float.primFloatSin
+cos = Agda.Builtin.Float.primFloatCos
+tan = Agda.Builtin.Float.primFloatTan
+asin = Agda.Builtin.Float.primFloatASin
+acos = Agda.Builtin.Float.primFloatACos
+atan = Agda.Builtin.Float.primFloatATan
+atan2 = Agda.Builtin.Float.primFloatATan2
+sinh = Agda.Builtin.Float.primFloatSinh
+cosh = Agda.Builtin.Float.primFloatCosh
+tanh = Agda.Builtin.Float.primFloatTanh
+asinh = Agda.Builtin.Float.primFloatASinh
+acosh = Agda.Builtin.Float.primFloatACosh
+atanh = Agda.Builtin.Float.primFloatATanh
 
 NaN : Float
-NaN = primFloatDiv 0.0 0.0
+NaN = Agda.Builtin.Float.primFloatDiv 0.0 0.0
 
 Infinity -Infinity : Float
-Infinity = primFloatDiv 1.0 0.0
--Infinity = primFloatNegate Infinity
+Infinity = Agda.Builtin.Float.primFloatDiv 1.0 0.0
+-Infinity = Agda.Builtin.Float.primFloatNegate Infinity
 
 -------------------------------------------------------------------------------
 -- Char primitives
 -------------------------------------------------------------------------------
 
-private
-  primitive
-    primCharEquality : Char -> Char -> Bool
-    primIsLower : Char -> Bool
-    primIsDigit : Char -> Bool
-    primIsAlpha : Char -> Bool
-    primIsSpace : Char -> Bool
-    primIsAscii : Char -> Bool
-    primIsLatin1 : Char -> Bool
-    primIsPrint : Char -> Bool
-    primIsHexDigit : Char -> Bool
-    primToUpper : Char -> Char
-    primToLower : Char -> Char
-    primCharToNat : Char -> Nat
-    primNatToChar : Nat -> Char
-
 minChar maxChar : Char
 minChar = '\NUL'
 maxChar = '\1114111'
 
-isLower = primIsLower
-isDigit = primIsDigit
-isAlpha = primIsAlpha
-isSpace = primIsSpace
-isAscii = primIsAscii
-isLatin1 = primIsLatin1
-isPrint = primIsPrint
-isHexDigit = primIsHexDigit
-toUpper = primToUpper
-toLower = primToLower
-ord = primCharToNat
+isLower = Agda.Builtin.Char.primIsLower
+isDigit = Agda.Builtin.Char.primIsDigit
+isAlpha = Agda.Builtin.Char.primIsAlpha
+isSpace = Agda.Builtin.Char.primIsSpace
+isAscii = Agda.Builtin.Char.primIsAscii
+isLatin1 = Agda.Builtin.Char.primIsLatin1
+isPrint = Agda.Builtin.Char.primIsPrint
+isHexDigit = Agda.Builtin.Char.primIsHexDigit
+toUpper = Agda.Builtin.Char.primToUpper
+toLower = Agda.Builtin.Char.primToLower
+ord = Agda.Builtin.Char.primCharToNat
 chr : Fin (Suc (ord maxChar)) -> Char
-chr n = primNatToChar (finToNat n)
+chr n = Agda.Builtin.Char.primNatToChar (finToNat n)
 
 -------------------------------------------------------------------------------
 -- String primitives
 -------------------------------------------------------------------------------
 
-private
-  primitive
-    primStringEquality : String -> String -> Bool
-    primStringToList : String -> List Char
-    primStringFromList : List Char -> String
-    primStringAppend : String -> String -> String
-
-pack = primStringFromList
-unpack = primStringToList
+pack = Agda.Builtin.String.primStringFromList
+unpack = Agda.Builtin.String.primStringToList
 
 -------------------------------------------------------------------------------
 -- Either primitives
@@ -592,13 +493,13 @@ instance
     _ _ -> False
 
   Eq-Float : Eq Float
-  Eq-Float ._==_ = primFloatEquality
+  Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
 
   Eq-Char : Eq Char
-  Eq-Char ._==_ = primCharEquality
+  Eq-Char ._==_ = Agda.Builtin.Char.primCharEquality
 
   Eq-String : Eq String
-  Eq-String ._==_ = primStringEquality
+  Eq-String ._==_ = Agda.Builtin.String.primStringEquality
 
   Eq-Either : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
@@ -686,7 +587,7 @@ instance
   Ord-Int ._<_ = intLessThan
 
   Ord-Float : Ord Float
-  Ord-Float ._<_ = primFloatLess
+  Ord-Float ._<_ = Agda.Builtin.Float.primFloatLess
 
   Ord-Char : Ord Char
   Ord-Char ._<_ x y = ord x < ord y
@@ -784,11 +685,11 @@ instance
   FromNeg-Int .fromNeg n = neg n
 
   ToFloat-Nat : ToFloat Nat
-  ToFloat-Nat .toFloat = primNatToFloat
+  ToFloat-Nat .toFloat = Agda.Builtin.Float.primNatToFloat
 
   ToFloat-Int : ToFloat Int
-  ToFloat-Int .toFloat (Pos n) = primNatToFloat n
-  ToFloat-Int .toFloat (NegSuc n) = primFloatMinus -1.0 (primNatToFloat n)
+  ToFloat-Int .toFloat (Pos n) = Agda.Builtin.Float.primNatToFloat n
+  ToFloat-Int .toFloat (NegSuc n) = Agda.Builtin.Float.primFloatMinus -1.0 (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
 -- Additive
@@ -820,7 +721,7 @@ instance
   Additive-Int ._+_ = intPlus
 
   Additive-Float : Additive Float
-  Additive-Float ._+_ = primFloatPlus
+  Additive-Float ._+_ = Agda.Builtin.Float.primFloatPlus
   Additive-Float .zero = 0.0
 
   Additive-Function : {{_ : Additive b}} -> Additive (a -> b)
@@ -848,7 +749,7 @@ instance
   Subtractable-Int ._-_ m n = m + intNegate n
 
   Subtractable-Float : Subtractable Float
-  Subtractable-Float ._-_ = primFloatMinus
+  Subtractable-Float ._-_ = Agda.Builtin.Float.primFloatMinus
 
   Subtractable-Function : {{_ : Subtractable b}} -> Subtractable (a -> b)
   Subtractable-Function ._-_ f g x = f x - g x
@@ -870,7 +771,7 @@ instance
   Negatable-Int .-_ = intNegate
 
   Negatable-Float : Negatable Float
-  Negatable-Float .-_ = primFloatNegate
+  Negatable-Float .-_ = Agda.Builtin.Float.primFloatNegate
 
   Negatable-Function : {{_ : Negatable b}} -> Negatable (a -> b)
   Negatable-Function .-_ f x = - (f x)
@@ -910,7 +811,7 @@ instance
   Multiplicative-Int ._*_ = intTimes
 
   Multiplicative-Float : Multiplicative Float
-  Multiplicative-Float ._*_ = primFloatTimes
+  Multiplicative-Float ._*_ = Agda.Builtin.Float.primFloatTimes
   Multiplicative-Float .one = 1.0
 
   Multiplicative-Function : {{_ : Multiplicative b}} -> Multiplicative (a -> b)
@@ -943,7 +844,7 @@ instance
 
   Dividable-Float : Dividable Float
   Dividable-Float .DividableConstraint _ = Unit
-  Dividable-Float ._/_ x y = primFloatDiv x y
+  Dividable-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
   Dividable-Float ._%_ _ _ = 0.0
 
 -------------------------------------------------------------------------------
@@ -970,7 +871,7 @@ instance
     GT _ -> GT
 
   Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = primStringAppend
+  Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
 
   Semigroup-Function : {{_ : Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
@@ -1341,9 +1242,9 @@ instance
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
   Enum-Char .PredConstraint c = Assert (c > minChar)
-  Enum-Char .suc c = primNatToChar $ suc (ord c)
-  Enum-Char .pred c = primNatToChar $ pred (ord c) {{trustMe}}
-  Enum-Char .enumFromTo c d = primNatToChar <$> enumFromTo (ord c) (ord d)
+  Enum-Char .suc c = Agda.Builtin.Char.primNatToChar $ suc (ord c)
+  Enum-Char .pred c = Agda.Builtin.Char.primNatToChar $ pred (ord c) {{trustMe}}
+  Enum-Char .enumFromTo c d = Agda.Builtin.Char.primNatToChar <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
 -- Bounded
@@ -1394,14 +1295,6 @@ appPrec appPrec+1 : Nat
 appPrec = 10
 appPrec+1 = 11
 
-private
-  primitive
-    primShowNat : Nat -> String
-    primShowInteger : Int -> String
-    primShowFloat : Float -> String
-    primShowChar : Char -> String
-    primShowString : String -> String
-
 instance
   Show-Void : Show Void
   Show-Void .showsPrec _ ()
@@ -1419,22 +1312,22 @@ instance
     GT -> showString "GT"
 
   Show-Nat : Show Nat
-  Show-Nat .showsPrec _ = showString <<< primShowNat
+  Show-Nat .showsPrec _ = showString <<< Agda.Builtin.String.primShowNat
 
   Show-Fin : {n : Nat} -> Show (Fin n)
-  Show-Fin .showsPrec _ = showString <<< primShowNat <<< finToNat
+  Show-Fin .showsPrec _ = showString <<< Agda.Builtin.String.primShowNat <<< finToNat
 
   Show-Int : Show Int
-  Show-Int .showsPrec _ = showString <<< primShowInteger
+  Show-Int .showsPrec _ = showString <<< Agda.Builtin.Int.primShowInteger
 
   Show-Float : Show Float
-  Show-Float .showsPrec _ = showString <<< primShowFloat
+  Show-Float .showsPrec _ = showString <<< Agda.Builtin.Float.primShowFloat
 
   Show-Char : Show Char
-  Show-Char .showsPrec _ = showString <<< primShowChar
+  Show-Char .showsPrec _ = showString <<< Agda.Builtin.String.primShowChar
 
   Show-String : Show String
-  Show-String .showsPrec _ = showString <<< primShowString
+  Show-String .showsPrec _ = showString <<< Agda.Builtin.String.primShowString
 
   Show-Function : Show (Function a b)
   Show-Function .showsPrec _ _ = showString "<function>"

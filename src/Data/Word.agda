@@ -199,17 +199,18 @@ instance
 -- Word64
 -------------------------------------------------------------------------------
 
-postulate Word64 : Set
-
-{-# BUILTIN WORD64 Word64 #-}
+open import Agda.Builtin.Word public
+  using (Word64)
 
 private
   2^64 : Nat
   2^64 = 18446744073709551616
 
-  primitive
-    primWord64FromNat : Nat -> Word64
-    primWord64ToNat : Word64 -> Nat
+  primWord64FromNat : Nat -> Word64
+  primWord64FromNat = Agda.Builtin.Word.primWord64FromNat
+
+  primWord64ToNat : Word64 -> Nat
+  primWord64ToNat = Agda.Builtin.Word.primWord64ToNat
 
   postulate
     primEqWord64 : Word64 -> Word64 -> Bool
