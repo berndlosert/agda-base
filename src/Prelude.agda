@@ -401,6 +401,9 @@ private
   charEq : Char -> Char -> Bool
   charEq = Agda.Builtin.Char.primCharEquality
 
+  natToChar : Nat -> Char
+  natToChar = Agda.Builtin.Char.primNatToChar
+
 minChar maxChar : Char
 minChar = '\NUL'
 maxChar = '\1114111'
@@ -1340,9 +1343,9 @@ instance
   Enum-Char : Enum Char
   Enum-Char .SucConstraint c = Assert (c < maxChar)
   Enum-Char .PredConstraint c = Assert (c > minChar)
-  Enum-Char .suc c = Agda.Builtin.Char.primNatToChar $ suc (ord c)
-  Enum-Char .pred c = Agda.Builtin.Char.primNatToChar $ pred (ord c) {{trustMe}}
-  Enum-Char .enumFromTo c d = Agda.Builtin.Char.primNatToChar <$> enumFromTo (ord c) (ord d)
+  Enum-Char .suc c = natToChar $ suc (ord c)
+  Enum-Char .pred c = natToChar $ pred (ord c) {{trustMe}}
+  Enum-Char .enumFromTo c d = natToChar <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
 -- Bounded
