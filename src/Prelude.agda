@@ -304,32 +304,91 @@ private
 -- Float primitives
 -------------------------------------------------------------------------------
 
-sqrt = Agda.Builtin.Float.primFloatSqrt
-round = Agda.Builtin.Float.primFloatRound
-floor = Agda.Builtin.Float.primFloatFloor
-ceil = Agda.Builtin.Float.primFloatCeiling
-exp = Agda.Builtin.Float.primFloatExp
-log = Agda.Builtin.Float.primFloatLog
-sin = Agda.Builtin.Float.primFloatSin
-cos = Agda.Builtin.Float.primFloatCos
-tan = Agda.Builtin.Float.primFloatTan
-asin = Agda.Builtin.Float.primFloatASin
-acos = Agda.Builtin.Float.primFloatACos
-atan = Agda.Builtin.Float.primFloatATan
-atan2 = Agda.Builtin.Float.primFloatATan2
-sinh = Agda.Builtin.Float.primFloatSinh
-cosh = Agda.Builtin.Float.primFloatCosh
-tanh = Agda.Builtin.Float.primFloatTanh
-asinh = Agda.Builtin.Float.primFloatASinh
-acosh = Agda.Builtin.Float.primFloatACosh
-atanh = Agda.Builtin.Float.primFloatATanh
+private
+  floatEq : Float -> Float -> Bool
+  floatEq = Agda.Builtin.Float.primFloatEquality
+
+  floatLessThan : Float -> Float -> Bool
+  floatLessThan =  Agda.Builtin.Float.primFloatLess
+
+  floatPlus : Float -> Float -> Float
+  floatPlus = Agda.Builtin.Float.primFloatPlus
+
+  floatNegate : Float -> Float
+  floatNegate = Agda.Builtin.Float.primFloatNegate
+
+  floatMinus : Float -> Float -> Float
+  floatMinus = Agda.Builtin.Float.primFloatMinus
+
+  floatTimes : Float -> Float -> Float
+  floatTimes = Agda.Builtin.Float.primFloatTimes
+
+  floatDiv : Float -> Float -> Float
+  floatDiv = Agda.Builtin.Float.primFloatDiv
 
 NaN : Float
-NaN = Agda.Builtin.Float.primFloatDiv 0.0 0.0
+NaN = floatDiv 0.0 0.0
 
 Infinity -Infinity : Float
-Infinity = Agda.Builtin.Float.primFloatDiv 1.0 0.0
--Infinity = Agda.Builtin.Float.primFloatNegate Infinity
+Infinity = floatDiv 1.0 0.0
+-Infinity = floatNegate Infinity
+
+sqrt : Float -> Float
+sqrt = Agda.Builtin.Float.primFloatSqrt
+
+round : Float -> Maybe Int
+round = Agda.Builtin.Float.primFloatRound
+
+floor : Float -> Maybe Int
+floor = Agda.Builtin.Float.primFloatFloor
+
+ceil : Float -> Maybe Int
+ceil = Agda.Builtin.Float.primFloatCeiling
+
+exp : Float -> Float
+exp = Agda.Builtin.Float.primFloatExp
+
+log : Float -> Float
+log = Agda.Builtin.Float.primFloatLog
+
+sin : Float -> Float
+sin = Agda.Builtin.Float.primFloatSin
+
+cos : Float -> Float
+cos = Agda.Builtin.Float.primFloatCos
+
+tan : Float -> Float
+tan = Agda.Builtin.Float.primFloatTan
+
+asin : Float -> Float
+asin = Agda.Builtin.Float.primFloatASin
+
+acos : Float -> Float
+acos = Agda.Builtin.Float.primFloatACos
+
+atan : Float -> Float
+atan = Agda.Builtin.Float.primFloatATan
+
+atan2 : Float -> Float -> Float
+atan2 = Agda.Builtin.Float.primFloatATan2
+
+sinh : Float -> Float
+sinh = Agda.Builtin.Float.primFloatSinh
+
+cosh : Float -> Float
+cosh = Agda.Builtin.Float.primFloatCosh
+
+tanh : Float -> Float
+tanh = Agda.Builtin.Float.primFloatTanh
+
+asinh : Float -> Float
+asinh = Agda.Builtin.Float.primFloatASinh
+
+acosh : Float -> Float
+acosh = Agda.Builtin.Float.primFloatACosh
+
+atanh : Float -> Float
+atanh = Agda.Builtin.Float.primFloatATanh
 
 -------------------------------------------------------------------------------
 -- Char primitives
@@ -493,7 +552,7 @@ instance
     _ _ -> False
 
   Eq-Float : Eq Float
-  Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
+  Eq-Float ._==_ = floatEq
 
   Eq-Char : Eq Char
   Eq-Char ._==_ = Agda.Builtin.Char.primCharEquality
@@ -587,7 +646,7 @@ instance
   Ord-Int ._<_ = intLessThan
 
   Ord-Float : Ord Float
-  Ord-Float ._<_ = Agda.Builtin.Float.primFloatLess
+  Ord-Float ._<_ = floatLessThan
 
   Ord-Char : Ord Char
   Ord-Char ._<_ x y = ord x < ord y
@@ -689,7 +748,7 @@ instance
 
   ToFloat-Int : ToFloat Int
   ToFloat-Int .toFloat (Pos n) = Agda.Builtin.Float.primNatToFloat n
-  ToFloat-Int .toFloat (NegSuc n) = Agda.Builtin.Float.primFloatMinus -1.0 (Agda.Builtin.Float.primNatToFloat n)
+  ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
 -- Additive
@@ -721,7 +780,7 @@ instance
   Additive-Int ._+_ = intPlus
 
   Additive-Float : Additive Float
-  Additive-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+  Additive-Float ._+_ = floatPlus
   Additive-Float .zero = 0.0
 
   Additive-Function : {{_ : Additive b}} -> Additive (a -> b)
@@ -749,7 +808,7 @@ instance
   Subtractable-Int ._-_ m n = m + intNegate n
 
   Subtractable-Float : Subtractable Float
-  Subtractable-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+  Subtractable-Float ._-_ = floatMinus
 
   Subtractable-Function : {{_ : Subtractable b}} -> Subtractable (a -> b)
   Subtractable-Function ._-_ f g x = f x - g x
@@ -771,7 +830,7 @@ instance
   Negatable-Int .-_ = intNegate
 
   Negatable-Float : Negatable Float
-  Negatable-Float .-_ = Agda.Builtin.Float.primFloatNegate
+  Negatable-Float .-_ = floatNegate
 
   Negatable-Function : {{_ : Negatable b}} -> Negatable (a -> b)
   Negatable-Function .-_ f x = - (f x)
@@ -811,7 +870,7 @@ instance
   Multiplicative-Int ._*_ = intTimes
 
   Multiplicative-Float : Multiplicative Float
-  Multiplicative-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+  Multiplicative-Float ._*_ = floatTimes
   Multiplicative-Float .one = 1.0
 
   Multiplicative-Function : {{_ : Multiplicative b}} -> Multiplicative (a -> b)
@@ -844,7 +903,7 @@ instance
 
   Dividable-Float : Dividable Float
   Dividable-Float .DividableConstraint _ = Unit
-  Dividable-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
+  Dividable-Float ._/_ x y = floatDiv x y
   Dividable-Float ._%_ _ _ = 0.0
 
 -------------------------------------------------------------------------------
