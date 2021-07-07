@@ -79,15 +79,15 @@ postulate
 
 private
   postulate
-    primEqTVar : TVar a -> TVar a -> Bool
+    tvarEq : TVar a -> TVar a -> Bool
 
 instance
   Eq-TVar : Eq (TVar a)
-  Eq-TVar ._==_ = primEqTVar
+  Eq-TVar ._==_ = tvarEq
 
 {-# FOREIGN GHC import Control.Concurrent.STM.TVar #-}
 {-# COMPILE GHC TVar = type TVar #-}
-{-# COMPILE GHC primEqTVar = \ _ v1 v2 -> v1 == v2 #-}
+{-# COMPILE GHC tvarEq = \ _ v1 v2 -> v1 == v2 #-}
 {-# COMPILE GHC newTVar = \ _ x -> newTVar x #-}
 {-# COMPILE GHC newTVarIO = \ _ x -> newTVarIO x #-}
 {-# COMPILE GHC readTVar = \ _ v -> readTVar v #-}
