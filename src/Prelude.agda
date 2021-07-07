@@ -397,21 +397,47 @@ atanh = Agda.Builtin.Float.primFloatATanh
 -- Char primitives
 -------------------------------------------------------------------------------
 
+private
+  charEq : Char -> Char -> Bool
+  charEq = Agda.Builtin.Char.primCharEquality
+
 minChar maxChar : Char
 minChar = '\NUL'
 maxChar = '\1114111'
 
+isLower : Char -> Bool
 isLower = Agda.Builtin.Char.primIsLower
+
+isDigit : Char -> Bool
 isDigit = Agda.Builtin.Char.primIsDigit
+
+isAlpha : Char -> Bool
 isAlpha = Agda.Builtin.Char.primIsAlpha
+
+isSpace : Char -> Bool
 isSpace = Agda.Builtin.Char.primIsSpace
+
+isAscii : Char -> Bool
 isAscii = Agda.Builtin.Char.primIsAscii
+
+isLatin1 : Char -> Bool
 isLatin1 = Agda.Builtin.Char.primIsLatin1
+
+isPrint : Char -> Bool
 isPrint = Agda.Builtin.Char.primIsPrint
+
+isHexDigit : Char -> Bool
 isHexDigit = Agda.Builtin.Char.primIsHexDigit
+
+toUpper : Char -> Char
 toUpper = Agda.Builtin.Char.primToUpper
+
+toLower : Char -> Char
 toLower = Agda.Builtin.Char.primToLower
+
+ord : Char -> Nat
 ord = Agda.Builtin.Char.primCharToNat
+
 chr : Fin (Suc (ord maxChar)) -> Char
 chr n = Agda.Builtin.Char.primNatToChar (finToNat n)
 
@@ -558,7 +584,7 @@ instance
   Eq-Float ._==_ = floatEq
 
   Eq-Char : Eq Char
-  Eq-Char ._==_ = Agda.Builtin.Char.primCharEquality
+  Eq-Char ._==_ = charEq
 
   Eq-String : Eq String
   Eq-String ._==_ = Agda.Builtin.String.primStringEquality
