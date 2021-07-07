@@ -8,6 +8,7 @@ module Data.String where
 
 open import Prelude
 
+open import Agda.Builtin.String using (primStringUncons)
 open import Data.Constraint.Nonempty
 open import Data.List as List using ()
 
@@ -46,7 +47,9 @@ append : String -> String -> String
 append = _<>_
 
 uncons : String -> Maybe (Char * String)
-uncons s = map pack <$> List.uncons (unpack s)
+uncons s = case primStringUncons s of \ where
+  (Just (DPair: c cs)) -> Just (c , cs)
+  Nothing -> Nothing
 
 unsnoc : String -> Maybe (String * Char)
 unsnoc s = lmap pack <$> List.unsnoc (unpack s)
