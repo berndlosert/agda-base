@@ -27,19 +27,19 @@ postulate
 
 private
   postulate
-    primEqThreadId : ThreadId -> ThreadId -> Bool
-    primLessThanThreadId : ThreadId -> ThreadId -> Bool
-    primShowThreadId : ThreadId -> String
+    threadIdEq : ThreadId -> ThreadId -> Bool
+    threadIdLessThan : ThreadId -> ThreadId -> Bool
+    threadIdShow : ThreadId -> String
 
 instance
   Eq-ThreadId : Eq ThreadId
-  Eq-ThreadId ._==_ = primEqThreadId
+  Eq-ThreadId ._==_ = threadIdEq
 
   Ord-ThreadId : Ord ThreadId
-  Ord-ThreadId ._<_ = primLessThanThreadId
+  Ord-ThreadId ._<_ = threadIdLessThan
 
   Show-ThreadId : Show ThreadId
-  Show-ThreadId .showsPrec _ = showString <<< primShowThreadId
+  Show-ThreadId .showsPrec _ = showString <<< threadIdShow
 
 postulate
   myThreadId : IO ThreadId
@@ -56,10 +56,10 @@ postulate
 {-# FOREIGN GHC import Control.Concurrent #-}
 {-# FOREIGN GHC import Data.Text (pack) #-}
 {-# COMPILE GHC ThreadId = type ThreadId #-}
-{-# COMPILE GHC primEqThreadId = \ t1 t2 -> t1 == t2 #-}
-{-# COMPILE GHC primLessThanThreadId = \ t1 t2 -> t1 < t2 #-}
-{-# COMPILE GHC primShowThreadId = \ t -> pack (show t) #-}
-{-# COMPILE GHC threadDelay = \ t -> threadDelay (fromInteger t) #-}
+{-# COMPILE GHC threadIdEq = (==) #-}
+{-# COMPILE GHC threadIdLessThan = (<) #-}
+{-# COMPILE GHC threadIdShow = pack . show #-}
+{-# COMPILE GHC threadDelay = threadDelay . fromInteger #-}
 {-# COMPILE GHC myThreadId = myThreadId #-}
 {-# COMPILE GHC forkIO = forkIO #-}
 {-# COMPILE GHC forkFinally = \ _ -> forkFinally #-}
