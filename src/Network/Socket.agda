@@ -49,11 +49,11 @@ postulate
 
 private
   postulate
-    primShowSocketAddr : SocketAddr -> String
+    sockedAddrShow : SocketAddr -> String
 
 instance
   Show-SocketAddr : Show SocketAddr
-  Show-SocketAddr .showsPrec _ = showString <<< primShowSocketAddr
+  Show-SocketAddr .showsPrec _ = showString <<< sockedAddrShow
 
 -------------------------------------------------------------------------------
 -- SocketType
@@ -187,7 +187,7 @@ postulate
 {-# COMPILE GHC setSocketOption = \ s o i -> setSocketOption s o (fromInteger i) #-}
 
 {-# COMPILE GHC SocketAddr = type SockAddr #-}
-{-# COMPILE GHC primShowSocketAddr = pack . show #-}
+{-# COMPILE GHC sockedAddrShow = pack . show #-}
 
 {-# COMPILE GHC AddrInfo = data AddrInfo (AddrInfo) #-}
 {-# COMPILE GHC AddrInfoFlag = data AddrInfoFlag (AI_ADDRCONFIG | AI_ALL | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE | AI_V4MAPPED) #-}
