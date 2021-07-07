@@ -199,6 +199,9 @@ private
   natMod m (Suc n) = natModAux Zero n m n
   natMod _ _ = undefined
 
+  natShow : Nat -> String
+  natShow = Agda.Builtin.String.primShowNat
+
 neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
@@ -300,6 +303,9 @@ private
     (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
     (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
 
+  intShow : Int -> String
+  intShow = Agda.Builtin.Int.primShowInteger
+
 -------------------------------------------------------------------------------
 -- Float primitives
 -------------------------------------------------------------------------------
@@ -328,6 +334,9 @@ private
 
   natToFloat : Nat -> Float
   natToFloat = Agda.Builtin.Float.primNatToFloat
+
+  floatShow : Float -> String
+  floatShow = Agda.Builtin.Float.primShowFloat
 
 NaN : Float
 NaN = floatDiv 0.0 0.0
@@ -404,6 +413,9 @@ private
   natToChar : Nat -> Char
   natToChar = Agda.Builtin.Char.primNatToChar
 
+  charShow : Char -> String
+  charShow = Agda.Builtin.String.primShowChar
+
 minChar maxChar : Char
 minChar = '\NUL'
 maxChar = '\1114111'
@@ -454,6 +466,9 @@ private
 
   stringAppend : String -> String -> String
   stringAppend = Agda.Builtin.String.primStringAppend
+
+  stringShow : String -> String
+  stringShow = Agda.Builtin.String.primShowString
 
 pack : List Char -> String
 pack = Agda.Builtin.String.primStringFromList
@@ -1413,22 +1428,22 @@ instance
     GT -> showString "GT"
 
   Show-Nat : Show Nat
-  Show-Nat .showsPrec _ = showString <<< Agda.Builtin.String.primShowNat
+  Show-Nat .showsPrec _ = showString <<< natShow
 
   Show-Fin : {n : Nat} -> Show (Fin n)
-  Show-Fin .showsPrec _ = showString <<< Agda.Builtin.String.primShowNat <<< finToNat
+  Show-Fin .showsPrec _ = showString <<< natShow <<< finToNat
 
   Show-Int : Show Int
-  Show-Int .showsPrec _ = showString <<< Agda.Builtin.Int.primShowInteger
+  Show-Int .showsPrec _ = showString <<< intShow
 
   Show-Float : Show Float
-  Show-Float .showsPrec _ = showString <<< Agda.Builtin.Float.primShowFloat
+  Show-Float .showsPrec _ = showString <<< floatShow
 
   Show-Char : Show Char
-  Show-Char .showsPrec _ = showString <<< Agda.Builtin.String.primShowChar
+  Show-Char .showsPrec _ = showString <<< charShow
 
   Show-String : Show String
-  Show-String .showsPrec _ = showString <<< Agda.Builtin.String.primShowString
+  Show-String .showsPrec _ = showString <<< stringShow
 
   Show-Function : Show (Function a b)
   Show-Function .showsPrec _ _ = showString "<function>"
