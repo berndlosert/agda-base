@@ -12,7 +12,7 @@ open import Prelude
 -- Bits
 -------------------------------------------------------------------------------
 
-record Bits (a : Set) : Set where
+record Bits (a : Type) : Type where
   infixl 5 _:|:_
   infixl 6 _xor_
   infixl 7 _:&:_

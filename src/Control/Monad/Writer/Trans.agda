@@ -30,14 +30,14 @@ open Control.Monad.Writer.Class public
 
 private
   variable
-    a b e r s w w' : Set
-    m n : Set -> Set
+    a b e r s w w' : Type
+    m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- WriterT
 -------------------------------------------------------------------------------
 
-record WriterT (w : Set) (m : Set -> Set) (a : Set) : Set where
+record WriterT (w : Type) (m : Type -> Type) (a : Type) : Type where
   constructor WriterT:
   field runWriterT : m (a * w)
 

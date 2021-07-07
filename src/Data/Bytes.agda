@@ -16,14 +16,14 @@ open import Data.Word
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Bytes
 -------------------------------------------------------------------------------
 
 postulate
-  Bytes : Set
+  Bytes : Type
   putStrLn : Bytes -> IO Unit
   pack : List Word8 -> Bytes
   unpack : Bytes -> List Word8

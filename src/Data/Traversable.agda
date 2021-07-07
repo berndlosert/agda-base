@@ -19,14 +19,14 @@ open import Data.Foldable.Reverse
 
 private
   variable
-    a b c : Set
-    f t : Set -> Set
+    a b c : Type
+    f t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Traversable
 -------------------------------------------------------------------------------
 
-record Traversable (t : Set -> Set) : Set where
+record Traversable (t : Type -> Type) : Type where
   field
     overlap {{Functor-super}} : Functor t
     overlap {{Foldable-super}} : Foldable t

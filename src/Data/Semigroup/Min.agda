@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Min
 -------------------------------------------------------------------------------
 
 -- For semigroups, monoids, etc. where x <> y = min x y
-record Min (a : Set) : Set where
+record Min (a : Type) : Type where
   constructor Min:
   field getMin : a
 

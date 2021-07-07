@@ -27,14 +27,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b r r' s : Set
-    f m n : Set -> Set
+    a b r r' s : Type
+    f m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- ContT
 -------------------------------------------------------------------------------
 
-record ContT (r : Set) (m : Set -> Set) (a : Set) : Set where
+record ContT (r : Type) (m : Type -> Type) (a : Type) : Type where
   constructor ContT:
   field runContT : (a -> m r) -> m r
 

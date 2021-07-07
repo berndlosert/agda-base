@@ -16,13 +16,13 @@ open import Data.Int
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- ExitCode
 -------------------------------------------------------------------------------
 
-data ExitCode : Set where
+data ExitCode : Type where
   ExitSuccess : ExitCode
   ExitFailure : Int64 -> ExitCode
 

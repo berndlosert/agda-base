@@ -18,14 +18,14 @@ open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 private
   variable
-    a b k v : Set
+    a b k v : Type
 
 -------------------------------------------------------------------------------
 -- KVPair
 -------------------------------------------------------------------------------
 
 private
-  record KVPair (k v : Set) : Set where
+  record KVPair (k v : Type) : Type where
     constructor KVPair:
     field
       getKey : k
@@ -46,7 +46,7 @@ instance
 -------------------------------------------------------------------------------
 
 private
-  data Dict' (k v : Set) : Set where
+  data Dict' (k v : Type) : Type where
     Dict: : Tree (KVPair k v) -> Dict' k v
 
 Dict = Dict'

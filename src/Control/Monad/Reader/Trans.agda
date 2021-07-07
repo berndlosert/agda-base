@@ -30,14 +30,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e r r' s w : Set
-    m n : Set -> Set
+    a b e r r' s w : Type
+    m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- ReaderT
 -------------------------------------------------------------------------------
 
-record ReaderT (r : Set) (m : Set -> Set) (a : Set) : Set where
+record ReaderT (r : Type) (m : Type -> Type) (a : Type) : Type where
   constructor ReaderT:
   field runReaderT : r -> m a
 

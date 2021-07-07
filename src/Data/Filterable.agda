@@ -17,14 +17,14 @@ open import Data.Traversable
 
 private
   variable
-    a b c : Set
-    f t : Set -> Set
+    a b c : Type
+    f t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Filterable
 -------------------------------------------------------------------------------
 
-record Filterable (t : Set -> Set) : Set where
+record Filterable (t : Type -> Type) : Type where
   field
     mapMaybe : (a -> Maybe b) -> t a -> t b
 

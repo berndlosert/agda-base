@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- First
 -------------------------------------------------------------------------------
 
 -- Semigroup where x <> y = x
-record First (a : Set) : Set where
+record First (a : Type) : Type where
   constructor First:
   field getFirst : a
 

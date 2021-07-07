@@ -16,8 +16,8 @@ open import System.IO.Unsafe
 
 private
   variable
-    a b : Set
-    f : Set -> Set
+    a b : Type
+    f : Type -> Type
 
 -------------------------------------------------------------------------------
 -- traceIO, trace, etc.

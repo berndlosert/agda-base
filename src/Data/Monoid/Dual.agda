@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Dual
 -------------------------------------------------------------------------------
 
 -- For dual semigroups, monoids, etc.
-record Dual (a : Set) : Set where
+record Dual (a : Type) : Type where
   constructor Dual:
   field getDual : a
 

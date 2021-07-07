@@ -22,14 +22,14 @@ open import Data.Traversable
 
 private
   variable
-    a b v : Set
-    t : Set -> Set
+    a b v : Type
+    t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Elem
 -------------------------------------------------------------------------------
 
-record Elem (a : Set) : Set where
+record Elem (a : Type) : Type where
   constructor Elem:
   field getElem : a
 

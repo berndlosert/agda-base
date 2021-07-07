@@ -26,13 +26,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a b r r' : Set
+    a b r r' : Type
 
 -------------------------------------------------------------------------------
 -- Cont
 -------------------------------------------------------------------------------
 
-Cont : Set -> Set -> Set
+Cont : Type -> Type -> Type
 Cont r a = ContT r Identity a
 
 {-# DISPLAY ContT r Identity = Cont r #-}

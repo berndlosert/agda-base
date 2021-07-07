@@ -16,14 +16,14 @@ open import Control.Exception
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- ThreadId
 -------------------------------------------------------------------------------
 
 postulate
-  ThreadId : Set
+  ThreadId : Type
 
 private
   postulate

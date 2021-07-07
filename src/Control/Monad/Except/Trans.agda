@@ -28,14 +28,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e e' r s w : Set
-    m n : Set -> Set
+    a b e e' r s w : Type
+    m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- ExceptT
 -------------------------------------------------------------------------------
 
-record ExceptT (e : Set) (m : Set -> Set) (a : Set) : Set where
+record ExceptT (e : Type) (m : Type -> Type) (a : Type) : Type where
   constructor ExceptT:
   field runExceptT : m (e + a)
 

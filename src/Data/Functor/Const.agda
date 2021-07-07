@@ -16,13 +16,13 @@ open import Data.Foldable
 
 private
   variable
-    a b : Set
+    a b : Type
 
 -------------------------------------------------------------------------------
 -- Const
 -------------------------------------------------------------------------------
 
-record Const (a b : Set) : Set where
+record Const (a b : Type) : Type where
   constructor Const:
   field getConst : a
 

@@ -31,14 +31,14 @@ open System.Random public
 
 private
   variable
-    a b g : Set
-    m : Set -> Set
+    a b g : Type
+    m : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Gen
 -------------------------------------------------------------------------------
 
-record Gen (a : Set) : Set where
+record Gen (a : Type) : Type where
   constructor Gen:
   field unGen : StdGen -> Nat -> a
 
@@ -152,15 +152,15 @@ promote m = do
 -- Arbitrary & Coarbitrary
 -------------------------------------------------------------------------------
 
-record Arbitrary (a : Set) : Set where
+record Arbitrary (a : Type) : Type where
   field arbitrary : Gen a
 
 open Arbitrary {{...}} public
 
-arbitrary' : (a : Set) {{_ : Arbitrary a}} -> Gen a
+arbitrary' : (a : Type) {{_ : Arbitrary a}} -> Gen a
 arbitrary' _ = arbitrary
 
-record Coarbitrary (a : Set) : Set where
+record Coarbitrary (a : Type) : Type where
   field coarbitrary : a -> Gen b -> Gen b
 
 open Coarbitrary {{...}} public
@@ -215,14 +215,14 @@ instance
 -- Result & Property
 -------------------------------------------------------------------------------
 
-record Result : Set where
+record Result : Type where
   field
     ok : Maybe Bool
     stamp : List String
     arguments : List String
     reason : String
 
-record Property : Set where
+record Property : Type where
   constructor Property:
   field unProperty : Gen (IO Result)
 
@@ -259,7 +259,7 @@ result = Property: <<< return <<< return
 -- Testable
 -------------------------------------------------------------------------------
 
-record Testable (a : Set) : Set where
+record Testable (a : Type) : Type where
   field property : a -> Property
 
 open Testable {{...}} public
@@ -315,7 +315,7 @@ instance
 -- Config
 -------------------------------------------------------------------------------
 
-record Config : Set where
+record Config : Type where
   field
     maxTest : Nat
     maxFail : Nat

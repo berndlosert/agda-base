@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a b c : Set
+    a b c : Type
 
 -------------------------------------------------------------------------------
 -- Comonad
 -------------------------------------------------------------------------------
 
-record Comonad (w : Set -> Set) : Set where
+record Comonad (w : Type -> Type) : Type where
   field
     {{super}} : Functor w
     extend : (w a -> b) -> w a -> w b

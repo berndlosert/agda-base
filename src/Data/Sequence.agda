@@ -30,15 +30,15 @@ open Data.Traversable public
 
 private
   variable
-    a b c v : Set
-    f t : Set -> Set
+    a b c v : Type
+    f t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Seq
 -------------------------------------------------------------------------------
 
 abstract
-  data Seq (a : Set) : Set where
+  data Seq (a : Type) : Type where
     Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
 
   instance
@@ -375,7 +375,7 @@ abstract
       (Just (heads , tails)) -> zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
--- Set-like operations
+-- Type-like operations
 -------------------------------------------------------------------------------
 
   {-# TERMINATING #-}

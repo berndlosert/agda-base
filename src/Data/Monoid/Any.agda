@@ -13,7 +13,7 @@ open import Prelude
 -------------------------------------------------------------------------------
 
 -- Bool monoid where x <> y = x || y.
-record Any : Set where
+record Any : Type where
   constructor Any:
   field getAny : Bool
 

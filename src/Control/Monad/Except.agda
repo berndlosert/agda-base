@@ -24,13 +24,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a b e e' : Set
+    a b e e' : Type
 
 -------------------------------------------------------------------------------
 -- Except
 -------------------------------------------------------------------------------
 
-Except : Set -> Set -> Set
+Except : Type -> Type -> Type
 Except e = ExceptT e Identity
 
 runExcept : Except e a -> e + a

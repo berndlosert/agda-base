@@ -4,7 +4,7 @@ module System.IO.Unsafe where
 
 open import Prelude
 
-private variable a : Set
+private variable a : Type
 
 postulate
   unsafePerformIO : IO a -> a

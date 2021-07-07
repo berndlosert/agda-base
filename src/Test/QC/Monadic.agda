@@ -19,15 +19,15 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    a b : Set
-    m : Set -> Set
+    a b : Type
+    m : Type -> Type
 
 -------------------------------------------------------------------------------
 -- PropertyT
 -------------------------------------------------------------------------------
 
 abstract
-  PropertyT : (Set -> Set) -> Set -> Set
+  PropertyT : (Type -> Type) -> Type -> Type
   PropertyT m a = ContT (m Property) Gen a
 
   PropertyT: : ((a -> Gen (m Property)) -> Gen (m Property)) -> PropertyT m a

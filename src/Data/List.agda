@@ -30,8 +30,8 @@ open Data.Traversable public
 
 private
   variable
-    a b c : Set
-    f : Set -> Set
+    a b c : Type
+    f : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Constructors
@@ -312,7 +312,7 @@ transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
--- Set-like operations
+-- Type-like operations
 -------------------------------------------------------------------------------
 
 deleteBy : (a -> a -> Bool) -> a -> List a -> List a

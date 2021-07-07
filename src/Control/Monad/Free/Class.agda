@@ -16,14 +16,14 @@ open import Control.Monad.Trans.Class
 
 private
   variable
-    a : Set
-    t : (Set -> Set) -> Set -> Set
+    a : Type
+    t : (Type -> Type) -> Type -> Type
 
 -------------------------------------------------------------------------------
 -- MonadFree
 -------------------------------------------------------------------------------
 
-record MonadFree (f m : Set -> Set) : Set where
+record MonadFree (f m : Type -> Type) : Type where
   field
     overlap {{Monad-m}} : Monad m
     wrap : f (m a) -> m a

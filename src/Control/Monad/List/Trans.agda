@@ -23,15 +23,15 @@ open import Data.Foldable
 
 private
   variable
-    a b e r s w : Set
-    f m n : Set -> Set
+    a b e r s w : Type
+    f m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- ListT
 -------------------------------------------------------------------------------
 
 {-# NO_POSITIVITY_CHECK #-}
-record ListT (m : Set -> Set) (a : Set) : Set where
+record ListT (m : Type -> Type) (a : Type) : Type where
   constructor ListT:
   pattern
   field unconsT : m (Maybe (a * ListT m a))

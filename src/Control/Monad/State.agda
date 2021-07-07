@@ -26,13 +26,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a b s : Set
+    a b s : Type
 
 -------------------------------------------------------------------------------
 -- State
 -------------------------------------------------------------------------------
 
-State : Set -> Set -> Set
+State : Type -> Type -> Type
 State s = StateT s Identity
 
 {-# DISPLAY StateT s Identity = State s #-}

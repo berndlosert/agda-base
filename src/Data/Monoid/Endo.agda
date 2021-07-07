@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Endo
 -------------------------------------------------------------------------------
 
-record Endo (a : Set) : Set where
+record Endo (a : Type) : Type where
   constructor Endo:
   field appEndo : a -> a
 

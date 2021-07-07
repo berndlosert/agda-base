@@ -6,10 +6,10 @@ open import Prelude
 
 private
   variable
-    a : Set
-    f m : Set -> Set
+    a : Type
+    f m : Type -> Type
 
-Codensity : (Set -> Set) -> Set -> Set
+Codensity : (Type -> Type) -> Type -> Type
 Codensity f a = forall {b} -> (a -> f b) -> f b
 
 instance

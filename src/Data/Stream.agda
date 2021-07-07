@@ -17,13 +17,13 @@ open import Data.Constraint.Nonempty
 
 private
   variable
-    a b : Set
+    a b : Type
 
 -------------------------------------------------------------------------------
 -- Stream
 -------------------------------------------------------------------------------
 
-record Stream (a : Set) : Set where
+record Stream (a : Type) : Type where
   coinductive
   field
     head : a

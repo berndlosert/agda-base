@@ -12,7 +12,7 @@ open import Prelude
 -- Constrained
 -------------------------------------------------------------------------------
 
-record Constrained (a : Set) (p : a -> Set) : Set where
+record Constrained (a : Type) (p : a -> Type) : Type where
   constructor Constrained:
   field
     unconstrained : a

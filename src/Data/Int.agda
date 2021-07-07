@@ -13,7 +13,7 @@ open import Prelude
 -------------------------------------------------------------------------------
 
 postulate
-  Int64 : Set -- Int from Haskell
+  Int64 : Type -- Int from Haskell
   intToInt64 : Int -> Int64
   int64ToInt : Int64 -> Int
 

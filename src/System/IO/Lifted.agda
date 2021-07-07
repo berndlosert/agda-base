@@ -36,8 +36,8 @@ open Base public
 
 private
   variable
-    a b r : Set
-    m : Set -> Set
+    a b r : Type
+    m : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Console IO
@@ -74,8 +74,8 @@ withFile path mode handler = withRunInIO \ run ->
 
 module _ {{_ : MonadIO m}} where
 
-  hSetEncoding : Handle -> TextEncoding -> m Unit
-  hSetEncoding h = liftIO <<< Base.hSetEncoding h
+  hTypeEncoding : Handle -> TextEncoding -> m Unit
+  hTypeEncoding h = liftIO <<< Base.hTypeEncoding h
 
   hGetEncoding : Handle -> m (Maybe TextEncoding)
   hGetEncoding = liftIO <<< Base.hGetEncoding
@@ -104,8 +104,8 @@ module _ {{_ : MonadIO m}} where
   hFileSize : Handle -> m Nat
   hFileSize = liftIO <<< Base.hFileSize
 
-  hSetFileSize : Handle -> Nat -> m Unit
-  hSetFileSize handle = liftIO <<< Base.hSetFileSize handle
+  hTypeFileSize : Handle -> Nat -> m Unit
+  hTypeFileSize handle = liftIO <<< Base.hTypeFileSize handle
 
   hIsEOF : Handle -> m Bool
   hIsEOF = liftIO <<< Base.hIsEOF
@@ -113,8 +113,8 @@ module _ {{_ : MonadIO m}} where
   isEOF : m Bool
   isEOF = liftIO (Base.isEOF)
 
-  hSetBuffering : Handle -> BufferMode -> m Unit
-  hSetBuffering handle = liftIO <<< Base.hSetBuffering handle
+  hTypeBuffering : Handle -> BufferMode -> m Unit
+  hTypeBuffering handle = liftIO <<< Base.hTypeBuffering handle
 
   hGetBuffering : Handle -> m BufferMode
   hGetBuffering = liftIO <<< Base.hGetBuffering

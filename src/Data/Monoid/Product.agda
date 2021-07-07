@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Product
 -------------------------------------------------------------------------------
 
 -- For multiplicative semigroups, monoids, etc.
-record Product (a : Set) : Set where
+record Product (a : Type) : Type where
   constructor Product:
   field getProduct : a
 

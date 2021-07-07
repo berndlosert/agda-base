@@ -24,13 +24,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Iter
 -------------------------------------------------------------------------------
 
-Iter : Set -> Set
+Iter : Type -> Type
 Iter = IterT Identity
 
 {-# NON_TERMINATING #-}

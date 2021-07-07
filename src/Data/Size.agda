@@ -3,31 +3,28 @@
 module Data.Size where
 
 -------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
+open import Prelude
+
+-------------------------------------------------------------------------------
 -- Size
 -------------------------------------------------------------------------------
 
-{-# BUILTIN SIZEUNIV SizeU #-}
-{-# BUILTIN SIZE Size #-}
-{-# BUILTIN SIZELT Size<_ #-}
-{-# BUILTIN SIZESUC SizeSuc #-}
-{-# BUILTIN SIZEINF Inf #-}
-{-# BUILTIN SIZEMAX SizeMax #-}
-
-{-# FOREIGN GHC
-  type SizeLT i = ()
-#-}
-
-{-# COMPILE GHC Size = type () #-}
-{-# COMPILE GHC Size<_ = type SizeLT #-}
-{-# COMPILE GHC SizeSuc = \_ -> () #-}
-{-# COMPILE GHC Inf = () #-}
-{-# COMPILE GHC SizeMax = \_ _ -> () #-}
+open import Agda.Builtin.Size public
+  using (SizeUniv)
+  using (Size)
+  using (Size<_)
+  renaming (↑_ to SizeSuc)
+  renaming (∞ to SizeInf)
+  renaming (_⊔ˢ_ to SizeMax)
 
 -------------------------------------------------------------------------------
 -- Thunk
 -------------------------------------------------------------------------------
 
-record Thunk (i : Size) (f : Size -> Set) : Set where
+record Thunk (i : Size) (f : Size -> Type) : Type where
   coinductive
   field force : {j : Size< i} -> f j
 

@@ -16,13 +16,13 @@ open import Data.Foldable
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Identity
 -------------------------------------------------------------------------------
 
-record Identity (a : Set) : Set where
+record Identity (a : Type) : Type where
   constructor Identity:
   field runIdentity : a
 

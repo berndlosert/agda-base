@@ -19,13 +19,13 @@ open import Data.Traversable
 
 private
   variable
-    a v : Set
+    a v : Type
 
 -------------------------------------------------------------------------------
 -- Node
 -------------------------------------------------------------------------------
 
-data Node (v a : Set) : Set where
+data Node (v a : Type) : Type where
   Node2 : v -> a -> a -> Node v a
   Node3 : v -> a -> a -> a -> Node v a
 

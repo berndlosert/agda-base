@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Sum
 -------------------------------------------------------------------------------
 
 -- For additive semigroups, monoids, etc.
-record Sum (a : Set) : Set where
+record Sum (a : Type) : Type where
   constructor Sum:
   field getSum : a
 

@@ -16,7 +16,7 @@ open import Data.Int
 
 private
   variable
-    a b r : Set
+    a b r : Type
 
 -------------------------------------------------------------------------------
 -- Console IO
@@ -46,22 +46,22 @@ print x = putStrLn (show x)
 -- File IO
 -------------------------------------------------------------------------------
 
-FilePath : Set
+FilePath : Type
 FilePath = String
 
-data IOMode : Set where
+data IOMode : Type where
   ReadMode WriteMode AppendMode ReadWriteMode : IOMode
 
-data BufferMode : Set where
+data BufferMode : Type where
   NoBuffering : BufferMode
   LineBuffering : BufferMode
   BlockBuffering : Maybe Int64 -> BufferMode
 
 postulate
-  Handle : Set
+  Handle : Type
   stdin stdout stderr : Handle
 
-  TextEncoding : Set
+  TextEncoding : Type
   latin1 : TextEncoding
   utf8 utf8-bom : TextEncoding
   utf16 utf16le utf16be : TextEncoding
@@ -69,7 +69,7 @@ postulate
   localeEncoding : TextEncoding
   char8 : TextEncoding
 
-  hSetEncoding : Handle -> TextEncoding -> IO Unit
+  hTypeEncoding : Handle -> TextEncoding -> IO Unit
   hGetEncoding : Handle -> IO (Maybe TextEncoding)
 
   withFile : FilePath -> IOMode -> (Handle -> IO r) -> IO r
@@ -81,12 +81,12 @@ postulate
   hClose : Handle -> IO Unit
 
   hFileSize : Handle -> IO Nat
-  hSetFileSize : Handle -> Nat -> IO Unit
+  hTypeFileSize : Handle -> Nat -> IO Unit
 
   hIsEOF : Handle -> IO Bool
   isEOF : IO Bool
 
-  hSetBuffering : Handle -> BufferMode -> IO Unit
+  hTypeBuffering : Handle -> BufferMode -> IO Unit
   hGetBuffering : Handle -> IO BufferMode
 
   hFlush : Handle -> IO Unit
@@ -102,17 +102,17 @@ private
 
 readFile : TextEncoding -> FilePath -> IO String
 readFile enc fp = withFile fp ReadMode \ h -> do
-  hSetEncoding h enc
+  hTypeEncoding h enc
   hGetContents h
 
 writeFile : TextEncoding -> FilePath -> String -> IO Unit
 writeFile enc fp str = withFile fp WriteMode \ h -> do
-  hSetEncoding h utf8
+  hTypeEncoding h utf8
   hPutStr h str
 
 appendFile : TextEncoding -> FilePath -> String -> IO Unit
 appendFile enc fp str = withFile fp AppendMode \ h -> do
-  hSetEncoding h utf8
+  hTypeEncoding h utf8
   hPutStr h str
 
 instance
@@ -148,7 +148,7 @@ instance
 {-# COMPILE GHC utf32be = IO.utf32be #-}
 {-# COMPILE GHC localeEncoding = IO.localeEncoding #-}
 {-# COMPILE GHC char8 = IO.char8 #-}
-{-# COMPILE GHC hSetEncoding = IO.hSetEncoding #-}
+{-# COMPILE GHC hTypeEncoding = IO.hTypeEncoding #-}
 {-# COMPILE GHC hGetEncoding = IO.hGetEncoding #-}
 {-# COMPILE GHC withFile = \ _ -> IO.withFile . unpack #-}
 {-# COMPILE GHC openFile = IO.openFile . unpack  #-}
@@ -156,10 +156,10 @@ instance
 {-# COMPILE GHC hGetLine = T.hGetLine #-}
 {-# COMPILE GHC hClose = IO.hClose #-}
 {-# COMPILE GHC hFileSize = IO.hFileSize #-}
-{-# COMPILE GHC hSetFileSize = IO.hSetFileSize #-}
+{-# COMPILE GHC hTypeFileSize = IO.hTypeFileSize #-}
 {-# COMPILE GHC hIsEOF = IO.hIsEOF #-}
 {-# COMPILE GHC isEOF = IO.isEOF #-}
-{-# COMPILE GHC hSetBuffering = IO.hSetBuffering #-}
+{-# COMPILE GHC hTypeBuffering = IO.hTypeBuffering #-}
 {-# COMPILE GHC hGetBuffering = IO.hGetBuffering #-}
 {-# COMPILE GHC hFlush = IO.hFlush #-}
 {-# COMPILE GHC hPutChar = IO.hPutChar #-}

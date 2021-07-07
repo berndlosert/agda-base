@@ -20,14 +20,14 @@ open import Data.Constraint.Constrained public
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- NonemptyConstraint
 -------------------------------------------------------------------------------
 
-record NonemptyConstraint (a : Set) : Set where
-  field IsNonempty : a -> Set
+record NonemptyConstraint (a : Type) : Type where
+  field IsNonempty : a -> Type
 
 open NonemptyConstraint {{...}} public
 
@@ -44,5 +44,5 @@ instance
 -- Nonempty
 -------------------------------------------------------------------------------
 
-Nonempty : (a : Set) {{_ : NonemptyConstraint a}} -> Set
+Nonempty : (a : Type) {{_ : NonemptyConstraint a}} -> Type
 Nonempty a = Constrained a IsNonempty

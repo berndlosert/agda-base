@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a b r : Set
-    C t : Set -> Set
+    a b r : Type
+    C t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- NM
 -------------------------------------------------------------------------------
 
-data NM (C t : Set -> Set) (a : Set) : Set where
+data NM (C t : Type -> Type) (a : Type) : Type where
   Return : a -> NM C t a
   Bind : {{_ : C b}} -> t b -> (b -> NM C t a) -> NM C t a
 

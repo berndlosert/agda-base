@@ -27,14 +27,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e r s : Set
-    f m n : Set -> Set
+    a b e r s : Type
+    f m n : Type -> Type
 
 -------------------------------------------------------------------------------
 -- FreeT
 -------------------------------------------------------------------------------
 
-record FreeT (f : Set -> Set) (m : Set -> Set) (a : Set) : Set where
+record FreeT (f : Type -> Type) (m : Type -> Type) (a : Type) : Type where
   constructor FreeT:
   field
     runFreeT : (a -> m r) -> (forall {b} -> f b -> (b -> m r) -> m r) -> m r

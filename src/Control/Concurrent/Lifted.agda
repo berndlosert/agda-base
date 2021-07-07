@@ -25,8 +25,8 @@ open Base public
 
 private
   variable
-    a : Set
-    m : Set -> Set
+    a : Type
+    m : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Lifted functions

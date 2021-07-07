@@ -17,26 +17,26 @@ open import Data.Word
 
 private
   variable
-    r : Set
+    r : Type
 
 -------------------------------------------------------------------------------
 -- ProtocolNumber, PortNumber, HostName, HostIPv4Addr, ServiceName
 -------------------------------------------------------------------------------
 
 postulate
-  ProtocolNumber : Set
+  ProtocolNumber : Type
   defaultProtocol : ProtocolNumber
 
-  PortNumber : Set
+  PortNumber : Type
   defaultPort : PortNumber
 
-HostName : Set
+HostName : Type
 HostName = String
 
-HostIPv4Addr : Set
+HostIPv4Addr : Type
 HostIPv4Addr = Word32
 
-ServiceName : Set
+ServiceName : Type
 ServiceName = String
 
 -------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ ServiceName = String
 -------------------------------------------------------------------------------
 
 postulate
-  SocketAddr : Set
+  SocketAddr : Type
   SocketAddrIPv4 : PortNumber -> HostIPv4Addr -> SocketAddr
 
 private
@@ -60,7 +60,7 @@ instance
 -------------------------------------------------------------------------------
 
 postulate
-  SocketType : Set
+  SocketType : Type
   SockNone : SocketType
   SockStream : SocketType
 
@@ -69,7 +69,7 @@ postulate
 -------------------------------------------------------------------------------
 
 postulate
-  AddrFamily : Set
+  AddrFamily : Type
   AFInet : AddrFamily
   AFUnspec : AddrFamily
 
@@ -77,7 +77,7 @@ postulate
 -- AddrInfoFlag
 -------------------------------------------------------------------------------
 
-data AddrInfoFlag : Set where
+data AddrInfoFlag : Type where
   AIAddrConfig : AddrInfoFlag
   AIAll : AddrInfoFlag
   AICanonName : AddrInfoFlag
@@ -90,7 +90,7 @@ data AddrInfoFlag : Set where
 -- AddrInfo
 -------------------------------------------------------------------------------
 
-record AddrInfo : Set where
+record AddrInfo : Type where
   constructor AddrInfo:
   field
     addrFlags : List AddrInfoFlag
@@ -121,7 +121,7 @@ postulate
 -------------------------------------------------------------------------------
 
 postulate
-  Socket : Set
+  Socket : Type
   socket : AddrFamily -> SocketType -> ProtocolNumber -> IO Socket
   openSocket : AddrInfo -> IO Socket
   connect : Socket -> SocketAddr -> IO Unit
@@ -145,7 +145,7 @@ listen s n = primListen s n
 -------------------------------------------------------------------------------
 
 postulate
-  SocketOption : Set
+  SocketOption : Type
   ReuseAddr : SocketOption
   setSocketOption : Socket -> SocketOption -> Int -> IO Unit
 

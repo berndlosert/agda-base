@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- Max
 -------------------------------------------------------------------------------
 
 -- For semigroups, monoids, etc. where x <> y = max x y
-record Max (a : Set) : Set where
+record Max (a : Type) : Type where
   constructor Max:
   field getMax : a
 

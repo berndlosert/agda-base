@@ -12,7 +12,7 @@ open import Prelude
 -- Measured
 -------------------------------------------------------------------------------
 
-record Measured (v a : Set) : Set where
+record Measured (v a : Type) : Type where
   field
     overlap {{Monoid-v}} : Monoid v
     measure : a -> v

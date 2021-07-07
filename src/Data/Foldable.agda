@@ -17,14 +17,14 @@ open import Data.Constraint.Nonempty
 
 private
   variable
-    a b : Set
-    f m t : Set -> Set
+    a b : Type
+    f m t : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Foldable
 -------------------------------------------------------------------------------
 
-record Foldable (t : Set -> Set) : Set where
+record Foldable (t : Type -> Type) : Type where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b

@@ -18,13 +18,13 @@ open import Data.Traversable
 
 private
   variable
-    a b : Set
+    a b : Type
 
 -------------------------------------------------------------------------------
 -- Tree
 -------------------------------------------------------------------------------
 
-data Tree (a : Set) : Set where
+data Tree (a : Type) : Type where
   Leaf : Tree a
   Node : Tree a -> a -> Tree a -> Tree a
 

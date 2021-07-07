@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a b : Set
-    f : Set -> Set
+    a b : Type
+    f : Type -> Type
 
 -------------------------------------------------------------------------------
 -- Yoneda
 -------------------------------------------------------------------------------
 
-Yoneda : (Set -> Set) -> Set -> Set
+Yoneda : (Type -> Type) -> Type -> Type
 Yoneda f a = forall {b} -> (a -> b) -> f b
 
 instance

@@ -20,14 +20,14 @@ open import Data.Constraint.Constrained public
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- PositiveConstraint
 -------------------------------------------------------------------------------
 
-record PositiveConstraint (a : Set) : Set where
-  field IsPositive : a -> Set
+record PositiveConstraint (a : Type) : Type where
+  field IsPositive : a -> Type
 
 open PositiveConstraint {{...}} public
 
@@ -48,7 +48,7 @@ instance
 -- Positive
 -------------------------------------------------------------------------------
 
-Positive : (a : Set) {{_ : PositiveConstraint a}} -> Set
+Positive : (a : Type) {{_ : PositiveConstraint a}} -> Type
 Positive a = Constrained a IsPositive
 
 instance

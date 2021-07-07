@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a : Set
+    a : Type
 
 -------------------------------------------------------------------------------
 -- MonadIO
 -------------------------------------------------------------------------------
 
-record MonadIO (m : Set -> Set) : Set where
+record MonadIO (m : Type -> Type) : Type where
   field
     overlap {{Monad-super}} : Monad m
     liftIO : IO a -> m a

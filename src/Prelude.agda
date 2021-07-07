@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type #-}
+{-# OPTIONS --type-in-type --no-import-sorts #-}
 
 module Prelude where
 
@@ -6,7 +6,10 @@ module Prelude where
 -- Primitive types
 -------------------------------------------------------------------------------
 
-data Void : Set where
+open import Agda.Primitive public
+  renaming (Set to Type)
+
+data Void : Type where
 
 open import Agda.Builtin.Unit public
   renaming (⊤ to Unit)
@@ -17,7 +20,7 @@ open import Agda.Builtin.Bool public
   renaming (false to False)
   renaming (true to True)
 
-data Ordering : Set where
+data Ordering : Type where
   LT EQ GT : Ordering
 
 open import Agda.Builtin.Nat public
@@ -25,7 +28,7 @@ open import Agda.Builtin.Nat public
   renaming (zero to Zero)
   renaming (suc to Suc)
 
-data Fin : Nat -> Set where
+data Fin : Nat -> Type where
   Zero : {n : Nat} -> Fin (Suc n)
   Suc : {n : Nat} -> Fin n -> Fin (Suc n)
 
@@ -47,10 +50,10 @@ open import Agda.Builtin.Equality public
   renaming (_≡_ to _===_)
   renaming (refl to Refl)
 
-Function : Set -> Set -> Set
+Function : Type -> Type -> Type
 Function a b = a -> b
 
-data Either (a b : Set) : Set where
+data Either (a b : Type) : Type where
   Left : a -> Either a b
   Right : b -> Either a b
 
@@ -60,7 +63,7 @@ open import Agda.Builtin.Sigma public
   renaming (Σ to DPair)
   renaming (_,_ to DPair:)
 
-record Pair (a b : Set) : Set where
+record Pair (a b : Type) : Type where
   constructor Pair:
   field
     fst : a
@@ -92,9 +95,9 @@ open import Agda.Builtin.IO public
 
 private
   variable
-    a b c d r s : Set
-    f m : Set -> Set
-    p : Set -> Set -> Set
+    a b c d r s : Type
+    f m : Type -> Type
+    p : Type -> Type -> Type
 
 -------------------------------------------------------------------------------
 -- Dangerous primitives
@@ -135,7 +138,7 @@ case_of_ x f = f x
 -- Bool primitives
 -------------------------------------------------------------------------------
 
-Assert : Bool -> Set
+Assert : Bool -> Type
 Assert False = Void
 Assert True = Unit
 
@@ -566,7 +569,7 @@ private
 -- Eq
 -------------------------------------------------------------------------------
 
-record Eq (a : Set) : Set where
+record Eq (a : Type) : Type where
   infix 4 _==_
   field _==_ : a -> a -> Bool
 
@@ -642,7 +645,7 @@ instance
 -- Ord
 -------------------------------------------------------------------------------
 
-record Ord (a : Set) : Set where
+record Ord (a : Type) : Type where
   infixl 4 _<_
   field
     overlap {{Eq-super}} : Eq a
@@ -729,9 +732,9 @@ instance
 -- FromNat, ToNat, FromNeg, ToFloat
 -------------------------------------------------------------------------------
 
-record FromNat (a : Set) : Set where
+record FromNat (a : Type) : Type where
   field
-    FromNatConstraint : Nat -> Set
+    FromNatConstraint : Nat -> Type
     fromNat : (n : Nat) {{_ : FromNatConstraint n}} -> a
 
 open FromNat {{...}} public
@@ -739,16 +742,16 @@ open FromNat {{...}} public
 {-# BUILTIN FROMNAT fromNat #-}
 {-# DISPLAY FromNat.fromNat _ n = fromNat n #-}
 
-record ToNat (a : Set) : Set where
+record ToNat (a : Type) : Type where
   field
-    ToNatConstraint : a -> Set
+    ToNatConstraint : a -> Type
     toNat : (x : a) {{_ : ToNatConstraint x}} -> Nat
 
 open ToNat {{...}} public
 
-record FromNeg (a : Set) : Set where
+record FromNeg (a : Type) : Type where
   field
-    FromNegConstraint : Nat -> Set
+    FromNegConstraint : Nat -> Type
     fromNeg : (n : Nat) {{_ : FromNegConstraint n}} -> a
 
 open FromNeg {{...}} public
@@ -756,7 +759,7 @@ open FromNeg {{...}} public
 {-# BUILTIN FROMNEG fromNeg #-}
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
-record ToFloat (a : Set) : Set where
+record ToFloat (a : Type) : Type where
   field toFloat : a -> Float
 
 open ToFloat {{...}} public
@@ -778,11 +781,11 @@ instance
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
 
-  FromNat-Set : FromNat Set
-  FromNat-Set .FromNatConstraint _ = Unit
-  FromNat-Set .fromNat 0 = Void
-  FromNat-Set .fromNat 1 = Unit
-  FromNat-Set .fromNat (Suc n) = Either (fromNat 1) (fromNat n)
+  FromNat-Type : FromNat Type
+  FromNat-Type .FromNatConstraint _ = Unit
+  FromNat-Type .fromNat 0 = Void
+  FromNat-Type .fromNat 1 = Unit
+  FromNat-Type .fromNat (Suc n) = Either (fromNat 1) (fromNat n)
 
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint _ = Unit
@@ -811,7 +814,7 @@ instance
 -- Additive
 -------------------------------------------------------------------------------
 
-record Additive (a : Set) : Set where
+record Additive (a : Type) : Type where
   infixl 6 _+_
   field
     _+_ : a -> a -> a
@@ -820,9 +823,9 @@ record Additive (a : Set) : Set where
 open Additive {{...}} public
 
 instance
-  Additive-Set : Additive Set
-  Additive-Set ._+_ = Either
-  Additive-Set .zero = Void
+  Additive-Type : Additive Type
+  Additive-Type ._+_ = Either
+  Additive-Type .zero = Void
 
   Additive-Nat : Additive Nat
   Additive-Nat ._+_ = natPlus
@@ -848,7 +851,7 @@ instance
 -- Substractable
 -------------------------------------------------------------------------------
 
-record Subtractable (a : Set) : Set where
+record Subtractable (a : Type) : Type where
   infixl 6 _-_
   field _-_ : a -> a -> a
 
@@ -874,7 +877,7 @@ instance
 -- Negatable
 -------------------------------------------------------------------------------
 
-record Negatable (a : Set) : Set where
+record Negatable (a : Type) : Type where
   field -_ : a -> a
 
 open Negatable {{...}} public
@@ -896,7 +899,7 @@ instance
 -- Multiplicative
 -------------------------------------------------------------------------------
 
-record Multiplicative (a : Set) : Set where
+record Multiplicative (a : Type) : Type where
   infixl 7 _*_
   field
     _*_ : a -> a -> a
@@ -910,9 +913,9 @@ record Multiplicative (a : Set) : Set where
 open Multiplicative {{...}} public
 
 instance
-  Multiplicative-Set : Multiplicative Set
-  Multiplicative-Set ._*_ = Pair
-  Multiplicative-Set .one = Unit
+  Multiplicative-Type : Multiplicative Type
+  Multiplicative-Type ._*_ = Pair
+  Multiplicative-Type .one = Unit
 
   Multiplicative-Nat : Multiplicative Nat
   Multiplicative-Nat ._*_ = natTimes
@@ -938,11 +941,11 @@ instance
 -- Dividable
 -------------------------------------------------------------------------------
 
-record Dividable (a : Set) : Set where
+record Dividable (a : Type) : Type where
   infixl 7 _/_
   infixl 7 _%_
   field
-    DividableConstraint : a -> Set
+    DividableConstraint : a -> Type
     _/_ _%_ : (x y : a) {{_ : DividableConstraint y}} -> a
 
 open Dividable {{...}} public
@@ -967,7 +970,7 @@ instance
 -- Semigroup
 -------------------------------------------------------------------------------
 
-record Semigroup (a : Set) : Set where
+record Semigroup (a : Type) : Type where
   infixr 5 _<>_
   field _<>_ : a -> a -> a
 
@@ -1020,7 +1023,7 @@ instance
 -- Monoid
 -------------------------------------------------------------------------------
 
-record Monoid (a : Set) : Set where
+record Monoid (a : Type) : Type where
   field
     overlap {{Semigroup-super}} : Semigroup a
     neutral : a
@@ -1056,7 +1059,7 @@ instance
 -- Category
 -------------------------------------------------------------------------------
 
-record Category (p : Set -> Set -> Set) : Set where
+record Category (p : Type -> Type -> Type) : Type where
   field
     compose : p b c -> p a b -> p a c
     identity : p a a
@@ -1083,7 +1086,7 @@ instance
 -- Functor
 -------------------------------------------------------------------------------
 
-record Functor (f : Set -> Set) : Set where
+record Functor (f : Type -> Type) : Type where
   field map : (a -> b) -> f a -> f b
 
   infixl 4 _<$>_
@@ -1131,7 +1134,7 @@ instance
 -- Contravariant
 -------------------------------------------------------------------------------
 
-record Contravariant (f : Set -> Set) : Set where
+record Contravariant (f : Type -> Type) : Type where
   field cmap : (a -> b) -> f b -> f a
 
   phantom : {{_ : Functor f}} -> f a -> f b
@@ -1143,7 +1146,7 @@ open Contravariant {{...}} public
 -- Bifunctor
 -------------------------------------------------------------------------------
 
-record Bifunctor (p : Set -> Set -> Set) : Set where
+record Bifunctor (p : Type -> Type -> Type) : Type where
   field
     overlap {{Functor-super}} : Functor (p a)
     lmap : (a -> b) -> p a c -> p b c
@@ -1164,7 +1167,7 @@ instance
 -- Profunctor
 -------------------------------------------------------------------------------
 
-record Profunctor (p : Set -> Set -> Set) : Set where
+record Profunctor (p : Type -> Type -> Type) : Type where
   field
     overlap {{Functor-super}} : Functor (p a)
     lcmap : (b -> a) -> p a c -> p b c
@@ -1185,7 +1188,7 @@ instance
 -- Applicative
 -------------------------------------------------------------------------------
 
-record Applicative (f : Set -> Set) : Set where
+record Applicative (f : Type -> Type) : Type where
   infixl 4 _<*>_
   field
     overlap {{Functor-super}} : Functor f
@@ -1254,7 +1257,7 @@ instance
 -- Monad
 -------------------------------------------------------------------------------
 
-record Monad (m : Set -> Set) : Set where
+record Monad (m : Type -> Type) : Type where
   infixl 1 _>>=_
   field
     overlap {{Applicative-super}} : Applicative m
@@ -1317,11 +1320,11 @@ instance
 -- Enum
 -------------------------------------------------------------------------------
 
-record Enum (a : Set) : Set where
+record Enum (a : Type) : Type where
   field
     {{Ord-super}} : Ord a
-    SucConstraint : a -> Set
-    PredConstraint : a -> Set
+    SucConstraint : a -> Type
+    PredConstraint : a -> Type
     suc : (x : a) {{_ : SucConstraint x}} -> a
     pred : (x : a) {{_ : PredConstraint x}} -> a
     enumFromTo : a -> a -> List a
@@ -1366,7 +1369,7 @@ instance
 -- Bounded
 -------------------------------------------------------------------------------
 
-record Bounded (a : Set) : Set where
+record Bounded (a : Type) : Type where
   field
     overlap {{Ord-super}} : Ord a
     minBound : a
@@ -1387,10 +1390,10 @@ instance
 -- Show
 -------------------------------------------------------------------------------
 
-ShowS : Set
+ShowS : Type
 ShowS = String -> String
 
-record Show (a : Set) : Set where
+record Show (a : Type) : Type where
   field showsPrec : Nat -> a -> ShowS
 
   shows : a -> ShowS
