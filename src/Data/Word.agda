@@ -272,14 +272,14 @@ instance
 {-# COMPILE GHC Word8 = type Word8 #-}
 {-# COMPILE GHC natToWord8 = fromInteger #-}
 {-# COMPILE GHC word8ToNat = toInteger #-}
-{-# COMPILE GHC word8Eq = \ x y -> x == y #-}
-{-# COMPILE GHC word8LessThan = \ x y -> x < y #-}
-{-# COMPILE GHC word8Or = \ x y -> x .|. y #-}
-{-# COMPILE GHC word8Xor = \ x y -> x `xor` y #-}
-{-# COMPILE GHC word8And = \ x y -> x .&. y #-}
+{-# COMPILE GHC word8Eq = (==) #-}
+{-# COMPILE GHC word8LessThan = (<) #-}
+{-# COMPILE GHC word8Or = (.|.) #-}
+{-# COMPILE GHC word8Xor = xor #-}
+{-# COMPILE GHC word8And = (.&.) #-}
 {-# COMPILE GHC word8Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word8Rotate = \ x i -> rotate x (fromIntegral i) #-}
-{-# COMPILE GHC word8Bit = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC word8Bit = bit . fromIntegral #-}
 {-# COMPILE GHC word8TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word8IsSigned = isSigned #-}
 {-# COMPILE GHC word8PopCount = toInteger . popCount #-}
@@ -287,14 +287,14 @@ instance
 {-# COMPILE GHC Word16 = type Word16 #-}
 {-# COMPILE GHC natToWord16 = fromInteger #-}
 {-# COMPILE GHC word16ToNat = toInteger #-}
-{-# COMPILE GHC word16Eq = \ x y -> x == y #-}
-{-# COMPILE GHC word16LessThan = \ x y -> x < y #-}
-{-# COMPILE GHC word16Or = \ x y -> x .|. y #-}
-{-# COMPILE GHC word16Xor = \ x y -> x `xor` y #-}
-{-# COMPILE GHC word16And = \ x y -> x .&. y #-}
+{-# COMPILE GHC word16Eq = (==) #-}
+{-# COMPILE GHC word16LessThan = (<) #-}
+{-# COMPILE GHC word16Or = (.|.) #-}
+{-# COMPILE GHC word16Xor = xor #-}
+{-# COMPILE GHC word16And = (.&.) #-}
 {-# COMPILE GHC word16Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word16Rotate = \ x i -> rotate x (fromIntegral i) #-}
-{-# COMPILE GHC word16Bit = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC word16Bit = bit . fromIntegral #-}
 {-# COMPILE GHC word16TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word16IsSigned = isSigned #-}
 {-# COMPILE GHC word16PopCount = toInteger . popCount #-}
@@ -302,26 +302,26 @@ instance
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC natToWord32 = fromInteger #-}
 {-# COMPILE GHC word32ToNat = toInteger #-}
-{-# COMPILE GHC word32Eq = \ x y -> x == y #-}
-{-# COMPILE GHC word32LessThan = \ x y -> x < y #-}
-{-# COMPILE GHC word32Or = \ x y -> x .|. y #-}
-{-# COMPILE GHC word32Xor = \ x y -> x `xor` y #-}
-{-# COMPILE GHC word32And = \ x y -> x .&. y #-}
+{-# COMPILE GHC word32Eq = (==) #-}
+{-# COMPILE GHC word32LessThan = (<) #-}
+{-# COMPILE GHC word32Or = (.|.) #-}
+{-# COMPILE GHC word32Xor = xor #-}
+{-# COMPILE GHC word32And = (.&.) #-}
 {-# COMPILE GHC word32Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word32Rotate = \ x i -> rotate x (fromIntegral i) #-}
-{-# COMPILE GHC word32Bit = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC word32Bit = bit . fromIntegral #-}
 {-# COMPILE GHC word32TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word32IsSigned = isSigned #-}
 {-# COMPILE GHC word32PopCount = toInteger . popCount #-}
 
-{-# COMPILE GHC word64Eq = \ x y -> x == y #-}
-{-# COMPILE GHC word64LessThan = \ x y -> x < y #-}
-{-# COMPILE GHC word64Or = \ x y -> x .|. y #-}
-{-# COMPILE GHC word64Xor = \ x y -> x `xor` y #-}
-{-# COMPILE GHC word64And = \ x y -> x .&. y #-}
+{-# COMPILE GHC word64Eq = (==) #-}
+{-# COMPILE GHC word64LessThan = (<) #-}
+{-# COMPILE GHC word64Or = (.|.) #-}
+{-# COMPILE GHC word64Xor = xor #-}
+{-# COMPILE GHC word64And = (.&.) #-}
 {-# COMPILE GHC word64Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word64Rotate = \ x i -> rotate x (fromIntegral i) #-}
-{-# COMPILE GHC word64Bit = \ i -> bit (fromIntegral i) #-}
+{-# COMPILE GHC word64Bit = bit . fromIntegral #-}
 {-# COMPILE GHC word64TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word64IsSigned = isSigned #-}
 {-# COMPILE GHC word64PopCount = toInteger . popCount #-}
