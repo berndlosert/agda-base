@@ -326,6 +326,9 @@ private
   floatDiv : Float -> Float -> Float
   floatDiv = Agda.Builtin.Float.primFloatDiv
 
+  natToFloat : Nat -> Float
+  natToFloat = Agda.Builtin.Float.primNatToFloat
+
 NaN : Float
 NaN = floatDiv 0.0 0.0
 
@@ -744,11 +747,11 @@ instance
   FromNeg-Int .fromNeg n = neg n
 
   ToFloat-Nat : ToFloat Nat
-  ToFloat-Nat .toFloat = Agda.Builtin.Float.primNatToFloat
+  ToFloat-Nat .toFloat = natToFloat
 
   ToFloat-Int : ToFloat Int
-  ToFloat-Int .toFloat (Pos n) = Agda.Builtin.Float.primNatToFloat n
-  ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (Agda.Builtin.Float.primNatToFloat n)
+  ToFloat-Int .toFloat (Pos n) = natToFloat n
+  ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
 
 -------------------------------------------------------------------------------
 -- Additive
