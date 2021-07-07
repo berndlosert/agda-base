@@ -445,7 +445,17 @@ chr n = Agda.Builtin.Char.primNatToChar (finToNat n)
 -- String primitives
 -------------------------------------------------------------------------------
 
+private
+  stringEq : String -> String -> Bool
+  stringEq = Agda.Builtin.String.primStringEquality
+
+  stringAppend : String -> String -> String
+  stringAppend = Agda.Builtin.String.primStringAppend
+
+pack : List Char -> String
 pack = Agda.Builtin.String.primStringFromList
+
+unpack : String -> List Char
 unpack = Agda.Builtin.String.primStringToList
 
 -------------------------------------------------------------------------------
@@ -587,7 +597,7 @@ instance
   Eq-Char ._==_ = charEq
 
   Eq-String : Eq String
-  Eq-String ._==_ = Agda.Builtin.String.primStringEquality
+  Eq-String ._==_ = stringEq
 
   Eq-Either : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
@@ -959,7 +969,7 @@ instance
     GT _ -> GT
 
   Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
+  Semigroup-String ._<>_ = stringAppend
 
   Semigroup-Function : {{_ : Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
