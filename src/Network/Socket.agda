@@ -135,10 +135,10 @@ postulate
 
 private
   postulate
-    primListen : Socket -> Nat -> IO Unit
+    listen' : Socket -> Nat -> IO Unit
 
 listen : Socket -> (n : Nat) {{_ : Assert $ n > 0}} -> IO Unit
-listen s n = primListen s n
+listen s n = listen' s n
 
 -------------------------------------------------------------------------------
 -- SocketOption
@@ -174,7 +174,7 @@ postulate
 {-# COMPILE GHC openSocket = openSocket #-}
 {-# COMPILE GHC connect = connect #-}
 {-# COMPILE GHC bind = bind #-}
-{-# COMPILE GHC primListen = \ s n -> listen s (fromInteger n) #-}
+{-# COMPILE GHC listen' = \ s n -> listen s (fromInteger n) #-}
 {-# COMPILE GHC accept = accept #-}
 {-# COMPILE GHC close = close #-}
 {-# COMPILE GHC gracefulClose = \ s n -> gracefulClose s (fromInteger n) #-}
