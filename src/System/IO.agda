@@ -69,7 +69,7 @@ postulate
   localeEncoding : TextEncoding
   char8 : TextEncoding
 
-  hTypeEncoding : Handle -> TextEncoding -> IO Unit
+  hSetEncoding : Handle -> TextEncoding -> IO Unit
   hGetEncoding : Handle -> IO (Maybe TextEncoding)
 
   withFile : FilePath -> IOMode -> (Handle -> IO r) -> IO r
@@ -81,12 +81,12 @@ postulate
   hClose : Handle -> IO Unit
 
   hFileSize : Handle -> IO Nat
-  hTypeFileSize : Handle -> Nat -> IO Unit
+  hSetFileSize : Handle -> Nat -> IO Unit
 
   hIsEOF : Handle -> IO Bool
   isEOF : IO Bool
 
-  hTypeBuffering : Handle -> BufferMode -> IO Unit
+  hSetBuffering : Handle -> BufferMode -> IO Unit
   hGetBuffering : Handle -> IO BufferMode
 
   hFlush : Handle -> IO Unit
@@ -102,17 +102,17 @@ private
 
 readFile : TextEncoding -> FilePath -> IO String
 readFile enc fp = withFile fp ReadMode \ h -> do
-  hTypeEncoding h enc
+  hSetEncoding h enc
   hGetContents h
 
 writeFile : TextEncoding -> FilePath -> String -> IO Unit
 writeFile enc fp str = withFile fp WriteMode \ h -> do
-  hTypeEncoding h utf8
+  hSetEncoding h utf8
   hPutStr h str
 
 appendFile : TextEncoding -> FilePath -> String -> IO Unit
 appendFile enc fp str = withFile fp AppendMode \ h -> do
-  hTypeEncoding h utf8
+  hSetEncoding h utf8
   hPutStr h str
 
 instance
@@ -148,7 +148,7 @@ instance
 {-# COMPILE GHC utf32be = IO.utf32be #-}
 {-# COMPILE GHC localeEncoding = IO.localeEncoding #-}
 {-# COMPILE GHC char8 = IO.char8 #-}
-{-# COMPILE GHC hTypeEncoding = IO.hTypeEncoding #-}
+{-# COMPILE GHC hSetEncoding = IO.hSetEncoding #-}
 {-# COMPILE GHC hGetEncoding = IO.hGetEncoding #-}
 {-# COMPILE GHC withFile = \ _ -> IO.withFile . unpack #-}
 {-# COMPILE GHC openFile = IO.openFile . unpack  #-}
@@ -156,10 +156,10 @@ instance
 {-# COMPILE GHC hGetLine = T.hGetLine #-}
 {-# COMPILE GHC hClose = IO.hClose #-}
 {-# COMPILE GHC hFileSize = IO.hFileSize #-}
-{-# COMPILE GHC hTypeFileSize = IO.hTypeFileSize #-}
+{-# COMPILE GHC hSetFileSize = IO.hSetFileSize #-}
 {-# COMPILE GHC hIsEOF = IO.hIsEOF #-}
 {-# COMPILE GHC isEOF = IO.isEOF #-}
-{-# COMPILE GHC hTypeBuffering = IO.hTypeBuffering #-}
+{-# COMPILE GHC hSetBuffering = IO.hSetBuffering #-}
 {-# COMPILE GHC hGetBuffering = IO.hGetBuffering #-}
 {-# COMPILE GHC hFlush = IO.hFlush #-}
 {-# COMPILE GHC hPutChar = IO.hPutChar #-}
