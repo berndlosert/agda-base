@@ -298,9 +298,15 @@ splitOn : {{_ : Eq a}}
   -> (needle : List a) {{_ : Validate {Nonempty} needle}}
   -> (haystack : List a)
   -> List (List a)
-splitOn needle [] = singleton []
-splitOn needle haystack = let (l , r) = breakOn needle haystack in
-  l :: (if null r then [] else splitOn needle $ drop (length needle) r)
+splitOn {a} needle haystack =
+    fromJust (petrol go (length haystack) haystack) {{trustMe}}
+  where
+    go : PiG (List a) (\ _ -> List (List a))
+    go [] = return $ singleton []
+    go haystack = do
+      let (l , r) = breakOn needle haystack
+      res <- call $ drop (length needle) r
+      return $ l :: (if null r then [] else res)
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []
