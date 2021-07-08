@@ -280,14 +280,19 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
       res <- call (drop n xs)
       return $ take n xs :: res
 
-{-# TERMINATING #-}
 breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a
-breakOn needle haystack =
-  if isPrefixOf needle haystack
-    then ([] , haystack)
-    else case haystack of \ where
-      [] -> ([] , [])
-      (x :: xs) -> lmap (x ::_) $ breakOn needle xs
+breakOn {a} needle haystack =
+    fromJust (petrol go (length haystack) haystack) {{trustMe}}
+  where
+    go : PiG (List a) (\ _ -> List a * List a)
+    go haystack = do
+      if isPrefixOf needle haystack
+        then return ([] , haystack)
+        else case haystack of \ where
+          [] -> return ([] , [])
+          (x :: xs) -> do
+            res <- call xs
+            return $ lmap (x ::_) res
 
 {-# TERMINATING #-}
 splitOn : {{_ : Eq a}}
