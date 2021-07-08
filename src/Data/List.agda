@@ -8,6 +8,7 @@ module Data.List where
 
 open import Prelude
 
+open import Data.General
 open import Data.Monoid.Endo
 open import Data.Filterable
 open import Data.Foldable
@@ -257,19 +258,27 @@ stripPrefix xs ys =
 dropPrefix : {{_ : Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
-{-# TERMINATING #-}
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy eq [] = []
-groupBy eq (x :: xs) = let (ys , zs) = span (eq x) xs in
-  (x :: ys) :: groupBy eq zs
+groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
+  where
+    go : PiG (List a) (\ _ -> List (List a))
+    go [] = return []
+    go (x :: xs) = do
+      let (ys , zs) = span (eq x) xs
+      res <- call zs
+      return $ (x :: ys) :: res
 
 group : {{_ : Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
-{-# TERMINATING #-}
 chunksOf : (n : Nat) {{_ : Validate {Positive} n}} -> List a -> List (List a)
-chunksOf _ [] = []
-chunksOf n xs = take n xs :: chunksOf n (drop n xs)
+chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
+  where
+    go : PiG (List a) (\ _ -> List (List a))
+    go [] = return []
+    go xs = do
+      res <- call (drop n xs)
+      return $ take n xs :: res
 
 {-# TERMINATING #-}
 breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a

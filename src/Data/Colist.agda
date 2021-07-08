@@ -27,6 +27,11 @@ data Colist (i : Size) (a : Type) : Type where
   [] : Colist i a
   _::_ : a -> Thunk i (\ j -> Colist j a) -> Colist i a
 
+take : Nat -> Colist SizeInf a -> List a
+take _ [] = []
+take 0 _ =  []
+take (Suc n) (x :: xs) = x :: take n (force xs)
+
 instance
   Semigroup-Colist : Semigroup (Colist i a)
   Semigroup-Colist ._<>_ [] ys = []
