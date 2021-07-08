@@ -9,7 +9,7 @@ module Data.Stream where
 open import Prelude
 
 open import Control.Comonad
-open import Data.Constraint.Nonempty
+open import Data.Refined
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -72,7 +72,7 @@ at : Nat -> Stream a -> a
 at 0 as = head as
 at (Suc n) as = at n (tail as)
 
-cycle : (as : List a) {{_ : IsNonempty as}} -> Stream a
+cycle : (as : List a) {{_ : Validate {Nonempty} as}} -> Stream a
 cycle as = flip unfold as \ where
   [] -> undefined -- We never use this case anyways.
   (x :: []) -> (x , as)

@@ -7,8 +7,8 @@ open import Prelude hiding (bool)
 open import Control.Alternative
 open import Control.Lens
 open import Control.Monad.State.Trans
-open import Data.Constraint.Nonempty
 open import Data.List as List using ()
+open import Data.Refined
 open import Data.String as String using ()
 open import Data.Traversable
 
@@ -220,5 +220,5 @@ int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
 lexeme : Parser a -> Parser a
 lexeme p = p <* skipSpaces
 
-symbol : (s : String) {{_ : IsNonempty s}} -> Parser String
+symbol : (s : String) {{_ : Validate {Nonempty} s}} -> Parser String
 symbol s = lexeme (string s)

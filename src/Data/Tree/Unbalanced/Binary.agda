@@ -8,8 +8,8 @@ module Data.Tree.Unbalanced.Binary where
 
 open import Prelude hiding (map)
 
-open import Data.Constraint.Nonempty
 open import Data.Foldable
+open import Data.Refined
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -55,10 +55,9 @@ instance
     <<< showString " "
     <<< showsPrec appPrec+1 r)
 
-  NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
-  NonemptyConstraint-Tree .IsNonempty = \ where
-    Leaf -> Void
-    _ -> Unit
+  Validation-Nonempty-Tree : Validation Nonempty (Tree a)
+  Validation-Nonempty-Tree .validate Leaf = False
+  Validation-Nonempty-Tree .validate _ = True
 
 -------------------------------------------------------------------------------
 -- Basic operations
@@ -88,7 +87,7 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) {{_ : IsNonempty t}} -> a * Tree a
+  delMin : (t : Tree a) {{_ : Validate {Nonempty} t}} -> a * Tree a
   delMin (Node Leaf x r) = (x , r)
   delMin (Node l@(Node _ _ _) x r) =
     let (y , l') = delMin l

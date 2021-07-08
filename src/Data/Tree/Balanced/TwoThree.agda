@@ -8,8 +8,8 @@ module Data.Tree.Balanced.TwoThree where
 
 open import Prelude hiding (map)
 
-open import Data.Constraint.Nonempty
 open import Data.Foldable
+open import Data.Refined
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -33,9 +33,9 @@ data Tree (a : Type) : Type where
 -------------------------------------------------------------------------------
 
 instance
-  NonemptyConstraint-Tree : NonemptyConstraint (Tree a)
-  NonemptyConstraint-Tree .IsNonempty Leaf = Void
-  NonemptyConstraint-Tree .IsNonempty _ = Unit
+  Validation-Nonempty-Tree : Validation Nonempty (Tree a)
+  Validation-Nonempty-Tree .validate Leaf = False
+  Validation-Nonempty-Tree .validate _ = True
 
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr f z = \ where
@@ -186,7 +186,7 @@ pop {a} v = down []
           fromZipper ctx (Three a w (Two b x c) y (Two d z e))
         (_ , _) -> t
 
-    maxNode :  (t : Tree a) {{_ : IsNonempty t}} -> a
+    maxNode :  (t : Tree a) {{_ : Validate {Nonempty} t}} -> a
     maxNode = \ where
       (Two _ x Leaf) -> x
       (Two _ _ r@(Two _ _ _)) -> maxNode r
@@ -196,7 +196,7 @@ pop {a} v = down []
       (Three _ _ _ _ r@(Three _ _ _ _ _)) -> maxNode r
 
     removeMaxNode : List (TreeContext a)
-      -> (t : Tree a) {{_ : IsNonempty t}} -> Tree a
+      -> (t : Tree a) {{_ : Validate {Nonempty} t}} -> Tree a
     removeMaxNode ctx = \ where
       (Two Leaf _ Leaf) ->
         up ctx Leaf

@@ -9,7 +9,7 @@ module Data.Foldable where
 open import Prelude
 
 open import Control.Alternative
-open import Data.Constraint.Nonempty
+open import Data.Refined
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -97,23 +97,23 @@ record Foldable (t : Type -> Type) : Type where
     for! : t a -> (a -> f b) -> f Unit
     for! = flip traverse!
 
-  module _ {{_ : NonemptyConstraint (t a)}} where
+  module _ {{_ : Validation Nonempty (t a)}} where
 
     foldMap1 : {{_ : Semigroup b}}
-      -> (a -> b) -> (xs : t a) {{_ : IsNonempty xs}} -> b
+      -> (a -> b) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> b
     foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{trustMe}}
 
-    fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : IsNonempty xs}} -> a
+    fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
     fold1 s = fromJust (foldMap Just s) {{trustMe}}
 
-    foldr1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
+    foldr1 : (a -> a -> a) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
     foldr1 f s = fromJust (foldr g Nothing s) {{trustMe}}
       where
         g : a -> Maybe a -> Maybe a
         g x Nothing = Just x
         g x (Just y) = Just (f x y)
 
-    foldl1 : (a -> a -> a) -> (xs : t a) {{_ : IsNonempty xs}} -> a
+    foldl1 : (a -> a -> a) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
     foldl1 f s = fromJust (foldl g Nothing s) {{trustMe}}
       where
         g : Maybe a -> a -> Maybe a
@@ -122,10 +122,10 @@ record Foldable (t : Type -> Type) : Type where
 
     module _ {{_ : Ord a}} where
 
-      minimum : (xs : t a) {{_ : IsNonempty xs}} -> a
+      minimum : (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
       minimum = foldr1 min
 
-      maximum : (xs : t a) {{_ : IsNonempty xs}} -> a
+      maximum : (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
       maximum = foldr1 max
 
   module _ {{_ : Applicative f}} where

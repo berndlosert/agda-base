@@ -9,10 +9,10 @@ module Data.Sequence where
 open import Prelude
 
 open import Control.Alternative
-open import Data.Constraint.Nonempty
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
 open import Data.Foldable
+open import Data.Refined
 open import Data.Traversable
 open import Data.Tree.Finger as Tree using (FingerTree)
 open import Data.Sequence.Elem
@@ -72,8 +72,8 @@ abstract
     Traversable-Seq : Traversable Seq
     Traversable-Seq .traverse f (Seq: t) = Seq: <$> traverse (traverse f) t
 
-    NonemptyConstraint-Seq : NonemptyConstraint (Seq a)
-    NonemptyConstraint-Seq .IsNonempty (Seq: t) = IsNonempty t
+    Validation-Nonempty-Seq : Validation Nonempty (Seq a)
+    Validation-Nonempty-Seq .validate (Seq: t) = validate {Nonempty} t
 
     Eq-Seq : {{_ : Eq a}} -> Eq (Seq a)
     Eq-Seq ._==_ l r = toList l == toList r
@@ -131,7 +131,7 @@ abstract
   tail : Seq a -> Maybe (Seq a)
   tail = map snd <<< uncons
 
-  init : (s : Seq a) {{_ : IsNonempty s}} -> Seq a
+  init : (s : Seq a) {{_ : Validate {Nonempty} s}} -> Seq a
   init s =
     case unsnoc s of \ where
       Nothing -> undefined -- No worries, this is impossible.

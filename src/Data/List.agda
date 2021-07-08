@@ -8,18 +8,16 @@ module Data.List where
 
 open import Prelude
 
-open import Data.Constraint.Nonempty
-open import Data.Constraint.Positive
 open import Data.Monoid.Endo
 open import Data.Filterable
 open import Data.Foldable
+open import Data.Refined
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Data.Constraint.Nonempty public
 open Data.Filterable public
 open Data.Foldable public
 open Data.Traversable public
@@ -87,7 +85,7 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : (xs : List a) {{_ : IsNonempty xs}} -> List a
+init : (xs : List a) {{_ : Validate {Nonempty} xs}} -> List a
 init (x :: []) = []
 init (x :: x' :: xs) = x :: init (x' :: xs)
 
@@ -269,7 +267,7 @@ group : {{_ : Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
 {-# TERMINATING #-}
-chunksOf : (n : Nat) {{_ : IsPositive n}} -> List a -> List (List a)
+chunksOf : (n : Nat) {{_ : Validate {Positive} n}} -> List a -> List (List a)
 chunksOf _ [] = []
 chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
@@ -283,8 +281,10 @@ breakOn needle haystack =
       (x :: xs) -> lmap (x ::_) $ breakOn needle xs
 
 {-# TERMINATING #-}
-splitOn : {{_ : Eq a}} (needle : List a) {{_ : IsNonempty needle}}
-  -> List a -> List (List a)
+splitOn : {{_ : Eq a}}
+  -> (needle : List a) {{_ : Validate {Nonempty} needle}}
+  -> (haystack : List a)
+  -> List (List a)
 splitOn needle [] = singleton []
 splitOn needle haystack = let (l , r) = breakOn needle haystack in
   l :: (if null r then [] else splitOn needle $ drop (length needle) r)

@@ -8,9 +8,9 @@ module Data.Tree.Finger where
 
 open import Prelude
 
-open import Data.Constraint.Nonempty
 open import Data.Foldable
 open import Data.Functor.Compose
+open import Data.Refined
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
@@ -60,9 +60,9 @@ instance
     (Deep v pr m sf) ->
       (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
-  NonemptyConstraint-FingerTree : NonemptyConstraint (FingerTree v a)
-  NonemptyConstraint-FingerTree .IsNonempty Empty = Void
-  NonemptyConstraint-FingerTree .IsNonempty _ = Unit
+  Validation-Nonempty-FingerTree : Validation Nonempty (FingerTree v a)
+  Validation-Nonempty-FingerTree .validate Empty = False
+  Validation-Nonempty-FingerTree .validate _ = True
 
 empty : FingerTree v a
 empty = Empty
@@ -219,7 +219,7 @@ deepR pr m (Just sf) = deep pr m sf
 splitTree : {{_ : Measured v a}}
   -> (v -> Bool)
   -> v
-  -> (t : FingerTree v a) {{_ : IsNonempty t}}
+  -> (t : FingerTree v a) {{_ : Validate {Nonempty} t}}
   -> FingerTree v a * a * FingerTree v a
 splitTree _ _ (Single x) = (Empty , x , Empty)
 splitTree p i (Deep _ pr m sf) =
@@ -258,7 +258,7 @@ private
   searchTree : {{_ : Measured v a}}
     -> (v -> v -> Bool)
     -> v
-    -> (t : FingerTree v a) {{_ : IsNonempty t}}
+    -> (t : FingerTree v a) {{_ : Validate {Nonempty} t}}
     -> v
     -> FingerTree v a * a * FingerTree v a
   searchTree _ _ (Single x) _ = (Empty , x , Empty)

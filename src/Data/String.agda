@@ -9,8 +9,8 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String using (primStringUncons)
-open import Data.Constraint.Nonempty
 open import Data.List as List using ()
+open import Data.Refined
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -63,7 +63,7 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) {{_ : IsNonempty s}} -> String
+init : (s : String) {{_ : Validate {Nonempty} s}} -> String
 init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
@@ -152,7 +152,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -- Breaking into many substrings
 -------------------------------------------------------------------------------
 
-splitOn : (delim : String) {{_ : IsNonempty delim}} -> String -> List String
+splitOn : (delim : String) {{_ : Validate {Nonempty} delim}} -> String -> List String
 splitOn delim s =
   map pack $ List.splitOn (unpack delim) {{trustMe}} (unpack s)
 

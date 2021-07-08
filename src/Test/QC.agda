@@ -8,12 +8,11 @@ module Test.QC where
 
 open import Prelude
 
-open import Data.Constraint.Nonempty
-open import Data.Constraint.Positive
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
 open import Data.Foldable
+open import Data.Refined
 open import Data.Traversable
 open import System.IO
 open import System.IO.Unsafe
@@ -105,21 +104,21 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) {{_ : IsNonempty gs}} -> Gen a
+oneof : (gs : List (Gen a)) {{_ : Validate {Nonempty} gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{trustMe}}
 
-frequency : (xs : List (Positive Nat * Gen a)) {{_ : IsNonempty xs}} -> Gen a
+frequency : (xs : List (Refined Positive Nat * Gen a)) {{_ : Validate {Nonempty} xs}} -> Gen a
 frequency xs =
-    let xs' = map (bimap unconstrained id) xs
+    let xs' = map (bimap unrefine id) xs
     in choose (1 , sum (map fst xs')) >>= flip pick xs'
   where
     pick : Nat -> List (Nat * Gen a) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
-elements : (xs : List a) {{_ : IsNonempty xs}} -> Gen a
+elements : (xs : List a) {{_ : Validate {Nonempty} xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{trustMe}})
   (choose {Nat} (0 , List.length xs - 1))
