@@ -294,7 +294,6 @@ breakOn {a} needle haystack =
             res <- call xs
             return $ lmap (x ::_) res
 
-{-# TERMINATING #-}
 splitOn : {{_ : Eq a}}
   -> (needle : List a) {{_ : Validate {Nonempty} needle}}
   -> (haystack : List a)
