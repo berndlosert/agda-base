@@ -280,7 +280,7 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
       res <- call (drop n xs)
       return $ take n xs :: res
 
-breakOn : {{_ : Eq a}} -> List a -> List a -> List a * List a
+breakOn : {{_ : Eq a}} -> (needle haystack : List a) -> List a * List a
 breakOn {a} needle haystack =
     fromJust (petrol go (length haystack) haystack) {{trustMe}}
   where
