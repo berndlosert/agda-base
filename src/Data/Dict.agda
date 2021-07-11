@@ -8,7 +8,7 @@ module Data.Dict where
 
 open import Prelude hiding (map)
 
-open import Data.Foldable
+open import Data.Foldable hiding (toList)
 open import Data.List as List using ()
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
@@ -40,7 +40,6 @@ instance
   Ord-KVPair : {{_ : Ord k}} -> Ord (KVPair k v)
   Ord-KVPair ._<_ x y = getKey x < getKey y
 
-
 -------------------------------------------------------------------------------
 -- Dict
 -------------------------------------------------------------------------------
@@ -50,15 +49,6 @@ private
     Dict: : Tree (KVPair k v) -> Dict' k v
 
 Dict = Dict'
-
--------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Foldable-Dict : Foldable (Dict k)
-  Foldable-Dict .foldr f z (Dict: t) =
-    foldr (\ where (KVPair: k v) y -> f v y) z t
 
 -------------------------------------------------------------------------------
 -- Construction
@@ -87,16 +77,51 @@ values (Dict: t) = foldMap (getValue >>> List.singleton) t
 insert : {{_ : Ord k}} -> k -> v -> Dict k v -> Dict k v
 insert k v (Dict: t) = Dict: (Tree.insert (KVPair: k v) t)
 
+fromList : {{_ : Ord k}} -> List (k * v) -> Dict k v
+fromList [] = empty
+fromList {k} {v} kvs = go kvs empty
+  where
+    go : List (k * v) -> Dict k v -> Dict k v
+    go [] d = d
+    go ((k , v) :: rest) d = go rest (insert k v d)
+
+toList : Dict k v -> List (k * v)
+toList d = List.zip (keys d) (values d)
+
 delete : {{_ : Ord k}} -> k -> Dict k v -> Dict k v
 delete k (Dict: t) =
   case find (\ p -> k == getKey p) t of \ where
      Nothing -> Dict: t
      (Just p) -> Dict: (Tree.delete p t)
 
-lookup : {{_ : Ord k}} -> k -> Dict k v -> Maybe v
-lookup k (Dict: t) = Tree.lookup k (flip Tree.mapMonotonic t \ where
-  (KVPair: k v) -> (k , v))
+-- N.B. uses undefined, but that's OK since we never look at the
+-- values.
+member : {{_ : Ord k}} -> k -> Dict k v -> Bool
+member k (Dict: t) = Tree.member (KVPair: k undefined) t
+
+lookup : {{_ : Ord k}}
+  -> (key : k)
+  -> (dict : Dict k v)
+  -> {{_ : Assert $ member key dict}}
+  -> v
+lookup k (Dict: t) = fromJust res {{trustMe}}
+  where
+    t' = flip Tree.mapMonotonic t \ where (KVPair: k v) -> (k , v)
+    res = Tree.lookup k t'
 
 map : {{_ : Ord k}} -> (a -> b) -> Dict k a -> Dict k b
 map f (Dict: t) = Dict: $ flip Tree.map t \ where
   (KVPair: k v) -> KVPair: k (f v)
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Foldable-Dict : Foldable (Dict k)
+  Foldable-Dict .foldr f z (Dict: t) =
+    foldr (\ where (KVPair: k v) y -> f v y) z t
+
+  Show-Dict : {{_ : Show k}} {{_ : Show v}} -> Show (Dict k v)
+  Show-Dict .showsPrec d m = showParen (d > 10) $
+    showString "fromList " <<< shows (toList m)
