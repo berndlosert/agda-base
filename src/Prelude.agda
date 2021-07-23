@@ -127,6 +127,11 @@ infixr 0 _$_
 _$_ : (a -> b) -> a -> b
 f $ x = f x
 
+open import Agda.Builtin.Strict
+infixr 0 _$!_
+_$!_ : (a -> b) -> a -> b
+f $! x = primForce x f
+
 infixl 1 _#_
 _#_ : a -> (a -> b) -> b
 _#_ x f = f x
