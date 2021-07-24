@@ -34,7 +34,7 @@ record Foldable (t : Type -> Type) : Type where
   fold = foldMap id
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl f z xs = foldr (_>>>_ <<< flip f) id xs z
+  foldl f z xs = foldr (\ x k y -> k $! f y x) id xs z
 
   foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM f z xs = let g k y z' = f y z' >>= k in
@@ -76,10 +76,10 @@ record Foldable (t : Type -> Type) : Type where
   null = foldr (\ _ _ -> False) True
 
   sum : {{ _ : Additive a}} -> t a -> a
-  sum = foldr _+_ zero
+  sum = foldl _+_ zero
 
   product : {{ _ : Multiplicative a}} -> t a -> a
-  product = foldr _*_ one
+  product = foldl _*_ one
 
   module _ {{_ : Eq a}} where
 
