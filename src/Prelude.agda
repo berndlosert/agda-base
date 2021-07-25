@@ -127,17 +127,25 @@ infixr 0 _$_
 _$_ : (a -> b) -> a -> b
 f $ x = f x
 
-open import Agda.Builtin.Strict
-infixr 0 _$!_
-_$!_ : (a -> b) -> a -> b
-f $! x = primForce x f
-
 infixl 1 _#_
 _#_ : a -> (a -> b) -> b
 _#_ x f = f x
 
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
+
+-------------------------------------------------------------------------------
+-- Strictness primitives
+-------------------------------------------------------------------------------
+
+open import Agda.Builtin.Strict
+
+infixr 0 _$!_
+_$!_ : (a -> b) -> a -> b
+f $! x = primForce x f
+
+seq : a -> b -> b
+seq a b = const b $! a
 
 -------------------------------------------------------------------------------
 -- Bool primitives
