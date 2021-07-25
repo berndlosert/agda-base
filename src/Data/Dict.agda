@@ -10,6 +10,7 @@ open import Prelude hiding (map)
 
 open import Data.Foldable hiding (toList)
 open import Data.List as List using ()
+open import Data.Refined
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 -------------------------------------------------------------------------------
@@ -71,6 +72,24 @@ values : Dict k v -> List v
 values (Dict: t) = foldMap (getValue >>> List.singleton) t
 
 -------------------------------------------------------------------------------
+-- Key membership
+-------------------------------------------------------------------------------
+
+-- N.B. uses undefined, but that's OK since we never look at the
+-- values.
+member : {{_ : Ord k}} -> k -> Dict k v -> Bool
+member k (Dict: t) = Tree.member (KVPair: k undefined) t
+
+data Key {{_ : Ord k}} (dict : Dict k v) : Type where
+  Key: : (key : k) {{_ : Assert $ member key dict}} -> Key dict
+
+member' : {{_ : Ord k}} -> k -> (dict : Dict k v) -> Maybe (Key dict)
+member' key dict =
+  if member key dict
+    then Just (Key: key {{trustMe}})
+    else Nothing
+
+-------------------------------------------------------------------------------
 -- Other operations
 -------------------------------------------------------------------------------
 
@@ -94,17 +113,11 @@ delete k (Dict: t) =
      Nothing -> Dict: t
      (Just p) -> Dict: (Tree.delete p t)
 
--- N.B. uses undefined, but that's OK since we never look at the
--- values.
-member : {{_ : Ord k}} -> k -> Dict k v -> Bool
-member k (Dict: t) = Tree.member (KVPair: k undefined) t
-
 lookup : {{_ : Ord k}}
-  -> (key : k)
   -> (dict : Dict k v)
-  -> {{_ : Assert $ member key dict}}
+  -> Key dict
   -> v
-lookup k (Dict: t) = fromJust res {{trustMe}}
+lookup (Dict: t) (Key: k)= fromJust res {{trustMe}}
   where
     t' = flip Tree.mapMonotonic t \ where (KVPair: k v) -> (k , v)
     res = Tree.lookup k t'
