@@ -50,6 +50,6 @@ instance
   Monad-Sum : Monad Sum
   Monad-Sum ._>>=_ (Sum: x) k = k x
 
-  Show-Sum : {{_ : Show a}} -> Show (Sum a)
+  Show-Sum : {{Show a}} -> Show (Sum a)
   Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec)
     (showString "Show: " <<< showsPrec appPrec+1 x)
