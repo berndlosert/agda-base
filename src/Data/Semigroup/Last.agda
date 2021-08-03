@@ -31,7 +31,7 @@ instance
   Semigroup-Last : Semigroup (Last a)
   Semigroup-Last ._<>_ _ y = y
 
-  Monoid-Last : {{_ : Monoid a}} -> Monoid (Last a)
+  Monoid-Last : {{Monoid a}} -> Monoid (Last a)
   Monoid-Last .neutral = Last: neutral
 
   Functor-Last : Functor Last
@@ -44,6 +44,6 @@ instance
   Monad-Last : Monad Last
   Monad-Last ._>>=_ (Last: x) k = k x
 
-  Show-Last : {{_ : Show a}} -> Show (Last a)
+  Show-Last : {{Show a}} -> Show (Last a)
   Show-Last .showsPrec d (Last: x) = showParen (d > appPrec)
     (showString "Last: " <<< showsPrec appPrec+1 x)
