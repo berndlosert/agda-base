@@ -35,7 +35,7 @@ data FingerTree (v a : Type) : Type where
   Deep : v -> Digit a -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
 
 instance
-  Measured-FingerTree : {{_ : Measured v a}} -> Measured v (FingerTree v a)
+  Measured-FingerTree : {{Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure = \ where
     Empty -> neutral
     (Single x) -> measure x
@@ -70,14 +70,14 @@ empty = Empty
 singleton : a -> FingerTree v a
 singleton = Single
 
-deep : {{_ : Measured v a}}
+deep : {{Measured v a}}
   -> Digit a
   -> FingerTree v (Node v a)
   -> Digit a
   -> FingerTree v a
 deep pr m sf = Deep (measure pr <> measure m <> measure sf) pr m sf
 
-digitToTree : {{_ : Measured v a}} -> Digit a -> FingerTree v a
+digitToTree : {{Measured v a}} -> Digit a -> FingerTree v a
 digitToTree (One a) = Single a
 digitToTree (Two a b) = deep (One a) Empty (One b)
 digitToTree (Three a b c) = deep (Two a b) Empty (One c)
@@ -87,7 +87,7 @@ digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
 -- Cons operator
 -------------------------------------------------------------------------------
 
-cons : {{_ : Measured v a}} -> a -> FingerTree v a -> FingerTree v a
+cons : {{Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
 cons a Empty = Single a
 cons a (Single b) = deep (One a) Empty (One b)
@@ -100,7 +100,7 @@ cons a (Deep s (Three b c d) m sf) =
 cons a (Deep s (Four b c d e) m sf) =
   Deep (measure a <> s) (Two a b) (cons (node3 c d e) m) sf
 
-consAll : {{_ : Measured v a}} {{_ : Foldable f}}
+consAll : {{Measured v a}} -> {{Foldable f}}
   -> f a -> FingerTree v a -> FingerTree v a
 consAll = flip (foldr cons)
 
@@ -108,7 +108,7 @@ consAll = flip (foldr cons)
 -- Snoc operator
 -------------------------------------------------------------------------------
 
-snoc : {{_ : Measured v a}} -> FingerTree v a -> a -> FingerTree v a
+snoc : {{Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
 snoc Empty a = Single a
 snoc (Single a) b = deep (One a) Empty (One b)
@@ -121,7 +121,7 @@ snoc (Deep s pr m (Three a b c)) d =
 snoc (Deep s pr m (Four a b c d)) e =
   Deep (s <> measure e) pr (snoc m (node3 a b c)) (Two d e)
 
-snocAll : {{_ : Measured v a}} {{_ : Foldable f}}
+snocAll : {{Measured v a}} -> {{Foldable f}}
   -> FingerTree v a -> f a -> FingerTree v a
 snocAll = foldl snoc
 
@@ -130,7 +130,7 @@ snocAll = foldl snoc
 -------------------------------------------------------------------------------
 
 private
-  app3 : {{_ : Measured v a}}
+  app3 : {{Measured v a}}
     -> FingerTree v a
     -> List a
     -> FingerTree v a
@@ -143,31 +143,31 @@ private
     deep pr1 (app3 m1 (nodes (toList sf1 <> ts <> toList pr2)) m2) sf2
 
 instance
-  Semigroup-FingerTree : {{_ : Measured v a}} -> Semigroup (FingerTree v a)
+  Semigroup-FingerTree : {{Measured v a}} -> Semigroup (FingerTree v a)
   Semigroup-FingerTree ._<>_ xs ys = app3 xs [] ys
 
-  Monoid-FingerTree : {{_ : Measured v a}} -> Monoid (FingerTree v a)
+  Monoid-FingerTree : {{Measured v a}} -> Monoid (FingerTree v a)
   Monoid-FingerTree .neutral = Empty
 
 -------------------------------------------------------------------------------
 -- uncons & unsnoc
 -------------------------------------------------------------------------------
 
-uncons : {{_ : Measured v a}}
+uncons : {{Measured v a}}
   -> FingerTree v a
   -> Maybe (a * FingerTree v a)
 
-unsnoc : {{_ : Measured v a}}
+unsnoc : {{Measured v a}}
   -> FingerTree v a
   -> Maybe (FingerTree v a * a)
 
 private
-  rotL : {{_ : Measured v a}}
+  rotL : {{Measured v a}}
     -> FingerTree v (Node v a)
     -> Digit a
     -> FingerTree v a
 
-  rotR : {{_ : Measured v a}}
+  rotR : {{Measured v a}}
     -> Digit a
     -> FingerTree v (Node v a)
     -> FingerTree v a
@@ -200,7 +200,7 @@ rotR pr m =
 -- Splitting
 -------------------------------------------------------------------------------
 
-deepL : {{_ : Measured v a}}
+deepL : {{Measured v a}}
   -> Maybe (Digit a)
   -> FingerTree v (Node v a)
   -> Digit a
@@ -208,7 +208,7 @@ deepL : {{_ : Measured v a}}
 deepL Nothing m sf = rotL m sf
 deepL (Just pr) m sf = deep pr m sf
 
-deepR : {{_ : Measured v a}}
+deepR : {{Measured v a}}
   -> Digit a
   -> FingerTree v (Node v a)
   -> Maybe (Digit a)
@@ -216,10 +216,11 @@ deepR : {{_ : Measured v a}}
 deepR pr m Nothing = rotR pr m
 deepR pr m (Just sf) = deep pr m sf
 
-splitTree : {{_ : Measured v a}}
+splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
-  -> (t : FingerTree v a) {{_ : Validate {Nonempty} t}}
+  -> (t : FingerTree v a)
+  -> {{Validate {Nonempty} t}}
   -> FingerTree v a * a * FingerTree v a
 splitTree _ _ (Single x) = (Empty , x , Empty)
 splitTree p i (Deep _ pr m sf) =
@@ -235,7 +236,7 @@ splitTree p i (Deep _ pr m sf) =
     else (case splitDigit p vm sf of \ where
       (l , x , r) -> (deepR pr  m  l , x , maybe Empty digitToTree r))
 
-split : {{_ : Measured v a}}
+split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
   -> FingerTree v a * FingerTree v a
@@ -255,10 +256,11 @@ data SearchResult (v a : Type) : Type where
   Nowhere : SearchResult v a
 
 private
-  searchTree : {{_ : Measured v a}}
+  searchTree : {{Measured v a}}
     -> (v -> v -> Bool)
     -> v
-    -> (t : FingerTree v a) {{_ : Validate {Nonempty} t}}
+    -> (t : FingerTree v a)
+    -> {{Validate {Nonempty} t}}
     -> v
     -> FingerTree v a * a * FingerTree v a
   searchTree _ _ (Single x) _ = (Empty , x , Empty)
@@ -278,7 +280,7 @@ private
       else (case searchDigit p vlpm sf vr of \ where
         (l , x , r) ->  (deepR pr m l , x , maybe Empty digitToTree r))
 
-search : {{_ : Measured v a}}
+search : {{Measured v a}}
   -> (v -> v -> Bool)
   -> FingerTree v a
   -> SearchResult v a
@@ -299,7 +301,7 @@ search p t =
 -- Misc.
 -------------------------------------------------------------------------------
 
-inits : {{_ : Measured v a}}
+inits : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 inits _ Empty = Empty
 inits f (Single x) = Single (f (Single x))
@@ -313,7 +315,7 @@ inits f (Deep n pr m sf) =
       (inits f' m)
       (map (f <<< deep pr m) (initsDigit sf))
 
-tails : {{_ : Measured v a}}
+tails : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 tails _ Empty = Empty
 tails f (Single x) = Single (f (Single x))

@@ -28,10 +28,10 @@ record MonadFree (f m : Type -> Type) : Type where
     overlap {{Monad-m}} : Monad m
     wrap : f (m a) -> m a
 
-  liftF : {{_ : Functor f}} -> f a -> m a
+  liftF : {{Functor f}} -> f a -> m a
   liftF = wrap <<< map return
 
-  wrapT : {{_ : Functor f}} {{_ : MonadTrans t}} -> f (t m a) -> t m a
+  wrapT : {{Functor f}} -> {{MonadTrans t}} -> f (t m a) -> t m a
   wrapT = join <<< lift <<< liftF
 
 open MonadFree {{...}} public
