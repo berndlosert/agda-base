@@ -50,6 +50,6 @@ instance
   Monad-Product : Monad Product
   Monad-Product ._>>=_ (Product: x) k = k x
 
-  Show-Product : {{_ : Show a}} -> Show (Product a)
+  Show-Product : {{Show a}} -> Show (Product a)
   Show-Product .showsPrec d (Product: x) = showParen (d > appPrec)
     (showString "Show: " <<< showsPrec appPrec+1 x)
