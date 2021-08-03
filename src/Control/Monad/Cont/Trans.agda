@@ -40,7 +40,7 @@ record ContT (r : Type) (m : Type -> Type) (a : Type) : Type where
 
 open ContT public
 
-evalContT : {{_ : Monad m}} -> ContT r m r -> m r
+evalContT : {{Monad m}} -> ContT r m r -> m r
 evalContT (ContT: m) = m return
 
 mapContT : (m r -> m r) -> ContT r m a -> ContT r m a
@@ -68,25 +68,25 @@ instance
   MonadCont-ContT .callCC f =
     ContT: \ c -> runContT (f \ x -> ContT: \ _ -> c x) c
 
-  MonadReader-ContT : {{_ : MonadReader r m}} -> MonadReader r (ContT r' m)
+  MonadReader-ContT : {{MonadReader r m}} -> MonadReader r (ContT r' m)
   MonadReader-ContT .ask = lift ask
   MonadReader-ContT .local f (ContT: c) = ContT: \ k -> do
     r <- ask
     local f (c (local (const r) <<< k))
 
-  MonadState-ContT : {{_ : MonadState s m}} -> MonadState s (ContT r m)
+  MonadState-ContT : {{MonadState s m}} -> MonadState s (ContT r m)
   MonadState-ContT .state = lift <<< state
 
-  MonadIO-ContT : {{_ : MonadIO m}} -> MonadIO (ContT r m)
+  MonadIO-ContT : {{MonadIO m}} -> MonadIO (ContT r m)
   MonadIO-ContT .liftIO = lift <<< liftIO
 
-resetT : {{_ : Monad m}} -> ContT r m r -> ContT r' m r
+resetT : {{Monad m}} -> ContT r m r -> ContT r' m r
 resetT = lift <<< evalContT
 
-shiftT : {{_ : Monad m}} -> ((a -> m r) -> ContT r m r) -> ContT r m a
+shiftT : {{Monad m}} -> ((a -> m r) -> ContT r m r) -> ContT r m a
 shiftT f = ContT: (evalContT <<< f)
 
-liftLocal : {{_ : Monad m}}
+liftLocal : {{Monad m}}
   -> m r' -> ((r' -> r') -> m r -> m r)
   -> (r' -> r') -> ContT r m a -> ContT r m a
 liftLocal ask local f (ContT: m) = ContT: \ c -> do
