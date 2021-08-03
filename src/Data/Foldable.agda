@@ -27,20 +27,20 @@ private
 record Foldable (t : Type -> Type) : Type where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
-  foldMap : {{_ : Monoid b}} -> (a -> b) -> t a -> b
+  foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
   foldMap f = foldr (_<>_ <<< f) neutral
 
-  fold : {{_ : Monoid a}} -> t a -> a
+  fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl f z xs = foldr (\ x k y -> k $! f y x) id xs z
 
-  foldrM : {{_ : Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
+  foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM f z xs = let g k y z' = f y z' >>= k in
     foldl g return xs z
 
-  foldlM : {{_ : Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
+  foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM f z xs = let g y k z' = f z' y >>= k in
     foldr g return xs z
 
@@ -75,10 +75,10 @@ record Foldable (t : Type -> Type) : Type where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  sum : {{ _ : Additive a}} -> t a -> a
+  sum : {{Additive a}} -> t a -> a
   sum = foldl _+_ zero
 
-  product : {{ _ : Multiplicative a}} -> t a -> a
+  product : {{Multiplicative a}} -> t a -> a
   product = foldl _*_ one
 
   module _ {{_ : Eq a}} where
@@ -99,21 +99,21 @@ record Foldable (t : Type -> Type) : Type where
 
   module _ {{_ : Validation Nonempty (t a)}} where
 
-    foldMap1 : {{_ : Semigroup b}}
-      -> (a -> b) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> b
+    foldMap1 : {{Semigroup b}}
+      -> (a -> b) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> b
     foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{trustMe}}
 
-    fold1 : {{_ : Semigroup a}} (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
+    fold1 : {{Semigroup a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
     fold1 s = fromJust (foldMap Just s) {{trustMe}}
 
-    foldr1 : (a -> a -> a) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
+    foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
     foldr1 f s = fromJust (foldr g Nothing s) {{trustMe}}
       where
         g : a -> Maybe a -> Maybe a
         g x Nothing = Just x
         g x (Just y) = Just (f x y)
 
-    foldl1 : (a -> a -> a) -> (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
+    foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
     foldl1 f s = fromJust (foldl g Nothing s) {{trustMe}}
       where
         g : Maybe a -> a -> Maybe a
@@ -122,10 +122,10 @@ record Foldable (t : Type -> Type) : Type where
 
     module _ {{_ : Ord a}} where
 
-      minimum : (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
+      minimum : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
       minimum = foldr1 min
 
-      maximum : (xs : t a) {{_ : Validate {Nonempty} xs}} -> a
+      maximum : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
       maximum = foldr1 max
 
   module _ {{_ : Applicative f}} where
