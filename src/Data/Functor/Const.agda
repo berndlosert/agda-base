@@ -29,16 +29,16 @@ record Const (a b : Type) : Type where
 open Const public
 
 instance
-  Eq-Const : {{_ : Eq a}} -> Eq (Const a b)
+  Eq-Const : {{Eq a}} -> Eq (Const a b)
   Eq-Const ._==_ (Const: x) (Const: y) = x == y
 
-  Ord-Const : {{_ : Ord a}} -> Ord (Const a b)
+  Ord-Const : {{Ord a}} -> Ord (Const a b)
   Ord-Const ._<_ (Const: x) (Const: y) = x < y
 
-  Semigroup-Const : {{_ : Semigroup a}} -> Semigroup (Const a b)
+  Semigroup-Const : {{Semigroup a}} -> Semigroup (Const a b)
   Semigroup-Const ._<>_ (Const: x) (Const: y) = Const: (x <> y)
 
-  Monoid-Const : {{_ : Monoid a}} -> Monoid (Const a b)
+  Monoid-Const : {{Monoid a}} -> Monoid (Const a b)
   Monoid-Const .neutral = Const: neutral
 
   Foldable-Const : Foldable (Const a)
@@ -53,10 +53,10 @@ instance
   Contravariant-Const : Contravariant (Const a)
   Contravariant-Const .cmap f = Const: <<< getConst
 
-  Applicative-Const : {{_ : Monoid a}} -> Applicative (Const a)
+  Applicative-Const : {{Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = Const: neutral
   Applicative-Const ._<*>_ (Const: f) (Const: a) = Const: (f <> a)
 
-  Show-Const : {{_ : Show a}} -> Show (Const a b)
+  Show-Const : {{Show a}} -> Show (Const a b)
   Show-Const .showsPrec d (Const: x) = showParen (d > appPrec)
     (showString "Const: " <<< showsPrec appPrec+1 x)
