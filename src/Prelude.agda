@@ -515,10 +515,10 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
-fromLeft : (x : Either a b) {{_ : Assert $ isLeft x}} -> a
+fromLeft : (x : Either a b) -> {{Assert $ isLeft x}} -> a
 fromLeft (Left a) = a
 
-fromRight : (x : Either a b) {{_ : Assert $ isRight x}} -> b
+fromRight : (x : Either a b) -> {{Assert $ isRight x}} -> b
 fromRight (Right b) = b
 
 -------------------------------------------------------------------------------
@@ -555,7 +555,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (x : Maybe a) {{_ : Assert $ isJust x}} -> a
+fromJust : (x : Maybe a) -> {{Assert $ isJust x}} -> a
 fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
@@ -633,22 +633,22 @@ instance
   Eq-String : Eq String
   Eq-String ._==_ = stringEq
 
-  Eq-Either : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Either a b)
+  Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
     (Right x) (Right y) -> x == y
     _ _ -> False
 
-  Eq-Pair : {{_ : Eq a}} {{_ : Eq b}} -> Eq (Pair a b)
+  Eq-Pair : {{Eq a}} -> {{Eq b}} -> Eq (Pair a b)
   Eq-Pair ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
-  Eq-Maybe : {{_ : Eq a}} -> Eq (Maybe a)
+  Eq-Maybe : {{Eq a}} -> Eq (Maybe a)
   Eq-Maybe ._==_ = \ where
     Nothing Nothing -> True
     (Just x) (Just y) -> x == y
     _ _ -> False
 
-  Eq-List : {{_ : Eq a}} -> Eq (List a)
+  Eq-List : {{Eq a}} -> Eq (List a)
   Eq-List ._==_ = \ where
     [] [] -> True
     (x :: xs) (y :: ys) -> x == y && xs == ys
@@ -724,7 +724,7 @@ instance
   Ord-Char : Ord Char
   Ord-Char ._<_ x y = ord x < ord y
 
-  Ord-List : {{_ : Ord a}} -> Ord (List a)
+  Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List ._<_ = \ where
     (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
     _ _ -> False
@@ -732,10 +732,10 @@ instance
   Ord-String : Ord String
   Ord-String ._<_ l r = unpack l < unpack r
 
-  Ord-Pair : {{_ : Ord a}} {{_ : Ord b}} -> Ord (Pair a b)
+  Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
   Ord-Pair ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
 
-  Ord-Maybe : {{_ : Ord a}} -> Ord (Maybe a)
+  Ord-Maybe : {{Ord a}} -> Ord (Maybe a)
   Ord-Maybe ._<_ = \ where
     _ Nothing -> False
     Nothing _ -> True
@@ -748,7 +748,7 @@ instance
 record FromNat (a : Type) : Type where
   field
     FromNatConstraint : Nat -> Type
-    fromNat : (n : Nat) {{_ : FromNatConstraint n}} -> a
+    fromNat : (n : Nat) -> {{FromNatConstraint n}} -> a
 
 open FromNat {{...}} public
 
@@ -758,14 +758,14 @@ open FromNat {{...}} public
 record ToNat (a : Type) : Type where
   field
     ToNatConstraint : a -> Type
-    toNat : (x : a) {{_ : ToNatConstraint x}} -> Nat
+    toNat : (x : a) -> {{ToNatConstraint x}} -> Nat
 
 open ToNat {{...}} public
 
 record FromNeg (a : Type) : Type where
   field
     FromNegConstraint : Nat -> Type
-    fromNeg : (n : Nat) {{_ : FromNegConstraint n}} -> a
+    fromNeg : (n : Nat) -> {{FromNegConstraint n}} -> a
 
 open FromNeg {{...}} public
 
@@ -856,7 +856,7 @@ instance
   Additive-Float ._+_ = floatPlus
   Additive-Float .zero = 0.0
 
-  Additive-Function : {{_ : Additive b}} -> Additive (a -> b)
+  Additive-Function : {{Additive b}} -> Additive (a -> b)
   Additive-Function ._+_ f g x = f x + g x
   Additive-Function .zero = const zero
 
@@ -883,7 +883,7 @@ instance
   Subtractable-Float : Subtractable Float
   Subtractable-Float ._-_ = floatMinus
 
-  Subtractable-Function : {{_ : Subtractable b}} -> Subtractable (a -> b)
+  Subtractable-Function : {{Subtractable b}} -> Subtractable (a -> b)
   Subtractable-Function ._-_ f g x = f x - g x
 
 -------------------------------------------------------------------------------
@@ -905,7 +905,7 @@ instance
   Negatable-Float : Negatable Float
   Negatable-Float .-_ = floatNegate
 
-  Negatable-Function : {{_ : Negatable b}} -> Negatable (a -> b)
+  Negatable-Function : {{Negatable b}} -> Negatable (a -> b)
   Negatable-Function .-_ f x = - (f x)
 
 -------------------------------------------------------------------------------
@@ -946,7 +946,7 @@ instance
   Multiplicative-Float ._*_ = floatTimes
   Multiplicative-Float .one = 1.0
 
-  Multiplicative-Function : {{_ : Multiplicative b}} -> Multiplicative (a -> b)
+  Multiplicative-Function : {{Multiplicative b}} -> Multiplicative (a -> b)
   Multiplicative-Function ._*_ f g x = f x * g x
   Multiplicative-Function .one = const one
 
@@ -959,7 +959,7 @@ record Dividable (a : Type) : Type where
   infixl 7 _%_
   field
     DividableConstraint : a -> Type
-    _/_ _%_ : (x y : a) {{_ : DividableConstraint y}} -> a
+    _/_ _%_ : (x y : a) -> {{DividableConstraint y}} -> a
 
 open Dividable {{...}} public
 
@@ -1005,19 +1005,19 @@ instance
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = stringAppend
 
-  Semigroup-Function : {{_ : Semigroup b}} -> Semigroup (a -> b)
+  Semigroup-Function : {{Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
 
-  Semigroup-Either : {{_ : Semigroup a}} {{_ : Semigroup b}}
+  Semigroup-Either : {{Semigroup a}} -> {{Semigroup b}}
     -> Semigroup (Either a b)
   Semigroup-Either ._<>_ (Left _) x = x
   Semigroup-Either ._<>_ x _ = x
 
-  Semigroup-Pair : {{_ : Semigroup a}} {{_ : Semigroup b}}
+  Semigroup-Pair : {{Semigroup a}} -> {{Semigroup b}}
     -> Semigroup (Pair a b)
   Semigroup-Pair ._<>_ (x , y) (w , z) = (x <> w , y <> z)
 
-  Semigroup-Maybe : {{_ : Semigroup a}} -> Semigroup (Maybe a)
+  Semigroup-Maybe : {{Semigroup a}} -> Semigroup (Maybe a)
   Semigroup-Maybe ._<>_ = \ where
     Nothing x -> x
     x Nothing -> x
@@ -1028,7 +1028,7 @@ instance
     [] ys -> ys
     (x :: xs) ys -> x :: (xs <> ys)
 
-  Semigroup-IO : {{_ : Semigroup a}} -> Semigroup (IO a)
+  Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
 
@@ -1053,19 +1053,19 @@ instance
   Monoid-String : Monoid String
   Monoid-String .neutral = ""
 
-  Monoid-Function : {{_ : Monoid b}} -> Monoid (a -> b)
+  Monoid-Function : {{Monoid b}} -> Monoid (a -> b)
   Monoid-Function .neutral = const neutral
 
-  Monoid-Pair : {{_ : Monoid a}} {{_ : Monoid b}} -> Monoid (Pair a b)
+  Monoid-Pair : {{Monoid a}} -> {{Monoid b}} -> Monoid (Pair a b)
   Monoid-Pair .neutral = (neutral , neutral)
 
-  Monoid-Maybe : {{_ : Semigroup a}} -> Monoid (Maybe a)
+  Monoid-Maybe : {{Semigroup a}} -> Monoid (Maybe a)
   Monoid-Maybe .neutral = Nothing
 
   Monoid-List : Monoid (List a)
   Monoid-List .neutral = []
 
-  Monoid-IO : {{_ : Monoid a}} -> Monoid (IO a)
+  Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .neutral = pureIO neutral
 
 -------------------------------------------------------------------------------
@@ -1087,7 +1087,7 @@ record Category (p : Type -> Type -> Type) : Type where
 
 open Category {{...}} public
 
-id : forall {a} {p} {{_ : Category p}} -> p a a
+id : forall {a} {p} -> {{Category p}} -> p a a
 id = identity
 
 instance
@@ -1150,7 +1150,7 @@ instance
 record Contravariant (f : Type -> Type) : Type where
   field cmap : (a -> b) -> f b -> f a
 
-  phantom : {{_ : Functor f}} -> f a -> f b
+  phantom : {{Functor f}} -> f a -> f b
   phantom x = cmap (const unit) (map (const unit) x)
 
 open Contravariant {{...}} public
@@ -1188,7 +1188,7 @@ record Profunctor (p : Type -> Type -> Type) : Type where
   dimap : (a -> b) -> (c -> d) -> p b c -> p a d
   dimap f g = lcmap f <<< map g
 
-  arr : {{_ : Category p}} -> (a -> b) -> p a b
+  arr : {{Category p}} -> (a -> b) -> p a b
   arr f = map f id
 
 open Profunctor {{...}} public
@@ -1232,7 +1232,7 @@ record Applicative (f : Type -> Type) : Type where
 open Applicative {{...}} public
 
 {-# NON_TERMINATING #-}
-forever : {{_ : Applicative f}} -> f a -> f b
+forever : {{Applicative f}} -> f a -> f b
 forever as = as *> forever as
 
 instance
@@ -1246,7 +1246,7 @@ instance
     (Left a) _ -> Left a
     (Right f) -> map f
 
-  Applicative-Pair : {{_ : Monoid a}} -> Applicative (Pair a)
+  Applicative-Pair : {{Monoid a}} -> Applicative (Pair a)
   Applicative-Pair .pure = (neutral ,_)
   Applicative-Pair ._<*>_ (u , f) (v , x) = (u <> v , f x)
 
@@ -1301,7 +1301,7 @@ record Monad (m : Type -> Type) : Type where
 
 open Monad {{...}} public
 
-return : forall {a m} {{_ : Monad m}} -> a -> m a
+return : forall {a m} -> {{Monad m}} -> a -> m a
 return = pure
 
 instance
@@ -1313,7 +1313,7 @@ instance
     (Left a) _ -> Left a
     (Right x) k -> k x
 
-  Monad-Pair : {{_ : Monoid a}} -> Monad (Pair a)
+  Monad-Pair : {{Monoid a}} -> Monad (Pair a)
   Monad-Pair ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
 
   Monad-Maybe : Monad Maybe
@@ -1338,8 +1338,8 @@ record Enum (a : Type) : Type where
     {{Ord-super}} : Ord a
     SucConstraint : a -> Type
     PredConstraint : a -> Type
-    suc : (x : a) {{_ : SucConstraint x}} -> a
-    pred : (x : a) {{_ : PredConstraint x}} -> a
+    suc : (x : a) -> {{SucConstraint x}} -> a
+    pred : (x : a) -> {{PredConstraint x}} -> a
     enumFromTo : a -> a -> List a
 
 open Enum {{...}} public
@@ -1464,24 +1464,24 @@ instance
   Show-Function : Show (Function a b)
   Show-Function .showsPrec _ _ = showString "<function>"
 
-  Show-Pair : {{_ : Show a}} {{_ : Show b}} -> Show (Pair a b)
+  Show-Pair : {{Show a}} -> {{Show b}} -> Show (Pair a b)
   Show-Pair .showsPrec d (x , y) = showString "(" <<< showsPrec d x
     <<< showString " , " <<< showsPrec d y <<< showString ")"
 
-  Show-Either : {{_ : Show a}} {{_ : Show b}} -> Show (Either a b)
+  Show-Either : {{Show a}} -> {{Show b}} -> Show (Either a b)
   Show-Either .showsPrec d = \ where
     (Left x) -> showParen (d > appPrec)
       (showString "Left " <<< showsPrec appPrec+1 x)
     (Right x) -> showParen (d > appPrec)
       (showString "Right " <<< showsPrec appPrec+1 x)
 
-  Show-Maybe : {{_ : Show a}} -> Show (Maybe a)
+  Show-Maybe : {{Show a}} -> Show (Maybe a)
   Show-Maybe .showsPrec d = \ where
     (Just x) -> showParen (d > appPrec)
       (showString "Just " <<< showsPrec appPrec+1 x)
     Nothing -> showString "Nothing"
 
-  Show-List : {{_ : Show a}} -> Show (List a)
+  Show-List : {{Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"
   Show-List .showsPrec d (x :: xs) =
       showString "[" <<< content <<< showString "]"
@@ -1489,6 +1489,6 @@ instance
       content : ShowS
       content = showsPrec d x <<< go xs
         where
-          go : {{_ : Show a}} -> List a -> ShowS
+          go : {{Show a}} -> List a -> ShowS
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
