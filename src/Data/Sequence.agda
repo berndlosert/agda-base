@@ -75,7 +75,7 @@ abstract
     Validation-Nonempty-Seq : Validation Nonempty (Seq a)
     Validation-Nonempty-Seq .validate (Seq: t) = validate {Nonempty} t
 
-    Eq-Seq : {{_ : Eq a}} -> Eq (Seq a)
+    Eq-Seq : {{Eq a}} -> Eq (Seq a)
     Eq-Seq ._==_ l r = toList l == toList r
 
 -------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ abstract
   replicate : Nat -> a -> Seq a
   replicate n = iterateN n id
 
-  replicateA : {{_ : Applicative f}} -> Nat -> f a -> f (Seq a)
+  replicateA : {{Applicative f}} -> Nat -> f a -> f (Seq a)
   replicateA {f} {a} n0 fa = loop n0
     where
       loop : Nat -> f (Seq a)
@@ -131,7 +131,7 @@ abstract
   tail : Seq a -> Maybe (Seq a)
   tail = map snd <<< uncons
 
-  init : (s : Seq a) {{_ : Validate {Nonempty} s}} -> Seq a
+  init : (s : Seq a) -> {{Validate {Nonempty} s}} -> Seq a
   init s =
     case unsnoc s of \ where
       Nothing -> undefined -- No worries, this is impossible.
@@ -174,7 +174,7 @@ abstract
   filter : (a -> Bool) -> Seq a -> Seq a
   filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
 
-  filterA : {{_ : Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
+  filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
   filterA p = flip foldr (pure empty) \ where
       x xs -> (| if_then_else_ (p x) (| (cons x) xs |) xs |)
 
@@ -337,7 +337,7 @@ abstract
 -- Sublists
 -------------------------------------------------------------------------------
 
-  stripPrefix : {{_ : Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
+  stripPrefix : {{Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
   stripPrefix xs ys =
     if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
 
@@ -350,7 +350,7 @@ abstract
         let (ys , zs) = spanl (eq x) xs
         in cons (cons x ys) (groupBy eq zs)
 
-  group : {{_ : Eq a}} -> Seq a -> Seq (Seq a)
+  group : {{Eq a}} -> Seq a -> Seq (Seq a)
   group = groupBy _==_
 
 -------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ abstract
 -------------------------------------------------------------------------------
 
   {-# TERMINATING #-} 
-  intercalate : {{_ : Monoid a}} -> a -> Seq a -> a
+  intercalate : {{Monoid a}} -> a -> Seq a -> a
   intercalate sep as =
     case uncons as of \ where
       Nothing -> neutral
@@ -458,7 +458,7 @@ abstract
 -------------------------------------------------------------------------------
 
   {-# TERMINATING #-}
-  lookup : {{_ : Eq a}} -> a -> Seq (a * b) -> Maybe b
+  lookup : {{Eq a}} -> a -> Seq (a * b) -> Maybe b
   lookup a s =
     case uncons s of \ where
       Nothing -> Nothing
