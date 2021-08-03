@@ -36,13 +36,15 @@ data Positive : Type where
 data Nonempty : Type where
 
 instance
-  Validation-Not : {{_ : Validation p a}} -> Validation (Not p) a
+  Validation-Not : {{Validation p a}} -> Validation (Not p) a
   Validation-Not {p = p} .validate = not <<< validate {p}
 
-  Validation-Or : {{_ : Validation l a}} {{_ : Validation r a}} -> Validation (Or l r) a
+  Validation-Or : {{Validation l a}} -> {{Validation r a}}
+    -> Validation (Or l r) a
   Validation-Or {l = l} {r = r} .validate x = validate {l} x || validate {r} x
 
-  Validation-And : {{_ : Validation l a}} {{_ : Validation r a}} -> Validation (And l r) a
+  Validation-And : {{Validation l a}} -> {{Validation r a}}
+    -> Validation (And l r) a
   Validation-And {l = l} {r = r} .validate x = validate {l} x && validate {r} x
 
   Validation-Positive-Nat : Validation Positive Nat
