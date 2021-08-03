@@ -71,59 +71,59 @@ module _ {{_ : Monad m}} where
 
 instance
   {-# TERMINATING #-}
-  Semigroup-ListT : {{_ : Monad m}} -> Semigroup (ListT m a)
+  Semigroup-ListT : {{Monad m}} -> Semigroup (ListT m a)
   Semigroup-ListT ._<>_ (ListT: l) (ListT: r) = ListT: $ l >>= \ where
     Nothing -> r
     (Just (x , xs)) -> return $ Just (x , xs <> ListT: r)
 
-  Monoid-ListT : {{_ : Monad m}} -> Monoid (ListT m a)
+  Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
   Monoid-ListT .neutral = nilT
 
   {-# TERMINATING #-}
-  Functor-ListT : {{_ : Monad m}} -> Functor (ListT m)
+  Functor-ListT : {{Monad m}} -> Functor (ListT m)
   Functor-ListT .map f (ListT: m) = ListT: $ m >>= \ where
     Nothing -> return Nothing
     (Just (x , xs)) -> return $ Just (f x , map f xs)
 
   {-# TERMINATING #-}
-  Applicative-ListT : {{_ : Monad m}} -> Applicative (ListT m)
+  Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
   Applicative-ListT .pure x = ListT: (return (Just (x , neutral)))
   Applicative-ListT ._<*>_ fs xs = ListT: $ unconsT fs >>= \ where
     Nothing -> return Nothing
     (Just (f , fs')) -> unconsT $ (map f xs) <> (fs' <*> xs)
 
   {-# TERMINATING #-}
-  Monad-ListT : {{_ : Monad m}} -> Monad (ListT m)
+  Monad-ListT : {{Monad m}} -> Monad (ListT m)
   Monad-ListT ._>>=_ (ListT: m) k = ListT: $ m >>= \ where
     Nothing -> return Nothing
     (Just (x , xs)) -> unconsT $ k x <> (xs >>= k)
 
-  Alternative-ListT : {{_ : Monad m}} -> Alternative (ListT m)
+  Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
   Alternative-ListT .empty = neutral
   Alternative-ListT ._<|>_ = _<>_
 
   MonadTrans-ListT : MonadTrans ListT
   MonadTrans-ListT .lift = ListT: <<< map (\ x -> Just (x , neutral))
 
-  MonadIO-ListT : {{_ : MonadIO m}} -> MonadIO (ListT m)
+  MonadIO-ListT : {{MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
 
-  MonadThrow-ListT : {{_ : MonadThrow m}} -> MonadThrow (ListT m)
+  MonadThrow-ListT : {{MonadThrow m}} -> MonadThrow (ListT m)
   MonadThrow-ListT .throw = ListT: <<< throw
 
-  MonadCatch-ListT : {{_ : MonadCatch m}} -> MonadCatch (ListT m)
+  MonadCatch-ListT : {{MonadCatch m}} -> MonadCatch (ListT m)
   MonadCatch-ListT .catch m handler =
     ListT: (catch (unconsT m) (unconsT <<< handler))
 
-  MonadReader-ListT : {{_ : MonadReader r m}} -> MonadReader r (ListT m)
+  MonadReader-ListT : {{MonadReader r m}} -> MonadReader r (ListT m)
   MonadReader-ListT .ask = lift ask
   MonadReader-ListT .local f = hoistListT (local f)
 
-  MonadState-ListT : {{_ : MonadState s m}} -> MonadState s (ListT m)
+  MonadState-ListT : {{MonadState s m}} -> MonadState s (ListT m)
   MonadState-ListT .state = lift <<< state
 
   {-# TERMINATING #-}
-  MonadWriter-ListT : {{_ : MonadWriter w m}}
+  MonadWriter-ListT : {{MonadWriter w m}}
     -> MonadWriter w (ListT m)
   MonadWriter-ListT .tell = lift <<< tell
   MonadWriter-ListT .listen (ListT: m) = ListT: $ m >>= \ where
