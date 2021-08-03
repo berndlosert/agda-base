@@ -52,14 +52,14 @@ instance
     (Three a b c) -> (| Three (f a) (f b) (f c) |)
     (Four a b c d) -> (| Four (f a) (f b) (f c) (f d) |)
 
-  Measured-Digit : {{_ : Measured v a}} -> Measured v (Digit a)
+  Measured-Digit : {{Measured v a}} -> Measured v (Digit a)
   Measured-Digit .measure = foldMap measure
 
 -------------------------------------------------------------------------------
 -- Splitting
 -------------------------------------------------------------------------------
 
-splitDigit : {{_ : Measured v a }}
+splitDigit : {{Measured v a }}
   -> (v -> Bool)
   -> v
   -> Digit a
@@ -94,7 +94,7 @@ splitDigit p i (Four a b c d) =
 -- Searching
 -------------------------------------------------------------------------------
 
-searchDigit : {{_ : Measured v a}}
+searchDigit : {{Measured v a}}
   -> (v -> v -> Bool)
   -> v
   -> Digit a
