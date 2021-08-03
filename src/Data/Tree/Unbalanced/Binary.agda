@@ -38,14 +38,14 @@ instance
     Leaf -> z
     (Node l x r) -> foldr f (f x (foldr f z r)) l
 
-  Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
+  Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ = \ where
     Leaf Leaf -> True
     Leaf _ -> False
     _ Leaf -> False
     (Node l x r) (Node l' x' r') -> x == x' && l == l' && r == r'
 
-  Show-Tree : {{_ : Show a}} -> Show (Tree a)
+  Show-Tree : {{Show a}} -> Show (Tree a)
   Show-Tree .showsPrec _ Leaf = showString "Leaf"
   Show-Tree .showsPrec d (Node l x r) = showParen (d > appPrec)
     (showString "Node "
@@ -87,7 +87,7 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) {{_ : Validate {Nonempty} t}} -> a * Tree a
+  delMin : (t : Tree a) -> {{Validate {Nonempty} t}} -> a * Tree a
   delMin (Node Leaf x r) = (x , r)
   delMin (Node l@(Node _ _ _) x r) =
     let (y , l') = delMin l
@@ -114,10 +114,10 @@ module _ {{_ : Ord a}} where
   fromList : List a -> Tree a
   fromList = foldr insert Leaf
 
-map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
+map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
 
-filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
+filter : {{Ord a}} -> (a -> Bool) -> Tree a -> Tree a
 filter _ Leaf = Leaf
 filter p (Node l x r) =
   let
