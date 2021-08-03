@@ -42,20 +42,20 @@ record Selective (f : Type -> Type) : Type where
   whenS : f Bool -> f Unit -> f Unit
   whenS b t = ifS b t (pure unit)
 
-  orElse : {{_ : Semigroup a}} -> f (a + b) -> f (a + b) -> f (a + b)
+  orElse : {{Semigroup a}} -> f (a + b) -> f (a + b) -> f (a + b)
   orElse x y = branch x (flip appendLeft <$> y) (pure Right)
     where
-      appendLeft : {{_ : Semigroup a}} -> a -> a + b -> a + b
+      appendLeft : {{Semigroup a}} -> a -> a + b -> a + b
       appendLeft x (Left y) = Left (x <> y)
       appendLeft _ r = r
 
 open Selective {{...}} public
 
 {-# NON_TERMINATING #-}
-whileS : {{_ : Selective f}} -> f Bool -> f Unit
+whileS : {{Selective f}} -> f Bool -> f Unit
 whileS act = whenS act (whileS act)
 
-selectM : {{_ : Monad m}} -> m (a + b) -> m (a -> b) -> m b
+selectM : {{Monad m}} -> m (a + b) -> m (a -> b) -> m b
 selectM mx mf = do
   result <- mx
   case result of \ where
@@ -75,7 +75,7 @@ instance
   Selective-Either : Selective (a +_)
   Selective-Either .select = selectM
 
-  Selective-Pair : {{_ : Monoid a}} -> Selective (a *_)
+  Selective-Pair : {{Monoid a}} -> Selective (a *_)
   Selective-Pair .select = selectM
 
   Selective-Maybe : Selective Maybe
