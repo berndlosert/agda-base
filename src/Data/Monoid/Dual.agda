@@ -28,10 +28,10 @@ record Dual (a : Type) : Type where
 open Dual public
 
 instance
-  Semigroup-Dual : {{_ : Semigroup a}} -> Semigroup (Dual a)
+  Semigroup-Dual : {{Semigroup a}} -> Semigroup (Dual a)
   Semigroup-Dual ._<>_ (Dual: x) (Dual: y) = Dual: (y <> x)
 
-  Monoid-Dual : {{_ : Monoid a}} -> Monoid (Dual a)
+  Monoid-Dual : {{Monoid a}} -> Monoid (Dual a)
   Monoid-Dual .neutral = Dual: neutral
 
   Functor-Dual : Functor Dual
@@ -44,6 +44,6 @@ instance
   Monad-Dual : Monad Dual
   Monad-Dual ._>>=_ (Dual: x) k = k x
 
-  Show-Dual : {{_ : Show a}} -> Show (Dual a)
+  Show-Dual : {{Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
     (showString "Show: " <<< showsPrec appPrec+1 x)
