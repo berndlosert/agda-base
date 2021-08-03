@@ -105,27 +105,27 @@ Traversal s t a b = forall {f} -> {{Applicative f}}
   -> (a -> f b) -> s -> f t
 
 Typeter : (s t a b : Type) -> Type
-Typeter s t a b = forall {f} {{_ : Applicative f}} {{_ : Copointed f}}
+Typeter s t a b = forall {f} -> {{Applicative f}} -> {{Copointed f}}
   -> (a -> f b) -> s -> f t
 
 Fold : (s t a b : Type) -> Type
-Fold s t a b = forall {f} {{_ : Applicative f}} {{_ : Contravariant f}}
+Fold s t a b = forall {f} -> {{Applicative f}} -> {{Contravariant f}}
   -> (a -> f b) -> s -> f t
 
 Getter : (s t a b : Type) -> Type
-Getter s t a b = forall {f} {{_ : Functor f}} {{_ : Contravariant f}}
+Getter s t a b = forall {f} -> {{Functor f}} -> {{Contravariant f}}
   -> (a -> f b) -> s -> f t
 
 Lens : (s t a b : Type) -> Type
-Lens s t a b = forall {f} {{_ : Functor f}}
+Lens s t a b = forall {f} -> {{Functor f}}
   -> (a -> f b) -> s -> f t
 
 Iso : (s t a b : Type) -> Type
-Iso s t a b = forall {p} {{_ : Profunctor p}} {f} {{_ : Functor f}}
+Iso s t a b = forall {p} {f} -> {{Profunctor p}} -> {{Functor f}}
   -> p a (f b) -> p s (f t)
 
 Prism : (s t a b : Type) -> Type
-Prism s t a b = forall {p} {{_ : Choice p}} {f} {{_ : Applicative f}}
+Prism s t a b = forall {p} {f} -> {{Choice p}} -> {{Applicative f}}
   -> p a (f b) -> p s (f t)
 
 -------------------------------------------------------------------------------
@@ -184,11 +184,11 @@ firstOf l = getFirst <<< foldMapOf l First:
 lastOf : Getting (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l Last:
 
-traverseOf! : {{_ : Functor f}}
+traverseOf! : {{Functor f}}
   -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
 traverseOf! l f = map (const unit) <<< foldMapOf l f
 
-forOf! : {{_ : Functor f}}
+forOf! : {{Functor f}}
   -> Getting (f r) s a -> s -> (a -> f r) -> f Unit
 forOf! = flip <<< traverseOf!
 
@@ -233,7 +233,7 @@ withIso ai k =
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
 
-mapping : {{_ : Functor f}} {{_ : Functor g}}
+mapping : {{Functor f}} -> {{Functor g}}
   -> AnIso s t a b -> Iso (f s) (g t) (f a) (g b)
 mapping k = withIso k $ \ sa bt -> iso (map sa) (map bt)
 
@@ -263,14 +263,14 @@ is ap = not <<< isn't ap
 -- Some general optics
 -------------------------------------------------------------------------------
 
-mapped : {{_ : Functor f}} -> ATypeter (f a) (f b) a b
+mapped : {{Functor f}} -> ATypeter (f a) (f b) a b
 mapped = sets map
 
-traversed : {{_ : Traversable f}} -> Traversal (f a) (f b) a b
+traversed : {{Traversable f}} -> Traversal (f a) (f b) a b
 traversed = traverse
 
 record Folded (s a : Type) : Type where
-  field folded : {{_ : Monoid r}} -> Getting r s a
+  field folded : {{Monoid r}} -> Getting r s a
 
 open Folded {{...}} public
 
@@ -336,8 +336,8 @@ instance
 #Nothing f Nothing = map (const Nothing) (f unit)
 #Nothing _ j = pure j
 
-#head : {{_ : Cons s s a a}} -> Simple Traversal s a
+#head : {{Cons s s a a}} -> Simple Traversal s a
 #head = #Cons <<< #fst
 
-#tail : {{_ : Cons s s a a}} -> Simple Traversal s s
+#tail : {{Cons s s a a}} -> Simple Traversal s s
 #tail = #Cons <<< #snd
