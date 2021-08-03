@@ -137,7 +137,7 @@ private
   postulate
     listen' : Socket -> Nat -> IO Unit
 
-listen : Socket -> (n : Nat) {{_ : Assert $ n > 0}} -> IO Unit
+listen : Socket -> (n : Nat) -> {{Assert $ n > 0}} -> IO Unit
 listen s n = listen' s n
 
 -------------------------------------------------------------------------------
