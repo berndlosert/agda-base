@@ -39,7 +39,7 @@ call i = Ask i Tell
 bind : General a b x -> (x -> General a b y) -> General a b y
 bind m f = fold f Ask m
 
-monadMorphism : {{_ : Monad m}} -> (t : (i : a) -> m (b i)) -> General a b x -> m x
+monadMorphism : {{Monad m}} -> (t : (i : a) -> m (b i)) -> General a b x -> m x
 monadMorphism t = fold pure \ i -> (t i >>=_)
 
 already : General a b x -> Maybe x
