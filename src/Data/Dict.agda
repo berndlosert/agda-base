@@ -35,10 +35,10 @@ private
   open KVPair
 
 instance
-  Eq-KVPair : {{_ : Eq k}} -> Eq (KVPair k v)
+  Eq-KVPair : {{Eq k}} -> Eq (KVPair k v)
   Eq-KVPair ._==_ x y = getKey x == getKey y
 
-  Ord-KVPair : {{_ : Ord k}} -> Ord (KVPair k v)
+  Ord-KVPair : {{Ord k}} -> Ord (KVPair k v)
   Ord-KVPair ._<_ x y = getKey x < getKey y
 
 -------------------------------------------------------------------------------
@@ -77,11 +77,11 @@ values (Dict: t) = foldMap (getValue >>> List.singleton) t
 
 -- N.B. uses undefined, but that's OK since we never look at the
 -- values.
-member : {{_ : Ord k}} -> k -> Dict k v -> Bool
+member : {{Ord k}} -> k -> Dict k v -> Bool
 member k (Dict: t) = Tree.member (KVPair: k undefined) t
 
 data Key {{_ : Ord k}} (dict : Dict k v) : Type where
-  Key: : (key : k) {{_ : Assert $ member key dict}} -> Key dict
+  Key: : (key : k) -> {{Assert $ member key dict}} -> Key dict
 
 member' : {{_ : Ord k}} -> k -> (dict : Dict k v) -> Maybe (Key dict)
 member' key dict =
@@ -93,10 +93,10 @@ member' key dict =
 -- Other operations
 -------------------------------------------------------------------------------
 
-insert : {{_ : Ord k}} -> k -> v -> Dict k v -> Dict k v
+insert : {{Ord k}} -> k -> v -> Dict k v -> Dict k v
 insert k v (Dict: t) = Dict: (Tree.insert (KVPair: k v) t)
 
-fromList : {{_ : Ord k}} -> List (k * v) -> Dict k v
+fromList : {{Ord k}} -> List (k * v) -> Dict k v
 fromList [] = empty
 fromList {k} {v} kvs = go kvs empty
   where
@@ -107,22 +107,19 @@ fromList {k} {v} kvs = go kvs empty
 toList : Dict k v -> List (k * v)
 toList d = List.zip (keys d) (values d)
 
-delete : {{_ : Ord k}} -> k -> Dict k v -> Dict k v
+delete : {{Ord k}} -> k -> Dict k v -> Dict k v
 delete k (Dict: t) =
   case find (\ p -> k == getKey p) t of \ where
      Nothing -> Dict: t
      (Just p) -> Dict: (Tree.delete p t)
 
-lookup : {{_ : Ord k}}
-  -> (dict : Dict k v)
-  -> Key dict
-  -> v
-lookup (Dict: t) (Key: k)= fromJust res {{trustMe}}
+lookup : {{_ : Ord k}} (dict : Dict k v) -> Key dict -> v
+lookup (Dict: t) (Key: k) = fromJust res {{trustMe}}
   where
     t' = flip Tree.mapMonotonic t \ where (KVPair: k v) -> (k , v)
     res = Tree.lookup k t'
 
-map : {{_ : Ord k}} -> (a -> b) -> Dict k a -> Dict k b
+map : {{Ord k}} -> (a -> b) -> Dict k a -> Dict k b
 map f (Dict: t) = Dict: $ flip Tree.map t \ where
   (KVPair: k v) -> KVPair: k (f v)
 
@@ -135,6 +132,6 @@ instance
   Foldable-Dict .foldr f z (Dict: t) =
     foldr (\ where (KVPair: k v) y -> f v y) z t
 
-  Show-Dict : {{_ : Show k}} {{_ : Show v}} -> Show (Dict k v)
+  Show-Dict : {{Show k}} -> {{Show v}} -> Show (Dict k v)
   Show-Dict .showsPrec d m = showParen (d > 10) $
     showString "fromList " <<< shows (toList m)
