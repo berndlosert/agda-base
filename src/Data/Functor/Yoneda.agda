@@ -28,7 +28,7 @@ instance
   Functor-Yoneda : Functor (Yoneda f)
   Functor-Yoneda .map f t g = t (g <<< f)
 
-lift : {{_ : Functor f}} -> f a -> Yoneda f a
+lift : {{Functor f}} -> f a -> Yoneda f a
 lift y f = map f y
 
 lower : Yoneda f a -> f a
