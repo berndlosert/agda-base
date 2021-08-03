@@ -55,7 +55,7 @@ instance
   MonadTrans-PropertyT : MonadTrans PropertyT
   MonadTrans-PropertyT .lift m = PropertyT: (map (m >>=_) <<< promote)
 
-  MonadIO-PropertyT : {{_ : MonadIO m}} -> MonadIO (PropertyT m)
+  MonadIO-PropertyT : {{MonadIO m}} -> MonadIO (PropertyT m)
   MonadIO-PropertyT .liftIO = lift <<< liftIO
 
 -------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ module _ {{_ : Monad m}} where
   run : m a -> PropertyT m a
   run = lift
 
-  stop : {{_ : Testable b}} -> b -> PropertyT m a
+  stop : {{Testable b}} -> b -> PropertyT m a
   stop b = PropertyT: \ _ -> return (return (property b))
 
   pre : Bool -> PropertyT m Unit
@@ -102,5 +102,5 @@ module _ {{_ : Monad m}} where
     monadic : (m Property -> Property) -> PropertyT m a -> Property
     monadic runner m = property (map runner (monadic' m))
 
-monadicIO : {{_ : Testable a}} -> PropertyT IO a -> Property
+monadicIO : {{Testable a}} -> PropertyT IO a -> Property
 monadicIO = monadic ioProperty
