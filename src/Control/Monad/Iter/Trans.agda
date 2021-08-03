@@ -44,21 +44,21 @@ record IterT (m : Type -> Type) (a : Type) : Type where
 
 open IterT public
 
-delay : {{_ : Monad m}} -> IterT m a -> IterT m a
+delay : {{Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = return (Right iter)
 
 {-# NON_TERMINATING #-}
-never : {{_ : Monad m}} -> IterT m a
+never : {{Monad m}} -> IterT m a
 never .runIterT = return (Right never)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
 {-# NON_TERMINATING #-}
-execIterT : {{_ : Monad m}} -> IterT m a -> m a
+execIterT : {{Monad m}} -> IterT m a -> m a
 execIterT iter = runIterT iter >>= either return execIterT
 
 {-# NON_TERMINATING #-}
-hoistIterT : {{_ : Monad n}}
+hoistIterT : {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> IterT m a
   -> IterT n a
@@ -67,26 +67,26 @@ hoistIterT t iter .runIterT =
 
 instance
   {-# NON_TERMINATING #-}
-  Functor-IterT : {{_ : Monad m}} -> Functor (IterT m)
+  Functor-IterT : {{Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT = flip map (runIterT iter) \ where
     (Left x) -> Left (f x)
     (Right iter') -> Right (map f iter')
 
   {-# NON_TERMINATING #-}
-  Applicative-IterT : {{_ : Monad m}} -> Applicative (IterT m)
+  Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
   Applicative-IterT .pure x .runIterT = return (Left x)
   Applicative-IterT ._<*>_ iter x .runIterT = runIterT iter >>= \ where
     (Left f) -> runIterT (map f x)
     (Right iter') -> return (Right (iter' <*> x))
 
   {-# NON_TERMINATING #-}
-  Monad-IterT : {{_ : Monad m}} -> Monad (IterT m)
+  Monad-IterT : {{Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = runIterT iter >>= \ where
     (Left m) -> runIterT (k m)
     (Right iter') -> return (Right (iter' >>= k))
 
   {-# NON_TERMINATING #-}
-  Alternative-IterT : {{_ : Monad m}} -> Alternative (IterT m)
+  Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
   Alternative-IterT .empty = never
   Alternative-IterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
@@ -98,18 +98,18 @@ instance
           (Left _) -> return resultr
           (Right r') -> return $ Right (l' <|> r')
 
-  MonadFree-IterT : {{_ : Monad m}} -> MonadFree Identity (IterT m)
+  MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map Left m
 
-  MonadReader-IterT : {{_ : MonadReader r m}} -> MonadReader r (IterT m)
+  MonadReader-IterT : {{MonadReader r m}} -> MonadReader r (IterT m)
   MonadReader-IterT .ask = lift ask
   MonadReader-IterT .local f = hoistIterT (local f)
 
   {-# NON_TERMINATING #-}
-  MonadWriter-IterT : {{_ : MonadWriter w m}} -> MonadWriter w (IterT m)
+  MonadWriter-IterT : {{MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
 
   MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
@@ -140,16 +140,16 @@ instance
       g (Right iter') =
         return (Right (\ where .runIterT -> pass' (runIterT iter')))
 
-  MonadState-IterT : {{_ : MonadState s m}} -> MonadState s (IterT m)
+  MonadState-IterT : {{MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)
 
-  MonadIO-IterT : {{_ : MonadIO m}} -> MonadIO (IterT m)
+  MonadIO-IterT : {{MonadIO m}} -> MonadIO (IterT m)
   MonadIO-IterT .liftIO = lift <<< liftIO
 
-  MonadThrow-IterT : {{_ : MonadThrow m}} -> MonadThrow (IterT m)
+  MonadThrow-IterT : {{MonadThrow m}} -> MonadThrow (IterT m)
   MonadThrow-IterT .throw = lift <<< throw
 
   {-# NON_TERMINATING #-}
-  MonadCatch-IterT : {{_ : MonadCatch m}} -> MonadCatch (IterT m)
+  MonadCatch-IterT : {{MonadCatch m}} -> MonadCatch (IterT m)
   MonadCatch-IterT .catch iter f .runIterT =
     catch (map (flip catch f) <$> runIterT iter) (runIterT <<< f)
