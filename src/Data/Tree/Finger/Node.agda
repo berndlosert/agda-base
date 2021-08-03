@@ -29,17 +29,17 @@ data Node (v a : Type) : Type where
   Node2 : v -> a -> a -> Node v a
   Node3 : v -> a -> a -> a -> Node v a
 
-node2 : {{_ : Measured v a}} -> a -> a -> Node v a
+node2 : {{Measured v a}} -> a -> a -> Node v a
 node2 a b = Node2 (measure a <> measure b) a b
 
-node3 : {{_ : Measured v a}} -> a -> a -> a -> Node v a
+node3 : {{Measured v a}} -> a -> a -> a -> Node v a
 node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
 
 nodeToDigit : Node v a -> Digit a
 nodeToDigit (Node2 _ a b) = Two a b
 nodeToDigit (Node3 _ a b c) = Three a b c
 
-nodes : {{_ : Measured v a}} -> List a -> List (Node v a)
+nodes : {{Measured v a}} -> List a -> List (Node v a)
 nodes (a :: b :: []) = node2 a b :: []
 nodes (a :: b :: c :: []) = node3 a b c :: []
 nodes (a :: b :: c :: d :: []) = node2 a b :: node2 c d :: []
@@ -62,7 +62,7 @@ instance
     (Node2 v a b) -> (| (Node2 v) (f a) (f b) |)
     (Node3 v a b c) -> (| (Node3 v) (f a) (f b) (f c) |)
 
-  Measured-Node : {{_ : Monoid v}} -> Measured v (Node v a)
+  Measured-Node : {{Monoid v}} -> Measured v (Node v a)
   Measured-Node .measure (Node2 v _ _) = v
   Measured-Node .measure (Node3 v _ _ _) = v
 
@@ -70,7 +70,7 @@ instance
 -- Splitting
 -------------------------------------------------------------------------------
 
-splitNode : {{_ : Measured v a}}
+splitNode : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> Node v a
@@ -94,7 +94,7 @@ splitNode p i (Node3 _ a b c) =
 -- Searching
 -------------------------------------------------------------------------------
 
-searchNode : {{_ : Measured v a}}
+searchNode : {{Measured v a}}
   -> (v -> v -> Bool)
   -> v
   -> Node v a
