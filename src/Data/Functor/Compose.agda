@@ -31,26 +31,26 @@ record Compose (f g : Type -> Type) (a : Type) : Type where
 open Compose public
 
 instance
-  Functor-Compose : {{_ : Functor f}} {{_ : Functor g}}
+  Functor-Compose : {{Functor f}} -> {{Functor g}}
     -> Functor (Compose f g)
   Functor-Compose .map f (Compose: x) = Compose: (map (map f) x)
 
-  Applicative-Compose : {{_ : Applicative f}} {{_ : Applicative g}}
+  Applicative-Compose : {{Applicative f}} -> {{Applicative g}}
     -> Applicative (Compose f g)
   Applicative-Compose .pure x = Compose: (pure (pure x))
   Applicative-Compose ._<*>_ (Compose: f) (Compose: x) =
     Compose: (| _<*>_ f x |)
 
-  Foldable-Compose : {{_ : Foldable f}} {{_ : Foldable g}}
+  Foldable-Compose : {{Foldable f}} -> {{Foldable g}}
     -> Foldable (Compose f g)
   Foldable-Compose .foldr f z (Compose: x) = foldr (flip (foldr f)) z x
 
-  Traversable-Compose : {{_ : Traversable f}} {{_ : Traversable g}}
+  Traversable-Compose : {{Traversable f}} -> {{Traversable g}}
     -> Traversable (Compose f g)
   Traversable-Compose .traverse f (Compose: x) =
     (| Compose: (traverse (traverse f) x) |)
 
-  Alternative-Compose : {{_ : Alternative f}} {{_ : Applicative g}}
+  Alternative-Compose : {{Alternative f}} -> {{Applicative g}}
     -> Alternative (Compose f g)
   Alternative-Compose .empty = Compose: empty
   Alternative-Compose ._<|>_ (Compose: x) (Compose: y) =
