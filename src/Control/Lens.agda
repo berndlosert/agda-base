@@ -101,7 +101,7 @@ Simple : (Type -> Type -> Type -> Type -> Type) -> Type -> Type -> Type
 Simple Optic s a = Optic s s a a
 
 Traversal : (s t a b : Type) -> Type
-Traversal s t a b = forall {f} {{_ : Applicative f}}
+Traversal s t a b = forall {f} -> {{Applicative f}}
   -> (a -> f b) -> s -> f t
 
 Typeter : (s t a b : Type) -> Type
