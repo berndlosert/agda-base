@@ -44,7 +44,7 @@ private
       go (w :: ws) n = (toNat w) * 2 ^ (64 * n) + go ws (n + 1)
 
 -- Generates n random Word64 values.
-genWord64s : {{_ : RandomGen g}} -> Nat -> g -> List Word64 * g
+genWord64s : {{RandomGen g}} -> Nat -> g -> List Word64 * g
 genWord64s 0 g0 = ([] , g0)
 genWord64s (Suc n) g0 =
   let
@@ -54,7 +54,7 @@ genWord64s (Suc n) g0 =
     (w :: ws , g)
 
 -- genNat n generates a random Nat in the range [0, 2 ^ n).
-genNat : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+genNat : {{RandomGen g}} -> Nat -> g -> Nat * g
 genNat n g0 =
   let
     q = n / 64
@@ -68,7 +68,7 @@ genNat n g0 =
 
 -- genNat' n generates a Nat in the range [0 , n].
 {-# TERMINATING #-}
-genNat' : {{_ : RandomGen g}} -> Nat -> g -> Nat * g
+genNat' : {{RandomGen g}} -> Nat -> g -> Nat * g
 genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
@@ -82,7 +82,7 @@ genNat' {g} n g0 = loop g0
       if m > n then loop g' else (m , g')
 
 -- genFloat generates a Float value in the range [0, 1).
-genFloat : {{_ : RandomGen g}} -> g -> Float * g
+genFloat : {{RandomGen g}} -> g -> Float * g
 genFloat g = let (w , g') = genWord64 g in
     (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
   where
@@ -191,7 +191,7 @@ getStdRandom f = do
 -------------------------------------------------------------------------------
 
 record Random (a : Type) : Type where
-  field random : {{_ : RandomGen g}} -> g -> a * g
+  field random : {{RandomGen g}} -> g -> a * g
 
   randomIO : IO a
   randomIO = getStdRandom random
@@ -208,7 +208,7 @@ instance
 -------------------------------------------------------------------------------
 
 record RandomR (a : Type) : Type where
-  field randomR : {{_ : RandomGen g}} -> a * a -> g -> a * g
+  field randomR : {{RandomGen g}} -> a * a -> g -> a * g
 
   randomRIO : a * a -> IO a
   randomRIO = getStdRandom <<< randomR
