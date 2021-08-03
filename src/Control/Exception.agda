@@ -25,9 +25,9 @@ postulate
   SomeException : Type
   IOException : Type
 
-  toException : {{_ : Exception e}} -> e -> SomeException
-  fromException : {{_ : Exception e}} -> SomeException -> Maybe e
-  displayException : {{_ : Exception e}} -> e -> String
+  toException : {{Exception e}} -> e -> SomeException
+  fromException : {{Exception e}} -> SomeException -> Maybe e
+  displayException : {{Exception e}} -> e -> String
 
 -------------------------------------------------------------------------------
 -- MonadThrow
@@ -36,7 +36,7 @@ postulate
 record MonadThrow (m : Type -> Type) : Type where
   field
     overlap {{Monad-super}} : Monad m
-    throw : {{_ : Exception e}} -> e -> m a
+    throw : {{Exception e}} -> e -> m a
 
 open MonadThrow {{...}} public
 
@@ -47,21 +47,21 @@ open MonadThrow {{...}} public
 record MonadCatch (m : Type -> Type) : Type where
   field
     overlap {{MonadThrow-super}} : MonadThrow m
-    catch : {{_ : Exception e}} -> m a -> (e -> m a) -> m a
+    catch : {{Exception e}} -> m a -> (e -> m a) -> m a
 
-  catchJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
+  catchJust : {{Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
   catchJust p ma handler = catch ma \ e -> maybe (throw e) handler (p e)
 
-  handle : {{_ : Exception e}} -> (e -> m a) -> m a -> m a
+  handle : {{Exception e}} -> (e -> m a) -> m a -> m a
   handle = flip catch
 
-  handleJust : {{_ : Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
+  handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
   handleJust = flip <<< catchJust
 
-  try : {{_ : Exception e}} -> m a -> m (e + a)
+  try : {{Exception e}} -> m a -> m (e + a)
   try ma = catch (map Right ma) (pure <<< Left)
 
-  tryJust : {{_ : Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
+  tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
   tryJust p ma = try ma >>= \ where
     (Right v) -> return (Right v)
     (Left e) -> maybe (throw e) (return <<< Left) (p e)
@@ -117,8 +117,8 @@ postulate
 
 private
   postulate
-    throwIO : {{_ : Exception e}} -> e -> IO a
-    catchIO : {{_ : Exception e}} -> IO a -> (e -> IO a) -> IO a
+    throwIO : {{Exception e}} -> e -> IO a
+    catchIO : {{Exception e}} -> IO a -> (e -> IO a) -> IO a
     generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
       -> (a -> IO b) -> IO (b * c)
 
