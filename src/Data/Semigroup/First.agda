@@ -31,7 +31,7 @@ instance
   Semigroup-First : Semigroup (First a)
   Semigroup-First ._<>_ x _ = x
 
-  Monoid-First : {{_ : Monoid a}} -> Monoid (First a)
+  Monoid-First : {{Monoid a}} -> Monoid (First a)
   Monoid-First .neutral = First: neutral
 
   Functor-First : Functor First
@@ -44,6 +44,6 @@ instance
   Monad-First : Monad First
   Monad-First ._>>=_ (First: x) k = k x
 
-  Show-First : {{_ : Show a}} -> Show (First a)
+  Show-First : {{Show a}} -> Show (First a)
   Show-First .showsPrec d (First: x) = showParen (d > appPrec)
     (showString "First: " <<< showsPrec appPrec+1 x)
