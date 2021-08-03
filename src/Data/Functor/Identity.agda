@@ -29,17 +29,17 @@ record Identity (a : Type) : Type where
 open Identity public
 
 instance
-  Eq-Identity : {{_ : Eq a}} -> Eq (Identity a)
+  Eq-Identity : {{Eq a}} -> Eq (Identity a)
   Eq-Identity ._==_ (Identity: x) (Identity: y) = x == y
 
-  Ord-Identity : {{_ : Ord a}} -> Ord (Identity a)
+  Ord-Identity : {{Ord a}} -> Ord (Identity a)
   Ord-Identity ._<_ (Identity: x) (Identity: y) = x < y
 
-  Semigroup-Identity : {{_ : Semigroup a}} -> Semigroup (Identity a)
+  Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
   Semigroup-Identity ._<>_ (Identity: x) (Identity: y) =
     Identity: (x <> y)
 
-  Monoid-Identity : {{_ : Monoid a}} -> Monoid (Identity a)
+  Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .neutral = Identity: neutral
 
   Foldable-Identity : Foldable Identity
@@ -55,6 +55,6 @@ instance
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ (Identity: x) k = k x
 
-  Show-Identity : {{_ : Show a}} -> Show (Identity a)
+  Show-Identity : {{Show a}} -> Show (Identity a)
   Show-Identity .showsPrec d (Identity: x) = showParen (d > appPrec)
     (showString "Identity: " <<< showsPrec appPrec+1 x)
