@@ -53,7 +53,7 @@ iterateN (Suc n) f x = f x :: iterateN n f x
 replicate : Nat -> a -> List a
 replicate n = iterateN n id
 
-replicateA : {{_ : Applicative f}} -> Nat -> f a -> f (List a)
+replicateA : {{Applicative f}} -> Nat -> f a -> f (List a)
 replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat -> f (List a)
@@ -86,7 +86,7 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : (xs : List a) {{_ : Validate {Nonempty} xs}} -> List a
+init : (xs : List a) -> {{Validate {Nonempty} xs}} -> List a
 init (x :: []) = []
 init (x :: x' :: xs) = x :: init (x' :: xs)
 
@@ -251,11 +251,11 @@ module _ {{_ : Eq a}} where
 -- Sublists
 -------------------------------------------------------------------------------
 
-stripPrefix : {{_ : Eq a}} -> List a -> List a -> Maybe (List a)
+stripPrefix : {{Eq a}} -> List a -> List a -> Maybe (List a)
 stripPrefix xs ys =
   if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
 
-dropPrefix : {{_ : Eq a}} -> List a -> List a -> List a
+dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
@@ -268,10 +268,10 @@ groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
       res <- call zs
       return $ (x :: ys) :: res
 
-group : {{_ : Eq a}} -> List a -> List (List a)
+group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
-chunksOf : (n : Nat) {{_ : Validate {Positive} n}} -> List a -> List (List a)
+chunksOf : (n : Nat) -> {{Validate {Positive} n}} -> List a -> List (List a)
 chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))
@@ -280,7 +280,7 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
       res <- call (drop n xs)
       return $ take n xs :: res
 
-breakOn : {{_ : Eq a}} -> (needle haystack : List a) -> List a * List a
+breakOn : {{Eq a}} -> (needle haystack : List a) -> List a * List a
 breakOn {a} needle haystack =
     fromJust (petrol go (length haystack) haystack) {{trustMe}}
   where
@@ -294,8 +294,9 @@ breakOn {a} needle haystack =
             res <- call xs
             return $ lmap (x ::_) res
 
-splitOn : {{_ : Eq a}}
-  -> (needle : List a) {{_ : Validate {Nonempty} needle}}
+splitOn : {{Eq a}}
+  -> (needle : List a)
+  -> {{Validate {Nonempty} needle}}
   -> (haystack : List a)
   -> List (List a)
 splitOn {a} needle haystack =
@@ -321,7 +322,7 @@ split f (x :: xs) =
 -- Transformations
 -------------------------------------------------------------------------------
 
-intercalate : {{_ : Monoid a}} -> a -> List a -> a
+intercalate : {{Monoid a}} -> a -> List a -> a
 intercalate sep [] = neutral
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
@@ -396,7 +397,7 @@ module _ {{_ : Ord a}} where
 -- Searching
 -------------------------------------------------------------------------------
 
-lookup : {{_ : Eq a}} -> a -> List (a * b) -> Maybe b
+lookup : {{Eq a}} -> a -> List (a * b) -> Maybe b
 lookup a [] = Nothing
 lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
 
@@ -404,5 +405,5 @@ lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
 -- Misc.
 -------------------------------------------------------------------------------
 
-countElem : {{_ : Eq a}} -> a -> List a -> Nat
+countElem : {{Eq a}} -> a -> List a -> Nat
 countElem x = length <<< filter (x ==_)
