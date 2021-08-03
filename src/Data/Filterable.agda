@@ -47,17 +47,16 @@ record Filterable (t : Type -> Type) : Type where
   partitionEithers : t (Either a b) -> t a * t b
   partitionEithers = mapEither id
 
-  module _ {{_ : Traversable t}} where
+  module _ {{_ : Traversable t}} {{_ : Applicative f}} where
 
-    mapMaybeA : {{_ : Applicative f}} -> (a -> f (Maybe b)) -> t a -> f (t b)
+    mapMaybeA : (a -> f (Maybe b)) -> t a -> f (t b)
     mapMaybeA f xs = (| catMaybes (traverse f xs) |)
 
-    filterA : {{_ : Applicative f}} -> (a -> f Bool) -> t a -> f (t a)
+    filterA : (a -> f Bool) -> t a -> f (t a)
     filterA p =
       mapMaybeA (\ x -> (| bool (| Nothing |) (| (Just x) |) (p x) |))
 
-    mapEitherA : {{_ : Applicative f}}
-        -> (a -> f (Either b c)) -> t a -> f (t b * t c)
+    mapEitherA : (a -> f (Either b c)) -> t a -> f (t b * t c)
     mapEitherA f = (|
         (\ x y -> (| _,_ x y |))
         (mapMaybeA (map (either Just (pure Nothing)) <<< f))
