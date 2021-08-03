@@ -29,11 +29,11 @@ record Choice (p : Type -> Type -> Type) : Type where
   right = dimap (either Right Left) (either Right Left) <<< left
 
   infixr 2 _+++_
-  _+++_ : {{_ : Category p}} -> p a b -> p c d -> p (a + c) (b + d)
+  _+++_ : {{Category p}} -> p a b -> p c d -> p (a + c) (b + d)
   f +++ g = left f >>> right g
 
   infixr 2 _|||_
-  _|||_ : {{_ : Category p}} -> p a c -> p b c -> p (a + b) c
+  _|||_ : {{Category p}} -> p a c -> p b c -> p (a + b) c
   f ||| g = map fromEither (f +++ g)
 
 open Choice {{...}} public
