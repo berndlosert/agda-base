@@ -204,16 +204,16 @@ instance
   Alternative-Concurrently ._<|>_ (Concurrently: as) (Concurrently: bs) =
     Concurrently: $ fromEither <$> race as bs
 
-  Semigroup-Concurrently : {{_ : Semigroup a}} -> Semigroup (Concurrently a)
+  Semigroup-Concurrently : {{Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)
 
-  Monoid-Concurrently : {{_ : Monoid a}} -> Monoid (Concurrently a)
+  Monoid-Concurrently : {{Monoid a}} -> Monoid (Concurrently a)
   Monoid-Concurrently .neutral = pure neutral
 
-mapConcurrently : {{_ : Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
+mapConcurrently : {{Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
 mapConcurrently f = runConcurrently <<< traverse (Concurrently: <<< f)
 
-mapConcurrently! : {{_ : Foldable f}} -> (a -> IO b) -> f a -> IO Unit
+mapConcurrently! : {{Foldable f}} -> (a -> IO b) -> f a -> IO Unit
 mapConcurrently! f = runConcurrently <<< foldMap (Concurrently: <<< ignore <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
