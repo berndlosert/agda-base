@@ -44,7 +44,7 @@ open FreeT
 liftFreeT : f a -> FreeT f m a
 liftFreeT x = FreeT: \ ret bnd -> bnd x ret
 
-hoistFreeT : {{_ : Monad m}} {{_ : Monad n}}
+hoistFreeT : {{Monad m}} -> {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> FreeT f m b
   -> FreeT f n b
@@ -72,12 +72,12 @@ instance
   MonadFree-FreeT .wrap x = FreeT: \ ret bnd ->
     bnd x (\ f -> runFreeT f ret bnd)
 
-  MonadReader-FreeT : {{_ : MonadReader r m}} -> MonadReader r (FreeT f m)
+  MonadReader-FreeT : {{MonadReader r m}} -> MonadReader r (FreeT f m)
   MonadReader-FreeT .ask = lift ask
   MonadReader-FreeT .local f = hoistFreeT (local f)
 
-  MonadState-FreeT : {{_ : MonadState s m}} -> MonadState s (FreeT f m)
+  MonadState-FreeT : {{MonadState s m}} -> MonadState s (FreeT f m)
   MonadState-FreeT .state f = lift (state f)
 
-  MonadThrow-FreeT : {{_ : MonadThrow m}} -> MonadThrow (FreeT f m)
+  MonadThrow-FreeT : {{MonadThrow m}} -> MonadThrow (FreeT f m)
   MonadThrow-FreeT .throw = lift <<< throw
