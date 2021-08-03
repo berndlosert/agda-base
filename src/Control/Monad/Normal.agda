@@ -23,7 +23,7 @@ private
 
 data NM (C t : Type -> Type) (a : Type) : Type where
   Return : a -> NM C t a
-  Bind : {{_ : C b}} -> t b -> (b -> NM C t a) -> NM C t a
+  Bind : {{C b}} -> t b -> (b -> NM C t a) -> NM C t a
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -47,11 +47,11 @@ instance
 -- Utility functions
 -------------------------------------------------------------------------------
 
-liftNM : {{_ : C a}} -> t a -> NM C t a
+liftNM : {{C a}} -> t a -> NM C t a
 liftNM m = Bind m Return
 
 foldNM : (a -> r)
-  -> (forall {b} {{_ : C b}} -> t b -> (b -> r) -> r)
+  -> (forall {b} -> {{C b}} -> t b -> (b -> r) -> r)
   -> NM C t a
   -> r
 foldNM {a = a} {r = r} {C = C} {t = t} ret bind = foldNM'
@@ -61,7 +61,7 @@ foldNM {a = a} {r = r} {C = C} {t = t} ret bind = foldNM'
     foldNM' (Bind m k) = bind m (\ b -> foldNM' (k b))
 
 lowerNM : (a -> t a)
-  -> (forall {b} {{_ : C b}} -> t b -> (b -> t a) -> t a)
+  -> (forall {b} -> {{C b}} -> t b -> (b -> t a) -> t a)
   -> NM C t a
   -> t a
 lowerNM = foldNM
