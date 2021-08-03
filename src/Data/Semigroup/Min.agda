@@ -28,7 +28,7 @@ record Min (a : Type) : Type where
 open Min public
 
 instance
-  Semigroup-Min : {{_ : Ord a}} -> Semigroup (Min a)
+  Semigroup-Min : {{Ord a}} -> Semigroup (Min a)
   Semigroup-Min ._<>_ (Min: x) (Min: y) = Min: (min x y)
 
   Functor-Min : Functor Min
@@ -41,6 +41,6 @@ instance
   Monad-Min : Monad Min
   Monad-Min ._>>=_ (Min: x) k = k x
 
-  Show-Min : {{_ : Show a}} -> Show (Min a)
+  Show-Min : {{Show a}} -> Show (Min a)
   Show-Min .showsPrec d (Min: x) = showParen (d > appPrec)
     (showString "Min: " <<< showsPrec appPrec+1 x)
