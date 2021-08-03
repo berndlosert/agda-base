@@ -23,8 +23,8 @@ instance
   Monad-Codensity : Monad (Codensity f)
   Monad-Codensity ._>>=_ m f = \ k1 -> m (\ k2 -> (f k2) k1)
 
-toCodensity : {{_ : Monad m}} -> m a -> Codensity m a
+toCodensity : {{Monad m}} -> m a -> Codensity m a
 toCodensity x = x >>=_
 
-fromCodensity : {{_ : Monad m}} -> Codensity m a -> m a
+fromCodensity : {{Monad m}} -> Codensity m a -> m a
 fromCodensity f = f return
