@@ -43,10 +43,10 @@ instance
     (Two l x r) -> foldr f (f x (foldr f z r)) l
     (Three l x m y r) -> foldr f (f x (foldr f (f y (foldr f z r)) m)) l
 
-  Eq-Tree : {{_ : Eq a}} -> Eq (Tree a)
+  Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t t' = toList t == toList t'
 
-  Show-Tree : {{_ : Show a}} -> Show (Tree a)
+  Show-Tree : {{Show a}} -> Show (Tree a)
   Show-Tree .showsPrec _ Leaf = showString "Leaf"
   Show-Tree .showsPrec d (Two l x r) = showParen (d > appPrec)
     (showString "Two "
@@ -106,7 +106,7 @@ private
 -- Inserting
 -------------------------------------------------------------------------------
 
-insert : {{_ : Ord a}} -> a -> Tree a -> Tree a
+insert : {{Ord a}} -> a -> Tree a -> Tree a
 insert {a} v = down []
   where
     up : List (TreeContext a) -> KickUp a -> Tree a
@@ -143,7 +143,7 @@ insert {a} v = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
-pop : {{_ : Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
+pop : {{Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
 pop {a} v = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
@@ -186,7 +186,7 @@ pop {a} v = down []
           fromZipper ctx (Three a w (Two b x c) y (Two d z e))
         (_ , _) -> t
 
-    maxNode :  (t : Tree a) {{_ : Validate {Nonempty} t}} -> a
+    maxNode :  (t : Tree a) -> {{Validate {Nonempty} t}} -> a
     maxNode = \ where
       (Two _ x Leaf) -> x
       (Two _ _ r@(Two _ _ _)) -> maxNode r
@@ -196,7 +196,9 @@ pop {a} v = down []
       (Three _ _ _ _ r@(Three _ _ _ _ _)) -> maxNode r
 
     removeMaxNode : List (TreeContext a)
-      -> (t : Tree a) {{_ : Validate {Nonempty} t}} -> Tree a
+      -> (t : Tree a)
+      -> {{Validate {Nonempty} t}}
+      -> Tree a
     removeMaxNode ctx = \ where
       (Two Leaf _ Leaf) ->
         up ctx Leaf
@@ -247,14 +249,14 @@ pop {a} v = down []
         (_ , _ , _ ,  _ , _ ) ->
           down (ThreeRight l x m y :: ctx) r
 
-delete : {{_ : Ord a}} -> a -> Tree a -> Tree a
+delete : {{Ord a}} -> a -> Tree a -> Tree a
 delete x t = maybe t snd (pop x t)
 
 -------------------------------------------------------------------------------
 -- Querying
 -------------------------------------------------------------------------------
 
-lookup : {{_ : Ord a}} -> a -> Tree (a * b) -> Maybe b
+lookup : {{Ord a}} -> a -> Tree (a * b) -> Maybe b
 lookup a Leaf = Nothing
 lookup a (Two l (x , b) r) =
   case compare a x of \ where
@@ -269,17 +271,17 @@ lookup a (Three l (x , b) m (y , c) r) =
     (GT , LT) -> lookup a m
     (GT , GT) -> lookup a r
 
-member : {{_ : Eq a}} -> a -> Tree a -> Bool
+member : {{Eq a}} -> a -> Tree a -> Bool
 member a t = maybe False (const True) (find (_== a) t)
 
 -------------------------------------------------------------------------------
 --  Misc.
 -------------------------------------------------------------------------------
 
-fromList : {{_ : Ord a}} -> List a -> Tree a
+fromList : {{Ord a}} -> List a -> Tree a
 fromList xs = foldr insert Leaf xs
 
-map : {{_ : Ord b}} -> (a -> b) -> Tree a -> Tree b
+map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
 
 mapMonotonic : (a -> b) -> Tree a -> Tree b
@@ -290,10 +292,10 @@ mapMonotonic {a} {b} f = go
     go (Two l x r) = Two (go l) (f x) (go r)
     go (Three l x m y r) = Three (go l) (f x) (go m) (f y) (go r)
 
-merge : {{_ : Ord a}} -> Tree a -> Tree a -> Tree a
+merge : {{Ord a}} -> Tree a -> Tree a -> Tree a
 merge t t' = foldr insert t t'
 
-filter : {{_ : Ord a}} -> (a -> Bool) -> Tree a -> Tree a
+filter : {{Ord a}} -> (a -> Bool) -> Tree a -> Tree a
 filter p Leaf = Leaf
 filter p (Two l x r) =
   let
