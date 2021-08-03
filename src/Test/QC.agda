@@ -64,7 +64,7 @@ variant : Nat -> Gen a -> Gen a
 variant v (Gen: m) =
     Gen: \ r n -> m (Stream.at (Suc v) (rands r)) n
   where
-    rands : {{_ : RandomGen g}} -> g -> Stream g
+    rands : {{RandomGen g}} -> g -> Stream g
     rands g = Stream.unfold splitGen g
 
 generate' : Nat -> StdGen -> Gen a -> a
@@ -83,10 +83,10 @@ resize n (Gen: g) = Gen: \ r _ -> g r n
 scale : (Nat -> Nat) -> Gen a -> Gen a
 scale f g = sized (\ n -> resize (f n) g)
 
-choose : {{_ : RandomR a}} -> a * a -> Gen a
+choose : {{RandomR a}} -> a * a -> Gen a
 choose rng = Gen: \ r _ -> let (x , _) = randomR rng r in x
 
-chooseAny : {{_ : Random a}} -> Gen a
+chooseAny : {{Random a}} -> Gen a
 chooseAny = Gen: \ r _ -> let (x , _) = random r in x
 
 generate : Gen a -> IO a
@@ -99,17 +99,18 @@ sample' g = traverse generate do
   n <- 0 :: enumFromTo 2 20
   return (resize n g)
 
-sample : {{_ : Show a}} -> Gen a -> IO Unit
+sample : {{Show a}} -> Gen a -> IO Unit
 sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) {{_ : Validate {Nonempty} gs}} -> Gen a
+oneof : (gs : List (Gen a)) -> {{Validate {Nonempty} gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{trustMe}}
 
-frequency : (xs : List (Refined Positive Nat * Gen a)) {{_ : Validate {Nonempty} xs}} -> Gen a
+frequency : (xs : List (Refined Positive Nat * Gen a))
+  -> {{Validate {Nonempty} xs}} -> Gen a
 frequency xs =
     let xs' = map (bimap unrefine id) xs
     in choose (1 , sum (map fst xs')) >>= flip pick xs'
@@ -118,7 +119,7 @@ frequency xs =
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
-elements : (xs : List a) {{_ : Validate {Nonempty} xs}} -> Gen a
+elements : (xs : List a) -> {{Validate {Nonempty} xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{trustMe}})
   (choose {Nat} (0 , List.length xs - 1))
@@ -142,7 +143,7 @@ shuffle xs = do
 delay : Gen (Gen a -> a)
 delay = Gen: \ r n g -> unGen g r n
 
-promote : {{_ : Monad m}} -> m (Gen a) -> Gen (m a)
+promote : {{Monad m}} -> m (Gen a) -> Gen (m a)
 promote m = do
   eval <- delay
   return (map eval m)
@@ -156,7 +157,7 @@ record Arbitrary (a : Type) : Type where
 
 open Arbitrary {{...}} public
 
-arbitrary' : (a : Type) {{_ : Arbitrary a}} -> Gen a
+arbitrary' : (a : Type) -> {{Arbitrary a}} -> Gen a
 arbitrary' _ = arbitrary
 
 record Coarbitrary (a : Type) : Type where
@@ -181,10 +182,10 @@ instance
     let n' = toFloat n
     in choose (- n' , n')
 
-  Arbitrary-Pair : {{_ : Arbitrary a}} {{_ : Arbitrary b}} -> Arbitrary (a * b)
+  Arbitrary-Pair : {{Arbitrary a}} -> {{Arbitrary b}} -> Arbitrary (a * b)
   Arbitrary-Pair .arbitrary = (| _,_ arbitrary arbitrary |)
 
-  Arbitrary-List : {{_ : Arbitrary a}} -> Arbitrary (List a)
+  Arbitrary-List : {{Arbitrary a}} -> Arbitrary (List a)
   Arbitrary-List .arbitrary = sized \ n -> do
     m <- choose (0 , n)
     vectorOf m arbitrary
@@ -192,21 +193,21 @@ instance
   Coarbitrary-Bool : Coarbitrary Bool
   Coarbitrary-Bool .coarbitrary b = variant (if b then 0 else 1)
 
-  Coarbitrary-Pair : {{_ : Coarbitrary a}} {{_ : Coarbitrary b}}
+  Coarbitrary-Pair : {{Coarbitrary a}} -> {{Coarbitrary b}}
     -> Coarbitrary (a * b)
   Coarbitrary-Pair .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
 
-  Coarbitrary-List : {{_ : Coarbitrary a}} -> Coarbitrary (List a)
+  Coarbitrary-List : {{Coarbitrary a}} -> Coarbitrary (List a)
   Coarbitrary-List .coarbitrary [] = variant 0
   Coarbitrary-List .coarbitrary (a :: as) =
     variant 1 <<< coarbitrary a <<< coarbitrary as
 
-  Coarbitrary-Function : {{_ : Arbitrary a}} {{_ : Coarbitrary b}}
+  Coarbitrary-Function : {{Arbitrary a}} -> {{Coarbitrary b}}
     -> Coarbitrary (a -> b)
   Coarbitrary-Function .coarbitrary f gen =
     arbitrary >>= (flip coarbitrary gen <<< f)
 
-  Arbitrary-Function : {{_ : Coarbitrary a}} {{_ : Arbitrary b}}
+  Arbitrary-Function : {{Coarbitrary a}} -> {{Arbitrary b}}
     -> Arbitrary (a -> b)
   Arbitrary-Function .arbitrary = promote (flip coarbitrary arbitrary)
 
@@ -263,28 +264,28 @@ record Testable (a : Type) : Type where
 
 open Testable {{...}} public
 
-forAll : {{_ : Show a}} {{_ : Testable b}} -> Gen a -> (a -> b) -> Property
+forAll : {{Show a}} -> {{Testable b}} -> Gen a -> (a -> b) -> Property
 forAll gen body = Property: do
   a <- gen
   res <- unProperty $ property (body a)
   return $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
 
 infixr 0 _==>_
-_==>_ : {{_ : Testable a}} -> Bool -> a -> Property
+_==>_ : {{Testable a}} -> Bool -> a -> Property
 True ==> a = property a
 False ==> a = result rejected
 
-label : {{_ : Testable a}} -> String -> a -> Property
+label : {{Testable a}} -> String -> a -> Property
 label s a = Property: $ map (map add) (unProperty $ property a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
 
-classify : {{_ : Testable a}} -> Bool -> String -> a -> Property
+classify : {{Testable a}} -> Bool -> String -> a -> Property
 classify True name = label name
 classify False _ = property
 
-collect : {{_ : Show a}} {{_ : Testable b}} -> a -> b -> Property
+collect : {{Show a}} -> {{Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
 ioProperty : IO Property -> Property
@@ -303,10 +304,10 @@ instance
   Testable-Property : Testable Property
   Testable-Property .property = id
 
-  Testable-Gen : {{_ : Testable a}} -> Testable (Gen a)
+  Testable-Gen : {{Testable a}} -> Testable (Gen a)
   Testable-Gen .property gen = Property: (gen >>= property >>> unProperty)
 
-  Testable-Function : {{_ : Arbitrary a}} {{_ : Show a}} {{_ : Testable b}}
+  Testable-Function : {{Arbitrary a}} -> {{Show a}} -> {{Testable b}}
     -> Testable (a -> b)
   Testable-Function .property f = forAll arbitrary f
 
@@ -397,13 +398,13 @@ private
               <> " tests:\n"
               <> String.unlines (Result.arguments res)
 
-check : {{_ : Testable a}} -> Config -> a -> IO Unit
+check : {{Testable a}} -> Config -> a -> IO Unit
 check cfg a = do
   rnd <- newStdGen
   tests cfg (property a) rnd 0 0 []
 
-quickCheck : {{_ : Testable a}} -> a -> IO Unit
+quickCheck : {{Testable a}} -> a -> IO Unit
 quickCheck = check quick
 
-verboseCheck : {{_ : Testable a}} -> a -> IO Unit
+verboseCheck : {{Testable a}} -> a -> IO Unit
 verboseCheck = check verbose
