@@ -28,7 +28,7 @@ record Max (a : Type) : Type where
 open Max public
 
 instance
-  Semigroup-Max : {{_ : Ord a}} -> Semigroup (Max a)
+  Semigroup-Max : {{Ord a}} -> Semigroup (Max a)
   Semigroup-Max ._<>_ (Max: x) (Max: y) = Max: (max x y)
 
   Functor-Max : Functor Max
@@ -41,6 +41,6 @@ instance
   Monad-Max : Monad Max
   Monad-Max ._>>=_ (Max: x) k = k x
 
-  Show-Max : {{_ : Show a}} -> Show (Max a)
+  Show-Max : {{Show a}} -> Show (Max a)
   Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
     (showString "Max: " <<< showsPrec appPrec+1 x)
