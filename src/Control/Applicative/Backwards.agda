@@ -28,10 +28,10 @@ record Backwards (f : Type -> Type) (a : Type) : Type where
 open Backwards public
 
 instance
-  Functor-Backwards : {{_ : Functor f}} -> Functor (Backwards f)
+  Functor-Backwards : {{Functor f}} -> Functor (Backwards f)
   Functor-Backwards .map f (Backwards: x) = Backwards: (map f x)
 
-  Applicative-Backwards : {{_ : Applicative f}} -> Applicative (Backwards f)
+  Applicative-Backwards : {{Applicative f}} -> Applicative (Backwards f)
   Applicative-Backwards .pure x = Backwards: (pure x)
   Applicative-Backwards ._<*>_ (Backwards: f) (Backwards: x) =
     Backwards: (| _#_ x f |)
