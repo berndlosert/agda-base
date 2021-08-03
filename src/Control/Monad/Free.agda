@@ -23,18 +23,18 @@ private
 
 record Free (f : Type -> Type) (a : Type) : Type where
   constructor Free:
-  field runFree : {{_ : Monad m}} -> (forall {b} -> f b -> m b) -> m a
+  field runFree : {{Monad m}} -> (forall {b} -> f b -> m b) -> m a
 
 open Free
 
 liftFree : f a -> Free f a
 liftFree x = Free: \ t -> t x
 
-interpretFree : {{_ : Monad m}}
+interpretFree : {{Monad m}}
   -> (forall {a} -> f a -> m a) -> Free f b -> m b
 interpretFree t free = runFree free t
 
-retractFree : {{_ : Monad m}} -> Free m a -> m a
+retractFree : {{Monad m}} -> Free m a -> m a
 retractFree = interpretFree id
 
 instance
@@ -101,7 +101,7 @@ foldFree {f = f} ret ext free = interpretFree t free ret ext
 
 -- A fold operation based on the standard definition of monad. This one
 -- requires F to be a functor.
-foldFree' : {{_ : Functor f}} -> (a -> b) -> (f b -> b) -> Free f a -> b
+foldFree' : {{Functor f}} -> (a -> b) -> (f b -> b) -> Free f a -> b
 foldFree' {f = f} {{inst}} ret jn free = interpretFree t free ret jn
   where
 
