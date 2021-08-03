@@ -43,12 +43,12 @@ record StateT (s : Type) (m : Type -> Type) (a : Type) : Type where
 
 open StateT public
 
-evalStateT : {{_ : Monad m}} -> StateT s m a -> s -> m a
+evalStateT : {{Monad m}} -> StateT s m a -> s -> m a
 evalStateT (StateT: m) s = do
   (a , _) <- m s
   return a
 
-execStateT : {{_ : Monad m}} -> StateT s m a -> s -> m s
+execStateT : {{Monad m}} -> StateT s m a -> s -> m s
 execStateT (StateT: m) s0 = do
   (_ , s1) <- m s0
   return s1
@@ -60,23 +60,23 @@ withStateT : (s -> s) -> StateT s m a -> StateT s m a
 withStateT f (StateT: m) = StateT: (m <<< f)
 
 instance
-  Functor-StateT : {{_ : Functor m}} -> Functor (StateT s m)
+  Functor-StateT : {{Functor m}} -> Functor (StateT s m)
   Functor-StateT .map f (StateT: m) = StateT: \ s0 -> map (lmap f) (m s0)
 
-  Applicative-StateT : {{_ : Monad m}} -> Applicative (StateT s m)
+  Applicative-StateT : {{Monad m}} -> Applicative (StateT s m)
   Applicative-StateT .pure a = StateT: \ s -> return (a , s)
   Applicative-StateT ._<*>_ (StateT: f) (StateT: x) = StateT: \ s0 -> do
       (g , s1) <- f s0
       (y , s2) <- x s1
       return (g y , s2)
 
-  Alternative-StateT : {{_ : Alternative m}} {{_ : Monad m}} ->
+  Alternative-StateT : {{Alternative m}} -> {{Monad m}} ->
     Alternative (StateT s m)
   Alternative-StateT .empty = StateT: (const empty)
   Alternative-StateT ._<|>_ (StateT: m) (StateT: n) = StateT: \ s ->
     m s <|> n s
 
-  Monad-StateT : {{_ : Monad m}} -> Monad (StateT s m)
+  Monad-StateT : {{Monad m}} -> Monad (StateT s m)
   Monad-StateT ._>>=_ (StateT: m) k = StateT: \ s0 -> do
     (a , s1) <- m s0
     runStateT (k a) s1
@@ -86,14 +86,14 @@ instance
     a <- m
     return (a , s)
 
-  MonadState-StateT : {{_ : Monad m}} -> MonadState s (StateT s m)
+  MonadState-StateT : {{Monad m}} -> MonadState s (StateT s m)
   MonadState-StateT .state f = StateT: (return <<< f)
 
-  MonadReader-StateT : {{_ : MonadReader r m}} -> MonadReader r (StateT s m)
+  MonadReader-StateT : {{MonadReader r m}} -> MonadReader r (StateT s m)
   MonadReader-StateT .ask = lift ask
   MonadReader-StateT .local = mapStateT <<< local
 
-  MonadWriter-StateT : {{_ : MonadWriter w m}} -> MonadWriter w (StateT s m)
+  MonadWriter-StateT : {{MonadWriter w m}} -> MonadWriter w (StateT s m)
   MonadWriter-StateT .tell = lift <<< tell
   MonadWriter-StateT .listen (StateT: m) = StateT: \ s -> do
     (x , s' , w) <- listen (m s)
@@ -102,16 +102,16 @@ instance
      (x , f , s') <- m s
      pure $ (x , s' , f)
 
-  MonadIO-StateT : {{_ : MonadIO m}} -> MonadIO (StateT s m)
+  MonadIO-StateT : {{MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
 
-  MonadThrow-StateT : {{_ : MonadThrow m}} -> MonadThrow (StateT s m)
+  MonadThrow-StateT : {{MonadThrow m}} -> MonadThrow (StateT s m)
   MonadThrow-StateT .throw = lift <<< throw
 
-  MonadCatch-StateT : {{_ : MonadCatch m}} -> MonadCatch (StateT s m)
+  MonadCatch-StateT : {{MonadCatch m}} -> MonadCatch (StateT s m)
   MonadCatch-StateT .catch m h = StateT: \ s ->
     catch (runStateT m s) (\ e -> runStateT (h e) s)
 
-  MonadCont-StateT : {{_ : MonadCont m}} -> MonadCont (StateT s m)
+  MonadCont-StateT : {{MonadCont m}} -> MonadCont (StateT s m)
   MonadCont-StateT .callCC f = StateT: \ s ->
     callCC \ c -> runStateT (f (\ a -> StateT: \ _ -> c (a , s))) s
