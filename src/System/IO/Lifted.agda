@@ -67,7 +67,7 @@ print = liftIO <<< Base.print
 -- File IO
 -------------------------------------------------------------------------------
 
-withFile : {{_ : MonadUnliftIO m}}
+withFile : {{MonadUnliftIO m}}
   -> FilePath -> IOMode -> (Handle -> m r) -> m r
 withFile path mode handler = withRunInIO \ run ->
   Base.withFile path mode (run <<< handler)
