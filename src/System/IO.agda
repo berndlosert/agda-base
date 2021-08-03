@@ -33,7 +33,7 @@ interact f = do
   s <- getContents
   putStrLn (f s)
 
-print : {{_ : Show a}} -> a -> IO Unit
+print : {{Show a}} -> a -> IO Unit
 print x = putStrLn (show x)
 
 {-# FOREIGN GHC import qualified Data.Text.IO as T #-}
