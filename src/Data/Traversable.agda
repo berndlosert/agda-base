@@ -30,12 +30,12 @@ record Traversable (t : Type -> Type) : Type where
   field
     overlap {{Functor-super}} : Functor t
     overlap {{Foldable-super}} : Foldable t
-    traverse : {{_ : Applicative f}} -> (a -> f b) -> t a -> f (t b)
+    traverse : {{Applicative f}} -> (a -> f b) -> t a -> f (t b)
 
-  sequence : {{_ : Applicative f}} -> t (f a) -> f (t a)
+  sequence : {{Applicative f}} -> t (f a) -> f (t a)
   sequence = traverse id
 
-  for : {{_ : Applicative f}} -> t a -> (a -> f b) -> f (t b)
+  for : {{Applicative f}} -> t a -> (a -> f b) -> f (t b)
   for = flip traverse
 
 open Traversable {{...}} public
@@ -51,7 +51,7 @@ instance
     [] -> (| [] |)
     (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
 
-  Traversable-Reverse : {{_ : Traversable f}} -> Traversable (Reverse f)
+  Traversable-Reverse : {{Traversable f}} -> Traversable (Reverse f)
   Traversable-Reverse .traverse f (Reverse: x) =
     map Reverse: <<< forwards $ traverse (Backwards: <<< f) x
 
@@ -59,9 +59,9 @@ instance
 -- mapAccumL, mapAccumR
 -------------------------------------------------------------------------------
 
-mapAccumL : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumL : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
 mapAccumL f z bs = swap $ flip runState z $ for bs \ b ->
   state (flip f b >>> swap)
 
-mapAccumR : {{_ : Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumR : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
 mapAccumR f z = map getReverse <<< mapAccumL f z <<< Reverse:
