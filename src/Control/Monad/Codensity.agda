@@ -27,4 +27,4 @@ toCodensity : {{Monad m}} -> m a -> Codensity m a
 toCodensity x = x >>=_
 
 fromCodensity : {{Monad m}} -> Codensity m a -> m a
-fromCodensity f = f return
+fromCodensity f = f pure

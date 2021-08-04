@@ -46,7 +46,7 @@ open WriterT public
 execWriterT : {{Monad m}} -> WriterT w m a -> m w
 execWriterT (WriterT: m) = do
   (_ , w) <- m
-  return w
+  pure w
 
 mapWriterT : (m (a * w) -> n (b * w'))
   -> WriterT w m a -> WriterT w' n b
@@ -73,22 +73,22 @@ instance
   Monad-WriterT ._>>=_ (WriterT: m) k = WriterT: do
     (a , w) <- m
     (b , w') <- runWriterT (k a)
-    return (b , w <> w')
+    pure (b , w <> w')
 
   MonadTrans-WriterT : {{Monoid w}} -> MonadTrans (WriterT w)
   MonadTrans-WriterT .lift m = WriterT: do
     a <- m
-    return (a , neutral)
+    pure (a , neutral)
 
   MonadWriter-WriterT : {{Monoid w}} -> {{Monad m}}
     -> MonadWriter w (WriterT w m)
-  MonadWriter-WriterT .tell w = WriterT: (return (unit , w))
+  MonadWriter-WriterT .tell w = WriterT: (pure (unit , w))
   MonadWriter-WriterT .listen (WriterT: m) = WriterT: do
     (a , w) <- m
-    return ((a , w) , w)
+    pure ((a , w) , w)
   MonadWriter-WriterT .pass (WriterT: m) = WriterT: do
     ((a , f) , w) <- m
-    return (a , f w)
+    pure (a , f w)
 
   MonadReader-WriterT : {{Monoid w}} -> {{MonadReader r m}}
     -> MonadReader r (WriterT w m)

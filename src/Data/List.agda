@@ -262,11 +262,11 @@ groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))
-    go [] = return []
+    go [] = pure []
     go (x :: xs) = do
       let (ys , zs) = span (eq x) xs
       res <- call zs
-      return $ (x :: ys) :: res
+      pure $ (x :: ys) :: res
 
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
@@ -275,10 +275,10 @@ chunksOf : (n : Nat) -> {{Validate {Positive} n}} -> List a -> List (List a)
 chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))
-    go [] = return []
+    go [] = pure []
     go xs = do
       res <- call (drop n xs)
-      return $ take n xs :: res
+      pure $ take n xs :: res
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> List a * List a
 breakOn {a} needle haystack =
@@ -287,12 +287,12 @@ breakOn {a} needle haystack =
     go : PiG (List a) (\ _ -> List a * List a)
     go haystack = do
       if isPrefixOf needle haystack
-        then return ([] , haystack)
+        then pure ([] , haystack)
         else case haystack of \ where
-          [] -> return ([] , [])
+          [] -> pure ([] , [])
           (x :: xs) -> do
             res <- call xs
-            return $ lmap (x ::_) res
+            pure $ lmap (x ::_) res
 
 splitOn : {{Eq a}}
   -> (needle : List a)
@@ -303,11 +303,11 @@ splitOn {a} needle haystack =
     fromJust (petrol go (length haystack) haystack) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))
-    go [] = return $ singleton []
+    go [] = pure $ singleton []
     go haystack = do
       let (l , r) = breakOn needle haystack
       res <- call $ drop (length needle) r
-      return $ l :: (if null r then [] else res)
+      pure $ l :: (if null r then [] else res)
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []

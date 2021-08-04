@@ -61,8 +61,8 @@ selectM mx mf = do
   case result of \ where
     (Left x) -> do
       f <- mf
-      return (f x)
-    (Right x) -> return x
+      pure (f x)
+    (Right x) -> pure x
 
 --------------------------------------------------------------------------------
 -- Instances

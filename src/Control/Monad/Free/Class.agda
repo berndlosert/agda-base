@@ -29,7 +29,7 @@ record MonadFree (f m : Type -> Type) : Type where
     wrap : f (m a) -> m a
 
   liftF : {{Functor f}} -> f a -> m a
-  liftF = wrap <<< map return
+  liftF = wrap <<< map pure
 
   wrapT : {{Functor f}} -> {{MonadTrans t}} -> f (t m a) -> t m a
   wrapT = join <<< lift <<< liftF

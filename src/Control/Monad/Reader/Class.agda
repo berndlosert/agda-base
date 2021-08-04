@@ -28,6 +28,6 @@ record MonadReader (r : Type) (m : Type -> Type) : Type where
   asks : (r -> a) -> m a
   asks f = do
     r <- ask
-    return (f r)
+    pure (f r)
 
 open MonadReader {{...}} public

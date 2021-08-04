@@ -193,7 +193,7 @@ word = word1 <|> (pure "")
 word1 = do
   c <- letter
   s <- word
-  return (String.cons c s)
+  pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = Parser: \ s -> List.singleton (String.break p s)
@@ -207,8 +207,8 @@ takeAll = takeWhile (const True)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= \ n -> return (ord n - ord '0'))
-    (return \ m n -> 10 * m + n)
+    (digit >>= \ n -> pure (ord n - ord '0'))
+    (pure \ m n -> 10 * m + n)
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)

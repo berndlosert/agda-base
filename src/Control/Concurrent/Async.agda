@@ -82,7 +82,7 @@ concurrently! l r = ignore (concurrently l r)
     var <- newEmptyTMVarIO
     t <- mask $ \ restore ->
       doFork (try (restore action) >>= atomically . putTMVar var)
-    return (Async t (readTMVar var))
+    pure (Async t (readTMVar var))
 
   async :: IO a -> IO (Async a)
   async = asyncUsing forkIO
@@ -97,7 +97,7 @@ concurrently! l r = ignore (concurrently l r)
   waitSTM :: Async a -> STM a
   waitSTM a = do
      r <- waitCatchSTM a
-     either throwSTM return r
+     either throwSTM pure r
 
   wait :: Async a -> IO a
   wait = tryAgain . atomically . waitSTM
@@ -106,7 +106,7 @@ concurrently! l r = ignore (concurrently l r)
   waitAnySTM :: [Async a] -> STM (Async a, a)
   waitAnySTM asyncs =
       foldr orElse retry
-        (map (\ a -> do r <- waitSTM a; return (a, r)) asyncs)
+        (map (\ a -> do r <- waitSTM a; pure (a, r)) asyncs)
 
   waitAny :: [Async a] -> IO (Async a, a)
   waitAny = atomically . waitAnySTM
@@ -129,7 +129,7 @@ concurrently! l r = ignore (concurrently l r)
   waitBothSTM l r = do
       a <- waitSTM l `orElse` (waitSTM r >> retry)
       b <- waitSTM r
-      return (a, b)
+      pure (a, b)
 
   waitBoth :: Async a -> Async b -> IO (a, b)
   waitBoth l r = atomically (waitBothSTM l r)
@@ -162,7 +162,7 @@ concurrently! l r = ignore (concurrently l r)
         uninterruptibleCancel a
         throwIO e
       uninterruptibleCancel a
-      return r
+      pure r
 
   withAsync :: IO a -> (Async a -> IO b) -> IO b
   withAsync = withAsyncUsing forkIO

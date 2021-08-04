@@ -42,7 +42,7 @@ instance
   Functor-Free .map f free = Free: (map f <<< runFree free)
 
   Applicative-Free : Applicative (Free f)
-  Applicative-Free .pure x = Free: \ _ -> return x
+  Applicative-Free .pure x = Free: \ _ -> pure x
   Applicative-Free ._<*>_ f x = Free: \ t -> runFree f t <*> runFree x t
 
   Monad-Free : Monad (Free f)
@@ -53,7 +53,7 @@ instance
 hoistFree : (forall {a} -> f a -> g a) -> Free f b -> Free g b
 hoistFree t free = interpretFree (liftFree <<< t) free
 
--- Free also forms a monad on Types ^ Types. The return operation of this monad
+-- Free also forms a monad on Types ^ Types. The pure operation of this monad
 -- is liftFree; the bind operation is defined below:
 bindFree : Free f a -> (forall {b} -> f b -> Free g b) -> Free g a
 bindFree free t = runFree free t

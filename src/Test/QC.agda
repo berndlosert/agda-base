@@ -92,12 +92,12 @@ chooseAny = Gen: \ r _ -> let (x , _) = random r in x
 generate : Gen a -> IO a
 generate (Gen: g) = do
   r <- newStdGen
-  return (g r 30)
+  pure (g r 30)
 
 sample' : Gen a -> IO (List a)
 sample' g = traverse generate do
   n <- 0 :: enumFromTo 2 20
-  return (resize n g)
+  pure (resize n g)
 
 sample : {{Show a}} -> Gen a -> IO Unit
 sample g = do
@@ -138,7 +138,7 @@ sublistOf = List.filterA \ _ -> map (_== 0) (choose {Nat} (0 , 1))
 shuffle : List a -> Gen (List a)
 shuffle xs = do
   ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2 ^ 32))
-  return (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
+  pure (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
 
 delay : Gen (Gen a -> a)
 delay = Gen: \ r n g -> unGen g r n
@@ -146,7 +146,7 @@ delay = Gen: \ r n g -> unGen g r n
 promote : {{Monad m}} -> m (Gen a) -> Gen (m a)
 promote m = do
   eval <- delay
-  return (map eval m)
+  pure (map eval m)
 
 -------------------------------------------------------------------------------
 -- Arbitrary & Coarbitrary
@@ -253,7 +253,7 @@ rejected = record {
   }
 
 result : Result -> Property
-result = Property: <<< return <<< return
+result = Property: <<< pure <<< pure
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -268,7 +268,7 @@ forAll : {{Show a}} -> {{Testable b}} -> Gen a -> (a -> b) -> Property
 forAll gen body = Property: do
   a <- gen
   res <- unProperty $ property (body a)
-  return $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
+  pure $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
 
 infixr 0 _==>_
 _==>_ : {{Testable a}} -> Bool -> a -> Property

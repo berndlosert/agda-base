@@ -41,7 +41,7 @@ record ContT (r : Type) (m : Type -> Type) (a : Type) : Type where
 open ContT public
 
 evalContT : {{Monad m}} -> ContT r m r -> m r
-evalContT (ContT: m) = m return
+evalContT (ContT: m) = m pure
 
 mapContT : (m r -> m r) -> ContT r m a -> ContT r m a
 mapContT f (ContT: m) = ContT: (f <<< m)

@@ -63,8 +63,8 @@ record MonadCatch (m : Type -> Type) : Type where
 
   tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
   tryJust p ma = try ma >>= \ where
-    (Right v) -> return (Right v)
-    (Left e) -> maybe (throw e) (return <<< Left) (p e)
+    (Right v) -> pure (Right v)
+    (Left e) -> maybe (throw e) (pure <<< Left) (p e)
 
 open MonadCatch {{...}} public
 
@@ -92,17 +92,17 @@ record MonadBracket (m : Type -> Type) : Type where
   bracketOnError : m a -> (a -> m c) -> (a -> m b) -> m b
   bracketOnError acquire release =
     map fst <<< generalBracket acquire \ where
-      _ (ExitCaseSuccess _) -> return unit
+      _ (ExitCaseSuccess _) -> pure unit
       a _ -> do
         release a
-        return unit
+        pure unit
 
   onError : m a -> m b -> m a
   onError action handler =
-    bracketOnError (return unit) (const handler) (const action)
+    bracketOnError (pure unit) (const handler) (const action)
 
   finally : m a -> m b -> m a
-  finally action finalizer = bracket' (return unit) finalizer action
+  finally action finalizer = bracket' (pure unit) finalizer action
 
 open MonadBracket {{...}} public
 
@@ -155,7 +155,7 @@ instance
       _ <- release resource (ExitCaseException e)
       throwIO e
     c <- release resource (ExitCaseSuccess b)
-    return (b, c)
+    pure (b, c)
 #-}
 
 {-# COMPILE GHC Exception = type ExceptionDict #-}

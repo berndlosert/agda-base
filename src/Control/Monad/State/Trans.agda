@@ -46,12 +46,12 @@ open StateT public
 evalStateT : {{Monad m}} -> StateT s m a -> s -> m a
 evalStateT (StateT: m) s = do
   (a , _) <- m s
-  return a
+  pure a
 
 execStateT : {{Monad m}} -> StateT s m a -> s -> m s
 execStateT (StateT: m) s0 = do
   (_ , s1) <- m s0
-  return s1
+  pure s1
 
 mapStateT : (m (a * s) -> n (b * s)) -> StateT s m a -> StateT s n b
 mapStateT f (StateT: m) = StateT: (f <<< m)
@@ -64,11 +64,11 @@ instance
   Functor-StateT .map f (StateT: m) = StateT: \ s0 -> map (lmap f) (m s0)
 
   Applicative-StateT : {{Monad m}} -> Applicative (StateT s m)
-  Applicative-StateT .pure a = StateT: \ s -> return (a , s)
+  Applicative-StateT .pure a = StateT: \ s -> pure (a , s)
   Applicative-StateT ._<*>_ (StateT: f) (StateT: x) = StateT: \ s0 -> do
       (g , s1) <- f s0
       (y , s2) <- x s1
-      return (g y , s2)
+      pure (g y , s2)
 
   Alternative-StateT : {{Alternative m}} -> {{Monad m}} ->
     Alternative (StateT s m)
@@ -84,10 +84,10 @@ instance
   MonadTrans-StateT : MonadTrans (StateT s)
   MonadTrans-StateT .lift m = StateT: \ s -> do
     a <- m
-    return (a , s)
+    pure (a , s)
 
   MonadState-StateT : {{Monad m}} -> MonadState s (StateT s m)
-  MonadState-StateT .state f = StateT: (return <<< f)
+  MonadState-StateT .state f = StateT: (pure <<< f)
 
   MonadReader-StateT : {{MonadReader r m}} -> MonadReader r (StateT s m)
   MonadReader-StateT .ask = lift ask

@@ -166,7 +166,7 @@ postulate
     -> IO (AddrInfo, [AddrInfo])
   getAddrInfo' ai hostname servicename = do
     result <- getAddrInfo ai (unpack <$> hostname) (unpack <$> servicename)
-    return (head result, tail result)
+    pure (head result, tail result)
 #-}
 
 {-# COMPILE GHC Socket = type Socket #-}
@@ -178,7 +178,7 @@ postulate
 {-# COMPILE GHC accept = accept #-}
 {-# COMPILE GHC close = close #-}
 {-# COMPILE GHC gracefulClose = \ s n -> gracefulClose s (fromInteger n) #-}
-{-# COMPILE GHC send = \ s bs -> send s bs >>= return . toInteger  #-}
+{-# COMPILE GHC send = \ s bs -> send s bs >>= pure . toInteger  #-}
 {-# COMPILE GHC sendAll = sendAll  #-}
 {-# COMPILE GHC recv = \ s n -> recv s (fromInteger n)  #-}
 

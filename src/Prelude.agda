@@ -1298,9 +1298,6 @@ record Monad (m : Type -> Type) : Type where
 
 open Monad {{...}} public
 
-return : forall {a m} -> {{Monad m}} -> a -> m a
-return = pure
-
 instance
   Monad-Function : Monad (Function a)
   Monad-Function ._>>=_ m k = \ a -> k (m a) a

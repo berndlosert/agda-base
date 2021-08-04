@@ -41,10 +41,10 @@ open ListT public
 module _ {{_ : Monad m}} where
 
   nilT : ListT m a
-  nilT = ListT: $ return Nothing
+  nilT = ListT: $ pure Nothing
 
   consT : a -> ListT m a -> ListT m a
-  consT x xs = ListT: $ return $ Just (x , xs)
+  consT x xs = ListT: $ pure $ Just (x , xs)
 
   singletonT : a -> ListT m a
   singletonT x = consT x nilT
@@ -55,14 +55,14 @@ module _ {{_ : Monad m}} where
   {-# TERMINATING #-}
   foldListT : (b -> a -> m b) -> b -> ListT m a -> m b
   foldListT f b (ListT: m) = m >>= \ where
-    Nothing -> return b
+    Nothing -> pure b
     (Just (x , xs)) -> f b x >>= \ b' -> foldListT f b' xs
 
   {-# TERMINATING #-}
   runListT : ListT m a -> m (List a)
   runListT (ListT: m) = m >>= \ where
-    Nothing -> return []
-    (Just (x , xs)) -> (| _::_ (return x) (runListT xs) |)
+    Nothing -> pure []
+    (Just (x , xs)) -> (| _::_ (pure x) (runListT xs) |)
 
   {-# TERMINATING #-}
   hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
@@ -74,7 +74,7 @@ instance
   Semigroup-ListT : {{Monad m}} -> Semigroup (ListT m a)
   Semigroup-ListT ._<>_ (ListT: l) (ListT: r) = ListT: $ l >>= \ where
     Nothing -> r
-    (Just (x , xs)) -> return $ Just (x , xs <> ListT: r)
+    (Just (x , xs)) -> pure $ Just (x , xs <> ListT: r)
 
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
   Monoid-ListT .neutral = nilT
@@ -82,20 +82,20 @@ instance
   {-# TERMINATING #-}
   Functor-ListT : {{Monad m}} -> Functor (ListT m)
   Functor-ListT .map f (ListT: m) = ListT: $ m >>= \ where
-    Nothing -> return Nothing
-    (Just (x , xs)) -> return $ Just (f x , map f xs)
+    Nothing -> pure Nothing
+    (Just (x , xs)) -> pure $ Just (f x , map f xs)
 
   {-# TERMINATING #-}
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
-  Applicative-ListT .pure x = ListT: (return (Just (x , neutral)))
+  Applicative-ListT .pure x = ListT: (pure (Just (x , neutral)))
   Applicative-ListT ._<*>_ fs xs = ListT: $ unconsT fs >>= \ where
-    Nothing -> return Nothing
+    Nothing -> pure Nothing
     (Just (f , fs')) -> unconsT $ (map f xs) <> (fs' <*> xs)
 
   {-# TERMINATING #-}
   Monad-ListT : {{Monad m}} -> Monad (ListT m)
   Monad-ListT ._>>=_ (ListT: m) k = ListT: $ m >>= \ where
-    Nothing -> return Nothing
+    Nothing -> pure Nothing
     (Just (x , xs)) -> unconsT $ k x <> (xs >>= k)
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
@@ -127,12 +127,12 @@ instance
     -> MonadWriter w (ListT m)
   MonadWriter-ListT .tell = lift <<< tell
   MonadWriter-ListT .listen (ListT: m) = ListT: $ m >>= \ where
-    Nothing -> return Nothing
+    Nothing -> pure Nothing
     (Just (x , xs)) -> do
-      (a , w) <- listen (return x)
-      return $ Just ((a , w) , listen xs)
+      (a , w) <- listen (pure x)
+      pure $ Just ((a , w) , listen xs)
   MonadWriter-ListT .pass (ListT: m) = ListT: $ m >>= \ where
-    Nothing -> return Nothing
+    Nothing -> pure Nothing
     (Just ((x , f) , rest)) -> do
-      a <- pass $ return (x , f)
-      return $ Just (a , pass rest)
+      a <- pass $ pure (x , f)
+      pure $ Just (a , pass rest)

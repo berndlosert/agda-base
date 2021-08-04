@@ -31,16 +31,16 @@ record MonadWriter (w : Type) (m : Type -> Type) : Type where
   writer : a * w -> m a
   writer (a , w) = do
     tell w
-    return a
+    pure a
 
   listens : (w -> b) -> m a -> m (a * b)
   listens f m = do
     (a , w) <- listen m
-    return (a , f w)
+    pure (a , f w)
 
   censor : (w -> w) -> m a -> m a
   censor f m = pass do
     a <- m
-    return (a , f)
+    pure (a , f)
 
 open MonadWriter {{...}} public

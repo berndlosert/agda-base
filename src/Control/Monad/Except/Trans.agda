@@ -62,7 +62,7 @@ instance
   Alternative-ExceptT ._<|>_ (ExceptT: mx) (ExceptT: my) =
     ExceptT: $ mx >>= \ where
       (Left e) -> map (either (Left <<< (e <>_)) Right) my
-      (Right x) -> return (Right x)
+      (Right x) -> pure (Right x)
 
   Monad-ExceptT : {{Monad m}} -> Monad (ExceptT e m)
   Monad-ExceptT ._>>=_ (ExceptT: m) k =
@@ -83,18 +83,18 @@ instance
     (eb , ec) <- generalBracket
       (runExceptT acquire)
       (\ where
-        (Left e) _ -> return (Left e)
+        (Left e) _ -> pure (Left e)
         (Right resource) (ExitCaseSuccess (Right b)) ->
           runExceptT (release resource (ExitCaseSuccess b))
         (Right resource) (ExitCaseException e) ->
           runExceptT (release resource (ExitCaseException e))
         (Right resource) _ ->
           runExceptT (release resource ExitCaseAbort))
-      (either (return <<< Left) (runExceptT <<< use))
-    return do
+      (either (pure <<< Left) (runExceptT <<< use))
+    pure do
       c <- ec
       b <- eb
-      return (b , c)
+      pure (b , c)
 
   MonadReader-ExceptT : {{MonadReader r m}} -> MonadReader r (ExceptT e m)
   MonadReader-ExceptT .ask = lift ask

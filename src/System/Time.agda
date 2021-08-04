@@ -30,7 +30,7 @@ postulate
   getPOSIXTime :: IO Integer
   getPOSIXTime = do
     CTime t <- readtime nullPtr
-    return (toInteger t)
+    pure (toInteger t)
 #-}
 
 {-# COMPILE GHC getPOSIXTime = getPOSIXTime #-}

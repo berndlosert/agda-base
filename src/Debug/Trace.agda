@@ -29,7 +29,7 @@ postulate
 trace : String -> a -> a
 trace string expr = unsafePerformIO do
   traceIO string
-  return expr
+  pure expr
 
 traceA : {{Applicative f}} -> String -> f Unit
 traceA string = trace string $ pure unit

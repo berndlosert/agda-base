@@ -59,6 +59,6 @@ instance
 {-# COMPILE GHC ST = type ST #-}
 {-# COMPILE GHC runST = runST' #-}
 {-# COMPILE GHC mapST = \ _ _ _ -> fmap #-}
-{-# COMPILE GHC pureST = \ _ _ -> return #-}
+{-# COMPILE GHC pureST = \ _ _ -> pure #-}
 {-# COMPILE GHC apST = \ _ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindST = \ _ _ _ -> (>>=) #-}

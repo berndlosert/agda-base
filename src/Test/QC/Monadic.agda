@@ -68,14 +68,14 @@ module _ {{_ : Monad m}} where
   run = lift
 
   stop : {{Testable b}} -> b -> PropertyT m a
-  stop b = PropertyT: \ _ -> return (return (property b))
+  stop b = PropertyT: \ _ -> pure $ pure $ property b
 
   pre : Bool -> PropertyT m Unit
-  pre True  = return unit
+  pre True  = pure unit
   pre False = stop unit
 
   assert : Bool -> PropertyT m Unit
-  assert True = return unit
+  assert True = pure unit
   assert False = stop False
 
   monitor : (Property -> Property) -> PropertyT m Unit
@@ -87,9 +87,9 @@ module _ {{_ : Monad m}} where
     pick gen = PropertyT: \ k -> do
       a <- gen
       mp <- k a
-      return $ do
+      pure do
         p <- mp
-        return $ forAll (return a) (const p)
+        pure $ forAll (pure a) (const p)
 
     forAllM : Gen a -> (a -> PropertyT m b) -> PropertyT m b
     forAllM gen k = pick gen >>= k
@@ -97,7 +97,7 @@ module _ {{_ : Monad m}} where
   module _ {{_ : Testable a}} where
 
     monadic' : PropertyT m a -> Gen (m Property)
-    monadic' m = unPropertyT m \ prop -> return $ return $ property prop
+    monadic' m = unPropertyT m \ prop -> pure $ pure $ property prop
 
     monadic : (m Property -> Property) -> PropertyT m a -> Property
     monadic runner m = property (map runner (monadic' m))

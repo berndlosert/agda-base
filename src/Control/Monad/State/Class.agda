@@ -37,6 +37,6 @@ record MonadState (s : Type) (m : Type -> Type) : Type where
   gets : (s -> a) -> m a
   gets f = do
     s <- get
-    return (f s)
+    pure (f s)
 
 open MonadState {{...}} public

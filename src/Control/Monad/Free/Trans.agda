@@ -49,7 +49,7 @@ hoistFreeT : {{Monad m}} -> {{Monad n}}
   -> FreeT f m b
   -> FreeT f n b
 hoistFreeT t (FreeT: m) = FreeT: \ ret bnd ->
-  (join <<< t) (m (return <<< ret) (\ x f -> return (bnd x (join <<< t <<< f))))
+  (join <<< t) (m (pure <<< ret) (\ x f -> pure (bnd x (join <<< t <<< f))))
 
 instance
   Functor-FreeT : Functor (FreeT f m)

@@ -72,7 +72,7 @@ instance
     runReaderT (k a) r
 
   MonadReader-ReaderT : {{Monad m}} -> MonadReader r (ReaderT r m)
-  MonadReader-ReaderT .ask = ReaderT: return
+  MonadReader-ReaderT .ask = ReaderT: pure
   MonadReader-ReaderT .local f = withReaderT f
 
   MonadTrans-ReaderT : MonadTrans (ReaderT r)
