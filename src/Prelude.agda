@@ -117,6 +117,9 @@ undefined = error "Prelude.undefined"
 -- Function primitives
 -------------------------------------------------------------------------------
 
+the : (a : Type) -> a -> a
+the _ x = x
+
 const : a -> b -> a
 const x _ = x
 
@@ -1073,27 +1076,21 @@ instance
 -------------------------------------------------------------------------------
 
 record Category (p : Type -> Type -> Type) : Type where
-  field
-    compose : p b c -> p a b -> p a c
-    identity : p a a
-
   infixr 9 _<<<_
-  _<<<_ : p b c -> p a b -> p a c
-  _<<<_ = compose
+  field
+    _<<<_ : p b c -> p a b -> p a c
+    id : p a a
 
   infixr 9 _>>>_
   _>>>_ : p a b -> p b c -> p a c
-  _>>>_ = flip compose
+  _>>>_ = flip _<<<_
 
 open Category {{...}} public
 
-id : forall {a} {p} -> {{Category p}} -> p a a
-id = identity
-
 instance
   Category-Function : Category Function
-  Category-Function .compose f g x = f (g x)
-  Category-Function .identity x = x
+  Category-Function ._<<<_ f g x = f (g x)
+  Category-Function .id x = x
 
 -------------------------------------------------------------------------------
 -- Functor
