@@ -1273,28 +1273,12 @@ record Monad (m : Type -> Type) : Type where
     overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
 
-  join : m (m a) -> m a
-  join = _>>= id
-
-  infixr 1 _=<<_
-  _=<<_ : (a -> m b) -> m a -> m b
-  _=<<_ = flip _>>=_
-
   infixl 4 _>>_
   _>>_ : m a -> m b -> m b
   _>>_ = _*>_
 
-  infixl 4 _<<_
-  _<<_ : m b -> m a -> m b
-  _<<_ = _<*_
-
-  infixr 1 _>=>_
-  _>=>_ : (a -> m b) -> (b -> m c) -> a -> m c
-  (f >=> g) x = f x >>= g
-
-  infixr 1 _<=<_
-  _<=<_ : (b -> m c) -> (a -> m b) -> a -> m c
-  _<=<_ = flip _>=>_
+  join : m (m a) -> m a
+  join = _>>= id
 
 open Monad {{...}} public
 
