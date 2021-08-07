@@ -29,25 +29,26 @@ data General (a : Type) (b : a -> Type) (x : Type) : Type where
 PiG : (a : Type) -> (b : a -> Type) -> Type
 PiG a b = (i : a) -> General a b (b i)
 
-fold : (x -> y) -> ((i : a) -> (b i -> y) -> y) -> General a b x -> y
-fold pure ask (Tell x) = pure x
-fold pure ask (Ask i k) = ask i (\ o -> fold pure ask (k o))
+general : (x -> y) -> ((i : a) -> (b i -> y) -> y) -> General a b x -> y
+general tell ask (Tell x) = tell x
+general tell ask (Ask i k) = ask i (\ o -> general tell ask (k o))
 
 call : PiG a b
 call i = Ask i Tell
 
-bind : General a b x -> (x -> General a b y) -> General a b y
-bind m f = fold f Ask m
+private
+  bind : General a b x -> (x -> General a b y) -> General a b y
+  bind m f = general f Ask m
 
-monadMorphism : {{Monad m}} -> (t : (i : a) -> m (b i)) -> General a b x -> m x
-monadMorphism t = fold pure \ i -> (t i >>=_)
+interpretGeneral : {{Monad m}} -> (t : (i : a) -> m (b i)) -> General a b x -> m x
+interpretGeneral t = general pure \ i -> (t i >>=_)
 
 already : General a b x -> Maybe x
-already = monadMorphism (\ i -> Nothing)
+already = interpretGeneral (\ i -> Nothing)
 
 instance
   Functor-General : Functor (General a b)
-  Functor-General .map f = fold (Tell <<< f) Ask
+  Functor-General .map f = general (Tell <<< f) Ask
 
   Applicative-General : Applicative (General a b)
   Applicative-General .pure = Tell
@@ -57,7 +58,7 @@ instance
   Monad-General ._>>=_ = bind
 
 expand : PiG a b -> General a b x -> General a b x
-expand f = monadMorphism f
+expand f = interpretGeneral f
 
 engine : PiG a b -> Nat -> General a b x -> General a b x
 engine f 0 = id
