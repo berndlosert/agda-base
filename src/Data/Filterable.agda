@@ -71,7 +71,7 @@ open Filterable {{...}} public
 
 instance
   Filterable-Maybe : Filterable Maybe
-  Filterable-Maybe .mapMaybe = _=<<_
+  Filterable-Maybe .mapMaybe = flip _>>=_
 
   Filterable-List : Filterable List
   Filterable-List .mapMaybe f = foldr (maybe id (_::_) <<< f) []
