@@ -21,6 +21,14 @@ private
     f m t : Type -> Type
 
 -------------------------------------------------------------------------------
+-- Step (for foldl')
+-------------------------------------------------------------------------------
+
+data Step (a : Type) : Type where
+  Done : a -> Step a
+  Continue : a -> Step a
+
+-------------------------------------------------------------------------------
 -- Foldable
 -------------------------------------------------------------------------------
 
@@ -35,6 +43,15 @@ record Foldable (t : Type -> Type) : Type where
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl f z xs = foldr (\ x k y -> k $! f y x) id xs z
+
+  -- Short-circuiting foldl.
+  foldl' : (b -> a -> Step b) -> b -> t a -> b
+  foldl' {b} {a} f = flip $ foldr go id
+    where
+      go : a -> (b -> b) -> b -> b
+      go x k z = case f z x of \ where
+        (Done result) -> result
+        (Continue accum) -> k accum
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM f z xs = let g k y z' = f y z' >>= k in
@@ -57,8 +74,7 @@ record Foldable (t : Type -> Type) : Type where
   length = foldr (const Suc) 0
 
   find : (a -> Bool) -> t a -> Maybe a
-  find p = either Just (const Nothing) <<<
-    foldlM (\ _ x ->  if p x then Left x else Right unit) unit
+  find p = foldl' (\ _ x ->  if p x then Done (Just x) else Continue Nothing) Nothing
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe False (const True) (find p xs)
