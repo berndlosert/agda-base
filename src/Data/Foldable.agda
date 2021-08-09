@@ -36,7 +36,10 @@ record Foldable (t : Type -> Type) : Type where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap f = foldr (_<>_ <<< f) neutral
+  foldMap {b} {a} f = foldr go neutral
+    where
+      go : a -> b -> b
+      go x z = f x <> z
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
@@ -81,7 +84,7 @@ record Foldable (t : Type -> Type) : Type where
   length = foldr (const Suc) 0
 
   find : (a -> Bool) -> t a -> Maybe a
-  find p = foldl' (\ _ x ->  if p x then Done (Just x) else Continue Nothing) Nothing
+  find p = foldl' (\ _ x -> if p x then Done (Just x) else Continue Nothing) Nothing
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe False (const True) (find p xs)
