@@ -63,8 +63,10 @@ record Foldable (t : Type -> Type) : Type where
       go x k z = f z x >>= k
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM f z xs = let go k y z' = f y z' >>= k in
-    foldl go pure xs z
+  foldrM {m} {a} {b} f = flip $ foldl go pure
+    where
+      go : (b -> m b) -> a -> b -> m b
+      go k x z = f x z >>= k
 
   toList : t a -> List a
   toList = foldMap (_:: [])
