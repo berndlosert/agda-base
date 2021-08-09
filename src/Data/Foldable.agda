@@ -42,7 +42,10 @@ record Foldable (t : Type -> Type) : Type where
   fold = foldMap id
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl f z xs = foldr (\ x k y -> k $! f y x) id xs z
+  foldl {b} {a} f = flip $ foldr go id
+    where
+      go : a -> (b -> b) -> b -> b
+      go x k z = k $! f z x
 
   -- Short-circuiting foldl.
   foldl' : (b -> a -> Step b) -> b -> t a -> b
