@@ -146,8 +146,9 @@ splitAt : Nat -> List a -> List a * List a
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List a -> Maybe a
-at n = either Just (const Nothing) <<< flip foldlM 0 \
-  k x -> if k == n then Left x else Right (Suc k)
+at 0 xs = head xs
+at (Suc n) [] = Nothing
+at (Suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
