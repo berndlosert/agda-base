@@ -23,16 +23,16 @@ private
 record MonadState (s : Type) (m : Type -> Type) : Type where
   field
     overlap {{Monad-super}} : Monad m
-    state : (s -> a * s) -> m a
+    state : (s -> s * a) -> m a
 
   get : m s
   get = state \ s -> (s , s)
 
   put : s -> m Unit
-  put s = state \ _ -> (unit , s)
+  put s = state \ _ -> (s , unit)
 
   modify : (s -> s) -> m Unit
-  modify f = state \ s -> (unit , f s)
+  modify f = state \ s -> (f s , unit)
 
   gets : (s -> a) -> m a
   gets f = do
