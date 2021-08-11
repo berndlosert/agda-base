@@ -22,10 +22,10 @@ abstract
   Parser : Type -> Type
   Parser = StateT String List
 
-  Parser: : (String -> List (a * String)) -> Parser a
-  Parser: = StateT:
+  Parser: : (String -> List (String * a)) -> Parser a
+  Parser: = stateT
 
-  runParser : Parser a -> String -> List (a * String)
+  runParser : Parser a -> String -> List (String * a)
   runParser = runStateT
 
   instance
@@ -112,14 +112,14 @@ parse : Parser a -> String -> Maybe a
 parse p s =
   case runParser p s of \ where
     [] -> Nothing
-    ((a , _) :: _) -> Just a
+    ((_ , a) :: _) -> Just a
 
 -------------------------------------------------------------------------------
 -- Char parsers
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = Parser: (maybe [] List.singleton <<< String.uncons)
+anyChar = Parser: (String.uncons >>> maybe [] (swap >>> List.singleton))
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do

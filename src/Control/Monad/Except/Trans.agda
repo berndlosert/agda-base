@@ -103,10 +103,10 @@ instance
   MonadWriter-ExceptT : {{MonadWriter w m}} -> MonadWriter w (ExceptT e m)
   MonadWriter-ExceptT .tell = lift <<< tell
   MonadWriter-ExceptT .listen = mapExceptT \ m -> do
-    (a , w) <- listen m
-    pure $ (_, w) <$> a
+    (w , x) <- listen m
+    pure $ (w ,_) <$> x
   MonadWriter-ExceptT .pass = mapExceptT \ m ->
-    pass $ m >>= pure <<< either (pair Left (const id)) (bimap Right id)
+    pass $ m >>= pure <<< either (pair (const id) Left) (bimap id Right)
 
   MonadState-ExceptT : {{MonadState s m}} -> MonadState s (ExceptT e m)
   MonadState-ExceptT .state = lift <<< state
