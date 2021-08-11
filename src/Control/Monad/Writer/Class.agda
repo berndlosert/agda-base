@@ -25,22 +25,20 @@ record MonadWriter (w : Type) (m : Type -> Type) : Type where
     overlap {{Monoid-w}} : Monoid w
     overlap {{Monad-m}} : Monad m
     tell : w -> m Unit
-    listen : m a -> m (a * w)
-    pass : m (a * (w -> w)) -> m a
+    listen : m a -> m (w * a)
+    pass : m ((w -> w) * a) -> m a
 
-  writer : a * w -> m a
-  writer (a , w) = do
+  writer : w * a -> m a
+  writer (w , x) = do
     tell w
-    pure a
+    pure x
 
   listens : (w -> b) -> m a -> m (a * b)
   listens f m = do
-    (a , w) <- listen m
-    pure (a , f w)
+    (w , x) <- listen m
+    pure (x , f w)
 
   censor : (w -> w) -> m a -> m a
-  censor f m = pass do
-    a <- m
-    pure (a , f)
+  censor f m = pass (map (f ,_) m)
 
 open MonadWriter {{...}} public

@@ -37,17 +37,17 @@ State s = StateT s Identity
 
 {-# DISPLAY StateT s Identity = State s #-}
 
-runState : State s a -> s -> a * s
+runState : State s a -> s -> s * a
 runState m = runIdentity <<< runStateT m
 
 evalState : State s a -> s -> a
-evalState m s = fst (runState m s)
+evalState m = runIdentity <<< evalStateT m
 
 execState : State s a -> s -> s
-execState m s = snd (runState m s)
+execState m = runIdentity <<< execStateT m
 
-mapState : (a * s -> b * s) -> State s a -> State s b
+mapState : (s * a -> s * b) -> State s a -> State s b
 mapState = mapStateT <<< map
 
 withState : (s -> s) -> State s a -> State s a
-withState f = withStateT f
+withState = withStateT
