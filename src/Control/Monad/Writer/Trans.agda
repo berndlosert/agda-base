@@ -96,11 +96,11 @@ instance
   MonadReader-WriterT : {{Monoid w}} -> {{MonadReader r m}}
     -> MonadReader r (WriterT w m)
   MonadReader-WriterT .ask = lift ask
-  MonadReader-WriterT .local f = mapWriterT (local f)
+  MonadReader-WriterT .local = mapWriterT <<< local
 
   MonadState-WriterT : {{Monoid w}} -> {{MonadState s m}}
     -> MonadState s (WriterT w m)
-  MonadState-WriterT .state f = lift (state f)
+  MonadState-WriterT .state = lift <<< state
 
   MonadThrow-WriterT : {{Monoid w}} -> {{MonadThrow m}}
     -> MonadThrow (WriterT w m)
@@ -109,7 +109,7 @@ instance
   MonadCatch-WriterT : {{Monoid w}} -> {{MonadCatch m}}
     -> MonadCatch (WriterT w m)
   MonadCatch-WriterT .catch m h = writerT $
-    catch (runWriterT m) (\ e -> runWriterT (h e))
+    catch (runWriterT m) (runWriterT <<< h)
 
   MonadCont-WriterT : {{Monoid w}} -> {{MonadCont m}}
     -> MonadCont (WriterT w m)
