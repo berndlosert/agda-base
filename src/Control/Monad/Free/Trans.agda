@@ -39,7 +39,7 @@ record FreeT (f : Type -> Type) (m : Type -> Type) (a : Type) : Type where
   field
     runFreeT : (a -> m r) -> (forall {b} -> f b -> (b -> m r) -> m r) -> m r
 
-open FreeT
+open FreeT public
 
 liftFreeT : f a -> FreeT f m a
 liftFreeT x = FreeT: \ ret bnd -> bnd x ret
