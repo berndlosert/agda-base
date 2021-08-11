@@ -37,14 +37,14 @@ Writer w = WriterT w Identity
 
 {-# DISPLAY WriterT w Identity = Writer w #-}
 
-writer: : a * w -> Writer w a
-writer: = WriterT: <<< Identity:
+writer: : w * a -> Writer w a
+writer: = writerT <<< Identity:
 
-runWriter : Writer w a -> a * w
+runWriter : Writer w a -> w * a
 runWriter = runIdentity <<< runWriterT
 
 execWriter : Writer w a -> w
-execWriter m = snd (runWriter m)
+execWriter = fst <<< runWriter
 
-mapWriter : (a * w -> b * w') -> Writer w a -> Writer w' b
+mapWriter : (w * a -> w' * b) -> Writer w a -> Writer w' b
 mapWriter = mapWriterT <<< map
