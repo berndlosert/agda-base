@@ -37,9 +37,6 @@ Writer w = WriterT w Identity
 
 {-# DISPLAY WriterT w Identity = Writer w #-}
 
-writer: : w * a -> Writer w a
-writer: = writerT <<< Identity:
-
 runWriter : Writer w a -> w * a
 runWriter = runIdentity <<< runWriterT
 
