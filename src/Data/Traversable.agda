@@ -60,8 +60,7 @@ instance
 -------------------------------------------------------------------------------
 
 mapAccumL : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
-mapAccumL f z bs = swap $ flip runState z $ for bs \ b ->
-  state (flip f b >>> swap)
+mapAccumL f z bs = flip runState z $ for bs (state <<< flip f)
 
 mapAccumR : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
 mapAccumR f z = map getReverse <<< mapAccumL f z <<< Reverse:
