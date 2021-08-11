@@ -49,14 +49,10 @@ abstract
   stateT = id
 
 evalStateT : {{Monad m}} -> StateT s m a -> s -> m a
-evalStateT m s = do
-  (_ , x) <- runStateT m s
-  pure x
+evalStateT m s = runStateT m s >>= snd >>> pure
 
 execStateT : {{Monad m}} -> StateT s m a -> s -> m s
-execStateT m s = do
-  (s' , _) <- runStateT m s
-  pure s'
+execStateT m s = runStateT m s >>= fst >>> pure
 
 mapStateT : (m (s * a) -> n (s * b)) -> StateT s m a -> StateT s n b
 mapStateT f m = stateT (f <<< runStateT m)
@@ -66,10 +62,10 @@ withStateT f m = stateT (runStateT m <<< f)
 
 instance
   Functor-StateT : {{Functor m}} -> Functor (StateT s m)
-  Functor-StateT .map f m = stateT \ s -> map (map f) (runStateT m s)
+  Functor-StateT .map f m = stateT (map (map f) <<< runStateT m)
 
   Applicative-StateT : {{Monad m}} -> Applicative (StateT s m)
-  Applicative-StateT .pure x = stateT \ s -> pure (s , x)
+  Applicative-StateT .pure x = stateT (pure <<< (_, x))
   Applicative-StateT ._<*>_ f x = stateT \ s0 -> do
       (s1 , g) <- runStateT f s0
       (s2 , y) <- runStateT x s1
