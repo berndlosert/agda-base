@@ -56,7 +56,7 @@ mapWriterT f = writerT <<< f <<< runWriterT
 
 instance
   Functor-WriterT : {{Functor m}} -> Functor (WriterT w m)
-  Functor-WriterT .map f = mapWriterT (map (map f))
+  Functor-WriterT .map = mapWriterT <<< map <<< map
 
   Applicative-WriterT : {{Monoid w}} -> {{Applicative m}}
     -> Applicative (WriterT w m)
