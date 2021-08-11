@@ -114,4 +114,4 @@ instance
   MonadCont-WriterT : {{Monoid w}} -> {{MonadCont m}}
     -> MonadCont (WriterT w m)
   MonadCont-WriterT .callCC f = writerT $
-    callCC \ c -> runWriterT (f (\ x -> writerT $ c (neutral , x)))
+    callCC \ c -> (runWriterT <<< f) (writerT <<< c <<< (neutral ,_))
