@@ -111,32 +111,31 @@ instance
   {-# NON_TERMINATING #-}
   MonadWriter-IterT : {{MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
-
   MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
       map concat' $ listen (map listen <$> runIterT iter)
     where
       c : Type
-      c = a * w
+      c = w * a
 
-      concat' : (a + IterT m c) * w -> c + IterT m c
-      concat' (Left x , w) = Left (x , w)
-      concat' (Right y , w) = Right $ map (w <>_) <$> y
+      concat' : w * (a + IterT m c) -> c + IterT m c
+      concat' (w , Left x) = Left (w , x)
+      concat' (w , Right y) = Right $ lmap (w <>_) <$> y
 
   MonadWriter-IterT {w = w} {m = m} .pass {a = a} iter .runIterT =
       pass' $ runIterT $ hoistIterT clean $ listen iter
     where
       clean : forall {a} -> m a -> m a
-      clean = pass <<< map (_, const neutral)
+      clean = pass <<< map (const neutral ,_)
 
       c : Type
-      c = a * (w -> w) * w
+      c = w * ((w -> w) * a)
 
       pass' : m (c + IterT m c) -> m (a + IterT m a)
       g : (c + IterT m c) -> m (a + IterT m a)
 
       pass' = join <<< map g
 
-      g (Left (x , f , w)) = tell (f w) >> pure (Left x)
+      g (Left (w , (f , x))) = tell (f w) >> pure (Left x)
       g (Right iter') =
         pure (Right (\ where .runIterT -> pass' (runIterT iter')))
 
