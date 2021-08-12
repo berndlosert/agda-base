@@ -39,51 +39,51 @@ abstract
   ExceptT : (e : Type) (m : Type -> Type) (a : Type) -> Type
   ExceptT e m a = m (e + a)
 
-  exceptT : m (e + a) -> ExceptT e m a
-  exceptT = id
+  mkExceptT : m (e + a) -> ExceptT e m a
+  mkExceptT = id
 
   runExceptT : ExceptT e m a -> m (e + a)
   runExceptT = id
 
 mapExceptT : (m (e + a) -> n (e' + b)) -> ExceptT e m a -> ExceptT e' n b
-mapExceptT f m = exceptT (f (runExceptT m))
+mapExceptT f m = mkExceptT (f (runExceptT m))
 
 withExceptT : {{Functor m}} -> (e -> e') -> ExceptT e m a -> ExceptT e' m a
-withExceptT f t = exceptT $ map (lmap f) (runExceptT t)
+withExceptT f t = mkExceptT $ map (lmap f) (runExceptT t)
 
 instance
   Functor-ExceptT : {{Functor m}} -> Functor (ExceptT e m)
-  Functor-ExceptT .map f = exceptT <<< map (map f) <<< runExceptT
+  Functor-ExceptT .map f = mkExceptT <<< map (map f) <<< runExceptT
 
   Applicative-ExceptT : {{Monad m}} -> Applicative (ExceptT e m)
-  Applicative-ExceptT .pure = exceptT <<< pure <<< pure
+  Applicative-ExceptT .pure = mkExceptT <<< pure <<< pure
   Applicative-ExceptT ._<*>_ f x =
-    exceptT (| _<*>_ (runExceptT f) (runExceptT x) |)
+    mkExceptT (| _<*>_ (runExceptT f) (runExceptT x) |)
 
   Alternative-ExceptT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (ExceptT e m)
-  Alternative-ExceptT .empty = exceptT $ pure (Left neutral)
+  Alternative-ExceptT .empty = mkExceptT $ pure (Left neutral)
   Alternative-ExceptT ._<|>_ l r =
-    exceptT $ runExceptT l >>= \ where
+    mkExceptT $ runExceptT l >>= \ where
       (Left e) -> map (either (Left <<< (e <>_)) Right) (runExceptT r)
       (Right x) -> pure (Right x)
 
   Monad-ExceptT : {{Monad m}} -> Monad (ExceptT e m)
   Monad-ExceptT ._>>=_ m k =
-    exceptT (runExceptT m >>= either (pure <<< Left) (runExceptT <<< k))
+    mkExceptT (runExceptT m >>= either (pure <<< Left) (runExceptT <<< k))
 
   MonadTrans-ExceptT : MonadTrans (ExceptT e)
-  MonadTrans-ExceptT .lift = exceptT <<< map Right
+  MonadTrans-ExceptT .lift = mkExceptT <<< map Right
 
   MonadThrow-ExceptT : {{MonadThrow m}} -> MonadThrow (ExceptT e m)
   MonadThrow-ExceptT .throw = lift <<< throw
 
   MonadCatch-ExceptT : {{MonadCatch m}} -> MonadCatch (ExceptT e m)
   MonadCatch-ExceptT .catch m k =
-    exceptT $ catch (runExceptT m) (runExceptT <<< k)
+    mkExceptT $ catch (runExceptT m) (runExceptT <<< k)
 
   MonadBracket-ExceptT : {{MonadBracket m}} -> MonadBracket (ExceptT e m)
-  MonadBracket-ExceptT .generalBracket acquire release use = exceptT do
+  MonadBracket-ExceptT .generalBracket acquire release use = mkExceptT do
     (eb , ec) <- generalBracket
       (runExceptT acquire)
       (\ where
@@ -116,5 +116,5 @@ instance
   MonadState-ExceptT .state = lift <<< state
 
   MonadCont-ExceptT : {{MonadCont m}} -> MonadCont (ExceptT e m)
-  MonadCont-ExceptT .callCC f = exceptT $
-    callCC \ c -> runExceptT (f $ exceptT <<< c <<< Right)
+  MonadCont-ExceptT .callCC f = mkExceptT $
+    callCC \ c -> runExceptT (f $ mkExceptT <<< c <<< Right)

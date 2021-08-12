@@ -37,17 +37,17 @@ Cont r a = ContT r Identity a
 
 {-# DISPLAY ContT r Identity = Cont r #-}
 
-cont : ((a -> r) -> r) -> Cont r a
-cont f = contT \ c -> Identity: (f (runIdentity <<< c))
+mkCont : ((a -> r) -> r) -> Cont r a
+mkCont f = mkContT \ c -> Identity: (f (runIdentity <<< c))
 
 runCont : Cont r a -> (a -> r) -> r
 runCont m k = runIdentity (runContT m (Identity: <<< k))
 
 evalCont : Cont r r -> r
-evalCont m = runIdentity (evalContT m)
+evalCont = runIdentity <<< evalContT
 
 mapCont : (r -> r) -> Cont r a -> Cont r a
-mapCont f = mapContT (map f)
+mapCont = mapContT <<< map
 
 withCont : ((b -> r) -> (a -> r)) -> Cont r a -> Cont r b
 withCont f = withContT ((Identity: <<<_) <<< f <<< (runIdentity <<<_))

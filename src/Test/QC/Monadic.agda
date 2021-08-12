@@ -30,12 +30,11 @@ abstract
   PropertyT : (Type -> Type) -> Type -> Type
   PropertyT m a = ContT (m Property) Gen a
 
-  PropertyT: : ((a -> Gen (m Property)) -> Gen (m Property)) -> PropertyT m a
-  PropertyT: = ContT:
+  mkPropertyT : ((a -> Gen (m Property)) -> Gen (m Property)) -> PropertyT m a
+  mkPropertyT = mkContT
 
   unPropertyT : PropertyT m a -> (a -> Gen (m Property)) -> Gen (m Property)
   unPropertyT = runContT
-
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -53,7 +52,7 @@ abstract
 
 instance
   MonadTrans-PropertyT : MonadTrans PropertyT
-  MonadTrans-PropertyT .lift m = PropertyT: (map (m >>=_) <<< promote)
+  MonadTrans-PropertyT .lift m = mkPropertyT (map (m >>=_) <<< promote)
 
   MonadIO-PropertyT : {{MonadIO m}} -> MonadIO (PropertyT m)
   MonadIO-PropertyT .liftIO = lift <<< liftIO
@@ -68,7 +67,7 @@ module _ {{_ : Monad m}} where
   run = lift
 
   stop : {{Testable b}} -> b -> PropertyT m a
-  stop b = PropertyT: \ _ -> pure $ pure $ property b
+  stop b = mkPropertyT \ _ -> pure $ pure $ property b
 
   pre : Bool -> PropertyT m Unit
   pre True  = pure unit
@@ -79,12 +78,12 @@ module _ {{_ : Monad m}} where
   assert False = stop False
 
   monitor : (Property -> Property) -> PropertyT m Unit
-  monitor f = PropertyT: \ k -> map f <$> k unit
+  monitor f = mkPropertyT \ k -> map f <$> k unit
 
   module _ {{_ : Show a}} where
 
     pick : Gen a -> PropertyT m a
-    pick gen = PropertyT: \ k -> do
+    pick gen = mkPropertyT \ k -> do
       a <- gen
       mp <- k a
       pure do
