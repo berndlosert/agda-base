@@ -12,7 +12,6 @@ open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
 open import Data.Tree.Finger.Node
 open import Data.Foldable
-open import Data.Functor.Compose
 open import Data.Monoid.Sum
 open import Data.Traversable
 

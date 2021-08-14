@@ -9,7 +9,6 @@ module Data.Tree.Finger where
 open import Prelude
 
 open import Data.Foldable
-open import Data.Functor.Compose
 open import Data.Refined
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
