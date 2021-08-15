@@ -22,13 +22,13 @@ private
 -------------------------------------------------------------------------------
 
 record Free (f : Type -> Type) (a : Type) : Type where
-  constructor mkFree
+  constructor Free:
   field runFree : {{Monad m}} -> (forall {b} -> f b -> m b) -> m a
 
 open Free
 
 liftFree : f a -> Free f a
-liftFree x = mkFree \ t -> t x
+liftFree x = Free: \ t -> t x
 
 interpretFree : {{Monad m}}
   -> (forall {a} -> f a -> m a) -> Free f b -> m b
@@ -39,14 +39,14 @@ retractFree = interpretFree id
 
 instance
   Functor-Free : Functor (Free f)
-  Functor-Free .map f free = mkFree (map f <<< runFree free)
+  Functor-Free .map f free = Free: (map f <<< runFree free)
 
   Applicative-Free : Applicative (Free f)
-  Applicative-Free .pure x = mkFree \ _ -> pure x
-  Applicative-Free ._<*>_ f x = mkFree \ t -> runFree f t <*> runFree x t
+  Applicative-Free .pure x = Free: \ _ -> pure x
+  Applicative-Free ._<*>_ f x = Free: \ t -> runFree f t <*> runFree x t
 
   Monad-Free : Monad (Free f)
-  Monad-Free ._>>=_ m f = mkFree \ t ->
+  Monad-Free ._>>=_ m f = Free: \ t ->
     join (map (interpretFree t <<< f) (interpretFree t m))
 
 -- Free forms a functor on the category Types ^ Types whose map operation is:
