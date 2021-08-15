@@ -37,7 +37,7 @@ private
 -- ReaderT
 -------------------------------------------------------------------------------
 
-record ReaderT (r : Type) (m : Type -> Type) (a : Type) : Type
+record ReaderT (r : Type) (m : Type -> Type) (a : Type) : Type where
   constructor ReaderT:
   field runReaderT : r -> m a
 
