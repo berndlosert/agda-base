@@ -37,8 +37,8 @@ Cont r a = ContT r Identity a
 
 {-# DISPLAY ContT r Identity = Cont r #-}
 
-mkCont : ((a -> r) -> r) -> Cont r a
-mkCont f = mkContT \ c -> Identity: (f (runIdentity <<< c))
+cont : ((a -> r) -> r) -> Cont r a
+cont f = ContT: \ c -> Identity: (f (runIdentity <<< c))
 
 runCont : Cont r a -> (a -> r) -> r
 runCont m k = runIdentity (runContT m (Identity: <<< k))
