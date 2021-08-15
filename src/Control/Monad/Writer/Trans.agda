@@ -41,6 +41,8 @@ record WriterT (w : Type) (m : Type -> Type) (a : Type) : Type where
   constructor WriterT:
   field runWriterT : m (w * a)
 
+open WriterT public
+
 execWriterT : {{Functor m}} -> WriterT w m a -> m w
 execWriterT = map fst <<< runWriterT
 
