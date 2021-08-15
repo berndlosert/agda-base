@@ -35,41 +35,41 @@ private
 -------------------------------------------------------------------------------
 
 record FreeT (f : Type -> Type) (m : Type -> Type) (a : Type) : Type where
-  constructor mkFreeT
+  constructor FreeT:
   field
     runFreeT : (a -> m r) -> (forall {b} -> f b -> (b -> m r) -> m r) -> m r
 
 open FreeT public
 
 liftFreeT : f a -> FreeT f m a
-liftFreeT x = mkFreeT \ ret bnd -> bnd x ret
+liftFreeT x = FreeT: \ ret bnd -> bnd x ret
 
 hoistFreeT : {{Monad m}} -> {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> FreeT f m b
   -> FreeT f n b
-hoistFreeT t (mkFreeT m) = mkFreeT \ ret bnd ->
+hoistFreeT t (FreeT: m) = FreeT: \ ret bnd ->
   (join <<< t) (m (pure <<< ret) (\ x f -> pure (bnd x (join <<< t <<< f))))
 
 instance
   Functor-FreeT : Functor (FreeT f m)
-  Functor-FreeT .map f (mkFreeT h) = mkFreeT \ ret bnd ->
+  Functor-FreeT .map f (FreeT: h) = FreeT: \ ret bnd ->
     h (ret <<< f) bnd
 
   Applicative-FreeT : Applicative (FreeT f m)
-  Applicative-FreeT .pure x = mkFreeT \ ret _ -> ret x
-  Applicative-FreeT ._<*>_ (mkFreeT f) (mkFreeT x) = mkFreeT \ ret bnd ->
+  Applicative-FreeT .pure x = FreeT: \ ret _ -> ret x
+  Applicative-FreeT ._<*>_ (FreeT: f) (FreeT: x) = FreeT: \ ret bnd ->
     f (\ g -> x (\ a -> ret (g a)) bnd) bnd
 
   Monad-FreeT : Monad (FreeT f m)
-  Monad-FreeT ._>>=_ (mkFreeT m) k = mkFreeT \ ret bnd ->
+  Monad-FreeT ._>>=_ (FreeT: m) k = FreeT: \ ret bnd ->
     m (\ a -> runFreeT (k a) ret bnd) bnd
 
   MonadTrans-FreeT : MonadTrans (FreeT f)
-  MonadTrans-FreeT .lift m = mkFreeT \ ret jn -> join ((map ret) m)
+  MonadTrans-FreeT .lift m = FreeT: \ ret jn -> join ((map ret) m)
 
   MonadFree-FreeT : MonadFree f (FreeT f m)
-  MonadFree-FreeT .wrap x = mkFreeT \ ret bnd ->
+  MonadFree-FreeT .wrap x = FreeT: \ ret bnd ->
     bnd x (\ f -> runFreeT f ret bnd)
 
   MonadReader-FreeT : {{MonadReader r m}} -> MonadReader r (FreeT f m)
