@@ -193,19 +193,19 @@ forOf! : {{Functor f}}
 forOf! = flip <<< traverseOf!
 
 -------------------------------------------------------------------------------
--- ATypeter
+-- ASetter
 -------------------------------------------------------------------------------
 
-ATypeter : (s t a b : Type) -> Type
-ATypeter s t a b = (a -> Identity b) -> s -> Identity t
+ASetter : (s t a b : Type) -> Type
+ASetter s t a b = (a -> Identity b) -> s -> Identity t
 
-over : ATypeter s t a b -> (a -> b) -> s -> t
+over : ASetter s t a b -> (a -> b) -> s -> t
 over g k = runIdentity <<< g (Identity: <<< k)
 
-set : ATypeter s t a b -> b -> s -> t
+set : ASetter s t a b -> b -> s -> t
 set f b = runIdentity <<< f (\ _ -> Identity: b)
 
-sets : ((a -> b) -> s -> t) -> ATypeter s t a b
+sets : ((a -> b) -> s -> t) -> ASetter s t a b
 sets f k = Identity: <<< f (runIdentity <<< k)
 
 -------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ is ap = not <<< isn't ap
 -- Some general optics
 -------------------------------------------------------------------------------
 
-mapped : {{Functor f}} -> ATypeter (f a) (f b) a b
+mapped : {{Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 
 traversed : {{Traversable f}} -> Traversal (f a) (f b) a b
