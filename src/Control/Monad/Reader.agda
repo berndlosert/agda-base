@@ -37,9 +37,6 @@ Reader r = ReaderT r Identity
 
 {-# DISPLAY ReaderT r Identity = Reader r #-}
 
-mkReader : (r -> a) -> Reader r a
-mkReader f = mkReaderT (Identity: <<< f)
-
 runReader : Reader r a -> r -> a
 runReader m = runIdentity <<< runReaderT m
 
