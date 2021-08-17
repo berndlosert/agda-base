@@ -133,18 +133,18 @@ record Foldable (t : Type -> Type) : Type where
     fold1 s = fromJust (foldMap Just s) {{trustMe}}
 
     foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
-    foldr1 f s = fromJust (foldr g Nothing s) {{trustMe}}
+    foldr1 f s = fromJust (foldr go Nothing s) {{trustMe}}
       where
-        g : a -> Maybe a -> Maybe a
-        g x Nothing = Just x
-        g x (Just y) = Just (f x y)
+        go : a -> Maybe a -> Maybe a
+        go x Nothing = Just x
+        go x (Just y) = Just (f x y)
 
     foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
-    foldl1 f s = fromJust (foldl g Nothing s) {{trustMe}}
+    foldl1 f s = fromJust (foldl go Nothing s) {{trustMe}}
       where
-        g : Maybe a -> a -> Maybe a
-        g Nothing x = Just x
-        g (Just x) y = Just (f x y)
+        go : Maybe a -> a -> Maybe a
+        go Nothing x = Just x
+        go (Just x) y = Just (f x y)
 
     module _ {{_ : Ord a}} where
 
