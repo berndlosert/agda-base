@@ -320,19 +320,6 @@ split f (x :: xs) =
       (y :: ys) -> (x :: y) :: ys
 
 -------------------------------------------------------------------------------
--- Transformations
--------------------------------------------------------------------------------
-
-intercalate : {{Monoid a}} -> a -> List a -> a
-intercalate sep [] = neutral
-intercalate sep (s :: []) = s
-intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
-
-transpose : List (List a) -> List (List a)
-transpose [] = []
-transpose (heads :: tails) = zipCons heads (transpose tails)
-
--------------------------------------------------------------------------------
 -- Type-like operations
 -------------------------------------------------------------------------------
 
@@ -367,6 +354,42 @@ module _ {{_ : Eq a}} where
 
   union : List a -> List a -> List a
   union = unionBy _==_
+
+-------------------------------------------------------------------------------
+-- Transformations
+-------------------------------------------------------------------------------
+
+intercalate : {{Monoid a}} -> a -> List a -> a
+intercalate sep [] = neutral
+intercalate sep (s :: []) = s
+intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
+
+transpose : List (List a) -> List (List a)
+transpose [] = []
+transpose (heads :: tails) = zipCons heads (transpose tails)
+
+powerset : List a -> List (List a)
+powerset = filterA $ const (False :: True :: [])
+
+subsets : List a -> Nat -> List (List a)
+subsets _ 0 = singleton []
+subsets [] _ = []
+subsets (x :: xs) (Suc n) =
+  map (x ::_) (subsets xs n) <> subsets xs (Suc n)
+
+-- All ways of removing one element from a list.
+holes : List a -> List (a * List a)
+holes [] = []
+holes (x :: xs) = (x , xs) :: do
+  (y , ys) <- holes xs
+  pure (y , x :: ys)
+
+{-# TERMINATING #-}
+permutations : List a -> List (List a)
+permutations [] = singleton []
+permutations xs = do
+  (y , ys) <- holes xs
+  map (y ::_) (permutations ys)
 
 -------------------------------------------------------------------------------
 -- Sorting
