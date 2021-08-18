@@ -107,6 +107,20 @@ record Foldable (t : Type -> Type) : Type where
   product : {{Multiplicative a}} -> t a -> a
   product = foldl _*_ one
 
+  minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
+  minimumBy {a} cmp = foldl min' Nothing
+    where
+      min' : Maybe a -> a -> Maybe a
+      min' Nothing x = Just x
+      min' (Just x) y = Just (if cmp x y == LT then x else y)
+
+  maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
+  maximumBy {a} cmp = foldl max' Nothing
+    where
+      max' : Maybe a -> a -> Maybe a
+      max' Nothing x = Just x
+      max' (Just x) y = Just (if cmp x y == GT then x else y)
+
   module _ {{_ : Eq a}} where
 
     elem : a -> t a -> Bool
@@ -114,6 +128,14 @@ record Foldable (t : Type -> Type) : Type where
 
     notElem : a -> t a -> Bool
     notElem a s = not (elem a s)
+
+  module _ {{_ : Ord a}} where
+
+    minimum : t a -> Maybe a
+    minimum = minimumBy compare
+
+    maximum : t a -> Maybe a
+    maximum = maximumBy compare
 
   module _ {{_ : Applicative f}} where
 
@@ -140,19 +162,27 @@ record Foldable (t : Type -> Type) : Type where
         go x (Just y) = Just (f x y)
 
     foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
-    foldl1 f s = fromJust (foldl go Nothing s) {{trustMe}}
+    foldl1 f xs = fromJust (foldl go Nothing xs) {{trustMe}}
       where
         go : Maybe a -> a -> Maybe a
         go Nothing x = Just x
         go (Just x) y = Just (f x y)
 
+    minimumBy1 : (a -> a -> Ordering)
+      -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    minimumBy1 cmp xs = fromJust (minimumBy cmp xs) {{trustMe}}
+
+    maximumBy1 : (a -> a -> Ordering)
+      -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    maximumBy1 cmp xs = fromJust (maximumBy cmp xs) {{trustMe}}
+
     module _ {{_ : Ord a}} where
 
-      minimum : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
-      minimum = foldr1 min
+      minimum1 : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      minimum1 = foldr1 min
 
-      maximum : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
-      maximum = foldr1 max
+      maximum1 : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      maximum1 = foldr1 max
 
   module _ {{_ : Applicative f}} where
 
