@@ -368,14 +368,14 @@ transpose : List (List a) -> List (List a)
 transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
 
-subsets : List a -> List (List a)
-subsets = filterA $ const (False :: True :: [])
+sublists : List a -> List (List a)
+sublists = filterA $ const (False :: True :: [])
 
-subsetsN : Nat -> List a -> List (List a)
-subsetsN 0 _ = singleton []
-subsetsN _ [] = []
-subsetsN (Suc n) (x :: xs) =
-  map (x ::_) (subsetsN n xs) <> subsetsN (Suc n) xs
+sublistsN : Nat -> List a -> List (List a)
+sublistsN 0 _ = singleton []
+sublistsN _ [] = []
+sublistsN (Suc n) (x :: xs) =
+  map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
 
 -- All ways of removing one element from a list.
 holes : List a -> List (a * List a)
