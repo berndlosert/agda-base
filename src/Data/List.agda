@@ -377,19 +377,18 @@ sublistsN _ [] = []
 sublistsN (Suc n) (x :: xs) =
   map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
 
+leaveOutOne : List a -> List (a * List a)
+leaveOutOne [] = []
+leaveOutOne (x :: xs) = (x , xs) :: do
+  (y , ys) <- leaveOutOne xs
+  pure (y , x :: ys)
+
 {-# TERMINATING #-}
 permutations : List a -> List (List a)
 permutations [] = singleton []
-permutations xs =
-  do
-    (y , ys) <- aux xs
-    map (y ::_) (permutations ys)
-  where
-    aux : List a -> List (a * List a)
-    aux [] = []
-    aux (x :: xs) = (x , xs) :: do
-      (y , ys) <- aux xs
-      pure (y , x :: ys)
+permutations xs = do
+  (y , ys) <- leaveOutOne xs
+  map (y ::_) (permutations ys)
 
 -------------------------------------------------------------------------------
 -- Sorting
