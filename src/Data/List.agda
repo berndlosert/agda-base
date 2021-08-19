@@ -377,19 +377,19 @@ sublistsN _ [] = []
 sublistsN (Suc n) (x :: xs) =
   map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
 
--- All ways of removing one element from a list.
-holes : List a -> List (a * List a)
-holes [] = []
-holes (x :: xs) = (x , xs) :: do
-  (y , ys) <- holes xs
-  pure (y , x :: ys)
-
 {-# TERMINATING #-}
 permutations : List a -> List (List a)
 permutations [] = singleton []
-permutations xs = do
-  (y , ys) <- holes xs
-  map (y ::_) (permutations ys)
+permutations xs =
+  do
+    (y , ys) <- aux xs
+    map (y ::_) (permutations ys)
+  where
+    aux : List a -> List (a * List a)
+    aux [] = []
+    aux (x :: xs) = (x , xs) :: do
+      (y , ys) <- aux xs
+      pure (y , x :: ys)
 
 -------------------------------------------------------------------------------
 -- Sorting
