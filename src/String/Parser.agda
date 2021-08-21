@@ -22,8 +22,8 @@ abstract
   Parser : Type -> Type
   Parser = StateT String List
 
-  mkParser : (String -> List (String * a)) -> Parser a
-  mkParser = mkStateT
+  parser : (String -> List (String * a)) -> Parser a
+  parser = StateT:
 
   runParser : Parser a -> String -> List (String * a)
   runParser = runStateT
@@ -107,7 +107,7 @@ chainr1 {a} p op = (| _#_ p rest |)
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
 
--- Run a mkParser on a string and get the first result.
+-- Run a parser on a string and get the first result.
 parse : Parser a -> String -> Maybe a
 parse p s =
   case runParser p s of \ where
@@ -115,11 +115,11 @@ parse p s =
     ((_ , a) :: _) -> Just a
 
 -------------------------------------------------------------------------------
--- Char mkParsers
+-- Char parsers
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = mkParser (String.uncons >>> maybe [] (swap >>> List.singleton))
+anyChar = parser (String.uncons >>> maybe [] (swap >>> List.singleton))
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -180,7 +180,7 @@ tab : Parser Char
 tab = char '\t'
 
 -------------------------------------------------------------------------------
--- String mkParsers
+-- String parsers
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
@@ -196,7 +196,7 @@ word1 = do
   pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = mkParser \ s -> List.singleton (String.break p s)
+takeWhile p = parser \ s -> List.singleton (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const True)
@@ -214,7 +214,7 @@ int : Parser Int
 int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
 
 -------------------------------------------------------------------------------
--- Misc. mkParsers
+-- Misc. parsers
 -------------------------------------------------------------------------------
 
 lexeme : Parser a -> Parser a
