@@ -101,12 +101,6 @@ record Foldable (t : Type -> Type) : Type where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  sum : {{Additive a}} -> t a -> a
-  sum = foldl _+_ zero
-
-  product : {{Multiplicative a}} -> t a -> a
-  product = foldl _*_ one
-
   minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
   minimumBy {a} cmp = foldl min' Nothing
     where
@@ -120,6 +114,18 @@ record Foldable (t : Type -> Type) : Type where
       max' : Maybe a -> a -> Maybe a
       max' Nothing x = Just x
       max' (Just x) y = Just (if cmp x y == GT then x else y)
+
+  module _ {{fn : FromNat a}} where
+
+    sum : {{FromNatConstraint {{fn}} 0}}
+      -> {{Plus a}}
+      -> t a -> a
+    sum = foldl _+_ 0
+
+    product : {{FromNatConstraint {{fn}} 1}}
+      -> {{Times a}}
+      -> t a -> a
+    product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where
 
@@ -167,6 +173,12 @@ record Foldable (t : Type -> Type) : Type where
         go : Maybe a -> a -> Maybe a
         go Nothing x = Just x
         go (Just x) y = Just (f x y)
+
+    sum1 : {{Plus a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    sum1 = foldl1 _+_
+
+    product1 : {{Times a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    product1 = foldl1 _*_
 
     minimumBy1 : (a -> a -> Ordering)
       -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
