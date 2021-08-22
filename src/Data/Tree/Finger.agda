@@ -60,8 +60,8 @@ instance
       (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
   Validation-Nonempty-FingerTree : Validation Nonempty (FingerTree v a)
-  Validation-Nonempty-FingerTree .validate Empty = False
-  Validation-Nonempty-FingerTree .validate _ = True
+  Validation-Nonempty-FingerTree .validate _ Empty = False
+  Validation-Nonempty-FingerTree .validate _ _ = True
 
 empty : FingerTree v a
 empty = Empty
@@ -219,7 +219,7 @@ splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> (t : FingerTree v a)
-  -> {{Validate {Nonempty} t}}
+  -> {{Validate Nonempty t}}
   -> FingerTree v a * a * FingerTree v a
 splitTree _ _ (Single x) = (Empty , x , Empty)
 splitTree p i (Deep _ pr m sf) =
@@ -259,7 +259,7 @@ private
     -> (v -> v -> Bool)
     -> v
     -> (t : FingerTree v a)
-    -> {{Validate {Nonempty} t}}
+    -> {{Validate Nonempty t}}
     -> v
     -> FingerTree v a * a * FingerTree v a
   searchTree _ _ (Single x) _ = (Empty , x , Empty)

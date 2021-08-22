@@ -86,7 +86,7 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : (xs : List a) -> {{Validate {Nonempty} xs}} -> List a
+init : (xs : List a) -> {{Validate Nonempty xs}} -> List a
 init (x :: []) = []
 init (x :: x' :: xs) = x :: init (x' :: xs)
 
@@ -272,7 +272,7 @@ groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
-chunksOf : (n : Nat) -> {{Validate {Positive} n}} -> List a -> List (List a)
+chunksOf : (n : Nat) -> {{Validate Positive n}} -> List a -> List (List a)
 chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))
@@ -297,7 +297,7 @@ breakOn {a} needle haystack =
 
 splitOn : {{Eq a}}
   -> (needle : List a)
-  -> {{Validate {Nonempty} needle}}
+  -> {{Validate Nonempty needle}}
   -> (haystack : List a)
   -> List (List a)
 splitOn {a} needle haystack =

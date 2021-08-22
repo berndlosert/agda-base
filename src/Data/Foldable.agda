@@ -154,46 +154,46 @@ record Foldable (t : Type -> Type) : Type where
   module _ {{_ : Validation Nonempty (t a)}} where
 
     foldMap1 : {{Semigroup b}}
-      -> (a -> b) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> b
+      -> (a -> b) -> (xs : t a) -> {{Validate Nonempty xs}} -> b
     foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{trustMe}}
 
-    fold1 : {{Semigroup a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    fold1 : {{Semigroup a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     fold1 s = fromJust (foldMap Just s) {{trustMe}}
 
-    foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     foldr1 f s = fromJust (foldr go Nothing s) {{trustMe}}
       where
         go : a -> Maybe a -> Maybe a
         go x Nothing = Just x
         go x (Just y) = Just (f x y)
 
-    foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     foldl1 f xs = fromJust (foldl go Nothing xs) {{trustMe}}
       where
         go : Maybe a -> a -> Maybe a
         go Nothing x = Just x
         go (Just x) y = Just (f x y)
 
-    sum1 : {{Plus a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    sum1 : {{Plus a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     sum1 = foldl1 _+_
 
-    product1 : {{Times a}} -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+    product1 : {{Times a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     product1 = foldl1 _*_
 
     minimumBy1 : (a -> a -> Ordering)
-      -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     minimumBy1 cmp xs = fromJust (minimumBy cmp xs) {{trustMe}}
 
     maximumBy1 : (a -> a -> Ordering)
-      -> (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     maximumBy1 cmp xs = fromJust (maximumBy cmp xs) {{trustMe}}
 
     module _ {{_ : Ord a}} where
 
-      minimum1 : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      minimum1 : (xs : t a) -> {{Validate Nonempty xs}} -> a
       minimum1 = foldr1 min
 
-      maximum1 : (xs : t a) -> {{Validate {Nonempty} xs}} -> a
+      maximum1 : (xs : t a) -> {{Validate Nonempty xs}} -> a
       maximum1 = foldr1 max
 
   module _ {{_ : Applicative f}} where

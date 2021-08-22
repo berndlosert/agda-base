@@ -61,13 +61,11 @@ instance
   Bits-Word8 .isSigned = word8IsSigned
   Bits-Word8 .popCount = word8PopCount
 
-  Additive-Word8 : Additive Word8
-  Additive-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
-  Additive-Word8 .zero = fromNat 0
+  Plus-Word8 : Plus Word8
+  Plus-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
 
-  Multiplicative-Word8 : Multiplicative Word8
-  Multiplicative-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
-  Multiplicative-Word8 .one = fromNat 1
+  Times-Word8 : Times Word8
+  Times-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -124,13 +122,11 @@ instance
   Bits-Word16 .isSigned = word16IsSigned
   Bits-Word16 .popCount = word16PopCount
 
-  Additive-Word16 : Additive Word16
-  Additive-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
-  Additive-Word16 .zero = fromNat 0
+  Plus-Word16 : Plus Word16
+  Plus-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
 
-  Multiplicative-Word16 : Multiplicative Word16
-  Multiplicative-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
-  Multiplicative-Word16 .one = fromNat 1
+  Times-Word16 : Times Word16
+  Times-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -187,13 +183,11 @@ instance
   Bits-Word32 .isSigned = word32IsSigned
   Bits-Word32 .popCount = word32PopCount
 
-  Additive-Word32 : Additive Word32
-  Additive-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
-  Additive-Word32 .zero = fromNat 0
+  Plus-Word32 : Plus Word32
+  Plus-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
 
-  Multiplicative-Word32 : Multiplicative Word32
-  Multiplicative-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
-  Multiplicative-Word32 .one = fromNat 1
+  Times-Word32 : Times Word32
+  Times-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -254,13 +248,11 @@ instance
   Bits-Word64 .isSigned = word64IsSigned
   Bits-Word64 .popCount = word64PopCount
 
-  Additive-Word64 : Additive Word64
-  Additive-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
-  Additive-Word64 .zero = fromNat 0
+  Plus-Word64 : Plus Word64
+  Plus-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
 
-  Multiplicative-Word64 : Multiplicative Word64
-  Multiplicative-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
-  Multiplicative-Word64 .one = fromNat 1
+  Times-Word64 : Times Word64
+  Times-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
 
 -------------------------------------------------------------------------------
 -- FFI

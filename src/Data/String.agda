@@ -63,7 +63,7 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) -> {{Validate {Nonempty} s}} -> String
+init : (s : String) -> {{Validate Nonempty s}} -> String
 init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
@@ -153,7 +153,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -------------------------------------------------------------------------------
 
 splitOn : (delim : String)
-  -> {{Validate {Nonempty} delim}}
+  -> {{Validate Nonempty delim}}
   -> String
   -> List String
 splitOn delim s =

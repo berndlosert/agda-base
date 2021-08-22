@@ -827,160 +827,144 @@ instance
   ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
 
 -------------------------------------------------------------------------------
--- Additive
+-- Plus
 -------------------------------------------------------------------------------
 
-record Additive (a : Type) : Type where
+record Plus (a : Type) : Type where
   infixl 6 _+_
-  field
-    _+_ : a -> a -> a
-    zero : a
+  field _+_ : a -> a -> a
 
-open Additive {{...}} public
+open Plus {{...}} public
 
 instance
-  Additive-Type : Additive Type
-  Additive-Type ._+_ = Either
-  Additive-Type .zero = Void
+  Plus-Type : Plus Type
+  Plus-Type ._+_ = Either
 
-  Additive-Nat : Additive Nat
-  Additive-Nat ._+_ = natPlus
-  Additive-Nat .zero = 0
+  Plus-Nat : Plus Nat
+  Plus-Nat ._+_ = natPlus
 
-  Additive-Fin : {n : Nat} -> Additive (Fin (Suc n))
-  Additive-Fin ._+_ = finPlus
-  Additive-Fin .zero = Zero
+  Plus-Fin : {n : Nat} -> Plus (Fin (Suc n))
+  Plus-Fin ._+_ = finPlus
 
-  Additive-Int : Additive Int
-  Additive-Int .zero = 1
-  Additive-Int ._+_ = intPlus
+  Plus-Int : Plus Int
+  Plus-Int ._+_ = intPlus
 
-  Additive-Float : Additive Float
-  Additive-Float ._+_ = floatPlus
-  Additive-Float .zero = 0.0
+  Plus-Float : Plus Float
+  Plus-Float ._+_ = floatPlus
 
-  Additive-Function : {{Additive b}} -> Additive (a -> b)
-  Additive-Function ._+_ f g x = f x + g x
-  Additive-Function .zero = const zero
+  Plus-Function : {{Plus b}} -> Plus (a -> b)
+  Plus-Function ._+_ f g x = f x + g x
 
 -------------------------------------------------------------------------------
--- Substractable
+-- Minus
 -------------------------------------------------------------------------------
 
-record Subtractable (a : Type) : Type where
+record Minus (a : Type) : Type where
   infixl 6 _-_
   field _-_ : a -> a -> a
 
-open Subtractable {{...}} public
+open Minus {{...}} public
 
 instance
-  Subtractable-Nat : Subtractable Nat
-  Subtractable-Nat ._-_ = natMinus
+  Minus-Nat : Minus Nat
+  Minus-Nat ._-_ = natMinus
 
-  Subtractable-Fin : {n : Nat} -> Subtractable (Fin (Suc n))
-  Subtractable-Fin ._-_ = finMinus
+  Minus-Fin : {n : Nat} -> Minus (Fin (Suc n))
+  Minus-Fin ._-_ = finMinus
 
-  Subtractable-Int : Subtractable Int
-  Subtractable-Int ._-_ m n = m + intNegate n
+  Minus-Int : Minus Int
+  Minus-Int ._-_ m n = m + intNegate n
 
-  Subtractable-Float : Subtractable Float
-  Subtractable-Float ._-_ = floatMinus
+  Minus-Float : Minus Float
+  Minus-Float ._-_ = floatMinus
 
-  Subtractable-Function : {{Subtractable b}} -> Subtractable (a -> b)
-  Subtractable-Function ._-_ f g x = f x - g x
+  Minus-Function : {{Minus b}} -> Minus (a -> b)
+  Minus-Function ._-_ f g x = f x - g x
 
 -------------------------------------------------------------------------------
--- Negatable
+-- Negate
 -------------------------------------------------------------------------------
 
-record Negatable (a : Type) : Type where
+record Negate (a : Type) : Type where
   field -_ : a -> a
 
-open Negatable {{...}} public
+open Negate {{...}} public
 
 instance
-  Negatable-Fin : {n : Nat} -> Negatable (Fin (Suc n))
-  Negatable-Fin .-_ = finNegate
+  Negate-Fin : {n : Nat} -> Negate (Fin (Suc n))
+  Negate-Fin .-_ = finNegate
 
-  Negatable-Int : Negatable Int
-  Negatable-Int .-_ = intNegate
+  Negate-Int : Negate Int
+  Negate-Int .-_ = intNegate
 
-  Negatable-Float : Negatable Float
-  Negatable-Float .-_ = floatNegate
+  Negate-Float : Negate Float
+  Negate-Float .-_ = floatNegate
 
-  Negatable-Function : {{Negatable b}} -> Negatable (a -> b)
-  Negatable-Function .-_ f x = - (f x)
+  Negate-Function : {{Negate b}} -> Negate (a -> b)
+  Negate-Function .-_ f x = - (f x)
 
 -------------------------------------------------------------------------------
--- Multiplicative
+-- Times
 -------------------------------------------------------------------------------
 
-record Multiplicative (a : Type) : Type where
+record Times (a : Type) : Type where
   infixl 7 _*_
-  field
-    _*_ : a -> a -> a
-    one : a
+  field _*_ : a -> a -> a
 
   infixr 8 _^_
-  _^_ : a -> Nat -> a
-  a ^ 0 = one
+  _^_ : a -> {{fn : FromNat a}} -> {{FromNatConstraint {{fn}} 1}} -> Nat -> a
+  a ^ 0 = 1
   a ^ (Suc n) = a ^ n * a
 
-open Multiplicative {{...}} public
+open Times {{...}} public
 
 instance
-  Multiplicative-Type : Multiplicative Type
-  Multiplicative-Type ._*_ = Pair
-  Multiplicative-Type .one = Unit
+  Times-Type : Times Type
+  Times-Type ._*_ = Pair
 
-  Multiplicative-Nat : Multiplicative Nat
-  Multiplicative-Nat ._*_ = natTimes
-  Multiplicative-Nat .one = 1
+  Times-Nat : Times Nat
+  Times-Nat ._*_ = natTimes
 
-  Multiplicative-Fin : {n : Nat} -> Multiplicative (Fin (Suc (Suc n)))
-  Multiplicative-Fin .one = Suc Zero
-  Multiplicative-Fin ._*_ = finTimes
+  Times-Fin : {n : Nat} -> Times (Fin (Suc (Suc n)))
+  Times-Fin ._*_ = finTimes
 
-  Multiplicative-Int : Multiplicative Int
-  Multiplicative-Int .one = 1
-  Multiplicative-Int ._*_ = intTimes
+  Times-Int : Times Int
+  Times-Int ._*_ = intTimes
 
-  Multiplicative-Float : Multiplicative Float
-  Multiplicative-Float ._*_ = floatTimes
-  Multiplicative-Float .one = 1.0
+  Times-Float : Times Float
+  Times-Float ._*_ = floatTimes
 
-  Multiplicative-Function : {{Multiplicative b}} -> Multiplicative (a -> b)
-  Multiplicative-Function ._*_ f g x = f x * g x
-  Multiplicative-Function .one = const one
+  Times-Function : {{Times b}} -> Times (a -> b)
+  Times-Function ._*_ f g x = f x * g x
 
 -------------------------------------------------------------------------------
--- Dividable
+-- DivMod
 -------------------------------------------------------------------------------
 
-record Dividable (a : Type) : Type where
+record DivMod (a : Type) : Type where
   infixl 7 _/_
   infixl 7 _%_
   field
-    DividableConstraint : a -> Type
-    _/_ _%_ : (x y : a) -> {{DividableConstraint y}} -> a
+    DivModConstraint : a -> Type
+    _/_ _%_ : (x y : a) -> {{DivModConstraint y}} -> a
 
-open Dividable {{...}} public
+open DivMod {{...}} public
 
 instance
-  Dividable-Nat : Dividable Nat
-  Dividable-Nat .DividableConstraint n = Assert (n /= 0)
-  Dividable-Nat ._/_ m n = natDiv m n
-  Dividable-Nat ._%_ m n = natMod m n
+  DivMod-Nat : DivMod Nat
+  DivMod-Nat .DivModConstraint n = Assert (n /= 0)
+  DivMod-Nat ._/_ m n = natDiv m n
+  DivMod-Nat ._%_ m n = natMod m n
 
-  Dividable-Int : Dividable Int
-  Dividable-Int .DividableConstraint n = Assert (n /= 0)
-  Dividable-Int ._/_ m n = intDiv m n
-  Dividable-Int ._%_ m n = intMod m n
+  DivMod-Int : DivMod Int
+  DivMod-Int .DivModConstraint n = Assert (n /= 0)
+  DivMod-Int ._/_ m n = intDiv m n
+  DivMod-Int ._%_ m n = intMod m n
 
-  Dividable-Float : Dividable Float
-  Dividable-Float .DividableConstraint _ = Unit
-  Dividable-Float ._/_ x y = floatDiv x y
-  Dividable-Float ._%_ _ _ = 0.0
+  DivMod-Float : DivMod Float
+  DivMod-Float .DivModConstraint _ = Unit
+  DivMod-Float ._/_ x y = floatDiv x y
+  DivMod-Float ._%_ _ _ = 0.0
 
 -------------------------------------------------------------------------------
 -- Semigroup
