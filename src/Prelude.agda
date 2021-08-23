@@ -890,35 +890,6 @@ instance
   Semigroup[*]-Function ._*_ f g x = f x * g x
 
 -------------------------------------------------------------------------------
--- DivMod
--------------------------------------------------------------------------------
-
-record DivMod (a : Type) : Type where
-  infixl 7 _/_
-  infixl 7 _%_
-  field
-    DivModConstraint : a -> Type
-    _/_ _%_ : (x y : a) -> {{DivModConstraint y}} -> a
-
-open DivMod {{...}} public
-
-instance
-  DivMod-Nat : DivMod Nat
-  DivMod-Nat .DivModConstraint n = Assert (n /= 0)
-  DivMod-Nat ._/_ m n = natDiv m n
-  DivMod-Nat ._%_ m n = natMod m n
-
-  DivMod-Int : DivMod Int
-  DivMod-Int .DivModConstraint n = Assert (n /= 0)
-  DivMod-Int ._/_ m n = intDiv m n
-  DivMod-Int ._%_ m n = intMod m n
-
-  DivMod-Float : DivMod Float
-  DivMod-Float .DivModConstraint _ = Unit
-  DivMod-Float ._/_ x y = floatDiv x y
-  DivMod-Float ._%_ _ _ = 0.0
-
--------------------------------------------------------------------------------
 -- Semigroup
 -------------------------------------------------------------------------------
 
@@ -1111,6 +1082,71 @@ instance
   Group[+]-Function : {{Group[+] b}} -> Group[+] (a -> b)
   Group[+]-Function ._-_ f g x = f x - g x
   Group[+]-Function .-_ f x = - (f x)
+
+-------------------------------------------------------------------------------
+-- Ring
+-------------------------------------------------------------------------------
+
+record Ring (a : Type) : Type where
+  field
+    overlap {{Group[+]-super}} : Group[+] a
+    overlap {{Monoid[*]-super}} : Monoid[*] a
+    Nonzero : a -> Type
+
+open Ring {{...}} public
+
+instance
+  Ring-Nat : Ring Nat
+  Ring-Nat .Nonzero 0 = Void
+  Ring-Nat .Nonzero _ = Unit
+
+  Ring-Int : Ring Int
+  Ring-Int .Nonzero (Pos 0) = Void
+  Ring-Int .Nonzero _ = Unit
+
+  Ring-Float : Ring Float
+  Ring-Float .Nonzero x = Assert (x /= 0.0)
+
+-------------------------------------------------------------------------------
+-- EuclideanDomain
+-------------------------------------------------------------------------------
+
+record EuclideanDomain (a : Type) : Type where
+  field
+    overlap {{Ring-super}} : Ring a
+    degree : (x : a) -> {{Nonzero x}} -> Nat
+    quot : (x y : a) -> {{Nonzero y}} -> a
+    rem : (x y : a) -> {{Nonzero y}} -> a
+
+open EuclideanDomain {{...}} public
+
+instance
+  EuclideanDomain-Nat : EuclideanDomain Nat
+  EuclideanDomain-Nat .degree n = n
+  EuclideanDomain-Nat .quot m n = natDiv m n
+  EuclideanDomain-Nat .rem m n = natMod m n
+
+  EuclideanDomain-Int : EuclideanDomain Int
+  EuclideanDomain-Int .degree (Pos n) = n
+  EuclideanDomain-Int .degree (NegSuc n) = Suc n
+  EuclideanDomain-Int .quot m n = intDiv m n
+  EuclideanDomain-Int .rem m n = intMod m n
+
+-------------------------------------------------------------------------------
+-- Field
+-------------------------------------------------------------------------------
+
+record Field (a : Type) : Type where
+  infixl 7 _/_
+  field
+    overlap {{Ring-super}} : Ring a
+    _/_ : (x y : a) -> {{Nonzero y}} -> a
+
+open Field {{...}} public
+
+instance
+  Field-Float : Field Float
+  Field-Float ._/_ x y = floatDiv x y
 
 -------------------------------------------------------------------------------
 -- Category

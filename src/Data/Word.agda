@@ -62,10 +62,10 @@ instance
   Bits-Word8 .popCount = word8PopCount
 
   Semigroup[+]-Word8 : Semigroup[+] Word8
-  Semigroup[+]-Word8 ._+_ x y = fromNat ((toNat x + toNat y) % 2^8)
+  Semigroup[+]-Word8 ._+_ x y = fromNat (rem (toNat x + toNat y) 2^8)
 
   Semigroup[*]-Word8 : Semigroup[*] Word8
-  Semigroup[*]-Word8 ._*_ x y = fromNat ((toNat x * toNat y) % 2^8)
+  Semigroup[*]-Word8 ._*_ x y = fromNat (rem (toNat x * toNat y) 2^8)
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -123,10 +123,10 @@ instance
   Bits-Word16 .popCount = word16PopCount
 
   Semigroup[+]-Word16 : Semigroup[+] Word16
-  Semigroup[+]-Word16 ._+_ x y = fromNat ((toNat x + toNat y) % 2^16)
+  Semigroup[+]-Word16 ._+_ x y = fromNat (rem (toNat x + toNat y) 2^16)
 
   Semigroup[*]-Word16 : Semigroup[*] Word16
-  Semigroup[*]-Word16 ._*_ x y = fromNat ((toNat x * toNat y) % 2^16)
+  Semigroup[*]-Word16 ._*_ x y = fromNat (rem (toNat x * toNat y) 2^16)
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -184,10 +184,10 @@ instance
   Bits-Word32 .popCount = word32PopCount
 
   Semigroup[+]-Word32 : Semigroup[+] Word32
-  Semigroup[+]-Word32 ._+_ x y = fromNat ((toNat x + toNat y) % 2^32)
+  Semigroup[+]-Word32 ._+_ x y = fromNat (rem (toNat x + toNat y) 2^32)
 
   Semigroup[*]-Word32 : Semigroup[*] Word32
-  Semigroup[*]-Word32 ._*_ x y = fromNat ((toNat x * toNat y) % 2^32)
+  Semigroup[*]-Word32 ._*_ x y = fromNat (rem (toNat x * toNat y) 2^32)
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -249,10 +249,10 @@ instance
   Bits-Word64 .popCount = word64PopCount
 
   Semigroup[+]-Word64 : Semigroup[+] Word64
-  Semigroup[+]-Word64 ._+_ x y = fromNat ((toNat x + toNat y) % 2^64)
+  Semigroup[+]-Word64 ._+_ x y = fromNat (rem (toNat x + toNat y) 2^64)
 
   Semigroup[*]-Word64 : Semigroup[*] Word64
-  Semigroup[*]-Word64 ._*_ x y = fromNat ((toNat x * toNat y) % 2^64)
+  Semigroup[*]-Word64 ._*_ x y = fromNat (rem (toNat x * toNat y) 2^64)
 
 -------------------------------------------------------------------------------
 -- FFI
