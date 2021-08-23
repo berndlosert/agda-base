@@ -856,54 +856,6 @@ instance
   Semigroup[+]-Function ._+_ f g x = f x + g x
 
 -------------------------------------------------------------------------------
--- Minus
--------------------------------------------------------------------------------
-
-record Minus (a : Type) : Type where
-  infixl 6 _-_
-  field _-_ : a -> a -> a
-
-open Minus {{...}} public
-
-instance
-  Minus-Nat : Minus Nat
-  Minus-Nat ._-_ = natMinus
-
-  Minus-Fin : {n : Nat} -> Minus (Fin (Suc n))
-  Minus-Fin ._-_ = finMinus
-
-  Minus-Int : Minus Int
-  Minus-Int ._-_ m n = m + intNegate n
-
-  Minus-Float : Minus Float
-  Minus-Float ._-_ = floatMinus
-
-  Minus-Function : {{Minus b}} -> Minus (a -> b)
-  Minus-Function ._-_ f g x = f x - g x
-
--------------------------------------------------------------------------------
--- Negate
--------------------------------------------------------------------------------
-
-record Negate (a : Type) : Type where
-  field -_ : a -> a
-
-open Negate {{...}} public
-
-instance
-  Negate-Fin : {n : Nat} -> Negate (Fin (Suc n))
-  Negate-Fin .-_ = finNegate
-
-  Negate-Int : Negate Int
-  Negate-Int .-_ = intNegate
-
-  Negate-Float : Negate Float
-  Negate-Float .-_ = floatNegate
-
-  Negate-Function : {{Negate b}} -> Negate (a -> b)
-  Negate-Function .-_ f x = - (f x)
-
--------------------------------------------------------------------------------
 -- Semigroup[*]
 -------------------------------------------------------------------------------
 
@@ -1114,6 +1066,51 @@ instance
 
   Monoid[*]-Function : {{Monoid[*] b}} -> Monoid[*] (a -> b)
   Monoid[*]-Function .one = const one
+
+-------------------------------------------------------------------------------
+-- Group
+-------------------------------------------------------------------------------
+
+record Group (a : Type) : Type where
+  field
+    overlap {{super}} : Monoid a
+    inverse : a -> a
+
+open Group {{...}} public
+
+-------------------------------------------------------------------------------
+-- Group[+]
+-------------------------------------------------------------------------------
+
+record Group[+] (a : Type) : Type where
+  infixl 6 _-_
+  field
+    overlap {{super}} : Monoid[+] a
+    _-_ : a -> a -> a
+    -_ : a -> a
+
+open Group[+] {{...}} public
+
+instance
+  Group[+]-Nat : Group[+] Nat
+  Group[+]-Nat ._-_ = natMinus
+  Group[+]-Nat .-_ = undefined
+
+  Group[+]-Fin : {n : Nat} -> Group[+] (Fin (Suc n))
+  Group[+]-Fin ._-_ = finMinus
+  Group[+]-Fin .-_ = finNegate
+
+  Group[+]-Int : Group[+] Int
+  Group[+]-Int ._-_ m n = m + intNegate n
+  Group[+]-Int .-_ = intNegate
+
+  Group[+]-Float : Group[+] Float
+  Group[+]-Float ._-_ = floatMinus
+  Group[+]-Float .-_ = floatNegate
+
+  Group[+]-Function : {{Group[+] b}} -> Group[+] (a -> b)
+  Group[+]-Function ._-_ f g x = f x - g x
+  Group[+]-Function .-_ f x = - (f x)
 
 -------------------------------------------------------------------------------
 -- Category
