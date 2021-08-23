@@ -59,10 +59,10 @@ record Bits (a : Type) : Type where
   rotateR x i = rotate x (neg i)
 
   countLeadingZeros : a -> Nat
-  countLeadingZeros x = bitSize-1 - go bitSize-1
+  countLeadingZeros x = monus (bitSize-1) (go bitSize-1)
     where
       bitSize-1 : Nat
-      bitSize-1 = bitSize x - 1
+      bitSize-1 = monus (bitSize x) 1
 
       go : Nat -> Nat
       go 0 = 0
@@ -72,7 +72,7 @@ record Bits (a : Type) : Type where
   countTrailingZeros x = go bitSize-1 0
     where
       bitSize-1 : Nat
-      bitSize-1 = bitSize x - 1
+      bitSize-1 = monus (bitSize x) 1
 
       go : Nat -> Nat -> Nat
       go 0 n = n

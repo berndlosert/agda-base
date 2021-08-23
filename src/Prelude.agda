@@ -225,6 +225,9 @@ neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
+monus : Nat -> Nat -> Nat
+monus = natMinus
+
 -------------------------------------------------------------------------------
 -- Fin primitives
 -------------------------------------------------------------------------------
@@ -1067,10 +1070,6 @@ record Group[+] (a : Type) : Type where
 open Group[+] {{...}} public
 
 instance
-  Group[+]-Nat : Group[+] Nat
-  Group[+]-Nat ._-_ = natMinus
-  Group[+]-Nat .-_ = undefined
-
   Group[+]-Fin : {n : Nat} -> Group[+] (Fin (Suc n))
   Group[+]-Fin ._-_ = finMinus
   Group[+]-Fin .-_ = finNegate
@@ -1100,10 +1099,6 @@ record Ring (a : Type) : Type where
 open Ring {{...}} public
 
 instance
-  Ring-Nat : Ring Nat
-  Ring-Nat .Nonzero 0 = Void
-  Ring-Nat .Nonzero _ = Unit
-
   Ring-Int : Ring Int
   Ring-Int .Nonzero (Pos 0) = Void
   Ring-Int .Nonzero _ = Unit
@@ -1125,11 +1120,6 @@ record EuclideanDomain (a : Type) : Type where
 open EuclideanDomain {{...}} public
 
 instance
-  EuclideanDomain-Nat : EuclideanDomain Nat
-  EuclideanDomain-Nat .degree n = n
-  EuclideanDomain-Nat .quot m n = natDiv m n
-  EuclideanDomain-Nat .rem m n = natMod m n
-
   EuclideanDomain-Int : EuclideanDomain Int
   EuclideanDomain-Int .degree (Pos n) = n
   EuclideanDomain-Int .degree (NegSuc n) = Suc n
@@ -1411,13 +1401,13 @@ instance
   Enum-Nat .suc x = Suc x
   Enum-Nat .pred (Suc n) = n
   Enum-Nat .enumFromTo m n =
-      let k = max (m - n) (n - m)
+      let k = max (monus m n) (monus n m)
       in go k m n
     where
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = m :: []
       go (Suc k) m n =
-        let m' = if m < n then m + 1 else m - 1
+        let m' = if m < n then m + 1 else monus m 1
         in m :: go k m' n
 
   Enum-Int : Enum Int

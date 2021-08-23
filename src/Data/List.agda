@@ -218,7 +218,7 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (length heads - length tails) []
+    padding = replicate (monus (length heads) (length tails)) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
