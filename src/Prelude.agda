@@ -827,33 +827,33 @@ instance
   ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
 
 -------------------------------------------------------------------------------
--- Plus
+-- Semigroup[+]
 -------------------------------------------------------------------------------
 
-record Plus (a : Type) : Type where
+record Semigroup[+] (a : Type) : Type where
   infixl 6 _+_
   field _+_ : a -> a -> a
 
-open Plus {{...}} public
+open Semigroup[+] {{...}} public
 
 instance
-  Plus-Type : Plus Type
-  Plus-Type ._+_ = Either
+  Semigroup[+]-Type : Semigroup[+] Type
+  Semigroup[+]-Type ._+_ = Either
 
-  Plus-Nat : Plus Nat
-  Plus-Nat ._+_ = natPlus
+  Semigroup[+]-Nat : Semigroup[+] Nat
+  Semigroup[+]-Nat ._+_ = natPlus
 
-  Plus-Fin : {n : Nat} -> Plus (Fin (Suc n))
-  Plus-Fin ._+_ = finPlus
+  Semigroup[+]-Fin : {n : Nat} -> Semigroup[+] (Fin (Suc n))
+  Semigroup[+]-Fin ._+_ = finPlus
 
-  Plus-Int : Plus Int
-  Plus-Int ._+_ = intPlus
+  Semigroup[+]-Int : Semigroup[+] Int
+  Semigroup[+]-Int ._+_ = intPlus
 
-  Plus-Float : Plus Float
-  Plus-Float ._+_ = floatPlus
+  Semigroup[+]-Float : Semigroup[+] Float
+  Semigroup[+]-Float ._+_ = floatPlus
 
-  Plus-Function : {{Plus b}} -> Plus (a -> b)
-  Plus-Function ._+_ f g x = f x + g x
+  Semigroup[+]-Function : {{Semigroup[+] b}} -> Semigroup[+] (a -> b)
+  Semigroup[+]-Function ._+_ f g x = f x + g x
 
 -------------------------------------------------------------------------------
 -- Minus
@@ -907,7 +907,7 @@ instance
 -- Times
 -------------------------------------------------------------------------------
 
-record Times (a : Type) : Type where
+record Semigroup[*] (a : Type) : Type where
   infixl 7 _*_
   field _*_ : a -> a -> a
 
@@ -916,26 +916,26 @@ record Times (a : Type) : Type where
   a ^ 0 = 1
   a ^ (Suc n) = a ^ n * a
 
-open Times {{...}} public
+open Semigroup[*] {{...}} public
 
 instance
-  Times-Type : Times Type
-  Times-Type ._*_ = Pair
+  Semigroup[*]-Type : Semigroup[*] Type
+  Semigroup[*]-Type ._*_ = Pair
 
-  Times-Nat : Times Nat
-  Times-Nat ._*_ = natTimes
+  Semigroup[*]-Nat : Semigroup[*] Nat
+  Semigroup[*]-Nat ._*_ = natTimes
 
-  Times-Fin : {n : Nat} -> Times (Fin (Suc (Suc n)))
-  Times-Fin ._*_ = finTimes
+  Semigroup[*]-Fin : {n : Nat} -> Semigroup[*] (Fin (Suc (Suc n)))
+  Semigroup[*]-Fin ._*_ = finTimes
 
-  Times-Int : Times Int
-  Times-Int ._*_ = intTimes
+  Semigroup[*]-Int : Semigroup[*] Int
+  Semigroup[*]-Int ._*_ = intTimes
 
-  Times-Float : Times Float
-  Times-Float ._*_ = floatTimes
+  Semigroup[*]-Float : Semigroup[*] Float
+  Semigroup[*]-Float ._*_ = floatTimes
 
-  Times-Function : {{Times b}} -> Times (a -> b)
-  Times-Function ._*_ f g x = f x * g x
+  Semigroup[*]-Function : {{Semigroup[*] b}} -> Semigroup[*] (a -> b)
+  Semigroup[*]-Function ._*_ f g x = f x * g x
 
 -------------------------------------------------------------------------------
 -- DivMod

@@ -118,12 +118,12 @@ record Foldable (t : Type -> Type) : Type where
   module _ {{fn : FromNat a}} where
 
     sum : {{FromNatConstraint {{fn}} 0}}
-      -> {{Plus a}}
+      -> {{Semigroup[+] a}}
       -> t a -> a
     sum = foldl _+_ 0
 
     product : {{FromNatConstraint {{fn}} 1}}
-      -> {{Times a}}
+      -> {{Semigroup[*] a}}
       -> t a -> a
     product = foldl _*_ 1
 
@@ -174,10 +174,10 @@ record Foldable (t : Type -> Type) : Type where
         go Nothing x = Just x
         go (Just x) y = Just (f x y)
 
-    sum1 : {{Plus a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
+    sum1 : {{Semigroup[+] a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     sum1 = foldl1 _+_
 
-    product1 : {{Times a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
+    product1 : {{Semigroup[*] a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     product1 = foldl1 _*_
 
     minimumBy1 : (a -> a -> Ordering)
