@@ -827,69 +827,6 @@ instance
   ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
 
 -------------------------------------------------------------------------------
--- Semigroup[+]
--------------------------------------------------------------------------------
-
-record Semigroup[+] (a : Type) : Type where
-  infixl 6 _+_
-  field _+_ : a -> a -> a
-
-open Semigroup[+] {{...}} public
-
-instance
-  Semigroup[+]-Type : Semigroup[+] Type
-  Semigroup[+]-Type ._+_ = Either
-
-  Semigroup[+]-Nat : Semigroup[+] Nat
-  Semigroup[+]-Nat ._+_ = natPlus
-
-  Semigroup[+]-Fin : {n : Nat} -> Semigroup[+] (Fin (Suc n))
-  Semigroup[+]-Fin ._+_ = finPlus
-
-  Semigroup[+]-Int : Semigroup[+] Int
-  Semigroup[+]-Int ._+_ = intPlus
-
-  Semigroup[+]-Float : Semigroup[+] Float
-  Semigroup[+]-Float ._+_ = floatPlus
-
-  Semigroup[+]-Function : {{Semigroup[+] b}} -> Semigroup[+] (a -> b)
-  Semigroup[+]-Function ._+_ f g x = f x + g x
-
--------------------------------------------------------------------------------
--- Semigroup[*]
--------------------------------------------------------------------------------
-
-record Semigroup[*] (a : Type) : Type where
-  infixl 7 _*_
-  field _*_ : a -> a -> a
-
-  infixr 8 _^_
-  _^_ : a -> {{fn : FromNat a}} -> {{FromNatConstraint {{fn}} 1}} -> Nat -> a
-  a ^ 0 = 1
-  a ^ (Suc n) = a ^ n * a
-
-open Semigroup[*] {{...}} public
-
-instance
-  Semigroup[*]-Type : Semigroup[*] Type
-  Semigroup[*]-Type ._*_ = Pair
-
-  Semigroup[*]-Nat : Semigroup[*] Nat
-  Semigroup[*]-Nat ._*_ = natTimes
-
-  Semigroup[*]-Fin : {n : Nat} -> Semigroup[*] (Fin (Suc (Suc n)))
-  Semigroup[*]-Fin ._*_ = finTimes
-
-  Semigroup[*]-Int : Semigroup[*] Int
-  Semigroup[*]-Int ._*_ = intTimes
-
-  Semigroup[*]-Float : Semigroup[*] Float
-  Semigroup[*]-Float ._*_ = floatTimes
-
-  Semigroup[*]-Function : {{Semigroup[*] b}} -> Semigroup[*] (a -> b)
-  Semigroup[*]-Function ._*_ f g x = f x * g x
-
--------------------------------------------------------------------------------
 -- Semigroup
 -------------------------------------------------------------------------------
 
@@ -943,6 +880,64 @@ instance
     (| _<>_ x y |)
 
 -------------------------------------------------------------------------------
+-- Semigroup[+]
+-------------------------------------------------------------------------------
+
+record Semigroup[+] (a : Type) : Type where
+  infixl 6 _+_
+  field _+_ : a -> a -> a
+
+open Semigroup[+] {{...}} public
+
+instance
+  Semigroup[+]-Type : Semigroup[+] Type
+  Semigroup[+]-Type ._+_ = Either
+
+  Semigroup[+]-Nat : Semigroup[+] Nat
+  Semigroup[+]-Nat ._+_ = natPlus
+
+  Semigroup[+]-Fin : {n : Nat} -> Semigroup[+] (Fin (Suc n))
+  Semigroup[+]-Fin ._+_ = finPlus
+
+  Semigroup[+]-Int : Semigroup[+] Int
+  Semigroup[+]-Int ._+_ = intPlus
+
+  Semigroup[+]-Float : Semigroup[+] Float
+  Semigroup[+]-Float ._+_ = floatPlus
+
+  Semigroup[+]-Function : {{Semigroup[+] b}} -> Semigroup[+] (a -> b)
+  Semigroup[+]-Function ._+_ f g x = f x + g x
+
+-------------------------------------------------------------------------------
+-- Semigroup[*]
+-------------------------------------------------------------------------------
+
+record Semigroup[*] (a : Type) : Type where
+  infixl 7 _*_
+  field _*_ : a -> a -> a
+
+open Semigroup[*] {{...}} public
+
+instance
+  Semigroup[*]-Type : Semigroup[*] Type
+  Semigroup[*]-Type ._*_ = Pair
+
+  Semigroup[*]-Nat : Semigroup[*] Nat
+  Semigroup[*]-Nat ._*_ = natTimes
+
+  Semigroup[*]-Fin : {n : Nat} -> Semigroup[*] (Fin (Suc (Suc n)))
+  Semigroup[*]-Fin ._*_ = finTimes
+
+  Semigroup[*]-Int : Semigroup[*] Int
+  Semigroup[*]-Int ._*_ = intTimes
+
+  Semigroup[*]-Float : Semigroup[*] Float
+  Semigroup[*]-Float ._*_ = floatTimes
+
+  Semigroup[*]-Function : {{Semigroup[*] b}} -> Semigroup[*] (a -> b)
+  Semigroup[*]-Function ._*_ f g x = f x * g x
+
+-------------------------------------------------------------------------------
 -- Monoid
 -------------------------------------------------------------------------------
 
@@ -987,6 +982,10 @@ record Monoid[+] (a : Type) : Type where
     overlap {{Semigroup[+]-super}} : Semigroup[+] a
     zero : a
 
+  times : Nat -> a -> a
+  times 0 _ = zero
+  times (Suc n) x = times n x + x
+
 open Monoid[+] {{...}} public
 
 instance
@@ -1016,6 +1015,11 @@ record Monoid[*] (a : Type) : Type where
   field
     overlap {{Semigroup[*]-super}} : Semigroup[*] a
     one : a
+
+  infixr 8 _^_
+  _^_ : a -> Nat -> a
+  a ^ 0 = one
+  a ^ (Suc n) = a ^ n * a
 
 open Monoid[*] {{...}} public
 
