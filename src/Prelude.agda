@@ -904,7 +904,7 @@ instance
   Negate-Function .-_ f x = - (f x)
 
 -------------------------------------------------------------------------------
--- Times
+-- Semigroup[*]
 -------------------------------------------------------------------------------
 
 record Semigroup[*] (a : Type) : Type where
@@ -1054,6 +1054,66 @@ instance
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .neutral = pureIO neutral
+
+-------------------------------------------------------------------------------
+-- Monoid[+]
+-------------------------------------------------------------------------------
+
+record Monoid[+] (a : Type) : Type where
+  field
+    overlap {{Semigroup[+]-super}} : Semigroup[+] a
+    zero : a
+
+open Monoid[+] {{...}} public
+
+instance
+  Monoid[+]-Type : Monoid[+] Type
+  Monoid[+]-Type .zero = Void
+
+  Monoid[+]-Nat : Monoid[+] Nat
+  Monoid[+]-Nat .zero = 0
+
+  Monoid[+]-Fin : {n : Nat} -> Monoid[+] (Fin (Suc n))
+  Monoid[+]-Fin .zero = Zero
+
+  Monoid[+]-Int : Monoid[+] Int
+  Monoid[+]-Int .zero = 0
+
+  Monoid[+]-Float : Monoid[+] Float
+  Monoid[+]-Float .zero = 0.0
+
+  Monoid[+]-Function : {{Monoid[+] b}} -> Monoid[+] (a -> b)
+  Monoid[+]-Function .zero = const zero
+
+-------------------------------------------------------------------------------
+-- Monoid[*]
+-------------------------------------------------------------------------------
+
+record Monoid[*] (a : Type) : Type where
+  field
+    overlap {{Semigroup[*]-super}} : Semigroup[*] a
+    one : a
+
+open Monoid[*] {{...}} public
+
+instance
+  Monoid[*]-Type : Monoid[*] Type
+  Monoid[*]-Type .one = Unit
+
+  Monoid[*]-Nat : Monoid[*] Nat
+  Monoid[*]-Nat .one = 0
+
+  Monoid[*]-Fin : {n : Nat} -> Monoid[*] (Fin (Suc (Suc n)))
+  Monoid[*]-Fin .one = Suc (Zero)
+
+  Monoid[*]-Int : Monoid[*] Int
+  Monoid[*]-Int .one = 1
+
+  Monoid[*]-Float : Monoid[*] Float
+  Monoid[*]-Float .one = 1.0
+
+  Monoid[*]-Function : {{Monoid[*] b}} -> Monoid[*] (a -> b)
+  Monoid[*]-Function .one = const one
 
 -------------------------------------------------------------------------------
 -- Category

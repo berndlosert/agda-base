@@ -115,17 +115,11 @@ record Foldable (t : Type -> Type) : Type where
       max' Nothing x = Just x
       max' (Just x) y = Just (if cmp x y == GT then x else y)
 
-  module _ {{fn : FromNat a}} where
+  sum : {{Monoid[+] a}} -> t a -> a
+  sum = foldl _+_ zero
 
-    sum : {{FromNatConstraint {{fn}} 0}}
-      -> {{Semigroup[+] a}}
-      -> t a -> a
-    sum = foldl _+_ 0
-
-    product : {{FromNatConstraint {{fn}} 1}}
-      -> {{Semigroup[*] a}}
-      -> t a -> a
-    product = foldl _*_ 1
+  product : {{Monoid[*] a}} -> t a -> a
+  product = foldl _*_ one
 
   module _ {{_ : Eq a}} where
 
