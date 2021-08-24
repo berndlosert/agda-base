@@ -32,7 +32,7 @@ instance
   Eq-Nat1 ._==_ m n = toNat m == toNat n
 
   Ord-Nat1 : Ord Nat1
-  Ord-Nat1 ._<_ m n = toNat m < toNat n
+  Ord-Nat1 .compare m n = compare (toNat m) (toNat n)
 
   Show-Nat1 : Show Nat1
   Show-Nat1 .showsPrec _ n = showString $ show $ toNat n

@@ -29,7 +29,11 @@ instance
   Eq-List1 ._==_ (x :| xs) (y :| ys) = x == y && xs == ys
 
   Ord-List1 : {{Ord a}} -> Ord (List1 a)
-  Ord-List1 ._<_ (x :| xs) (y :| ys) = x < y || (x == y && xs < ys)
+  Ord-List1 .compare (x :| xs) (y :| ys) =
+    case compare x y of \ where
+      LT -> LT
+      GT -> GT
+      EQ -> compare xs ys
 
   Semigroup-List1 : Semigroup (List1 a)
   Semigroup-List1 ._<>_ (x :| xs) (y :| ys) = x :| xs <> (y :: []) <> ys

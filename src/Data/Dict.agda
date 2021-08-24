@@ -39,7 +39,7 @@ instance
   Eq-KVPair ._==_ x y = getKey x == getKey y
 
   Ord-KVPair : {{Ord k}} -> Ord (KVPair k v)
-  Ord-KVPair ._<_ x y = getKey x < getKey y
+  Ord-KVPair .compare x y = compare (getKey x) (getKey y)
 
 -------------------------------------------------------------------------------
 -- Dict

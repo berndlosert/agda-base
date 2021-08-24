@@ -137,8 +137,10 @@ sublistOf = List.filterA \ _ -> map (_== 0) (choose {Nat} (0 , 1))
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
-  ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2 ^ 32))
-  pure (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
+    ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2^32))
+    pure (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
+  where
+    2^32 = 4294967296
 
 delay : Gen (Gen a -> a)
 delay = Gen: \ r n g -> unGen g r n

@@ -28,7 +28,7 @@ postulate
 private
   postulate
     threadIdEq : ThreadId -> ThreadId -> Bool
-    threadIdLessThan : ThreadId -> ThreadId -> Bool
+    threadIdCompare : ThreadId -> ThreadId -> Ordering
     threadIdShow : ThreadId -> String
 
 instance
@@ -36,7 +36,7 @@ instance
   Eq-ThreadId ._==_ = threadIdEq
 
   Ord-ThreadId : Ord ThreadId
-  Ord-ThreadId ._<_ = threadIdLessThan
+  Ord-ThreadId .compare = threadIdCompare
 
   Show-ThreadId : Show ThreadId
   Show-ThreadId .showsPrec _ = showString <<< threadIdShow
@@ -57,7 +57,7 @@ postulate
 {-# FOREIGN GHC import Data.Text (pack) #-}
 {-# COMPILE GHC ThreadId = type ThreadId #-}
 {-# COMPILE GHC threadIdEq = (==) #-}
-{-# COMPILE GHC threadIdLessThan = (<) #-}
+{-# COMPILE GHC threadIdCompare = compare #-}
 {-# COMPILE GHC threadIdShow = pack . show #-}
 {-# COMPILE GHC threadDelay = threadDelay . fromInteger #-}
 {-# COMPILE GHC myThreadId = myThreadId #-}

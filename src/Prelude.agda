@@ -201,10 +201,6 @@ private
   natMinus : Nat -> Nat -> Nat
   natMinus = Agda.Builtin.Nat._-_
 
-  natNegate : Nat -> Int
-  natNegate 0 = Pos 0
-  natNegate (Suc n) = NegSuc n
-
   natTimes : Nat -> Nat -> Nat
   natTimes = Agda.Builtin.Nat._*_
 
@@ -277,6 +273,10 @@ private
 -- Int primitives
 -------------------------------------------------------------------------------
 
+neg : Nat -> Int
+neg 0 = Pos 0
+neg (Suc n) = NegSuc n
+
 private
   intLessThan : Int -> Int -> Bool
   intLessThan (Pos m) (Pos n) = natLessThan m n
@@ -305,22 +305,22 @@ private
   intTimes = \ where
     (Pos n) (Pos m) -> Pos (natTimes n m)
     (NegSuc n) (NegSuc m) -> Pos (natTimes (Suc n) (Suc m))
-    (Pos n) (NegSuc m) -> natNegate (natTimes n (Suc m))
-    (NegSuc n) (Pos m) -> natNegate (natTimes (Suc n) m)
+    (Pos n) (NegSuc m) -> neg (natTimes n (Suc m))
+    (NegSuc n) (Pos m) -> neg (natTimes (Suc n) m)
 
   intDiv : Int -> Int -> Int
   intDiv = \ where
     (Pos m) (Pos n) -> Pos (natDiv m n)
-    (Pos m) (NegSuc n) -> natNegate (natDiv m (Suc n))
-    (NegSuc m) (Pos n) -> natNegate (natDiv (Suc m) n)
+    (Pos m) (NegSuc n) -> neg (natDiv m (Suc n))
+    (NegSuc m) (Pos n) -> neg (natDiv (Suc m) n)
     (NegSuc m) (NegSuc n) -> Pos (natDiv (Suc m) (Suc n))
 
   intMod : Int -> Int -> Int
   intMod = \ where
     (Pos m) (Pos n) -> Pos (natMod m n)
     (Pos m) (NegSuc n) -> Pos (natMod m (Suc n))
-    (NegSuc m) (Pos n) -> natNegate (natMod (Suc m) n)
-    (NegSuc m) (NegSuc n) -> natNegate (natMod (Suc m) (Suc n))
+    (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
 
   intShow : Int -> String
   intShow = Agda.Builtin.Int.primShowInteger
@@ -593,6 +593,9 @@ record Eq (a : Type) : Type where
   _/=_ : a -> a -> Bool
   x /= y = if x == y then False else True
 
+  equating : (b -> a) -> b -> b -> Bool
+  equating f x y = f x == f y
+
 open Eq {{...}} public
 
 instance
@@ -665,6 +668,9 @@ record Ord (a : Type) : Type where
   field
     overlap {{Eq-super}} : Eq a
     compare : a -> a -> Ordering
+
+  comparing : (b -> a) -> b -> b -> Ordering
+  comparing f x y = compare (f x) (f y)
 
   infixl 4 _<_
   _<_ : a -> a -> Bool
@@ -845,7 +851,7 @@ instance
 
   FromNeg-Int : FromNeg Int
   FromNeg-Int .FromNegConstraint _ = Unit
-  FromNeg-Int .fromNeg n = natNegate n
+  FromNeg-Int .fromNeg n = neg n
 
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint _ = Unit

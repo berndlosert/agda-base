@@ -21,7 +21,7 @@ private
     natToWord8 : Nat -> Word8
     word8ToNat : Word8 -> Nat
     word8Eq : Word8 -> Word8 -> Bool
-    word8LessThan : Word8 -> Word8 -> Bool
+    word8Compare : Word8 -> Word8 -> Ordering
     word8Or : Word8 -> Word8 -> Word8
     word8Xor : Word8 -> Word8 -> Word8
     word8And : Word8 -> Word8 -> Word8
@@ -48,7 +48,7 @@ instance
   Eq-Word8 ._==_ = word8Eq
 
   Ord-Word8 : Ord Word8
-  Ord-Word8 ._<_ = word8LessThan
+  Ord-Word8 .compare = word8Compare
 
   Bits-Word8 : Bits Word8
   Bits-Word8 .bitSize _ = 8
@@ -85,7 +85,7 @@ private
     natToWord16 : Nat -> Word16
     word16ToNat : Word16 -> Nat
     word16Eq : Word16 -> Word16 -> Bool
-    word16LessThan : Word16 -> Word16 -> Bool
+    word16Compare : Word16 -> Word16 -> Ordering
     word16Or : Word16 -> Word16 -> Word16
     word16Xor : Word16 -> Word16 -> Word16
     word16And : Word16 -> Word16 -> Word16
@@ -112,7 +112,7 @@ instance
   Eq-Word16 ._==_ = word16Eq
 
   Ord-Word16 : Ord Word16
-  Ord-Word16 ._<_ = word16LessThan
+  Ord-Word16 .compare = word16Compare
 
   Bits-Word16 : Bits Word16
   Bits-Word16 .bitSize _ = 16
@@ -149,7 +149,7 @@ private
     natToWord32 : Nat -> Word32
     word32ToNat : Word32 -> Nat
     word32Eq : Word32 -> Word32 -> Bool
-    word32LessThan : Word32 -> Word32 -> Bool
+    word32Compare : Word32 -> Word32 -> Ordering
     word32Or : Word32 -> Word32 -> Word32
     word32Xor : Word32 -> Word32 -> Word32
     word32And : Word32 -> Word32 -> Word32
@@ -176,7 +176,7 @@ instance
   Eq-Word32 ._==_ = word32Eq
 
   Ord-Word32 : Ord Word32
-  Ord-Word32 ._<_ = word32LessThan
+  Ord-Word32 .compare = word32Compare
 
   Bits-Word32 : Bits Word32
   Bits-Word32 .bitSize _ = 32
@@ -217,7 +217,7 @@ private
 
   postulate
     word64Eq : Word64 -> Word64 -> Bool
-    word64LessThan : Word64 -> Word64 -> Bool
+    word64Compare : Word64 -> Word64 -> Ordering
     word64Or : Word64 -> Word64 -> Word64
     word64Xor : Word64 -> Word64 -> Word64
     word64And : Word64 -> Word64 -> Word64
@@ -244,7 +244,7 @@ instance
   Eq-Word64 ._==_ = word64Eq
 
   Ord-Word64 : Ord Word64
-  Ord-Word64 ._<_ = word64LessThan
+  Ord-Word64 .compare = word64Compare
 
   Bits-Word64 : Bits Word64
   Bits-Word64 .bitSize _ = 64
@@ -277,7 +277,7 @@ instance
 {-# COMPILE GHC natToWord8 = fromInteger #-}
 {-# COMPILE GHC word8ToNat = toInteger #-}
 {-# COMPILE GHC word8Eq = (==) #-}
-{-# COMPILE GHC word8LessThan = (<) #-}
+{-# COMPILE GHC word8Compare = compare #-}
 {-# COMPILE GHC word8Or = (.|.) #-}
 {-# COMPILE GHC word8Xor = xor #-}
 {-# COMPILE GHC word8And = (.&.) #-}
@@ -295,7 +295,7 @@ instance
 {-# COMPILE GHC natToWord16 = fromInteger #-}
 {-# COMPILE GHC word16ToNat = toInteger #-}
 {-# COMPILE GHC word16Eq = (==) #-}
-{-# COMPILE GHC word16LessThan = (<) #-}
+{-# COMPILE GHC word16Compare = compare #-}
 {-# COMPILE GHC word16Or = (.|.) #-}
 {-# COMPILE GHC word16Xor = xor #-}
 {-# COMPILE GHC word16And = (.&.) #-}
@@ -313,7 +313,7 @@ instance
 {-# COMPILE GHC natToWord32 = fromInteger #-}
 {-# COMPILE GHC word32ToNat = toInteger #-}
 {-# COMPILE GHC word32Eq = (==) #-}
-{-# COMPILE GHC word32LessThan = (<) #-}
+{-# COMPILE GHC word32Compare = compare #-}
 {-# COMPILE GHC word32Or = (.|.) #-}
 {-# COMPILE GHC word32Xor = xor #-}
 {-# COMPILE GHC word32And = (.&.) #-}
@@ -328,7 +328,7 @@ instance
 {-# COMPILE GHC word32Times = (*) #-}
 
 {-# COMPILE GHC word64Eq = (==) #-}
-{-# COMPILE GHC word64LessThan = (<) #-}
+{-# COMPILE GHC word64Compare = compare #-}
 {-# COMPILE GHC word64Or = (.|.) #-}
 {-# COMPILE GHC word64Xor = xor #-}
 {-# COMPILE GHC word64And = (.&.) #-}
