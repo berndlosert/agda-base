@@ -221,9 +221,9 @@ private
   natShow : Nat -> String
   natShow = Agda.Builtin.String.primShowNat
 
-neg : Nat -> Int
-neg 0 = Pos 0
-neg (Suc n) = NegSuc n
+  natNegate : Nat -> Int
+  natNegate 0 = Pos 0
+  natNegate (Suc n) = NegSuc n
 
 -------------------------------------------------------------------------------
 -- Fin primitives
@@ -305,22 +305,22 @@ private
   intTimes = \ where
     (Pos n) (Pos m) -> Pos (natTimes n m)
     (NegSuc n) (NegSuc m) -> Pos (natTimes (Suc n) (Suc m))
-    (Pos n) (NegSuc m) -> neg (natTimes n (Suc m))
-    (NegSuc n) (Pos m) -> neg (natTimes (Suc n) m)
+    (Pos n) (NegSuc m) -> natNegate (natTimes n (Suc m))
+    (NegSuc n) (Pos m) -> natNegate (natTimes (Suc n) m)
 
   intDiv : Int -> Int -> Int
   intDiv = \ where
     (Pos m) (Pos n) -> Pos (natDiv m n)
-    (Pos m) (NegSuc n) -> neg (natDiv m (Suc n))
-    (NegSuc m) (Pos n) -> neg (natDiv (Suc m) n)
+    (Pos m) (NegSuc n) -> natNegate (natDiv m (Suc n))
+    (NegSuc m) (Pos n) -> natNegate (natDiv (Suc m) n)
     (NegSuc m) (NegSuc n) -> Pos (natDiv (Suc m) (Suc n))
 
   intMod : Int -> Int -> Int
   intMod = \ where
     (Pos m) (Pos n) -> Pos (natMod m n)
     (Pos m) (NegSuc n) -> Pos (natMod m (Suc n))
-    (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
+    (NegSuc m) (Pos n) -> natNegate (natMod (Suc m) n)
+    (NegSuc m) (NegSuc n) -> natNegate (natMod (Suc m) (Suc n))
 
   intShow : Int -> String
   intShow = Agda.Builtin.Int.primShowInteger
@@ -821,7 +821,7 @@ instance
 
   FromNeg-Int : FromNeg Int
   FromNeg-Int .FromNegConstraint _ = Unit
-  FromNeg-Int .fromNeg n = neg n
+  FromNeg-Int .fromNeg n = natNegate n
 
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint _ = Unit
