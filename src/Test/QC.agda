@@ -122,7 +122,7 @@ frequency xs =
 elements : (xs : List a) -> {{Validate Nonempty xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{trustMe}})
-  (choose {Nat} (0 , List.length xs - 1))
+  (choose (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
@@ -133,13 +133,14 @@ listOf gen = sized \ n -> do
   vectorOf k gen
 
 sublistOf : List a -> Gen (List a)
-sublistOf = List.filterA \ _ -> map (_== 0) (choose {Nat} (0 , 1))
+sublistOf = List.filterA \ _ -> choose (False , True)
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
-    ns <- vectorOf (List.length xs) (choose {Nat} (0 , 2^32))
+    ns <- vectorOf (List.length xs) (choose (0 , 2^32))
     pure (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
   where
+    2^32 : Nat
     2^32 = 4294967296
 
 delay : Gen (Gen a -> a)

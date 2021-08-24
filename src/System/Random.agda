@@ -216,6 +216,13 @@ record RandomR (a : Type) : Type where
 open RandomR {{...}} public
 
 instance
+  RandomR-Bool : RandomR Bool
+  RandomR-Bool .randomR (False , False) g = (False , g)
+  RandomR-Bool .randomR (True , True) g = (True , g)
+  RandomR-Bool .randomR _ g = flip lmap (genNat' 1 g) \ where
+    0 -> False
+    _ -> True
+
   RandomR-Nat : RandomR Nat
   RandomR-Nat .randomR (m , n) g =
     let
