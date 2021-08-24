@@ -1326,21 +1326,17 @@ instance
 record Enum (a : Type) : Type where
   field
     {{Ord-super}} : Ord a
-    SucConstraint : a -> Type
-    PredConstraint : a -> Type
-    suc : (x : a) -> {{SucConstraint x}} -> a
-    pred : (x : a) -> {{PredConstraint x}} -> a
+    suc : a -> Maybe a
+    pred : a -> Maybe a
     enumFromTo : a -> a -> List a
 
 open Enum {{...}} public
 
 instance
   Enum-Nat : Enum Nat
-  Enum-Nat .SucConstraint _ = Unit
-  Enum-Nat .PredConstraint 0 = Void
-  Enum-Nat .PredConstraint _ = Unit
-  Enum-Nat .suc x = Suc x
-  Enum-Nat .pred (Suc n) = n
+  Enum-Nat .suc x = Just (Suc x)
+  Enum-Nat .pred 0 = Nothing
+  Enum-Nat .pred (Suc n) = Just n
   Enum-Nat .enumFromTo m n =
       let k = max (m - n) (n - m)
       in go k m n
@@ -1352,20 +1348,25 @@ instance
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .SucConstraint _ = Unit
-  Enum-Int .PredConstraint _ = Unit
-  Enum-Int .suc n = n + 1
-  Enum-Int .pred n = n - 1
+  Enum-Int .suc (Pos n) = Just $ Pos (Suc n)
+  Enum-Int .suc (NegSuc n) = Just $ neg n
+  Enum-Int .pred (Pos 0) = Just $ NegSuc 0
+  Enum-Int .pred (Pos (Suc n)) = Just $ Pos n
+  Enum-Int .pred (NegSuc n) = Just $ NegSuc (Suc n)
   Enum-Int .enumFromTo m n =
     case m - n of \ where
       (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
       (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
-  Enum-Char .SucConstraint c = Assert (c < maxChar)
-  Enum-Char .PredConstraint c = Assert (c > minChar)
-  Enum-Char .suc c = natToChar $ suc (ord c)
-  Enum-Char .pred c = natToChar $ pred (ord c) {{trustMe}}
+  Enum-Char .suc c =
+    if c == maxChar
+      then Nothing
+      else natToChar <$> suc (ord c)
+  Enum-Char .pred c =
+    if c == minChar
+      then Nothing
+      else natToChar <$> pred (ord c)
   Enum-Char .enumFromTo c d = natToChar <$> enumFromTo (ord c) (ord d)
 
 -------------------------------------------------------------------------------
