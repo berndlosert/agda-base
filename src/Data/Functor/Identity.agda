@@ -30,14 +30,13 @@ open Identity public
 
 instance
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity ._==_ x y = runIdentity x == runIdentity y
+  Eq-Identity ._==_ = _==_ on runIdentity
 
   Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity ._<_ x y = runIdentity x < runIdentity y
+  Ord-Identity .compare = compare on runIdentity
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity ._<>_ x y =
-    Identity: (runIdentity x <> runIdentity y)
+  Semigroup-Identity ._<>_ x y = Identity: <<< _<>_ on runIdentity
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .neutral = Identity: neutral
