@@ -137,6 +137,9 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
+_on_ : (b -> b -> c) -> (a -> b) -> a -> a -> c
+(f on g) x y = f (g x) (g y)
+
 -------------------------------------------------------------------------------
 -- Strictness primitives
 -------------------------------------------------------------------------------
@@ -662,21 +665,25 @@ instance
 -------------------------------------------------------------------------------
 
 record Ord (a : Type) : Type where
-  infixl 4 _<_
   field
     overlap {{Eq-super}} : Eq a
-    _<_ : a -> a -> Bool
+    compare : a -> a -> Ordering
 
-  compare : a -> a -> Ordering
-  compare x y = if x < y then LT else if x == y then EQ else GT
-
-  infixl 4 _<=_
-  _<=_ : a -> a -> Bool
-  x <= y = if x < y then True else if x == y then True else False
+  infixl 4 _<_
+  _<_ : a -> a -> Bool
+  x < y = case compare x y of \ where
+    LT -> True
+    _ -> False
 
   infixl 4 _>_
   _>_ : a -> a -> Bool
   _>_ = flip _<_
+
+  infixl 4 _<=_
+  _<=_ : a -> a -> Bool
+  x <= y = case compare x y of \ where
+    GT -> False
+    _ -> True
 
   infixl 4 _>=_
   _>=_ : a -> a -> Bool
@@ -688,61 +695,81 @@ record Ord (a : Type) : Type where
   max : a -> a -> a
   max x y = if x < y then y else x
 
-  comparing : (b -> a) -> b -> b -> Ordering
-  comparing p x y = compare (p x) (p y)
-
 open Ord {{...}} public
 
 instance
   Ord-Void : Ord Void
-  Ord-Void ._<_ = \ ()
+  Ord-Void .compare = \ ()
 
   Ord-Unit : Ord Unit
-  Ord-Unit ._<_ unit unit = False
+  Ord-Unit .compare unit unit = EQ
 
   Ord-Bool : Ord Bool
-  Ord-Bool ._<_ = \ where
-    False True -> True
-    _ _ -> False
+  Ord-Bool .compare False True = LT
+  Ord-Bool .compare True False = GT
+  Ord-Bool .compare _ _ = EQ
 
   Ord-Ordering : Ord Ordering
-  Ord-Ordering ._<_ = \ where
-    LT EQ -> True
-    LT LT -> True
-    EQ GT -> True
-    _ _ -> False
+  Ord-Ordering .compare LT EQ = LT
+  Ord-Ordering .compare LT GT = LT
+  Ord-Ordering .compare EQ LT = GT
+  Ord-Ordering .compare EQ GT = LT
+  Ord-Ordering .compare GT LT = GT
+  Ord-Ordering .compare GT EQ = GT
+  Ord-Ordering .compare _ _ = EQ
 
   Ord-Nat : Ord Nat
-  Ord-Nat ._<_ = natLessThan
+  Ord-Nat .compare m n =
+    if m == n then EQ
+    else if natLessThan m n then LT
+    else GT
 
   Ord-Fin : {n : Nat} -> Ord (Fin n)
-  Ord-Fin ._<_ = finLessThan
+  Ord-Fin .compare m n =
+    if m == n then EQ
+    else if finLessThan m n then LT
+    else GT
 
   Ord-Int : Ord Int
-  Ord-Int ._<_ = intLessThan
+  Ord-Int .compare i j =
+    if i == j then EQ
+    else if intLessThan i j then LT
+    else GT
 
   Ord-Float : Ord Float
-  Ord-Float ._<_ = floatLessThan
+  Ord-Float .compare x y =
+    if x == y then EQ
+    else if floatLessThan x y then LT
+    else GT
 
   Ord-Char : Ord Char
-  Ord-Char ._<_ x y = ord x < ord y
+  Ord-Char .compare = compare on ord
 
   Ord-List : {{Ord a}} -> Ord (List a)
-  Ord-List ._<_ = \ where
-    (x :: xs) (y :: ys) -> x < y || (x == y && xs < ys)
-    _ _ -> False
+  Ord-List .compare [] [] = EQ
+  Ord-List .compare [] (x :: xs) = LT
+  Ord-List .compare (x :: xs) [] = GT
+  Ord-List .compare (x :: xs) (y :: ys) =
+    case compare x y of \ where
+      LT -> LT
+      GT -> GT
+      EQ -> compare xs ys
 
   Ord-String : Ord String
-  Ord-String ._<_ l r = unpack l < unpack r
+  Ord-String .compare = compare on unpack
 
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
-  Ord-Pair ._<_ (x , y) (w , z) = x < w || (x == w && y < z)
+  Ord-Pair .compare (x , y) (w , z) =
+    case compare x w of \ where
+      LT -> LT
+      GT -> GT
+      EQ -> compare y z
 
   Ord-Maybe : {{Ord a}} -> Ord (Maybe a)
-  Ord-Maybe ._<_ = \ where
-    _ Nothing -> False
-    Nothing _ -> True
-    (Just x) (Just y) -> x < y
+  Ord-Maybe .compare Nothing Nothing = EQ
+  Ord-Maybe .compare Nothing _ = LT
+  Ord-Maybe .compare (Just x) (Just y) = compare x y
+  Ord-Maybe .compare (Just _) _ = GT
 
 -------------------------------------------------------------------------------
 -- FromNat, ToNat, FromNeg, ToFloat
