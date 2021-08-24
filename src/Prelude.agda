@@ -137,9 +137,6 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
-_on_ : (b -> b -> c) -> (a -> b) -> a -> a -> c
-(f on g) x y = f (g x) (g y)
-
 -------------------------------------------------------------------------------
 -- Strictness primitives
 -------------------------------------------------------------------------------
@@ -743,7 +740,7 @@ instance
     else GT
 
   Ord-Char : Ord Char
-  Ord-Char .compare = compare on ord
+  Ord-Char .compare l r = compare (ord l) (ord r)
 
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
@@ -756,7 +753,7 @@ instance
       EQ -> compare xs ys
 
   Ord-String : Ord String
-  Ord-String .compare = compare on unpack
+  Ord-String .compare l r = compare (unpack l) (unpack r)
 
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
   Ord-Pair .compare (x , y) (w , z) =
