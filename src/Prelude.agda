@@ -201,6 +201,10 @@ private
   natMinus : Nat -> Nat -> Nat
   natMinus = Agda.Builtin.Nat._-_
 
+  natNegate : Nat -> Int
+  natNegate 0 = Pos 0
+  natNegate (Suc n) = NegSuc n
+
   natTimes : Nat -> Nat -> Nat
   natTimes = Agda.Builtin.Nat._*_
 
@@ -220,10 +224,6 @@ private
 
   natShow : Nat -> String
   natShow = Agda.Builtin.String.primShowNat
-
-  natNegate : Nat -> Int
-  natNegate 0 = Pos 0
-  natNegate (Suc n) = NegSuc n
 
 -------------------------------------------------------------------------------
 -- Fin primitives
