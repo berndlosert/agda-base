@@ -23,17 +23,17 @@ private
 record Choice (p : Type -> Type -> Type) : Type where
   field
     overlap {{super}} : Profunctor p
-    left : p a b -> p (a + c) (b + c)
+    left : p a b -> p (Either a c) (Either b c)
 
-  right : p a b -> p (c + a) (c + b)
+  right : p a b -> p (Either c a) (Either c b)
   right = dimap (either Right Left) (either Right Left) <<< left
 
   infixr 2 _+++_
-  _+++_ : {{Category p}} -> p a b -> p c d -> p (a + c) (b + d)
+  _+++_ : {{Category p}} -> p a b -> p c d -> p (Either a c) (Either b d)
   f +++ g = left f >>> right g
 
   infixr 2 _|||_
-  _|||_ : {{Category p}} -> p a c -> p b c -> p (a + b) c
+  _|||_ : {{Category p}} -> p a c -> p b c -> p (Either a b) c
   f ||| g = map fromEither (f +++ g)
 
 open Choice {{...}} public

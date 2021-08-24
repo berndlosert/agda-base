@@ -74,7 +74,7 @@ splitNode : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> Node v a
-  -> Maybe (Digit a) * a * Maybe (Digit a)
+  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
 splitNode p i (Node2 _ a b) =
   let
     va = i <> measure a
@@ -99,7 +99,7 @@ searchNode : {{Measured v a}}
   -> v
   -> Node v a
   -> v
-  -> Maybe (Digit a) * a * Maybe (Digit a)
+  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
 searchNode p vl (Node2 _ a b) vr =
   let
     va = vl <> measure a

@@ -83,7 +83,7 @@ resize n (Gen: g) = Gen: \ r _ -> g r n
 scale : (Nat -> Nat) -> Gen a -> Gen a
 scale f g = sized (\ n -> resize (f n) g)
 
-choose : {{RandomR a}} -> a * a -> Gen a
+choose : {{RandomR a}} -> Pair a a -> Gen a
 choose rng = Gen: \ r _ -> let (x , _) = randomR rng r in x
 
 chooseAny : {{Random a}} -> Gen a
@@ -109,13 +109,13 @@ oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{trustMe}}
 
-frequency : (xs : List (Refined Positive Nat * Gen a))
+frequency : (xs : List (Pair (Refined Positive Nat) (Gen a)))
   -> {{Validate Nonempty xs}} -> Gen a
 frequency xs =
     let xs' = map (bimap unrefine id) xs
     in choose (1 , sum (map fst xs')) >>= flip pick xs'
   where
-    pick : Nat -> List (Nat * Gen a) -> Gen a
+    pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
@@ -182,7 +182,7 @@ instance
     let n' = toFloat n
     in choose (- n' , n')
 
-  Arbitrary-Pair : {{Arbitrary a}} -> {{Arbitrary b}} -> Arbitrary (a * b)
+  Arbitrary-Pair : {{Arbitrary a}} -> {{Arbitrary b}} -> Arbitrary (Pair a b)
   Arbitrary-Pair .arbitrary = (| _,_ arbitrary arbitrary |)
 
   Arbitrary-List : {{Arbitrary a}} -> Arbitrary (List a)
@@ -194,7 +194,7 @@ instance
   Coarbitrary-Bool .coarbitrary b = variant (if b then 0 else 1)
 
   Coarbitrary-Pair : {{Coarbitrary a}} -> {{Coarbitrary b}}
-    -> Coarbitrary (a * b)
+    -> Coarbitrary (Pair a b)
   Coarbitrary-Pair .coarbitrary (a , b) = coarbitrary a <<< coarbitrary b
 
   Coarbitrary-List : {{Coarbitrary a}} -> Coarbitrary (List a)
@@ -326,7 +326,7 @@ quick : Config
 quick = record {
     maxTest = 100;
     maxFail = 1000;
-    size = \ n -> quot n 2 + 3;
+    size = \ n -> div n 2 + 3;
     every = \ n args ->
       let s = show n in
       s <> String.replicate (String.length s) "\b"
@@ -351,15 +351,15 @@ private
       display (x :: []) = " (" <> x <> ").\n"
       display xs = ".\n" <> String.unlines (map (_<> ".") xs)
 
-      pairLength : List (List String) -> Nat * List String
+      pairLength : List (List String) -> Pair Nat (List String)
       pairLength [] = (0 , [])
       pairLength xss@(xs :: _) = (List.length xss , xs)
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
-      percentage n m@(Suc _) = show (quot (100 * n) m) <> "%"
+      percentage n m@(Suc _) = show (div (100 * n) m) <> "%"
 
-      entry : Nat * (List String) -> String
+      entry : Pair Nat (List String) -> String
       entry (n , s) = percentage n ntest
         <> " "
         <> fold (List.intersperse ", " s)

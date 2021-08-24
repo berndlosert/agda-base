@@ -58,10 +58,10 @@ record MonadCatch (m : Type -> Type) : Type where
   handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
   handleJust = flip <<< catchJust
 
-  try : {{Exception e}} -> m a -> m (e + a)
+  try : {{Exception e}} -> m a -> m (Either e a)
   try ma = catch (map Right ma) (pure <<< Left)
 
-  tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (b + a)
+  tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
   tryJust p ma = try ma >>= \ where
     (Right v) -> pure (Right v)
     (Left e) -> maybe (throw e) (pure <<< Left) (p e)
@@ -80,7 +80,7 @@ data ExitCase (a : Type) : Type where
 record MonadBracket (m : Type -> Type) : Type where
   field
     overlap {{Monad-super}} : Monad m
-    generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (b * c)
+    generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (Pair b c)
 
   bracket : m a -> (a -> m c) -> (a -> m b) -> m b
   bracket acquire release =
@@ -120,7 +120,7 @@ private
     throwIO : {{Exception e}} -> e -> IO a
     catchIO : {{Exception e}} -> IO a -> (e -> IO a) -> IO a
     generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
-      -> (a -> IO b) -> IO (b * c)
+      -> (a -> IO b) -> IO (Pair b c)
 
 instance
   MonadThrow-IO : MonadThrow IO

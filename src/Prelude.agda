@@ -225,9 +225,6 @@ neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
-monus : Nat -> Nat -> Nat
-monus = natMinus
-
 -------------------------------------------------------------------------------
 -- Fin primitives
 -------------------------------------------------------------------------------
@@ -800,6 +797,10 @@ instance
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
 
+  FromNat-Float : FromNat Float
+  FromNat-Float .FromNatConstraint _ = Unit
+  FromNat-Float .fromNat n = natToFloat n
+
   FromNat-Type : FromNat Type
   FromNat-Type .FromNatConstraint _ = Unit
   FromNat-Type .fromNat 0 = Void
@@ -822,12 +823,146 @@ instance
   FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
 
+  FromNeg-Float : FromNeg Float
+  FromNeg-Float .FromNegConstraint _ = Unit
+  FromNeg-Float .fromNeg n = floatNegate (natToFloat n)
+
   ToFloat-Nat : ToFloat Nat
   ToFloat-Nat .toFloat = natToFloat
 
   ToFloat-Int : ToFloat Int
   ToFloat-Int .toFloat (Pos n) = natToFloat n
   ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
+
+-------------------------------------------------------------------------------
+-- Num
+-------------------------------------------------------------------------------
+
+record Num (a : Type) : Type where
+  infixl 6 _+_
+  infixl 6 _-_
+  infixl 7 _*_
+  field
+    overlap {{super}} : FromNat a
+    nonzero : a -> Bool
+    _+_ : a -> a -> a
+    _-_ : a -> a -> a
+    _*_ : a -> a -> a
+
+  Nonzero : a -> Type
+  Nonzero x = Assert (nonzero x)
+
+  FromZero : (b : Type) -> {{a === b}} -> Type
+  FromZero _ = FromNatConstraint {{super}} 0
+
+  FromOne : (b : Type) -> {{a === b}} -> Type
+  FromOne _ = FromNatConstraint {{super}} 1
+
+  times : {{FromZero _}} -> Nat -> a -> a
+  times 0 _ = 0
+  times (Suc n) x = times n x + x
+
+  infixr 8 _^_
+  _^_ : {{FromOne _}} -> a -> Nat -> a
+  a ^ 0 = 1
+  a ^ (Suc n) = a ^ n * a
+
+open Num {{...}} public
+
+instance
+  Num-Nat : Num Nat
+  Num-Nat .nonzero 0 = False
+  Num-Nat .nonzero _ = True
+  Num-Nat ._+_ = natPlus
+  Num-Nat ._-_ = natMinus
+  Num-Nat ._*_ = natTimes
+
+  Num-Fin : {n : Nat} -> Num (Fin (Suc n))
+  Num-Fin .nonzero Zero = False
+  Num-Fin .nonzero _ = True
+  Num-Fin ._+_ = finPlus
+  Num-Fin ._-_ = finMinus
+  Num-Fin ._*_ = finTimes
+
+  Num-Int : Num Int
+  Num-Int .nonzero (Pos 0) = False
+  Num-Int .nonzero _ = True
+  Num-Int ._+_ = intPlus
+  Num-Int ._-_ m n = m + intNegate n
+  Num-Int ._*_ = intTimes
+
+  Num-Float : Num Float
+  Num-Float .nonzero x = if x == 0.0 then False else True
+  Num-Float ._+_ = floatPlus
+  Num-Float ._-_ = floatMinus
+  Num-Float ._*_ = floatTimes
+
+-------------------------------------------------------------------------------
+-- Signed
+-------------------------------------------------------------------------------
+
+record Signed (a : Type) : Type where
+  field
+    overlap {{Num-super}} : Num a
+    overlap {{FromNeg-super}} : FromNeg a
+    -_ : a -> a
+    abs : a -> a
+    signum : a -> a
+
+open Signed {{...}} public
+
+instance
+  Signed-Int : Signed Int
+  Signed-Int .-_ = intNegate
+  Signed-Int .abs n@(Pos _) = n
+  Signed-Int .abs (NegSuc n) = Pos (Suc n)
+  Signed-Int .signum n@(Pos 0) = n
+  Signed-Int .signum (Pos _) = Pos 1
+  Signed-Int .signum (NegSuc _) = NegSuc 0
+
+  Signed-Float : Signed Float
+  Signed-Float .-_ = floatNegate
+  Signed-Float .abs x = if x < 0 then - x else x
+  Signed-Float .signum x = case compare x 0 of \ where
+    LT -> -1
+    EQ -> 0
+    GT -> 1
+
+-------------------------------------------------------------------------------
+-- Integral
+-------------------------------------------------------------------------------
+
+record Integral (a : Type) : Type where
+  field
+    overlap {{super}} : Num a
+    div : (x y : a) -> {{Nonzero y}} -> a
+    mod : (x y : a) -> {{Nonzero y}} -> a
+
+open Integral {{...}} public
+
+instance
+  Integral-Nat : Integral Nat
+  Integral-Nat .div x y = natDiv x y
+  Integral-Nat .mod x y = natMod x y
+
+  Integral-Int : Integral Int
+  Integral-Int .div x y = intDiv x y
+  Integral-Int .mod x y = intMod x y
+
+-------------------------------------------------------------------------------
+-- Fractional
+-------------------------------------------------------------------------------
+
+record Fractional (a : Type) : Type where
+  field
+    overlap {{super}} : Num a
+    _/_ : (x y : a) -> {{Nonzero y}} -> a
+
+open Fractional {{...}} public
+
+instance
+  Fractional-Float : Fractional Float
+  Fractional-Float ._/_ x y = floatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup
@@ -883,64 +1018,6 @@ instance
     (| _<>_ x y |)
 
 -------------------------------------------------------------------------------
--- Semigroup[+]
--------------------------------------------------------------------------------
-
-record Semigroup[+] (a : Type) : Type where
-  infixl 6 _+_
-  field _+_ : a -> a -> a
-
-open Semigroup[+] {{...}} public
-
-instance
-  Semigroup[+]-Type : Semigroup[+] Type
-  Semigroup[+]-Type ._+_ = Either
-
-  Semigroup[+]-Nat : Semigroup[+] Nat
-  Semigroup[+]-Nat ._+_ = natPlus
-
-  Semigroup[+]-Fin : {n : Nat} -> Semigroup[+] (Fin (Suc n))
-  Semigroup[+]-Fin ._+_ = finPlus
-
-  Semigroup[+]-Int : Semigroup[+] Int
-  Semigroup[+]-Int ._+_ = intPlus
-
-  Semigroup[+]-Float : Semigroup[+] Float
-  Semigroup[+]-Float ._+_ = floatPlus
-
-  Semigroup[+]-Function : {{Semigroup[+] b}} -> Semigroup[+] (a -> b)
-  Semigroup[+]-Function ._+_ f g x = f x + g x
-
--------------------------------------------------------------------------------
--- Semigroup[*]
--------------------------------------------------------------------------------
-
-record Semigroup[*] (a : Type) : Type where
-  infixl 7 _*_
-  field _*_ : a -> a -> a
-
-open Semigroup[*] {{...}} public
-
-instance
-  Semigroup[*]-Type : Semigroup[*] Type
-  Semigroup[*]-Type ._*_ = Pair
-
-  Semigroup[*]-Nat : Semigroup[*] Nat
-  Semigroup[*]-Nat ._*_ = natTimes
-
-  Semigroup[*]-Fin : {n : Nat} -> Semigroup[*] (Fin (Suc (Suc n)))
-  Semigroup[*]-Fin ._*_ = finTimes
-
-  Semigroup[*]-Int : Semigroup[*] Int
-  Semigroup[*]-Int ._*_ = intTimes
-
-  Semigroup[*]-Float : Semigroup[*] Float
-  Semigroup[*]-Float ._*_ = floatTimes
-
-  Semigroup[*]-Function : {{Semigroup[*] b}} -> Semigroup[*] (a -> b)
-  Semigroup[*]-Function ._*_ f g x = f x * g x
-
--------------------------------------------------------------------------------
 -- Monoid
 -------------------------------------------------------------------------------
 
@@ -975,172 +1052,6 @@ instance
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .neutral = pureIO neutral
-
--------------------------------------------------------------------------------
--- Monoid[+]
--------------------------------------------------------------------------------
-
-record Monoid[+] (a : Type) : Type where
-  field
-    overlap {{Semigroup[+]-super}} : Semigroup[+] a
-    zero : a
-
-  times : Nat -> a -> a
-  times 0 _ = zero
-  times (Suc n) x = times n x + x
-
-open Monoid[+] {{...}} public
-
-instance
-  Monoid[+]-Type : Monoid[+] Type
-  Monoid[+]-Type .zero = Void
-
-  Monoid[+]-Nat : Monoid[+] Nat
-  Monoid[+]-Nat .zero = 0
-
-  Monoid[+]-Fin : {n : Nat} -> Monoid[+] (Fin (Suc n))
-  Monoid[+]-Fin .zero = Zero
-
-  Monoid[+]-Int : Monoid[+] Int
-  Monoid[+]-Int .zero = 0
-
-  Monoid[+]-Float : Monoid[+] Float
-  Monoid[+]-Float .zero = 0.0
-
-  Monoid[+]-Function : {{Monoid[+] b}} -> Monoid[+] (a -> b)
-  Monoid[+]-Function .zero = const zero
-
--------------------------------------------------------------------------------
--- Monoid[*]
--------------------------------------------------------------------------------
-
-record Monoid[*] (a : Type) : Type where
-  field
-    overlap {{Semigroup[*]-super}} : Semigroup[*] a
-    one : a
-
-  infixr 8 _^_
-  _^_ : a -> Nat -> a
-  a ^ 0 = one
-  a ^ (Suc n) = a ^ n * a
-
-open Monoid[*] {{...}} public
-
-instance
-  Monoid[*]-Type : Monoid[*] Type
-  Monoid[*]-Type .one = Unit
-
-  Monoid[*]-Nat : Monoid[*] Nat
-  Monoid[*]-Nat .one = 0
-
-  Monoid[*]-Fin : {n : Nat} -> Monoid[*] (Fin (Suc (Suc n)))
-  Monoid[*]-Fin .one = Suc (Zero)
-
-  Monoid[*]-Int : Monoid[*] Int
-  Monoid[*]-Int .one = 1
-
-  Monoid[*]-Float : Monoid[*] Float
-  Monoid[*]-Float .one = 1.0
-
-  Monoid[*]-Function : {{Monoid[*] b}} -> Monoid[*] (a -> b)
-  Monoid[*]-Function .one = const one
-
--------------------------------------------------------------------------------
--- Group
--------------------------------------------------------------------------------
-
-record Group (a : Type) : Type where
-  field
-    overlap {{super}} : Monoid a
-    inverse : a -> a
-
-open Group {{...}} public
-
--------------------------------------------------------------------------------
--- Group[+]
--------------------------------------------------------------------------------
-
-record Group[+] (a : Type) : Type where
-  infixl 6 _-_
-  field
-    overlap {{super}} : Monoid[+] a
-    _-_ : a -> a -> a
-    -_ : a -> a
-
-open Group[+] {{...}} public
-
-instance
-  Group[+]-Fin : {n : Nat} -> Group[+] (Fin (Suc n))
-  Group[+]-Fin ._-_ = finMinus
-  Group[+]-Fin .-_ = finNegate
-
-  Group[+]-Int : Group[+] Int
-  Group[+]-Int ._-_ m n = m + intNegate n
-  Group[+]-Int .-_ = intNegate
-
-  Group[+]-Float : Group[+] Float
-  Group[+]-Float ._-_ = floatMinus
-  Group[+]-Float .-_ = floatNegate
-
-  Group[+]-Function : {{Group[+] b}} -> Group[+] (a -> b)
-  Group[+]-Function ._-_ f g x = f x - g x
-  Group[+]-Function .-_ f x = - (f x)
-
--------------------------------------------------------------------------------
--- Ring
--------------------------------------------------------------------------------
-
-record Ring (a : Type) : Type where
-  field
-    overlap {{Group[+]-super}} : Group[+] a
-    overlap {{Monoid[*]-super}} : Monoid[*] a
-    Nonzero : a -> Type
-
-open Ring {{...}} public
-
-instance
-  Ring-Int : Ring Int
-  Ring-Int .Nonzero (Pos 0) = Void
-  Ring-Int .Nonzero _ = Unit
-
-  Ring-Float : Ring Float
-  Ring-Float .Nonzero x = Assert (x /= 0.0)
-
--------------------------------------------------------------------------------
--- EuclideanDomain
--------------------------------------------------------------------------------
-
-record EuclideanDomain (a : Type) : Type where
-  field
-    overlap {{Ring-super}} : Ring a
-    degree : (x : a) -> {{Nonzero x}} -> Nat
-    quot : (x y : a) -> {{Nonzero y}} -> a
-    rem : (x y : a) -> {{Nonzero y}} -> a
-
-open EuclideanDomain {{...}} public
-
-instance
-  EuclideanDomain-Int : EuclideanDomain Int
-  EuclideanDomain-Int .degree (Pos n) = n
-  EuclideanDomain-Int .degree (NegSuc n) = Suc n
-  EuclideanDomain-Int .quot m n = intDiv m n
-  EuclideanDomain-Int .rem m n = intMod m n
-
--------------------------------------------------------------------------------
--- Field
--------------------------------------------------------------------------------
-
-record Field (a : Type) : Type where
-  infixl 7 _/_
-  field
-    overlap {{Ring-super}} : Ring a
-    _/_ : (x y : a) -> {{Nonzero y}} -> a
-
-open Field {{...}} public
-
-instance
-  Field-Float : Field Float
-  Field-Float ._/_ x y = floatDiv x y
 
 -------------------------------------------------------------------------------
 -- Category
@@ -1401,13 +1312,13 @@ instance
   Enum-Nat .suc x = Suc x
   Enum-Nat .pred (Suc n) = n
   Enum-Nat .enumFromTo m n =
-      let k = max (monus m n) (monus n m)
+      let k = max (m - n) (n - m)
       in go k m n
     where
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = m :: []
       go (Suc k) m n =
-        let m' = if m < n then m + 1 else monus m 1
+        let m' = if m < n then m + 1 else m - 1
         in m :: go k m' n
 
   Enum-Int : Enum Int

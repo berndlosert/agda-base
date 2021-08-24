@@ -9,7 +9,7 @@ private variable e : Type
 
 -- The enivornment comonad. This is the dual of the Reader monad.
 Env : Type -> Type -> Type
-Env e a = e * a
+Env e a = Pair e a
 
 instance
   Functor-Env : Functor (Env e)

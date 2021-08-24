@@ -73,7 +73,7 @@ postulate
   readTVarIO : TVar a -> IO a
   writeTVar : TVar a -> a -> STM Unit
   modifyTVar : TVar a -> (a -> a) -> STM Unit
-  stateTVar : TVar s -> (s -> a * s) -> STM a
+  stateTVar : TVar s -> (s -> Pair a s) -> STM a
   swapTVar : TVar a -> a -> STM a
   registerDelay : Nat -> IO (TVar Bool)
 

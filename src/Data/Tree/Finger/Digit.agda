@@ -63,7 +63,7 @@ splitDigit : {{Measured v a }}
   -> (v -> Bool)
   -> v
   -> Digit a
-  -> Maybe (Digit a) * a * Maybe (Digit a)
+  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
 splitDigit _ i (One a) = (Nothing , a , Nothing)
 splitDigit p i (Two a b) =
   let
@@ -99,7 +99,7 @@ searchDigit : {{Measured v a}}
   -> v
   -> Digit a
   -> v
-  -> Maybe (Digit a) * a * Maybe (Digit a)
+  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
 searchDigit _ vl (One a) vr = (Nothing , a , Nothing)
 searchDigit p vl (Two a b) vr =
   let

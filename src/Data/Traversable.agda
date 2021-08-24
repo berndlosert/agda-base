@@ -59,8 +59,8 @@ instance
 -- mapAccumL, mapAccumR
 -------------------------------------------------------------------------------
 
-mapAccumL : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumL : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c)
 mapAccumL f z bs = flip runState z $ for bs (state <<< flip f)
 
-mapAccumR : {{Traversable t}} -> (a -> b -> a * c) -> a -> t b -> a * t c
+mapAccumR : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c)
 mapAccumR f z = map getReverse <<< mapAccumL f z <<< Reverse:

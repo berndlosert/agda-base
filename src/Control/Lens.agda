@@ -77,7 +77,7 @@ instance
   Profunctor-Exchange .lcmap f (Exchange: sa bt) = Exchange: (sa <<< f) bt
 
 data Market (a b s t : Type) : Type where
-  Market: : (b -> t) -> (s -> t + a) -> Market a b s t
+  Market: : (b -> t) -> (s -> Either t a) -> Market a b s t
 
 instance
   Functor-Market : Functor (Market a b s)
@@ -135,7 +135,7 @@ Prism s t a b = forall {p} {f} -> {{Choice p}} -> {{Applicative f}}
 lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
 
-prism : (b -> t)  -> (s -> t + a) -> Prism s t a b
+prism : (b -> t)  -> (s -> Either t a) -> Prism s t a b
 prism bt seta = dimap seta (either pure (map bt)) <<< right
 
 prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
@@ -244,13 +244,13 @@ mapping k = withIso k $ \ sa bt -> iso (map sa) (map bt)
 APrism : (s t a b : Type) -> Type
 APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
-withPrism : APrism s t a b -> ((b -> t) -> (s -> t + a) -> r) -> r
+withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
   case ap (Market: Identity: Right) of \ where
     (Market: bt seta) ->
       f (runIdentity <<< bt) (either (Left <<< runIdentity) Right <<< seta)
 
-matching : APrism s t a b -> s -> t + a
+matching : APrism s t a b -> s -> Either t a
 matching ap = withPrism ap \ _ seta -> seta
 
 isn't : APrism s t a b -> s -> Bool
@@ -285,7 +285,7 @@ record Each (s t a b : Type) : Type where
 open Each {{...}} public
 
 instance
-  Each-Pair : Each (a * a) (b * b) a b
+  Each-Pair : Each (Pair a a) (Pair b b) a b
   Each-Pair .each f (a , b) = (| _,_ (f a) (f b) |)
 
   Each-Maybe : Each (Maybe a) (Maybe b) a b
@@ -300,7 +300,7 @@ instance
     x ys -> (| _::_ (f x) ys |)
 
 record Cons (s t a b : Type) : Type where
-  field #Cons : Prism s t (a * s) (b * t)
+  field #Cons : Prism s t (Pair a s) (Pair b t)
 
 open Cons {{...}} public
 
@@ -314,17 +314,17 @@ instance
 -- Some specific optics
 -------------------------------------------------------------------------------
 
-#fst : Lens (a * c) (b * c) a b
+#fst : Lens (Pair a c) (Pair b c) a b
 #fst k (a , c) = map (_, c) (k a)
 
-#snd : Lens (a * b) (a * c) b c
+#snd : Lens (Pair a b) (Pair a c) b c
 #snd k (x , y) = map (x ,_) (k y)
 
-#Left : Traversal (a + c) (b + c) a b
+#Left : Traversal (Either a c) (Either b c) a b
 #Left f (Left x) = map Left (f x)
 #Left _ (Right y) = pure (Right y)
 
-#Right : Traversal (a + b) (a + c) b c
+#Right : Traversal (Either a b) (Either a c) b c
 #Right f (Right y) = map Right (f y)
 #Right _ (Left x) = pure (Left x)
 

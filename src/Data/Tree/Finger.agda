@@ -154,11 +154,11 @@ instance
 
 uncons : {{Measured v a}}
   -> FingerTree v a
-  -> Maybe (a * FingerTree v a)
+  -> Maybe (Pair a (FingerTree v a))
 
 unsnoc : {{Measured v a}}
   -> FingerTree v a
-  -> Maybe (FingerTree v a * a)
+  -> Maybe (Pair (FingerTree v a) a)
 
 private
   rotL : {{Measured v a}}
@@ -220,7 +220,7 @@ splitTree : {{Measured v a}}
   -> v
   -> (t : FingerTree v a)
   -> {{Validate Nonempty t}}
-  -> FingerTree v a * a * FingerTree v a
+  -> Pair (Pair (FingerTree v a) a) (FingerTree v a)
 splitTree _ _ (Single x) = (Empty , x , Empty)
 splitTree p i (Deep _ pr m sf) =
   let
@@ -238,7 +238,7 @@ splitTree p i (Deep _ pr m sf) =
 split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
-  -> FingerTree v a * FingerTree v a
+  -> Pair (FingerTree v a) (FingerTree v a)
 split _ Empty  =  (Empty , Empty)
 split p xs =
   let (l , x , r) = splitTree p neutral xs {{trustMe}}
@@ -261,7 +261,7 @@ private
     -> (t : FingerTree v a)
     -> {{Validate Nonempty t}}
     -> v
-    -> FingerTree v a * a * FingerTree v a
+    -> Pair (Pair (FingerTree v a) a) (FingerTree v a)
   searchTree _ _ (Single x) _ = (Empty , x , Empty)
   searchTree p vl (Deep _ pr m sf) vr =
     let

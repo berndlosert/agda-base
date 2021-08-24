@@ -26,7 +26,7 @@ postulate
   readIORef : IORef a -> IO a
   writeIORef : IORef a -> a -> IO Unit
   modifyIORef : IORef a -> (a -> a) -> IO Unit
-  atomicModifyIORef : IORef a -> (a -> a * b) -> IO b
+  atomicModifyIORef : IORef a -> (a -> Pair a b) -> IO b
   atomicWriteIORef : IORef a -> a -> IO Unit
 
 -------------------------------------------------------------------------------

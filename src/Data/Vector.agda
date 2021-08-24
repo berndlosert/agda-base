@@ -87,14 +87,14 @@ instance
 -- More functions
 -------------------------------------------------------------------------------
 
-splitAt : (m : Nat) -> Vector (m + n) a -> Vector m a * Vector n a
+splitAt : (m : Nat) -> Vector (m + n) a -> Pair (Vector m a) (Vector n a)
 splitAt 0 xs = ([] , xs)
 splitAt (Suc k) (x :: xs) = let (l , r) = splitAt k xs in (x :: l , r)
 
 transpose : Vector n (Vector m a) -> Vector m (Vector n a)
 transpose = sequence
 
-zip : Vector n a -> Vector n b -> Vector n (a * b)
+zip : Vector n a -> Vector n b -> Vector n (Pair a b)
 zip = zipWith _,_
 
 fromList : (xs : List a) -> Vector (length xs) a

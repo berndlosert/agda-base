@@ -113,13 +113,13 @@ abstract
 -- Destructors
 -------------------------------------------------------------------------------
 
-  uncons : Seq a -> Maybe (a * Seq a)
+  uncons : Seq a -> Maybe (Pair a (Seq a))
   uncons (Seq: t) =
     case Tree.uncons t of \ where
       Nothing -> Nothing
       (Just (Elem: x , xs)) -> Just (x , Seq: xs)
 
-  unsnoc : Seq a -> Maybe (Seq a * a)
+  unsnoc : Seq a -> Maybe (Pair (Seq a) a)
   unsnoc (Seq: t) =
     case Tree.unsnoc t of \ where
       Nothing -> Nothing
@@ -178,7 +178,7 @@ abstract
   filterA p = flip foldr (pure empty) \ where
       x xs -> (| if_then_else_ (p x) (| (cons x) xs |) xs |)
 
-  partition : (a -> Bool) -> Seq a -> Seq a * Seq a
+  partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   partition p = flip foldl (empty , empty) \ where
     (xs , ys) x -> if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
@@ -186,7 +186,7 @@ abstract
 -- Indexed functions
 -------------------------------------------------------------------------------
 
-  splitAt : Nat -> Seq a -> Seq a * Seq a
+  splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
   splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
 
   at : Nat -> Seq a -> Maybe a
@@ -217,17 +217,17 @@ abstract
 -- Extracting sublists
 -------------------------------------------------------------------------------
 
-  breakl : (a -> Bool) -> Seq a -> Seq a * Seq a
+  breakl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , empty) (indicesl p xs)
 
-  breakr : (a -> Bool) -> Seq a -> Seq a * Seq a
+  breakr : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   breakr p xs =
     foldr (\ n _ -> swap (splitAt (Suc n) xs)) (xs , empty) (indicesr p xs)
 
-  spanl : (a -> Bool) -> Seq a -> Seq a * Seq a
+  spanl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   spanl p = breakl (not <<< p)
 
-  spanr : (a -> Bool) -> Seq a -> Seq a * Seq a
+  spanr : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   spanr p = breakr (not <<< p)
 
   takeWhileL : (a -> Bool) -> Seq a -> Seq a
@@ -291,7 +291,7 @@ abstract
           Nothing -> empty
           (Just (y , ys)) -> cons (f x y) (zipWith f xs ys)
 
-  zip : Seq a -> Seq b -> Seq (a * b)
+  zip : Seq a -> Seq b -> Seq (Pair a b)
   zip = zipWith _,_
 
   -- Zips together a list of heads and a list of tails.
@@ -458,7 +458,7 @@ abstract
 -------------------------------------------------------------------------------
 
   {-# TERMINATING #-}
-  lookup : {{Eq a}} -> a -> Seq (a * b) -> Maybe b
+  lookup : {{Eq a}} -> a -> Seq (Pair a b) -> Maybe b
   lookup a s =
     case uncons s of \ where
       Nothing -> Nothing

@@ -75,14 +75,14 @@ tail : List a -> Maybe (List a)
 tail [] = Nothing
 tail (_ :: xs) = Just xs
 
-uncons : List a -> Maybe (a * List a)
+uncons : List a -> Maybe (Pair a (List a))
 uncons [] = Nothing
 uncons (x :: xs) = Just (x , xs)
 
-unsnoc : List a -> Maybe (List a * a)
+unsnoc : List a -> Maybe (Pair (List a) a)
 unsnoc = foldr go Nothing
   where
-    go : a -> Maybe (List a * a) -> Maybe (List a * a)
+    go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
@@ -124,25 +124,25 @@ drop _ [] = []
 drop 0 xs = xs
 drop (Suc n) (x :: xs) = drop n xs
 
-span : (a -> Bool) -> List a -> List a * List a
+span : (a -> Bool) -> List a -> Pair (List a) (List a)
 span p xs = (takeWhile p xs , dropWhile p xs)
 
-break : (a -> Bool) -> List a -> List a * List a
+break : (a -> Bool) -> List a -> Pair (List a) (List a)
 break p = span (not <<< p)
 
 -------------------------------------------------------------------------------
 -- Indexed functions
 -------------------------------------------------------------------------------
 
-indexed : List a -> List (Nat * a)
+indexed : List a -> List (Pair Nat a)
 indexed [] = []
 indexed xs = go 0 xs
   where
-    go : Nat -> List a -> List (Nat * a)
+    go : Nat -> List a -> List (Pair Nat a)
     go _ [] = []
     go n (y :: ys) = (n , y) :: go (Suc n) ys
 
-splitAt : Nat -> List a -> List a * List a
+splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List a -> Maybe a
@@ -208,7 +208,7 @@ zipWith f [] _ = []
 zipWith f _ [] = []
 zipWith f (x :: xs) (y :: ys) = f x y :: zipWith f xs ys
 
-zip : List a -> List b -> List (a * b)
+zip : List a -> List b -> List (Pair a b)
 zip = zipWith _,_
 
 -- Zips together a list of heads and a list of tails.
@@ -218,7 +218,7 @@ zipCons heads tails =
   where
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    padding = replicate (monus (length heads) (length tails)) []
+    padding = replicate (length heads - length tails) []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
@@ -281,11 +281,11 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
       res <- call (drop n xs)
       pure $ take n xs :: res
 
-breakOn : {{Eq a}} -> (needle haystack : List a) -> List a * List a
+breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn {a} needle haystack =
     fromJust (petrol go (length haystack) haystack) {{trustMe}}
   where
-    go : PiG (List a) (\ _ -> List a * List a)
+    go : PiG (List a) (\ _ -> Pair (List a) (List a))
     go haystack = do
       if isPrefixOf needle haystack
         then pure ([] , haystack)
@@ -377,7 +377,7 @@ sublistsN _ [] = []
 sublistsN (Suc n) (x :: xs) =
   map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
 
-leaveOutOne : List a -> List (a * List a)
+leaveOutOne : List a -> List (Pair a (List a))
 leaveOutOne [] = []
 leaveOutOne (x :: xs) = (x , xs) :: do
   (y , ys) <- leaveOutOne xs
@@ -420,7 +420,7 @@ module _ {{_ : Ord a}} where
 -- Searching
 -------------------------------------------------------------------------------
 
-lookup : {{Eq a}} -> a -> List (a * b) -> Maybe b
+lookup : {{Eq a}} -> a -> List (Pair a b) -> Maybe b
 lookup a [] = Nothing
 lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
 

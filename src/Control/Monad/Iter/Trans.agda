@@ -40,7 +40,7 @@ private
 {-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Type -> Type) (a : Type) : Type where
   coinductive
-  field runIterT : m (a + IterT m a)
+  field runIterT : m (Either a (IterT m a))
 
 open IterT public
 
@@ -115,9 +115,9 @@ instance
       map concat' $ listen (map listen <$> runIterT iter)
     where
       c : Type
-      c = w * a
+      c = Pair w a
 
-      concat' : w * (a + IterT m c) -> c + IterT m c
+      concat' : Pair w (Either a (IterT m c)) -> Either c (IterT m c)
       concat' (w , Left x) = Left (w , x)
       concat' (w , Right y) = Right $ lmap (w <>_) <$> y
 
@@ -128,10 +128,10 @@ instance
       clean = pass <<< map (const neutral ,_)
 
       c : Type
-      c = w * ((w -> w) * a)
+      c = Pair w (Pair (w -> w) a)
 
-      pass' : m (c + IterT m c) -> m (a + IterT m a)
-      g : (c + IterT m c) -> m (a + IterT m a)
+      pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
+      g : (Either c (IterT m c)) -> m (Either a (IterT m a))
 
       pass' = join <<< map g
 

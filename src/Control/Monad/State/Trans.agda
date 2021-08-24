@@ -39,7 +39,7 @@ private
 
 record StateT (s : Type) (m : Type -> Type) (a : Type) : Type where
   constructor StateT:
-  field runStateT : s -> m (s * a)
+  field runStateT : s -> m (Pair s a)
 
 open StateT public
 
@@ -49,7 +49,7 @@ evalStateT m s = runStateT m s >>= snd >>> pure
 execStateT : {{Monad m}} -> StateT s m a -> s -> m s
 execStateT m s = runStateT m s >>= fst >>> pure
 
-mapStateT : (m (s * a) -> n (s * b)) -> StateT s m a -> StateT s n b
+mapStateT : (m (Pair s a) -> n (Pair s b)) -> StateT s m a -> StateT s n b
 mapStateT f m = StateT: (f <<< runStateT m)
 
 withStateT : (s -> s) -> StateT s m a -> StateT s m a

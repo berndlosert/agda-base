@@ -22,10 +22,10 @@ abstract
   Parser : Type -> Type
   Parser = StateT String List
 
-  parser : (String -> List (String * a)) -> Parser a
+  parser : (String -> List (Pair String a)) -> Parser a
   parser = StateT:
 
-  runParser : Parser a -> String -> List (String * a)
+  runParser : Parser a -> String -> List (Pair String a)
   runParser = runStateT
 
   instance
@@ -53,7 +53,7 @@ many a = many1 a <|> pure []
 optional : Parser a -> Parser (Maybe a)
 optional a = (| Just a | Nothing |)
 
-eitherP : Parser a -> Parser b -> Parser (a + b)
+eitherP : Parser a -> Parser b -> Parser (Either a b)
 eitherP a b = (| Left a | Right b |)
 
 choice : List (Parser a) -> Parser a

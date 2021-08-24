@@ -34,11 +34,5 @@ instance
   Ord-Nat1 : Ord Nat1
   Ord-Nat1 ._<_ m n = toNat m < toNat n
 
-  Semigroup[+]-Nat1 : Semigroup[+] Nat1
-  Semigroup[+]-Nat1 ._+_ One One = Suc (Suc One)
-  Semigroup[+]-Nat1 ._+_ One n@(Suc _) = fromNat (Suc (toNat n))
-  Semigroup[+]-Nat1 ._+_ m@(Suc _) One = fromNat (Suc (toNat m))
-  Semigroup[+]-Nat1 ._+_ m@(Suc _) n@(Suc _) = fromNat (toNat m + toNat n)
-
   Show-Nat1 : Show Nat1
   Show-Nat1 .showsPrec _ n = showString $ show $ toNat n

@@ -45,7 +45,7 @@ postulate
   myThreadId : IO ThreadId
   threadDelay : (microseconds : Nat) -> IO Unit
   forkIO : IO Unit -> IO ThreadId
-  forkFinally : IO a -> (SomeException + a -> IO Unit) -> IO ThreadId
+  forkFinally : IO a -> (Either SomeException a -> IO Unit) -> IO ThreadId
   killThread : ThreadId -> IO Unit
   yield : IO Unit
 

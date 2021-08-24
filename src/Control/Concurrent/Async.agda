@@ -31,15 +31,15 @@ postulate
   Async : Type -> Type
   async : IO a -> IO (Async a)
   wait : Async a -> IO a
-  waitAny : List (Async a) -> IO (Async a * a)
-  waitEither : Async a -> Async b -> IO (a + b)
+  waitAny : List (Async a) -> IO (Pair (Async a) a)
+  waitEither : Async a -> Async b -> IO (Either a b)
   waitEither! : Async a -> Async b -> IO Unit
-  waitBoth : Async a -> Async b -> IO (a * b)
+  waitBoth : Async a -> Async b -> IO (Pair a b)
   waitBoth! : Async a -> Async b -> IO Unit
   cancel : Async a -> IO Unit
   withAsync : IO a -> (Async a -> IO b) -> IO b
 
-race : IO a -> IO b -> IO (a + b)
+race : IO a -> IO b -> IO (Either a b)
 race l r =
   withAsync l \ a ->
   withAsync r \ b ->
@@ -51,7 +51,7 @@ race! l r =
   withAsync r \ b ->
   waitEither! a b
 
-concurrently : IO a -> IO b -> IO (a * b)
+concurrently : IO a -> IO b -> IO (Pair a b)
 concurrently l r =
   withAsync l \ a ->
   withAsync r \ b ->

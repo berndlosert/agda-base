@@ -32,7 +32,7 @@ private
 
 {-# NO_POSITIVITY_CHECK #-}
 record ListT (m : Type -> Type) (a : Type) : Type where
-  field runListT : m (Maybe (a * ListT m a))
+  field runListT : m (Maybe (Pair a (ListT m a)))
 
 open ListT public
 

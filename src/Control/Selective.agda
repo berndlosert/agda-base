@@ -24,13 +24,13 @@ private
 record Selective (f : Type -> Type) : Type where
   field
     overlap {{Applicative-super}} : Applicative f
-    select : f (a + b) -> f (a -> b) -> f b
+    select : f (Either a b) -> f (a -> b) -> f b
 
   infixl 4 _<*?_
-  _<*?_ : f (a + b) -> f (a -> b) -> f b
+  _<*?_ : f (Either a b) -> f (a -> b) -> f b
   _<*?_ = select
 
-  branch : f (a + b) -> f (a -> c) -> f (b -> c) -> f c
+  branch : f (Either a b) -> f (a -> c) -> f (b -> c) -> f c
   branch x l r = map (map Left) x <*? map (map Right) l <*? r
 
   ifS : f Bool -> f a -> f a -> f a
@@ -42,10 +42,10 @@ record Selective (f : Type -> Type) : Type where
   whenS : f Bool -> f Unit -> f Unit
   whenS b t = ifS b t (pure unit)
 
-  orElse : {{Semigroup a}} -> f (a + b) -> f (a + b) -> f (a + b)
+  orElse : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
   orElse x y = branch x (flip appendLeft <$> y) (pure Right)
     where
-      appendLeft : {{Semigroup a}} -> a -> a + b -> a + b
+      appendLeft : {{Semigroup a}} -> a -> Either a b -> Either a b
       appendLeft x (Left y) = Left (x <> y)
       appendLeft _ r = r
 
@@ -55,7 +55,7 @@ open Selective {{...}} public
 whileS : {{Selective f}} -> f Bool -> f Unit
 whileS act = whenS act (whileS act)
 
-selectM : {{Monad m}} -> m (a + b) -> m (a -> b) -> m b
+selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
 selectM mx mf = do
   result <- mx
   case result of \ where
@@ -72,10 +72,10 @@ instance
   Selective-Function : Selective (Function a)
   Selective-Function .select = selectM
 
-  Selective-Either : Selective (a +_)
+  Selective-Either : Selective (Either a)
   Selective-Either .select = selectM
 
-  Selective-Pair : {{Monoid a}} -> Selective (a *_)
+  Selective-Pair : {{Monoid a}} -> Selective (Pair a)
   Selective-Pair .select = selectM
 
   Selective-Maybe : Selective Maybe

@@ -96,15 +96,15 @@ member' key dict =
 insert : {{Ord k}} -> k -> v -> Dict k v -> Dict k v
 insert k v (Dict: t) = Dict: (Tree.insert (KVPair: k v) t)
 
-fromList : {{Ord k}} -> List (k * v) -> Dict k v
+fromList : {{Ord k}} -> List (Pair k v) -> Dict k v
 fromList [] = empty
 fromList {k} {v} kvs = go kvs empty
   where
-    go : List (k * v) -> Dict k v -> Dict k v
+    go : List (Pair k v) -> Dict k v -> Dict k v
     go [] d = d
     go ((k , v) :: rest) d = go rest (insert k v d)
 
-toList : Dict k v -> List (k * v)
+toList : Dict k v -> List (Pair k v)
 toList d = List.zip (keys d) (values d)
 
 delete : {{Ord k}} -> k -> Dict k v -> Dict k v

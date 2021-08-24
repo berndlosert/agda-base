@@ -35,55 +35,51 @@ private
 -- EitherT
 -------------------------------------------------------------------------------
 
-abstract
-  EitherT : (e : Type) (m : Type -> Type) (a : Type) -> Type
-  EitherT e m a = m (e + a)
+record EitherT (e : Type) (m : Type -> Type) (a : Type) : Type where
+  constructor EitherT:
+  field runEitherT : m (Either e a)
 
-  mkEitherT : m (e + a) -> EitherT e m a
-  mkEitherT = id
+open EitherT public
 
-  runEitherT : EitherT e m a -> m (e + a)
-  runEitherT = id
-
-mapEitherT : (m (e + a) -> n (e' + b)) -> EitherT e m a -> EitherT e' n b
-mapEitherT f m = mkEitherT (f (runEitherT m))
+mapEitherT : (m (Either e a) -> n (Either e' b)) -> EitherT e m a -> EitherT e' n b
+mapEitherT f m = EitherT: (f (runEitherT m))
 
 withEitherT : {{Functor m}} -> (e -> e') -> EitherT e m a -> EitherT e' m a
-withEitherT f t = mkEitherT $ map (lmap f) (runEitherT t)
+withEitherT f t = EitherT: $ map (lmap f) (runEitherT t)
 
 instance
   Functor-EitherT : {{Functor m}} -> Functor (EitherT e m)
-  Functor-EitherT .map f = mkEitherT <<< map (map f) <<< runEitherT
+  Functor-EitherT .map f = EitherT: <<< map (map f) <<< runEitherT
 
   Applicative-EitherT : {{Monad m}} -> Applicative (EitherT e m)
-  Applicative-EitherT .pure = mkEitherT <<< pure <<< pure
+  Applicative-EitherT .pure = EitherT: <<< pure <<< pure
   Applicative-EitherT ._<*>_ f x =
-    mkEitherT (| _<*>_ (runEitherT f) (runEitherT x) |)
+    EitherT: (| _<*>_ (runEitherT f) (runEitherT x) |)
 
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)
-  Alternative-EitherT .empty = mkEitherT $ pure (Left neutral)
+  Alternative-EitherT .empty = EitherT: $ pure (Left neutral)
   Alternative-EitherT ._<|>_ l r =
-    mkEitherT $ runEitherT l >>= \ where
+    EitherT: $ runEitherT l >>= \ where
       (Left e) -> map (either (Left <<< (e <>_)) Right) (runEitherT r)
       (Right x) -> pure (Right x)
 
   Monad-EitherT : {{Monad m}} -> Monad (EitherT e m)
   Monad-EitherT ._>>=_ m k =
-    mkEitherT (runEitherT m >>= either (pure <<< Left) (runEitherT <<< k))
+    EitherT: (runEitherT m >>= either (pure <<< Left) (runEitherT <<< k))
 
   MonadTrans-EitherT : MonadTrans (EitherT e)
-  MonadTrans-EitherT .lift = mkEitherT <<< map Right
+  MonadTrans-EitherT .lift = EitherT: <<< map Right
 
   MonadThrow-EitherT : {{MonadThrow m}} -> MonadThrow (EitherT e m)
   MonadThrow-EitherT .throw = lift <<< throw
 
   MonadCatch-EitherT : {{MonadCatch m}} -> MonadCatch (EitherT e m)
   MonadCatch-EitherT .catch m k =
-    mkEitherT $ catch (runEitherT m) (runEitherT <<< k)
+    EitherT: $ catch (runEitherT m) (runEitherT <<< k)
 
   MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
-  MonadBracket-EitherT .generalBracket acquire release use = mkEitherT do
+  MonadBracket-EitherT .generalBracket acquire release use = EitherT: do
     (eb , ec) <- generalBracket
       (runEitherT acquire)
       (\ where
@@ -116,5 +112,5 @@ instance
   MonadState-EitherT .state = lift <<< state
 
   MonadCont-EitherT : {{MonadCont m}} -> MonadCont (EitherT e m)
-  MonadCont-EitherT .callCC f = mkEitherT $
-    callCC \ c -> runEitherT (f $ mkEitherT <<< c <<< Right)
+  MonadCont-EitherT .callCC f = EitherT: $
+    callCC \ c -> runEitherT (f $ EitherT: <<< c <<< Right)

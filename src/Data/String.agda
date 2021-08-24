@@ -46,12 +46,12 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons : String -> Maybe (Char * String)
+uncons : String -> Maybe (Pair Char String)
 uncons s = case primStringUncons s of \ where
   (Just (DPair: c cs)) -> Just (c , cs)
   Nothing -> Nothing
 
-unsnoc : String -> Maybe (String * Char)
+unsnoc : String -> Maybe (Pair String Char)
 unsnoc s = lmap pack <$> List.unsnoc (unpack s)
 
 head : String -> Maybe Char
@@ -130,13 +130,13 @@ drop n s = pack $ List.drop n $ unpack s
 dropWhile : (Char -> Bool) -> String -> String
 dropWhile p s = pack $ List.dropWhile p $ unpack s
 
-span : (Char -> Bool) -> String -> String * String
+span : (Char -> Bool) -> String -> Pair String String
 span p s = bimap pack pack $ List.span p $ unpack s
 
-break : (Char -> Bool) -> String -> String * String
+break : (Char -> Bool) -> String -> Pair String String
 break p s = bimap pack pack $ List.break p $ unpack s
 
-breakOn : String -> String -> String * String
+breakOn : String -> String -> Pair String String
 breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
@@ -189,7 +189,7 @@ lines s =
   let (l , ls) = foldl f ("" , []) s
   in List.reverse (if l == "" then ls else (l :: ls))
   where
-    f : String * List String -> Char -> String * List String
+    f : Pair String (List String) -> Char -> Pair String (List String)
     f (l , ls) '\n' = ("" , l :: ls)
     f (l , ls) c = (snoc l c , ls)
 

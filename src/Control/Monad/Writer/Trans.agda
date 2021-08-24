@@ -39,14 +39,14 @@ private
 
 record WriterT (w : Type) (m : Type -> Type) (a : Type) : Type where
   constructor WriterT:
-  field runWriterT : m (w * a)
+  field runWriterT : m (Pair w a)
 
 open WriterT public
 
 execWriterT : {{Functor m}} -> WriterT w m a -> m w
 execWriterT = map fst <<< runWriterT
 
-mapWriterT : (m (w * a) -> n (w' * b))
+mapWriterT : (m (Pair w a) -> n (Pair w' b))
   -> WriterT w m a -> WriterT w' n b
 mapWriterT f = WriterT: <<< f <<< runWriterT
 

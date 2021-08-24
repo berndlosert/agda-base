@@ -115,11 +115,13 @@ record Foldable (t : Type -> Type) : Type where
       max' Nothing x = Just x
       max' (Just x) y = Just (if cmp x y == GT then x else y)
 
-  sum : {{Monoid[+] a}} -> t a -> a
-  sum = foldl _+_ zero
+  module _ {{_ : Num a}} where
 
-  product : {{Monoid[*] a}} -> t a -> a
-  product = foldl _*_ one
+    sum : {{FromZero a}} -> t a -> a
+    sum = foldl _+_ 0
+
+    product : {{FromOne a}} -> t a -> a
+    product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where
 
@@ -168,10 +170,10 @@ record Foldable (t : Type -> Type) : Type where
         go Nothing x = Just x
         go (Just x) y = Just (f x y)
 
-    sum1 : {{Semigroup[+] a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
+    sum1 : {{Num a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     sum1 = foldl1 _+_
 
-    product1 : {{Semigroup[*] a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
+    product1 : {{Num a}} -> (xs : t a) -> {{Validate Nonempty xs}} -> a
     product1 = foldl1 _*_
 
     minimumBy1 : (a -> a -> Ordering)

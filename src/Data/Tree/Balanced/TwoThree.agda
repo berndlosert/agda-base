@@ -143,7 +143,7 @@ insert {a} v = down []
 -- Deleting
 -------------------------------------------------------------------------------
 
-pop : {{Ord a}} -> a -> Tree a -> Maybe (a * Tree a)
+pop : {{Ord a}} -> a -> Tree a -> Maybe (Pair a (Tree a))
 pop {a} v = down []
   where
     up : List (TreeContext a) -> Tree a -> Tree a
@@ -214,7 +214,7 @@ pop {a} v = down []
         removeMaxNode (ThreeRight l x m y :: ctx) r
       t -> t
 
-    down : List (TreeContext a) -> Tree a -> Maybe (a * Tree a)
+    down : List (TreeContext a) -> Tree a -> Maybe (Pair a (Tree a))
     down ctx Leaf = Nothing
     down ctx (Two l x r) =
       case (l , r , compare v x) of \ where
@@ -256,7 +256,7 @@ delete x t = maybe t snd (pop x t)
 -- Querying
 -------------------------------------------------------------------------------
 
-lookup : {{Ord a}} -> a -> Tree (a * b) -> Maybe b
+lookup : {{Ord a}} -> a -> Tree (Pair a b) -> Maybe b
 lookup a Leaf = Nothing
 lookup a (Two l (x , b) r) =
   case compare a x of \ where

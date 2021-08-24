@@ -28,7 +28,7 @@ record Filterable (t : Type -> Type) : Type where
   field
     mapMaybe : (a -> Maybe b) -> t a -> t b
 
-  mapEither : (a -> Either b c) -> t a -> t b * t c
+  mapEither : (a -> Either b c) -> t a -> Pair (t b) (t c)
   mapEither t = (|
       _,_
       (mapMaybe (either Just (pure Nothing) <<< t))
@@ -38,13 +38,13 @@ record Filterable (t : Type -> Type) : Type where
   filter : (a -> Bool) -> t a -> t a
   filter p = mapMaybe (\ x -> if p x then Just x else Nothing)
 
-  partition : (a -> Bool) -> t a -> t a * t a
+  partition : (a -> Bool) -> t a -> Pair (t a) (t a)
   partition p xs = (filter p xs , filter (not <<< p) xs)
 
   catMaybes : t (Maybe a) -> t a
   catMaybes = mapMaybe id
 
-  partitionEithers : t (Either a b) -> t a * t b
+  partitionEithers : t (Either a b) -> Pair (t a) (t b)
   partitionEithers = mapEither id
 
   module _ {{_ : Traversable t}} {{_ : Applicative f}} where
@@ -56,7 +56,7 @@ record Filterable (t : Type -> Type) : Type where
     filterA p =
       mapMaybeA (\ x -> (| bool (| Nothing |) (| (Just x) |) (p x) |))
 
-    mapEitherA : (a -> f (Either b c)) -> t a -> f (t b * t c)
+    mapEitherA : (a -> f (Either b c)) -> t a -> f (Pair (t b) (t c))
     mapEitherA f = (|
         (\ x y -> (| _,_ x y |))
         (mapMaybeA (map (either Just (pure Nothing)) <<< f))

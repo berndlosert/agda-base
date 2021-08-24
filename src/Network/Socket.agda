@@ -114,7 +114,7 @@ defaultHints = record {
 
 postulate
   getAddrInfo : Maybe AddrInfo -> Maybe HostName -> Maybe ServiceName
-    -> IO (AddrInfo * List AddrInfo)
+    -> IO (Pair AddrInfo (List AddrInfo))
 
 -------------------------------------------------------------------------------
 -- Socket
@@ -126,7 +126,7 @@ postulate
   openSocket : AddrInfo -> IO Socket
   connect : Socket -> SocketAddr -> IO Unit
   bind : Socket -> SocketAddr -> IO Unit
-  accept : Socket -> IO (Socket * SocketAddr)
+  accept : Socket -> IO (Pair Socket SocketAddr)
   close : Socket -> IO Unit
   send : Socket -> Bytes -> IO Nat
   sendAll : Socket -> Bytes -> IO Unit

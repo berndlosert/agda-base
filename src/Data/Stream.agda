@@ -50,7 +50,7 @@ iterate : (a -> a) -> a -> Stream a
 iterate f a .head = a
 iterate f a .tail = iterate f (f a)
 
-unfold : (b -> a * b) -> b -> Stream a
+unfold : (b -> Pair a b) -> b -> Stream a
 unfold f b = let (a , b') = f b in \ where
   .head -> a
   .tail -> unfold f b'
