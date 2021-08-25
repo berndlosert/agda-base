@@ -10,6 +10,7 @@ open import Prelude
 
 open import Data.Bytes
 open import Data.Word
+open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

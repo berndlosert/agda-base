@@ -9,6 +9,7 @@ module Debug.Trace where
 open import Prelude
 
 open import System.IO.Unsafe
+open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

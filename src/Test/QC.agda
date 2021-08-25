@@ -14,6 +14,7 @@ open import Data.String as String using ()
 open import Data.Foldable
 open import Data.Refined
 open import Data.Traversable
+open import String.Show
 open import System.IO
 open import System.IO.Unsafe
 open import System.Random

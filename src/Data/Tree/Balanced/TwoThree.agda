@@ -10,6 +10,7 @@ open import Prelude hiding (map)
 
 open import Data.Foldable
 open import Data.Refined
+open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
