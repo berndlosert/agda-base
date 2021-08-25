@@ -17,10 +17,10 @@ open import Data.Traversable
 -------------------------------------------------------------------------------
 
 packed : Simple Iso (List Char) String
-packed = iso pack unpack
+packed = iso String.pack String.unpack
 
 unpacked : Simple Iso String (List Char)
-unpacked = iso unpack pack
+unpacked = iso String.unpack String.pack
 
 worded : Simple Traversal String String
 worded f str = (| String.unwords (traverse f (String.words str)) |)

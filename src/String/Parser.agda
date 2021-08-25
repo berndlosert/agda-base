@@ -184,7 +184,7 @@ tab = char '\t'
 -------------------------------------------------------------------------------
 
 string : String -> Parser String
-string = map pack <<< traverse char <<< unpack
+string = map String.pack <<< traverse char <<< String.unpack
 
 {-# NON_TERMINATING #-}
 word : Parser String

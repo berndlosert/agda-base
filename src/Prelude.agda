@@ -464,23 +464,6 @@ chr : Fin (Suc (ord maxChar)) -> Char
 chr n = Agda.Builtin.Char.primNatToChar (finToNat n)
 
 -------------------------------------------------------------------------------
--- String primitives
--------------------------------------------------------------------------------
-
-private
-  stringEq : String -> String -> Bool
-  stringEq = Agda.Builtin.String.primStringEquality
-
-  stringAppend : String -> String -> String
-  stringAppend = Agda.Builtin.String.primStringAppend
-
-pack : List Char -> String
-pack = Agda.Builtin.String.primStringFromList
-
-unpack : String -> List Char
-unpack = Agda.Builtin.String.primStringToList
-
--------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
 
@@ -621,9 +604,6 @@ instance
   Eq-Char : Eq Char
   Eq-Char ._==_ = charEq
 
-  Eq-String : Eq String
-  Eq-String ._==_ = stringEq
-
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -743,9 +723,6 @@ instance
       GT -> GT
       EQ -> compare xs ys
 
-  Ord-String : Ord String
-  Ord-String .compare l r = compare (unpack l) (unpack r)
-
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
   Ord-Pair .compare (x , y) (w , z) =
     case compare x w of \ where
@@ -816,11 +793,12 @@ instance
   FromNat-Float .FromNatConstraint _ = Unit
   FromNat-Float .fromNat n = natToFloat n
 
-  FromNat-Type : FromNat Type
-  FromNat-Type .FromNatConstraint _ = Unit
-  FromNat-Type .fromNat 0 = Void
-  FromNat-Type .fromNat 1 = Unit
-  FromNat-Type .fromNat (Suc n) = Either (fromNat 1) (fromNat n)
+  FromNat-Char : FromNat Char
+  FromNat-Char .FromNatConstraint n =
+    if ord (minChar) <= n && n <= ord (maxChar)
+      then Unit
+      else Void
+  FromNat-Char .fromNat n = natToChar n
 
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint _ = Unit
@@ -1002,9 +980,6 @@ instance
     EQ y -> y
     GT _ -> GT
 
-  Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = stringAppend
-
   Semigroup-Function : {{Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
 
@@ -1049,9 +1024,6 @@ instance
 
   Monoid-Ordering : Monoid Ordering
   Monoid-Ordering .neutral = EQ
-
-  Monoid-String : Monoid String
-  Monoid-String .neutral = ""
 
   Monoid-Function : {{Monoid b}} -> Monoid (a -> b)
   Monoid-Function .neutral = const neutral
@@ -1303,74 +1275,3 @@ instance
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
-
--------------------------------------------------------------------------------
--- Enum
--------------------------------------------------------------------------------
-
-record Enum (a : Type) : Type where
-  field
-    {{Ord-super}} : Ord a
-    suc : a -> Maybe a
-    pred : a -> Maybe a
-    enumFromTo : a -> a -> List a
-
-open Enum {{...}} public
-
-instance
-  Enum-Nat : Enum Nat
-  Enum-Nat .suc x = Just (Suc x)
-  Enum-Nat .pred 0 = Nothing
-  Enum-Nat .pred (Suc n) = Just n
-  Enum-Nat .enumFromTo m n =
-      let k = max (m - n) (n - m)
-      in go k m n
-    where
-      go : Nat -> Nat -> Nat -> List Nat
-      go 0 m _ = m :: []
-      go (Suc k) m n =
-        let m' = if m < n then m + 1 else m - 1
-        in m :: go k m' n
-
-  Enum-Int : Enum Int
-  Enum-Int .suc (Pos n) = Just $ Pos (Suc n)
-  Enum-Int .suc (NegSuc n) = Just $ neg n
-  Enum-Int .pred (Pos 0) = Just $ NegSuc 0
-  Enum-Int .pred (Pos (Suc n)) = Just $ Pos n
-  Enum-Int .pred (NegSuc n) = Just $ NegSuc (Suc n)
-  Enum-Int .enumFromTo m n =
-    case m - n of \ where
-      (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
-      (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
-
-  Enum-Char : Enum Char
-  Enum-Char .suc c =
-    if c == maxChar
-      then Nothing
-      else natToChar <$> suc (ord c)
-  Enum-Char .pred c =
-    if c == minChar
-      then Nothing
-      else natToChar <$> pred (ord c)
-  Enum-Char .enumFromTo c d = natToChar <$> enumFromTo (ord c) (ord d)
-
--------------------------------------------------------------------------------
--- Bounded
--------------------------------------------------------------------------------
-
-record Bounded (a : Type) : Type where
-  field
-    overlap {{Ord-super}} : Ord a
-    minBound : a
-    maxBound : a
-
-open Bounded {{...}} public
-
-instance
-  Bounded-Char : Bounded Char
-  Bounded-Char .minBound = minChar
-  Bounded-Char .maxBound = maxChar
-
-  Bounded-Float : Bounded Float
-  Bounded-Float .minBound = Infinity
-  Bounded-Float .maxBound = -Infinity

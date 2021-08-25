@@ -8,6 +8,7 @@ module Test.QC where
 
 open import Prelude
 
+open import Data.Enum
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()

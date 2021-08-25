@@ -8,7 +8,7 @@ module Data.String where
 
 open import Prelude
 
-open import Agda.Builtin.String using (primStringUncons)
+open import Agda.Builtin.String
 open import Data.List as List using ()
 open import Data.Refined
 
@@ -24,6 +24,12 @@ private
 -- Creation and elimination
 -------------------------------------------------------------------------------
 
+pack : List Char -> String
+pack = primStringFromList
+
+unpack : String -> List Char
+unpack = primStringToList
+
 singleton : Char -> String
 singleton = pack <<< List.singleton
 
@@ -32,6 +38,23 @@ empty = ""
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Eq-String : Eq String
+  Eq-String ._==_ = primStringEquality
+
+  Ord-String : Ord String
+  Ord-String .compare l r = compare (unpack l) (unpack r)
+
+  Semigroup-String : Semigroup String
+  Semigroup-String ._<>_ = primStringAppend
+
+  Monoid-String : Monoid String
+  Monoid-String .neutral = ""
 
 -------------------------------------------------------------------------------
 -- Basic interface
