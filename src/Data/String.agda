@@ -9,6 +9,7 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String
+open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.Refined
 
@@ -194,10 +195,10 @@ split f s = map pack $ List.split f (unpack s)
 
 {-# TERMINATING #-}
 words : String -> List String
-words s = let s' = dropWhile isSpace s in
+words s = let s' = dropWhile Char.isSpace s in
   if s' == ""
     then []
-    else let (w , s'') = break isSpace s' in (w :: words s'')
+    else let (w , s'') = break Char.isSpace s' in (w :: words s'')
 
 unwords : List String -> String
 unwords [] = ""

@@ -413,57 +413,6 @@ atanh : Float -> Float
 atanh = Agda.Builtin.Float.primFloatATanh
 
 -------------------------------------------------------------------------------
--- Char primitives
--------------------------------------------------------------------------------
-
-private
-  charEq : Char -> Char -> Bool
-  charEq = Agda.Builtin.Char.primCharEquality
-
-  natToChar : Nat -> Char
-  natToChar = Agda.Builtin.Char.primNatToChar
-
-minChar maxChar : Char
-minChar = '\NUL'
-maxChar = '\1114111'
-
-isLower : Char -> Bool
-isLower = Agda.Builtin.Char.primIsLower
-
-isDigit : Char -> Bool
-isDigit = Agda.Builtin.Char.primIsDigit
-
-isAlpha : Char -> Bool
-isAlpha = Agda.Builtin.Char.primIsAlpha
-
-isSpace : Char -> Bool
-isSpace = Agda.Builtin.Char.primIsSpace
-
-isAscii : Char -> Bool
-isAscii = Agda.Builtin.Char.primIsAscii
-
-isLatin1 : Char -> Bool
-isLatin1 = Agda.Builtin.Char.primIsLatin1
-
-isPrint : Char -> Bool
-isPrint = Agda.Builtin.Char.primIsPrint
-
-isHexDigit : Char -> Bool
-isHexDigit = Agda.Builtin.Char.primIsHexDigit
-
-toUpper : Char -> Char
-toUpper = Agda.Builtin.Char.primToUpper
-
-toLower : Char -> Char
-toLower = Agda.Builtin.Char.primToLower
-
-ord : Char -> Nat
-ord = Agda.Builtin.Char.primCharToNat
-
-chr : Fin (Suc (ord maxChar)) -> Char
-chr n = Agda.Builtin.Char.primNatToChar (finToNat n)
-
--------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
 
@@ -601,9 +550,6 @@ instance
   Eq-Float : Eq Float
   Eq-Float ._==_ = floatEq
 
-  Eq-Char : Eq Char
-  Eq-Char ._==_ = charEq
-
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -710,9 +656,6 @@ instance
     else if floatLessThan x y then LT
     else GT
 
-  Ord-Char : Ord Char
-  Ord-Char .compare l r = compare (ord l) (ord r)
-
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -792,13 +735,6 @@ instance
   FromNat-Float : FromNat Float
   FromNat-Float .FromNatConstraint _ = Unit
   FromNat-Float .fromNat n = natToFloat n
-
-  FromNat-Char : FromNat Char
-  FromNat-Char .FromNatConstraint n =
-    if ord (minChar) <= n && n <= ord (maxChar)
-      then Unit
-      else Void
-  FromNat-Char .fromNat n = natToChar n
 
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint _ = Unit

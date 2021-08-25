@@ -7,6 +7,7 @@ open import Prelude hiding (bool)
 open import Control.Alternative
 open import Control.Lens
 open import Control.Monad.State.Trans
+open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.Refined
 open import Data.String as String using ()
@@ -144,25 +145,25 @@ noneOf : List Char -> Parser Char
 noneOf cs = satisfy (\ c -> List.notElem c cs)
 
 letter : Parser Char
-letter = satisfy isAlpha
+letter = satisfy Char.isAlpha
 
 lower : Parser Char
-lower = satisfy isLower
+lower = satisfy Char.isLower
 
 upper : Parser Char
-upper = satisfy (\ c -> isAlpha c && not (isLower c))
+upper = satisfy (\ c -> Char.isAlpha c && not (Char.isLower c))
 
 digit : Parser Char
-digit = satisfy isDigit
+digit = satisfy Char.isDigit
 
 hexDigit : Parser Char
-hexDigit = satisfy isHexDigit
+hexDigit = satisfy Char.isHexDigit
 
 alphaNum : Parser Char
 alphaNum = letter <|> digit
 
 space : Parser Char
-space = satisfy isSpace
+space = satisfy Char.isSpace
 
 skipSpaces : Parser Unit
 skipSpaces = skipMany space
@@ -207,7 +208,7 @@ takeAll = takeWhile (const True)
 
 nat : Parser Nat
 nat = chainl1
-    (digit >>= \ n -> pure (ord n - ord '0'))
+    (digit >>= \ n -> pure (Char.ord n - Char.ord '0'))
     (pure \ m n -> 10 * m + n)
 
 int : Parser Int
