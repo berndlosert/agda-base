@@ -8,6 +8,7 @@ module Data.Monoid.Dual where
 
 open import Prelude
 
+open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
@@ -48,4 +49,4 @@ instance
 
   Show-Dual : {{Show a}} -> Show (Dual a)
   Show-Dual .showsPrec d (Dual: x) = showParen (d > appPrec)
-    (showString "Show: " <<< showsPrec appPrec+1 x)
+    (showString "Dual: " <<< showsPrec appPrec+1 x)

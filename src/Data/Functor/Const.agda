@@ -8,6 +8,7 @@ module Data.Functor.Const where
 
 open import Prelude
 
+open import Data.Nat as Nat using ()
 open import Data.Foldable
 open import String.Show
 

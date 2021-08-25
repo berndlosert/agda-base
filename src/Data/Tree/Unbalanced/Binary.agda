@@ -9,6 +9,7 @@ module Data.Tree.Unbalanced.Binary where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.Nat as Nat using ()
 open import Data.Refined
 open import Data.Traversable
 open import String.Show

@@ -10,6 +10,7 @@ open import Prelude hiding (map)
 
 open import Data.Foldable
 open import Data.List as List using ()
+open import Data.Nat as Nat using ()
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

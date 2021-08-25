@@ -173,7 +173,7 @@ toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
 lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
-lengthOf l = foldlOf l (\ n _ -> Suc n) 0
+lengthOf l = foldlOf l (\ n _ -> Suc n) Zero
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (Just <<< First:)

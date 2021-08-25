@@ -8,6 +8,7 @@ module Data.Nat1 where
 
 open import Prelude
 
+open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
@@ -27,7 +28,7 @@ instance
 
   ToNat-Nat1 : ToNat Nat1
   ToNat-Nat1 .ToNatConstraint _ = Unit
-  ToNat-Nat1 .toNat One = 1
+  ToNat-Nat1 .toNat One = Suc Zero
   ToNat-Nat1 .toNat (Suc n) = Suc (toNat n)
 
   Eq-Nat1 : Eq Nat1

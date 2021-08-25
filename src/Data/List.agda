@@ -10,6 +10,7 @@ open import Prelude
 
 open import Data.General
 open import Data.Monoid.Endo
+open import Data.Nat as Nat using ()
 open import Data.Filterable
 open import Data.Foldable
 open import Data.Refined

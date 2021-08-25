@@ -10,8 +10,10 @@ open import Prelude
 
 open import Data.Bits
 open import Data.Float as Float using ()
+open import Data.Int as Int using ()
 open import Data.IORef
-open import Data.List
+open import Data.Nat as Nat using ()
+open import Data.List as List using ()
 open import Data.Word
 open import System.Time
 
@@ -38,7 +40,7 @@ private
   -- Convert a list of Word64 values, considered as one long word, into a Nat.
   w64sToNat : List Word64 -> Nat
   w64sToNat [] = 0
-  w64sToNat ws = go (reverse ws) 0
+  w64sToNat ws = go (List.reverse ws) 0
     where
       go : List Word64 -> Nat -> Nat
       go [] n = 0

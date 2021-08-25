@@ -8,6 +8,7 @@ module Data.Sequence.Elem where
 
 open import Prelude
 
+open import Data.Nat as Nat using ()
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
 open import Data.Tree.Finger.Node

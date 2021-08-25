@@ -8,6 +8,8 @@ module Data.Monoid.Sum where
 
 open import Prelude
 
+open import Data.Int as Int using ()
+open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
@@ -54,4 +56,4 @@ instance
 
   Show-Sum : {{Show a}} -> Show (Sum a)
   Show-Sum .showsPrec d (Sum: x) = showParen (d > appPrec)
-    (showString "Show: " <<< showsPrec appPrec+1 x)
+    (showString "Sum: " <<< showsPrec appPrec+1 x)

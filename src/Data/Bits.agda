@@ -8,6 +8,9 @@ module Data.Bits where
 
 open import Prelude
 
+open import Data.Int as Int using ()
+open import Data.Nat as Nat using ()
+
 -------------------------------------------------------------------------------
 -- Bits
 -------------------------------------------------------------------------------
@@ -50,13 +53,13 @@ record Bits (a : Type) : Type where
   shiftL x i = shift x (Pos i)
 
   shiftR : a -> Nat -> a
-  shiftR x i = shift x (neg i)
+  shiftR x i = shift x (Int.neg i)
 
   rotateL : a -> Nat -> a
   rotateL x i = rotate x (Pos i)
 
   rotateR : a -> Nat -> a
-  rotateR x i = rotate x (neg i)
+  rotateR x i = rotate x (Int.neg i)
 
   countLeadingZeros : a -> Nat
   countLeadingZeros x = bitSize-1 - go bitSize-1

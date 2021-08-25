@@ -180,145 +180,6 @@ _&&_ : Bool -> Bool -> Bool
 False && _ = False
 True && x = x
 
------------------------------------------------------------------------------------------
--- Nat primitives
------------------------------------------------------------------------------------------
-
-applyN : (a -> a) -> Nat -> a -> a
-applyN _ 0 x = x
-applyN f (Suc n) x = f (applyN f n x)
-
-private
-  natEquality : Nat -> Nat -> Bool
-  natEquality = Agda.Builtin.Nat._==_
-
-  natLessThan : Nat -> Nat -> Bool
-  natLessThan = Agda.Builtin.Nat._<_
-
-  natPlus : Nat -> Nat -> Nat
-  natPlus = Agda.Builtin.Nat._+_
-
-  natMinus : Nat -> Nat -> Nat
-  natMinus = Agda.Builtin.Nat._-_
-
-  natTimes : Nat -> Nat -> Nat
-  natTimes = Agda.Builtin.Nat._*_
-
-  natDivAux : (k m n j : Nat) -> Nat
-  natDivAux = Agda.Builtin.Nat.div-helper
-
-  natModAux : (k m n j : Nat) -> Nat
-  natModAux = Agda.Builtin.Nat.mod-helper
-
-  natDiv : Nat -> Nat -> Nat
-  natDiv m (Suc n) = natDivAux Zero n m n
-  natDiv _ _ = undefined
-
-  natMod : Nat -> Nat -> Nat
-  natMod m (Suc n) = natModAux Zero n m n
-  natMod _ _ = undefined
-
--------------------------------------------------------------------------------
--- Fin primitives
--------------------------------------------------------------------------------
-
-private
-  finToNat : {n : Nat} -> Fin n -> Nat
-  finToNat Zero = Zero
-  finToNat (Suc n) = Suc (finToNat n)
-
-  natToFin : (m n : Nat) -> Maybe (Fin n)
-  natToFin Zero (Suc j) = Just Zero
-  natToFin (Suc m) (Suc n) =
-    case natToFin m n of \ where
-      (Just k') -> Just (Suc k')
-      Nothing -> Nothing
-  natToFin _ _ = Nothing
-
-  finEquality : {n : Nat} -> Fin n -> Fin n -> Bool
-  finEquality Zero Zero = True
-  finEquality (Suc n) (Suc m) = finEquality n m
-  finEquality _ _ = False
-
-  finLessThan : {n : Nat} -> Fin n -> Fin n -> Bool
-  finLessThan _ Zero = False
-  finLessThan Zero (Suc _) = True
-  finLessThan (Suc n) (Suc m) = finLessThan n m
-
-  finPlus : {n : Nat} -> Fin n -> Fin n -> Fin n
-  finPlus {n} k m =
-    case natToFin (natMod (natPlus (finToNat k) (finToNat m)) n) n of \ where
-      (Just k') -> k'
-      Nothing -> undefined
-
-  finNegate : {n : Nat} -> Fin n -> Fin n
-  finNegate {n} m =
-    case natToFin (natMinus n (finToNat m)) n of \ where
-      (Just k) -> k
-      Nothing -> undefined
-
-  finMinus : {n : Nat} -> Fin n -> Fin n -> Fin n
-  finMinus k m = finPlus k (finNegate m)
-
-  finTimes : {n : Nat} -> Fin n -> Fin n -> Fin n
-  finTimes {n} k m =
-    case natToFin (natMod (natTimes (finToNat k) (finToNat m)) n) n of \ where
-      (Just k') -> k'
-      Nothing -> undefined
-
--------------------------------------------------------------------------------
--- Int primitives
--------------------------------------------------------------------------------
-
-neg : Nat -> Int
-neg 0 = Pos 0
-neg (Suc n) = NegSuc n
-
-private
-  intLessThan : Int -> Int -> Bool
-  intLessThan (Pos m) (Pos n) = natLessThan m n
-  intLessThan (NegSuc m) (NegSuc n) = natLessThan n m
-  intLessThan (NegSuc _) (Pos _) = True
-  intLessThan (Pos _) (NegSuc _) = False
-
-  intNegate : Int -> Int
-  intNegate = \ where
-    (Pos Zero) -> Pos Zero
-    (Pos (Suc n)) -> NegSuc n
-    (NegSuc n) -> Pos (Suc n)
-
-  intMinus : Nat -> Nat -> Int
-  intMinus m Zero = Pos m
-  intMinus Zero (Suc n) = NegSuc n
-  intMinus (Suc m) (Suc n) = intMinus m n
-
-  intPlus : Int -> Int -> Int
-  intPlus (NegSuc m) (NegSuc n) = NegSuc (Suc (natPlus m n))
-  intPlus (NegSuc m) (Pos n) = intMinus n (Suc m)
-  intPlus (Pos m) (NegSuc n) = intMinus m (Suc n)
-  intPlus (Pos m) (Pos n) = Pos (natPlus m n)
-
-  intTimes : Int -> Int -> Int
-  intTimes = \ where
-    (Pos n) (Pos m) -> Pos (natTimes n m)
-    (NegSuc n) (NegSuc m) -> Pos (natTimes (Suc n) (Suc m))
-    (Pos n) (NegSuc m) -> neg (natTimes n (Suc m))
-    (NegSuc n) (Pos m) -> neg (natTimes (Suc n) m)
-
-  intDiv : Int -> Int -> Int
-  intDiv = \ where
-    (Pos m) (Pos n) -> Pos (natDiv m n)
-    (Pos m) (NegSuc n) -> neg (natDiv m (Suc n))
-    (NegSuc m) (Pos n) -> neg (natDiv (Suc m) n)
-    (NegSuc m) (NegSuc n) -> Pos (natDiv (Suc m) (Suc n))
-
-  intMod : Int -> Int -> Int
-  intMod = \ where
-    (Pos m) (Pos n) -> Pos (natMod m n)
-    (Pos m) (NegSuc n) -> Pos (natMod m (Suc n))
-    (NegSuc m) (Pos n) -> neg (natMod (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
-
 -------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
@@ -442,18 +303,6 @@ instance
     GT GT -> True
     _ _ -> False
 
-  Eq-Nat : Eq Nat
-  Eq-Nat ._==_ = natEquality
-
-  Eq-Fin : {n : Nat} -> Eq (Fin n)
-  Eq-Fin ._==_ = finEquality
-
-  Eq-Int : Eq Int
-  Eq-Int ._==_ = \ where
-    (Pos m) (Pos n) -> m == n
-    (NegSuc m) (NegSuc n) -> m == n
-    _ _ -> False
-
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -536,24 +385,6 @@ instance
   Ord-Ordering .compare GT EQ = GT
   Ord-Ordering .compare _ _ = EQ
 
-  Ord-Nat : Ord Nat
-  Ord-Nat .compare m n =
-    if m == n then EQ
-    else if natLessThan m n then LT
-    else GT
-
-  Ord-Fin : {n : Nat} -> Ord (Fin n)
-  Ord-Fin .compare m n =
-    if m == n then EQ
-    else if finLessThan m n then LT
-    else GT
-
-  Ord-Int : Ord Int
-  Ord-Int .compare i j =
-    if i == j then EQ
-    else if intLessThan i j then LT
-    else GT
-
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -613,39 +444,6 @@ record ToFloat (a : Type) : Type where
 
 open ToFloat {{...}} public
 
-instance
-  FromNat-Nat : FromNat Nat
-  FromNat-Nat .FromNatConstraint _ = Unit
-  FromNat-Nat .fromNat n = n
-
-  FromNat-Fin : {n : Nat} -> FromNat (Fin (Suc n))
-  FromNat-Fin {n} .FromNatConstraint m = Assert (m <= n)
-  FromNat-Fin {n} .fromNat m {{p}} = go m n {p}
-    where
-      go : (m n : Nat) {_ : Assert $ m <= n} -> Fin (Suc n)
-      go Zero _ = Zero
-      go (Suc m) (Suc n) {p} = Suc (go m n {p})
-
-  FromNat-Int : FromNat Int
-  FromNat-Int .FromNatConstraint _ = Unit
-  FromNat-Int .fromNat n = Pos n
-
-  ToNat-Nat : ToNat Nat
-  ToNat-Nat .ToNatConstraint _ = Unit
-  ToNat-Nat .toNat n = n
-
-  ToNat-Fin : {n : Nat} -> ToNat (Fin n)
-  ToNat-Fin .ToNatConstraint _ = Unit
-  ToNat-Fin .toNat n = finToNat n
-
-  ToNat-Int : ToNat Int
-  ToNat-Int .ToNatConstraint n = Assert (n >= 0)
-  ToNat-Int .toNat (Pos n) = n
-
-  FromNeg-Int : FromNeg Int
-  FromNeg-Int .FromNegConstraint _ = Unit
-  FromNeg-Int .fromNeg n = neg n
-
 -------------------------------------------------------------------------------
 -- Num
 -------------------------------------------------------------------------------
@@ -665,10 +463,10 @@ record Num (a : Type) : Type where
   Nonzero x = Assert (nonzero x)
 
   FromZero : (b : Type) -> {{a === b}} -> Type
-  FromZero _ = FromNatConstraint {{super}} 0
+  FromZero _ = FromNatConstraint {{super}} Zero
 
   FromOne : (b : Type) -> {{a === b}} -> Type
-  FromOne _ = FromNatConstraint {{super}} 1
+  FromOne _ = FromNatConstraint {{super}} (Suc Zero)
 
   times : {{FromZero _}} -> Nat -> a -> a
   times 0 _ = 0
@@ -680,28 +478,6 @@ record Num (a : Type) : Type where
   a ^ (Suc n) = a ^ n * a
 
 open Num {{...}} public
-
-instance
-  Num-Nat : Num Nat
-  Num-Nat .nonzero 0 = False
-  Num-Nat .nonzero _ = True
-  Num-Nat ._+_ = natPlus
-  Num-Nat ._-_ = natMinus
-  Num-Nat ._*_ = natTimes
-
-  Num-Fin : {n : Nat} -> Num (Fin (Suc n))
-  Num-Fin .nonzero Zero = False
-  Num-Fin .nonzero _ = True
-  Num-Fin ._+_ = finPlus
-  Num-Fin ._-_ = finMinus
-  Num-Fin ._*_ = finTimes
-
-  Num-Int : Num Int
-  Num-Int .nonzero (Pos 0) = False
-  Num-Int .nonzero _ = True
-  Num-Int ._+_ = intPlus
-  Num-Int ._-_ m n = m + intNegate n
-  Num-Int ._*_ = intTimes
 
 -------------------------------------------------------------------------------
 -- Signed
@@ -717,15 +493,6 @@ record Signed (a : Type) : Type where
 
 open Signed {{...}} public
 
-instance
-  Signed-Int : Signed Int
-  Signed-Int .-_ = intNegate
-  Signed-Int .abs n@(Pos _) = n
-  Signed-Int .abs (NegSuc n) = Pos (Suc n)
-  Signed-Int .signum n@(Pos 0) = n
-  Signed-Int .signum (Pos _) = Pos 1
-  Signed-Int .signum (NegSuc _) = NegSuc 0
-
 -------------------------------------------------------------------------------
 -- Integral
 -------------------------------------------------------------------------------
@@ -737,15 +504,6 @@ record Integral (a : Type) : Type where
     mod : (x y : a) -> {{Nonzero y}} -> a
 
 open Integral {{...}} public
-
-instance
-  Integral-Nat : Integral Nat
-  Integral-Nat .div x y = natDiv x y
-  Integral-Nat .mod x y = natMod x y
-
-  Integral-Int : Integral Int
-  Integral-Int .div x y = intDiv x y
-  Integral-Int .mod x y = intMod x y
 
 -------------------------------------------------------------------------------
 -- Fractional

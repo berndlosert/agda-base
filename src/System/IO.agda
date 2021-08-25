@@ -8,7 +8,7 @@ module System.IO where
 
 open import Prelude
 
-open import Data.Int
+open import Data.Int64
 open import String.Show
 
 -------------------------------------------------------------------------------

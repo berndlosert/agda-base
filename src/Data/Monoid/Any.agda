@@ -8,6 +8,7 @@ module Data.Monoid.Any where
 
 open import Prelude
 
+open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
@@ -30,4 +31,4 @@ instance
 
   Show-Any : Show Any
   Show-Any .showsPrec d (Any: x) = showParen (d > appPrec)
-    (showString "Show: " <<< showsPrec appPrec+1 x)
+    (showString "Any: " <<< showsPrec appPrec+1 x)

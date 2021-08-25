@@ -8,7 +8,9 @@ open import Control.Alternative
 open import Control.Lens
 open import Control.Monad.State.Trans
 open import Data.Char as Char using ()
+open import Data.Int as Int using ()
 open import Data.List as List using ()
+open import Data.Nat as Nat using ()
 open import Data.Refined
 open import Data.String as String using ()
 open import Data.Traversable
@@ -212,7 +214,7 @@ nat = chainl1
     (pure \ m n -> 10 * m + n)
 
 int : Parser Int
-int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
+int = (| Int.neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
 
 -------------------------------------------------------------------------------
 -- Misc. parsers

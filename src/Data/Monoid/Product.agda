@@ -8,6 +8,8 @@ module Data.Monoid.Product where
 
 open import Prelude
 
+open import Data.Int as Int using ()
+open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
@@ -54,4 +56,4 @@ instance
 
   Show-Product : {{Show a}} -> Show (Product a)
   Show-Product .showsPrec d (Product: x) = showParen (d > appPrec)
-    (showString "Show: " <<< showsPrec appPrec+1 x)
+    (showString "Product: " <<< showsPrec appPrec+1 x)
