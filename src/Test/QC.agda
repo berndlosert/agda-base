@@ -9,6 +9,7 @@ module Test.QC where
 open import Prelude
 
 open import Data.Enum
+open import Data.Float as Float using ()
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
@@ -184,7 +185,7 @@ instance
 
   Arbitrary-Float : Arbitrary Float
   Arbitrary-Float .arbitrary = sized \ n ->
-    let n' = toFloat n
+    let n' = fromNat n
     in choose (- n' , n')
 
   Arbitrary-Pair : {{Arbitrary a}} -> {{Arbitrary b}} -> Arbitrary (Pair a b)

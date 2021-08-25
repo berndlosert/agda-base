@@ -320,99 +320,6 @@ private
     (NegSuc m) (NegSuc n) -> neg (natMod (Suc m) (Suc n))
 
 -------------------------------------------------------------------------------
--- Float primitives
--------------------------------------------------------------------------------
-
-private
-  floatEq : Float -> Float -> Bool
-  floatEq = Agda.Builtin.Float.primFloatEquality
-
-  floatLessThan : Float -> Float -> Bool
-  floatLessThan =  Agda.Builtin.Float.primFloatLess
-
-  floatPlus : Float -> Float -> Float
-  floatPlus = Agda.Builtin.Float.primFloatPlus
-
-  floatNegate : Float -> Float
-  floatNegate = Agda.Builtin.Float.primFloatNegate
-
-  floatMinus : Float -> Float -> Float
-  floatMinus = Agda.Builtin.Float.primFloatMinus
-
-  floatTimes : Float -> Float -> Float
-  floatTimes = Agda.Builtin.Float.primFloatTimes
-
-  floatDiv : Float -> Float -> Float
-  floatDiv = Agda.Builtin.Float.primFloatDiv
-
-  natToFloat : Nat -> Float
-  natToFloat = Agda.Builtin.Float.primNatToFloat
-
-NaN : Float
-NaN = floatDiv 0.0 0.0
-
-Infinity -Infinity : Float
-Infinity = floatDiv 1.0 0.0
--Infinity = floatNegate Infinity
-
-sqrt : Float -> Float
-sqrt = Agda.Builtin.Float.primFloatSqrt
-
-round : Float -> Maybe Int
-round = Agda.Builtin.Float.primFloatRound
-
-floor : Float -> Maybe Int
-floor = Agda.Builtin.Float.primFloatFloor
-
-ceil : Float -> Maybe Int
-ceil = Agda.Builtin.Float.primFloatCeiling
-
-exp : Float -> Float
-exp = Agda.Builtin.Float.primFloatExp
-
-log : Float -> Float
-log = Agda.Builtin.Float.primFloatLog
-
-sin : Float -> Float
-sin = Agda.Builtin.Float.primFloatSin
-
-cos : Float -> Float
-cos = Agda.Builtin.Float.primFloatCos
-
-tan : Float -> Float
-tan = Agda.Builtin.Float.primFloatTan
-
-asin : Float -> Float
-asin = Agda.Builtin.Float.primFloatASin
-
-acos : Float -> Float
-acos = Agda.Builtin.Float.primFloatACos
-
-atan : Float -> Float
-atan = Agda.Builtin.Float.primFloatATan
-
-atan2 : Float -> Float -> Float
-atan2 = Agda.Builtin.Float.primFloatATan2
-
-sinh : Float -> Float
-sinh = Agda.Builtin.Float.primFloatSinh
-
-cosh : Float -> Float
-cosh = Agda.Builtin.Float.primFloatCosh
-
-tanh : Float -> Float
-tanh = Agda.Builtin.Float.primFloatTanh
-
-asinh : Float -> Float
-asinh = Agda.Builtin.Float.primFloatASinh
-
-acosh : Float -> Float
-acosh = Agda.Builtin.Float.primFloatACosh
-
-atanh : Float -> Float
-atanh = Agda.Builtin.Float.primFloatATanh
-
--------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
 
@@ -547,9 +454,6 @@ instance
     (NegSuc m) (NegSuc n) -> m == n
     _ _ -> False
 
-  Eq-Float : Eq Float
-  Eq-Float ._==_ = floatEq
-
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -650,12 +554,6 @@ instance
     else if intLessThan i j then LT
     else GT
 
-  Ord-Float : Ord Float
-  Ord-Float .compare x y =
-    if x == y then EQ
-    else if floatLessThan x y then LT
-    else GT
-
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -732,10 +630,6 @@ instance
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
 
-  FromNat-Float : FromNat Float
-  FromNat-Float .FromNatConstraint _ = Unit
-  FromNat-Float .fromNat n = natToFloat n
-
   ToNat-Nat : ToNat Nat
   ToNat-Nat .ToNatConstraint _ = Unit
   ToNat-Nat .toNat n = n
@@ -751,17 +645,6 @@ instance
   FromNeg-Int : FromNeg Int
   FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
-
-  FromNeg-Float : FromNeg Float
-  FromNeg-Float .FromNegConstraint _ = Unit
-  FromNeg-Float .fromNeg n = floatNegate (natToFloat n)
-
-  ToFloat-Nat : ToFloat Nat
-  ToFloat-Nat .toFloat = natToFloat
-
-  ToFloat-Int : ToFloat Int
-  ToFloat-Int .toFloat (Pos n) = natToFloat n
-  ToFloat-Int .toFloat (NegSuc n) = floatMinus -1.0 (natToFloat n)
 
 -------------------------------------------------------------------------------
 -- Num
@@ -820,12 +703,6 @@ instance
   Num-Int ._-_ m n = m + intNegate n
   Num-Int ._*_ = intTimes
 
-  Num-Float : Num Float
-  Num-Float .nonzero x = if x == 0.0 then False else True
-  Num-Float ._+_ = floatPlus
-  Num-Float ._-_ = floatMinus
-  Num-Float ._*_ = floatTimes
-
 -------------------------------------------------------------------------------
 -- Signed
 -------------------------------------------------------------------------------
@@ -848,14 +725,6 @@ instance
   Signed-Int .signum n@(Pos 0) = n
   Signed-Int .signum (Pos _) = Pos 1
   Signed-Int .signum (NegSuc _) = NegSuc 0
-
-  Signed-Float : Signed Float
-  Signed-Float .-_ = floatNegate
-  Signed-Float .abs x = if x < 0 then - x else x
-  Signed-Float .signum x = case compare x 0 of \ where
-    LT -> -1
-    EQ -> 0
-    GT -> 1
 
 -------------------------------------------------------------------------------
 -- Integral
@@ -888,10 +757,6 @@ record Fractional (a : Type) : Type where
     _/_ : (x y : a) -> {{Nonzero y}} -> a
 
 open Fractional {{...}} public
-
-instance
-  Fractional-Float : Fractional Float
-  Fractional-Float ._/_ x y = floatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup

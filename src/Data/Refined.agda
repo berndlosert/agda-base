@@ -8,6 +8,8 @@ module Data.Refined where
 
 open import Prelude
 
+open import Data.Float as Float using ()
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

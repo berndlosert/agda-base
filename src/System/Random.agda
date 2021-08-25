@@ -9,6 +9,7 @@ module System.Random where
 open import Prelude
 
 open import Data.Bits
+open import Data.Float as Float using ()
 open import Data.IORef
 open import Data.List
 open import Data.Word
@@ -84,7 +85,7 @@ genNat' {g} n g0 = loop g0
 -- genFloat generates a Float value in the range [0, 1).
 genFloat : {{RandomGen g}} -> g -> Pair Float g
 genFloat g = let (w , g') = genWord64 g in
-    (toFloat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
+    (fromNat (toNat (shiftR w 11)) * ulpOfOne/2 , g')
   where
     -- ulpOfOne is the smallest value v satisfying
     --  * 1.0 + v /= 1.0
