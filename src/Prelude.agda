@@ -113,10 +113,13 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
-data Unsafe : Type where
+record Unsafe : Type where
+  field oops : Void
 
-unsafePerform : (Unsafe -> a) -> a
-unsafePerform f = f trustMe
+open Unsafe {{...}} public
+
+unsafePerform : ({{Unsafe}} -> a) -> a
+unsafePerform f = f {{trustMe}}
 
 -------------------------------------------------------------------------------
 -- Function primitives
