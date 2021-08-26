@@ -8,6 +8,9 @@ module Data.Bounded where
 
 open import Prelude
 
+open import Data.Char as Char using ()
+open import Data.Float as Float using ()
+
 -------------------------------------------------------------------------------
 -- Bounded
 -------------------------------------------------------------------------------
@@ -22,9 +25,9 @@ open Bounded {{...}} public
 
 instance
   Bounded-Char : Bounded Char
-  Bounded-Char .minBound = minChar
-  Bounded-Char .maxBound = maxChar
+  Bounded-Char .minBound = Char.minChar
+  Bounded-Char .maxBound = Char.maxChar
 
   Bounded-Float : Bounded Float
-  Bounded-Float .minBound = Infinity
-  Bounded-Float .maxBound = -Infinity
+  Bounded-Float .minBound = Float.Infinity
+  Bounded-Float .maxBound = Float.-Infinity
