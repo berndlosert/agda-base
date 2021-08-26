@@ -14,6 +14,8 @@ open import Agda.Builtin.Nat
   renaming (_+_ to primNatPlus)
   renaming (_-_ to primNatMinus)
   renaming (_*_ to primNatTimes)
+  renaming (div-helper to primNatDivAux)
+  renaming (mod-helper to primNatModAux)
 
 -----------------------------------------------------------------------------------------
 -- Variables
@@ -32,18 +34,12 @@ applyN _ 0 x = x
 applyN f (Suc n) x = f (applyN f n x)
 
 private
-  natDivAux : (k m n j : Nat) -> Nat
-  natDivAux = Agda.Builtin.Nat.div-helper
-
-  natModAux : (k m n j : Nat) -> Nat
-  natModAux = Agda.Builtin.Nat.mod-helper
-
-  natDiv : Nat -> Nat -> Nat
-  natDiv m (Suc n) = natDivAux Zero n m n
+  natDiv : {{Unsafe}} -> Nat -> Nat -> Nat
+  natDiv m (Suc n) = primNatDivAux Zero n m n
   natDiv _ _ = undefined
 
-  natMod : Nat -> Nat -> Nat
-  natMod m (Suc n) = natModAux Zero n m n
+  natMod : {{Unsafe}} -> Nat -> Nat -> Nat
+  natMod m (Suc n) = primNatModAux Zero n m n
   natMod _ _ = undefined
 
 -------------------------------------------------------------------------------
@@ -76,5 +72,5 @@ instance
   Num-Nat ._*_ = primNatTimes
 
   Integral-Nat : Integral Nat
-  Integral-Nat .div x y = natDiv x y
-  Integral-Nat .mod x y = natMod x y
+  Integral-Nat .div x y = unsafePerform natDiv x y
+  Integral-Nat .mod x y = unsafePerform natMod x y
