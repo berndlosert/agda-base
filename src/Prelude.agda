@@ -439,11 +439,6 @@ open FromNeg {{...}} public
 {-# BUILTIN FROMNEG fromNeg #-}
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
-record ToFloat (a : Type) : Type where
-  field toFloat : a -> Float
-
-open ToFloat {{...}} public
-
 -------------------------------------------------------------------------------
 -- Num
 -------------------------------------------------------------------------------
