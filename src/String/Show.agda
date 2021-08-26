@@ -11,7 +11,6 @@ open import Prelude
 open import Agda.Builtin.Int
 open import Agda.Builtin.Float
 open import Agda.Builtin.String
-open import Data.Fin as Fin using ()
 open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
@@ -68,9 +67,6 @@ instance
 
   Show-Nat : Show Nat
   Show-Nat .showsPrec _ = showString <<< primShowNat
-
-  Show-Fin : {n : Nat} -> Show (Fin n)
-  Show-Fin .showsPrec _ n = showString $ primShowNat $ toNat n
 
   Show-Int : Show Int
   Show-Int .showsPrec _ = showString <<< primShowInteger

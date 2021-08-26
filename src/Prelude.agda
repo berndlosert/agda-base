@@ -28,10 +28,6 @@ open import Agda.Builtin.Nat public
   renaming (zero to Zero)
   renaming (suc to Suc)
 
-data Fin : Nat -> Type where
-  Zero : {n : Nat} -> Fin (Suc n)
-  Suc : {n : Nat} -> Fin n -> Fin (Suc n)
-
 open import Agda.Builtin.Int public
   using (Int)
   renaming (pos to Pos)
@@ -417,7 +413,7 @@ instance
   Ord-Maybe .compare (Just _) _ = GT
 
 -------------------------------------------------------------------------------
--- FromNat, ToNat, FromNeg
+-- FromNat
 -------------------------------------------------------------------------------
 
 record FromNat (a : Type) : Type where
@@ -430,12 +426,25 @@ open FromNat {{...}} public
 {-# BUILTIN FROMNAT fromNat #-}
 {-# DISPLAY FromNat.fromNat _ n = fromNat n #-}
 
+instance
+  FromNat-Nat : FromNat Nat
+  FromNat-Nat .FromNatConstraint _ = Unit
+  FromNat-Nat .fromNat n = n
+
+-------------------------------------------------------------------------------
+-- ToNat
+-------------------------------------------------------------------------------
+
 record ToNat (a : Type) : Type where
   field
     ToNatConstraint : a -> Type
     toNat : (x : a) -> {{ToNatConstraint x}} -> Nat
 
 open ToNat {{...}} public
+
+-------------------------------------------------------------------------------
+-- FromNeg
+-------------------------------------------------------------------------------
 
 record FromNeg (a : Type) : Type where
   field

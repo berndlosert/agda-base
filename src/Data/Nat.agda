@@ -26,21 +26,12 @@ private
     a : Type
 
 -----------------------------------------------------------------------------------------
--- Nat primitives
+-- Functions
 -----------------------------------------------------------------------------------------
 
 applyN : (a -> a) -> Nat -> a -> a
 applyN _ 0 x = x
 applyN f (Suc n) x = f (applyN f n x)
-
-private
-  natDiv : {{Unsafe}} -> Nat -> Nat -> Nat
-  natDiv m (Suc n) = primNatDivAux Zero n m n
-  natDiv _ _ = undefined
-
-  natMod : {{Unsafe}} -> Nat -> Nat -> Nat
-  natMod m (Suc n) = primNatModAux Zero n m n
-  natMod _ _ = undefined
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -56,14 +47,6 @@ instance
     else if primNatLessThan m n then LT
     else GT
 
-  FromNat-Nat : FromNat Nat
-  FromNat-Nat .FromNatConstraint _ = Unit
-  FromNat-Nat .fromNat n = n
-
-  ToNat-Nat : ToNat Nat
-  ToNat-Nat .ToNatConstraint _ = Unit
-  ToNat-Nat .toNat n = n
-
   Num-Nat : Num Nat
   Num-Nat .nonzero 0 = False
   Num-Nat .nonzero _ = True
@@ -73,4 +56,12 @@ instance
 
   Integral-Nat : Integral Nat
   Integral-Nat .div x y = unsafePerform natDiv x y
+    where
+      natDiv : {{Unsafe}} -> Nat -> Nat -> Nat
+      natDiv m (Suc n) = primNatDivAux Zero n m n
+      natDiv _ _ = undefined
   Integral-Nat .mod x y = unsafePerform natMod x y
+    where
+      natMod : {{Unsafe}} -> Nat -> Nat -> Nat
+      natMod m (Suc n) = primNatModAux Zero n m n
+      natMod _ _ = undefined
