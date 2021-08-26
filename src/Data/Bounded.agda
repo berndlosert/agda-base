@@ -23,6 +23,10 @@ record Bounded (a : Type) : Type where
 
 open Bounded {{...}} public
 
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
 instance
   Bounded-Char : Bounded Char
   Bounded-Char .minBound = Char.minChar
