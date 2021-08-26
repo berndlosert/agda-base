@@ -113,6 +113,11 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
+data Unsafe : Type where
+
+unsafePerform : (Unsafe -> a) -> a
+unsafePerform f = f trustMe
+
 -------------------------------------------------------------------------------
 -- Function primitives
 -------------------------------------------------------------------------------
