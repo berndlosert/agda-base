@@ -409,7 +409,7 @@ instance
   Ord-Maybe .compare (Just _) _ = GT
 
 -------------------------------------------------------------------------------
--- FromNat, ToNat, FromNeg, ToFloat
+-- FromNat, ToNat, FromNeg
 -------------------------------------------------------------------------------
 
 record FromNat (a : Type) : Type where
