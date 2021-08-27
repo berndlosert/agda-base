@@ -486,8 +486,8 @@ data Not (v : Type) : Type where
 data Or (l r : Type) : Type where
 data And (l r : Type) : Type where
 data Positive : Type where
-data Nonzero : Type where
-data Nonempty : Type where
+data NonZero : Type where
+data NonEmpty : Type where
 
 instance
   Validation-Not : {{Validation v a}} -> Validation (Not v) a
@@ -505,8 +505,12 @@ instance
   Validation-Positive-Nat .validate _ 0 = False
   Validation-Positive-Nat .validate _ _ = True
 
-  Validation-Nonzero-Nat : Validation Nonzero Nat
-  Validation-Nonzero-Nat .validate _ = validate Positive
+  Validation-NonZero-Nat : Validation NonZero Nat
+  Validation-NonZero-Nat .validate _ = validate Positive
+
+  Validation-NonEmpty-List : Validation NonEmpty (List a)
+  Validation-NonEmpty-List .validate _ [] = False
+  Validation-NonEmpty-List .validate _ _ = True
 
 -------------------------------------------------------------------------------
 -- Refined
@@ -578,9 +582,9 @@ open Signed {{...}} public
 record Integral (a : Type) : Type where
   field
     overlap {{Num-super}} : Num a
-    overlap {{Validation-Nonzero-super}} : Validation Nonzero a
-    div : (x y : a) -> {{Validate Nonzero y}} -> a
-    mod : (x y : a) -> {{Validate Nonzero y}} -> a
+    overlap {{Validation-NonZero-super}} : Validation NonZero a
+    div : (x y : a) -> {{Validate NonZero y}} -> a
+    mod : (x y : a) -> {{Validate NonZero y}} -> a
 
 open Integral {{...}} public
 
@@ -598,8 +602,8 @@ instance
 record Fractional (a : Type) : Type where
   field
     overlap {{Num-super}} : Num a
-    overlap {{Validation-Nonzero-super}} : Validation Nonzero a
-    _/_ : (x y : a) -> {{Validate Nonzero y}} -> a
+    overlap {{Validation-NonZero-super}} : Validation NonZero a
+    _/_ : (x y : a) -> {{Validate NonZero y}} -> a
 
 open Fractional {{...}} public
 

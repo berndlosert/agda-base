@@ -107,13 +107,13 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) -> {{Validate Nonempty gs}} -> Gen a
+oneof : (gs : List (Gen a)) -> {{Validate NonEmpty gs}} -> Gen a
 oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{trustMe}}
 
 frequency : (xs : List (Pair (Refined Positive Nat) (Gen a)))
-  -> {{Validate Nonempty xs}} -> Gen a
+  -> {{Validate NonEmpty xs}} -> Gen a
 frequency xs =
     let xs' = map (bimap unrefine id) xs
     in choose (1 , sum (map fst xs')) >>= flip pick xs'
@@ -122,7 +122,7 @@ frequency xs =
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
     pick n [] = undefined -- No worries. We'll never see this case.
 
-elements : (xs : List a) -> {{Validate Nonempty xs}} -> Gen a
+elements : (xs : List a) -> {{Validate NonEmpty xs}} -> Gen a
 elements xs = map
   (\ n -> fromJust (List.at n xs) {{trustMe}})
   (choose (0 , List.length xs - 1))

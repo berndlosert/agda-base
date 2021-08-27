@@ -33,9 +33,9 @@ data Tree (a : Type) : Type where
 -------------------------------------------------------------------------------
 
 instance
-  Validation-Nonempty-Tree : Validation Nonempty (Tree a)
-  Validation-Nonempty-Tree .validate _ Leaf = False
-  Validation-Nonempty-Tree .validate _ _ = True
+  Validation-NonEmpty-Tree : Validation NonEmpty (Tree a)
+  Validation-NonEmpty-Tree .validate _ Leaf = False
+  Validation-NonEmpty-Tree .validate _ _ = True
 
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr f z = \ where
@@ -186,7 +186,7 @@ pop {a} v = down []
           fromZipper ctx (Three a w (Two b x c) y (Two d z e))
         (_ , _) -> t
 
-    maxNode :  (t : Tree a) -> {{Validate Nonempty t}} -> a
+    maxNode :  (t : Tree a) -> {{Validate NonEmpty t}} -> a
     maxNode = \ where
       (Two _ x Leaf) -> x
       (Two _ _ r@(Two _ _ _)) -> maxNode r
@@ -197,7 +197,7 @@ pop {a} v = down []
 
     removeMaxNode : List (TreeContext a)
       -> (t : Tree a)
-      -> {{Validate Nonempty t}}
+      -> {{Validate NonEmpty t}}
       -> Tree a
     removeMaxNode ctx = \ where
       (Two Leaf _ Leaf) ->

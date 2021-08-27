@@ -58,8 +58,8 @@ instance
     (NegSuc _) -> False
     _ -> True
 
-  Validation-Nonzero-Int : Validation Nonzero Int
-  Validation-Nonzero-Int .validate _ = \ where
+  Validation-NonZero-Int : Validation NonZero Int
+  Validation-NonZero-Int .validate _ = \ where
     (Pos 0) -> False
     _ -> True
 

@@ -55,9 +55,9 @@ instance
     <<< showString " "
     <<< showsPrec appPrec+1 r)
 
-  Validation-Nonempty-Tree : Validation Nonempty (Tree a)
-  Validation-Nonempty-Tree .validate _ Leaf = False
-  Validation-Nonempty-Tree .validate _ _ = True
+  Validation-NonEmpty-Tree : Validation NonEmpty (Tree a)
+  Validation-NonEmpty-Tree .validate _ Leaf = False
+  Validation-NonEmpty-Tree .validate _ _ = True
 
 -------------------------------------------------------------------------------
 -- Basic operations
@@ -87,7 +87,7 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) -> {{Validate Nonempty t}} -> Pair a (Tree a)
+  delMin : (t : Tree a) -> {{Validate NonEmpty t}} -> Pair a (Tree a)
   delMin (Node Leaf x r) = (x , r)
   delMin (Node l@(Node _ _ _) x r) =
     let (y , l') = delMin l

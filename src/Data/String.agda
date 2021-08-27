@@ -37,9 +37,9 @@ instance
   Monoid-String : Monoid String
   Monoid-String .neutral = ""
 
-  Validation-Nonempty-String : Validation Nonempty String
-  Validation-Nonempty-String .validate _ "" = False
-  Validation-Nonempty-String .validate _ _ = True
+  Validation-NonEmpty-String : Validation NonEmpty String
+  Validation-NonEmpty-String .validate _ "" = False
+  Validation-NonEmpty-String .validate _ _ = True
 
 -------------------------------------------------------------------------------
 -- Creation and elimination
@@ -51,7 +51,7 @@ pack = primStringFromList
 unpack : String -> List Char
 unpack = primStringToList
 
-unpack1 : Refined Nonempty String -> Refined Nonempty (List Char)
+unpack1 : Refined NonEmpty String -> Refined NonEmpty (List Char)
 unpack1 (Refined: s) = case unpack s of \ where
   cs@(_ :: _) -> Refined: cs
   [] -> undefined
@@ -95,7 +95,7 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : Refined Nonempty String -> String
+init : Refined NonEmpty String -> String
 init s = pack $ List.init $ unpack1 s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
@@ -184,7 +184,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -- Breaking into many substrings
 -------------------------------------------------------------------------------
 
-splitOn : Refined Nonempty String -> String -> List String
+splitOn : Refined NonEmpty String -> String -> List String
 splitOn delim s = map pack $ List.splitOn (unpack1 delim) (unpack s)
 
 split : (Char -> Bool) -> String -> List String

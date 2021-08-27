@@ -32,15 +32,6 @@ private
     f : Type -> Type
 
 -------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Validation-Nonempty-List : Validation Nonempty (List a)
-  Validation-Nonempty-List .validate _ [] = False
-  Validation-Nonempty-List .validate _ _ = True
-
--------------------------------------------------------------------------------
 -- Constructors
 -------------------------------------------------------------------------------
 
@@ -94,7 +85,7 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : Refined Nonempty (List a) -> List a
+init : Refined NonEmpty (List a) -> List a
 init (Refined: (x :: [])) = []
 init (Refined: (x :: x' :: xs)) = x :: init (Refined: (x' :: xs))
 
@@ -304,7 +295,7 @@ breakOn {a} needle haystack =
             pure $ lmap (x ::_) res
 
 splitOn : {{Eq a}}
-  -> Refined Nonempty (List a)
+  -> Refined NonEmpty (List a)
   -> (haystack : List a)
   -> List (List a)
 splitOn {a} (Refined: needle) haystack =

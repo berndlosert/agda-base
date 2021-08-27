@@ -102,8 +102,8 @@ instance
   Validation-Positive-Float : Validation Positive Float
   Validation-Positive-Float .validate _ x = x > 0.0
 
-  Validation-Nonzero-Float : Validation Nonzero Float
-  Validation-Nonzero-Float .validate _ x = x /= 0.0
+  Validation-NonZero-Float : Validation NonZero Float
+  Validation-NonZero-Float .validate _ x = x /= 0.0
 
   Num-Float : Num Float
   Num-Float ._+_ = primFloatPlus

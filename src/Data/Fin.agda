@@ -21,7 +21,7 @@ data Fin (n : Nat) : Type where
 -- Instances
 -------------------------------------------------------------------------------
 
-module _ {n : Nat} {{_ : Validate Nonzero n}} where
+module _ {n : Nat} {{_ : Validate NonZero n}} where
   instance
     Eq-Fin : Eq (Fin n)
     Eq-Fin ._==_ (Fin: k) (Fin: m) = mod k n == mod m n
