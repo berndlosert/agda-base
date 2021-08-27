@@ -87,9 +87,9 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : (xs : List a) -> {{Validate Nonempty xs}} -> List a
-init (x :: []) = []
-init (x :: x' :: xs) = x :: init (x' :: xs)
+init : Refined Nonempty (List a) -> List a
+init (Refined: (x :: [])) = []
+init (Refined: (x :: x' :: xs)) = x :: init (Refined: (x' :: xs))
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -297,11 +297,10 @@ breakOn {a} needle haystack =
             pure $ lmap (x ::_) res
 
 splitOn : {{Eq a}}
-  -> (needle : List a)
-  -> {{Validate Nonempty needle}}
+  -> Refined Nonempty (List a)
   -> (haystack : List a)
   -> List (List a)
-splitOn {a} needle haystack =
+splitOn {a} (Refined: needle) haystack =
     fromJust (petrol go (length haystack) haystack) {{trustMe}}
   where
     go : PiG (List a) (\ _ -> List (List a))

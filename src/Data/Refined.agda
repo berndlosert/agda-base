@@ -80,6 +80,6 @@ record Refined (p a : Set) {{_ : Validation p a}} : Set where
   constructor Refined:
   field
     unrefine : a
-    {{validation}} : Validate p unrefine
+    {validation} : Validate p unrefine
 
 open Refined public

@@ -52,11 +52,8 @@ toLower = primToLower
 ord : Char -> Nat
 ord = primCharToNat
 
-chr : Nat -> Maybe Char
-chr n =
-  if ord minChar <= n && n <= ord maxChar
-    then Just (primNatToChar n)
-    else Nothing
+chr : Nat -> Char
+chr n = primNatToChar $ min n (ord maxChar)
 
 -------------------------------------------------------------------------------
 -- Instances
