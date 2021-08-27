@@ -49,17 +49,15 @@ private
     (Pos n) (NegSuc m) -> neg (n * Suc m)
     (NegSuc n) (Pos m) -> neg (Suc n * m)
 
-  intDiv : Int -> Int -> Int
+  intDiv : {{Unsafe}} -> Int -> Int -> Int
   intDiv = \ where
-    _ (Pos 0) -> Pos 0 -- nonsense value
     (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
     (Pos m) (NegSuc n) -> neg (div m (Suc n))
     (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
     (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
 
-  intMod : Int -> Int -> Int
+  intMod : {{Unsafe}} -> Int -> Int -> Int
   intMod = \ where
-    _ (Pos 0) -> Pos 0 -- nonsense value
     (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
     (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
     (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
