@@ -9,7 +9,6 @@ module Data.Enum where
 open import Prelude
 
 open import Data.Int as Int using ()
-open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
 -- Enum

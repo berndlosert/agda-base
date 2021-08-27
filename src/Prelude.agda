@@ -141,6 +141,10 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
+applyN : (a -> a) -> Nat -> a -> a
+applyN _ 0 x = x
+applyN f (Suc n) x = f (applyN f n x)
+
 -------------------------------------------------------------------------------
 -- Strictness primitives
 -------------------------------------------------------------------------------
@@ -307,6 +311,9 @@ instance
     GT GT -> True
     _ _ -> False
 
+  Eq-Nat : Eq Nat
+  Eq-Nat ._==_ = Agda.Builtin.Nat._==_
+
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -388,6 +395,12 @@ instance
   Ord-Ordering .compare GT LT = GT
   Ord-Ordering .compare GT EQ = GT
   Ord-Ordering .compare _ _ = EQ
+
+  Ord-Nat : Ord Nat
+  Ord-Nat .compare m n =
+    if m == n then EQ
+    else if Agda.Builtin.Nat._<_ m n then LT
+    else GT
 
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
@@ -488,6 +501,13 @@ instance
     -> Validation (And l r) a
   Validation-And {l = l} {r = r} .validate _ x = validate l x && validate r x
 
+  Validation-Positive-Nat : Validation Positive Nat
+  Validation-Positive-Nat .validate _ 0 = False
+  Validation-Positive-Nat .validate _ _ = True
+
+  Validation-Nonzero-Nat : Validation Nonzero Nat
+  Validation-Nonzero-Nat .validate _ = validate Positive
+
 -------------------------------------------------------------------------------
 -- Refined
 -------------------------------------------------------------------------------
@@ -531,6 +551,12 @@ record Num (a : Type) : Type where
 
 open Num {{...}} public
 
+instance
+  Num-Nat : Num Nat
+  Num-Nat ._+_ = Agda.Builtin.Nat._+_
+  Num-Nat ._-_ = Agda.Builtin.Nat._-_
+  Num-Nat ._*_ = Agda.Builtin.Nat._*_
+
 -------------------------------------------------------------------------------
 -- Signed
 -------------------------------------------------------------------------------
@@ -557,6 +583,13 @@ record Integral (a : Type) : Type where
     mod : (x y : a) -> {{Validate Nonzero y}} -> a
 
 open Integral {{...}} public
+
+instance
+  Integral-Nat : Integral Nat
+  Integral-Nat .div m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  Integral-Nat .div m 0 = undefined
+  Integral-Nat .mod m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  Integral-Nat .mod m 0 = undefined
 
 -------------------------------------------------------------------------------
 -- Fractional

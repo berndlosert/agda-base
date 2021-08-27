@@ -11,7 +11,6 @@ open import Prelude
 open import Agda.Builtin.String
 open import Data.Char as Char using ()
 open import Data.List as List using ()
-open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
 -- Variables

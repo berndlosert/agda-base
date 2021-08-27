@@ -9,7 +9,6 @@ module Data.Char where
 open import Prelude
 
 open import Agda.Builtin.Char
-open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
 -- Char primitives

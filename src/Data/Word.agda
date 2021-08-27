@@ -9,7 +9,6 @@ module Data.Word where
 open import Prelude
 
 open import Data.Bits
-open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
 -- Word8

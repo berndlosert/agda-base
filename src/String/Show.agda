@@ -11,7 +11,6 @@ open import Prelude
 open import Agda.Builtin.Int
 open import Agda.Builtin.Float
 open import Agda.Builtin.String
-open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
 -- Variables

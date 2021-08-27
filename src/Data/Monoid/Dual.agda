@@ -8,7 +8,6 @@ module Data.Monoid.Dual where
 
 open import Prelude
 
-open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------

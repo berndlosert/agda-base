@@ -10,7 +10,6 @@ open import Control.Monad.State.Trans
 open import Data.Char as Char using ()
 open import Data.Int as Int using ()
 open import Data.List as List using ()
-open import Data.Nat as Nat using ()
 open import Data.String as String using ()
 open import Data.Traversable
 

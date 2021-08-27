@@ -9,7 +9,6 @@ module Data.Tree.Balanced.TwoThree where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------

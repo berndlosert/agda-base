@@ -9,7 +9,6 @@ module Data.Functor.Identity where
 open import Prelude
 
 open import Data.Foldable
-open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------

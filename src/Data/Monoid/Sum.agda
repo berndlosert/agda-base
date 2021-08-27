@@ -9,7 +9,6 @@ module Data.Monoid.Sum where
 open import Prelude
 
 open import Data.Int as Int using ()
-open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------

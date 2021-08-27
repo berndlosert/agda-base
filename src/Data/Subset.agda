@@ -9,7 +9,6 @@ module Data.Subset where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.Nat as Nat using ()
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
 open import String.Show

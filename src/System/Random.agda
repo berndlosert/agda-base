@@ -12,7 +12,6 @@ open import Data.Bits
 open import Data.Float as Float using ()
 open import Data.Int as Int using ()
 open import Data.IORef
-open import Data.Nat as Nat using ()
 open import Data.List as List using ()
 open import Data.Word
 open import System.Time

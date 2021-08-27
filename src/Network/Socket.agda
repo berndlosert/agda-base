@@ -9,7 +9,6 @@ module Network.Socket where
 open import Prelude
 
 open import Data.Bytes
-open import Data.Nat as Nat using ()
 open import Data.Word
 open import String.Show
 

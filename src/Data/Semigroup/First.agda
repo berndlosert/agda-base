@@ -8,7 +8,6 @@ module Data.Semigroup.First where
 
 open import Prelude
 
-open import Data.Nat as Nat using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
