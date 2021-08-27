@@ -33,5 +33,5 @@ instance
   Bounded-Char .maxBound = Char.maxChar
 
   Bounded-Float : Bounded Float
-  Bounded-Float .minBound = Float.Infinity
-  Bounded-Float .maxBound = Float.-Infinity
+  Bounded-Float .minBound = Float.infinity
+  Bounded-Float .maxBound = - Float.infinity

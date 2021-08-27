@@ -14,37 +14,11 @@ open import Agda.Builtin.Float
 -- Float primitives
 -------------------------------------------------------------------------------
 
-private
-  floatEq : Float -> Float -> Bool
-  floatEq = primFloatEquality
-
-  floatLessThan : Float -> Float -> Bool
-  floatLessThan =  primFloatLess
-
-  floatPlus : Float -> Float -> Float
-  floatPlus = primFloatPlus
-
-  floatNegate : Float -> Float
-  floatNegate = primFloatNegate
-
-  floatMinus : Float -> Float -> Float
-  floatMinus = primFloatMinus
-
-  floatTimes : Float -> Float -> Float
-  floatTimes = primFloatTimes
-
-  floatDiv : Float -> Float -> Float
-  floatDiv = primFloatDiv
-
-  natToFloat : Nat -> Float
-  natToFloat = primNatToFloat
-
 NaN : Float
-NaN = floatDiv 0.0 0.0
+NaN = primFloatDiv 0.0 0.0
 
-Infinity -Infinity : Float
-Infinity = floatDiv 1.0 0.0
--Infinity = floatNegate Infinity
+infinity : Float
+infinity = primFloatDiv 1.0 0.0
 
 sqrt : Float -> Float
 sqrt = primFloatSqrt
@@ -109,30 +83,30 @@ atanh = primFloatATanh
 
 instance
   Eq-Float : Eq Float
-  Eq-Float ._==_ = floatEq
+  Eq-Float ._==_ = primFloatEquality
 
   Ord-Float : Ord Float
   Ord-Float .compare x y =
     if x == y then EQ
-    else if floatLessThan x y then LT
+    else if primFloatLess x y then LT
     else GT
 
   FromNat-Float : FromNat Float
   FromNat-Float .FromNatConstraint _ = Unit
-  FromNat-Float .fromNat n = natToFloat n
+  FromNat-Float .fromNat n = primNatToFloat n
 
   Num-Float : Num Float
   Num-Float .nonzero x = if x == 0.0 then False else True
-  Num-Float ._+_ = floatPlus
-  Num-Float ._-_ = floatMinus
-  Num-Float ._*_ = floatTimes
+  Num-Float ._+_ = primFloatPlus
+  Num-Float ._-_ = primFloatMinus
+  Num-Float ._*_ = primFloatTimes
 
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint _ = Unit
-  FromNeg-Float .fromNeg n = floatNegate (natToFloat n)
+  FromNeg-Float .fromNeg n = primFloatNegate (primNatToFloat n)
 
   Signed-Float : Signed Float
-  Signed-Float .-_ = floatNegate
+  Signed-Float .-_ = primFloatNegate
   Signed-Float .abs x = if x < 0.0 then - x else x
   Signed-Float .signum x = case compare x 0.0 of \ where
     LT -> -1.0
@@ -140,4 +114,4 @@ instance
     GT -> 1.0
 
   Fractional-Float : Fractional Float
-  Fractional-Float ._/_ x y = floatDiv x y
+  Fractional-Float ._/_ x y = primFloatDiv x y
