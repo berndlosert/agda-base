@@ -75,10 +75,11 @@ instance
     _ _ -> False
 
   Ord-Int : Ord Int
-  Ord-Int .compare i j =
-    if i == j then EQ
-    else if intLessThan i j then LT
-    else GT
+  Ord-Int .compare = \ where
+    (Pos m) (Pos n) -> compare m n
+    (NegSuc m) (NegSuc n) -> compare n m
+    (Pos _) (NegSuc _) -> GT
+    (NegSuc _) (Pos _) -> LT
 
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint _ = Unit
