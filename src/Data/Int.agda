@@ -19,12 +19,6 @@ neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
 private
-  intLessThan : Int -> Int -> Bool
-  intLessThan (Pos m) (Pos n) = m < n
-  intLessThan (NegSuc m) (NegSuc n) = n < m
-  intLessThan (NegSuc _) (Pos _) = True
-  intLessThan (Pos _) (NegSuc _) = False
-
   intNegate : Int -> Int
   intNegate = \ where
     (Pos Zero) -> Pos Zero
@@ -86,8 +80,9 @@ instance
   FromNat-Int .fromNat n = Pos n
 
   ToNat-Int : ToNat Int
-  ToNat-Int .ToNatConstraint n = Assert (n >= 0)
+  ToNat-Int .ToNatConstraint _ = Unit
   ToNat-Int .toNat (Pos n) = n
+  ToNat-Int .toNat (NegSuc n) = 0
 
   FromNeg-Int : FromNeg Int
   FromNeg-Int .FromNegConstraint _ = Unit
