@@ -117,6 +117,9 @@ open Unsafe {{...}} public
 unsafePerform : ({{Unsafe}} -> a) -> a
 unsafePerform f = f {{trustMe}}
 
+[_] : Bool -> Type
+[ _ ] = Unsafe
+
 -------------------------------------------------------------------------------
 -- Function primitives
 -------------------------------------------------------------------------------
@@ -207,10 +210,10 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
-fromLeft : (x : Either a b) -> {{Assert $ isLeft x}} -> a
+fromLeft : (x : Either a b) -> {{[ isLeft x ]}} -> a
 fromLeft (Left a) = a
 
-fromRight : (x : Either a b) -> {{Assert $ isRight x}} -> b
+fromRight : (x : Either a b) -> {{[ isRight x ]}} -> b
 fromRight (Right b) = b
 
 -------------------------------------------------------------------------------
@@ -247,7 +250,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (x : Maybe a) -> {{Assert $ isJust x}} -> a
+fromJust : (x : Maybe a) -> {{[ isJust x ]}} -> a
 fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
@@ -471,9 +474,6 @@ record Num (a : Type) : Type where
     _-_ : a -> a -> a
     _*_ : a -> a -> a
 
-  Nonzero : a -> Type
-  Nonzero x = Assert (nonzero x)
-
   FromZero : (b : Type) -> {{a === b}} -> Type
   FromZero _ = FromNatConstraint {{super}} Zero
 
@@ -512,8 +512,8 @@ open Signed {{...}} public
 record Integral (a : Type) : Type where
   field
     overlap {{super}} : Num a
-    div : (x y : a) -> {{Nonzero y}} -> a
-    mod : (x y : a) -> {{Nonzero y}} -> a
+    div : (x y : a) -> {{[ nonzero y ]}} -> a
+    mod : (x y : a) -> {{[ nonzero y ]}} -> a
 
 open Integral {{...}} public
 
@@ -524,7 +524,7 @@ open Integral {{...}} public
 record Fractional (a : Type) : Type where
   field
     overlap {{super}} : Num a
-    _/_ : (x y : a) -> {{Nonzero y}} -> a
+    _/_ : (x y : a) -> {{[ nonzero y ]}} -> a
 
 open Fractional {{...}} public
 

@@ -55,13 +55,5 @@ instance
   Num-Nat ._*_ = primNatTimes
 
   Integral-Nat : Integral Nat
-  Integral-Nat .div x y = unsafePerform natDiv x y
-    where
-      natDiv : {{Unsafe}} -> Nat -> Nat -> Nat
-      natDiv m (Suc n) = primNatDivAux Zero n m n
-      natDiv _ _ = undefined
-  Integral-Nat .mod x y = unsafePerform natMod x y
-    where
-      natMod : {{Unsafe}} -> Nat -> Nat -> Nat
-      natMod m (Suc n) = primNatModAux Zero n m n
-      natMod _ _ = undefined
+  Integral-Nat .div m (Suc n) = primNatDivAux 0 n m n
+  Integral-Nat .mod m (Suc n) = primNatModAux 0 n m n
