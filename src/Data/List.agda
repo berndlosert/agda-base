@@ -13,7 +13,6 @@ open import Data.Monoid.Endo
 open import Data.Nat as Nat using ()
 open import Data.Filterable
 open import Data.Foldable
-open import Data.Refined
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -32,6 +31,15 @@ private
   variable
     a b c : Type
     f : Type -> Type
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Validation-Nonempty-List : Validation Nonempty (List a)
+  Validation-Nonempty-List .validate _ [] = False
+  Validation-Nonempty-List .validate _ _ = True
 
 -------------------------------------------------------------------------------
 -- Constructors

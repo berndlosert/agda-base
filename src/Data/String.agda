@@ -12,7 +12,6 @@ open import Agda.Builtin.String
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.Nat as Nat using ()
-open import Data.Refined
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -21,6 +20,27 @@ open import Data.Refined
 private
   variable
     a : Type
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+instance
+  Eq-String : Eq String
+  Eq-String ._==_ = primStringEquality
+
+  Ord-String : Ord String
+  Ord-String .compare l r = compare (primStringToList l) (primStringToList r)
+
+  Semigroup-String : Semigroup String
+  Semigroup-String ._<>_ = primStringAppend
+
+  Monoid-String : Monoid String
+  Monoid-String .neutral = ""
+
+  Validation-Nonempty-String : Validation Nonempty String
+  Validation-Nonempty-String .validate _ "" = False
+  Validation-Nonempty-String .validate _ _ = True
 
 -------------------------------------------------------------------------------
 -- Creation and elimination
@@ -45,23 +65,6 @@ empty = ""
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC singleton = Text.singleton #-}
-
--------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Eq-String : Eq String
-  Eq-String ._==_ = primStringEquality
-
-  Ord-String : Ord String
-  Ord-String .compare l r = compare (unpack l) (unpack r)
-
-  Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = primStringAppend
-
-  Monoid-String : Monoid String
-  Monoid-String .neutral = ""
 
 -------------------------------------------------------------------------------
 -- Basic interface

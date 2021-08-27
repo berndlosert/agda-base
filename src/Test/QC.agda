@@ -16,7 +16,6 @@ open import Data.Nat as Nat using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
 open import Data.Foldable
-open import Data.Refined
 open import Data.Traversable
 open import String.Show
 open import System.IO

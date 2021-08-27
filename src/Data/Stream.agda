@@ -9,7 +9,7 @@ module Data.Stream where
 open import Prelude
 
 open import Control.Comonad
-open import Data.Refined
+open import Data.List as List using ()
 
 -------------------------------------------------------------------------------
 -- Variables

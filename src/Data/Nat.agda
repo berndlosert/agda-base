@@ -47,9 +47,14 @@ instance
     else if primNatLessThan m n then LT
     else GT
 
+  Validation-Positive-Nat : Validation Positive Nat
+  Validation-Positive-Nat .validate _ 0 = False
+  Validation-Positive-Nat .validate _ _ = True
+
+  Validation-Nonzero-Nat : Validation Nonzero Nat
+  Validation-Nonzero-Nat .validate _ = validate Positive
+
   Num-Nat : Num Nat
-  Num-Nat .nonzero 0 = False
-  Num-Nat .nonzero _ = True
   Num-Nat ._+_ = primNatPlus
   Num-Nat ._-_ = primNatMinus
   Num-Nat ._*_ = primNatTimes

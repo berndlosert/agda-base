@@ -91,7 +91,7 @@ open import Agda.Builtin.IO public
 
 private
   variable
-    a b c d r s : Type
+    a b c d l r s v : Type
     f m : Type -> Type
     p : Type -> Type -> Type
 
@@ -457,6 +457,50 @@ open FromNeg {{...}} public
 {-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
 
 -------------------------------------------------------------------------------
+-- Validation
+-------------------------------------------------------------------------------
+
+record Validation (v a : Type) : Type where
+  field
+    validate : (u : Type) -> {{u === v}} -> a -> Bool
+
+  Validate : (u : Type) -> {{u === v}} -> a -> Type
+  Validate u x = Assert (validate u x)
+
+open Validation {{...}} public
+
+data Not (v : Type) : Type where
+data Or (l r : Type) : Type where
+data And (l r : Type) : Type where
+data Positive : Type where
+data Nonzero : Type where
+data Nonempty : Type where
+
+instance
+  Validation-Not : {{Validation v a}} -> Validation (Not v) a
+  Validation-Not {v = v} .validate _ x = not (validate v x)
+
+  Validation-Or : {{Validation l a}} -> {{Validation r a}}
+    -> Validation (Or l r) a
+  Validation-Or {l = l} {r = r} .validate _ x = validate l x || validate r x
+
+  Validation-And : {{Validation l a}} -> {{Validation r a}}
+    -> Validation (And l r) a
+  Validation-And {l = l} {r = r} .validate _ x = validate l x && validate r x
+
+-------------------------------------------------------------------------------
+-- Refined
+-------------------------------------------------------------------------------
+
+record Refined (v a : Type) {{_ : Validation v a}} : Type where
+  constructor Refined:
+  field
+    unrefine : a
+    {validation} : Validate v unrefine
+
+open Refined public
+
+-------------------------------------------------------------------------------
 -- Num
 -------------------------------------------------------------------------------
 
@@ -466,13 +510,9 @@ record Num (a : Type) : Type where
   infixl 7 _*_
   field
     overlap {{super}} : FromNat a
-    nonzero : a -> Bool
     _+_ : a -> a -> a
     _-_ : a -> a -> a
     _*_ : a -> a -> a
-
-  Nonzero : a -> Type
-  Nonzero x = Assert (nonzero x)
 
   FromZero : (b : Type) -> {{a === b}} -> Type
   FromZero _ = FromNatConstraint {{super}} Zero
@@ -511,9 +551,10 @@ open Signed {{...}} public
 
 record Integral (a : Type) : Type where
   field
-    overlap {{super}} : Num a
-    div : (x y : a) -> {{Nonzero y}} -> a
-    mod : (x y : a) -> {{Nonzero y}} -> a
+    overlap {{Num-super}} : Num a
+    overlap {{Validation-Nonzero-super}} : Validation Nonzero a
+    div : (x y : a) -> {{Validate Nonzero y}} -> a
+    mod : (x y : a) -> {{Validate Nonzero y}} -> a
 
 open Integral {{...}} public
 
@@ -523,8 +564,9 @@ open Integral {{...}} public
 
 record Fractional (a : Type) : Type where
   field
-    overlap {{super}} : Num a
-    _/_ : (x y : a) -> {{Nonzero y}} -> a
+    overlap {{Num-super}} : Num a
+    overlap {{Validation-Nonzero-super}} : Validation Nonzero a
+    _/_ : (x y : a) -> {{Validate Nonzero y}} -> a
 
 open Fractional {{...}} public
 

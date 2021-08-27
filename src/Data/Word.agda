@@ -70,7 +70,6 @@ instance
   Bits-Word8 .popCount = word8PopCount
 
   Num-Word8 : Num Word8
-  Num-Word8 .nonzero x = x /= 0
   Num-Word8 ._+_ = word8Plus
   Num-Word8 ._-_ = word8Minus
   Num-Word8 ._*_ = word8Times
@@ -134,7 +133,6 @@ instance
   Bits-Word16 .popCount = word16PopCount
 
   Num-Word16 : Num Word16
-  Num-Word16 .nonzero x = x /= 0
   Num-Word16 ._+_ = word16Plus
   Num-Word16 ._-_ = word16Minus
   Num-Word16 ._*_ = word16Times
@@ -198,7 +196,6 @@ instance
   Bits-Word32 .popCount = word32PopCount
 
   Num-Word32 : Num Word32
-  Num-Word32 .nonzero x = x /= 0
   Num-Word32 ._+_ = word32Plus
   Num-Word32 ._-_ = word32Minus
   Num-Word32 ._*_ = word32Times
@@ -266,7 +263,6 @@ instance
   Bits-Word64 .popCount = word64PopCount
 
   Num-Word64 : Num Word64
-  Num-Word64 .nonzero x = x /= 0
   Num-Word64 ._+_ = word64Plus
   Num-Word64 ._-_ = word64Minus
   Num-Word64 ._*_ = word64Times

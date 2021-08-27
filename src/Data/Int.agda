@@ -54,9 +54,18 @@ instance
   FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
 
+  Validation-Positive-Int : Validation Positive Int
+  Validation-Positive-Int .validate _ = \ where
+    (Pos 0) -> False
+    (NegSuc _) -> False
+    _ -> True
+
+  Validation-Nonzero-Int : Validation Nonzero Int
+  Validation-Nonzero-Int .validate _ = \ where
+    (Pos 0) -> False
+    _ -> True
+
   Num-Int : Num Int
-  Num-Int .nonzero (Pos 0) = False
-  Num-Int .nonzero _ = True
   Num-Int ._+_ = \ where
     (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
     (NegSuc m) (Pos n) -> diff n (Suc m)

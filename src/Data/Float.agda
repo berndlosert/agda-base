@@ -95,15 +95,20 @@ instance
   FromNat-Float .FromNatConstraint _ = Unit
   FromNat-Float .fromNat n = primNatToFloat n
 
-  Num-Float : Num Float
-  Num-Float .nonzero x = if x == 0.0 then False else True
-  Num-Float ._+_ = primFloatPlus
-  Num-Float ._-_ = primFloatMinus
-  Num-Float ._*_ = primFloatTimes
-
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint _ = Unit
   FromNeg-Float .fromNeg n = primFloatNegate (primNatToFloat n)
+
+  Validation-Positive-Float : Validation Positive Float
+  Validation-Positive-Float .validate _ x = x > 0.0
+
+  Validation-Nonzero-Float : Validation Nonzero Float
+  Validation-Nonzero-Float .validate _ x = x /= 0.0
+
+  Num-Float : Num Float
+  Num-Float ._+_ = primFloatPlus
+  Num-Float ._-_ = primFloatMinus
+  Num-Float ._*_ = primFloatTimes
 
   Signed-Float : Signed Float
   Signed-Float .-_ = primFloatNegate
