@@ -56,4 +56,6 @@ instance
 
   Integral-Nat : Integral Nat
   Integral-Nat .div m (Suc n) = primNatDivAux 0 n m n
+  Integral-Nat .div m 0 = undefined
   Integral-Nat .mod m (Suc n) = primNatModAux 0 n m n
+  Integral-Nat .mod m 0 = undefined

@@ -88,8 +88,10 @@ instance
     (Pos m) (NegSuc n) -> neg (div m (Suc n))
     (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
     (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
+    _ _ -> undefined
   Integral-Int .mod = \ where
     (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
     (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
     (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
     (NegSuc m) (NegSuc n) -> neg (mod (Suc m) (Suc n))
+    _ _ -> undefined
