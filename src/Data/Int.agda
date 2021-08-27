@@ -11,51 +11,17 @@ open import Prelude
 open import Data.Nat as Nat using ()
 
 -------------------------------------------------------------------------------
--- Int primitives
+-- Functions
 -------------------------------------------------------------------------------
 
 neg : Nat -> Int
 neg 0 = Pos 0
 neg (Suc n) = NegSuc n
 
-private
-  intNegate : Int -> Int
-  intNegate = \ where
-    (Pos Zero) -> Pos Zero
-    (Pos (Suc n)) -> NegSuc n
-    (NegSuc n) -> Pos (Suc n)
-
-  intMinus : Nat -> Nat -> Int
-  intMinus m Zero = Pos m
-  intMinus Zero (Suc n) = NegSuc n
-  intMinus (Suc m) (Suc n) = intMinus m n
-
-  intPlus : Int -> Int -> Int
-  intPlus (NegSuc m) (NegSuc n) = NegSuc (Suc (m + n))
-  intPlus (NegSuc m) (Pos n) = intMinus n (Suc m)
-  intPlus (Pos m) (NegSuc n) = intMinus m (Suc n)
-  intPlus (Pos m) (Pos n) = Pos (m + n)
-
-  intTimes : Int -> Int -> Int
-  intTimes = \ where
-    (Pos n) (Pos m) -> Pos (n * m)
-    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
-    (Pos n) (NegSuc m) -> neg (n * Suc m)
-    (NegSuc n) (Pos m) -> neg (Suc n * m)
-
-  intDiv : {{Unsafe}} -> Int -> Int -> Int
-  intDiv = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
-    (Pos m) (NegSuc n) -> neg (div m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
-    (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
-
-  intMod : {{Unsafe}} -> Int -> Int -> Int
-  intMod = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
-    (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (mod (Suc m) (Suc n))
+diff : Nat -> Nat -> Int
+diff m Zero = Pos m
+diff Zero (Suc n) = NegSuc n
+diff (Suc m) (Suc n) = diff m n
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -91,12 +57,25 @@ instance
   Num-Int : Num Int
   Num-Int .nonzero (Pos 0) = False
   Num-Int .nonzero _ = True
-  Num-Int ._+_ = intPlus
-  Num-Int ._-_ m n = m + intNegate n
-  Num-Int ._*_ = intTimes
+  Num-Int ._+_ = \ where
+    (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+    (NegSuc m) (Pos n) -> diff n (Suc m)
+    (Pos m) (NegSuc n) -> diff m (Suc n)
+    (Pos m) (Pos n) -> Pos (m + n)
+  Num-Int ._-_ = \ where
+    m (Pos n) -> m + neg n
+    m (NegSuc n) -> m + Pos (Suc n)
+  Num-Int ._*_ = \ where
+    (Pos n) (Pos m) -> Pos (n * m)
+    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+    (Pos n) (NegSuc m) -> neg (n * Suc m)
+    (NegSuc n) (Pos m) -> neg (Suc n * m)
 
   Signed-Int : Signed Int
-  Signed-Int .-_ = intNegate
+  Signed-Int .-_ = \ where
+    (Pos 0) -> Pos 0
+    (Pos (Suc n)) -> NegSuc n
+    (NegSuc n) -> Pos (Suc n)
   Signed-Int .abs n@(Pos _) = n
   Signed-Int .abs (NegSuc n) = Pos (Suc n)
   Signed-Int .signum n@(Pos 0) = n
@@ -104,5 +83,13 @@ instance
   Signed-Int .signum (NegSuc _) = NegSuc 0
 
   Integral-Int : Integral Int
-  Integral-Int .div x y = intDiv x y
-  Integral-Int .mod x y = intMod x y
+  Integral-Int .div = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
+    (Pos m) (NegSuc n) -> neg (div m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
+    (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
+  Integral-Int .mod = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
+    (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (mod (Suc m) (Suc n))
