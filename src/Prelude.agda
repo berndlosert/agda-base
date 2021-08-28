@@ -449,18 +449,18 @@ record ToNat (a : Set) : Set where
 open ToNat {{...}} public
 
 -------------------------------------------------------------------------------
--- FromNeg
+-- Neg
 -------------------------------------------------------------------------------
 
-record FromNeg (a : Set) : Set where
+record Neg (a : Set) : Set where
   field
-    FromNegConstraint : Nat -> Set
-    fromNeg : (n : Nat) -> {{FromNegConstraint n}} -> a
+    NegConstraint : Nat -> Set
+    neg : (n : Nat) -> {{NegConstraint n}} -> a
 
-open FromNeg {{...}} public
+open Neg {{...}} public
 
-{-# BUILTIN FROMNEG fromNeg #-}
-{-# DISPLAY FromNeg.fromNeg _ n = fromNeg n #-}
+{-# BUILTIN FROMNEG neg #-}
+{-# DISPLAY Neg.neg _ n = neg n #-}
 
 -------------------------------------------------------------------------------
 -- Validation
@@ -561,7 +561,7 @@ instance
 record Signed (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
-    overlap {{FromNeg-super}} : FromNeg a
+    overlap {{Neg-super}} : Neg a
     -_ : a -> a
     abs : a -> a
     signum : a -> a

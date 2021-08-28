@@ -95,9 +95,9 @@ instance
   FromNat-Float .FromNatConstraint _ = Unit
   FromNat-Float .fromNat n = primNatToFloat n
 
-  FromNeg-Float : FromNeg Float
-  FromNeg-Float .FromNegConstraint _ = Unit
-  FromNeg-Float .fromNeg n = primFloatNegate (primNatToFloat n)
+  Neg-Float : Neg Float
+  Neg-Float .NegConstraint _ = Unit
+  Neg-Float .neg n = primFloatNegate (primNatToFloat n)
 
   Validation-Positive-Float : Validation Positive Float
   Validation-Positive-Float .validate _ x = x > 0.0
