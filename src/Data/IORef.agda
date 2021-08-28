@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- IORef
 -------------------------------------------------------------------------------
 
 postulate
-  IORef : Type -> Type
+  IORef : Set -> Set
   newIORef : a -> IO (IORef a)
   readIORef : IORef a -> IO a
   writeIORef : IORef a -> a -> IO Unit

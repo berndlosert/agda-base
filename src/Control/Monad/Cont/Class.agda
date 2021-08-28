@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- MonadCont
 -------------------------------------------------------------------------------
 
-record MonadCont (m : Type -> Type) : Type where
+record MonadCont (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     callCC : ((a -> m b) -> m a) -> m a

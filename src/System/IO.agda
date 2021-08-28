@@ -17,7 +17,7 @@ open import String.Show
 
 private
   variable
-    a b r : Type
+    a b r : Set
 
 -------------------------------------------------------------------------------
 -- Console IO
@@ -47,22 +47,22 @@ print x = putStrLn (show x)
 -- File IO
 -------------------------------------------------------------------------------
 
-FilePath : Type
+FilePath : Set
 FilePath = String
 
-data IOMode : Type where
+data IOMode : Set where
   ReadMode WriteMode AppendMode ReadWriteMode : IOMode
 
-data BufferMode : Type where
+data BufferMode : Set where
   NoBuffering : BufferMode
   LineBuffering : BufferMode
   BlockBuffering : Maybe Int64 -> BufferMode
 
 postulate
-  Handle : Type
+  Handle : Set
   stdin stdout stderr : Handle
 
-  TextEncoding : Type
+  TextEncoding : Set
   latin1 : TextEncoding
   utf8 utf8-bom : TextEncoding
   utf16 utf16le utf16be : TextEncoding

@@ -4,9 +4,9 @@ module Data.Predicate where
 
 open import Prelude
 
-private variable a : Type
+private variable a : Set
 
-record Predicate (a : Type) : Type where
+record Predicate (a : Set) : Set where
   constructor Predicate:
   field getPredicate : a -> Bool
 

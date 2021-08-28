@@ -37,8 +37,8 @@ open Base public
 
 private
   variable
-    a b r : Type
-    m : Type -> Type
+    a b r : Set
+    m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Console IO

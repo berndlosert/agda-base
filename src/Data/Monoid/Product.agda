@@ -17,14 +17,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Product
 -------------------------------------------------------------------------------
 
 -- For multiplicative semigroups, monoids, etc.
-record Product (a : Type) : Type where
+record Product (a : Set) : Set where
   constructor Product:
   field getProduct : a
 

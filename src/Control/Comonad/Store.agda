@@ -5,10 +5,10 @@ module Control.Comonad.Store where
 open import Control.Comonad
 open import Prelude
 
-private variable s : Type
+private variable s : Set
 
 -- Store S is the dual of State S.
-Store : Type -> Type -> Type
+Store : Set -> Set -> Set
 Store s a = Pair (s -> a) s
 
 -- Store S is a functor.

@@ -27,14 +27,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    e : Type
-    f m n : Type -> Type
+    e : Set
+    f m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- IdentityT
 -------------------------------------------------------------------------------
 
-record IdentityT (m : Type -> Type) (a : Type) : Type where
+record IdentityT (m : Set -> Set) (a : Set) : Set where
   constructor mkIdentityT
   field runIdentityT : m a
 

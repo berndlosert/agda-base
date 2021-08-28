@@ -28,8 +28,8 @@ open Data.Traversable public
 
 private
   variable
-    a b c : Type
-    f : Type -> Type
+    a b c : Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Constructors
@@ -318,7 +318,7 @@ split f (x :: xs) =
       (y :: ys) -> (x :: y) :: ys
 
 -------------------------------------------------------------------------------
--- Type-like operations
+-- Set-like operations
 -------------------------------------------------------------------------------
 
 deleteBy : (a -> a -> Bool) -> a -> List a -> List a

@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a b c d : Type
+    a b c d : Set
 
 -------------------------------------------------------------------------------
 -- Choice
 -------------------------------------------------------------------------------
 
-record Choice (p : Type -> Type -> Type) : Type where
+record Choice (p : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor p
     left : p a b -> p (Either a c) (Either b c)

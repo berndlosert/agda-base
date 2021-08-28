@@ -26,13 +26,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a b w w' : Type
+    a b w w' : Set
 
 -------------------------------------------------------------------------------
 -- Writer
 -------------------------------------------------------------------------------
 
-Writer : Type -> Type -> Type
+Writer : Set -> Set -> Set
 Writer w = WriterT w Identity
 
 {-# DISPLAY WriterT w Identity = Writer w #-}

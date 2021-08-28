@@ -17,13 +17,13 @@ open import String.Show
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Const
 -------------------------------------------------------------------------------
 
-record Const (a b : Type) : Type where
+record Const (a b : Set) : Set where
   constructor Const:
   field getConst : a
 

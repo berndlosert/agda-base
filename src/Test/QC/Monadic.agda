@@ -20,15 +20,15 @@ open import String.Show
 
 private
   variable
-    a b : Type
-    m : Type -> Type
+    a b : Set
+    m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- PropertyT
 -------------------------------------------------------------------------------
 
 abstract
-  PropertyT : (Type -> Type) -> Type -> Type
+  PropertyT : (Set -> Set) -> Set -> Set
   PropertyT m a = ContT (m Property) Gen a
 
   propertyT : ((a -> Gen (m Property)) -> Gen (m Property)) -> PropertyT m a

@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- MonadState
 -------------------------------------------------------------------------------
 
-record MonadState (s : Type) (m : Type -> Type) : Type where
+record MonadState (s : Set) (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     state : (s -> Pair s a) -> m a

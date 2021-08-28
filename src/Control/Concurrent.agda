@@ -17,14 +17,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- ThreadId
 -------------------------------------------------------------------------------
 
 postulate
-  ThreadId : Type
+  ThreadId : Set
 
 private
   postulate

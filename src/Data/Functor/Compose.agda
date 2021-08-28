@@ -18,14 +18,14 @@ open import Data.Traversable
 
 private
   variable
-    a : Type
-    f g : Type -> Type
+    a : Set
+    f g : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Compose
 -------------------------------------------------------------------------------
 
-record Compose (f g : Type -> Type) (a : Type) : Type where
+record Compose (f g : Set -> Set) (a : Set) : Set where
   constructor Compose:
   field getCompose : f (g a)
 

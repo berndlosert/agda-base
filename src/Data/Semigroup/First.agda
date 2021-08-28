@@ -16,14 +16,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- First
 -------------------------------------------------------------------------------
 
 -- Semigroup where x <> y = x
-record First (a : Type) : Type where
+record First (a : Set) : Set where
   constructor First:
   field getFirst : a
 

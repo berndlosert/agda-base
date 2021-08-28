@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- MonadWriter
 -------------------------------------------------------------------------------
 
-record MonadWriter (w : Type) (m : Type -> Type) : Type where
+record MonadWriter (w : Set) (m : Set -> Set) : Set where
   field
     overlap {{Monoid-w}} : Monoid w
     overlap {{Monad-m}} : Monad m

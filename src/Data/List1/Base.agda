@@ -16,14 +16,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- List1
 -------------------------------------------------------------------------------
 
 infixr 5 _:|_
-data List1 (a : Type) : Type where
+data List1 (a : Set) : Set where
   _:|_ : a -> List a -> List1 a
 
 instance

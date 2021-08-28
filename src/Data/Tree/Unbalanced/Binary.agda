@@ -18,13 +18,13 @@ open import String.Show
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Tree
 -------------------------------------------------------------------------------
 
-data Tree (a : Type) : Type where
+data Tree (a : Set) : Set where
   Leaf : Tree a
   Node : Tree a -> a -> Tree a -> Tree a
 

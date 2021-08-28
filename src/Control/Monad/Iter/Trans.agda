@@ -30,15 +30,15 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e r s w : Type
-    m n : Type -> Type
+    a b e r s w : Set
+    m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- IterT
 -------------------------------------------------------------------------------
 
 {-# NO_POSITIVITY_CHECK #-}
-record IterT (m : Type -> Type) (a : Type) : Type where
+record IterT (m : Set -> Set) (a : Set) : Set where
   coinductive
   field runIterT : m (Either a (IterT m a))
 
@@ -114,7 +114,7 @@ instance
   MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
       map concat' $ listen (map listen <$> runIterT iter)
     where
-      c : Type
+      c : Set
       c = Pair w a
 
       concat' : Pair w (Either a (IterT m c)) -> Either c (IterT m c)
@@ -127,7 +127,7 @@ instance
       clean : forall {a} -> m a -> m a
       clean = pass <<< map (const neutral ,_)
 
-      c : Type
+      c : Set
       c = Pair w (Pair (w -> w) a)
 
       pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))

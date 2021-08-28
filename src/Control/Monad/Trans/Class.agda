@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a : Type
-    m : Type -> Type
+    a : Set
+    m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- MonadTrans
 -------------------------------------------------------------------------------
 
-record MonadTrans (t : (Type -> Type) -> Type -> Type) : Type where
+record MonadTrans (t : (Set -> Set) -> Set -> Set) : Set where
   field
     overlap {{Monad-tm}} : {{Monad m}} -> Monad (t m)
     lift : {{Monad m}} -> m a -> t m a

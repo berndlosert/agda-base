@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Alternative
 -------------------------------------------------------------------------------
 
-record Alternative (f : Type -> Type) : Type where
+record Alternative (f : Set -> Set) : Set where
   infixl 3 _<|>_
   field
     overlap {{Applicative-super}} : Applicative f

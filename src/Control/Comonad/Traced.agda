@@ -5,10 +5,10 @@ module Control.Comonad.Traced where
 open import Control.Comonad
 open import Prelude
 
-private variable m : Type
+private variable m : Set
 
 -- Traced m is the dual of Writer w.
-Traced : Type -> Type -> Type
+Traced : Set -> Set -> Set
 Traced m a = m -> a
 
 instance

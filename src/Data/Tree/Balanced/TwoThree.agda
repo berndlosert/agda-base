@@ -17,13 +17,13 @@ open import String.Show
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Tree
 -------------------------------------------------------------------------------
 
-data Tree (a : Type) : Type where
+data Tree (a : Set) : Set where
   Leaf : Tree a
   Two : Tree a -> a -> Tree a -> Tree a
   Three : Tree a -> a -> Tree a -> a -> Tree a -> Tree a
@@ -82,14 +82,14 @@ singleton x = Two Leaf x Leaf
 -------------------------------------------------------------------------------
 
 private
-  data TreeContext (a : Type) : Type where
+  data TreeContext (a : Set) : Set where
     TwoLeft : a -> Tree a -> TreeContext a
     TwoRight : Tree a -> a -> TreeContext a
     ThreeLeft : a -> Tree a -> a -> Tree a -> TreeContext a
     ThreeMiddle : Tree a -> a -> a -> Tree a -> TreeContext a
     ThreeRight : Tree a -> a -> Tree a -> a -> TreeContext a
 
-  data KickUp (a : Type) : Type where
+  data KickUp (a : Set) : Set where
     KickUp: : Tree a -> a -> Tree a -> KickUp a
 
   fromZipper : List (TreeContext a) -> Tree a -> Tree a

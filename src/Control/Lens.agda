@@ -25,8 +25,8 @@ open import Data.Traversable
 
 private
   variable
-    a b c r s t : Type
-    f g : Type -> Type
+    a b c r s t : Set
+    f g : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -38,10 +38,10 @@ open Data.Semigroup.First public
 open Data.Semigroup.Last public
 
 -------------------------------------------------------------------------------
--- Types and type classes used for characterizing optics
+-- Sets and type classes used for characterizing optics
 -------------------------------------------------------------------------------
 
-record Copointed (f : Type -> Type) : Type where
+record Copointed (f : Set -> Set) : Set where
   field extract : f a -> a
 
 open Copointed {{...}} public
@@ -50,7 +50,7 @@ instance
   Copointed-Identity : Copointed Identity
   Copointed-Identity .extract = runIdentity
 
-record Tagged (s b : Type) : Type where
+record Tagged (s b : Set) : Set where
   constructor Tagged:
   field unTagged : b
 
@@ -66,7 +66,7 @@ instance
   Choice-Tagged : Choice Tagged
   Choice-Tagged .left (Tagged: x) = Tagged: (Left x)
 
-data Exchange (a b s t : Type) : Type where
+data Exchange (a b s t : Set) : Set where
   Exchange: : (s -> a) -> (b -> t) -> Exchange a b s t
 
 instance
@@ -76,7 +76,7 @@ instance
   Profunctor-Exchange : Profunctor (Exchange a b)
   Profunctor-Exchange .lcmap f (Exchange: sa bt) = Exchange: (sa <<< f) bt
 
-data Market (a b s t : Type) : Type where
+data Market (a b s t : Set) : Set where
   Market: : (b -> t) -> (s -> Either t a) -> Market a b s t
 
 instance
@@ -97,34 +97,34 @@ instance
 -- Optic types ala Van Laarhoven
 -------------------------------------------------------------------------------
 
-Simple : (Type -> Type -> Type -> Type -> Type) -> Type -> Type -> Type
+Simple : (Set -> Set -> Set -> Set -> Set) -> Set -> Set -> Set
 Simple Optic s a = Optic s s a a
 
-Traversal : (s t a b : Type) -> Type
+Traversal : (s t a b : Set) -> Set
 Traversal s t a b = forall {f} -> {{Applicative f}}
   -> (a -> f b) -> s -> f t
 
-Typeter : (s t a b : Type) -> Type
-Typeter s t a b = forall {f} -> {{Applicative f}} -> {{Copointed f}}
+Setter : (s t a b : Set) -> Set
+Setter s t a b = forall {f} -> {{Applicative f}} -> {{Copointed f}}
   -> (a -> f b) -> s -> f t
 
-Fold : (s t a b : Type) -> Type
+Fold : (s t a b : Set) -> Set
 Fold s t a b = forall {f} -> {{Applicative f}} -> {{Contravariant f}}
   -> (a -> f b) -> s -> f t
 
-Getter : (s t a b : Type) -> Type
+Getter : (s t a b : Set) -> Set
 Getter s t a b = forall {f} -> {{Functor f}} -> {{Contravariant f}}
   -> (a -> f b) -> s -> f t
 
-Lens : (s t a b : Type) -> Type
+Lens : (s t a b : Set) -> Set
 Lens s t a b = forall {f} -> {{Functor f}}
   -> (a -> f b) -> s -> f t
 
-Iso : (s t a b : Type) -> Type
+Iso : (s t a b : Set) -> Set
 Iso s t a b = forall {p} {f} -> {{Profunctor p}} -> {{Functor f}}
   -> p a (f b) -> p s (f t)
 
-Prism : (s t a b : Type) -> Type
+Prism : (s t a b : Set) -> Set
 Prism s t a b = forall {p} {f} -> {{Choice p}} -> {{Applicative f}}
   -> p a (f b) -> p s (f t)
 
@@ -148,7 +148,7 @@ iso f g = dimap f (map g)
 -- Getting operations
 -------------------------------------------------------------------------------
 
-Getting : (r s a : Type) -> Type
+Getting : (r s a : Set) -> Set
 Getting r s a = (a -> Const r a) -> s -> Const r s
 
 to : (s -> a) -> Getting r s a
@@ -196,7 +196,7 @@ forOf! = flip <<< traverseOf!
 -- ASetter
 -------------------------------------------------------------------------------
 
-ASetter : (s t a b : Type) -> Type
+ASetter : (s t a b : Set) -> Set
 ASetter s t a b = (a -> Identity b) -> s -> Identity t
 
 over : ASetter s t a b -> (a -> b) -> s -> t
@@ -212,7 +212,7 @@ sets f k = Identity: <<< f (runIdentity <<< k)
 -- AReview
 -------------------------------------------------------------------------------
 
-AReview : (t b : Type) -> Type
+AReview : (t b : Set) -> Set
 AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
 
 review : AReview t b -> b -> t
@@ -222,7 +222,7 @@ review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< Identity:
 -- AnIso
 -------------------------------------------------------------------------------
 
-AnIso : (s t a b : Type) -> Type
+AnIso : (s t a b : Set) -> Set
 AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
@@ -241,7 +241,7 @@ mapping k = withIso k $ \ sa bt -> iso (map sa) (map bt)
 -- APrism
 -------------------------------------------------------------------------------
 
-APrism : (s t a b : Type) -> Type
+APrism : (s t a b : Set) -> Set
 APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
@@ -269,7 +269,7 @@ mapped = sets map
 traversed : {{Traversable f}} -> Traversal (f a) (f b) a b
 traversed = traverse
 
-record Folded (s a : Type) : Type where
+record Folded (s a : Set) : Set where
   field folded : {{Monoid r}} -> Getting r s a
 
 open Folded {{...}} public
@@ -279,7 +279,7 @@ instance
   Folded-List .folded f xs =
     Const: $ foldr (\ x y -> getConst (f x) <> y) neutral xs
 
-record Each (s t a b : Type) : Type where
+record Each (s t a b : Set) : Set where
   field each : Traversal s t a b
 
 open Each {{...}} public
@@ -299,7 +299,7 @@ instance
   Each-List .each f = flip foldr (| [] |) \ where
     x ys -> (| _::_ (f x) ys |)
 
-record Cons (s t a b : Type) : Type where
+record Cons (s t a b : Set) : Set where
   field #Cons : Prism s t (Pair a s) (Pair b t)
 
 open Cons {{...}} public

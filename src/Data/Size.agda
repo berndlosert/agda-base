@@ -24,7 +24,7 @@ open import Agda.Builtin.Size public
 -- Thunk
 -------------------------------------------------------------------------------
 
-record Thunk (i : Size) (f : Size -> Type) : Type where
+record Thunk (i : Size) (f : Size -> Set) : Set where
   coinductive
   field force : {j : Size< i} -> f j
 

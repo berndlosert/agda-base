@@ -14,16 +14,16 @@ open import Prelude
 
 private
   variable
-    a b c e : Type
+    a b c e : Set
 
 -------------------------------------------------------------------------------
 -- Exception, SomeException, IOException
 -------------------------------------------------------------------------------
 
 postulate
-  Exception : Type -> Type
-  SomeException : Type
-  IOException : Type
+  Exception : Set -> Set
+  SomeException : Set
+  IOException : Set
 
   toException : {{Exception e}} -> e -> SomeException
   fromException : {{Exception e}} -> SomeException -> Maybe e
@@ -33,7 +33,7 @@ postulate
 -- MonadThrow
 -------------------------------------------------------------------------------
 
-record MonadThrow (m : Type -> Type) : Type where
+record MonadThrow (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     throw : {{Exception e}} -> e -> m a
@@ -44,7 +44,7 @@ open MonadThrow {{...}} public
 -- MonadCatch
 -------------------------------------------------------------------------------
 
-record MonadCatch (m : Type -> Type) : Type where
+record MonadCatch (m : Set -> Set) : Set where
   field
     overlap {{MonadThrow-super}} : MonadThrow m
     catch : {{Exception e}} -> m a -> (e -> m a) -> m a
@@ -72,12 +72,12 @@ open MonadCatch {{...}} public
 -- MonadBracket
 -------------------------------------------------------------------------------
 
-data ExitCase (a : Type) : Type where
+data ExitCase (a : Set) : Set where
   ExitCaseSuccess : a -> ExitCase a
   ExitCaseException : SomeException -> ExitCase a
   ExitCaseAbort : ExitCase a
 
-record MonadBracket (m : Type -> Type) : Type where
+record MonadBracket (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (Pair b c)

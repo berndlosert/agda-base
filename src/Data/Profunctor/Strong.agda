@@ -14,13 +14,13 @@ open import Prelude
 
 private
   variable
-    a b c d : Type
+    a b c d : Set
 
 -------------------------------------------------------------------------------
 -- Strong
 -------------------------------------------------------------------------------
 
-record Strong (p : Type -> Type -> Type) : Type where
+record Strong (p : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor-super}} : Profunctor p
     first : p a b -> p (Pair a c) (Pair b c)

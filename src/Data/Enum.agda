@@ -14,7 +14,7 @@ open import Data.Int as Int using ()
 -- Enum
 -------------------------------------------------------------------------------
 
-record Enum (a : Type) : Type where
+record Enum (a : Set) : Set where
   field
     {{Ord-super}} : Ord a
     suc : a -> Maybe a

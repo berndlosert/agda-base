@@ -18,13 +18,13 @@ open import Data.Traversable
 
 private
   variable
-    a v : Type
+    a v : Set
 
 -------------------------------------------------------------------------------
 -- Digit
 -------------------------------------------------------------------------------
 
-data Digit (a : Type) : Type where
+data Digit (a : Set) : Set where
   One : a -> Digit a
   Two : a -> a -> Digit a
   Three : a -> a -> a -> Digit a

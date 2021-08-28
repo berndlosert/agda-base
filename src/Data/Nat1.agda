@@ -14,7 +14,7 @@ open import String.Show
 -- Nat1
 -------------------------------------------------------------------------------
 
-data Nat1 : Type where
+data Nat1 : Set where
   One : Nat1
   Suc : Nat1 -> Nat1
 

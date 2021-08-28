@@ -17,13 +17,13 @@ open import Data.List as List using ()
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Stream
 -------------------------------------------------------------------------------
 
-record Stream (a : Type) : Type where
+record Stream (a : Set) : Set where
   coinductive
   field
     head : a

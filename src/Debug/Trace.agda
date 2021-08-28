@@ -17,8 +17,8 @@ open import String.Show
 
 private
   variable
-    a b : Type
-    f : Type -> Type
+    a b : Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- traceIO, trace, etc.

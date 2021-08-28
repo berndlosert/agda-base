@@ -14,7 +14,7 @@ open import Data.Int as Int using ()
 -- Bits
 -------------------------------------------------------------------------------
 
-record Bits (a : Type) : Type where
+record Bits (a : Set) : Set where
   infixl 5 _:|:_
   infixl 6 _xor_
   infixl 7 _:&:_

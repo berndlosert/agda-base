@@ -18,14 +18,14 @@ open import Data.Traversable
 
 private
   variable
-    a b c : Type
+    a b c : Set
     m n : Nat
 
 -------------------------------------------------------------------------------
 -- Vector
 -------------------------------------------------------------------------------
 
-data Vector : Nat -> Type -> Type where
+data Vector : Nat -> Set -> Set where
   [] : Vector Zero a
   _::_ : a -> Vector n a -> Vector (Suc n) a
 

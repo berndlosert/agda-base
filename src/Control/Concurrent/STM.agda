@@ -16,14 +16,14 @@ open import Control.Alternative
 
 private
   variable
-    a b s : Type
+    a b s : Set
 
 -------------------------------------------------------------------------------
 -- STM
 -------------------------------------------------------------------------------
 
 postulate
-  STM : Type -> Type
+  STM : Set -> Set
   atomically : STM a -> IO a
   retry : STM a
   orElse : STM a -> STM a -> STM a
@@ -66,7 +66,7 @@ instance
 -------------------------------------------------------------------------------
 
 postulate
-  TVar : Type -> Type
+  TVar : Set -> Set
   newTVar : a -> STM (TVar a)
   newTVarIO : a -> IO (TVar a)
   readTVar : TVar a -> STM a
@@ -103,7 +103,7 @@ instance
 -------------------------------------------------------------------------------
 
 postulate
-  TMVar : Type -> Type
+  TMVar : Set -> Set
   newTMVar : a -> STM (TMVar a)
   newEmptyTMVar : STM (TMVar a)
   newTMVarIO : a -> IO (TMVar a)
@@ -146,7 +146,7 @@ instance
 -------------------------------------------------------------------------------
 
 postulate
-  TChan : Type -> Type
+  TChan : Set -> Set
   newTChan : STM (TChan a)
   newTChanIO : IO (TChan a)
   newBroadcastTChan : STM (TChan a)

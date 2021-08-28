@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a b c : Type
-    f t : Type -> Type
+    a b c : Set
+    f t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Backwards
 -------------------------------------------------------------------------------
 
-record Backwards (f : Type -> Type) (a : Type) : Type where
+record Backwards (f : Set -> Set) (a : Set) : Set where
   constructor Backwards:
   field forwards : f a
 

@@ -12,11 +12,11 @@ open import Prelude
 -- Container
 -------------------------------------------------------------------------------
 
-record Container : Type where
+record Container : Set where
   constructor Container:
   field
-    Shape : Type
-    Position : Shape -> Type
+    Shape : Set
+    Position : Shape -> Set
 
 open Container public
 
@@ -24,7 +24,7 @@ open Container public
 -- Extension
 -------------------------------------------------------------------------------
 
-record Extension (c : Container) (a : Type) : Type where
+record Extension (c : Container) (a : Set) : Set where
   constructor Extension:
   field
     shape : Shape c

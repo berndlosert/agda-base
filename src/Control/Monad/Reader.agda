@@ -26,13 +26,13 @@ open Data.Functor.Identity public
 
 private
   variable
-    a b r r' : Type
+    a b r r' : Set
 
 -------------------------------------------------------------------------------
 -- Reader
 -------------------------------------------------------------------------------
 
-Reader : Type -> Type -> Type
+Reader : Set -> Set -> Set
 Reader r = ReaderT r Identity
 
 {-# DISPLAY ReaderT r Identity = Reader r #-}

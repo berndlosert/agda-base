@@ -20,14 +20,14 @@ open import Data.Tree.Finger.Node
 
 private
   variable
-    a b v : Type
-    f : Type -> Type
+    a b v : Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- FingerTree
 -------------------------------------------------------------------------------
 
-data FingerTree (v a : Type) : Type where
+data FingerTree (v a : Set) : Set where
   Empty : FingerTree v a
   Single : a -> FingerTree v a
   Deep : v -> Digit a -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
@@ -247,7 +247,7 @@ split p xs =
 -- Searching
 -------------------------------------------------------------------------------
 
-data SearchResult (v a : Type) : Type where
+data SearchResult (v a : Set) : Set where
   Position : FingerTree v a -> a -> FingerTree v a -> SearchResult v a
   OnLeft : SearchResult v a
   OnRight : SearchResult v a

@@ -14,14 +14,14 @@ open import Prelude
 
 private
   variable
-    a b c : Type
-    f m : Type -> Type
+    a b c : Set
+    f m : Set -> Set
 
 --------------------------------------------------------------------------------
 -- Selective
 -------------------------------------------------------------------------------
 
-record Selective (f : Type -> Type) : Type where
+record Selective (f : Set -> Set) : Set where
   field
     overlap {{Applicative-super}} : Applicative f
     select : f (Either a b) -> f (a -> b) -> f b

@@ -28,14 +28,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b e e' r s w : Type
-    m n : Type -> Type
+    a b e e' r s w : Set
+    m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- EitherT
 -------------------------------------------------------------------------------
 
-record EitherT (e : Type) (m : Type -> Type) (a : Type) : Type where
+record EitherT (e : Set) (m : Set -> Set) (a : Set) : Set where
   constructor EitherT:
   field runEitherT : m (Either e a)
 

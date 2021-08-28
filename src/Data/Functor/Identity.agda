@@ -17,13 +17,13 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Identity
 -------------------------------------------------------------------------------
 
-record Identity (a : Type) : Type where
+record Identity (a : Set) : Set where
   constructor Identity:
   field runIdentity : a
 

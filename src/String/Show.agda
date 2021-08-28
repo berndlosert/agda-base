@@ -18,16 +18,16 @@ open import Agda.Builtin.String
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- Show
 -------------------------------------------------------------------------------
 
-ShowS : Type
+ShowS : Set
 ShowS = String -> String
 
-record Show (a : Type) : Type where
+record Show (a : Set) : Set where
   field showsPrec : Nat -> a -> ShowS
 
   shows : a -> ShowS

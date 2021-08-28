@@ -15,7 +15,7 @@ open import String.Show
 -------------------------------------------------------------------------------
 
 -- Bool monoid where x <> y = x || y.
-record Any : Type where
+record Any : Set where
   constructor Any:
   field getAny : Bool
 

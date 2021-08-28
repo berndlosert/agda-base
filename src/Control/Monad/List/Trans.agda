@@ -23,15 +23,15 @@ open import Data.Foldable
 
 private
   variable
-    a b e r s w : Type
-    f m n : Type -> Type
+    a b e r s w : Set
+    f m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- ListT
 -------------------------------------------------------------------------------
 
 {-# NO_POSITIVITY_CHECK #-}
-record ListT (m : Type -> Type) (a : Type) : Type where
+record ListT (m : Set -> Set) (a : Set) : Set where
   field runListT : m (Maybe (Pair a (ListT m a)))
 
 open ListT public

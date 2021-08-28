@@ -15,7 +15,7 @@ open import Data.Float as Float using ()
 -- Bounded
 -------------------------------------------------------------------------------
 
-record Bounded (a : Type) : Type where
+record Bounded (a : Set) : Set where
   field
     overlap {{Ord-super}} : Ord a
     minBound : a

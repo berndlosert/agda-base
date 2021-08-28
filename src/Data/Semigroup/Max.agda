@@ -16,14 +16,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Max
 -------------------------------------------------------------------------------
 
 -- For semigroups, monoids, etc. where x <> y = max x y
-record Max (a : Type) : Type where
+record Max (a : Set) : Set where
   constructor Max:
   field getMax : a
 

@@ -14,12 +14,12 @@ open import Prelude
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- MonadReader
 -------------------------------------------------------------------------------
-record MonadReader (r : Type) (m : Type -> Type) : Type where
+record MonadReader (r : Set) (m : Set -> Set) : Set where
   field
     overlap {{Monad-m}} : Monad m
     ask : m r

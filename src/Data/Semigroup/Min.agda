@@ -16,14 +16,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Min
 -------------------------------------------------------------------------------
 
 -- For semigroups, monoids, etc. where x <> y = min x y
-record Min (a : Type) : Type where
+record Min (a : Set) : Set where
   constructor Min:
   field getMin : a
 

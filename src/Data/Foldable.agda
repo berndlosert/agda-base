@@ -16,14 +16,14 @@ open import Control.Alternative
 
 private
   variable
-    a b : Type
-    f m t : Type -> Type
+    a b : Set
+    f m t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Step (for foldl')
 -------------------------------------------------------------------------------
 
-data Step (a : Type) : Type where
+data Step (a : Set) : Set where
   Done : a -> Step a
   Continue : a -> Step a
 
@@ -31,7 +31,7 @@ data Step (a : Type) : Type where
 -- Foldable
 -------------------------------------------------------------------------------
 
-record Foldable (t : Type -> Type) : Type where
+record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b

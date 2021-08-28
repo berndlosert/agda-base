@@ -8,9 +8,9 @@ open import Data.Container
 
 private
   variable
-    a : Type
+    a : Set
 
-record Fix (c : Container) : Type where
+record Fix (c : Container) : Set where
   inductive
   pattern
   constructor Fix:

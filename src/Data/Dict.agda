@@ -19,14 +19,14 @@ open import String.Show
 
 private
   variable
-    a b k v : Type
+    a b k v : Set
 
 -------------------------------------------------------------------------------
 -- KVPair
 -------------------------------------------------------------------------------
 
 private
-  record KVPair (k v : Type) : Type where
+  record KVPair (k v : Set) : Set where
     constructor KVPair:
     field
       getKey : k
@@ -46,7 +46,7 @@ instance
 -------------------------------------------------------------------------------
 
 private
-  data Dict' (k v : Type) : Type where
+  data Dict' (k v : Set) : Set where
     Dict: : Tree (KVPair k v) -> Dict' k v
 
 Dict = Dict'
@@ -80,7 +80,7 @@ values (Dict: t) = foldMap (getValue >>> List.singleton) t
 member : {{Ord k}} -> k -> Dict k v -> Bool
 member k (Dict: t) = Tree.member (KVPair: k undefined) t
 
-data Key {{_ : Ord k}} (dict : Dict k v) : Type where
+data Key {{_ : Ord k}} (dict : Dict k v) : Set where
   Key: : (key : k) -> {{Assert $ member key dict}} -> Key dict
 
 member' : {{_ : Ord k}} -> k -> (dict : Dict k v) -> Maybe (Key dict)

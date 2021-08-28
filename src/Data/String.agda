@@ -18,7 +18,7 @@ open import Data.List as List using ()
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -234,7 +234,7 @@ unlines = List.fold <<< map (_<> "\n")
 -- View types
 -------------------------------------------------------------------------------
 
-data Uncons : String -> Type where
+data Uncons : String -> Set where
   [] : Uncons ""
   _::_ : (c : Char) (s : String) -> Uncons (cons c s)
 
@@ -251,7 +251,7 @@ asUncons s with uncons s | unconsCorrect s
 fromUncons : {s : String} -> Uncons s -> String
 fromUncons {s} _ = s
 
-data AsList : String -> Type where
+data AsList : String -> Set where
   [] : AsList ""
   _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
 

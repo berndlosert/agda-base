@@ -18,26 +18,26 @@ open import String.Show
 
 private
   variable
-    r : Type
+    r : Set
 
 -------------------------------------------------------------------------------
 -- ProtocolNumber, PortNumber, HostName, HostIPv4Addr, ServiceName
 -------------------------------------------------------------------------------
 
 postulate
-  ProtocolNumber : Type
+  ProtocolNumber : Set
   defaultProtocol : ProtocolNumber
 
-  PortNumber : Type
+  PortNumber : Set
   defaultPort : PortNumber
 
-HostName : Type
+HostName : Set
 HostName = String
 
-HostIPv4Addr : Type
+HostIPv4Addr : Set
 HostIPv4Addr = Word32
 
-ServiceName : Type
+ServiceName : Set
 ServiceName = String
 
 -------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ ServiceName = String
 -------------------------------------------------------------------------------
 
 postulate
-  SocketAddr : Type
+  SocketAddr : Set
   SocketAddrIPv4 : PortNumber -> HostIPv4Addr -> SocketAddr
 
 private
@@ -57,20 +57,20 @@ instance
   Show-SocketAddr .showsPrec _ = showString <<< sockedAddrShow
 
 -------------------------------------------------------------------------------
--- SocketType
+-- SocketSet
 -------------------------------------------------------------------------------
 
 postulate
-  SocketType : Type
-  SockNone : SocketType
-  SockStream : SocketType
+  SocketSet : Set
+  SockNone : SocketSet
+  SockStream : SocketSet
 
 -------------------------------------------------------------------------------
 -- AddrFamily
 -------------------------------------------------------------------------------
 
 postulate
-  AddrFamily : Type
+  AddrFamily : Set
   AFInet : AddrFamily
   AFUnspec : AddrFamily
 
@@ -78,7 +78,7 @@ postulate
 -- AddrInfoFlag
 -------------------------------------------------------------------------------
 
-data AddrInfoFlag : Type where
+data AddrInfoFlag : Set where
   AIAddrConfig : AddrInfoFlag
   AIAll : AddrInfoFlag
   AICanonName : AddrInfoFlag
@@ -91,12 +91,12 @@ data AddrInfoFlag : Type where
 -- AddrInfo
 -------------------------------------------------------------------------------
 
-record AddrInfo : Type where
+record AddrInfo : Set where
   constructor AddrInfo:
   field
     addrFlags : List AddrInfoFlag
     addrFamily : AddrFamily
-    addrSocketType : SocketType
+    addrSocketSet : SocketSet
     addrProtocol : ProtocolNumber
     addrAddress : SocketAddr
     addrCanonName : Maybe (List Char)
@@ -107,7 +107,7 @@ defaultHints : AddrInfo
 defaultHints = record {
      addrFlags = [];
      addrFamily = AFUnspec;
-     addrSocketType = SockNone;
+     addrSocketSet = SockNone;
      addrProtocol = defaultProtocol;
      addrAddress = SocketAddrIPv4 defaultPort 0;
      addrCanonName = Nothing
@@ -122,8 +122,8 @@ postulate
 -------------------------------------------------------------------------------
 
 postulate
-  Socket : Type
-  socket : AddrFamily -> SocketType -> ProtocolNumber -> IO Socket
+  Socket : Set
+  socket : AddrFamily -> SocketSet -> ProtocolNumber -> IO Socket
   openSocket : AddrInfo -> IO Socket
   connect : Socket -> SocketAddr -> IO Unit
   bind : Socket -> SocketAddr -> IO Unit
@@ -146,7 +146,7 @@ listen s n = listen' s n
 -------------------------------------------------------------------------------
 
 postulate
-  SocketOption : Type
+  SocketOption : Set
   ReuseAddr : SocketOption
   setSocketOption : Socket -> SocketOption -> Int -> IO Unit
 
@@ -197,9 +197,9 @@ postulate
 {-# COMPILE GHC AFInet = AF_INET #-}
 {-# COMPILE GHC AFUnspec = AF_UNSPEC #-}
 
-{-# COMPILE GHC SocketType = type SocketType #-}
+{-# COMPILE GHC SocketSet = type SocketSet #-}
 {-# COMPILE GHC SockStream = Stream #-}
-{-# COMPILE GHC SockNone = NoSocketType #-}
+{-# COMPILE GHC SockNone = NoSocketSet #-}
 
 {-# COMPILE GHC ProtocolNumber = type ProtocolNumber #-}
 {-# COMPILE GHC defaultProtocol = defaultProtocol #-}

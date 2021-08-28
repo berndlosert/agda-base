@@ -22,13 +22,13 @@ open import System.Time
 
 private
   variable
-    a as g : Type
+    a as g : Set
 
 -------------------------------------------------------------------------------
 -- RandomGen
 -------------------------------------------------------------------------------
 
-record RandomGen (g : Type) : Type where
+record RandomGen (g : Set) : Set where
   field
     genWord64 : g -> Pair Word64 g
     splitGen : g -> Pair g g
@@ -97,7 +97,7 @@ genFloat g = let (w , g') = genWord64 g in
 -- StdGen (SplitMix version)
 -------------------------------------------------------------------------------
 
-record StdGen : Type where
+record StdGen : Set where
   constructor stdgen:
   field
     seed : Word64
@@ -192,7 +192,7 @@ getStdRandom f = do
 -- Random
 -------------------------------------------------------------------------------
 
-record Random (a : Type) : Type where
+record Random (a : Set) : Set where
   field random : {{RandomGen g}} -> g -> Pair a g
 
   randomIO : IO a
@@ -209,7 +209,7 @@ instance
 -- RandomR
 -------------------------------------------------------------------------------
 
-record RandomR (a : Type) : Type where
+record RandomR (a : Set) : Set where
   field randomR : {{RandomGen g}} -> Pair a a -> g -> Pair a g
 
   randomRIO : Pair a a -> IO a

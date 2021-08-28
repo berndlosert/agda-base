@@ -17,13 +17,13 @@ open import Data.Size
 private
   variable
     i : Size
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Colist
 -------------------------------------------------------------------------------
 
-data Colist (i : Size) (a : Type) : Type where
+data Colist (i : Size) (a : Set) : Set where
   [] : Colist i a
   _::_ : a -> Thunk i (\ j -> Colist j a) -> Colist i a
 

@@ -16,13 +16,13 @@ open import Control.Monad.IO.Class
 
 private
   variable
-    a b : Type
+    a b : Set
 
 -------------------------------------------------------------------------------
 -- MonadUnliftIO
 -------------------------------------------------------------------------------
 
-record MonadUnliftIO (m : Type -> Type) : Type where
+record MonadUnliftIO (m : Set -> Set) : Set where
   field
     overlap {{MonadIO-super}} : MonadIO m
     withRunInIO : ((forall {a} -> m a -> IO a) -> IO b) -> m b

@@ -16,13 +16,13 @@ open import Data.Foldable
 
 private
   variable
-    f m : Type -> Type
+    f m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Reverse
 -------------------------------------------------------------------------------
 
-record Reverse (f : Type -> Type) (a : Type) : Type where
+record Reverse (f : Set -> Set) (a : Set) : Set where
   constructor Reverse:
   field getReverse : f a
 

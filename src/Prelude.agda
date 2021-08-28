@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type --no-import-sorts #-}
+{-# OPTIONS --type-in-type #-}
 
 module Prelude where
 
@@ -6,10 +6,7 @@ module Prelude where
 -- Primitive types
 -------------------------------------------------------------------------------
 
-open import Agda.Primitive public
-  renaming (Set to Type)
-
-data Void : Type where
+data Void : Set where
 
 open import Agda.Builtin.Unit public
   renaming (⊤ to Unit)
@@ -20,7 +17,7 @@ open import Agda.Builtin.Bool public
   renaming (false to False)
   renaming (true to True)
 
-data Ordering : Type where
+data Ordering : Set where
   LT EQ GT : Ordering
 
 open import Agda.Builtin.Nat public
@@ -46,10 +43,10 @@ open import Agda.Builtin.Equality public
   renaming (_≡_ to _===_)
   renaming (refl to Refl)
 
-Function : Type -> Type -> Type
+Function : Set -> Set -> Set
 Function a b = a -> b
 
-data Either (a b : Type) : Type where
+data Either (a b : Set) : Set where
   Left : a -> Either a b
   Right : b -> Either a b
 
@@ -59,7 +56,7 @@ open import Agda.Builtin.Sigma public
   renaming (Σ to DPair)
   renaming (_,_ to DPair:)
 
-record Pair (a b : Type) : Type where
+record Pair (a b : Set) : Set where
   constructor Pair:
   field
     fst : a
@@ -91,9 +88,9 @@ open import Agda.Builtin.IO public
 
 private
   variable
-    a b c d l r s v : Type
-    f m : Type -> Type
-    p : Type -> Type -> Type
+    a b c d l r s v : Set
+    f m : Set -> Set
+    p : Set -> Set -> Set
 
 -------------------------------------------------------------------------------
 -- Dangerous primitives
@@ -109,7 +106,7 @@ postulate
 undefined : a
 undefined = error "Prelude.undefined"
 
-record Unsafe : Type where
+record Unsafe : Set where
   field oops : Void
 
 open Unsafe {{...}} public
@@ -121,7 +118,7 @@ unsafePerform f = f {{trustMe}}
 -- Function primitives
 -------------------------------------------------------------------------------
 
-the : (a : Type) -> a -> a
+the : (a : Set) -> a -> a
 the _ x = x
 
 const : a -> b -> a
@@ -158,7 +155,7 @@ seq a b = const b $! a
 -- Bool primitives
 -------------------------------------------------------------------------------
 
-Assert : Bool -> Type
+Assert : Bool -> Set
 Assert False = Unsafe
 Assert True = Unit
 
@@ -274,7 +271,7 @@ private
 -- Eq
 -------------------------------------------------------------------------------
 
-record Eq (a : Type) : Type where
+record Eq (a : Set) : Set where
   infix 4 _==_
   field _==_ : a -> a -> Bool
 
@@ -335,7 +332,7 @@ instance
 -- Ord
 -------------------------------------------------------------------------------
 
-record Ord (a : Type) : Type where
+record Ord (a : Set) : Set where
   field
     overlap {{Eq-super}} : Eq a
     compare : a -> a -> Ordering
@@ -425,9 +422,9 @@ instance
 -- FromNat
 -------------------------------------------------------------------------------
 
-record FromNat (a : Type) : Type where
+record FromNat (a : Set) : Set where
   field
-    FromNatConstraint : Nat -> Type
+    FromNatConstraint : Nat -> Set
     fromNat : (n : Nat) -> {{FromNatConstraint n}} -> a
 
 open FromNat {{...}} public
@@ -444,9 +441,9 @@ instance
 -- ToNat
 -------------------------------------------------------------------------------
 
-record ToNat (a : Type) : Type where
+record ToNat (a : Set) : Set where
   field
-    ToNatConstraint : a -> Type
+    ToNatConstraint : a -> Set
     toNat : (x : a) -> {{ToNatConstraint x}} -> Nat
 
 open ToNat {{...}} public
@@ -455,9 +452,9 @@ open ToNat {{...}} public
 -- FromNeg
 -------------------------------------------------------------------------------
 
-record FromNeg (a : Type) : Type where
+record FromNeg (a : Set) : Set where
   field
-    FromNegConstraint : Nat -> Type
+    FromNegConstraint : Nat -> Set
     fromNeg : (n : Nat) -> {{FromNegConstraint n}} -> a
 
 open FromNeg {{...}} public
@@ -469,21 +466,21 @@ open FromNeg {{...}} public
 -- Validation
 -------------------------------------------------------------------------------
 
-record Validation (v a : Type) : Type where
+record Validation (v a : Set) : Set where
   field
-    validate : (u : Type) -> {{u === v}} -> a -> Bool
+    validate : (u : Set) -> {{u === v}} -> a -> Bool
 
-  Validate : (u : Type) -> {{u === v}} -> a -> Type
+  Validate : (u : Set) -> {{u === v}} -> a -> Set
   Validate u x = Assert (validate u x)
 
 open Validation {{...}} public
 
-data Not (v : Type) : Type where
-data Or (l r : Type) : Type where
-data And (l r : Type) : Type where
-data Positive : Type where
-data NonZero : Type where
-data NonEmpty : Type where
+data Not (v : Set) : Set where
+data Or (l r : Set) : Set where
+data And (l r : Set) : Set where
+data Positive : Set where
+data NonZero : Set where
+data NonEmpty : Set where
 
 instance
   Validation-Not : {{Validation v a}} -> Validation (Not v) a
@@ -512,7 +509,7 @@ instance
 -- Refined
 -------------------------------------------------------------------------------
 
-record Refined (v a : Type) {{_ : Validation v a}} : Type where
+record Refined (v a : Set) {{_ : Validation v a}} : Set where
   constructor Refined:
   field
     unrefine : a
@@ -524,7 +521,7 @@ open Refined public
 -- Num
 -------------------------------------------------------------------------------
 
-record Num (a : Type) : Type where
+record Num (a : Set) : Set where
   infixl 6 _+_
   infixl 6 _-_
   infixl 7 _*_
@@ -534,10 +531,10 @@ record Num (a : Type) : Type where
     _-_ : a -> a -> a
     _*_ : a -> a -> a
 
-  FromZero : (b : Type) -> {{a === b}} -> Type
+  FromZero : (b : Set) -> {{a === b}} -> Set
   FromZero _ = FromNatConstraint {{super}} Zero
 
-  FromOne : (b : Type) -> {{a === b}} -> Type
+  FromOne : (b : Set) -> {{a === b}} -> Set
   FromOne _ = FromNatConstraint {{super}} (Suc Zero)
 
   times : {{FromZero _}} -> Nat -> a -> a
@@ -561,7 +558,7 @@ instance
 -- Signed
 -------------------------------------------------------------------------------
 
-record Signed (a : Type) : Type where
+record Signed (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
     overlap {{FromNeg-super}} : FromNeg a
@@ -575,7 +572,7 @@ open Signed {{...}} public
 -- Integral
 -------------------------------------------------------------------------------
 
-record Integral (a : Type) : Type where
+record Integral (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
     overlap {{Validation-NonZero-super}} : Validation NonZero a
@@ -595,7 +592,7 @@ instance
 -- Fractional
 -------------------------------------------------------------------------------
 
-record Fractional (a : Type) : Type where
+record Fractional (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
     overlap {{Validation-NonZero-super}} : Validation NonZero a
@@ -607,7 +604,7 @@ open Fractional {{...}} public
 -- Semigroup
 -------------------------------------------------------------------------------
 
-record Semigroup (a : Type) : Type where
+record Semigroup (a : Set) : Set where
   infixr 5 _<>_
   field _<>_ : a -> a -> a
 
@@ -657,7 +654,7 @@ instance
 -- Monoid
 -------------------------------------------------------------------------------
 
-record Monoid (a : Type) : Type where
+record Monoid (a : Set) : Set where
   field
     overlap {{Semigroup-super}} : Semigroup a
     neutral : a
@@ -690,7 +687,7 @@ instance
 -- Category
 -------------------------------------------------------------------------------
 
-record Category (p : Type -> Type -> Type) : Type where
+record Category (p : Set -> Set -> Set) : Set where
   infixr 9 _<<<_
   field
     _<<<_ : p b c -> p a b -> p a c
@@ -711,7 +708,7 @@ instance
 -- Functor
 -------------------------------------------------------------------------------
 
-record Functor (f : Type -> Type) : Type where
+record Functor (f : Set -> Set) : Set where
   field map : (a -> b) -> f a -> f b
 
   infixl 4 _<$>_
@@ -759,7 +756,7 @@ instance
 -- Contravariant
 -------------------------------------------------------------------------------
 
-record Contravariant (f : Type -> Type) : Type where
+record Contravariant (f : Set -> Set) : Set where
   field cmap : (a -> b) -> f b -> f a
 
   phantom : {{Functor f}} -> f a -> f b
@@ -771,7 +768,7 @@ open Contravariant {{...}} public
 -- Bifunctor
 -------------------------------------------------------------------------------
 
-record Bifunctor (p : Type -> Type -> Type) : Type where
+record Bifunctor (p : Set -> Set -> Set) : Set where
   field
     overlap {{Functor-super}} : Functor (p a)
     lmap : (a -> b) -> p a c -> p b c
@@ -792,7 +789,7 @@ instance
 -- Profunctor
 -------------------------------------------------------------------------------
 
-record Profunctor (p : Type -> Type -> Type) : Type where
+record Profunctor (p : Set -> Set -> Set) : Set where
   field
     overlap {{Functor-super}} : Functor (p a)
     lcmap : (b -> a) -> p a c -> p b c
@@ -813,7 +810,7 @@ instance
 -- Applicative
 -------------------------------------------------------------------------------
 
-record Applicative (f : Type -> Type) : Type where
+record Applicative (f : Set -> Set) : Set where
   infixl 4 _<*>_
   field
     overlap {{Functor-super}} : Functor f
@@ -882,7 +879,7 @@ instance
 -- Monad
 -------------------------------------------------------------------------------
 
-record Monad (m : Type -> Type) : Type where
+record Monad (m : Set -> Set) : Set where
   infixl 1 _>>=_
   field
     overlap {{Applicative-super}} : Applicative m

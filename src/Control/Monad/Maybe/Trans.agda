@@ -26,14 +26,14 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b : Type
-    m n : Type -> Type
+    a b : Set
+    m n : Set -> Set
 
 -------------------------------------------------------------------------------
 -- MaybeT
 -------------------------------------------------------------------------------
 
-record MaybeT (m : Type -> Type) (a : Type) : Type where
+record MaybeT (m : Set -> Set) (a : Set) : Set where
   constructor MaybeT:
   field runMaybeT : m (Maybe a)
 

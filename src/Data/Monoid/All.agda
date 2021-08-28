@@ -15,7 +15,7 @@ open import String.Show
 -------------------------------------------------------------------------------
 
 -- Bool monoid where x <> y = x && y.
-record All : Type where
+record All : Set where
   constructor All:
   field getAll : Bool
 

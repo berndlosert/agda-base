@@ -19,15 +19,15 @@ open import Data.Traversable
 
 private
   variable
-    a b : Type
-    f g : Type -> Type
+    a b : Set
+    f g : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Coyoneda
 -------------------------------------------------------------------------------
 
 -- This is the existensial version Yoneda f a.
-data Coyoneda (f : Type -> Type) (a : Type) : Type where
+data Coyoneda (f : Set -> Set) (a : Set) : Set where
   Coyoneda: : (b -> a) -> f b -> Coyoneda f a
 
 -- The coYoneda lemma states that f a ~= Coyoneda f a. The isomorphsim

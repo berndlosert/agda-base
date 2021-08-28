@@ -14,19 +14,19 @@ open import Prelude
 
 private
   variable
-    a x y : Type
-    b : a -> Type
-    m : Type -> Type
+    a x y : Set
+    b : a -> Set
+    m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- General
 -------------------------------------------------------------------------------
 
-data General (a : Type) (b : a -> Type) (x : Type) : Type where
+data General (a : Set) (b : a -> Set) (x : Set) : Set where
   Tell : x -> General a b x
   Ask : (i : a) -> (b i -> General a b x) -> General a b x
 
-PiG : (a : Type) -> (b : a -> Type) -> Type
+PiG : (a : Set) -> (b : a -> Set) -> Set
 PiG a b = (i : a) -> General a b (b i)
 
 general : (x -> y) -> ((i : a) -> (b i -> y) -> y) -> General a b x -> y

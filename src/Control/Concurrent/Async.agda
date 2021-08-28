@@ -20,15 +20,15 @@ open import Data.Traversable
 
 private
   variable
-    a b : Type
-    f t : Type -> Type
+    a b : Set
+    f t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Async
 -------------------------------------------------------------------------------
 
 postulate
-  Async : Type -> Type
+  Async : Set -> Set
   async : IO a -> IO (Async a)
   wait : Async a -> IO a
   waitAny : List (Async a) -> IO (Pair (Async a) a)
@@ -183,7 +183,7 @@ concurrently! l r = ignore (concurrently l r)
 -- Concurrently
 -------------------------------------------------------------------------------
 
-record Concurrently (a : Type) : Type where
+record Concurrently (a : Set) : Set where
   constructor Concurrently:
   field runConcurrently : IO a
 

@@ -13,14 +13,14 @@ open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
 
-private variable a b c : Type
+private variable a b c : Set
 
 -------------------------------------------------------------------------------
 -- Parser (definition and instances)
 -------------------------------------------------------------------------------
 
 abstract
-  Parser : Type -> Type
+  Parser : Set -> Set
   Parser = StateT String List
 
   parser : (String -> List (Pair String a)) -> Parser a

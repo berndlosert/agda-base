@@ -16,14 +16,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Dual
 -------------------------------------------------------------------------------
 
 -- For dual semigroups, monoids, etc.
-record Dual (a : Type) : Type where
+record Dual (a : Set) : Set where
   constructor Dual:
   field getDual : a
 

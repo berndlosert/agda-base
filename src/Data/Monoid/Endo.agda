@@ -16,13 +16,13 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Endo
 -------------------------------------------------------------------------------
 
-record Endo (a : Type) : Type where
+record Endo (a : Set) : Set where
   constructor Endo:
   field appEndo : a -> a
 

@@ -5,10 +5,10 @@ module Control.Comonad.Env where
 open import Control.Comonad
 open import Prelude
 
-private variable e : Type
+private variable e : Set
 
 -- The enivornment comonad. This is the dual of the Reader monad.
-Env : Type -> Type -> Type
+Env : Set -> Set -> Set
 Env e a = Pair e a
 
 instance

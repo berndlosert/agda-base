@@ -17,14 +17,14 @@ open import String.Show
 
 private
   variable
-    a : Type
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Sum
 -------------------------------------------------------------------------------
 
 -- For additive semigroups, monoids, etc.
-record Sum (a : Type) : Type where
+record Sum (a : Set) : Set where
   constructor Sum:
   field getSum : a
 

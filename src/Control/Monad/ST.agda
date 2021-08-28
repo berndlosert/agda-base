@@ -14,15 +14,15 @@ open import Prelude
 
 private
   variable
-    a b s : Type
+    a b s : Set
 
 -------------------------------------------------------------------------------
 -- ST
 -------------------------------------------------------------------------------
 
 postulate
-  ST : Type -> Type -> Type
-  -- N.B. Requires adding -XImpredicativeTypes to the --ghc-flag option when
+  ST : Set -> Set -> Set
+  -- N.B. Requires adding -XImpredicativeSets to the --ghc-flag option when
   -- compiling. Otherwise, you will get impredicativity errors.
   runST : (forall {s} -> ST s a) -> a
 
