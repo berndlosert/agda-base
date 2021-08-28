@@ -313,6 +313,9 @@ instance
     (NegSuc m) (NegSuc n) -> m == n
     _ _ -> False
 
+  Eq-Float : Eq Float
+  Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
+
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -408,6 +411,12 @@ instance
     (Pos _) (NegSuc _) -> GT
     (NegSuc _) (Pos _) -> LT
 
+  Ord-Float : Ord Float
+  Ord-Float .compare x y =
+    if x == y then EQ
+    else if Agda.Builtin.Float.primFloatLess x y then LT
+    else GT
+
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -454,6 +463,10 @@ instance
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
 
+  FromNat-Float : FromNat Float
+  FromNat-Float .FromNatConstraint _ = Unit
+  FromNat-Float .fromNat n = Agda.Builtin.Float.primNatToFloat n
+
 -------------------------------------------------------------------------------
 -- ToNat
 -------------------------------------------------------------------------------
@@ -490,6 +503,11 @@ instance
   Neg-Int .NegConstraint _ = Unit
   Neg-Int .neg 0 = Pos 0
   Neg-Int .neg (Suc n) = NegSuc n
+
+  Neg-Float : Neg Float
+  Neg-Float .NegConstraint _ = Unit
+  Neg-Float .neg n =
+    Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
 -- Validation
@@ -540,6 +558,12 @@ instance
   Validation-NonZero-Int .validate _ = \ where
     (Pos 0) -> False
     _ -> True
+
+  Validation-Positive-Float : Validation Positive Float
+  Validation-Positive-Float .validate _ x = x > 0.0
+
+  Validation-NonZero-Float : Validation NonZero Float
+  Validation-NonZero-Float .validate _ x = x /= 0.0
 
   Validation-NonEmpty-List : Validation NonEmpty (List a)
   Validation-NonEmpty-List .validate _ [] = False
@@ -614,6 +638,11 @@ instance
     (Pos n) (NegSuc m) -> neg (n * Suc m)
     (NegSuc n) (Pos m) -> neg (Suc n * m)
 
+  Num-Float : Num Float
+  Num-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+  Num-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+  Num-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+
 -------------------------------------------------------------------------------
 -- Signed
 -------------------------------------------------------------------------------
@@ -640,6 +669,14 @@ instance
   Signed-Int .signum (Pos _) = Pos 1
   Signed-Int .signum (NegSuc _) = NegSuc 0
 
+  Signed-Float : Signed Float
+  Signed-Float .-_ = Agda.Builtin.Float.primFloatNegate
+  Signed-Float .abs x = if x < 0.0 then - x else x
+  Signed-Float .signum x = case compare x 0.0 of \ where
+    LT -> -1.0
+    EQ -> 0.0
+    GT -> 1.0
+
 -------------------------------------------------------------------------------
 -- Integral
 -------------------------------------------------------------------------------
@@ -660,7 +697,6 @@ instance
   Integral-Nat .mod m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
   Integral-Nat .mod m 0 = undefined
 
-instance
   Integral-Int : Integral Int
   Integral-Int .div = \ where
     (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
@@ -686,6 +722,10 @@ record Fractional (a : Set) : Set where
     _/_ : (x y : a) -> {{Validate NonZero y}} -> a
 
 open Fractional {{...}} public
+
+instance
+  Fractional-Float : Fractional Float
+  Fractional-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup
