@@ -10,11 +10,26 @@ open import Prelude
 
 open import Data.Functor.Identity
 open import Data.Functor.Const
+open import Data.Monoid.All
+open import Data.Monoid.Any
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
 open import Data.Profunctor.Choice
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
+
+-------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Functor.Identity public
+open Data.Functor.Const public
+open Data.Monoid.All public
+open Data.Monoid.Any public
+open Data.Monoid.Dual public
+open Data.Monoid.Endo public
+open Data.Semigroup.First public
+open Data.Semigroup.Last public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -23,16 +38,7 @@ open import Data.Semigroup.Last
 private
   variable
     a b c r s t : Set
-    f g : Set -> Set
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Functor.Identity public
-open Data.Functor.Const public
-open Data.Semigroup.First public
-open Data.Semigroup.Last public
+    f g m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Sets and type classes used for characterizing optics
@@ -167,8 +173,18 @@ foldlOf : Getting (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
 foldlOf l f z =
   map (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
 
+foldlMOf : {{Monad m}} -> Getting (Endo (r -> m r)) s a
+  -> (r -> a -> m r) -> r -> s -> m r
+foldlMOf l f z0 xs = foldrOf l (\ x k z -> f z x >>= k) pure xs z0
+
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
+
+has : Getting Any s a -> s -> Bool
+has l = getAny <<< foldMapOf l (\ _ -> Any: True)
+
+hasn't : Getting All s a -> s -> Bool
+hasn't l = getAll <<< foldMapOf l (\ _ -> All: False)
 
 lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> Suc n) Zero
@@ -181,6 +197,9 @@ firstOf l = getFirst <<< foldMapOf l First:
 
 lastOf : Getting (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l Last:
+
+findOf : Getting (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
+findOf l p = foldrOf l (\ x y -> if p x then Just x else y) Nothing
 
 traverseOf! : {{Functor f}}
   -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
