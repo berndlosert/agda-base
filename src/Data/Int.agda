@@ -9,19 +9,6 @@ module Data.Int where
 open import Prelude
 
 -------------------------------------------------------------------------------
--- Functions
--------------------------------------------------------------------------------
-
-neg : Nat -> Int
-neg 0 = Pos 0
-neg (Suc n) = NegSuc n
-
-diff : Nat -> Nat -> Int
-diff m Zero = Pos m
-diff Zero (Suc n) = NegSuc n
-diff (Suc m) (Suc n) = diff m n
-
--------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
@@ -48,9 +35,10 @@ instance
   ToNat-Int .toNat (Pos n) = n
   ToNat-Int .toNat (NegSuc n) = 0
 
-  FromNeg-Int : FromNeg Int
-  FromNeg-Int .FromNegConstraint _ = Unit
-  FromNeg-Int .fromNeg n = neg n
+  Neg-Int : Neg Int
+  Neg-Int .NegConstraint _ = Unit
+  Neg-Int .neg 0 = Pos 0
+  Neg-Int .neg (Suc n) = NegSuc n
 
   Validation-Positive-Int : Validation Positive Int
   Validation-Positive-Int .validate _ = \ where
@@ -65,12 +53,17 @@ instance
 
   Num-Int : Num Int
   Num-Int ._+_ = \ where
-    (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
-    (NegSuc m) (Pos n) -> diff n (Suc m)
-    (Pos m) (NegSuc n) -> diff m (Suc n)
-    (Pos m) (Pos n) -> Pos (m + n)
+      (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+      (NegSuc m) (Pos n) -> diff n (Suc m)
+      (Pos m) (NegSuc n) -> diff m (Suc n)
+      (Pos m) (Pos n) -> Pos (m + n)
+    where
+      diff : Nat -> Nat -> Int
+      diff m Zero = Pos m
+      diff Zero (Suc n) = NegSuc n
+      diff (Suc m) (Suc n) = diff m n
   Num-Int ._-_ = \ where
-    m (Pos n) -> m + neg n
+    m (Pos n) -> m + (neg n)
     m (NegSuc n) -> m + Pos (Suc n)
   Num-Int ._*_ = \ where
     (Pos n) (Pos m) -> Pos (n * m)
