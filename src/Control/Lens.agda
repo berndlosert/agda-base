@@ -8,16 +8,13 @@ module Control.Lens where
 
 open import Prelude
 
-open import Data.Foldable
 open import Data.Functor.Identity
 open import Data.Functor.Const
-open import Data.List as List using ()
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
 open import Data.Profunctor.Choice
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
-open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -167,7 +164,8 @@ foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l f z = flip appEndo z <<< foldMapOf l (Endo: <<< f)
 
 foldlOf : Getting (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
-foldlOf l f z = map (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
+foldlOf l f z =
+  map (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
 
 toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
@@ -266,9 +264,6 @@ is ap = not <<< isn't ap
 mapped : {{Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 
-traversed : {{Traversable f}} -> Traversal (f a) (f b) a b
-traversed = traverse
-
 record Folded (s a : Set) : Set where
   field folded : {{Monoid r}} -> Getting r s a
 
@@ -276,8 +271,8 @@ open Folded {{...}} public
 
 instance
   Folded-List : Folded (List a) a
-  Folded-List .folded f xs =
-    Const: $ foldr (\ x y -> getConst (f x) <> y) neutral xs
+  Folded-List .folded f [] = neutral
+  Folded-List .folded f (x :: xs) = Const: (getConst $ f x) <> folded f xs
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b
@@ -289,15 +284,16 @@ instance
   Each-Pair .each f (a , b) = (| _,_ (f a) (f b) |)
 
   Each-Maybe : Each (Maybe a) (Maybe b) a b
-  Each-Maybe .each = traverse
+  Each-Maybe .each f Nothing = pure Nothing
+  Each-Maybe .each f (Just x) = map pure (f x)
 
   Each-Either : Each (Either a a) (Either b b) a b
   Each-Either .each f (Left a) = map Left (f a)
   Each-Either .each f (Right a) = map Right (f a)
 
   Each-List : Each (List a) (List b) a b
-  Each-List .each f = flip foldr (| [] |) \ where
-    x ys -> (| _::_ (f x) ys |)
+  Each-List .each f [] = pure []
+  Each-List .each f (x :: xs) = (| _::_ (f x) (each f xs) |)
 
 record Cons (s t a b : Set) : Set where
   field #Cons : Prism s t (Pair a s) (Pair b t)
