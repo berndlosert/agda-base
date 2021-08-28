@@ -8,6 +8,8 @@ module Data.Enum where
 
 open import Prelude
 
+open import Data.Char
+
 -------------------------------------------------------------------------------
 -- Enum
 -------------------------------------------------------------------------------
@@ -47,13 +49,13 @@ instance
       (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
       (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
-  --Enum-Char : Enum Char
-  --Enum-Char .suc c =
-  --  if c == maxChar
-  --    then Nothing
-  --    else fromNat <$> suc (ord c)
-  --Enum-Char .pred c =
-  --  if c == minChar
-  --    then Nothing
-  --    else natToChar <$> pred (ord c)
-  --Enum-Char .enumFromTo c d = fromNat <$> enumFromTo (ord c) (ord d)
+  Enum-Char : Enum Char
+  Enum-Char .suc c =
+    if c == maxChar
+      then Nothing
+      else chr <$> suc (ord c)
+  Enum-Char .pred c =
+    if c == minChar
+      then Nothing
+      else chr <$> pred (ord c)
+  Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)
