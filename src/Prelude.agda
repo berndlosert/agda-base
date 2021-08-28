@@ -307,6 +307,12 @@ instance
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
 
+  Eq-Int : Eq Int
+  Eq-Int ._==_ = \ where
+    (Pos m) (Pos n) -> m == n
+    (NegSuc m) (NegSuc n) -> m == n
+    _ _ -> False
+
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -395,6 +401,13 @@ instance
     else if Agda.Builtin.Nat._<_ m n then LT
     else GT
 
+  Ord-Int : Ord Int
+  Ord-Int .compare = \ where
+    (Pos m) (Pos n) -> compare m n
+    (NegSuc m) (NegSuc n) -> compare n m
+    (Pos _) (NegSuc _) -> GT
+    (NegSuc _) (Pos _) -> LT
+
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -437,6 +450,10 @@ instance
   FromNat-Nat .FromNatConstraint _ = Unit
   FromNat-Nat .fromNat n = n
 
+  FromNat-Int : FromNat Int
+  FromNat-Int .FromNatConstraint _ = Unit
+  FromNat-Int .fromNat n = Pos n
+
 -------------------------------------------------------------------------------
 -- ToNat
 -------------------------------------------------------------------------------
@@ -447,6 +464,12 @@ record ToNat (a : Set) : Set where
     toNat : (x : a) -> {{ToNatConstraint x}} -> Nat
 
 open ToNat {{...}} public
+
+instance
+  ToNat-Int : ToNat Int
+  ToNat-Int .ToNatConstraint _ = Unit
+  ToNat-Int .toNat (Pos n) = n
+  ToNat-Int .toNat (NegSuc n) = 0
 
 -------------------------------------------------------------------------------
 -- Neg
@@ -461,6 +484,12 @@ open Neg {{...}} public
 
 {-# BUILTIN FROMNEG neg #-}
 {-# DISPLAY Neg.neg _ n = neg n #-}
+
+instance
+  Neg-Int : Neg Int
+  Neg-Int .NegConstraint _ = Unit
+  Neg-Int .neg 0 = Pos 0
+  Neg-Int .neg (Suc n) = NegSuc n
 
 -------------------------------------------------------------------------------
 -- Validation
@@ -500,6 +529,17 @@ instance
 
   Validation-NonZero-Nat : Validation NonZero Nat
   Validation-NonZero-Nat .validate _ = validate Positive
+
+  Validation-Positive-Int : Validation Positive Int
+  Validation-Positive-Int .validate _ = \ where
+    (Pos 0) -> False
+    (NegSuc _) -> False
+    _ -> True
+
+  Validation-NonZero-Int : Validation NonZero Int
+  Validation-NonZero-Int .validate _ = \ where
+    (Pos 0) -> False
+    _ -> True
 
   Validation-NonEmpty-List : Validation NonEmpty (List a)
   Validation-NonEmpty-List .validate _ [] = False
@@ -554,6 +594,26 @@ instance
   Num-Nat ._-_ = Agda.Builtin.Nat._-_
   Num-Nat ._*_ = Agda.Builtin.Nat._*_
 
+  Num-Int : Num Int
+  Num-Int ._+_ = \ where
+      (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+      (NegSuc m) (Pos n) -> diff n (Suc m)
+      (Pos m) (NegSuc n) -> diff m (Suc n)
+      (Pos m) (Pos n) -> Pos (m + n)
+    where
+      diff : Nat -> Nat -> Int
+      diff m Zero = Pos m
+      diff Zero (Suc n) = NegSuc n
+      diff (Suc m) (Suc n) = diff m n
+  Num-Int ._-_ = \ where
+    m (Pos n) -> m + (neg n)
+    m (NegSuc n) -> m + Pos (Suc n)
+  Num-Int ._*_ = \ where
+    (Pos n) (Pos m) -> Pos (n * m)
+    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+    (Pos n) (NegSuc m) -> neg (n * Suc m)
+    (NegSuc n) (Pos m) -> neg (Suc n * m)
+
 -------------------------------------------------------------------------------
 -- Signed
 -------------------------------------------------------------------------------
@@ -567,6 +627,18 @@ record Signed (a : Set) : Set where
     signum : a -> a
 
 open Signed {{...}} public
+
+instance
+  Signed-Int : Signed Int
+  Signed-Int .-_ = \ where
+    (Pos 0) -> Pos 0
+    (Pos (Suc n)) -> NegSuc n
+    (NegSuc n) -> Pos (Suc n)
+  Signed-Int .abs n@(Pos _) = n
+  Signed-Int .abs (NegSuc n) = Pos (Suc n)
+  Signed-Int .signum n@(Pos 0) = n
+  Signed-Int .signum (Pos _) = Pos 1
+  Signed-Int .signum (NegSuc _) = NegSuc 0
 
 -------------------------------------------------------------------------------
 -- Integral
@@ -587,6 +659,21 @@ instance
   Integral-Nat .div m 0 = undefined
   Integral-Nat .mod m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
   Integral-Nat .mod m 0 = undefined
+
+instance
+  Integral-Int : Integral Int
+  Integral-Int .div = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
+    (Pos m) (NegSuc n) -> neg (div m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
+    (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
+    _ _ -> undefined
+  Integral-Int .mod = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
+    (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (mod (Suc m) (Suc n))
+    _ _ -> undefined
 
 -------------------------------------------------------------------------------
 -- Fractional

@@ -10,7 +10,6 @@ open import Prelude
 
 open import Data.Enum
 open import Data.Float as Float using ()
-open import Data.Int as Int using ()
 open import Data.List as List using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()

@@ -8,7 +8,6 @@ module Data.Monoid.Product where
 
 open import Prelude
 
-open import Data.Int as Int using ()
 open import String.Show
 
 -------------------------------------------------------------------------------
