@@ -52,13 +52,13 @@ record Bits (a : Set) : Set where
   shiftL x i = shift x (Pos i)
 
   shiftR : a -> Nat -> a
-  shiftR x i = shift x (Int.neg i)
+  shiftR x i = shift x (neg i)
 
   rotateL : a -> Nat -> a
   rotateL x i = rotate x (Pos i)
 
   rotateR : a -> Nat -> a
-  rotateR x i = rotate x (Int.neg i)
+  rotateR x i = rotate x (neg i)
 
   countLeadingZeros : a -> Nat
   countLeadingZeros x = bitSize-1 - go bitSize-1

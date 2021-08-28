@@ -40,7 +40,7 @@ instance
 
   Enum-Int : Enum Int
   Enum-Int .suc (Pos n) = Just $ Pos (Suc n)
-  Enum-Int .suc (NegSuc n) = Just $ Int.neg n
+  Enum-Int .suc (NegSuc n) = Just $ neg n
   Enum-Int .pred (Pos 0) = Just $ NegSuc 0
   Enum-Int .pred (Pos (Suc n)) = Just $ Pos n
   Enum-Int .pred (NegSuc n) = Just $ NegSuc (Suc n)

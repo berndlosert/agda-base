@@ -212,7 +212,10 @@ nat = chainl1
     (pure \ m n -> 10 * m + n)
 
 int : Parser Int
-int = (| Int.neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
+int = (| neg' (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
+  where
+    neg' : Nat -> Int
+    neg' x = neg x
 
 -------------------------------------------------------------------------------
 -- Misc. parsers
