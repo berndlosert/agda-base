@@ -10,6 +10,7 @@ open import Prelude
 
 open import Data.Foldable
 open import Data.Tree.Finger.Measured
+open import Data.Tree.Finger.Split
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -63,32 +64,32 @@ splitDigit : {{Measured v a }}
   -> (v -> Bool)
   -> v
   -> Digit a
-  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
-splitDigit _ i (One a) = (Nothing , a , Nothing)
+  -> Split (Maybe <<< Digit) a
+splitDigit _ i (One a) = Split: Nothing a Nothing
 splitDigit p i (Two a b) =
   let
     va = i <> measure a
   in
-    if p va then (Nothing , a , Just (One b))
-    else (Just (One a) , b , Nothing)
+    if p va then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
 splitDigit p i (Three a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then (Nothing , a , Just (Two b c))
-    else if p vab then (Just (One a) , b , Just (One c))
-    else (Just (Two a b) , c , Nothing)
+    if p va then Split: Nothing a (Just (Two b c))
+    else if p vab then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
 splitDigit p i (Four a b c d) =
   let
     va = i <> measure a
     vab = va <> measure b
     vabc = vab <> measure c
   in
-    if p va then (Nothing , a , Just (Three b c d))
-    else if p vab then (Just (One a) , b , Just (Two c d))
-    else if p vabc then (Just (Two a b) , c , Just (One d))
-    else (Just (Three a b c) , d , Nothing)
+    if p va then Split: Nothing a (Just (Three b c d))
+    else if p vab then Split: (Just (One a)) b (Just (Two c d))
+    else if p vabc then Split: (Just (Two a b)) c (Just (One d))
+    else Split: (Just (Three a b c)) d Nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -99,15 +100,15 @@ searchDigit : {{Measured v a}}
   -> v
   -> Digit a
   -> v
-  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
-searchDigit _ vl (One a) vr = (Nothing , a , Nothing)
+  -> Split (Maybe <<< Digit) a
+searchDigit _ vl (One a) vr = Split: Nothing a Nothing
 searchDigit p vl (Two a b) vr =
   let
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then (Nothing , a , Just (One b))
-    else (Just (One a) , b , Nothing)
+    if p va vb then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
 searchDigit p vl (Three a b c) vr =
   let
     va = vl <> measure a
@@ -115,9 +116,9 @@ searchDigit p vl (Three a b c) vr =
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then (Nothing , a , Just (Two b c))
-    else if p vab vc then (Just (One a) , b , Just (One c))
-    else (Just (Two a b) , c , Nothing)
+    if p va vbc then Split: Nothing a (Just (Two b c))
+    else if p vab vc then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
 searchDigit p vl (Four a b c d) vr =
   let
     va = vl <> measure a
@@ -127,10 +128,10 @@ searchDigit p vl (Four a b c d) vr =
     vabc = vab <> measure c
     vbcd = measure b <> vcd
   in
-    if p va vbcd then (Nothing , a , Just (Three b c d))
-    else if p vab vcd then (Just (One a) , b , Just (Two c d))
-    else if p vabc vd then (Just (Two a b) , c , Just (One d))
-    else (Just (Three a b c) , d , Nothing)
+    if p va vbcd then Split: Nothing a (Just (Three b c d))
+    else if p vab vcd then Split: (Just (One a)) b (Just (Two c d))
+    else if p vabc vd then Split: (Just (Two a b)) c (Just (One d))
+    else Split: (Just (Three a b c)) d Nothing
 
 -------------------------------------------------------------------------------
 -- Misc.

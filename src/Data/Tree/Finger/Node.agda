@@ -10,6 +10,7 @@ open import Prelude
 
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
+open import Data.Tree.Finger.Split
 open import Data.Foldable
 open import Data.Traversable
 
@@ -74,21 +75,21 @@ splitNode : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> Node v a
-  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
+  -> Split (Maybe <<< Digit) a
 splitNode p i (Node2 _ a b) =
   let
     va = i <> measure a
   in
-    if p va then (Nothing , a , Just (One b))
-    else (Just (One a) , b , Nothing)
+    if p va then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
 splitNode p i (Node3 _ a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then (Nothing , a , Just (Two b c))
-    else if p vab then (Just (One a) , b , Just (One c))
-    else (Just (Two a b) , c , Nothing)
+    if p va then Split: Nothing a (Just (Two b c))
+    else if p vab then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -99,14 +100,14 @@ searchNode : {{Measured v a}}
   -> v
   -> Node v a
   -> v
-  -> Pair (Pair (Maybe (Digit a)) a) (Maybe (Digit a))
+  -> Split (Maybe <<< Digit) a
 searchNode p vl (Node2 _ a b) vr =
   let
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then (Nothing , a , Just (One b))
-    else (Just (One a) , b , Nothing)
+    if p va vb then Split: Nothing a (Just (One b))
+    else Split: (Just (One a)) b Nothing
 searchNode p vl (Node3 _ a b c) vr =
   let
     va = vl <> measure a
@@ -114,9 +115,9 @@ searchNode p vl (Node3 _ a b c) vr =
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then (Nothing , a , Just (Two b c))
-    else if p vab vc then (Just (One a) , b , Just (One c))
-    else (Just (Two a b) , c , Nothing)
+    if p va vbc then Split: Nothing a (Just (Two b c))
+    else if p vab vc then Split: (Just (One a)) b (Just (One c))
+    else Split: (Just (Two a b)) c Nothing
 
 -------------------------------------------------------------------------------
 -- Misc.
