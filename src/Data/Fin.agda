@@ -24,10 +24,10 @@ data Fin (n : Nat) : Set where
 module _ {n : Nat} {{_ : Validate NonZero n}} where
   instance
     Eq-Fin : Eq (Fin n)
-    Eq-Fin ._==_ (Fin: k) (Fin: m) = mod k n == mod m n
+    Eq-Fin ._==_ (Fin: k) (Fin: m) = rem k n == rem m n
 
     Ord-Fin : Ord (Fin n)
-    Ord-Fin .compare (Fin: k) (Fin: m) = compare (mod k n) (mod m n)
+    Ord-Fin .compare (Fin: k) (Fin: m) = compare (rem k n) (rem m n)
 
     FromNat-Fin : FromNat (Fin n)
     FromNat-Fin .FromNatConstraint _ = Unit
@@ -35,13 +35,13 @@ module _ {n : Nat} {{_ : Validate NonZero n}} where
 
     ToNat-Fin : ToNat (Fin n)
     ToNat-Fin .ToNatConstraint _ = Unit
-    ToNat-Fin .toNat (Fin: m) = mod m n
+    ToNat-Fin .toNat (Fin: m) = rem m n
 
     Num-Fin : Num (Fin n)
-    Num-Fin ._+_ (Fin: k) (Fin: m) = Fin: $ mod (k + m) n
+    Num-Fin ._+_ (Fin: k) (Fin: m) = Fin: $ rem (k + m) n
     Num-Fin ._-_ (Fin: k) (Fin: m) =
-      Fin: $ if k >= m then mod (k - m) n else n - mod (m - k) n
-    Num-Fin ._*_ (Fin: k) (Fin: m) = Fin: $ mod (k * m) n
+      Fin: $ if k >= m then rem (k - m) n else n - rem (m - k) n
+    Num-Fin ._*_ (Fin: k) (Fin: m) = Fin: $ rem (k * m) n
 
     Show-Fin : Show (Fin n)
     Show-Fin .showsPrec _ m = showString $ show $ toNat m

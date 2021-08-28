@@ -685,30 +685,30 @@ record Integral (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
     overlap {{Validation-NonZero-super}} : Validation NonZero a
-    div : (x y : a) -> {{Validate NonZero y}} -> a
-    mod : (x y : a) -> {{Validate NonZero y}} -> a
+    quot : (x y : a) -> {{Validate NonZero y}} -> a
+    rem : (x y : a) -> {{Validate NonZero y}} -> a
 
 open Integral {{...}} public
 
 instance
   Integral-Nat : Integral Nat
-  Integral-Nat .div m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
-  Integral-Nat .div m 0 = undefined
-  Integral-Nat .mod m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
-  Integral-Nat .mod m 0 = undefined
+  Integral-Nat .quot m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  Integral-Nat .quot m 0 = undefined
+  Integral-Nat .rem m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  Integral-Nat .rem m 0 = undefined
 
   Integral-Int : Integral Int
-  Integral-Int .div = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (div m n)
-    (Pos m) (NegSuc n) -> neg (div m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (div (Suc m) n)
-    (NegSuc m) (NegSuc n) -> Pos (div (Suc m) (Suc n))
+  Integral-Int .quot = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (quot m n)
+    (Pos m) (NegSuc n) -> neg (quot m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (quot (Suc m) n)
+    (NegSuc m) (NegSuc n) -> Pos (quot (Suc m) (Suc n))
     _ _ -> undefined
-  Integral-Int .mod = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (mod m n)
-    (Pos m) (NegSuc n) -> Pos (mod m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (mod (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (mod (Suc m) (Suc n))
+  Integral-Int .rem = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (rem m n)
+    (Pos m) (NegSuc n) -> Pos (rem m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (rem (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (rem (Suc m) (Suc n))
     _ _ -> undefined
 
 -------------------------------------------------------------------------------

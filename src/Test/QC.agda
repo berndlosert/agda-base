@@ -331,7 +331,7 @@ quick : Config
 quick = record {
     maxTest = 100;
     maxFail = 1000;
-    size = \ n -> div n 2 + 3;
+    size = \ n -> quot n 2 + 3;
     every = \ n args ->
       let s = show n in
       s <> String.replicate (String.length s) "\b"
@@ -362,7 +362,7 @@ private
 
       percentage : Nat -> Nat -> String
       percentage n 0 = undefined -- No worries; we'll never use this case
-      percentage n m@(Suc _) = show (div (100 * n) m) <> "%"
+      percentage n m@(Suc _) = show (quot (100 * n) m) <> "%"
 
       entry : Pair Nat (List String) -> String
       entry (n , s) = percentage n ntest

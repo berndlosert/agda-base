@@ -58,8 +58,8 @@ genWord64s (Suc n) g0 =
 genNat : {{RandomGen g}} -> Nat -> g -> Pair Nat g
 genNat n g0 =
   let
-    q = div n 64
-    r = mod n 64
+    q = quot n 64
+    r = rem n 64
     mask = shiftR oneBits (64 - r)
     (ws , g) = genWord64s (q + 1) g0
   in
@@ -74,7 +74,7 @@ genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
     log2 0 = 1
-    log2 m = 1 + log2 (div m 2)
+    log2 m = 1 + log2 (quot m 2)
 
     k = log2 n
 
