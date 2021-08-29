@@ -165,21 +165,34 @@ abstract
 -------------------------------------------------------------------------------
 
   indicesl : (a -> Bool) -> Seq a -> List Nat
-  indicesl p = ifoldr (\ n x ns -> if p x then n :: ns else ns) []
+  indicesl {a} p = ifoldr go []
+    where
+      go : Nat -> a -> List Nat -> List Nat
+      go n x ns = if p x then n :: ns else ns
 
   indicesr : (a -> Bool) -> Seq a -> List Nat
-  indicesr p = ifoldl (\ ns n x -> if p x then n :: ns else ns) []
+  indicesr {a} p = ifoldl go []
+    where
+      go : List Nat -> Nat -> a -> List Nat
+      go ns n x = if p x then n :: ns else ns
 
   filter : (a -> Bool) -> Seq a -> Seq a
-  filter p = foldl (\ xs x -> if p x then snoc xs x else xs) empty
+  filter {a} p = foldl go empty
+    where
+      go : Seq a -> a -> Seq a
+      go xs x = if p x then snoc xs x else xs
 
   filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
-  filterA p = flip foldr (pure empty) \ where
-      x xs -> (| if_then_else_ (p x) (| (cons x) xs |) xs |)
+  filterA {f} {a} p = foldr go (pure empty)
+    where
+      go : a -> f (Seq a) -> f (Seq a)
+      go x xs = (| if_then_else_ (p x) (| (cons x) xs |) xs |)
 
   partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-  partition p = flip foldl (empty , empty) \ where
-    (xs , ys) x -> if p x then (snoc xs x , ys) else (xs , snoc ys x)
+  partition {a} p = foldl go (empty , empty)
+    where
+      go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
+      go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
 -------------------------------------------------------------------------------
 -- Indexed functions
