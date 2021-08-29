@@ -150,13 +150,13 @@ record Foldable (t : Set -> Set) : Set where
 
     foldMap1 : {{Semigroup b}}
       -> (a -> b) -> (xs : t a) -> {{Validate NonEmpty xs}} -> b
-    foldMap1 f s = fromJust (foldMap (Just <<< f) s) {{trustMe}}
+    foldMap1 f xs = fromJust (foldMap (Just <<< f) xs) {{trustMe}}
 
     fold1 : {{Semigroup a}} -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    fold1 s = fromJust (foldMap Just s) {{trustMe}}
+    fold1 xs = fromJust (foldMap Just xs) {{trustMe}}
 
     foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    foldr1 f s = fromJust (foldr go Nothing s) {{trustMe}}
+    foldr1 f xs = fromJust (foldr go Nothing xs) {{trustMe}}
       where
         go : a -> Maybe a -> Maybe a
         go x Nothing = Just x
