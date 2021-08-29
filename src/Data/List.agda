@@ -97,9 +97,11 @@ reverse : List a -> List a
 reverse = foldl (flip cons) []
 
 intersperse : a -> List a -> List a
-intersperse sep = flip foldr [] \ where
-  x [] -> singleton x
-  x xs -> x :: sep :: xs
+intersperse {a} sep = foldr go []
+  where
+    go : a -> List a -> List a
+    go x [] = singleton x
+    go x xs = x :: sep :: xs
 
 -------------------------------------------------------------------------------
 -- Extracting sublists
@@ -173,7 +175,10 @@ insertAt _ _ [] = []
 -------------------------------------------------------------------------------
 
 inits : List a -> List (List a)
-inits = foldr (\ x ys -> singleton [] <> map (x ::_) ys) (singleton [])
+inits {a} = foldr go (singleton [])
+  where
+    go : a -> List (List a) -> List (List a)
+    go x xss = singleton [] <> map (x ::_) xss
 
 tails : List a -> List (List a)
 tails [] = singleton []
