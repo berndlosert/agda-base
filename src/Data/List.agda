@@ -178,11 +178,11 @@ inits : List a -> List (List a)
 inits {a} = foldr go (singleton [])
   where
     go : a -> List (List a) -> List (List a)
-    go x xss = singleton [] <> map (x ::_) xss
+    go x xss = [] :: map (x ::_) xss
 
 tails : List a -> List (List a)
 tails [] = singleton []
-tails xs@(_ :: xs') = singleton xs <> tails xs'
+tails xs@(_ :: xs') = xs :: tails xs'
 
 segments : List a -> List (List a)
 segments xs = singleton [] <>
