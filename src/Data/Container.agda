@@ -20,6 +20,25 @@ record Container : Set where
 
 open Container public
 
+Id : Container
+Id .Shape = Unit
+Id .Position = const Unit
+
+Const : Set -> Container
+Const a .Shape = a
+Const a .Position = const Void
+
+Sum : Container -> Container -> Container
+Sum c d .Shape = Either (Shape c) (Shape d)
+Sum c d .Position = \ where
+  (Left s) -> Position c s
+  (Right s) -> Position d s
+
+Product : Container -> Container -> Container
+Product c d .Shape = Pair (Shape c) (Shape d)
+Product c d .Position = \ where
+  (s , t) -> Either (Position c s) (Position d t)
+
 -------------------------------------------------------------------------------
 -- Extension
 -------------------------------------------------------------------------------
