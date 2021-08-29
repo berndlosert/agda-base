@@ -53,14 +53,3 @@ ord = primCharToNat
 
 chr : Nat -> Char
 chr n = primNatToChar $ min n (ord maxChar)
-
--------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Eq-Char : Eq Char
-  Eq-Char ._==_ = primCharEquality
-
-  Ord-Char : Ord Char
-  Ord-Char .compare l r = compare (ord l) (ord r)

@@ -316,6 +316,12 @@ instance
   Eq-Float : Eq Float
   Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
 
+  Eq-Char : Eq Char
+  Eq-Char ._==_ = Agda.Builtin.Char.primCharEquality
+
+  Eq-String : Eq String
+  Eq-String ._==_ = Agda.Builtin.String.primStringEquality
+
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
@@ -417,6 +423,11 @@ instance
     else if Agda.Builtin.Float.primFloatLess x y then LT
     else GT
 
+  Ord-Char : Ord Char
+  Ord-Char .compare l r =
+    let ord = Agda.Builtin.Char.primCharToNat
+    in compare (ord l) (ord r)
+
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List .compare [] [] = EQ
   Ord-List .compare [] (x :: xs) = LT
@@ -426,6 +437,11 @@ instance
       LT -> LT
       GT -> GT
       EQ -> compare xs ys
+
+  Ord-String : Ord String
+  Ord-String .compare l r =
+    let unpack = Agda.Builtin.String.primStringToList
+    in compare (unpack l) (unpack r)
 
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
   Ord-Pair .compare (x , y) (w , z) =
@@ -565,6 +581,10 @@ instance
   Validation-NonZero-Float : Validation NonZero Float
   Validation-NonZero-Float .validate _ x = x /= 0.0
 
+  Validation-NonEmpty-String : Validation NonEmpty String
+  Validation-NonEmpty-String .validate _ "" = False
+  Validation-NonEmpty-String .validate _ _ = True
+
   Validation-NonEmpty-List : Validation NonEmpty (List a)
   Validation-NonEmpty-List .validate _ [] = False
   Validation-NonEmpty-List .validate _ _ = True
@@ -580,6 +600,15 @@ record Refined (v a : Set) {{_ : Validation v a}} : Set where
     {validation} : Validate v unrefine
 
 open Refined public
+
+Nat1 : Set
+Nat1 = Refined NonZero Nat
+
+String1 : Set
+String1 = Refined NonEmpty String
+
+List1 : Set -> Set
+List1 a = Refined NonEmpty (List a)
 
 -------------------------------------------------------------------------------
 -- Num
@@ -750,6 +779,9 @@ instance
     EQ y -> y
     GT _ -> GT
 
+  Semigroup-String : Semigroup String
+  Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
+
   Semigroup-Function : {{Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
 
@@ -794,6 +826,9 @@ instance
 
   Monoid-Ordering : Monoid Ordering
   Monoid-Ordering .neutral = EQ
+
+  Monoid-String : Monoid String
+  Monoid-String .neutral = ""
 
   Monoid-Function : {{Monoid b}} -> Monoid (a -> b)
   Monoid-Function .neutral = const neutral

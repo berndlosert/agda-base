@@ -21,27 +21,6 @@ private
     a : Set
 
 -------------------------------------------------------------------------------
--- Instances
--------------------------------------------------------------------------------
-
-instance
-  Eq-String : Eq String
-  Eq-String ._==_ = primStringEquality
-
-  Ord-String : Ord String
-  Ord-String .compare l r = compare (primStringToList l) (primStringToList r)
-
-  Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = primStringAppend
-
-  Monoid-String : Monoid String
-  Monoid-String .neutral = ""
-
-  Validation-NonEmpty-String : Validation NonEmpty String
-  Validation-NonEmpty-String .validate _ "" = False
-  Validation-NonEmpty-String .validate _ _ = True
-
--------------------------------------------------------------------------------
 -- Creation and elimination
 -------------------------------------------------------------------------------
 
@@ -51,7 +30,7 @@ pack = primStringFromList
 unpack : String -> List Char
 unpack = primStringToList
 
-unpack1 : Refined NonEmpty String -> Refined NonEmpty (List Char)
+unpack1 : String1 -> List1 Char
 unpack1 (Refined: s) = case unpack s of \ where
   cs@(_ :: _) -> Refined: cs
   [] -> undefined
@@ -95,7 +74,7 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : Refined NonEmpty String -> String
+init : String1 -> String
 init s = pack $ List.init $ unpack1 s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
@@ -184,7 +163,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -- Breaking into many substrings
 -------------------------------------------------------------------------------
 
-splitOn : Refined NonEmpty String -> String -> List String
+splitOn : String1 -> String -> List String
 splitOn delim s = map pack $ List.splitOn (unpack1 delim) (unpack s)
 
 split : (Char -> Bool) -> String -> List String

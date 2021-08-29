@@ -111,15 +111,14 @@ oneof gs = do
   n <- choose (0 , length gs - 1)
   fromJust (List.at n gs) {{trustMe}}
 
-frequency : (xs : List (Pair (Refined Positive Nat) (Gen a)))
-  -> {{Validate NonEmpty xs}} -> Gen a
+frequency : List1 (Pair Nat1 (Gen a)) -> Gen a
 frequency xs =
-    let xs' = map (bimap unrefine id) xs
-    in choose (1 , sum (map fst xs')) >>= flip pick xs'
+    let xs' = map (bimap unrefine id) (unrefine xs)
+    in choose (1 , sum (map fst xs')) >>= unsafePerform (flip pick) xs'
   where
-    pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
+    pick : {{Unsafe}} -> Nat -> List (Pair Nat (Gen a)) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
-    pick n [] = undefined -- No worries. We'll never see this case.
+    pick _ _ = undefined
 
 elements : (xs : List a) -> {{Validate NonEmpty xs}} -> Gen a
 elements xs = map
