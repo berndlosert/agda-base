@@ -103,7 +103,7 @@ open Partial {{...}} public
 
 postulate
   trustMe : a
-  error : {{Partial}} -> String -> a
+  error : String -> a
 
 undefined : {{Partial}} -> a
 undefined = error "Prelude.undefined"
@@ -112,7 +112,7 @@ unsafePerform : ({{Partial}} -> a) -> a
 unsafePerform x = x {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text #-}
-{-# COMPILE GHC error = \ _ _ s -> error (Data.Text.unpack s) #-}
+{-# COMPILE GHC error = \ _ s -> error (Data.Text.unpack s) #-}
 
 -------------------------------------------------------------------------------
 -- Function primitives
@@ -788,6 +788,10 @@ record Functor (f : Set -> Set) : Set where
   infixl 4 _<$>_
   _<$>_ : (a -> b) -> f a -> f b
   _<$>_ = map
+
+  infixl 1 _<#>_
+  _<#>_ : f a -> (a -> b) -> f b
+  _<#>_ = flip map
 
   infixl 4 _<$_
   _<$_ : b -> f a -> f b
