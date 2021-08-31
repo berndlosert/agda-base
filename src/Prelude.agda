@@ -967,9 +967,21 @@ record Monad (m : Set -> Set) : Set where
     overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
 
+  infixl 1 _=<<_
+  _=<<_ : (a -> m b) -> m a -> m b
+  _=<<_ = flip _>>=_
+
   infixl 4 _>>_
   _>>_ : m a -> m b -> m b
   _>>_ = _*>_
+
+  infixr 1 _<=<_
+  _<=<_ : (b -> m c) -> (a -> m b) -> a -> m c
+  _<=<_ f g x = g x >>= f
+
+  infixr 1 _>=>_
+  _>=>_ : (a -> m b) -> (b -> m c) -> a -> m c
+  _>=>_ = flip _<=<_
 
   join : m (m a) -> m a
   join = _>>= id
