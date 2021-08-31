@@ -53,8 +53,8 @@ many a = many1 a <|> pure []
 optional : Parser a -> Parser (Maybe a)
 optional a = (| Just a | Nothing |)
 
-eitherP : Parser a -> Parser b -> Parser (Either a b)
-eitherP a b = (| Left a | Right b |)
+choose : Parser a -> Parser b -> Parser (Either a b)
+choose a b = (| Left a | Right b |)
 
 choice : List (Parser a) -> Parser a
 choice ps = List.foldr _<|>_ empty ps
