@@ -66,13 +66,13 @@ build g = g _::_ []
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : {{Partial}} -> List a -> a
-head [] = undefined
-head (x :: _) = x
+head : List a -> Maybe a
+head [] = Nothing
+head (x :: _) = Just x
 
-tail : {{Partial}} -> List a -> List a
-tail [] = undefined
-tail (_ :: xs) = xs
+tail : List a -> Maybe (List a)
+tail [] = Nothing
+tail (_ :: xs) = Just xs
 
 uncons : List a -> Maybe (Pair a (List a))
 uncons [] = Nothing
@@ -85,10 +85,10 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : {{Partial}} -> List a -> List a
-init [] = undefined
-init (x :: []) = []
-init (x :: x' :: xs) = x :: init (x' :: xs)
+init : List a -> Maybe (List a)
+init [] = Nothing
+init (x :: []) = Just []
+init (x :: x' :: xs) = (| _::_ (Just x) (init (x' :: xs)) |)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -147,9 +147,9 @@ indexed xs = go 0 xs
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
-at : {{Partial}} -> Nat -> List a -> a
+at : Nat -> List a -> Maybe a
 at 0 xs = head xs
-at (Suc n) [] = undefined
+at (Suc n) [] = Nothing
 at (Suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
@@ -246,13 +246,13 @@ module _ {{_ : Eq a}} where
 
   isSubsequenceOf : List a -> List a -> Bool
   isSubsequenceOf xs ys =
-      unsafePerform $ maybe False (const True) (foldlM g ys xs)
+      maybe False (const True) (foldlM g ys xs)
     where
-      g : {{Partial}} -> List a -> a -> Maybe (List a)
+      g : List a -> a -> Maybe (List a)
       g s a = let s' = dropWhile (_/= a) s in
         case s' of \ where
           [] -> Nothing
-          _ -> Just (tail s')
+          _ -> tail s'
 
 -------------------------------------------------------------------------------
 -- Sublists
