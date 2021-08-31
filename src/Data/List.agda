@@ -66,13 +66,13 @@ build g = g _::_ []
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : List a -> Maybe a
-head [] = Nothing
-head (x :: _) = Just x
+head : {{Partial}} -> List a -> a
+head [] = undefined
+head (x :: _) = x
 
-tail : List a -> Maybe (List a)
-tail [] = Nothing
-tail (_ :: xs) = Just xs
+tail : {{Partial}} -> List a -> List a
+tail [] = undefined
+tail (_ :: xs) = xs
 
 uncons : List a -> Maybe (Pair a (List a))
 uncons [] = Nothing
@@ -147,9 +147,9 @@ indexed xs = go 0 xs
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
-at : Nat -> List a -> Maybe a
+at : {{Partial}} -> Nat -> List a -> a
 at 0 xs = head xs
-at (Suc n) [] = Nothing
+at (Suc n) [] = undefined
 at (Suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
@@ -245,13 +245,14 @@ module _ {{_ : Eq a}} where
     find (_== xs) (segmentsOfSize (length xs) ys)
 
   isSubsequenceOf : List a -> List a -> Bool
-  isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
+  isSubsequenceOf xs ys =
+      unsafePerform $ maybe False (const True) (foldlM g ys xs)
     where
-      g : List a -> a -> Maybe (List a)
+      g : {{Partial}} -> List a -> a -> Maybe (List a)
       g s a = let s' = dropWhile (_/= a) s in
-        if null s'
-          then Nothing
-          else tail s'
+        case s' of \ where
+          [] -> Nothing
+          _ -> Just (tail s')
 
 -------------------------------------------------------------------------------
 -- Sublists
@@ -399,10 +400,10 @@ permutations xs = do
 
 insertBy : (a -> a -> Ordering) -> a -> List a -> List a
 insertBy cmp x [] = x :: []
-insertBy cmp x (y :: xs) =
+insertBy cmp x ys@(y :: ys') =
   case cmp x y of \ where
-    LT -> x :: y :: xs
-    _ -> y :: insertBy cmp x xs
+    GT -> y :: insertBy cmp x ys'
+    _ -> x :: ys
 
 sortBy : (a -> a -> Ordering) -> List a -> List a
 sortBy cmp [] = []
