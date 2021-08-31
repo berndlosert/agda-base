@@ -255,6 +255,32 @@ module _ {{_ : Eq a}} where
           _ -> tail s'
 
 -------------------------------------------------------------------------------
+-- Sorting
+-------------------------------------------------------------------------------
+
+insertBy : (a -> a -> Ordering) -> a -> List a -> List a
+insertBy cmp x [] = x :: []
+insertBy cmp x ys@(y :: ys') =
+  case cmp x y of \ where
+    GT -> y :: insertBy cmp x ys'
+    _ -> x :: ys
+
+sortBy : (a -> a -> Ordering) -> List a -> List a
+sortBy cmp [] = []
+sortBy cmp (x :: xs) = insertBy cmp x (sortBy cmp xs)
+
+module _ {{_ : Ord a}} where
+
+  insert : a -> List a -> List a
+  insert = insertBy compare
+
+  sort : List a -> List a
+  sort = sortBy compare
+
+  sortOn : (b -> a) -> List b -> List b
+  sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
+
+-------------------------------------------------------------------------------
 -- Sublists
 -------------------------------------------------------------------------------
 
@@ -277,6 +303,9 @@ groupBy {a} eq xs = unsafePerform $ fromJust (petrol go (length xs) xs)
 
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
+
+groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
+groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
 chunksOf : {{Partial}} -> Nat -> List a -> List (List a)
 chunksOf 0 _ = undefined
@@ -393,32 +422,6 @@ permutations [] = singleton []
 permutations xs = do
   (y , ys) <- leaveOutOne xs
   map (y ::_) (permutations ys)
-
--------------------------------------------------------------------------------
--- Sorting
--------------------------------------------------------------------------------
-
-insertBy : (a -> a -> Ordering) -> a -> List a -> List a
-insertBy cmp x [] = x :: []
-insertBy cmp x ys@(y :: ys') =
-  case cmp x y of \ where
-    GT -> y :: insertBy cmp x ys'
-    _ -> x :: ys
-
-sortBy : (a -> a -> Ordering) -> List a -> List a
-sortBy cmp [] = []
-sortBy cmp (x :: xs) = insertBy cmp x (sortBy cmp xs)
-
-module _ {{_ : Ord a}} where
-
-  insert : a -> List a -> List a
-  insert = insertBy compare
-
-  sort : List a -> List a
-  sort = sortBy compare
-
-  sortOn : (b -> a) -> List b -> List b
-  sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
 
 -------------------------------------------------------------------------------
 -- Searching
