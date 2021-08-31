@@ -895,6 +895,10 @@ record Applicative (f : Set -> Set) : Set where
     _<*>_ : f (a -> b) -> f a -> f b
     pure : a -> f a
 
+  infixl 4 _<**>_
+  _<**>_ : f a -> f (a -> b) -> f b
+  xs <**> fs = (| _#_ xs fs |)
+
   infixl 4 _*>_
   _*>_ : f a -> f b -> f b
   a *> b = (| (flip const) a b |)
