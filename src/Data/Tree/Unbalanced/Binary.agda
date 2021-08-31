@@ -55,10 +55,6 @@ instance
     <<< showString " "
     <<< showsPrec appPrec+1 r)
 
-  Validation-NonEmpty-Tree : Validation NonEmpty (Tree a)
-  Validation-NonEmpty-Tree .validate _ Leaf = False
-  Validation-NonEmpty-Tree .validate _ _ = True
-
 -------------------------------------------------------------------------------
 -- Basic operations
 -------------------------------------------------------------------------------
@@ -87,21 +83,22 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) -> {{Validate NonEmpty t}} -> Pair a (Tree a)
+  delMin : {{Partial}} -> Tree a -> Pair a (Tree a)
   delMin (Node Leaf x r) = (x , r)
   delMin (Node l@(Node _ _ _) x r) =
     let (y , l') = delMin l
     in (y , Node l' x r)
+  delMin _ = undefined
 
   delete : a -> Tree a -> Tree a
   delete _ Leaf = Leaf
-  delete x (Node l y r) =
+  delete x (Node l y r) = unsafePerform $
     case (compare x y , l , r) of \ where
       (LT , _ , _) -> Node (delete x l) y r
       (GT , _ , _) -> Node l y (delete x r)
       (EQ , Leaf ,  _) -> r
       (EQ , _ , Leaf) -> l
-      (EQ , _ , t@(Node _ _ _)) -> let (z , r') = delMin t in Node l z r'
+      (EQ , _ , t) -> let (z , r') = delMin t in Node l z r'
 
   member : a -> Tree a -> Bool
   member x Leaf = False

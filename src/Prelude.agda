@@ -96,23 +96,23 @@ private
 -- Dangerous primitives
 -------------------------------------------------------------------------------
 
-postulate
-  trustMe : a
-  error : String -> a
-
-{-# FOREIGN GHC import qualified Data.Text #-}
-{-# COMPILE GHC error = \ _ s -> error (Data.Text.unpack s) #-}
-
-undefined : a
-undefined = error "Prelude.undefined"
-
-record Unsafe : Set where
+record Partial : Set where
   field oops : Void
 
-open Unsafe {{...}} public
+open Partial {{...}} public
 
-unsafePerform : ({{Unsafe}} -> a) -> a
-unsafePerform f = f {{trustMe}}
+postulate
+  trustMe : a
+  error : {{Partial}} -> String -> a
+
+undefined : {{Partial}} -> a
+undefined = error "Prelude.undefined"
+
+unsafePerform : ({{Partial}} -> a) -> a
+unsafePerform x = x {{trustMe}}
+
+{-# FOREIGN GHC import qualified Data.Text #-}
+{-# COMPILE GHC error = \ _ _ s -> error (Data.Text.unpack s) #-}
 
 -------------------------------------------------------------------------------
 -- Function primitives
@@ -156,7 +156,7 @@ seq a b = const b $! a
 -------------------------------------------------------------------------------
 
 Assert : Bool -> Set
-Assert False = Unsafe
+Assert False = Void
 Assert True = Unit
 
 bool : a -> a -> Bool -> a
@@ -186,15 +186,15 @@ True && x = x
 -------------------------------------------------------------------------------
 
 either : (a -> c) -> (b -> c) -> Either a b -> c
-either f g (Left a) = f a
-either f g (Right b) = g b
+either f g (Left x) = f x
+either f g (Right x) = g x
 
 mirror : Either a b -> Either b a
 mirror = either Right Left
 
 fromEither : Either a a -> a
-fromEither (Left a) = a
-fromEither (Right a) = a
+fromEither (Left x) = x
+fromEither (Right x) = x
 
 isLeft : Either a b -> Bool
 isLeft (Left _) = True
@@ -204,11 +204,13 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
-fromLeft : (x : Either a b) -> {{Assert $ isLeft x}} -> a
-fromLeft (Left a) = a
+fromLeft : {{Partial}} -> Either a b -> a
+fromLeft (Left x) = x
+fromLeft _ = undefined
 
-fromRight : (x : Either a b) -> {{Assert $ isRight x}} -> b
-fromRight (Right b) = b
+fromRight : {{Partial}} -> Either a b -> b
+fromRight (Right x) = x
+fromRight _ = undefined
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -244,7 +246,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : (x : Maybe a) -> {{Assert $ isJust x}} -> a
+fromJust : {{Partial}} -> Maybe a -> a
 fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
@@ -526,91 +528,6 @@ instance
     Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
--- Validation
--------------------------------------------------------------------------------
-
-record Validation (v a : Set) : Set where
-  field
-    validate : (u : Set) -> {{u === v}} -> a -> Bool
-
-  Validate : (u : Set) -> {{u === v}} -> a -> Set
-  Validate u x = Assert (validate u x)
-
-open Validation {{...}} public
-
-data Not (v : Set) : Set where
-data Or (l r : Set) : Set where
-data And (l r : Set) : Set where
-data Positive : Set where
-data NonZero : Set where
-data NonEmpty : Set where
-
-instance
-  Validation-Not : {{Validation v a}} -> Validation (Not v) a
-  Validation-Not {v = v} .validate _ x = not (validate v x)
-
-  Validation-Or : {{Validation l a}} -> {{Validation r a}}
-    -> Validation (Or l r) a
-  Validation-Or {l = l} {r = r} .validate _ x = validate l x || validate r x
-
-  Validation-And : {{Validation l a}} -> {{Validation r a}}
-    -> Validation (And l r) a
-  Validation-And {l = l} {r = r} .validate _ x = validate l x && validate r x
-
-  Validation-Positive-Nat : Validation Positive Nat
-  Validation-Positive-Nat .validate _ 0 = False
-  Validation-Positive-Nat .validate _ _ = True
-
-  Validation-NonZero-Nat : Validation NonZero Nat
-  Validation-NonZero-Nat .validate _ = validate Positive
-
-  Validation-Positive-Int : Validation Positive Int
-  Validation-Positive-Int .validate _ = \ where
-    (Pos 0) -> False
-    (NegSuc _) -> False
-    _ -> True
-
-  Validation-NonZero-Int : Validation NonZero Int
-  Validation-NonZero-Int .validate _ = \ where
-    (Pos 0) -> False
-    _ -> True
-
-  Validation-Positive-Float : Validation Positive Float
-  Validation-Positive-Float .validate _ x = x > 0.0
-
-  Validation-NonZero-Float : Validation NonZero Float
-  Validation-NonZero-Float .validate _ x = x /= 0.0
-
-  Validation-NonEmpty-String : Validation NonEmpty String
-  Validation-NonEmpty-String .validate _ "" = False
-  Validation-NonEmpty-String .validate _ _ = True
-
-  Validation-NonEmpty-List : Validation NonEmpty (List a)
-  Validation-NonEmpty-List .validate _ [] = False
-  Validation-NonEmpty-List .validate _ _ = True
-
--------------------------------------------------------------------------------
--- Refined
--------------------------------------------------------------------------------
-
-record Refined (v a : Set) {{_ : Validation v a}} : Set where
-  constructor Refined:
-  field
-    unrefine : a
-    {validation} : Validate v unrefine
-
-open Refined public
-
-Nat1 : Set
-Nat1 = Refined NonZero Nat
-
-String1 : Set
-String1 = Refined NonEmpty String
-
-List1 : Set -> Set
-List1 a = Refined NonEmpty (List a)
-
--------------------------------------------------------------------------------
 -- Num
 -------------------------------------------------------------------------------
 
@@ -619,23 +536,20 @@ record Num (a : Set) : Set where
   infixl 6 _-_
   infixl 7 _*_
   field
-    overlap {{super}} : FromNat a
+    {{FromNat-super}} : FromNat a
+    {{Ord-super}} : Ord a
+    {{HasZero}} : FromNatConstraint {{FromNat-super}} 0
+    {{HasOne}} : FromNatConstraint {{FromNat-super}} 1
     _+_ : a -> a -> a
     _-_ : a -> a -> a
     _*_ : a -> a -> a
 
-  FromZero : (b : Set) -> {{a === b}} -> Set
-  FromZero _ = FromNatConstraint {{super}} Zero
-
-  FromOne : (b : Set) -> {{a === b}} -> Set
-  FromOne _ = FromNatConstraint {{super}} (Suc Zero)
-
-  times : {{FromZero _}} -> Nat -> a -> a
+  times : Nat -> a -> a
   times 0 _ = 0
   times (Suc n) x = times n x + x
 
   infixr 8 _^_
-  _^_ : {{FromOne _}} -> a -> Nat -> a
+  _^_ : a -> Nat -> a
   a ^ 0 = 1
   a ^ (Suc n) = a ^ n * a
 
@@ -713,9 +627,8 @@ instance
 record Integral (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
-    overlap {{Validation-NonZero-super}} : Validation NonZero a
-    quot : (x y : a) -> {{Validate NonZero y}} -> a
-    rem : (x y : a) -> {{Validate NonZero y}} -> a
+    quot : {{Partial}} -> a -> a -> a
+    rem : {{Partial}} -> a -> a -> a
 
 open Integral {{...}} public
 
@@ -747,8 +660,7 @@ instance
 record Fractional (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
-    overlap {{Validation-NonZero-super}} : Validation NonZero a
-    _/_ : (x y : a) -> {{Validate NonZero y}} -> a
+    _/_ : {{Partial}} -> a -> a -> a
 
 open Fractional {{...}} public
 

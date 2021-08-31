@@ -106,23 +106,24 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) -> {{Validate NonEmpty gs}} -> Gen a
+oneof : {{Partial}} -> List (Gen a) -> Gen a
+oneof [] = undefined
 oneof gs = do
   n <- choose (0 , length gs - 1)
-  fromJust (List.at n gs) {{trustMe}}
+  fromJust (List.at n gs)
 
-frequency : List1 (Pair Nat1 (Gen a)) -> Gen a
+frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
+frequency [] = undefined
 frequency xs =
-    let xs' = map (bimap unrefine id) (unrefine xs)
-    in choose (1 , sum (map fst xs')) >>= unsafePerform (flip pick) xs'
+    choose (1 , sum (map fst xs)) >>= (flip pick) xs
   where
-    pick : {{Unsafe}} -> Nat -> List (Pair Nat (Gen a)) -> Gen a
+    pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
-    pick _ _ = undefined
 
-elements : (xs : List a) -> {{Validate NonEmpty xs}} -> Gen a
+elements : {{Partial}} -> List a -> Gen a
+elements [] = undefined
 elements xs = map
-  (\ n -> fromJust (List.at n xs) {{trustMe}})
+  (\ n -> fromJust (List.at n xs))
   (choose (0 , List.length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
@@ -171,7 +172,8 @@ open Coarbitrary {{...}} public
 
 instance
   Arbitrary-Bool : Arbitrary Bool
-  Arbitrary-Bool .arbitrary = elements (True :: False :: [])
+  Arbitrary-Bool .arbitrary = unsafePerform $
+    elements (True :: False :: [])
 
   Arbitrary-Nat : Arbitrary Nat
   Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)
@@ -327,7 +329,8 @@ record Config : Set where
     every : Nat -> List String -> String
 
 quick : Config
-quick = record {
+quick = unsafePerform $
+  record {
     maxTest = 100;
     maxFail = 1000;
     size = \ n -> quot n 2 + 3;
@@ -359,12 +362,13 @@ private
       pairLength [] = (0 , [])
       pairLength xss@(xs :: _) = (List.length xss , xs)
 
-      percentage : Nat -> Nat -> String
-      percentage n 0 = undefined -- No worries; we'll never use this case
+      percentage : {{Partial}} -> Nat -> Nat -> String
+      percentage n 0 = undefined
       percentage n m@(Suc _) = show (quot (100 * n) m) <> "%"
 
       entry : Pair Nat (List String) -> String
-      entry (n , s) = percentage n ntest
+      entry (n , s) = unsafePerform $
+        percentage n ntest
         <> " "
         <> fold (List.intersperse ", " s)
 

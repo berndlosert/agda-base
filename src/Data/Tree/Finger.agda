@@ -59,10 +59,6 @@ instance
     (Deep v pr m sf) ->
       (| (Deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
-  Validation-NonEmpty-FingerTree : Validation NonEmpty (FingerTree v a)
-  Validation-NonEmpty-FingerTree .validate _ Empty = False
-  Validation-NonEmpty-FingerTree .validate _ _ = True
-
 empty : FingerTree v a
 empty = Empty
 
@@ -215,11 +211,11 @@ deepR : {{Measured v a}}
 deepR pr m Nothing = rotR pr m
 deepR pr m (Just sf) = deep pr m sf
 
-splitTree : {{Measured v a}}
+splitTree : {{Partial}}
+  -> {{Measured v a}}
   -> (v -> Bool)
   -> v
-  -> (t : FingerTree v a)
-  -> {{Validate NonEmpty t}}
+  -> FingerTree v a
   -> Split (FingerTree v) a
 splitTree _ _ (Single x) = Split: Empty x Empty
 splitTree p i (Deep _ pr m sf) =
@@ -229,19 +225,20 @@ splitTree p i (Deep _ pr m sf) =
   in
     if p vpr then (case splitDigit p i pr of \ where
       (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
-    else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
+    else if p vm then (case splitTree p vpr m of \ where
       (Split: ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
         (Split: l x r) -> Split: (deepR pr ml l) x (deepL r mr sf))
     else (case splitDigit p vm sf of \ where
       (Split: l x r) -> Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+splitTree _ _ _ = undefined
 
 split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
   -> Pair (FingerTree v a) (FingerTree v a)
 split _ Empty  =  (Empty , Empty)
-split p xs =
-  case splitTree p neutral xs {{trustMe}} of \ where
+split p xs = unsafePerform $
+  case splitTree p neutral xs of \ where
     (Split: l x r) -> if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
@@ -255,11 +252,11 @@ data SearchResult (v a : Set) : Set where
   Nowhere : SearchResult v a
 
 private
-  searchTree : {{Measured v a}}
+  searchTree : {{Partial}}
+    -> {{Measured v a}}
     -> (v -> v -> Bool)
     -> v
-    -> (t : FingerTree v a)
-    -> {{Validate NonEmpty t}}
+    -> FingerTree v a
     -> v
     -> Split (FingerTree v) a
   searchTree _ _ (Single x) _ = Split: Empty x Empty
@@ -273,17 +270,18 @@ private
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
         (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
-      else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
+      else if p vlpm vsr then (case searchTree p vlp m vsr of \ where
         (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
           (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
         (Split: l x r) -> Split: (deepR pr m l) x (maybe Empty digitToTree r))
+  searchTree _ _ _ _ = undefined
 
 search : {{Measured v a}}
   -> (v -> v -> Bool)
   -> FingerTree v a
   -> SearchResult v a
-search p t =
+search p t = unsafePerform $
   let
     vt = measure t
     pleft = p neutral vt
@@ -291,7 +289,7 @@ search p t =
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p neutral t {{trustMe}} neutral of \ where
+      (case searchTree p neutral t neutral of \ where
         (Split: l x r) -> Position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
@@ -304,10 +302,10 @@ inits : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 inits _ Empty = Empty
 inits f (Single x) = Single (f (Single x))
-inits f (Deep n pr m sf) =
+inits f (Deep n pr m sf) = unsafePerform $
   let
     f' ms = case unsnoc ms of \ where
-      Nothing -> undefined -- Oops!
+      Nothing -> undefined
       (Just (m' , node)) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
   in
     Deep n (map (f <<< digitToTree) (initsDigit pr))
@@ -318,10 +316,10 @@ tails : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 tails _ Empty = Empty
 tails f (Single x) = Single (f (Single x))
-tails f (Deep n pr m sf) =
+tails f (Deep n pr m sf) = unsafePerform $
   let
     f' ms = case uncons ms of \ where
-      Nothing -> undefined -- Oops!
+      Nothing -> undefined
       (Just (node , m')) -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
   in
     Deep n (map (\ pr' -> f (deep pr' m sf)) (tailsDigit pr))

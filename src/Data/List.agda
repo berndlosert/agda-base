@@ -85,9 +85,10 @@ unsnoc = foldr go Nothing
     go x Nothing = Just ([] , x)
     go x (Just (xs , e)) = Just (x :: xs , e)
 
-init : List1 a -> List a
-init (Refined: (x :: [])) = []
-init (Refined: (x :: x' :: xs)) = x :: init (Refined: (x' :: xs))
+init : {{Partial}} -> List a -> List a
+init [] = undefined
+init (x :: []) = []
+init (x :: x' :: xs) = x :: init (x' :: xs)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -264,7 +265,7 @@ dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
+groupBy {a} eq xs = unsafePerform $ fromJust (petrol go (length xs) xs)
   where
     go : Fn (List a) (List (List a))
     go [] = pure []
@@ -276,8 +277,9 @@ groupBy {a} eq xs = fromJust (petrol go (length xs) xs) {{trustMe}}
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
-chunksOf : (n : Nat) -> {{Validate Positive n}} -> List a -> List (List a)
-chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
+chunksOf : {{Partial}} -> Nat -> List a -> List (List a)
+chunksOf 0 _ = undefined
+chunksOf {a} n xs = fromJust (petrol go (length xs) xs)
   where
     go : Fn (List a) (List (List a))
     go [] = pure []
@@ -287,7 +289,7 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs) {{trustMe}}
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn {a} needle haystack =
-    fromJust (petrol go (length haystack) haystack) {{trustMe}}
+    unsafePerform $ fromJust (petrol go (length haystack) haystack)
   where
     go : Fn (List a) (Pair (List a) (List a))
     go haystack = do
@@ -299,9 +301,10 @@ breakOn {a} needle haystack =
             res <- call xs
             pure $ lmap (x ::_) res
 
-splitOn : {{Eq a}} -> List1 a -> List a -> List (List a)
-splitOn {a} (Refined: needle) haystack =
-    fromJust (petrol go (length haystack) haystack) {{trustMe}}
+splitOn : {{Partial}} -> {{Eq a}} -> List a -> List a -> List (List a)
+splitOn [] _ = undefined
+splitOn {a} needle haystack =
+    fromJust (petrol go (length haystack) haystack)
   where
     go : Fn (List a) (List (List a))
     go [] = pure $ singleton []

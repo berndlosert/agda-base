@@ -100,26 +100,12 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  minimumBy {a} cmp = foldl min' Nothing
-    where
-      min' : Maybe a -> a -> Maybe a
-      min' Nothing x = Just x
-      min' (Just x) y = Just (if cmp x y == LT then x else y)
-
-  maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  maximumBy {a} cmp = foldl max' Nothing
-    where
-      max' : Maybe a -> a -> Maybe a
-      max' Nothing x = Just x
-      max' (Just x) y = Just (if cmp x y == GT then x else y)
-
   module _ {{_ : Num a}} where
 
-    sum : {{FromZero a}} -> t a -> a
+    sum : t a -> a
     sum = foldl _+_ 0
 
-    product : {{FromOne a}} -> t a -> a
+    product : t a -> a
     product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where
@@ -130,12 +116,26 @@ record Foldable (t : Set -> Set) : Set where
     notElem : a -> t a -> Bool
     notElem a s = not (elem a s)
 
+  minimumBy : {{Partial}} -> (a -> a -> Ordering) -> t a -> a
+  minimumBy {a} cmp = fromJust <<< foldl min' Nothing
+    where
+      min' : Maybe a -> a -> Maybe a
+      min' Nothing x = Just x
+      min' (Just x) y = Just (if cmp x y == LT then x else y)
+
+  maximumBy : {{Partial}} -> (a -> a -> Ordering) -> t a -> a
+  maximumBy {a} cmp = fromJust <<< foldl max' Nothing
+    where
+      max' : Maybe a -> a -> Maybe a
+      max' Nothing x = Just x
+      max' (Just x) y = Just (if cmp x y == GT then x else y)
+
   module _ {{_ : Ord a}} where
 
-    minimum : t a -> Maybe a
+    minimum : {{Partial}} -> t a -> a
     minimum = minimumBy compare
 
-    maximum : t a -> Maybe a
+    maximum : {{Partial}} -> t a -> a
     maximum = maximumBy compare
 
   module _ {{_ : Applicative f}} where
@@ -145,51 +145,6 @@ record Foldable (t : Set -> Set) : Set where
 
     for! : t a -> (a -> f b) -> f Unit
     for! = flip traverse!
-
-  module _ {{_ : Validation NonEmpty (t a)}} where
-
-    foldMap1 : {{Semigroup b}}
-      -> (a -> b) -> (xs : t a) -> {{Validate NonEmpty xs}} -> b
-    foldMap1 f xs = fromJust (foldMap (Just <<< f) xs) {{trustMe}}
-
-    fold1 : {{Semigroup a}} -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    fold1 xs = fromJust (foldMap Just xs) {{trustMe}}
-
-    foldr1 : (a -> a -> a) -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    foldr1 f xs = fromJust (foldr go Nothing xs) {{trustMe}}
-      where
-        go : a -> Maybe a -> Maybe a
-        go x Nothing = Just x
-        go x (Just y) = Just (f x y)
-
-    foldl1 : (a -> a -> a) -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    foldl1 f xs = fromJust (foldl go Nothing xs) {{trustMe}}
-      where
-        go : Maybe a -> a -> Maybe a
-        go Nothing x = Just x
-        go (Just x) y = Just (f x y)
-
-    sum1 : {{Num a}} -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    sum1 = foldl1 _+_
-
-    product1 : {{Num a}} -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    product1 = foldl1 _*_
-
-    minimumBy1 : (a -> a -> Ordering)
-      -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    minimumBy1 cmp xs = fromJust (minimumBy cmp xs) {{trustMe}}
-
-    maximumBy1 : (a -> a -> Ordering)
-      -> (xs : t a) -> {{Validate NonEmpty xs}} -> a
-    maximumBy1 cmp xs = fromJust (maximumBy cmp xs) {{trustMe}}
-
-    module _ {{_ : Ord a}} where
-
-      minimum1 : (xs : t a) -> {{Validate NonEmpty xs}} -> a
-      minimum1 = foldr1 min
-
-      maximum1 : (xs : t a) -> {{Validate NonEmpty xs}} -> a
-      maximum1 = foldr1 max
 
   module _ {{_ : Applicative f}} where
 

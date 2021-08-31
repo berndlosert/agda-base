@@ -71,9 +71,6 @@ abstract
     Traversable-Seq : Traversable Seq
     Traversable-Seq .traverse f (Seq: t) = Seq: <$> traverse (traverse f) t
 
-    Validation-NonEmpty-Seq : Validation NonEmpty (Seq a)
-    Validation-NonEmpty-Seq .validate _ (Seq: t) = validate NonEmpty t
-
     Eq-Seq : {{Eq a}} -> Eq (Seq a)
     Eq-Seq ._==_ l r = toList l == toList r
 
@@ -130,10 +127,10 @@ abstract
   tail : Seq a -> Maybe (Seq a)
   tail = map snd <<< uncons
 
-  init : (s : Seq a) -> {{Validate NonEmpty s}} -> Seq a
+  init : {{Partial}} -> Seq a -> Seq a
   init s =
     case unsnoc s of \ where
-      Nothing -> undefined -- No worries, this is impossible.
+      Nothing -> undefined
       (Just (xs , _)) -> xs
 
 -------------------------------------------------------------------------------

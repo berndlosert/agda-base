@@ -56,7 +56,7 @@ genWord64s (Suc n) g0 =
 
 -- genNat n generates a random Nat in the range [0, 2 ^ n).
 genNat : {{RandomGen g}} -> Nat -> g -> Pair Nat g
-genNat n g0 =
+genNat n g0 = unsafePerform $
   let
     q = quot n 64
     r = rem n 64
@@ -73,8 +73,9 @@ genNat' : {{RandomGen g}} -> Nat -> g -> Pair Nat g
 genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
-    log2 0 = 1
-    log2 m = 1 + log2 (quot m 2)
+    log2 = unsafePerform \ where
+      0 -> 1
+      m -> 1 + log2 (quot m 2)
 
     k = log2 n
 

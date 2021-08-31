@@ -33,10 +33,6 @@ data Tree (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
-  Validation-NonEmpty-Tree : Validation NonEmpty (Tree a)
-  Validation-NonEmpty-Tree .validate _ Leaf = False
-  Validation-NonEmpty-Tree .validate _ _ = True
-
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr f z = \ where
     Leaf -> z
@@ -186,7 +182,7 @@ pop {a} v = down []
           fromZipper ctx (Three a w (Two b x c) y (Two d z e))
         (_ , _) -> t
 
-    maxNode :  (t : Tree a) -> {{Validate NonEmpty t}} -> a
+    maxNode : {{Partial}} -> Tree a -> a
     maxNode = \ where
       (Two _ x Leaf) -> x
       (Two _ _ r@(Two _ _ _)) -> maxNode r
@@ -194,11 +190,9 @@ pop {a} v = down []
       (Three _ _ _ x Leaf) -> x
       (Three _ _ _ _ r@(Two _ _ _)) -> maxNode r
       (Three _ _ _ _ r@(Three _ _ _ _ _)) -> maxNode r
+      _ -> undefined
 
-    removeMaxNode : List (TreeContext a)
-      -> (t : Tree a)
-      -> {{Validate NonEmpty t}}
-      -> Tree a
+    removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
     removeMaxNode ctx = \ where
       (Two Leaf _ Leaf) ->
         up ctx Leaf
@@ -216,7 +210,7 @@ pop {a} v = down []
 
     down : List (TreeContext a) -> Tree a -> Maybe (Pair a (Tree a))
     down ctx Leaf = Nothing
-    down ctx (Two l x r) =
+    down ctx (Two l x r) = unsafePerform $
       case (l , r , compare v x) of \ where
         (_ , Leaf , EQ) ->
           Just (x , up ctx Leaf)
@@ -228,7 +222,7 @@ pop {a} v = down []
           down (TwoLeft x r :: ctx) l
         (_ , _ , _ ) ->
           down (TwoRight l x :: ctx) r
-    down ctx (Three l x m y r) =
+    down ctx (Three l x m y r) = unsafePerform $
       case (l , m , r , compare v x , compare v y) of \ where
         (Leaf , Leaf , Leaf , EQ , _) ->
           Just (x , fromZipper ctx (Two Leaf y Leaf))

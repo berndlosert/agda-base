@@ -72,8 +72,9 @@ at : Nat -> Stream a -> a
 at 0 as = head as
 at (Suc n) as = at n (tail as)
 
-cycle : (as : List a) -> {{Validate NonEmpty as}} -> Stream a
+cycle : {{Partial}} -> List a -> Stream a
+cycle [] = undefined
 cycle as = flip unfold as \ where
-  [] -> undefined -- We never use this case anyways.
+  [] -> undefined
   (x :: []) -> (x , as)
   (x :: xs) -> (x , xs)

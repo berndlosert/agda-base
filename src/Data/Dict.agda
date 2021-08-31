@@ -78,7 +78,7 @@ values (Dict: t) = foldMap (getValue >>> List.singleton) t
 -- N.B. uses undefined, but that's OK since we never look at the
 -- values.
 member : {{Ord k}} -> k -> Dict k v -> Bool
-member k (Dict: t) = Tree.member (KVPair: k undefined) t
+member k (Dict: t) = unsafePerform $ Tree.member (KVPair: k undefined) t
 
 data Key {{_ : Ord k}} (dict : Dict k v) : Set where
   Key: : (key : k) -> {{Assert $ member key dict}} -> Key dict
@@ -114,7 +114,7 @@ delete k (Dict: t) =
      (Just p) -> Dict: (Tree.delete p t)
 
 lookup : {{_ : Ord k}} (dict : Dict k v) -> Key dict -> v
-lookup (Dict: t) (Key: k) = fromJust res {{trustMe}}
+lookup (Dict: t) (Key: k) = unsafePerform $ fromJust res
   where
     t' = flip Tree.mapMonotonic t \ where (KVPair: k v) -> (k , v)
     res = Tree.lookup k t'
