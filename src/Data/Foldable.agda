@@ -83,7 +83,10 @@ record Foldable (t : Set -> Set) : Set where
   length = foldr (const Suc) Zero
 
   find : (a -> Bool) -> t a -> Maybe a
-  find p = foldl' (\ _ x -> if p x then Done (Just x) else Continue Nothing) Nothing
+  find {a} p = foldl' go Nothing
+    where
+      go : Maybe a -> a -> Step (Maybe a)
+      go _ x = if p x then Done (Just x) else Continue Nothing
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe False (const True) (find p xs)
