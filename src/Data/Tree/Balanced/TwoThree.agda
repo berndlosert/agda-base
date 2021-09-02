@@ -274,11 +274,11 @@ member a (Two l x r) =
     GT -> member a r
 member a (Three l x m y r) =
   case (compare a x , compare a y) of \ where
-  (EQ , _) -> True
-  (LT , _) -> member a l
-  (GT , EQ) -> True
-  (GT , LT) -> member a m
-  (GT , GT) -> member a r
+    (EQ , _) -> True
+    (LT , _) -> member a l
+    (GT , EQ) -> True
+    (GT , LT) -> member a m
+    (GT , GT) -> member a r
 
 -------------------------------------------------------------------------------
 --  Misc.
