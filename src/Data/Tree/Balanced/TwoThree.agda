@@ -265,8 +265,20 @@ lookup a (Three l (x , b) m (y , c) r) =
     (GT , LT) -> lookup a m
     (GT , GT) -> lookup a r
 
-member : {{Eq a}} -> a -> Tree a -> Bool
-member a t = maybe False (const True) (find (_== a) t)
+member : {{Ord a}} -> a -> Tree a -> Bool
+member a Leaf = False
+member a (Two l x r) =
+  case compare a x of \ where
+    EQ -> True
+    LT -> member a l
+    GT -> member a r
+member a (Three l x m y r) =
+  case (compare a x , compare a y) of \ where
+  (EQ , _) -> True
+  (LT , _) -> member a l
+  (GT , EQ) -> True
+  (GT , LT) -> member a m
+  (GT , GT) -> member a r
 
 -------------------------------------------------------------------------------
 --  Misc.
