@@ -101,9 +101,14 @@ fromList : (xs : List a) -> Vector (length xs) a
 fromList [] = []
 fromList (x :: xs) = x :: fromList xs
 
-take : (n : Nat) (xs : List a) -> {{Assert $ length xs >= n}} -> Vector n a
-take Zero _ = []
-take (Suc n) (x :: xs) = x :: take n xs
+take : (n : Nat) (xs : List a) -> Maybe (Vector n a)
+take 0 _ = Just []
+take (Suc n) [] = Nothing
+take (Suc n) (x :: xs) =
+  case take n xs of \ where
+    Nothing -> Nothing
+    (Just xs') -> Just (x :: xs')
 
 reverse : Vector n a -> Vector n a
-reverse {n = n} xs = take n (List.reverse (toList xs)) {{trustMe}}
+reverse {n = n} xs =
+  unsafePerform $ fromJust $ take n $ List.reverse (toList xs)
