@@ -91,7 +91,7 @@ toList d = List.zip (keys d) (values d)
 
 delete : {{Ord k}} -> k -> Dict k v -> Dict k v
 delete k (Dict: t) =
-  case find (\ where (KeyVal: k' _) -> k == k') t of \ where
+  case Tree.query (compare k <<< getKey) t of \ where
      Nothing -> Dict: t
      (Just p) -> Dict: (Tree.delete p t)
 
