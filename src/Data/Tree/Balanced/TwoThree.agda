@@ -250,35 +250,26 @@ delete x t = maybe t snd (pop x t)
 -- Querying
 -------------------------------------------------------------------------------
 
+query : (a -> Ordering) -> Tree a -> Maybe a
+query _ Leaf = Nothing
+query f (Two l x r) =
+  case f x of \ where
+    EQ -> Just x
+    LT -> query f l
+    GT -> query f r
+query f (Three l x m y r) =
+  case (f x , f y) of \ where
+    (EQ , _) -> Just x
+    (LT , _) -> query f l
+    (GT , EQ) -> Just y
+    (GT , LT) -> query f m
+    (GT , GT) -> query f r
+
 lookup : {{Ord a}} -> a -> Tree (Pair a b) -> Maybe b
-lookup a Leaf = Nothing
-lookup a (Two l (x , b) r) =
-  case compare a x of \ where
-    EQ -> Just b
-    LT -> lookup a l
-    GT -> lookup a r
-lookup a (Three l (x , b) m (y , c) r) =
-  case (compare a x , compare a y) of \ where
-    (EQ , _) -> Just b
-    (LT , _) -> lookup a l
-    (GT , EQ) -> Just c
-    (GT , LT) -> lookup a m
-    (GT , GT) -> lookup a r
+lookup x = maybe Nothing (Just <<< snd) <<< query (compare x <<< fst)
 
 member : {{Ord a}} -> a -> Tree a -> Bool
-member a Leaf = False
-member a (Two l x r) =
-  case compare a x of \ where
-    EQ -> True
-    LT -> member a l
-    GT -> member a r
-member a (Three l x m y r) =
-  case (compare a x , compare a y) of \ where
-    (EQ , _) -> True
-    (LT , _) -> member a l
-    (GT , EQ) -> True
-    (GT , LT) -> member a m
-    (GT , GT) -> member a r
+member x = maybe False (const True) <<< query (compare x)
 
 -------------------------------------------------------------------------------
 --  Misc.
