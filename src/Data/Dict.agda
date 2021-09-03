@@ -10,7 +10,7 @@ open import Prelude hiding (map)
 
 open import Data.Foldable hiding (toList)
 open import Data.List as List using ()
-open import Data.Tree.Balanced.TwoThree as Tree using (Tree; Leaf; Two; Three)
+open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import String.Show
 
 -------------------------------------------------------------------------------
