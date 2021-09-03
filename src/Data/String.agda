@@ -69,8 +69,8 @@ tail s = map snd (uncons s)
 length : String -> Nat
 length = List.length <<< unpack
 
-init : {{Partial}} -> String -> String
-init = pack <<< List.init <<< unpack
+init : String -> Maybe String
+init = map pack <<< List.init <<< unpack
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
