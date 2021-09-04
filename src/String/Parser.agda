@@ -205,9 +205,14 @@ takeAll = takeWhile (const True)
 -------------------------------------------------------------------------------
 
 nat : Parser Nat
-nat = chainl1
-    (digit >>= \ n -> pure (Char.ord n - Char.ord '0'))
-    (pure \ m n -> 10 * m + n)
+nat = chainl1 digit' (pure \ m n -> 10 * m + n)
+  where
+    digit' : Parser Nat
+    digit' = do
+      n <- digit
+      pure $ fromMaybe
+        (error "String.Parser.nat")
+        (Char.toDigit n)
 
 int : Parser Int
 int = (| neg' (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
