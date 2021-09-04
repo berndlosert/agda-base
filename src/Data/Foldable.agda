@@ -103,13 +103,11 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  module _ {{_ : Num a}} where
+  sum : {{Monoid (Additive a)}} -> t a -> a
+  sum = foldl _+_ zero
 
-    sum : t a -> a
-    sum = foldl _+_ 0
-
-    product : t a -> a
-    product = foldl _*_ 1
+  product : {{Monoid (Multiplicative a)}} -> t a -> a
+  product = foldl _*_ one
 
   module _ {{_ : Eq a}} where
 
