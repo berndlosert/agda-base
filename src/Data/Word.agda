@@ -35,6 +35,8 @@ private
     word8TestBit : Word8 -> Nat -> Bool
     word8IsSigned : Word8 -> Bool
     word8PopCount : Word8 -> Nat
+    word8Plus : Word8 -> Word8 -> Word8
+    word8Times : Word8 -> Word8 -> Word8
 
 instance
   FromNat-Word8 : FromNat Word8
@@ -65,6 +67,20 @@ instance
   Bits-Word8 .isSigned = word8IsSigned
   Bits-Word8 .popCount = word8PopCount
 
+  Semigroup-Additive-Word8 : Semigroup (Additive Word8)
+  Semigroup-Additive-Word8 ._<>_ x y =
+    Additive: $ word8Plus (getAdditive x) (getAdditive y)
+
+  Monoid-Additive-Word8 : Monoid (Additive Word8)
+  Monoid-Additive-Word8 .neutral = Additive: 0
+
+  Semigroup-Multiplicative-Word8 : Semigroup (Multiplicative Word8)
+  Semigroup-Multiplicative-Word8 ._<>_ x y =
+    Multiplicative: $ word8Plus (getMultiplicative x) (getMultiplicative y)
+
+  Monoid-Multiplicative-Word8 : Monoid (Multiplicative Word8)
+  Monoid-Multiplicative-Word8 .neutral = Multiplicative: 0
+
 -------------------------------------------------------------------------------
 -- Word16
 -------------------------------------------------------------------------------
@@ -90,6 +106,8 @@ private
     word16TestBit : Word16 -> Nat -> Bool
     word16IsSigned : Word16 -> Bool
     word16PopCount : Word16 -> Nat
+    word16Plus : Word16 -> Word16 -> Word16
+    word16Times : Word16 -> Word16 -> Word16
 
 instance
   FromNat-Word16 : FromNat Word16
@@ -120,6 +138,20 @@ instance
   Bits-Word16 .isSigned = word16IsSigned
   Bits-Word16 .popCount = word16PopCount
 
+  Semigroup-Additive-Word16 : Semigroup (Additive Word16)
+  Semigroup-Additive-Word16 ._<>_ x y =
+    Additive: $ word16Plus (getAdditive x) (getAdditive y)
+
+  Monoid-Additive-Word16 : Monoid (Additive Word16)
+  Monoid-Additive-Word16 .neutral = Additive: 0
+
+  Semigroup-Multiplicative-Word16 : Semigroup (Multiplicative Word16)
+  Semigroup-Multiplicative-Word16 ._<>_ x y =
+    Multiplicative: $ word16Plus (getMultiplicative x) (getMultiplicative y)
+
+  Monoid-Multiplicative-Word16 : Monoid (Multiplicative Word16)
+  Monoid-Multiplicative-Word16 .neutral = Multiplicative: 0
+
 -------------------------------------------------------------------------------
 -- Word32
 -------------------------------------------------------------------------------
@@ -145,6 +177,8 @@ private
     word32TestBit : Word32 -> Nat -> Bool
     word32IsSigned : Word32 -> Bool
     word32PopCount : Word32 -> Nat
+    word32Plus : Word32 -> Word32 -> Word32
+    word32Times : Word32 -> Word32 -> Word32
 
 instance
   FromNat-Word32 : FromNat Word32
@@ -175,6 +209,20 @@ instance
   Bits-Word32 .isSigned = word32IsSigned
   Bits-Word32 .popCount = word32PopCount
 
+  Semigroup-Additive-Word32 : Semigroup (Additive Word32)
+  Semigroup-Additive-Word32 ._<>_ x y =
+    Additive: $ word32Plus (getAdditive x) (getAdditive y)
+
+  Monoid-Additive-Word32 : Monoid (Additive Word32)
+  Monoid-Additive-Word32 .neutral = Additive: 0
+
+  Semigroup-Multiplicative-Word32 : Semigroup (Multiplicative Word32)
+  Semigroup-Multiplicative-Word32 ._<>_ x y =
+    Multiplicative: $ word32Plus (getMultiplicative x) (getMultiplicative y)
+
+  Monoid-Multiplicative-Word32 : Monoid (Multiplicative Word32)
+  Monoid-Multiplicative-Word32 .neutral = Multiplicative: 0
+
 -------------------------------------------------------------------------------
 -- Word64
 -------------------------------------------------------------------------------
@@ -204,6 +252,8 @@ private
     word64TestBit : Word64 -> Nat -> Bool
     word64IsSigned : Word64 -> Bool
     word64PopCount : Word64 -> Nat
+    word64Plus : Word64 -> Word64 -> Word64
+    word64Times : Word64 -> Word64 -> Word64
 
 instance
   FromNat-Word64 : FromNat Word64
@@ -234,6 +284,20 @@ instance
   Bits-Word64 .isSigned = word64IsSigned
   Bits-Word64 .popCount = word64PopCount
 
+  Semigroup-Additive-Word64 : Semigroup (Additive Word64)
+  Semigroup-Additive-Word64 ._<>_ x y =
+    Additive: $ word64Plus (getAdditive x) (getAdditive y)
+
+  Monoid-Additive-Word64 : Monoid (Additive Word64)
+  Monoid-Additive-Word64 .neutral = Additive: 0
+
+  Semigroup-Multiplicative-Word64 : Semigroup (Multiplicative Word64)
+  Semigroup-Multiplicative-Word64 ._<>_ x y =
+    Multiplicative: $ word64Plus (getMultiplicative x) (getMultiplicative y)
+
+  Monoid-Multiplicative-Word64 : Monoid (Multiplicative Word64)
+  Monoid-Multiplicative-Word64 .neutral = Multiplicative: 0
+
 -------------------------------------------------------------------------------
 -- FFI
 -------------------------------------------------------------------------------
@@ -255,6 +319,8 @@ instance
 {-# COMPILE GHC word8TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word8IsSigned = isSigned #-}
 {-# COMPILE GHC word8PopCount = toInteger . popCount #-}
+{-# COMPILE GHC word8Plus = (+) #-}
+{-# COMPILE GHC word8Plus = (*) #-}
 
 {-# COMPILE GHC Word16 = type Word16 #-}
 {-# COMPILE GHC natToWord16 = fromInteger #-}
@@ -270,6 +336,8 @@ instance
 {-# COMPILE GHC word16TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word16IsSigned = isSigned #-}
 {-# COMPILE GHC word16PopCount = toInteger . popCount #-}
+{-# COMPILE GHC word16Plus = (+) #-}
+{-# COMPILE GHC word16Plus = (*) #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC natToWord32 = fromInteger #-}
@@ -285,6 +353,8 @@ instance
 {-# COMPILE GHC word32TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word32IsSigned = isSigned #-}
 {-# COMPILE GHC word32PopCount = toInteger . popCount #-}
+{-# COMPILE GHC word32Plus = (+) #-}
+{-# COMPILE GHC word32Plus = (*) #-}
 
 {-# COMPILE GHC word64Eq = (==) #-}
 {-# COMPILE GHC word64Compare = compare #-}
@@ -297,3 +367,6 @@ instance
 {-# COMPILE GHC word64TestBit = \ x i -> testBit x (fromIntegral i) #-}
 {-# COMPILE GHC word64IsSigned = isSigned #-}
 {-# COMPILE GHC word64PopCount = toInteger . popCount #-}
+{-# COMPILE GHC word64Plus = (+) #-}
+{-# COMPILE GHC word64Plus = (*) #-}
+
