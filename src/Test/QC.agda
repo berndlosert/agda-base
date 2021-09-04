@@ -109,7 +109,7 @@ sample g = do
 oneof : {{Partial}} -> List (Gen a) -> Gen a
 oneof [] = undefined
 oneof gs = do
-  n <- choose (0 , length gs - 1)
+  n <- choose (0 , pred (length gs))
   fromJust (List.at n gs)
 
 frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
@@ -118,13 +118,13 @@ frequency xs =
     choose (1 , sum (map fst xs)) >>= (flip pick) xs
   where
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
+    pick n ((k , y) :: ys) = if n <= k then y else pick (monus n k) ys
 
 elements : {{Partial}} -> List a -> Gen a
 elements [] = undefined
 elements xs = map
   (\ n -> fromJust (List.at n xs))
-  (choose (0 , List.length xs - 1))
+  (choose (0 , pred (length xs)))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA

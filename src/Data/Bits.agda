@@ -59,21 +59,17 @@ record Bits (a : Set) : Set where
   rotateR x i = rotate x (neg i)
 
   countLeadingZeros : a -> Nat
-  countLeadingZeros x = bitSize-1 - go bitSize-1
+  countLeadingZeros x =
+      let n = pred (bitSize x) in monus n (go n)
     where
-      bitSize-1 : Nat
-      bitSize-1 = bitSize x - 1
-
       go : Nat -> Nat
       go 0 = 0
       go n@(Suc n-1) = if testBit x n then n else go n-1
 
   countTrailingZeros : a -> Nat
-  countTrailingZeros x = go bitSize-1 0
+  countTrailingZeros x =
+     let n = pred (bitSize x) in go n 0
     where
-      bitSize-1 : Nat
-      bitSize-1 = bitSize x - 1
-
       go : Nat -> Nat -> Nat
       go 0 n = n
       go (Suc m) n =

@@ -17,45 +17,45 @@ open import Data.Char
 record Enum (a : Set) : Set where
   field
     {{Ord-super}} : Ord a
-    suc : a -> Maybe a
-    pred : a -> Maybe a
+    next : a -> Maybe a
+    previous : a -> Maybe a
     enumFromTo : a -> a -> List a
 
 open Enum {{...}} public
 
 instance
   Enum-Nat : Enum Nat
-  Enum-Nat .suc x = Just (Suc x)
-  Enum-Nat .pred 0 = Nothing
-  Enum-Nat .pred (Suc n) = Just n
+  Enum-Nat .next x = Just (Suc x)
+  Enum-Nat .previous 0 = Nothing
+  Enum-Nat .previous (Suc n) = Just n
   Enum-Nat .enumFromTo m n =
-      let k = max (m - n) (n - m)
+      let k = max (monus m n) (monus n m)
       in go k m n
     where
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = m :: []
       go (Suc k) m n =
-        let m' = if m < n then m + 1 else m - 1
+        let m' = if m < n then Suc m else pred m
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .suc (Pos n) = Just $ Pos (Suc n)
-  Enum-Int .suc (NegSuc n) = Just $ neg n
-  Enum-Int .pred (Pos 0) = Just $ NegSuc 0
-  Enum-Int .pred (Pos (Suc n)) = Just $ Pos n
-  Enum-Int .pred (NegSuc n) = Just $ NegSuc (Suc n)
+  Enum-Int .next (Pos n) = Just $ Pos (Suc n)
+  Enum-Int .next (NegSuc n) = Just $ neg n
+  Enum-Int .previous (Pos 0) = Just $ NegSuc 0
+  Enum-Int .previous (Pos (Suc n)) = Just $ Pos n
+  Enum-Int .previous (NegSuc n) = Just $ NegSuc (Suc n)
   Enum-Int .enumFromTo m n =
     case m - n of \ where
       (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
       (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
-  Enum-Char .suc c =
+  Enum-Char .next c =
     if c == maxChar
       then Nothing
-      else chr <$> suc (ord c)
-  Enum-Char .pred c =
+      else chr <$> next (ord c)
+  Enum-Char .previous c =
     if c == minChar
       then Nothing
-      else chr <$> pred (ord c)
+      else chr <$> previous (ord c)
   Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)

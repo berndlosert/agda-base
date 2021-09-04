@@ -43,7 +43,7 @@ module _ {n : Nat} where
     Num-Fin ._+_ (Fin: k) (Fin: m) = unsafePerform $
       Fin: $ rem (k + m) n
     Num-Fin ._-_ (Fin: k) (Fin: m) = unsafePerform $
-      Fin: $ if k >= m then rem (k - m) n else n - rem (m - k) n
+      Fin: $ if k >= m then rem (monus k m) n else monus n (rem (monus m k) n)
     Num-Fin ._*_ (Fin: k) (Fin: m) = unsafePerform $
       Fin: $ rem (k * m) n
 

@@ -60,7 +60,7 @@ genNat n g0 = unsafePerform $
   let
     q = quot n 64
     r = rem n 64
-    mask = shiftR oneBits (64 - r)
+    mask = shiftR oneBits (monus 64 r)
     (ws , g) = genWord64s (q + 1) g0
   in
     case ws of \ where
@@ -233,7 +233,7 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else lmap (_+ lo) (genNat' (hi - lo) g)
+        else lmap (_+ lo) (genNat' (monus hi lo) g)
 
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (i , j) g =

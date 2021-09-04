@@ -151,11 +151,18 @@ abstract
 -------------------------------------------------------------------------------
 
   ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
-  ifoldr f z xs = foldr (\ x g n -> f n x (g (Suc n))) (const z) xs 0
+  ifoldr {a} {b} f z xs =
+      foldr go (const z) xs 0
+    where
+      go : a -> (Nat -> b) -> Nat -> b
+      go x g n = f n x (g (Suc n))
 
   ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
-  ifoldl f z xs =
-    foldl (\ g x n -> f (g (n - 1)) n x) (const z) xs (length xs - 1)
+  ifoldl {b} {a} f z xs =
+      foldl go (const z) xs (pred (length xs))
+    where
+      go : (Nat -> b) -> a -> Nat -> b
+      go g x n = f (g (pred n)) n x
 
 -------------------------------------------------------------------------------
 -- Searching with a predicate
