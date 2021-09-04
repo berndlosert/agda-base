@@ -917,7 +917,8 @@ record Field (a : Set) : Set where
   field
     overlap {{Eq-super}} : Eq a
     overlap {{Ring-super}} : Ring a
-    overlap {{Commutative-Multiplicative-super}} : Commutative (Multiplicative a)
+    overlap
+      {{Commutative-Multiplicative-super}} : Commutative (Multiplicative a)
     _/_ : (x y : a) -> {{Assert $ y /= zero}} -> a
 
 open Field {{...}} public
