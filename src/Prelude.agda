@@ -734,13 +734,28 @@ record Monoid (a : Set) : Set where
     overlap {{Semigroup-super}} : Semigroup a
     neutral : a
 
+  mtimes : Nat -> a -> a
+  mtimes 0 _ = neutral
+  mtimes (Suc n) x = x <> mtimes n x
+
 open Monoid {{...}} public
 
-zero : {{Monoid (Additive a)}} -> a
-zero = getAdditive neutral
+module _ {{_ : Monoid (Additive a)}} where
 
-one : {{Monoid (Multiplicative a)}} -> a
-one = getMultiplicative neutral
+  zero : a
+  zero = getAdditive neutral
+
+  times : Nat -> a -> a
+  times n x = getAdditive $ mtimes n (Additive: x)
+
+module _ {{_ : Monoid (Multiplicative a)}} where
+
+  one : a
+  one = getMultiplicative neutral
+
+  infixr 8 _^_
+  _^_ : a -> Nat -> a
+  x ^ n = getMultiplicative $ mtimes n (Multiplicative: x)
 
 instance
   Monoid-Unit : Monoid Unit
@@ -793,13 +808,13 @@ record Group (a : Set) : Set where
   infixl 7 _~~_
   field
     overlap {{Monoid-super}} : Monoid a
-    inverse : a -> a
+    invert : a -> a
     _~~_ : a -> a -> a
 
 open Group {{...}} public
 
 -_ : {{Group (Additive a)}} -> a -> a
--_ x = getAdditive $ inverse $ Additive: x
+-_ x = getAdditive $ invert $ Additive: x
 
 infixl 6 _-_
 _-_ : {{Group (Additive a)}} -> a -> a -> a
@@ -807,7 +822,7 @@ x - y = getAdditive $ Additive: x ~~ Additive: y
 
 instance
   Group-Additive-Int : Group (Additive Int)
-  Group-Additive-Int .inverse x =
+  Group-Additive-Int .invert x =
       Additive: $ negate (getAdditive x)
     where
       negate : Int -> Int
@@ -824,7 +839,7 @@ instance
         m (NegSuc n) -> m + Pos (Suc n)
 
   Group-Additive-Float : Group (Additive Float)
-  Group-Additive-Float .inverse x =
+  Group-Additive-Float .invert x =
       Additive: $ negate (getAdditive x)
     where
       negate : Float -> Float
