@@ -1000,6 +1000,12 @@ instance
   Functor-IO : Functor IO
   Functor-IO .map = mapIO
 
+  Functor-Additive : Functor Additive
+  Functor-Additive .map f = Additive: <<< f <<< getAdditive
+
+  Functor-Multiplicative : Functor Multiplicative
+  Functor-Multiplicative .map f = Multiplicative: <<< f <<< getMultiplicative
+
 -------------------------------------------------------------------------------
 -- Contravariant
 -------------------------------------------------------------------------------
@@ -1127,6 +1133,16 @@ instance
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
 
+  Applicative-Additive : Applicative Additive
+  Applicative-Additive .pure = Additive:
+  Applicative-Additive ._<*>_ f x =
+    Additive: $ getAdditive f $ getAdditive x
+
+  Applicative-Multiplicative : Applicative Multiplicative
+  Applicative-Multiplicative .pure = Multiplicative:
+  Applicative-Multiplicative ._<*>_ f x =
+    Multiplicative: $ getMultiplicative f $ getMultiplicative x
+
 --------------------------------------------------------------------------------
 -- Monad
 -------------------------------------------------------------------------------
@@ -1182,3 +1198,9 @@ instance
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
+
+  Monad-Additive : Monad Additive
+  Monad-Additive ._>>=_ m k = k (getAdditive m)
+
+  Monad-Multiplicative : Monad Multiplicative
+  Monad-Multiplicative ._>>=_ m k = k (getMultiplicative m)
