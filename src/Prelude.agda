@@ -100,6 +100,10 @@ record Multiplicative (a : Set) : Set where
 
 open Multiplicative public
 
+infixr 5 _:|_
+data List1 (a : Set) : Set where
+  _:|_ : a -> List a -> List1 a
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -401,6 +405,9 @@ instance
   Eq-Multiplicative : {{Eq a}} -> Eq (Multiplicative a)
   Eq-Multiplicative ._==_ = equating getMultiplicative
 
+  Eq-List1 : {{Eq a}} -> Eq (List1 a)
+  Eq-List1 ._==_ (x :| xs) (y :| ys) = x == y && xs == ys
+
 -------------------------------------------------------------------------------
 -- Ord
 -------------------------------------------------------------------------------
@@ -493,8 +500,8 @@ instance
   Ord-List .compare (x :: xs) (y :: ys) =
     case compare x y of \ where
       LT -> LT
-      GT -> GT
       EQ -> compare xs ys
+      GT -> GT
 
   Ord-String : Ord String
   Ord-String .compare l r =
@@ -519,6 +526,13 @@ instance
 
   Ord-Multiplicative : {{Ord a}} -> Ord (Multiplicative a)
   Ord-Multiplicative .compare = comparing getMultiplicative
+
+  Ord-List1 : {{Ord a}} -> Ord (List1 a)
+  Ord-List1 .compare (x :| xs) (y :| ys) =
+    case compare x y of \ where
+      LT -> LT
+      EQ -> compare xs ys
+      GT -> GT
 
 -------------------------------------------------------------------------------
 -- FromNat
@@ -696,6 +710,9 @@ instance
   Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
+
+  Semigroup-List1 : Semigroup (List1 a)
+  Semigroup-List1 ._<>_ (x :| xs) (y :| ys) = x :| (xs <> y :: ys)
 
 -------------------------------------------------------------------------------
 -- Commutative
@@ -1021,6 +1038,9 @@ instance
   Functor-Multiplicative : Functor Multiplicative
   Functor-Multiplicative .map f = Multiplicative: <<< f <<< getMultiplicative
 
+  Functor-List1 : Functor List1
+  Functor-List1 .map f (x :| xs) = f x :| map f xs
+
 -------------------------------------------------------------------------------
 -- Contravariant
 -------------------------------------------------------------------------------
@@ -1158,6 +1178,10 @@ instance
   Applicative-Multiplicative ._<*>_ f x =
     Multiplicative: $ getMultiplicative f $ getMultiplicative x
 
+  Applicative-List1 : Applicative List1
+  Applicative-List1 .pure x = x :| []
+  Applicative-List1 ._<*>_ (f :| fs) (x :| xs) = f x :| (fs <*> xs)
+
 --------------------------------------------------------------------------------
 -- Monad
 -------------------------------------------------------------------------------
@@ -1219,3 +1243,13 @@ instance
 
   Monad-Multiplicative : Monad Multiplicative
   Monad-Multiplicative ._>>=_ m k = k (getMultiplicative m)
+
+  Monad-List1 : Monad List1
+  Monad-List1 ._>>=_ (x :| xs) k =
+      case k x of \ where
+        (y :| ys) ->
+          let ys' = xs >>= k >>> toList
+          in y :| (ys <> ys')
+    where
+      toList : List1 a -> List a
+      toList (z :| zs) = z :: zs
