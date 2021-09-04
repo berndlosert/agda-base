@@ -83,6 +83,24 @@ open import Agda.Builtin.IO public
   using (IO)
 
 -------------------------------------------------------------------------------
+-- Auxiliary types
+-------------------------------------------------------------------------------
+
+-- For additive semigroups, monoids, etc.
+record Sum (a : Set) : Set where
+  constructor Sum:
+  field getSum : a
+
+open Sum public
+
+-- For multiplicative semigroups, monoids, etc.
+record Product (a : Set) : Set where
+  constructor Product:
+  field getProduct : a
+
+open Product public
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
@@ -377,6 +395,12 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
+  Eq-Sum : {{Eq a}} -> Eq (Sum a)
+  Eq-Sum ._==_ = equating getSum
+
+  Eq-Product : {{Eq a}} -> Eq (Product a)
+  Eq-Product ._==_ = equating getProduct
+
 -------------------------------------------------------------------------------
 -- Ord
 -------------------------------------------------------------------------------
@@ -490,6 +514,12 @@ instance
   Ord-Maybe .compare (Just x) (Just y) = compare x y
   Ord-Maybe .compare (Just _) _ = GT
 
+  Ord-Sum : {{Ord a}} -> Ord (Sum a)
+  Ord-Sum .compare = comparing getSum
+
+  Ord-Product : {{Ord a}} -> Ord (Product a)
+  Ord-Product .compare = comparing getProduct
+
 -------------------------------------------------------------------------------
 -- FromNat
 -------------------------------------------------------------------------------
@@ -534,7 +564,7 @@ instance
   ToNat-Int .toNat (NegSuc n) = 0
 
 -------------------------------------------------------------------------------
--- Neg
+-- FromNeg
 -------------------------------------------------------------------------------
 
 record FromNeg (a : Set) : Set where
@@ -744,6 +774,15 @@ instance
   Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
+
+-------------------------------------------------------------------------------
+-- Abelian
+-------------------------------------------------------------------------------
+
+record Abelian (a : Set) : Set where
+  field overlap {{super}} : Semigroup a
+
+open Abelian {{...}}
 
 -------------------------------------------------------------------------------
 -- Monoid
