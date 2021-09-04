@@ -196,6 +196,19 @@ pred : Nat -> Nat
 pred 0 = 0
 pred (Suc n) = n
 
+-------------------------------------------------------------------------------
+-- Int primitives
+-------------------------------------------------------------------------------
+
+neg : Nat -> Int
+neg 0 = Pos 0
+neg (Suc n) = NegSuc n
+
+diff : Nat -> Nat -> Int
+diff m 0 = Pos m
+diff Zero (Suc n) = NegSuc n
+diff (Suc m) (Suc n) = diff m n
+
 ------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
@@ -489,7 +502,6 @@ record FromNat (a : Set) : Set where
 open FromNat {{...}} public
 
 {-# BUILTIN FROMNAT fromNat #-}
-{-# DISPLAY FromNat.fromNat _ n = fromNat n #-}
 
 instance
   FromNat-Nat : FromNat Nat
@@ -525,25 +537,23 @@ instance
 -- Neg
 -------------------------------------------------------------------------------
 
-record Neg (a : Set) : Set where
+record FromNeg (a : Set) : Set where
   field
-    NegConstraint : Nat -> Set
-    neg : (n : Nat) -> {{NegConstraint n}} -> a
+    FromNegConstraint : Nat -> Set
+    fromNeg : (n : Nat) -> {{FromNegConstraint n}} -> a
 
-open Neg {{...}} public
+open FromNeg {{...}} public
 
-{-# BUILTIN FROMNEG neg #-}
-{-# DISPLAY Neg.neg _ n = neg n #-}
+{-# BUILTIN FROMNEG fromNeg #-}
 
 instance
-  Neg-Int : Neg Int
-  Neg-Int .NegConstraint _ = Unit
-  Neg-Int .neg 0 = Pos 0
-  Neg-Int .neg (Suc n) = NegSuc n
+  FromNeg-Int : FromNeg Int
+  FromNeg-Int .FromNegConstraint _ = Unit
+  FromNeg-Int .fromNeg n = neg n
 
-  Neg-Float : Neg Float
-  Neg-Float .NegConstraint _ = Unit
-  Neg-Float .neg n =
+  FromNeg-Float : FromNeg Float
+  FromNeg-Float .FromNegConstraint _ = Unit
+  FromNeg-Float .fromNeg n =
     Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
@@ -586,11 +596,6 @@ instance
       (NegSuc m) (Pos n) -> diff n (Suc m)
       (Pos m) (NegSuc n) -> diff m (Suc n)
       (Pos m) (Pos n) -> Pos (m + n)
-    where
-      diff : Nat -> Nat -> Int
-      diff m Zero = Pos m
-      diff Zero (Suc n) = NegSuc n
-      diff (Suc m) (Suc n) = diff m n
   Num-Int ._-_ = \ where
     m (Pos n) -> m + (neg n)
     m (NegSuc n) -> m + Pos (Suc n)
@@ -612,7 +617,7 @@ instance
 record Signed (a : Set) : Set where
   field
     overlap {{Num-super}} : Num a
-    overlap {{Neg-super}} : Neg a
+    overlap {{FromNeg-super}} : FromNeg a
     -_ : a -> a
     abs : a -> a
     signum : a -> a

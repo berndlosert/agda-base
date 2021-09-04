@@ -215,10 +215,7 @@ nat = chainl1 digit' (pure \ m n -> 10 * m + n)
         (Char.toDigit n)
 
 int : Parser Int
-int = (| neg' (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
-  where
-    neg' : Nat -> Int
-    neg' x = neg x
+int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
 
 -------------------------------------------------------------------------------
 -- Misc. parsers
