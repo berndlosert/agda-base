@@ -87,18 +87,18 @@ open import Agda.Builtin.IO public
 -------------------------------------------------------------------------------
 
 -- For additive semigroups, monoids, etc.
-record Sum (a : Set) : Set where
-  constructor Sum:
-  field getSum : a
+record Additive (a : Set) : Set where
+  constructor Additive:
+  field getAdditive : a
 
-open Sum public
+open Additive public
 
 -- For multiplicative semigroups, monoids, etc.
-record Product (a : Set) : Set where
-  constructor Product:
-  field getProduct : a
+record Multiplicative (a : Set) : Set where
+  constructor Multiplicative:
+  field getMultiplicative : a
 
-open Product public
+open Multiplicative public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -395,11 +395,11 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
-  Eq-Sum : {{Eq a}} -> Eq (Sum a)
-  Eq-Sum ._==_ = equating getSum
+  Eq-Additive : {{Eq a}} -> Eq (Additive a)
+  Eq-Additive ._==_ = equating getAdditive
 
-  Eq-Product : {{Eq a}} -> Eq (Product a)
-  Eq-Product ._==_ = equating getProduct
+  Eq-Multiplicative : {{Eq a}} -> Eq (Multiplicative a)
+  Eq-Multiplicative ._==_ = equating getMultiplicative
 
 -------------------------------------------------------------------------------
 -- Ord
@@ -514,11 +514,11 @@ instance
   Ord-Maybe .compare (Just x) (Just y) = compare x y
   Ord-Maybe .compare (Just _) _ = GT
 
-  Ord-Sum : {{Ord a}} -> Ord (Sum a)
-  Ord-Sum .compare = comparing getSum
+  Ord-Additive : {{Ord a}} -> Ord (Additive a)
+  Ord-Additive .compare = comparing getAdditive
 
-  Ord-Product : {{Ord a}} -> Ord (Product a)
-  Ord-Product .compare = comparing getProduct
+  Ord-Multiplicative : {{Ord a}} -> Ord (Multiplicative a)
+  Ord-Multiplicative .compare = comparing getMultiplicative
 
 -------------------------------------------------------------------------------
 -- FromNat
@@ -586,141 +586,138 @@ instance
   FromNeg-Float .fromNeg n =
     Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
 
--------------------------------------------------------------------------------
--- Num
--------------------------------------------------------------------------------
-
-record Num (a : Set) : Set where
-  infixl 6 _+_
-  infixl 6 _-_
-  infixl 7 _*_
-  field
-    {{FromNat-super}} : FromNat a
-    {{Ord-super}} : Ord a
-    {{HasZero}} : FromNatConstraint {{FromNat-super}} 0
-    {{HasOne}} : FromNatConstraint {{FromNat-super}} 1
-    _+_ : a -> a -> a
-    _-_ : a -> a -> a
-    _*_ : a -> a -> a
-
-  times : Nat -> a -> a
-  times 0 _ = 0
-  times (Suc n) x = times n x + x
-
-  infixr 8 _^_
-  _^_ : a -> Nat -> a
-  a ^ 0 = 1
-  a ^ (Suc n) = a ^ n * a
-
-open Num {{...}} public
-
-instance
-  Num-Nat : Num Nat
-  Num-Nat ._+_ = Agda.Builtin.Nat._+_
-  Num-Nat ._-_ = Agda.Builtin.Nat._-_
-  Num-Nat ._*_ = Agda.Builtin.Nat._*_
-
-  Num-Int : Num Int
-  Num-Int ._+_ = \ where
-      (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
-      (NegSuc m) (Pos n) -> diff n (Suc m)
-      (Pos m) (NegSuc n) -> diff m (Suc n)
-      (Pos m) (Pos n) -> Pos (m + n)
-  Num-Int ._-_ = \ where
-    m (Pos n) -> m + (neg n)
-    m (NegSuc n) -> m + Pos (Suc n)
-  Num-Int ._*_ = \ where
-    (Pos n) (Pos m) -> Pos (n * m)
-    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
-    (Pos n) (NegSuc m) -> neg (n * Suc m)
-    (NegSuc n) (Pos m) -> neg (Suc n * m)
-
-  Num-Float : Num Float
-  Num-Float ._+_ = Agda.Builtin.Float.primFloatPlus
-  Num-Float ._-_ = Agda.Builtin.Float.primFloatMinus
-  Num-Float ._*_ = Agda.Builtin.Float.primFloatTimes
-
--------------------------------------------------------------------------------
--- Signed
--------------------------------------------------------------------------------
-
-record Signed (a : Set) : Set where
-  field
-    overlap {{Num-super}} : Num a
-    overlap {{FromNeg-super}} : FromNeg a
-    -_ : a -> a
-    abs : a -> a
-    signum : a -> a
-
-open Signed {{...}} public
-
-instance
-  Signed-Int : Signed Int
-  Signed-Int .-_ = \ where
-    (Pos 0) -> Pos 0
-    (Pos (Suc n)) -> NegSuc n
-    (NegSuc n) -> Pos (Suc n)
-  Signed-Int .abs n@(Pos _) = n
-  Signed-Int .abs (NegSuc n) = Pos (Suc n)
-  Signed-Int .signum n@(Pos 0) = n
-  Signed-Int .signum (Pos _) = Pos 1
-  Signed-Int .signum (NegSuc _) = NegSuc 0
-
-  Signed-Float : Signed Float
-  Signed-Float .-_ = Agda.Builtin.Float.primFloatNegate
-  Signed-Float .abs x = if x < 0.0 then - x else x
-  Signed-Float .signum x = case compare x 0.0 of \ where
-    LT -> -1.0
-    EQ -> 0.0
-    GT -> 1.0
-
--------------------------------------------------------------------------------
--- Integral
--------------------------------------------------------------------------------
-
-record Integral (a : Set) : Set where
-  field
-    overlap {{Num-super}} : Num a
-    quot : {{Partial}} -> a -> a -> a
-    rem : {{Partial}} -> a -> a -> a
-
-open Integral {{...}} public
-
-instance
-  Integral-Nat : Integral Nat
-  Integral-Nat .quot m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
-  Integral-Nat .quot m 0 = undefined
-  Integral-Nat .rem m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
-  Integral-Nat .rem m 0 = undefined
-
-  Integral-Int : Integral Int
-  Integral-Int .quot = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (quot m n)
-    (Pos m) (NegSuc n) -> neg (quot m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (quot (Suc m) n)
-    (NegSuc m) (NegSuc n) -> Pos (quot (Suc m) (Suc n))
-    _ _ -> undefined
-  Integral-Int .rem = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (rem m n)
-    (Pos m) (NegSuc n) -> Pos (rem m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (rem (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (rem (Suc m) (Suc n))
-    _ _ -> undefined
-
--------------------------------------------------------------------------------
--- Fractional
--------------------------------------------------------------------------------
-
-record Fractional (a : Set) : Set where
-  field
-    overlap {{Num-super}} : Num a
-    _/_ : {{Partial}} -> a -> a -> a
-
-open Fractional {{...}} public
-
-instance
-  Fractional-Float : Fractional Float
-  Fractional-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
+---------------------------------------------------------------------------------
+---- Num
+---------------------------------------------------------------------------------
+--
+--record Num (a : Set) : Set where
+--  infixl 6 _+_
+--  infixl 6 _-_
+--  infixl 7 _*_
+--  field
+--    {{FromNat-super}} : FromNat a
+--    {{Ord-super}} : Ord a
+--    {{HasZero}} : FromNatConstraint {{FromNat-super}} 0
+--    {{HasOne}} : FromNatConstraint {{FromNat-super}} 1
+--    _+_ : a -> a -> a
+--    _-_ : a -> a -> a
+--    _*_ : a -> a -> a
+--
+--  times : Nat -> a -> a
+--  times 0 _ = 0
+--  times (Suc n) x = times n x + x
+--
+--  infixr 8 _^_
+--  _^_ : a -> Nat -> a
+--  a ^ 0 = 1
+--  a ^ (Suc n) = a ^ n * a
+--
+--open Num {{...}} public
+--
+--instance
+--  Num-Nat : Num Nat
+--  Num-Nat ._+_ = Agda.Builtin.Nat._+_
+--  Num-Nat ._-_ = Agda.Builtin.Nat._-_
+--  Num-Nat ._*_ = Agda.Builtin.Nat._*_
+--
+--  Num-Int : Num Int
+--  Num-Int ._+_ = \ where
+--      (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+--      (NegSuc m) (Pos n) -> diff n (Suc m)
+--      (Pos m) (NegSuc n) -> diff m (Suc n)
+--      (Pos m) (Pos n) -> Pos (m + n)
+--  Num-Int ._*_ = \ where
+--    (Pos n) (Pos m) -> Pos (n * m)
+--    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+--    (Pos n) (NegSuc m) -> neg (n * Suc m)
+--    (NegSuc n) (Pos m) -> neg (Suc n * m)
+--
+--  Num-Float : Num Float
+--  Num-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+--  Num-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+--  Num-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+--
+---------------------------------------------------------------------------------
+---- Signed
+---------------------------------------------------------------------------------
+--
+--record Signed (a : Set) : Set where
+--  field
+--    overlap {{Num-super}} : Num a
+--    overlap {{FromNeg-super}} : FromNeg a
+--    -_ : a -> a
+--    abs : a -> a
+--    signum : a -> a
+--
+--open Signed {{...}} public
+--
+--instance
+--  Signed-Int : Signed Int
+--  Signed-Int .-_ = \ where
+--    (Pos 0) -> Pos 0
+--    (Pos (Suc n)) -> NegSuc n
+--    (NegSuc n) -> Pos (Suc n)
+--  Signed-Int .abs n@(Pos _) = n
+--  Signed-Int .abs (NegSuc n) = Pos (Suc n)
+--  Signed-Int .signum n@(Pos 0) = n
+--  Signed-Int .signum (Pos _) = Pos 1
+--  Signed-Int .signum (NegSuc _) = NegSuc 0
+--
+--  Signed-Float : Signed Float
+--  Signed-Float .-_ = Agda.Builtin.Float.primFloatNegate
+--  Signed-Float .abs x = if x < 0.0 then - x else x
+--  Signed-Float .signum x = case compare x 0.0 of \ where
+--    LT -> -1.0
+--    EQ -> 0.0
+--    GT -> 1.0
+--
+---------------------------------------------------------------------------------
+---- Integral
+---------------------------------------------------------------------------------
+--
+--record Integral (a : Set) : Set where
+--  field
+--    overlap {{Num-super}} : Num a
+--    quot : {{Partial}} -> a -> a -> a
+--    rem : {{Partial}} -> a -> a -> a
+--
+--open Integral {{...}} public
+--
+--instance
+--  Integral-Nat : Integral Nat
+--  Integral-Nat .quot m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+--  Integral-Nat .quot m 0 = undefined
+--  Integral-Nat .rem m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+--  Integral-Nat .rem m 0 = undefined
+--
+--  Integral-Int : Integral Int
+--  Integral-Int .quot = \ where
+--    (Pos m) (Pos n@(Suc _)) -> Pos (quot m n)
+--    (Pos m) (NegSuc n) -> neg (quot m (Suc n))
+--    (NegSuc m) (Pos n@(Suc _)) -> neg (quot (Suc m) n)
+--    (NegSuc m) (NegSuc n) -> Pos (quot (Suc m) (Suc n))
+--    _ _ -> undefined
+--  Integral-Int .rem = \ where
+--    (Pos m) (Pos n@(Suc _)) -> Pos (rem m n)
+--    (Pos m) (NegSuc n) -> Pos (rem m (Suc n))
+--    (NegSuc m) (Pos n@(Suc _)) -> neg (rem (Suc m) n)
+--    (NegSuc m) (NegSuc n) -> neg (rem (Suc m) (Suc n))
+--    _ _ -> undefined
+--
+---------------------------------------------------------------------------------
+---- Fractional
+---------------------------------------------------------------------------------
+--
+--record Fractional (a : Set) : Set where
+--  field
+--    overlap {{Num-super}} : Num a
+--    _/_ : {{Partial}} -> a -> a -> a
+--
+--open Fractional {{...}} public
+--
+--instance
+--  Fractional-Float : Fractional Float
+--  Fractional-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup
@@ -731,6 +728,14 @@ record Semigroup (a : Set) : Set where
   field _<>_ : a -> a -> a
 
 open Semigroup {{...}} public
+
+infixl 6 _+_
+_+_ : {{Semigroup (Additive a)}} -> a -> a -> a
+x + y = getAdditive $ Additive: x <> Additive: y
+
+infixl 7 _*_
+_*_ : {{Semigroup (Multiplicative a)}} -> a -> a -> a
+x * y = getMultiplicative $ Multiplicative: x <> Multiplicative: y
 
 instance
   Semigroup-Void : Semigroup Void
@@ -744,6 +749,56 @@ instance
     LT _ -> LT
     EQ y -> y
     GT _ -> GT
+
+  Semigroup-Additive-Nat : Semigroup (Additive Nat)
+  Semigroup-Additive-Nat ._<>_ m n =
+      Additive: $ plus (getAdditive m) (getAdditive n)
+    where
+      plus : Nat -> Nat -> Nat
+      plus = Agda.Builtin.Nat._+_
+
+  Semigroup-Multiplicative-Nat : Semigroup (Multiplicative Nat)
+  Semigroup-Multiplicative-Nat ._<>_ m n =
+      Multiplicative: $ times (getMultiplicative m) (getMultiplicative n)
+    where
+      times : Nat -> Nat -> Nat
+      times = Agda.Builtin.Nat._*_
+
+  Semigroup-Additive-Int : Semigroup (Additive Int)
+  Semigroup-Additive-Int ._<>_ m n =
+      Additive: $ plus (getAdditive m) (getAdditive n)
+    where
+      plus : Int -> Int -> Int
+      plus = \ where
+        (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+        (NegSuc m) (Pos n) -> diff n (Suc m)
+        (Pos m) (NegSuc n) -> diff m (Suc n)
+        (Pos m) (Pos n) -> Pos (m + n)
+
+  Semigroup-Multiplicative-Int : Semigroup (Multiplicative Int)
+  Semigroup-Multiplicative-Int ._<>_ m n =
+      Multiplicative: $ times (getMultiplicative m) (getMultiplicative n)
+    where
+      times : Int -> Int -> Int
+      times = \ where
+        (Pos n) (Pos m) -> Pos (n * m)
+        (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+        (Pos n) (NegSuc m) -> neg (n * Suc m)
+        (NegSuc n) (Pos m) -> neg (Suc n * m)
+
+  Semigroup-Additive-Float : Semigroup (Additive Float)
+  Semigroup-Additive-Float ._<>_ x y =
+      Additive: $ plus (getAdditive x) (getAdditive y)
+    where
+      plus : Float -> Float -> Float
+      plus = Agda.Builtin.Float.primFloatPlus
+
+  Semigroup-Multiplicative-Float : Semigroup (Multiplicative Float)
+  Semigroup-Multiplicative-Float ._<>_ x y =
+      Multiplicative: $ times (getMultiplicative x) (getMultiplicative y)
+    where
+      times : Float -> Float -> Float
+      times = Agda.Builtin.Float.primFloatTimes
 
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
@@ -776,13 +831,32 @@ instance
     (| _<>_ x y |)
 
 -------------------------------------------------------------------------------
--- Abelian
+-- Commutative
 -------------------------------------------------------------------------------
 
-record Abelian (a : Set) : Set where
-  field overlap {{super}} : Semigroup a
+record Commutative (a : Set) : Set where
+  field overlap {{Semigroup-super}} : Semigroup a
 
-open Abelian {{...}}
+open Commutative {{...}}
+
+instance
+  Commutative-Additive-Nat : Commutative (Additive Nat)
+  Commutative-Additive-Nat = record {}
+
+  Commutative-Multiplicative-Nat : Commutative (Multiplicative Nat)
+  Commutative-Multiplicative-Nat = record {}
+
+  Commutative-Additive-Int : Commutative (Additive Int)
+  Commutative-Additive-Int = record {}
+
+  Commutative-Multiplicative-Int : Commutative (Multiplicative Int)
+  Commutative-Multiplicative-Int = record {}
+
+  Commutative-Additive-Float : Commutative (Additive Float)
+  Commutative-Additive-Float = record {}
+
+  Commutative-Multiplicative-Float : Commutative (Multiplicative Float)
+  Commutative-Multiplicative-Float = record {}
 
 -------------------------------------------------------------------------------
 -- Monoid
@@ -795,12 +869,36 @@ record Monoid (a : Set) : Set where
 
 open Monoid {{...}} public
 
+zero : {{Monoid (Additive a)}} -> a
+zero = getAdditive neutral
+
+one : {{Monoid (Multiplicative a)}} -> a
+one = getMultiplicative neutral
+
 instance
   Monoid-Unit : Monoid Unit
   Monoid-Unit .neutral = unit
 
   Monoid-Ordering : Monoid Ordering
   Monoid-Ordering .neutral = EQ
+
+  Monoid-Additive-Nat : Monoid (Additive Nat)
+  Monoid-Additive-Nat .neutral = Additive: 0
+
+  Monoid-Multiplicative-Nat : Monoid (Multiplicative Nat)
+  Monoid-Multiplicative-Nat .neutral = Multiplicative: 1
+
+  Monoid-Additive-Int : Monoid (Additive Int)
+  Monoid-Additive-Int .neutral = Additive: (Pos 0)
+
+  Monoid-Multiplicative-Int : Monoid (Multiplicative Int)
+  Monoid-Multiplicative-Int .neutral = Multiplicative: (Pos 1)
+
+  Monoid-Additive-Float : Monoid (Additive Float)
+  Monoid-Additive-Float .neutral = Additive: 0.0
+
+  Monoid-Multiplicative-Float : Monoid (Multiplicative Float)
+  Monoid-Multiplicative-Float .neutral = Multiplicative: 1.0
 
   Monoid-String : Monoid String
   Monoid-String .neutral = ""
@@ -819,6 +917,147 @@ instance
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .neutral = pureIO neutral
+
+-------------------------------------------------------------------------------
+-- Group
+-------------------------------------------------------------------------------
+
+record Group (a : Set) : Set where
+  infixl 7 _~~_
+  field
+    overlap {{Monoid-super}} : Monoid a
+    inverse : a -> a
+    _~~_ : a -> a -> a
+
+open Group {{...}} public
+
+-_ : {{Group (Additive a)}} -> a -> a
+-_ x = getAdditive $ inverse $ Additive: x
+
+infixl 6 _-_
+_-_ : {{Group (Additive a)}} -> a -> a -> a
+x - y = getAdditive $ Additive: x ~~ Additive: y
+
+instance
+  Group-Additive-Int : Group (Additive Int)
+  Group-Additive-Int .inverse x =
+      Additive: $ negate (getAdditive x)
+    where
+      negate : Int -> Int
+      negate = \ where
+        (Pos 0) -> Pos 0
+        (Pos (Suc n)) -> NegSuc n
+        (NegSuc n) -> Pos (Suc n)
+  Group-Additive-Int ._~~_ x y =
+      Additive: $ minus (getAdditive x) (getAdditive y)
+    where
+      minus : Int -> Int -> Int
+      minus = \ where
+        m (Pos n) -> m + (neg n)
+        m (NegSuc n) -> m + Pos (Suc n)
+
+  Group-Additive-Float : Group (Additive Float)
+  Group-Additive-Float .inverse x =
+      Additive: $ negate (getAdditive x)
+    where
+      negate : Float -> Float
+      negate = Agda.Builtin.Float.primFloatNegate
+  Group-Additive-Float ._~~_ x y =
+      Additive: $ minus (getAdditive x) (getAdditive y)
+    where
+      minus : Float -> Float -> Float
+      minus = Agda.Builtin.Float.primFloatMinus
+
+-------------------------------------------------------------------------------
+-- Semiring
+-------------------------------------------------------------------------------
+
+record Semiring (a : Set) : Set where
+  field
+    overlap {{Commutative-Additive-super}} : Commutative (Additive a)
+    overlap {{Monoid-Additive-super}} : Monoid (Additive a)
+    overlap {{Monoid-Multiplicative-super}} : Monoid (Multiplicative a)
+
+open Semiring {{...}} public
+
+instance
+  Semiring-Nat : Semiring Nat
+  Semiring-Nat = record {}
+
+  Semiring-Int : Semiring Int
+  Semiring-Int = record {}
+
+  Semiring-Float : Semiring Float
+  Semiring-Float = record {}
+
+-------------------------------------------------------------------------------
+-- Ring
+-------------------------------------------------------------------------------
+
+record Ring (a : Set) : Set where
+  field
+    overlap {{Semiring-super}} : Semiring a
+    overlap {{Group-Additive-super}} : Group (Additive a)
+
+open Ring {{...}} public
+
+instance
+  Ring-Int : Ring Int
+  Ring-Int = record {}
+
+  Ring-Float : Ring Float
+  Ring-Float = record {}
+
+-------------------------------------------------------------------------------
+-- Euclidean
+-------------------------------------------------------------------------------
+
+record Euclidean (a : Set) : Set where
+  field
+    overlap {{Eq-super}} : Eq a
+    overlap {{Semiring-super}} : Semiring a
+    quot rem : (x y : a) -> {{Assert $ y /= zero}} -> a
+
+open Euclidean {{...}} public
+
+instance
+  Euclidean-Nat : Euclidean Nat
+  Euclidean-Nat .quot m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  Euclidean-Nat .quot m 0 = error "Prelude.Euclidean-Nat .quot"
+  Euclidean-Nat .rem m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  Euclidean-Nat .rem m 0 = error "Prelude.Euclidean-Nat .rem"
+
+  Euclidean-Int : Euclidean Int
+  Euclidean-Int .quot = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (quot m n)
+    (Pos m) (NegSuc n) -> neg (quot m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (quot (Suc m) n)
+    (NegSuc m) (NegSuc n) -> Pos (quot (Suc m) (Suc n))
+    _ _ -> error "Prelude.Euclidean-Int .quot"
+  Euclidean-Int .rem = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (rem m n)
+    (Pos m) (NegSuc n) -> Pos (rem m (Suc n))
+    (NegSuc m) (Pos n@(Suc _)) -> neg (rem (Suc m) n)
+    (NegSuc m) (NegSuc n) -> neg (rem (Suc m) (Suc n))
+    _ _ -> error "Prelude.Euclidean-Int .rem"
+
+-------------------------------------------------------------------------------
+-- Field
+-------------------------------------------------------------------------------
+
+record Field (a : Set) : Set where
+  infixl 7 _/_
+  field
+    overlap {{Eq-super}} : Eq a
+    overlap {{Ring-super}} : Ring a
+    overlap {{Commutative-Multiplicative-super}} : Commutative (Multiplicative a)
+    _/_ : (x y : a) -> {{Assert $ y /= zero}} -> a
+
+open Field {{...}} public
+
+instance
+  Field-Float : Field (Float)
+  Field-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Category
