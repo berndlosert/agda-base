@@ -213,8 +213,9 @@ data Uncons : String -> Set where
   _::_ : (c : Char) (s : String) -> Uncons (cons c s)
 
 unconsCorrect : (s : String) -> case uncons s of \ where
-   Nothing -> s === ""
-   (Just (c , s')) -> s === cons c s'
+  Nothing -> s === ""
+  (Just (c , s')) -> s === cons c s'
+
 unconsCorrect = trustMe
 
 asUncons : (s : String) -> Uncons s
