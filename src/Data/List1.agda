@@ -158,10 +158,10 @@ insertAt (Suc n) x (y :| ys) = y :| List.insertAt n x ys
 inits : List1 a -> List1 (List1 a)
 inits (x :| xs) = (x :| []) :| map (x :|_) (List.inits xs)
 
---tails : List a -> List (List a)
---tails [] = singleton []
---tails xs@(_ :: xs') = xs :: tails xs'
---
+tails : List1 a -> List1 (List1 a)
+tails (x :| []) = (x :| []) :| []
+tails (x :| y :: ys) = (x :| y :: ys) :| map (y :|_) (List.tails ys)
+
 --segments : List a -> List (List a)
 --segments xs = singleton [] <>
 --  (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
