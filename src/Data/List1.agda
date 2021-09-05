@@ -156,7 +156,6 @@ insertAt (Suc n) x (y :| ys) = y :| List.insertAt n x ys
 -------------------------------------------------------------------------------
 
 inits : List1 a -> List1 (List1 a)
--- inits (x :| []) = (x :| []) :| []
 inits (x :| xs) = (x :| []) :| map (x :|_) (List.inits xs)
 
 --tails : List a -> List (List a)
