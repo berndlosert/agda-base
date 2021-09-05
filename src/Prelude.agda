@@ -25,6 +25,9 @@ open import Agda.Builtin.Nat public
   renaming (zero to Zero)
   renaming (suc to Suc)
 
+data Nat1 : Set where
+  Suc : Nat -> Nat1
+
 open import Agda.Builtin.Int public
   using (Int)
   renaming (pos to Pos)
@@ -345,6 +348,9 @@ instance
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
 
+  Eq-Nat1 : Eq Nat1
+  Eq-Nat1 ._==_ (Suc m) (Suc n) = m == n
+
   Eq-Int : Eq Int
   Eq-Int ._==_ = \ where
     (Pos m) (Pos n) -> m == n
@@ -451,6 +457,9 @@ instance
     else if Agda.Builtin.Nat._<_ m n then LT
     else GT
 
+  Ord-Nat1 : Ord Nat1
+  Ord-Nat1 .compare (Suc m) (Suc n) = compare m n
+
   Ord-Int : Ord Int
   Ord-Int .compare = \ where
     (Pos m) (Pos n) -> compare m n
@@ -522,6 +531,11 @@ instance
   FromNat-Nat .FromNatConstraint _ = Unit
   FromNat-Nat .fromNat n = n
 
+  FromNat-Nat1 : FromNat Nat1
+  FromNat-Nat1 .FromNatConstraint 0 = Void
+  FromNat-Nat1 .FromNatConstraint _ = Unit
+  FromNat-Nat1 .fromNat (Suc n) = Suc n
+
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = Pos n
@@ -542,6 +556,10 @@ record ToNat (a : Set) : Set where
 open ToNat {{...}} public
 
 instance
+  ToNat-Nat1 : ToNat Nat1
+  ToNat-Nat1 .ToNatConstraint _ = Unit
+  ToNat-Nat1 .toNat (Suc n) = Suc n
+
   ToNat-Int : ToNat Int
   ToNat-Int .ToNatConstraint _ = Unit
   ToNat-Int .toNat (Pos n) = n
@@ -655,6 +673,17 @@ instance
   Mod-Nat : Mod Nat
   Mod-Nat .Divisor-super = Divisor-Nat
   Mod-Nat ._%_ m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+
+  Add-Nat1 : Add Nat1
+  Add-Nat1 ._+_ (Suc m) (Suc n) = Suc (Suc (m + n))
+
+  Mul-Nat1 : Mul Nat1
+  Mul-Nat1 ._*_ (Suc m) (Suc n) = Suc (m * n + m + n)
+
+  Exp-Nat1 : Exp Nat1
+  Exp-Nat1 .Power = Nat
+  Exp-Nat1 ._^_ m 0 = Suc 0
+  Exp-Nat1 ._^_ m (Suc n) = m * m ^ n
 
   Add-Int : Add Int
   Add-Int ._+_ = \ where
