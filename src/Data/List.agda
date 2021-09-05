@@ -307,7 +307,7 @@ group = groupBy _==_
 groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
 groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
-chunksOf : {{Partial}} -> Nat -> List a -> List (List a)
+chunksOf : Nat -> List a -> List (List a)
 chunksOf {a} n xs = fromMaybe [] (petrol go (length xs) xs)
   where
     go : Fn (List a) (List (List a))
@@ -330,7 +330,7 @@ breakOn {a} needle haystack =
             res <- call xs
             pure $ lmap (x ::_) res
 
-splitOn : {{Partial}} -> {{Eq a}} -> List a -> List a -> List (List a)
+splitOn : {{Eq a}} -> List a -> List a -> List (List a)
 splitOn {a} needle haystack =
     fromMaybe [] (petrol go (length haystack) haystack)
   where
