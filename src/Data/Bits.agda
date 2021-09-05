@@ -60,7 +60,7 @@ record Bits (a : Set) : Set where
 
   countLeadingZeros : a -> Nat
   countLeadingZeros x =
-      let n = pred (bitSize x) in monus n (go n)
+      let n = bitSize x - 1 in n - (go n)
     where
       go : Nat -> Nat
       go 0 = 0
@@ -68,7 +68,7 @@ record Bits (a : Set) : Set where
 
   countTrailingZeros : a -> Nat
   countTrailingZeros x =
-     let n = pred (bitSize x) in go n 0
+     let n = bitSize x - 1 in go n 0
     where
       go : Nat -> Nat -> Nat
       go 0 n = n
