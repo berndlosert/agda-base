@@ -11,6 +11,7 @@ open import Prelude
 open import Data.Enum
 open import Data.Float as Float using ()
 open import Data.List as List using ()
+open import Data.List1 as List1 using ()
 open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
 open import Data.Foldable
@@ -106,19 +107,22 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : {{Partial}} -> List (Gen a) -> Gen a
-oneof [] = undefined
-oneof gs = do
-  n <- choose (0 , pred (length gs))
-  fromJust (List.at n gs)
+oneof : List1 (Gen a) -> Gen a
+oneof (g :| gs) = do
+  n <- choose (0 , length gs)
+  fromMaybe g (List.at n gs)
 
-frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
-frequency [] = undefined
-frequency xs =
-    choose (1 , sum (map fst xs)) >>= (flip pick) xs
+frequency : List1 (Pair Nat1 (Gen a)) -> Gen a
+frequency xs = do
+    let xs' = map (\ where (n , g) -> (toNat n , g)) (toList xs)
+    let N = sum $ map fst xs'
+    n <- choose (1 , N)
+    fromMaybe (snd $ List1.head xs) (pick n xs')
   where
-    pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
+    pick : Nat -> List (Pair Nat (Gen a)) -> Maybe (Gen a)
+    pick n [] = Nothing
+    pick n ((m , g) :: rest) =
+      if n <= m then Just g else pick (n - m) rest
 
 elements : List1 a -> Gen a
 elements (x :| xs) = map
