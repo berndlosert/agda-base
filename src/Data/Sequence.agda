@@ -127,11 +127,8 @@ abstract
   tail : Seq a -> Maybe (Seq a)
   tail = map snd <<< uncons
 
-  init : {{Partial}} -> Seq a -> Seq a
-  init s =
-    case unsnoc s of \ where
-      Nothing -> undefined
-      (Just (xs , _)) -> xs
+  init : Seq a -> Maybe (Seq a)
+  init s = maybe Nothing (Just <<< fst) (unsnoc s)
 
 -------------------------------------------------------------------------------
 -- Transformations
