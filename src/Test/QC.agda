@@ -120,11 +120,10 @@ frequency xs =
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
     pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
 
-elements : {{Partial}} -> List a -> Gen a
-elements [] = undefined
-elements xs = map
-  (\ n -> fromJust (List.at n xs))
-  (choose (0 , length xs - 1))
+elements : List1 a -> Gen a
+elements (x :| xs) = map
+  (\ n -> fromMaybe x (List.at n (x :: xs)))
+  (choose (0 , length xs))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
@@ -172,8 +171,7 @@ open Coarbitrary {{...}} public
 
 instance
   Arbitrary-Bool : Arbitrary Bool
-  Arbitrary-Bool .arbitrary = unsafePerform $
-    elements (True :: False :: [])
+  Arbitrary-Bool .arbitrary = elements (True :| False :: [])
 
   Arbitrary-Nat : Arbitrary Nat
   Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)
