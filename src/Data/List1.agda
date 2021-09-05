@@ -151,16 +151,14 @@ insertAt : Nat -> a -> List1 a -> List1 a
 insertAt 0 x (y :| ys) = x :| y :: ys
 insertAt (Suc n) x (y :| ys) = y :| List.insertAt n x ys
 
----------------------------------------------------------------------------------
----- Segments
----------------------------------------------------------------------------------
---
---inits : List a -> List (List a)
---inits {a} = foldr go (singleton [])
---  where
---    go : a -> List (List a) -> List (List a)
---    go x xss = [] :: map (x ::_) xss
---
+-------------------------------------------------------------------------------
+-- Segments
+-------------------------------------------------------------------------------
+
+inits : List1 a -> List1 (List1 a)
+inits (x :| []) = (x :| []) :| []
+inits (x :| xs) = (x :| []) :| map (x :|_) (List.inits xs)
+
 --tails : List a -> List (List a)
 --tails [] = singleton []
 --tails xs@(_ :: xs') = xs :: tails xs'
