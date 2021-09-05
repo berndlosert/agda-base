@@ -111,10 +111,5 @@ instance
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
 
-  Show-Additive : {{Show a}} -> Show (Additive a)
-  Show-Additive .showsPrec d x = showParen (d > appPrec)
-    (showString "Additive: " <<< showsPrec appPrec+1 (getAdditive x))
-
-  Show-Multiplicative : {{Show a}} -> Show (Multiplicative a)
-  Show-Multiplicative .showsPrec d x = showParen (d > appPrec)
-    (showString "Multiplicative: " <<< showsPrec appPrec+1 (getMultiplicative x))
+  Show-List1 : {{Show a}} -> Show (List1 a)
+  Show-List1 .showsPrec d (x :| xs) = showsPrec d (x :: xs)

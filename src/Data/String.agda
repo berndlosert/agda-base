@@ -104,10 +104,10 @@ reverse s = pack $ List.reverse $ unpack s
 -------------------------------------------------------------------------------
 
 justifyLeft : Nat -> Char -> String -> String
-justifyLeft l c s = s <> replicate (monus l (length s)) (singleton c)
+justifyLeft l c s = s <> replicate (l - length s) (singleton c)
 
 justifyRight : Nat -> Char -> String -> String
-justifyRight l c s = replicate (monus l (length s)) (singleton c) <> s
+justifyRight l c s = replicate (l - length s) (singleton c) <> s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC justifyLeft = Text.justifyLeft . fromInteger #-}

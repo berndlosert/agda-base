@@ -29,13 +29,13 @@ instance
   Enum-Nat .previous 0 = Nothing
   Enum-Nat .previous (Suc n) = Just n
   Enum-Nat .enumFromTo m n =
-      let k = max (monus m n) (monus n m)
+      let k = max (m - n) (n - m)
       in go k m n
     where
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = m :: []
       go (Suc k) m n =
-        let m' = if m < n then Suc m else pred m
+        let m' = if m < n then m + 1 else m - 1
         in m :: go k m' n
 
   Enum-Int : Enum Int

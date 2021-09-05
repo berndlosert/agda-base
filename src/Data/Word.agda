@@ -67,19 +67,11 @@ instance
   Bits-Word8 .isSigned = word8IsSigned
   Bits-Word8 .popCount = word8PopCount
 
-  Semigroup-Additive-Word8 : Semigroup (Additive Word8)
-  Semigroup-Additive-Word8 ._<>_ x y =
-    Additive: $ word8Plus (getAdditive x) (getAdditive y)
+  Add-Word8 : Add Word8
+  Add-Word8 ._+_ = word8Plus
 
-  Monoid-Additive-Word8 : Monoid (Additive Word8)
-  Monoid-Additive-Word8 .neutral = Additive: 0
-
-  Semigroup-Multiplicative-Word8 : Semigroup (Multiplicative Word8)
-  Semigroup-Multiplicative-Word8 ._<>_ x y =
-    Multiplicative: $ word8Plus (getMultiplicative x) (getMultiplicative y)
-
-  Monoid-Multiplicative-Word8 : Monoid (Multiplicative Word8)
-  Monoid-Multiplicative-Word8 .neutral = Multiplicative: 0
+  Mul-Word8 : Mul Word8
+  Mul-Word8 ._*_ = word8Times
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -138,19 +130,11 @@ instance
   Bits-Word16 .isSigned = word16IsSigned
   Bits-Word16 .popCount = word16PopCount
 
-  Semigroup-Additive-Word16 : Semigroup (Additive Word16)
-  Semigroup-Additive-Word16 ._<>_ x y =
-    Additive: $ word16Plus (getAdditive x) (getAdditive y)
+  Add-Word16 : Add Word16
+  Add-Word16 ._+_ = word16Plus
 
-  Monoid-Additive-Word16 : Monoid (Additive Word16)
-  Monoid-Additive-Word16 .neutral = Additive: 0
-
-  Semigroup-Multiplicative-Word16 : Semigroup (Multiplicative Word16)
-  Semigroup-Multiplicative-Word16 ._<>_ x y =
-    Multiplicative: $ word16Plus (getMultiplicative x) (getMultiplicative y)
-
-  Monoid-Multiplicative-Word16 : Monoid (Multiplicative Word16)
-  Monoid-Multiplicative-Word16 .neutral = Multiplicative: 0
+  Mul-Word16 : Mul Word16
+  Mul-Word16 ._*_ = word16Times
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -209,19 +193,11 @@ instance
   Bits-Word32 .isSigned = word32IsSigned
   Bits-Word32 .popCount = word32PopCount
 
-  Semigroup-Additive-Word32 : Semigroup (Additive Word32)
-  Semigroup-Additive-Word32 ._<>_ x y =
-    Additive: $ word32Plus (getAdditive x) (getAdditive y)
+  Add-Word32 : Add Word32
+  Add-Word32 ._+_ = word32Plus
 
-  Monoid-Additive-Word32 : Monoid (Additive Word32)
-  Monoid-Additive-Word32 .neutral = Additive: 0
-
-  Semigroup-Multiplicative-Word32 : Semigroup (Multiplicative Word32)
-  Semigroup-Multiplicative-Word32 ._<>_ x y =
-    Multiplicative: $ word32Plus (getMultiplicative x) (getMultiplicative y)
-
-  Monoid-Multiplicative-Word32 : Monoid (Multiplicative Word32)
-  Monoid-Multiplicative-Word32 .neutral = Multiplicative: 0
+  Mul-Word32 : Mul Word32
+  Mul-Word32 ._*_ = word32Times
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -284,19 +260,11 @@ instance
   Bits-Word64 .isSigned = word64IsSigned
   Bits-Word64 .popCount = word64PopCount
 
-  Semigroup-Additive-Word64 : Semigroup (Additive Word64)
-  Semigroup-Additive-Word64 ._<>_ x y =
-    Additive: $ word64Plus (getAdditive x) (getAdditive y)
+  Add-Word64 : Add Word64
+  Add-Word64 ._+_ = word64Plus
 
-  Monoid-Additive-Word64 : Monoid (Additive Word64)
-  Monoid-Additive-Word64 .neutral = Additive: 0
-
-  Semigroup-Multiplicative-Word64 : Semigroup (Multiplicative Word64)
-  Semigroup-Multiplicative-Word64 ._<>_ x y =
-    Multiplicative: $ word64Plus (getMultiplicative x) (getMultiplicative y)
-
-  Monoid-Multiplicative-Word64 : Monoid (Multiplicative Word64)
-  Monoid-Multiplicative-Word64 .neutral = Multiplicative: 0
+  Mul-Word64 : Mul Word64
+  Mul-Word64 ._*_ = word64Times
 
 -------------------------------------------------------------------------------
 -- FFI

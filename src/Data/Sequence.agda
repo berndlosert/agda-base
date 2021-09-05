@@ -155,14 +155,14 @@ abstract
       foldr go (const z) xs 0
     where
       go : a -> (Nat -> b) -> Nat -> b
-      go x g n = f n x (g (Suc n))
+      go x g n = f n x (g (n + 1))
 
   ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
   ifoldl {b} {a} f z xs =
-      foldl go (const z) xs (pred (length xs))
+      foldl go (const z) xs (length xs - 1)
     where
       go : (Nat -> b) -> a -> Nat -> b
-      go g x n = f (g (pred n)) n x
+      go g x n = f (g (n - 1)) n x
 
 -------------------------------------------------------------------------------
 -- Searching with a predicate
@@ -318,7 +318,7 @@ abstract
       -- Extra tails that will be zipped with those heads that have no
       -- corresponding tail in tails.
       padding : Seq (Seq a)
-      padding = replicate (monus (length heads) (length tails)) empty
+      padding = replicate (length heads - length tails) empty
       -- The tails that cannot be zipped because they have no corresponding
       -- head in heads.
       excess : Seq (Seq a)

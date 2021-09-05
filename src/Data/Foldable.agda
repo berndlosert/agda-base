@@ -103,11 +103,13 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> False) True
 
-  sum : {{Monoid (Additive a)}} -> t a -> a
-  sum = foldl _+_ zero
+  module _ {{fn : FromNat a}} where
 
-  product : {{Monoid (Multiplicative a)}} -> t a -> a
-  product = foldl _*_ one
+    sum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> t a -> a
+    sum = foldl _+_ 0
+
+    product : {{Mul a}} -> {{FromNatConstraint {{fn}} 1}} -> t a -> a
+    product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where
 
@@ -160,6 +162,20 @@ record Foldable (t : Set -> Set) : Set where
 open Foldable {{...}} public
 
 -------------------------------------------------------------------------------
+-- Foldable1
+-------------------------------------------------------------------------------
+
+record Foldable1 (t : Set -> Set) : Set where
+  field
+    foldMap1 : {{Semigroup b}} -> (a -> b) -> t a -> b
+
+  fold1 : {{Semigroup a}} -> t a -> a
+  fold1 = foldMap1 id
+
+  toList1 : t a -> List1 a
+  toList1 = foldMap1 (_:| [])
+
+-------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
@@ -171,3 +187,6 @@ instance
   Foldable-List .foldr f z = \ where
     [] -> z
     (x :: xs) -> f x (foldr f z xs)
+
+  Foldable-List1 : Foldable List1
+  Foldable-List1 .foldr f z (x :| xs) = f x (foldr f z xs)

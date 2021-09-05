@@ -118,13 +118,13 @@ frequency xs =
     choose (1 , sum (map fst xs)) >>= (flip pick) xs
   where
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick n ((k , y) :: ys) = if n <= k then y else pick (monus n k) ys
+    pick n ((k , y) :: ys) = if n <= k then y else pick (n - k) ys
 
 elements : {{Partial}} -> List a -> Gen a
 elements [] = undefined
 elements xs = map
   (\ n -> fromJust (List.at n xs))
-  (choose (0 , pred (length xs)))
+  (choose (0 , length xs - 1))
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
@@ -333,7 +333,7 @@ quick = unsafePerform $
   record {
     maxTest = 100;
     maxFail = 1000;
-    size = \ n -> quot n 2 + 3;
+    size = \ n -> n / 2 + 3;
     every = \ n args ->
       let s = show n in
       s <> String.replicate (String.length s) "\b"
@@ -364,7 +364,7 @@ private
 
       percentage : {{Partial}} -> Nat -> Nat -> String
       percentage n 0 = undefined
-      percentage n m@(Suc _) = show (quot (100 * n) m) <> "%"
+      percentage n m@(Suc _) = show ((100 * n) / m) <> "%"
 
       entry : Pair Nat (List String) -> String
       entry (n , s) = unsafePerform $

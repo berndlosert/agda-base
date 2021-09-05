@@ -58,9 +58,9 @@ genWord64s (Suc n) g0 =
 genNat : {{RandomGen g}} -> Nat -> g -> Pair Nat g
 genNat n g0 =
   let
-    q = quot n 64
-    r = rem n 64
-    mask = shiftR oneBits (monus 64 r)
+    q = n / 64
+    r = n % 64
+    mask = shiftR oneBits (64 - r)
     (ws , g) = genWord64s (q + 1) g0
   in
     case ws of \ where
@@ -75,7 +75,7 @@ genNat' {g} n g0 = loop g0
     log2 : Nat -> Nat
     log2 = \ where
       0 -> 1
-      m -> 1 + log2 (quot m 2)
+      m -> 1 + log2 (m / 2)
 
     k = log2 n
 
@@ -233,7 +233,7 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else lmap (_+ lo) (genNat' (monus hi lo) g)
+        else lmap (_+ lo) (genNat' (hi - lo) g)
 
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (i , j) g =
