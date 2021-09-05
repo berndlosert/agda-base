@@ -119,15 +119,15 @@ record Foldable (t : Set -> Set) : Set where
     notElem : a -> t a -> Bool
     notElem a s = not (elem a s)
 
-  minimumBy : {{Partial}} -> (a -> a -> Ordering) -> t a -> a
-  minimumBy {a} cmp = fromJust <<< foldl min' Nothing
+  minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
+  minimumBy {a} cmp = foldl min' Nothing
     where
       min' : Maybe a -> a -> Maybe a
       min' Nothing x = Just x
       min' (Just x) y = Just (if cmp x y == LT then x else y)
 
-  maximumBy : {{Partial}} -> (a -> a -> Ordering) -> t a -> a
-  maximumBy {a} cmp = fromJust <<< foldl max' Nothing
+  maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
+  maximumBy {a} cmp = foldl max' Nothing
     where
       max' : Maybe a -> a -> Maybe a
       max' Nothing x = Just x
@@ -135,10 +135,10 @@ record Foldable (t : Set -> Set) : Set where
 
   module _ {{_ : Ord a}} where
 
-    minimum : {{Partial}} -> t a -> a
+    minimum : t a -> Maybe a
     minimum = minimumBy compare
 
-    maximum : {{Partial}} -> t a -> a
+    maximum : t a -> Maybe a
     maximum = maximumBy compare
 
   module _ {{_ : Applicative f}} where

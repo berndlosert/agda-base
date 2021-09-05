@@ -108,7 +108,3 @@ take (Suc n) (x :: xs) =
   case take n xs of \ where
     Nothing -> Nothing
     (Just xs') -> Just (x :: xs')
-
-reverse : Vector n a -> Vector n a
-reverse {n = n} xs =
-  unsafePerform $ fromJust $ take n $ List.reverse (toList xs)

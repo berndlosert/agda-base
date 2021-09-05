@@ -292,7 +292,7 @@ dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy {a} eq xs = unsafePerform $ fromJust (petrol go (length xs) xs)
+groupBy {a} eq xs = fromMaybe [] (petrol go (length xs) xs)
   where
     go : Fn (List a) (List (List a))
     go [] = pure []
@@ -308,8 +308,7 @@ groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
 groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
 chunksOf : {{Partial}} -> Nat -> List a -> List (List a)
-chunksOf 0 _ = undefined
-chunksOf {a} n xs = fromJust (petrol go (length xs) xs)
+chunksOf {a} n xs = fromMaybe [] (petrol go (length xs) xs)
   where
     go : Fn (List a) (List (List a))
     go [] = pure []
@@ -319,7 +318,7 @@ chunksOf {a} n xs = fromJust (petrol go (length xs) xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn {a} needle haystack =
-    unsafePerform $ fromJust (petrol go (length haystack) haystack)
+    fromMaybe ([] , []) (petrol go (length haystack) haystack)
   where
     go : Fn (List a) (Pair (List a) (List a))
     go haystack = do
@@ -332,9 +331,8 @@ breakOn {a} needle haystack =
             pure $ lmap (x ::_) res
 
 splitOn : {{Partial}} -> {{Eq a}} -> List a -> List a -> List (List a)
-splitOn [] _ = undefined
 splitOn {a} needle haystack =
-    fromJust (petrol go (length haystack) haystack)
+    fromMaybe [] (petrol go (length haystack) haystack)
   where
     go : Fn (List a) (List (List a))
     go [] = pure $ singleton []
