@@ -158,7 +158,7 @@ breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
 -- Breaking into many substrings
 -------------------------------------------------------------------------------
 
-splitOn : {{Partial}} -> String -> String -> List String
+splitOn : String -> String -> List String
 splitOn delim s = map pack $ List.splitOn (unpack delim) (unpack s)
 
 split : (Char -> Bool) -> String -> List String
