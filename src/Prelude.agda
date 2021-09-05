@@ -239,13 +239,11 @@ isRight : Either a b -> Bool
 isRight (Left _) = False
 isRight _ = True
 
-fromLeft : {{Partial}} -> Either a b -> a
+fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
 fromLeft (Left x) = x
-fromLeft _ = undefined
 
-fromRight : {{Partial}} -> Either a b -> b
+fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
 fromRight (Right x) = x
-fromRight _ = undefined
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -281,7 +279,7 @@ isNothing : Maybe a -> Bool
 isNothing (Just _) = False
 isNothing _ = True
 
-fromJust : {{Partial}} -> Maybe a -> a
+fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
 fromJust (Just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
