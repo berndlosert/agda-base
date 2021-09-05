@@ -79,30 +79,12 @@ open import Agda.Builtin.List public
   using ([])
   renaming (_∷_ to _::_)
 
-open import Agda.Builtin.IO public
-  using (IO)
-
--------------------------------------------------------------------------------
--- Auxiliary types
--------------------------------------------------------------------------------
-
--- For additive semigroups, monoids, etc.
-record Additive (a : Set) : Set where
-  constructor Additive:
-  field getAdditive : a
-
-open Additive public
-
--- For multiplicative semigroups, monoids, etc.
-record Multiplicative (a : Set) : Set where
-  constructor Multiplicative:
-  field getMultiplicative : a
-
-open Multiplicative public
-
 infixr 5 _:|_
 data List1 (a : Set) : Set where
   _:|_ : a -> List a -> List1 a
+
+open import Agda.Builtin.IO public
+  using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -399,12 +381,6 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> False
 
-  Eq-Additive : {{Eq a}} -> Eq (Additive a)
-  Eq-Additive ._==_ = equating getAdditive
-
-  Eq-Multiplicative : {{Eq a}} -> Eq (Multiplicative a)
-  Eq-Multiplicative ._==_ = equating getMultiplicative
-
   Eq-List1 : {{Eq a}} -> Eq (List1 a)
   Eq-List1 ._==_ (x :| xs) (y :| ys) = x == y && xs == ys
 
@@ -503,6 +479,13 @@ instance
       EQ -> compare xs ys
       GT -> GT
 
+  Ord-List1 : {{Ord a}} -> Ord (List1 a)
+  Ord-List1 .compare (x :| xs) (y :| ys) =
+    case compare x y of \ where
+      LT -> LT
+      EQ -> compare xs ys
+      GT -> GT
+
   Ord-String : Ord String
   Ord-String .compare l r =
     let unpack = Agda.Builtin.String.primStringToList
@@ -520,19 +503,6 @@ instance
   Ord-Maybe .compare Nothing _ = LT
   Ord-Maybe .compare (Just x) (Just y) = compare x y
   Ord-Maybe .compare (Just _) _ = GT
-
-  Ord-Additive : {{Ord a}} -> Ord (Additive a)
-  Ord-Additive .compare = comparing getAdditive
-
-  Ord-Multiplicative : {{Ord a}} -> Ord (Multiplicative a)
-  Ord-Multiplicative .compare = comparing getMultiplicative
-
-  Ord-List1 : {{Ord a}} -> Ord (List1 a)
-  Ord-List1 .compare (x :| xs) (y :| ys) =
-    case compare x y of \ where
-      LT -> LT
-      EQ -> compare xs ys
-      GT -> GT
 
 -------------------------------------------------------------------------------
 -- FromNat
@@ -601,6 +571,166 @@ instance
     Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
+-- Arithmetic operations
+-------------------------------------------------------------------------------
+
+record Add (a : Set) : Set where
+  infixl 6 _+_
+  field _+_ : a -> a -> a
+
+open Add {{...}} public
+
+record Sub (a : Set) : Set where
+  infixl 6 _-_
+  field
+    Diff : Set
+    _-_ : a -> a -> Diff
+
+open Sub {{...}} public
+
+record Neg (a : Set) : Set where
+  field -_ : a -> a
+
+open Neg {{...}} public
+
+record Mul (a : Set) : Set where
+  infixl 7 _*_
+  field _*_ : a -> a -> a
+
+open Mul {{...}} public
+
+record Exp (a : Set) : Set where
+  infixr 8 _^_
+  field
+    Power : Set
+    _^_ : a -> Power -> a
+
+open Exp {{...}} public
+
+record Divisor (a : Set) : Set where
+  field divisor : a -> Bool
+
+open Divisor {{...}} public
+
+record Div (a : Set) : Set where
+  infixl 7 _/_
+  field
+    overlap {{Divisor-super}} : Divisor a
+    _/_ : (x y : a) -> {{Assert $ divisor y}} -> a
+
+open Div {{...}} public
+
+record Mod (a : Set) : Set where
+  infixl 7 _%_
+  field
+    overlap {{Divisor-super}} : Divisor a
+    _%_ : (x y : a) -> {{Assert $ divisor y}} -> a
+
+open Mod {{...}} public
+
+instance
+  Add-Nat : Add Nat
+  Add-Nat ._+_ = Agda.Builtin.Nat._+_
+
+  Sub-Nat : Sub Nat
+  Sub-Nat .Diff = Nat
+  Sub-Nat ._-_ = Agda.Builtin.Nat._-_
+
+  Mul-Nat : Mul Nat
+  Mul-Nat ._*_ = Agda.Builtin.Nat._*_
+
+  Exp-Nat : Exp Nat
+  Exp-Nat .Power = Nat
+  Exp-Nat ._^_ m 0 = 1
+  Exp-Nat ._^_ m (Suc n) = m * m ^ n
+
+  Divisor-Nat : Divisor Nat
+  Divisor-Nat .divisor 0 = False
+  Divisor-Nat .divisor _ = True
+
+  Div-Nat : Div Nat
+  Div-Nat .Divisor-super = Divisor-Nat
+  Div-Nat ._/_ m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+
+  Mod-Nat : Mod Nat
+  Mod-Nat .Divisor-super = Divisor-Nat
+  Mod-Nat ._%_ m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+
+  Add-Int : Add Int
+  Add-Int ._+_ = \ where
+    (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
+    (NegSuc m) (Pos n) -> diff n (Suc m)
+    (Pos m) (NegSuc n) -> diff m (Suc n)
+    (Pos m) (Pos n) -> Pos (m + n)
+
+  Sub-Int : Sub Int
+  Sub-Int .Diff = Int
+  Sub-Int ._-_ = \ where
+    m (Pos n) -> m + (neg n)
+    m (NegSuc n) -> m + Pos (Suc n)
+
+  Neg-Int : Neg Int
+  Neg-Int .-_ = \ where
+    (Pos 0) -> Pos 0
+    (Pos (Suc n)) -> NegSuc n
+    (NegSuc n) -> Pos (Suc n)
+
+  Mul-Int : Mul Int
+  Mul-Int ._*_ = \ where
+    (Pos n) (Pos m) -> Pos (n * m)
+    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
+    (Pos n) (NegSuc m) -> neg (n * Suc m)
+    (NegSuc n) (Pos m) -> neg (Suc n * m)
+
+  Exp-Int : Exp Int
+  Exp-Int .Power = Nat
+  Exp-Int ._^_ m 0 = Pos 0
+  Exp-Int ._^_ m (Suc n) = m * m ^ n
+
+  Divisor-Int : Divisor Int
+  Divisor-Int .divisor (Pos 0) = False
+  Divisor-Int .divisor _ = True
+
+  Div-Int : Div Int
+  Div-Int .Divisor-super = Divisor-Int
+  Div-Int ._/_ = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (m / n)
+    (Pos m) (NegSuc n) -> neg (m / Suc n)
+    (NegSuc m) (Pos n@(Suc _)) -> neg (Suc m / n)
+    (NegSuc m) (NegSuc n) -> Pos (Suc m / Suc n)
+
+  Mod-Int : Mod Int
+  Mod-Int .Divisor-super = Divisor-Int
+  Mod-Int ._%_ = \ where
+    (Pos m) (Pos n@(Suc _)) -> Pos (m % n)
+    (Pos m) (NegSuc n) -> Pos (m % Suc n)
+    (NegSuc m) (Pos n@(Suc _)) -> neg (Suc m % n)
+    (NegSuc m) (NegSuc n) -> neg (Suc m % Suc n)
+
+  Add-Float : Add Float
+  Add-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+
+  Sub-Float : Sub Float
+  Sub-Float .Diff = Float
+  Sub-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+
+  Neg-Float : Neg Float
+  Neg-Float .-_ = Agda.Builtin.Float.primFloatNegate
+
+  Mul-Float : Mul Float
+  Mul-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+
+  Exp-Float : Exp Float
+  Exp-Float .Power = Float
+  Exp-Float ._^_ = Agda.Builtin.Float.primFloatPow
+
+  Divisor-Float : Divisor Float
+  Divisor-Float .divisor _ = True
+
+  Div-Float : Div Float
+  Div-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
+
+-------------------------------------------------------------------------------
 -- Semigroup
 -------------------------------------------------------------------------------
 
@@ -609,14 +739,6 @@ record Semigroup (a : Set) : Set where
   field _<>_ : a -> a -> a
 
 open Semigroup {{...}} public
-
-infixl 6 _+_
-_+_ : {{Semigroup (Additive a)}} -> a -> a -> a
-x + y = getAdditive $ Additive: x <> Additive: y
-
-infixl 7 _*_
-_*_ : {{Semigroup (Multiplicative a)}} -> a -> a -> a
-x * y = getMultiplicative $ Multiplicative: x <> Multiplicative: y
 
 instance
   Semigroup-Void : Semigroup Void
@@ -630,56 +752,6 @@ instance
     LT _ -> LT
     EQ y -> y
     GT _ -> GT
-
-  Semigroup-Additive-Nat : Semigroup (Additive Nat)
-  Semigroup-Additive-Nat ._<>_ m n =
-      Additive: $ plus (getAdditive m) (getAdditive n)
-    where
-      plus : Nat -> Nat -> Nat
-      plus = Agda.Builtin.Nat._+_
-
-  Semigroup-Multiplicative-Nat : Semigroup (Multiplicative Nat)
-  Semigroup-Multiplicative-Nat ._<>_ m n =
-      Multiplicative: $ times (getMultiplicative m) (getMultiplicative n)
-    where
-      times : Nat -> Nat -> Nat
-      times = Agda.Builtin.Nat._*_
-
-  Semigroup-Additive-Int : Semigroup (Additive Int)
-  Semigroup-Additive-Int ._<>_ m n =
-      Additive: $ plus (getAdditive m) (getAdditive n)
-    where
-      plus : Int -> Int -> Int
-      plus = \ where
-        (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
-        (NegSuc m) (Pos n) -> diff n (Suc m)
-        (Pos m) (NegSuc n) -> diff m (Suc n)
-        (Pos m) (Pos n) -> Pos (m + n)
-
-  Semigroup-Multiplicative-Int : Semigroup (Multiplicative Int)
-  Semigroup-Multiplicative-Int ._<>_ m n =
-      Multiplicative: $ times (getMultiplicative m) (getMultiplicative n)
-    where
-      times : Int -> Int -> Int
-      times = \ where
-        (Pos n) (Pos m) -> Pos (n * m)
-        (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
-        (Pos n) (NegSuc m) -> neg (n * Suc m)
-        (NegSuc n) (Pos m) -> neg (Suc n * m)
-
-  Semigroup-Additive-Float : Semigroup (Additive Float)
-  Semigroup-Additive-Float ._<>_ x y =
-      Additive: $ plus (getAdditive x) (getAdditive y)
-    where
-      plus : Float -> Float -> Float
-      plus = Agda.Builtin.Float.primFloatPlus
-
-  Semigroup-Multiplicative-Float : Semigroup (Multiplicative Float)
-  Semigroup-Multiplicative-Float ._<>_ x y =
-      Multiplicative: $ times (getMultiplicative x) (getMultiplicative y)
-    where
-      times : Float -> Float -> Float
-      times = Agda.Builtin.Float.primFloatTimes
 
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
@@ -707,40 +779,12 @@ instance
     [] ys -> ys
     (x :: xs) ys -> x :: (xs <> ys)
 
-  Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
-  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
-    (| _<>_ x y |)
-
   Semigroup-List1 : Semigroup (List1 a)
   Semigroup-List1 ._<>_ (x :| xs) (y :| ys) = x :| (xs <> y :: ys)
 
--------------------------------------------------------------------------------
--- Commutative
--------------------------------------------------------------------------------
-
-record Commutative (a : Set) : Set where
-  field overlap {{Semigroup-super}} : Semigroup a
-
-open Commutative {{...}}
-
-instance
-  Commutative-Additive-Nat : Commutative (Additive Nat)
-  Commutative-Additive-Nat = record {}
-
-  Commutative-Multiplicative-Nat : Commutative (Multiplicative Nat)
-  Commutative-Multiplicative-Nat = record {}
-
-  Commutative-Additive-Int : Commutative (Additive Int)
-  Commutative-Additive-Int = record {}
-
-  Commutative-Multiplicative-Int : Commutative (Multiplicative Int)
-  Commutative-Multiplicative-Int = record {}
-
-  Commutative-Additive-Float : Commutative (Additive Float)
-  Commutative-Additive-Float = record {}
-
-  Commutative-Multiplicative-Float : Commutative (Multiplicative Float)
-  Commutative-Multiplicative-Float = record {}
+  Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
+  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
+    (| _<>_ x y |)
 
 -------------------------------------------------------------------------------
 -- Monoid
@@ -757,47 +801,12 @@ record Monoid (a : Set) : Set where
 
 open Monoid {{...}} public
 
-module _ {{_ : Monoid (Additive a)}} where
-
-  zero : a
-  zero = getAdditive neutral
-
-  times : Nat -> a -> a
-  times n x = getAdditive $ mtimes n (Additive: x)
-
-module _ {{_ : Monoid (Multiplicative a)}} where
-
-  one : a
-  one = getMultiplicative neutral
-
-  infixr 8 _^_
-  _^_ : a -> Nat -> a
-  x ^ n = getMultiplicative $ mtimes n (Multiplicative: x)
-
 instance
   Monoid-Unit : Monoid Unit
   Monoid-Unit .neutral = unit
 
   Monoid-Ordering : Monoid Ordering
   Monoid-Ordering .neutral = EQ
-
-  Monoid-Additive-Nat : Monoid (Additive Nat)
-  Monoid-Additive-Nat .neutral = Additive: 0
-
-  Monoid-Multiplicative-Nat : Monoid (Multiplicative Nat)
-  Monoid-Multiplicative-Nat .neutral = Multiplicative: 1
-
-  Monoid-Additive-Int : Monoid (Additive Int)
-  Monoid-Additive-Int .neutral = Additive: (Pos 0)
-
-  Monoid-Multiplicative-Int : Monoid (Multiplicative Int)
-  Monoid-Multiplicative-Int .neutral = Multiplicative: (Pos 1)
-
-  Monoid-Additive-Float : Monoid (Additive Float)
-  Monoid-Additive-Float .neutral = Additive: 0.0
-
-  Monoid-Multiplicative-Float : Monoid (Multiplicative Float)
-  Monoid-Multiplicative-Float .neutral = Multiplicative: 1.0
 
   Monoid-String : Monoid String
   Monoid-String .neutral = ""
@@ -816,148 +825,6 @@ instance
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .neutral = pureIO neutral
-
--------------------------------------------------------------------------------
--- Group
--------------------------------------------------------------------------------
-
-record Group (a : Set) : Set where
-  infixl 7 _~~_
-  field
-    overlap {{Monoid-super}} : Monoid a
-    invert : a -> a
-    _~~_ : a -> a -> a
-
-open Group {{...}} public
-
--_ : {{Group (Additive a)}} -> a -> a
--_ x = getAdditive $ invert $ Additive: x
-
-infixl 6 _-_
-_-_ : {{Group (Additive a)}} -> a -> a -> a
-x - y = getAdditive $ Additive: x ~~ Additive: y
-
-instance
-  Group-Additive-Int : Group (Additive Int)
-  Group-Additive-Int .invert x =
-      Additive: $ negate (getAdditive x)
-    where
-      negate : Int -> Int
-      negate = \ where
-        (Pos 0) -> Pos 0
-        (Pos (Suc n)) -> NegSuc n
-        (NegSuc n) -> Pos (Suc n)
-  Group-Additive-Int ._~~_ x y =
-      Additive: $ minus (getAdditive x) (getAdditive y)
-    where
-      minus : Int -> Int -> Int
-      minus = \ where
-        m (Pos n) -> m + (neg n)
-        m (NegSuc n) -> m + Pos (Suc n)
-
-  Group-Additive-Float : Group (Additive Float)
-  Group-Additive-Float .invert x =
-      Additive: $ negate (getAdditive x)
-    where
-      negate : Float -> Float
-      negate = Agda.Builtin.Float.primFloatNegate
-  Group-Additive-Float ._~~_ x y =
-      Additive: $ minus (getAdditive x) (getAdditive y)
-    where
-      minus : Float -> Float -> Float
-      minus = Agda.Builtin.Float.primFloatMinus
-
--------------------------------------------------------------------------------
--- Semiring
--------------------------------------------------------------------------------
-
-record Semiring (a : Set) : Set where
-  field
-    overlap {{Commutative-Additive-super}} : Commutative (Additive a)
-    overlap {{Monoid-Additive-super}} : Monoid (Additive a)
-    overlap {{Monoid-Multiplicative-super}} : Monoid (Multiplicative a)
-
-open Semiring {{...}} public
-
-instance
-  Semiring-Nat : Semiring Nat
-  Semiring-Nat = record {}
-
-  Semiring-Int : Semiring Int
-  Semiring-Int = record {}
-
-  Semiring-Float : Semiring Float
-  Semiring-Float = record {}
-
--------------------------------------------------------------------------------
--- Ring
--------------------------------------------------------------------------------
-
-record Ring (a : Set) : Set where
-  field
-    overlap {{Semiring-super}} : Semiring a
-    overlap {{Group-Additive-super}} : Group (Additive a)
-
-open Ring {{...}} public
-
-instance
-  Ring-Int : Ring Int
-  Ring-Int = record {}
-
-  Ring-Float : Ring Float
-  Ring-Float = record {}
-
--------------------------------------------------------------------------------
--- Euclidean
--------------------------------------------------------------------------------
-
-record Euclidean (a : Set) : Set where
-  field
-    overlap {{Eq-super}} : Eq a
-    overlap {{Semiring-super}} : Semiring a
-    quot rem : (x y : a) -> {{Assert $ y /= zero}} -> a
-
-open Euclidean {{...}} public
-
-instance
-  Euclidean-Nat : Euclidean Nat
-  Euclidean-Nat .quot m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
-  Euclidean-Nat .quot m 0 = error "Prelude.Euclidean-Nat .quot"
-  Euclidean-Nat .rem m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
-  Euclidean-Nat .rem m 0 = error "Prelude.Euclidean-Nat .rem"
-
-  Euclidean-Int : Euclidean Int
-  Euclidean-Int .quot = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (quot m n)
-    (Pos m) (NegSuc n) -> neg (quot m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (quot (Suc m) n)
-    (NegSuc m) (NegSuc n) -> Pos (quot (Suc m) (Suc n))
-    _ _ -> error "Prelude.Euclidean-Int .quot"
-  Euclidean-Int .rem = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (rem m n)
-    (Pos m) (NegSuc n) -> Pos (rem m (Suc n))
-    (NegSuc m) (Pos n@(Suc _)) -> neg (rem (Suc m) n)
-    (NegSuc m) (NegSuc n) -> neg (rem (Suc m) (Suc n))
-    _ _ -> error "Prelude.Euclidean-Int .rem"
-
--------------------------------------------------------------------------------
--- Field
--------------------------------------------------------------------------------
-
-record Field (a : Set) : Set where
-  infixl 7 _/_
-  field
-    overlap {{Eq-super}} : Eq a
-    overlap {{Ring-super}} : Ring a
-    overlap
-      {{Commutative-Multiplicative-super}} : Commutative (Multiplicative a)
-    _/_ : (x y : a) -> {{Assert $ y /= zero}} -> a
-
-open Field {{...}} public
-
-instance
-  Field-Float : Field (Float)
-  Field-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Category
@@ -1029,17 +896,11 @@ instance
     [] -> []
     (x :: xs) -> f x :: map f xs
 
-  Functor-IO : Functor IO
-  Functor-IO .map = mapIO
-
-  Functor-Additive : Functor Additive
-  Functor-Additive .map f = Additive: <<< f <<< getAdditive
-
-  Functor-Multiplicative : Functor Multiplicative
-  Functor-Multiplicative .map f = Multiplicative: <<< f <<< getMultiplicative
-
   Functor-List1 : Functor List1
   Functor-List1 .map f (x :| xs) = f x :| map f xs
+
+  Functor-IO : Functor IO
+  Functor-IO .map = mapIO
 
 -------------------------------------------------------------------------------
 -- Contravariant
@@ -1162,25 +1023,15 @@ instance
   Applicative-List .pure = _:: []
   Applicative-List ._<*>_ = \ where
     [] _ -> []
-    (f :: fs) xs -> (map f xs) <> (fs <*> xs)
+    (f :: fs) xs -> (f <$> xs) <> (fs <*> xs)
+
+  Applicative-List1 : Applicative List1
+  Applicative-List1 .pure x = x :| []
+  Applicative-List1 ._<*>_ (f :| fs) (x :| xs) = f x :| (f :: fs <*> xs)
 
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
-
-  Applicative-Additive : Applicative Additive
-  Applicative-Additive .pure = Additive:
-  Applicative-Additive ._<*>_ f x =
-    Additive: $ getAdditive f $ getAdditive x
-
-  Applicative-Multiplicative : Applicative Multiplicative
-  Applicative-Multiplicative .pure = Multiplicative:
-  Applicative-Multiplicative ._<*>_ f x =
-    Multiplicative: $ getMultiplicative f $ getMultiplicative x
-
-  Applicative-List1 : Applicative List1
-  Applicative-List1 .pure x = x :| []
-  Applicative-List1 ._<*>_ (f :| fs) (x :| xs) = f x :| (fs <*> xs)
 
 --------------------------------------------------------------------------------
 -- Monad
@@ -1235,15 +1086,6 @@ instance
     [] k -> []
     (x :: xs) k -> k x <> (xs >>= k)
 
-  Monad-IO : Monad IO
-  Monad-IO ._>>=_ = bindIO
-
-  Monad-Additive : Monad Additive
-  Monad-Additive ._>>=_ m k = k (getAdditive m)
-
-  Monad-Multiplicative : Monad Multiplicative
-  Monad-Multiplicative ._>>=_ m k = k (getMultiplicative m)
-
   Monad-List1 : Monad List1
   Monad-List1 ._>>=_ (x :| xs) k =
       case k x of \ where
@@ -1253,3 +1095,6 @@ instance
     where
       toList : List1 a -> List a
       toList (z :| zs) = z :: zs
+
+  Monad-IO : Monad IO
+  Monad-IO ._>>=_ = bindIO
