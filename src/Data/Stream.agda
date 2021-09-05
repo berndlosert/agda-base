@@ -72,9 +72,12 @@ at : Nat -> Stream a -> a
 at 0 as = head as
 at (Suc n) as = at n (tail as)
 
-cycle : {{Partial}} -> List a -> Stream a
-cycle [] = undefined
-cycle as = flip unfold as \ where
-  [] -> undefined
-  (x :: []) -> (x , as)
-  (x :: xs) -> (x , xs)
+cycle : List1 a -> Stream a
+cycle (x :| xs) .head = x
+cycle {a} (x :| xs) .tail = cycle' xs
+  where
+    cycle' : List a -> Stream a
+    cycle' [] .head = x
+    cycle' [] .tail = cycle' xs
+    cycle' (y :: ys) .head = y
+    cycle' (y :: ys) .tail = cycle' ys
