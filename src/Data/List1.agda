@@ -133,25 +133,24 @@ at 0 (x :| _) = Just x
 at (Suc n) (x :| []) = Nothing
 at (Suc n) (x :| (y :: ys)) = at n (y :| ys)
 
---updateAt : Nat -> (a -> Maybe a) -> List a -> List a
---updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
---updateAt (Suc n) f (x :: xs) = x :: updateAt n f xs
---updateAt _ _ [] = []
---
---deleteAt : Nat -> List a -> List a
---deleteAt n = updateAt n (const Nothing)
---
---modifyAt : Nat -> (a -> a) -> List a -> List a
---modifyAt n f = updateAt n (f >>> Just)
---
---setAt : Nat -> a -> List a -> List a
---setAt n x = modifyAt n (const x)
---
---insertAt : Nat -> a -> List a -> List a
---insertAt 0 x (y :: ys) = x :: y :: ys
---insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
---insertAt _ _ [] = []
---
+updateAt : Nat -> (a -> Maybe a) -> List1 a -> List a
+updateAt 0 f (x :| xs) = maybe xs (_:: xs) (f x)
+updateAt (Suc n) f (x :| xs) = x :: List.updateAt n f xs
+
+deleteAt : Nat -> List1 a -> List a
+deleteAt n = updateAt n (const Nothing)
+
+modifyAt : Nat -> (a -> a) -> List1 a -> List1 a
+modifyAt 0 f (x :| xs) = f x :| xs
+modifyAt (Suc n) f (x :| xs) = x :| List.modifyAt n f xs
+
+setAt : Nat -> a -> List1 a -> List1 a
+setAt n x = modifyAt n (const x)
+
+insertAt : Nat -> a -> List1 a -> List1 a
+insertAt 0 x (y :| ys) = x :| y :: ys
+insertAt (Suc n) x (y :| ys) = y :| List.insertAt n x ys
+
 ---------------------------------------------------------------------------------
 ---- Segments
 ---------------------------------------------------------------------------------
