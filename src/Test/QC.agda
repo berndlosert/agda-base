@@ -360,15 +360,14 @@ private
       pairLength [] = (0 , [])
       pairLength xss@(xs :: _) = (List.length xss , xs)
 
-      percentage : {{Partial}} -> Nat -> Nat -> String
-      percentage n 0 = undefined
-      percentage n m@(Suc _) = show ((100 * n) / m) <> "%"
+      percentage : Nat -> Nat -> Maybe String
+      percentage n 0 = Nothing
+      percentage n (Suc m) = Just $ show ((100 * n) / Suc m) <> "%"
 
       entry : Pair Nat (List String) -> String
-      entry (n , s) = unsafePerform $
-        percentage n ntest
-        <> " "
-        <> fold (List.intersperse ", " s)
+      entry (n , s) = case percentage n ntest of \ where
+        Nothing -> ""
+        (Just p) -> p <> " " <> fold (List.intersperse ", " s)
 
       table : String
       table =
