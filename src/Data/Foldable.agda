@@ -40,8 +40,19 @@ record Foldable (t : Set -> Set) : Set where
       go : a -> b -> b
       go x z = f x <> z
 
+  foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
+  foldMapBy {b} f z = foldMap {{monoid}}
+    where
+      instance
+        monoid : Monoid b
+        monoid .Semigroup-super ._<>_ = f
+        monoid .neutral = z
+
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
+
+  foldBy : (a -> a -> a) -> a -> t a -> a
+  foldBy f z = foldMapBy f z id
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl {b} {a} f = flip $ foldr go id
