@@ -162,9 +162,9 @@ tails : List1 a -> List1 (List1 a)
 tails (x :| []) = (x :| []) :| []
 tails (x :| y :: ys) = (x :| y :: ys) :| map (y :|_) (List.tails ys)
 
---segments : List a -> List (List a)
---segments xs = singleton [] <>
---  (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
+segments : List1 a -> List1 (List1 a)
+segments (x :| []) = (x :| []) :| []
+segments (x :| y :: ys) = foldr _<>_ ((x :| []) :| []) (tails <$> inits (y :| ys))
 --
 --segmentsOfSize : Nat -> List a -> List (List a)
 --segmentsOfSize 0 _ = singleton []
