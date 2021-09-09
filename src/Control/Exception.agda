@@ -59,12 +59,12 @@ record MonadCatch (m : Set -> Set) : Set where
   handleJust = flip <<< catchJust
 
   try : {{Exception e}} -> m a -> m (Either e a)
-  try ma = catch (map Right ma) (pure <<< Left)
+  try ma = catch (map right ma) (pure <<< left)
 
   tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
   tryJust p ma = try ma >>= \ where
-    (Right v) -> pure (Right v)
-    (Left e) -> maybe (throw e) (pure <<< Left) (p e)
+    (right v) -> pure (right v)
+    (left e) -> maybe (throw e) (pure <<< left) (p e)
 
 open MonadCatch {{...}} public
 

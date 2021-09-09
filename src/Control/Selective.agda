@@ -31,11 +31,11 @@ record Selective (f : Set -> Set) : Set where
   _<*?_ = select
 
   branch : f (Either a b) -> f (a -> c) -> f (b -> c) -> f c
-  branch x l r = map (map Left) x <*? map (map Right) l <*? r
+  branch x l r = map (map left) x <*? map (map right) l <*? r
 
   ifS : f Bool -> f a -> f a -> f a
   ifS x t f = branch
-    (bool (Left tt) (Right tt) <$> x)
+    (bool (left tt) (right tt) <$> x)
     (const <$> f)
     (const <$> t)
 
@@ -43,10 +43,10 @@ record Selective (f : Set -> Set) : Set where
   whenS b t = ifS b t (pure tt)
 
   orElse : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
-  orElse x y = branch x (flip appendLeft <$> y) (pure Right)
+  orElse x y = branch x (flip appendLeft <$> y) (pure right)
     where
       appendLeft : {{Semigroup a}} -> a -> Either a b -> Either a b
-      appendLeft x (Left y) = Left (x <> y)
+      appendLeft x (left y) = left (x <> y)
       appendLeft _ r = r
 
 open Selective {{...}} public
@@ -59,10 +59,10 @@ selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
 selectM mx mf = do
   result <- mx
   case result of \ where
-    (Left x) -> do
+    (left x) -> do
       f <- mf
       pure (f x)
-    (Right x) -> pure x
+    (right x) -> pure x
 
 --------------------------------------------------------------------------------
 -- Instances

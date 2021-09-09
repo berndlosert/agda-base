@@ -67,7 +67,7 @@ instance
   Profunctor-Tagged .lcmap _ (Tagged: x) = Tagged: x
 
   Choice-Tagged : Choice Tagged
-  Choice-Tagged .choicel (Tagged: x) = Tagged: (Left x)
+  Choice-Tagged .choicel (Tagged: x) = Tagged: (left x)
 
 data Exchange (a b s t : Set) : Set where
   Exchange: : (s -> a) -> (b -> t) -> Exchange a b s t
@@ -85,16 +85,16 @@ data Market (a b s t : Set) : Set where
 instance
   Functor-Market : Functor (Market a b s)
   Functor-Market .map f (Market: bt seta) =
-    Market: (f <<< bt) (either (Left <<< f) Right <<< seta)
+    Market: (f <<< bt) (either (left <<< f) right <<< seta)
 
   Profunctor-Market : Profunctor (Market a b)
   Profunctor-Market .lcmap f (Market: bt seta) = Market: bt (seta <<< f)
 
   Choice-Market : Choice (Market a b)
   Choice-Market .choicel (Market: bt seta) =
-    Market: (Left <<< bt) \ where
-      (Left s) -> either (Left <<< Left) Right (seta s)
-      (Right c) -> Left (Right c)
+    Market: (left <<< bt) \ where
+      (left s) -> either (left <<< left) right (seta s)
+      (right c) -> left (right c)
 
 -------------------------------------------------------------------------------
 -- Optic types ala Van Laarhoven
@@ -142,7 +142,7 @@ prism : (b -> t)  -> (s -> Either t a) -> Prism s t a b
 prism bt seta = dimap seta (either pure (map bt)) <<< choicer
 
 prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
-prism' bs sma = prism bs (\ s -> maybe (Left s) Right (sma s))
+prism' bs sma = prism bs (\ s -> maybe (left s) right (sma s))
 
 iso : (s -> a) -> (b -> t) -> Iso s t a b
 iso f g = dimap f (map g)
@@ -263,9 +263,9 @@ APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
-  case ap (Market: Identity: Right) of \ where
+  case ap (Market: Identity: right) of \ where
     (Market: bt seta) ->
-      f (runIdentity <<< bt) (either (Left <<< runIdentity) Right <<< seta)
+      f (runIdentity <<< bt) (either (left <<< runIdentity) right <<< seta)
 
 matching : APrism s t a b -> s -> Either t a
 matching ap = withPrism ap \ _ seta -> seta
@@ -307,8 +307,8 @@ instance
   Each-Maybe .each f (Just x) = map pure (f x)
 
   Each-Either : Each (Either a a) (Either b b) a b
-  Each-Either .each f (Left a) = map Left (f a)
-  Each-Either .each f (Right a) = map Right (f a)
+  Each-Either .each f (left a) = map left (f a)
+  Each-Either .each f (right a) = map right (f a)
 
   Each-List : Each (List a) (List b) a b
   Each-List .each f [] = pure []
@@ -322,8 +322,8 @@ open Cons {{...}} public
 instance
   Cons-List : Cons (List a) (List b) a b
   Cons-List .#Cons = prism (uncurry _::_) \ where
-    (a :: as) -> Right (a , as)
-    [] -> Left []
+    (a :: as) -> right (a , as)
+    [] -> left []
 
 -------------------------------------------------------------------------------
 -- Some specific optics
@@ -336,12 +336,12 @@ instance
 #snd k (x , y) = map (x ,_) (k y)
 
 #Left : Traversal (Either a c) (Either b c) a b
-#Left f (Left x) = map Left (f x)
-#Left _ (Right y) = pure (Right y)
+#Left f (left x) = map left (f x)
+#Left _ (right y) = pure (right y)
 
 #Right : Traversal (Either a b) (Either a c) b c
-#Right f (Right y) = map Right (f y)
-#Right _ (Left x) = pure (Left x)
+#Right f (right y) = map right (f y)
+#Right _ (left x) = pure (left x)
 
 #Just : Traversal (Maybe a) (Maybe b) a b
 #Just f (Just x) = map Just (f x)

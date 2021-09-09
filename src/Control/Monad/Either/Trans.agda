@@ -58,18 +58,18 @@ instance
 
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)
-  Alternative-EitherT .empty = EitherT: $ pure (Left neutral)
+  Alternative-EitherT .empty = EitherT: $ pure (left neutral)
   Alternative-EitherT ._<|>_ l r =
     EitherT: $ runEitherT l >>= \ where
-      (Left e) -> map (either (Left <<< (e <>_)) Right) (runEitherT r)
-      (Right x) -> pure (Right x)
+      (left e) -> map (either (left <<< (e <>_)) right) (runEitherT r)
+      (right x) -> pure (right x)
 
   Monad-EitherT : {{Monad m}} -> Monad (EitherT e m)
   Monad-EitherT ._>>=_ m k =
-    EitherT: (runEitherT m >>= either (pure <<< Left) (runEitherT <<< k))
+    EitherT: (runEitherT m >>= either (pure <<< left) (runEitherT <<< k))
 
   MonadTrans-EitherT : MonadTrans (EitherT e)
-  MonadTrans-EitherT .lift = EitherT: <<< map Right
+  MonadTrans-EitherT .lift = EitherT: <<< map right
 
   MonadThrow-EitherT : {{MonadThrow m}} -> MonadThrow (EitherT e m)
   MonadThrow-EitherT .throw = lift <<< throw
@@ -83,14 +83,14 @@ instance
     (eb , ec) <- generalBracket
       (runEitherT acquire)
       (\ where
-        (Left e) _ -> pure (Left e)
-        (Right resource) (ExitCaseSuccess (Right b)) ->
+        (left e) _ -> pure (left e)
+        (right resource) (ExitCaseSuccess (right b)) ->
           runEitherT (release resource (ExitCaseSuccess b))
-        (Right resource) (ExitCaseException e) ->
+        (right resource) (ExitCaseException e) ->
           runEitherT (release resource (ExitCaseException e))
-        (Right resource) _ ->
+        (right resource) _ ->
           runEitherT (release resource ExitCaseAbort))
-      (either (pure <<< Left) (runEitherT <<< use))
+      (either (pure <<< left) (runEitherT <<< use))
     pure do
       c <- ec
       b <- eb
@@ -106,11 +106,11 @@ instance
     (w , x) <- listen m
     pure $ (w ,_) <$> x
   MonadWriter-EitherT .pass = mapEitherT \ m ->
-    pass $ m >>= pure <<< either (pair (const id) Left) (bimap id Right)
+    pass $ m >>= pure <<< either (pair (const id) left) (bimap id right)
 
   MonadState-EitherT : {{MonadState s m}} -> MonadState s (EitherT e m)
   MonadState-EitherT .state = lift <<< state
 
   MonadCont-EitherT : {{MonadCont m}} -> MonadCont (EitherT e m)
   MonadCont-EitherT .callCC f = EitherT: $
-    callCC \ c -> runEitherT (f $ EitherT: <<< c <<< Right)
+    callCC \ c -> runEitherT (f $ EitherT: <<< c <<< right)

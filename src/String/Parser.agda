@@ -53,7 +53,7 @@ optional : Parser a -> Parser (Maybe a)
 optional a = (| Just a | Nothing |)
 
 choose : Parser a -> Parser b -> Parser (Either a b)
-choose a b = (| Left a | Right b |)
+choose a b = (| left a | right b |)
 
 choice : List (Parser a) -> Parser a
 choice ps = List.foldr _<|>_ empty ps

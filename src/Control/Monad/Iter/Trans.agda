@@ -45,11 +45,11 @@ record IterT (m : Set -> Set) (a : Set) : Set where
 open IterT public
 
 delay : {{Monad m}} -> IterT m a -> IterT m a
-delay iter .runIterT = pure (Right iter)
+delay iter .runIterT = pure (right iter)
 
 {-# NON_TERMINATING #-}
 never : {{Monad m}} -> IterT m a
-never .runIterT = pure (Right never)
+never .runIterT = pure (right never)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
@@ -69,21 +69,21 @@ instance
   {-# NON_TERMINATING #-}
   Functor-IterT : {{Monad m}} -> Functor (IterT m)
   Functor-IterT .map f iter .runIterT = flip map (runIterT iter) \ where
-    (Left x) -> Left (f x)
-    (Right iter') -> Right (map f iter')
+    (left x) -> left (f x)
+    (right iter') -> right (map f iter')
 
   {-# NON_TERMINATING #-}
   Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
-  Applicative-IterT .pure x .runIterT = pure (Left x)
+  Applicative-IterT .pure x .runIterT = pure (left x)
   Applicative-IterT ._<*>_ iter x .runIterT = runIterT iter >>= \ where
-    (Left f) -> runIterT (map f x)
-    (Right iter') -> pure (Right (iter' <*> x))
+    (left f) -> runIterT (map f x)
+    (right iter') -> pure (right (iter' <*> x))
 
   {-# NON_TERMINATING #-}
   Monad-IterT : {{Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = runIterT iter >>= \ where
-    (Left m) -> runIterT (k m)
-    (Right iter') -> pure (Right (iter' >>= k))
+    (left m) -> runIterT (k m)
+    (right iter') -> pure (right (iter' >>= k))
 
   {-# NON_TERMINATING #-}
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
@@ -91,18 +91,18 @@ instance
   Alternative-IterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
     case resultl of \ where
-      (Left _) -> pure resultl
-      (Right l') -> do
+      (left _) -> pure resultl
+      (right l') -> do
         resultr <- runIterT r
         case resultr of \ where
-          (Left _) -> pure resultr
-          (Right r') -> pure $ Right (l' <|> r')
+          (left _) -> pure resultr
+          (right r') -> pure $ right (l' <|> r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (Identity: iter) = delay iter
 
   MonadTrans-IterT : MonadTrans IterT
-  MonadTrans-IterT .lift m .runIterT = map Left m
+  MonadTrans-IterT .lift m .runIterT = map left m
 
   MonadReader-IterT : {{MonadReader r m}} -> MonadReader r (IterT m)
   MonadReader-IterT .ask = lift ask
@@ -118,8 +118,8 @@ instance
       c = Pair w a
 
       concat' : Pair w (Either a (IterT m c)) -> Either c (IterT m c)
-      concat' (w , Left x) = Left (w , x)
-      concat' (w , Right y) = Right $ lmap (w <>_) <$> y
+      concat' (w , left x) = left (w , x)
+      concat' (w , right y) = right $ lmap (w <>_) <$> y
 
   MonadWriter-IterT {w = w} {m = m} .pass {a = a} iter .runIterT =
       pass' $ runIterT $ hoistIterT clean $ listen iter
@@ -135,9 +135,9 @@ instance
 
       pass' = join <<< map g
 
-      g (Left (w , (f , x))) = tell (f w) >> pure (Left x)
-      g (Right iter') =
-        pure (Right (\ where .runIterT -> pass' (runIterT iter')))
+      g (left (w , (f , x))) = tell (f w) >> pure (left x)
+      g (right iter') =
+        pure (right (\ where .runIterT -> pass' (runIterT iter')))
 
   MonadState-IterT : {{MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)

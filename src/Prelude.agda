@@ -50,8 +50,8 @@ Function : Set -> Set -> Set
 Function a b = a -> b
 
 data Either (a b : Set) : Set where
-  Left : a -> Either a b
-  Right : b -> Either a b
+  left : a -> Either a b
+  right : b -> Either a b
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
@@ -219,29 +219,29 @@ diff (suc m) (suc n) = diff m n
 -------------------------------------------------------------------------------
 
 either : (a -> c) -> (b -> c) -> Either a b -> c
-either f g (Left x) = f x
-either f g (Right x) = g x
+either f g (left x) = f x
+either f g (right x) = g x
 
 mirror : Either a b -> Either b a
-mirror = either Right Left
+mirror = either right left
 
 fromEither : Either a a -> a
-fromEither (Left x) = x
-fromEither (Right x) = x
+fromEither (left x) = x
+fromEither (right x) = x
 
 isLeft : Either a b -> Bool
-isLeft (Left _) = true
+isLeft (left _) = true
 isLeft _ = false
 
 isRight : Either a b -> Bool
-isRight (Left _) = false
+isRight (left _) = false
 isRight _ = true
 
 fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
-fromLeft (Left x) = x
+fromLeft (left x) = x
 
 fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
-fromRight (Right x) = x
+fromRight (right x) = x
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -364,8 +364,8 @@ instance
 
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
-    (Left x) (Left y) -> x == y
-    (Right x) (Right y) -> x == y
+    (left x) (left y) -> x == y
+    (right x) (right y) -> x == y
     _ _ -> false
 
   Eq-Pair : {{Eq a}} -> {{Eq b}} -> Eq (Pair a b)
@@ -786,7 +786,7 @@ instance
 
   Semigroup-Either : {{Semigroup a}} -> {{Semigroup b}}
     -> Semigroup (Either a b)
-  Semigroup-Either ._<>_ (Left _) x = x
+  Semigroup-Either ._<>_ (left _) x = x
   Semigroup-Either ._<>_ x _ = x
 
   Semigroup-Pair : {{Semigroup a}} -> {{Semigroup b}}
@@ -908,7 +908,7 @@ instance
   Functor-Function .map = _<<<_
 
   Functor-Either : Functor (Either a)
-  Functor-Either .map f = either Left (Right <<< f)
+  Functor-Either .map f = either left (right <<< f)
 
   Functor-Pair : Functor (Pair a)
   Functor-Pair .map f (x , y) = (x , f y)
@@ -955,7 +955,7 @@ open Bifunctor {{...}} public
 
 instance
   Bifunctor-Either : Bifunctor Either
-  Bifunctor-Either .lmap f = either (Left <<< f) Right
+  Bifunctor-Either .lmap f = either (left <<< f) right
 
   Bifunctor-Pair : Bifunctor Pair
   Bifunctor-Pair .lmap f (x , y) = (f x , y)
@@ -1029,10 +1029,10 @@ instance
   Applicative-Function ._<*>_ f g = \ x -> f x (g x)
 
   Applicative-Either : Applicative (Either a)
-  Applicative-Either .pure = Right
+  Applicative-Either .pure = right
   Applicative-Either ._<*>_ = \ where
-    (Left a) _ -> Left a
-    (Right f) -> map f
+    (left a) _ -> left a
+    (right f) -> map f
 
   Applicative-Pair : {{Monoid a}} -> Applicative (Pair a)
   Applicative-Pair .pure = (neutral ,_)
@@ -1095,8 +1095,8 @@ instance
 
   Monad-Either : Monad (Either a)
   Monad-Either ._>>=_ = \ where
-    (Left a) _ -> Left a
-    (Right x) k -> k x
+    (left a) _ -> left a
+    (right x) k -> k x
 
   Monad-Pair : {{Monoid a}} -> Monad (Pair a)
   Monad-Pair ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)

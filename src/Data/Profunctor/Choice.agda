@@ -26,7 +26,7 @@ record Choice (p : Set -> Set -> Set) : Set where
     choicel : p a b -> p (Either a c) (Either b c)
 
   choicer : p a b -> p (Either c a) (Either c b)
-  choicer = dimap (either Right Left) (either Right Left) <<< choicel
+  choicer = dimap (either right left) (either right left) <<< choicel
 
   infixr 2 _+++_
   _+++_ : {{Category p}} -> p a b -> p c d -> p (Either a c) (Either b d)
@@ -44,5 +44,5 @@ open Choice {{...}} public
 
 instance
   Choice-Function : Choice Function
-  Choice-Function .choicel ab (Left a) = Left (ab a)
-  Choice-Function .choicel _ (Right c) = Right c
+  Choice-Function .choicel ab (left a) = left (ab a)
+  Choice-Function .choicel _ (right c) = right c

@@ -31,8 +31,8 @@ Const a .position = const Void
 Sum : Container -> Container -> Container
 Sum c d .Shape = Either (Shape c) (Shape d)
 Sum c d .position = \ where
-  (Left s) -> position c s
-  (Right s) -> position d s
+  (left s) -> position c s
+  (right s) -> position d s
 
 Product : Container -> Container -> Container
 Product c d .Shape = Pair (Shape c) (Shape d)

@@ -28,15 +28,15 @@ Free : Container -> Set -> Set
 Free c a = Fix $ Sum (Const a) c
 
 inn : Extension c (Free c a) -> Free c a
-inn (Extension: s p) = Fix: (Extension: (Right s) p)
+inn (Extension: s p) = Fix: (Extension: (right s) p)
 
 private
   pureFree : a -> Free c a
-  pureFree x = Fix: (Extension: (Left x) \ ())
+  pureFree x = Fix: (Extension: (left x) \ ())
 
   bindFree : Free c a -> (a -> Free c b) -> Free c b
-  bindFree (Fix: (Extension: (Left x) _)) k = k x
-  bindFree (Fix: (Extension: (Right s) p)) k =
+  bindFree (Fix: (Extension: (left x) _)) k = k x
+  bindFree (Fix: (Extension: (right s) p)) k =
     inn (Extension: s (\ x -> bindFree (p x) k))
 
 instance
