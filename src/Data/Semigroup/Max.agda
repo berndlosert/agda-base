@@ -31,18 +31,18 @@ open Max public
 
 instance
   Semigroup-Max : {{Ord a}} -> Semigroup (Max a)
-  Semigroup-Max ._<>_ (toMax x) (toMax y) = toMax (max x y)
+  Semigroup-Max ._<>_ x y = toMax $ max (getMax x) (getMax y)
 
   Functor-Max : Functor Max
   Functor-Max .map f = toMax <<< f <<< getMax
 
   Applicative-Max : Applicative Max
   Applicative-Max .pure = toMax
-  Applicative-Max ._<*>_ (toMax f) (toMax x) = toMax (f x)
+  Applicative-Max ._<*>_ f x = toMax $ (getMax f) (getMax x)
 
   Monad-Max : Monad Max
-  Monad-Max ._>>=_ (toMax x) k = k x
+  Monad-Max ._>>=_ m k = k (getMax m)
 
   Show-Max : {{Show a}} -> Show (Max a)
-  Show-Max .showsPrec d (toMax x) = showParen (d > appPrec)
-    (showString "toMax " <<< showsPrec appPrec+1 x)
+  Show-Max .showsPrec d x = showParen (d > appPrec) $
+    showString "toMax " <<< showsPrec appPrec+1 (getMax x)

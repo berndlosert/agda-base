@@ -41,11 +41,11 @@ instance
 
   Applicative-Last : Applicative Last
   Applicative-Last .pure = toLast
-  Applicative-Last ._<*>_ (toLast f) (toLast x) = toLast (f x)
+  Applicative-Last ._<*>_ f x = toLast $ (getLast f) (getLast x)
 
   Monad-Last : Monad Last
-  Monad-Last ._>>=_ (toLast x) k = k x
+  Monad-Last ._>>=_ m k = k (getLast m)
 
   Show-Last : {{Show a}} -> Show (Last a)
-  Show-Last .showsPrec d (toLast x) = showParen (d > appPrec)
-    (showString "toLast " <<< showsPrec appPrec+1 x)
+  Show-Last .showsPrec d x = showParen (d > appPrec) $
+    showString "toLast " <<< showsPrec appPrec+1 (getLast x)

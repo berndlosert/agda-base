@@ -41,11 +41,11 @@ instance
 
   Applicative-First : Applicative First
   Applicative-First .pure = toFirst
-  Applicative-First ._<*>_ (toFirst f) (toFirst x) = toFirst (f x)
+  Applicative-First ._<*>_ f x = toFirst $ (getFirst f) (getFirst x)
 
   Monad-First : Monad First
-  Monad-First ._>>=_ (toFirst x) k = k x
+  Monad-First ._>>=_ m k = k (getFirst m)
 
   Show-First : {{Show a}} -> Show (First a)
-  Show-First .showsPrec d (toFirst x) = showParen (d > appPrec)
-    (showString "toFirst " <<< showsPrec appPrec+1 x)
+  Show-First .showsPrec d x = showParen (d > appPrec) $
+    showString "toFirst " <<< showsPrec appPrec+1 (getFirst x)

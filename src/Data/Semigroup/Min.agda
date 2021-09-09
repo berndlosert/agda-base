@@ -31,18 +31,18 @@ open Min public
 
 instance
   Semigroup-Min : {{Ord a}} -> Semigroup (Min a)
-  Semigroup-Min ._<>_ (toMin x) (toMin y) = toMin (min x y)
+  Semigroup-Min ._<>_ x y = toMin $ min (getMin x) (getMin y)
 
   Functor-Min : Functor Min
   Functor-Min .map f = toMin <<< f <<< getMin
 
   Applicative-Min : Applicative Min
   Applicative-Min .pure = toMin
-  Applicative-Min ._<*>_ (toMin f) (toMin x) = toMin (f x)
+  Applicative-Min ._<*>_ f x = toMin $ (getMin f) (getMin x)
 
   Monad-Min : Monad Min
-  Monad-Min ._>>=_ (toMin x) k = k x
+  Monad-Min ._>>=_ m k = k (getMin m)
 
   Show-Min : {{Show a}} -> Show (Min a)
-  Show-Min .showsPrec d (toMin x) = showParen (d > appPrec)
-    (showString "toMin " <<< showsPrec appPrec+1 x)
+  Show-Min .showsPrec d x = showParen (d > appPrec) $
+    showString "toMin " <<< showsPrec appPrec+1 (getMin x)
