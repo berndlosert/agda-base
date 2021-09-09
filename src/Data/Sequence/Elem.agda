@@ -36,7 +36,7 @@ open Elem public
 
 instance
   Measured-Elem : Measured (Sum Nat) (Elem a)
-  Measured-Elem .measure _ = Sum: 1
+  Measured-Elem .measure _ = toSum 1
 
   Functor-Elem : Functor Elem
   Functor-Elem .map f (Elem: x) = Elem: (f x)

@@ -167,11 +167,11 @@ foldOf : Getting a s a -> s -> a
 foldOf l = getConst <<< l Const:
 
 foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
-foldrOf l f z = flip appEndo z <<< foldMapOf l (Endo: <<< f)
+foldrOf l f z = flip appEndo z <<< foldMapOf l (toEndo <<< f)
 
 foldlOf : Getting (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
 foldlOf l f z =
-  map (flip appEndo z <<< getDual) (foldMapOf l (Dual: <<< Endo: <<< flip f))
+  map (flip appEndo z <<< getDual) (foldMapOf l (toDual <<< toEndo <<< flip f))
 
 foldlMOf : {{Monad m}} -> Getting (Endo (r -> m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
@@ -181,22 +181,22 @@ toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
 has : Getting Any s a -> s -> Bool
-has l = getAny <<< foldMapOf l (\ _ -> Any: true)
+has l = getAny <<< foldMapOf l (\ _ -> toAny true)
 
 hasn't : Getting All s a -> s -> Bool
-hasn't l = getAll <<< foldMapOf l (\ _ -> All: false)
+hasn't l = getAll <<< foldMapOf l (\ _ -> toAll false)
 
 lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
-preview l = map getFirst <<< foldMapOf l (just <<< First:)
+preview l = map getFirst <<< foldMapOf l (just <<< toFirst)
 
 firstOf : Getting (First a) s a -> s -> a
-firstOf l = getFirst <<< foldMapOf l First:
+firstOf l = getFirst <<< foldMapOf l toFirst
 
 lastOf : Getting (Last a) s a -> s -> a
-lastOf l = getLast <<< foldMapOf l Last:
+lastOf l = getLast <<< foldMapOf l toLast
 
 findOf : Getting (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
 findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing

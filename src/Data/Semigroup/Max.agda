@@ -24,25 +24,25 @@ private
 
 -- For semigroups, monoids, etc. where x <> y = max x y
 record Max (a : Set) : Set where
-  constructor Max:
+  constructor toMax
   field getMax : a
 
 open Max public
 
 instance
   Semigroup-Max : {{Ord a}} -> Semigroup (Max a)
-  Semigroup-Max ._<>_ (Max: x) (Max: y) = Max: (max x y)
+  Semigroup-Max ._<>_ (toMax x) (toMax y) = toMax (max x y)
 
   Functor-Max : Functor Max
-  Functor-Max .map f = Max: <<< f <<< getMax
+  Functor-Max .map f = toMax <<< f <<< getMax
 
   Applicative-Max : Applicative Max
-  Applicative-Max .pure = Max:
-  Applicative-Max ._<*>_ (Max: f) (Max: x) = Max: (f x)
+  Applicative-Max .pure = toMax
+  Applicative-Max ._<*>_ (toMax f) (toMax x) = toMax (f x)
 
   Monad-Max : Monad Max
-  Monad-Max ._>>=_ (Max: x) k = k x
+  Monad-Max ._>>=_ (toMax x) k = k x
 
   Show-Max : {{Show a}} -> Show (Max a)
-  Show-Max .showsPrec d (Max: x) = showParen (d > appPrec)
-    (showString "Max: " <<< showsPrec appPrec+1 x)
+  Show-Max .showsPrec d (toMax x) = showParen (d > appPrec)
+    (showString "toMax " <<< showsPrec appPrec+1 x)

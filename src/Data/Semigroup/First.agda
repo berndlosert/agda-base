@@ -24,7 +24,7 @@ private
 
 -- Semigroup where x <> y = x
 record First (a : Set) : Set where
-  constructor First:
+  constructor toFirst
   field getFirst : a
 
 open First public
@@ -34,18 +34,18 @@ instance
   Semigroup-First ._<>_ x _ = x
 
   Monoid-First : {{Monoid a}} -> Monoid (First a)
-  Monoid-First .neutral = First: neutral
+  Monoid-First .neutral = toFirst neutral
 
   Functor-First : Functor First
-  Functor-First .map f = First: <<< f <<< getFirst
+  Functor-First .map f = toFirst <<< f <<< getFirst
 
   Applicative-First : Applicative First
-  Applicative-First .pure = First:
-  Applicative-First ._<*>_ (First: f) (First: x) = First: (f x)
+  Applicative-First .pure = toFirst
+  Applicative-First ._<*>_ (toFirst f) (toFirst x) = toFirst (f x)
 
   Monad-First : Monad First
-  Monad-First ._>>=_ (First: x) k = k x
+  Monad-First ._>>=_ (toFirst x) k = k x
 
   Show-First : {{Show a}} -> Show (First a)
-  Show-First .showsPrec d (First: x) = showParen (d > appPrec)
-    (showString "First: " <<< showsPrec appPrec+1 x)
+  Show-First .showsPrec d (toFirst x) = showParen (d > appPrec)
+    (showString "toFirst " <<< showsPrec appPrec+1 x)

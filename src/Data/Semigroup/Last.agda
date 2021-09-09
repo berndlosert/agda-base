@@ -24,7 +24,7 @@ private
 
 -- Semigroup where x <> y = y
 record Last (a : Set) : Set where
-  constructor Last:
+  constructor toLast
   field getLast : a
 
 open Last public
@@ -34,18 +34,18 @@ instance
   Semigroup-Last ._<>_ _ y = y
 
   Monoid-Last : {{Monoid a}} -> Monoid (Last a)
-  Monoid-Last .neutral = Last: neutral
+  Monoid-Last .neutral = toLast neutral
 
   Functor-Last : Functor Last
-  Functor-Last .map f = Last: <<< f <<< getLast
+  Functor-Last .map f = toLast <<< f <<< getLast
 
   Applicative-Last : Applicative Last
-  Applicative-Last .pure = Last:
-  Applicative-Last ._<*>_ (Last: f) (Last: x) = Last: (f x)
+  Applicative-Last .pure = toLast
+  Applicative-Last ._<*>_ (toLast f) (toLast x) = toLast (f x)
 
   Monad-Last : Monad Last
-  Monad-Last ._>>=_ (Last: x) k = k x
+  Monad-Last ._>>=_ (toLast x) k = k x
 
   Show-Last : {{Show a}} -> Show (Last a)
-  Show-Last .showsPrec d (Last: x) = showParen (d > appPrec)
-    (showString "Last: " <<< showsPrec appPrec+1 x)
+  Show-Last .showsPrec d (toLast x) = showParen (d > appPrec)
+    (showString "toLast " <<< showsPrec appPrec+1 x)

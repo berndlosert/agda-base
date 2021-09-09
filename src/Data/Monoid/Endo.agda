@@ -23,14 +23,14 @@ private
 -------------------------------------------------------------------------------
 
 record Endo (a : Set) : Set where
-  constructor Endo:
+  constructor toEndo
   field appEndo : a -> a
 
 open Endo public
 
 instance
   Semigroup-Endo : Semigroup (Endo a)
-  Semigroup-Endo ._<>_ g f = Endo: \ x -> appEndo g (appEndo f x)
+  Semigroup-Endo ._<>_ g f = toEndo \ x -> appEndo g (appEndo f x)
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .neutral = Endo: \ x -> x
+  Monoid-Endo .neutral = toEndo \ x -> x
