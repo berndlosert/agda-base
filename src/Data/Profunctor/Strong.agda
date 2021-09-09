@@ -23,18 +23,18 @@ private
 record Strong (p : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor-super}} : Profunctor p
-    first : p a b -> p (Pair a c) (Pair b c)
+    strongl : p a b -> p (Pair a c) (Pair b c)
 
-  second : p a b -> p (Pair c a) (Pair c b)
-  second c = dimap swap swap (first c)
+  strongr : p a b -> p (Pair c a) (Pair c b)
+  strongr c = dimap swap swap (first c)
 
   infixr 3 _***_
   _***_ : {{Category p}} -> p a b -> p c d -> p (Pair a c) (Pair b d)
-  f *** g = first f >>> second g
+  f *** g = strongl f >>> strongr g
 
   infixr 3 _&&&_
   _&&&_ : {{Category p}} -> p a b -> p a c -> p a (Pair b c)
-  f &&& g = arr dup >>> second g >>> first f
+  f &&& g = arr dup >>> strongr g >>> strongl f
 
 open Strong {{...}} public
 
@@ -44,4 +44,4 @@ open Strong {{...}} public
 
 instance
   Strong-Function : Strong Function
-  Strong-Function .first f (a , c) = (f a , c)
+  Strong-Function .strongr f (a , c) = (f a , c)
