@@ -14,11 +14,11 @@ Codensity f a = forall {b} -> (a -> f b) -> f b
 
 instance
   Functor-Codensity : Functor (Codensity f)
-  Functor-Codensity .map f x =  \ k -> x (k <<< f)
+  Functor-Codensity .map f x = \ k -> x (k <<< f)
 
   Applicative-Codensity : Applicative (Codensity f)
   Applicative-Codensity .pure x = \ k -> k x
-  Applicative-Codensity ._<*>_ f x = \ k -> f (\ g -> x (\ a -> k (g a)))
+  Applicative-Codensity ._<*>_ f x = \ k -> f (\ g -> x (k <<< g))
 
   Monad-Codensity : Monad (Codensity f)
   Monad-Codensity ._>>=_ m f = \ k1 -> m (\ k2 -> (f k2) k1)
