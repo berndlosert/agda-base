@@ -30,7 +30,7 @@ open Endo public
 
 instance
   Semigroup-Endo : Semigroup (Endo a)
-  Semigroup-Endo ._<>_ g f = toEndo \ x -> appEndo g (appEndo f x)
+  Semigroup-Endo ._<>_ g f = toEndo (appEndo g <<< appEndo f)
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .neutral = toEndo \ x -> x
+  Monoid-Endo .neutral = toEndo id

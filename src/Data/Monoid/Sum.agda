@@ -31,10 +31,10 @@ open Sum public
 
 instance
   Semigroup-Sum-Nat : Semigroup (Sum Nat)
-  Semigroup-Sum-Nat ._<>_ (toSum m) (toSum n) = toSum (m + n)
+  Semigroup-Sum-Nat ._<>_ m n = toSum (getSum m + getSum n)
 
   Semigroup-Sum-Int : Semigroup (Sum Int)
-  Semigroup-Sum-Int ._<>_ (toSum m) (toSum n) = toSum (m + n)
+  Semigroup-Sum-Int ._<>_ m n = toSum (getSum m + getSum n)
 
   Monoid-Sum-Nat : Monoid (Sum Nat)
   Monoid-Sum-Nat .neutral = toSum 0
@@ -47,11 +47,11 @@ instance
 
   Applicative-Sum : Applicative Sum
   Applicative-Sum .pure = toSum
-  Applicative-Sum ._<*>_ (toSum f) (toSum x) = toSum (f x)
+  Applicative-Sum ._<*>_ f x = toSum $ (getSum f) (getSum x)
 
   Monad-Sum : Monad Sum
   Monad-Sum ._>>=_ (toSum x) k = k x
 
   Show-Sum : {{Show a}} -> Show (Sum a)
-  Show-Sum .showsPrec d (toSum x) = showParen (d > appPrec)
-    (showString "toSum " <<< showsPrec appPrec+1 x)
+  Show-Sum .showsPrec d x = showParen (d > appPrec) $
+    showString "toSum " <<< showsPrec appPrec+1 (getSum x)

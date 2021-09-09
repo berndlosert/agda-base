@@ -31,7 +31,7 @@ open Dual public
 
 instance
   Semigroup-Dual : {{Semigroup a}} -> Semigroup (Dual a)
-  Semigroup-Dual ._<>_ (toDual x) (toDual y) = toDual (y <> x)
+  Semigroup-Dual ._<>_ x y = toDual (getDual y <> getDual x)
 
   Monoid-Dual : {{Monoid a}} -> Monoid (Dual a)
   Monoid-Dual .neutral = toDual neutral
@@ -41,11 +41,11 @@ instance
 
   Applicative-Dual : Applicative Dual
   Applicative-Dual .pure = toDual
-  Applicative-Dual ._<*>_ (toDual f) (toDual x) = toDual (f x)
+  Applicative-Dual ._<*>_ f x = toDual $ (getDual f) (getDual x)
 
   Monad-Dual : Monad Dual
   Monad-Dual ._>>=_ (toDual x) k = k x
 
   Show-Dual : {{Show a}} -> Show (Dual a)
-  Show-Dual .showsPrec d (toDual x) = showParen (d > appPrec)
-    (showString "toDual " <<< showsPrec appPrec+1 x)
+  Show-Dual .showsPrec d x = showParen (d > appPrec) $
+    showString "toDual " <<< showsPrec appPrec+1 (getDual x)

@@ -23,11 +23,11 @@ open Any public
 
 instance
   Semigroup-Any : Semigroup Any
-  Semigroup-Any ._<>_ (toAny x) (toAny y) = toAny (x || y)
+  Semigroup-Any ._<>_ x y = toAny (getAny x || getAny y)
 
   Monoid-Any : Monoid Any
   Monoid-Any .neutral = toAny false
 
   Show-Any : Show Any
-  Show-Any .showsPrec d (toAny x) = showParen (d > appPrec)
-    (showString "toAny " <<< showsPrec appPrec+1 x)
+  Show-Any .showsPrec d x = showParen (d > appPrec) $
+    showString "toAny " <<< showsPrec appPrec+1 (getAny x)

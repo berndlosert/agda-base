@@ -31,10 +31,10 @@ open Product public
 
 instance
   Semigroup-Product-Nat : Semigroup (Product Nat)
-  Semigroup-Product-Nat ._<>_ (toProduct m) (toProduct n) = toProduct (m * n)
+  Semigroup-Product-Nat ._<>_ m n = toProduct (getProduct m * getProduct n)
 
   Semigroup-Product-Int : Semigroup (Product Int)
-  Semigroup-Product-Int ._<>_ (toProduct m) (toProduct n) = toProduct (m * n)
+  Semigroup-Product-Int ._<>_ m n = toProduct (getProduct m * getProduct n)
 
   Monoid-Product-Nat : Monoid (Product Nat)
   Monoid-Product-Nat .neutral = toProduct 1
@@ -47,11 +47,11 @@ instance
 
   Applicative-Product : Applicative Product
   Applicative-Product .pure = toProduct
-  Applicative-Product ._<*>_ (toProduct f) (toProduct x) = toProduct (f x)
+  Applicative-Product ._<*>_ f x = toProduct $ (getProduct f) (getProduct x)
 
   Monad-Product : Monad Product
   Monad-Product ._>>=_ (toProduct x) k = k x
 
   Show-Product : {{Show a}} -> Show (Product a)
-  Show-Product .showsPrec d (toProduct x) = showParen (d > appPrec)
-    (showString "toProduct " <<< showsPrec appPrec+1 x)
+  Show-Product .showsPrec d x = showParen (d > appPrec) $
+    showString "toProduct " <<< showsPrec appPrec+1 (getProduct x)

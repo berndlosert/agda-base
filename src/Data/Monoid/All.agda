@@ -23,11 +23,11 @@ open All public
 
 instance
   Semigroup-All : Semigroup All
-  Semigroup-All ._<>_ (toAll x) (toAll y) = toAll (x && y)
+  Semigroup-All ._<>_ x y = toAll (getAll x && getAll y)
 
   Monoid-All : Monoid All
   Monoid-All .neutral = toAll true
 
   Show-All : Show All
-  Show-All .showsPrec d (toAll x) = showParen (d > appPrec)
-    (showString "toAll " <<< showsPrec appPrec+1 x)
+  Show-All .showsPrec d x = showParen (d > appPrec) $
+    showString "toAll " <<< showsPrec appPrec+1 (getAll x)
