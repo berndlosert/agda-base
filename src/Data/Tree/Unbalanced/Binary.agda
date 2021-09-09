@@ -40,9 +40,9 @@ instance
 
   Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ = \ where
-    Leaf Leaf -> True
-    Leaf _ -> False
-    _ Leaf -> False
+    Leaf Leaf -> true
+    Leaf _ -> false
+    _ Leaf -> false
     (Node l x r) (Node l' x' r') -> x == x' && l == l' && r == r'
 
   Show-Tree : {{Show a}} -> Show (Tree a)
@@ -101,10 +101,10 @@ module _ {{_ : Ord a}} where
       (EQ , _ , t) -> let (z , r') = delMin t in Node l z r'
 
   member : a -> Tree a -> Bool
-  member x Leaf = False
+  member x Leaf = false
   member x (Node l y r) =
     case compare x y of \ where
-      EQ -> True
+      EQ -> true
       LT -> member x l
       GT -> member x r
 

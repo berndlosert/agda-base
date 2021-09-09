@@ -334,11 +334,11 @@ abstract
     isSuffixOf xs ys = isPrefixOf xs (drop (length xs) ys)
 
     isInfixOf : Seq a -> Seq a -> Bool
-    isInfixOf xs ys = maybe False (const True) $
+    isInfixOf xs ys = maybe false (const true) $
       find (_== xs) (segmentsOfSize (length xs) ys)
 
     isSubsequenceOf : Seq a -> Seq a -> Bool
-    isSubsequenceOf xs ys = maybe False (const True) (foldlM g ys xs)
+    isSubsequenceOf xs ys = maybe false (const true) (foldlM g ys xs)
       where
         g : Seq a -> a -> Maybe (Seq a)
         g s a = let s' = dropWhileL (_/= a) s in
@@ -408,7 +408,7 @@ abstract
       elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
       elemBy eq y ys =
         case uncons ys of \ where
-           Nothing -> False
+           Nothing -> false
            (Just (x , xs)) -> eq x y || elemBy eq y xs
 
       nubBy' : Seq a -> Seq a -> Seq a

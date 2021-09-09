@@ -56,7 +56,7 @@ instance
   Show-Unit .showsPrec _ tt = showString "tt"
 
   Show-Bool : Show Bool
-  Show-Bool .showsPrec _ b = showString (if b then "True" else "False")
+  Show-Bool .showsPrec _ b = showString (if b then "true" else "false")
 
   Show-Ordering : Show Ordering
   Show-Ordering .showsPrec _ = \ where

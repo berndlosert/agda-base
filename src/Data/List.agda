@@ -241,12 +241,12 @@ module _ {{_ : Eq a}} where
   isSuffixOf xs ys = isPrefixOf xs (drop (length xs) ys)
 
   isInfixOf : List a -> List a -> Bool
-  isInfixOf xs ys = maybe False (const True) $
+  isInfixOf xs ys = maybe false (const true) $
     find (_== xs) (segmentsOfSize (length xs) ys)
 
   isSubsequenceOf : List a -> List a -> Bool
   isSubsequenceOf xs ys =
-      maybe False (const True) (foldlM g ys xs)
+      maybe false (const true) (foldlM g ys xs)
     where
       g : List a -> a -> Maybe (List a)
       g s a = let s' = dropWhile (_/= a) s in
@@ -362,7 +362,7 @@ nubBy : (a -> a -> Bool) -> List a -> List a
 nubBy {a} eq l = nubBy' l []
   where
     elemBy : (a -> a -> Bool) -> a -> List a -> Bool
-    elemBy _ _ [] = False
+    elemBy _ _ [] = false
     elemBy eq y (x :: xs) = eq x y || elemBy eq y xs
 
     nubBy' : List a -> List a -> List a
@@ -400,7 +400,7 @@ transpose [] = []
 transpose (heads :: tails) = zipCons heads (transpose tails)
 
 sublists : List a -> List (List a)
-sublists = filterA $ const (False :: True :: [])
+sublists = filterA $ const (false :: true :: [])
 
 sublistsN : Nat -> List a -> List (List a)
 sublistsN 0 _ = singleton []

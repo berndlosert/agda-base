@@ -181,10 +181,10 @@ toListOf : Getting (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
 has : Getting Any s a -> s -> Bool
-has l = getAny <<< foldMapOf l (\ _ -> Any: True)
+has l = getAny <<< foldMapOf l (\ _ -> Any: true)
 
 hasn't : Getting All s a -> s -> Bool
-hasn't l = getAll <<< foldMapOf l (\ _ -> All: False)
+hasn't l = getAll <<< foldMapOf l (\ _ -> All: false)
 
 lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> Suc n) Zero
@@ -271,7 +271,7 @@ matching : APrism s t a b -> s -> Either t a
 matching ap = withPrism ap \ _ seta -> seta
 
 isn't : APrism s t a b -> s -> Bool
-isn't ap s = either (const True) (const False) (matching ap s)
+isn't ap s = either (const true) (const false) (matching ap s)
 
 is : APrism s t a b -> s -> Bool
 is ap = not <<< isn't ap

@@ -219,11 +219,11 @@ open RandomR {{...}} public
 
 instance
   RandomR-Bool : RandomR Bool
-  RandomR-Bool .randomR (False , False) g = (False , g)
-  RandomR-Bool .randomR (True , True) g = (True , g)
+  RandomR-Bool .randomR (false , false) g = (false , g)
+  RandomR-Bool .randomR (true , true) g = (true , g)
   RandomR-Bool .randomR _ g = flip lmap (genNat' 1 g) \ where
-    0 -> False
-    _ -> True
+    0 -> false
+    _ -> true
 
   RandomR-Nat : RandomR Nat
   RandomR-Nat .randomR (m , n) g =

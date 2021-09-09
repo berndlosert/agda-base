@@ -138,7 +138,7 @@ listOf gen = sized \ n -> do
   vectorOf k gen
 
 sublistOf : List a -> Gen (List a)
-sublistOf = List.filterA \ _ -> choose (False , True)
+sublistOf = List.filterA \ _ -> choose (false , true)
 
 shuffle : List a -> Gen (List a)
 shuffle xs = do
@@ -175,7 +175,7 @@ open Coarbitrary {{...}} public
 
 instance
   Arbitrary-Bool : Arbitrary Bool
-  Arbitrary-Bool .arbitrary = elements (True :| False :: [])
+  Arbitrary-Bool .arbitrary = elements (true :| false :: [])
 
   Arbitrary-Nat : Arbitrary Nat
   Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)
@@ -238,7 +238,7 @@ open Property public
 
 succeeded : Result
 succeeded = record {
-    ok = Just True;
+    ok = Just true;
     stamp = [];
     arguments = [];
     reason = ""
@@ -246,7 +246,7 @@ succeeded = record {
 
 failed : Result
 failed = record {
-    ok = Just False;
+    ok = Just false;
     stamp = [];
     arguments = [];
     reason = ""
@@ -280,8 +280,8 @@ forAll gen body = Property: do
 
 infixr 0 _==>_
 _==>_ : {{Testable a}} -> Bool -> a -> Property
-True ==> a = property a
-False ==> a = result rejected
+true ==> a = property a
+false ==> a = result rejected
 
 label : {{Testable a}} -> String -> a -> Property
 label s a = Property: $ map (map add) (unProperty $ property a)
@@ -290,8 +290,8 @@ label s a = Property: $ map (map add) (unProperty $ property a)
     add res = record res { stamp = s :: Result.stamp res }
 
 classify : {{Testable a}} -> Bool -> String -> a -> Property
-classify True name = label name
-classify False _ = property
+classify true name = label name
+classify false _ = property
 
 collect : {{Show a}} -> {{Testable b}} -> a -> b -> Property
 collect v = label (show v)
@@ -400,9 +400,9 @@ private
           case Result.ok res of \ where
             Nothing -> tests
               config prop rnd1 ntest (nfail + 1) stamps
-            (Just True) -> tests
+            (Just true) -> tests
               config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
-            (Just False) -> putStr $ "Falsifiable, after "
+            (Just false) -> putStr $ "Falsifiable, after "
               <> show ntest
               <> " tests:\n"
               <> String.unlines (Result.arguments res)

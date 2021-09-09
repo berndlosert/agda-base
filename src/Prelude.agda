@@ -14,8 +14,8 @@ open import Agda.Builtin.Unit public
 
 open import Agda.Builtin.Bool public
   using (Bool)
-  renaming (false to False)
-  renaming (true to True)
+  using (false)
+  using (true)
 
 data Ordering : Set where
   LT EQ GT : Ordering
@@ -161,30 +161,30 @@ seq a b = const b $! a
 -------------------------------------------------------------------------------
 
 Assert : Bool -> Set
-Assert False = Void
-Assert True = Unit
+Assert false = Void
+Assert true = Unit
 
 bool : a -> a -> Bool -> a
-bool x _ False = x
-bool _ x True = x
+bool x _ false = x
+bool _ x true = x
 
 infixr 0 if_then_else_
 if_then_else_ : Bool -> a -> a -> a
 if b then x else y = bool y x b
 
 not : Bool -> Bool
-not False = True
-not True = False
+not false = true
+not true = false
 
 infixr 2 _||_
 _||_ : Bool -> Bool -> Bool
-False || x = x
-True || _ = True
+false || x = x
+true || _ = true
 
 infixr 3 _&&_
 _&&_ : Bool -> Bool -> Bool
-False && _ = False
-True && x = x
+false && _ = false
+true && x = x
 
 -------------------------------------------------------------------------------
 -- Nat primitives
@@ -230,12 +230,12 @@ fromEither (Left x) = x
 fromEither (Right x) = x
 
 isLeft : Either a b -> Bool
-isLeft (Left _) = True
-isLeft _ = False
+isLeft (Left _) = true
+isLeft _ = false
 
 isRight : Either a b -> Bool
-isRight (Left _) = False
-isRight _ = True
+isRight (Left _) = false
+isRight _ = true
 
 fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
 fromLeft (Left x) = x
@@ -270,12 +270,12 @@ apply (f , x) = f x
 -------------------------------------------------------------------------------
 
 isJust : Maybe a -> Bool
-isJust (Just _) = True
-isJust _ = False
+isJust (Just _) = true
+isJust _ = false
 
 isNothing : Maybe a -> Bool
-isNothing (Just _) = False
-isNothing _ = True
+isNothing (Just _) = false
+isNothing _ = true
 
 fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
 fromJust (Just a) = a
@@ -314,7 +314,7 @@ record Eq (a : Set) : Set where
 
   infix 4 _/=_
   _/=_ : a -> a -> Bool
-  x /= y = if x == y then False else True
+  x /= y = if x == y then false else true
 
   equating : (b -> a) -> b -> b -> Bool
   equating f x y = f x == f y
@@ -326,20 +326,20 @@ instance
   Eq-Void ._==_ = \ ()
 
   Eq-Unit : Eq Unit
-  Eq-Unit ._==_ tt tt = True
+  Eq-Unit ._==_ tt tt = true
 
   Eq-Bool : Eq Bool
   Eq-Bool ._==_ = \ where
-    True True -> True
-    False False -> False
-    _ _ -> False
+    true true -> true
+    false false -> false
+    _ _ -> false
 
   Eq-Ordering : Eq Ordering
   Eq-Ordering ._==_ = \ where
-    LT LT -> True
-    EQ EQ -> True
-    GT GT -> True
-    _ _ -> False
+    LT LT -> true
+    EQ EQ -> true
+    GT GT -> true
+    _ _ -> false
 
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
@@ -351,7 +351,7 @@ instance
   Eq-Int ._==_ = \ where
     (Pos m) (Pos n) -> m == n
     (NegSuc m) (NegSuc n) -> m == n
-    _ _ -> False
+    _ _ -> false
 
   Eq-Float : Eq Float
   Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
@@ -366,22 +366,22 @@ instance
   Eq-Either ._==_ = \ where
     (Left x) (Left y) -> x == y
     (Right x) (Right y) -> x == y
-    _ _ -> False
+    _ _ -> false
 
   Eq-Pair : {{Eq a}} -> {{Eq b}} -> Eq (Pair a b)
   Eq-Pair ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
   Eq-Maybe : {{Eq a}} -> Eq (Maybe a)
   Eq-Maybe ._==_ = \ where
-    Nothing Nothing -> True
+    Nothing Nothing -> true
     (Just x) (Just y) -> x == y
-    _ _ -> False
+    _ _ -> false
 
   Eq-List : {{Eq a}} -> Eq (List a)
   Eq-List ._==_ = \ where
-    [] [] -> True
+    [] [] -> true
     (x :: xs) (y :: ys) -> x == y && xs == ys
-    _ _ -> False
+    _ _ -> false
 
   Eq-List1 : {{Eq a}} -> Eq (List1 a)
   Eq-List1 ._==_ (x :| xs) (y :| ys) = x == y && xs == ys
@@ -401,8 +401,8 @@ record Ord (a : Set) : Set where
   infixl 4 _<_
   _<_ : a -> a -> Bool
   x < y = case compare x y of \ where
-    LT -> True
-    _ -> False
+    LT -> true
+    _ -> false
 
   infixl 4 _>_
   _>_ : a -> a -> Bool
@@ -411,8 +411,8 @@ record Ord (a : Set) : Set where
   infixl 4 _<=_
   _<=_ : a -> a -> Bool
   x <= y = case compare x y of \ where
-    GT -> False
-    _ -> True
+    GT -> false
+    _ -> true
 
   infixl 4 _>=_
   _>=_ : a -> a -> Bool
@@ -434,8 +434,8 @@ instance
   Ord-Unit .compare tt tt = EQ
 
   Ord-Bool : Ord Bool
-  Ord-Bool .compare False True = LT
-  Ord-Bool .compare True False = GT
+  Ord-Bool .compare false true = LT
+  Ord-Bool .compare true false = GT
   Ord-Bool .compare _ _ = EQ
 
   Ord-Ordering : Ord Ordering
@@ -659,8 +659,8 @@ instance
   Exp-Nat ._^_ m (Suc n) = m * m ^ n
 
   Divisor-Nat : Divisor Nat
-  Divisor-Nat .divisor 0 = False
-  Divisor-Nat .divisor _ = True
+  Divisor-Nat .divisor 0 = false
+  Divisor-Nat .divisor _ = true
 
   Div-Nat : Div Nat
   Div-Nat .Divisor-super = Divisor-Nat
@@ -713,8 +713,8 @@ instance
   Exp-Int ._^_ m (Suc n) = m * m ^ n
 
   Divisor-Int : Divisor Int
-  Divisor-Int .divisor (Pos 0) = False
-  Divisor-Int .divisor _ = True
+  Divisor-Int .divisor (Pos 0) = false
+  Divisor-Int .divisor _ = true
 
   Div-Int : Div Int
   Div-Int .Divisor-super = Divisor-Int
@@ -750,7 +750,7 @@ instance
   Exp-Float ._^_ = Agda.Builtin.Float.primFloatPow
 
   Divisor-Float : Divisor Float
-  Divisor-Float .divisor _ = True
+  Divisor-Float .divisor _ = true
 
   Div-Float : Div Float
   Div-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y

@@ -28,8 +28,8 @@ record Alternative (f : Set -> Set) : Set where
     empty : f a
 
   guard : Bool -> f Unit
-  guard True = pure tt
-  guard False = empty
+  guard true = pure tt
+  guard false = empty
 
 open Alternative {{...}} public
 

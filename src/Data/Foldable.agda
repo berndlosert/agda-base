@@ -100,19 +100,19 @@ record Foldable (t : Set -> Set) : Set where
       go _ x = if p x then Done (Just x) else Continue Nothing
 
   any : (a -> Bool) -> t a -> Bool
-  any p xs = maybe False (const True) (find p xs)
+  any p xs = maybe false (const true) (find p xs)
 
   all : (a -> Bool) -> t a -> Bool
   all p = not <<< any (not <<< p)
 
   or : t Bool -> Bool
-  or = any (_== True)
+  or = any (_== true)
 
   and : t Bool -> Bool
-  and = all (_== True)
+  and = all (_== true)
 
   null : t a -> Bool
-  null = foldr (\ _ _ -> False) True
+  null = foldr (\ _ _ -> false) true
 
   module _ {{fn : FromNat a}} where
 

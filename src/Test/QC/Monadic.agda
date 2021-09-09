@@ -71,12 +71,12 @@ module _ {{_ : Monad m}} where
   stop b = propertyT \ _ -> pure $ pure $ property b
 
   pre : Bool -> PropertyT m Unit
-  pre True  = pure tt
-  pre False = stop tt
+  pre true  = pure tt
+  pre false = stop tt
 
   assert : Bool -> PropertyT m Unit
-  assert True = pure tt
-  assert False = stop False
+  assert true = pure tt
+  assert false = stop false
 
   monitor : (Property -> Property) -> PropertyT m Unit
   monitor f = propertyT \ k -> map f <$> k tt

@@ -131,7 +131,7 @@ skipWhile p = do
   if p c then pure tt else empty
 
 skipAll : Parser Unit
-skipAll = skipWhile (const True)
+skipAll = skipWhile (const true)
 
 char : Char -> Parser Char
 char c = satisfy (c ==_)
@@ -198,7 +198,7 @@ takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = parser \ s -> List.singleton (String.break p s)
 
 takeAll : Parser String
-takeAll = takeWhile (const True)
+takeAll = takeWhile (const true)
 
 -------------------------------------------------------------------------------
 -- Parsers for numbers

@@ -100,7 +100,7 @@ lookup k (Dict: t) =
   maybe Nothing (Just <<< getVal) $ Tree.query (compare k <<< getKey) t
 
 member : {{Ord k}} -> k -> Dict k v -> Bool
-member k = maybe False (const True) <<< lookup k
+member k = maybe false (const true) <<< lookup k
 
 map : {{Ord k}} -> (a -> b) -> Dict k a -> Dict k b
 map {a = a} {b = b} f (Dict: t) = Dict: (Tree.map go t)

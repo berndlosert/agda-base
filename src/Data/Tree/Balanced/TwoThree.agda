@@ -269,7 +269,7 @@ lookup : {{Ord a}} -> a -> Tree (Pair a b) -> Maybe b
 lookup x = maybe Nothing (Just <<< snd) <<< query (compare x <<< fst)
 
 member : {{Ord a}} -> a -> Tree a -> Bool
-member x = maybe False (const True) <<< query (compare x)
+member x = maybe false (const true) <<< query (compare x)
 
 -------------------------------------------------------------------------------
 --  Misc.
@@ -306,7 +306,7 @@ filter p (Three l x m y r) =
     m' = filter p m
     r' = filter p r
   in case (p x , p y) of \ where
-    (False , False) -> merge (merge l' m') r'
-    (True , True) -> Three l' x m' y r'
-    (False , True) -> Two (merge l' m') y r'
-    (True , False) -> Two l' x (merge m' r')
+    (false , false) -> merge (merge l' m') r'
+    (true , true) -> Three l' x m' y r'
+    (false , true) -> Two (merge l' m') y r'
+    (true , false) -> Two l' x (merge m' r')
