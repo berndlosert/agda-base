@@ -21,8 +21,8 @@ abstract
   Parser : Set -> Set
   Parser = StateT String List
 
-  parser : (String -> List (Pair String a)) -> Parser a
-  parser = toStateT
+  toParser : (String -> List (Pair String a)) -> Parser a
+  toParser = toStateT
 
   runParser : Parser a -> String -> List (Pair String a)
   runParser = runStateT
@@ -118,7 +118,7 @@ parse p s =
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = parser (String.uncons >>> maybe [] (swap >>> List.singleton))
+anyChar = toParser (String.uncons >>> maybe [] (swap >>> List.singleton))
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -195,7 +195,7 @@ word1 = do
   pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = parser \ s -> List.singleton (String.break p s)
+takeWhile p = toParser \ s -> List.singleton (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
