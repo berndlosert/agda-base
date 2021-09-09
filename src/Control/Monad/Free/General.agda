@@ -23,8 +23,8 @@ private
 -------------------------------------------------------------------------------
 
 data General (c : Set) (r : c -> Set) (a : Set) : Set where
-  Pure : a -> General c r a
-  Bind : (x : c) -> (r x -> General c r a) -> General c r a
+  gpure : a -> General c r a
+  gbind : (x : c) -> (r x -> General c r a) -> General c r a
 
 DFn : (c : Set) -> (c -> Set) -> Set
 DFn c r = (x : c) -> General c r (r x)
@@ -34,15 +34,15 @@ Fn a b = DFn a (const b)
 
 general : (a -> b) -> ((x : c) -> (r x -> b) -> b) -> General c r a -> b
 general pure bind = \ where
-  (Pure x) -> pure x
-  (Bind x k) -> bind x (\ y -> general pure bind (k y))
+  (gpure x) -> pure x
+  (gbind x k) -> bind x (\ y -> general pure bind (k y))
 
 call : DFn c r
-call x = Bind x Pure
+call x = gbind x gpure
 
 private
   bindGeneral : General c r a -> (a -> General c r b) -> General c r b
-  bindGeneral m k = general k Bind m
+  bindGeneral m k = general k gbind m
 
 interpretGeneral : {{Monad m}}
   -> (t : (x : c) -> m (r x)) -> General c r a -> m a
@@ -53,10 +53,10 @@ already = interpretGeneral (\ _ -> nothing)
 
 instance
   Functor-General : Functor (General c r)
-  Functor-General .map f = general (Pure <<< f) Bind
+  Functor-General .map f = general (gpure <<< f) gbind
 
   Applicative-General : Applicative (General c r)
-  Applicative-General .pure = Pure
+  Applicative-General .pure = gpure
   Applicative-General ._<*>_ fs xs = bindGeneral fs \ f -> map (f $_) xs
 
   Monad-General : Monad (General c r)
