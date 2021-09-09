@@ -54,7 +54,7 @@ append = _<>_
 
 uncons : String -> Maybe (Pair Char String)
 uncons s = case primStringUncons s of \ where
-  (Just (DPair: c cs)) -> Just (c , cs)
+  (Just p) -> Just (fst p , snd p)
   Nothing -> Nothing
 
 unsnoc : String -> Maybe (Pair String Char)

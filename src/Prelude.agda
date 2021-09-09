@@ -57,18 +57,16 @@ data Either (a b : Set) : Set where
 
 open import Agda.Builtin.Sigma public
   renaming (Σ to DPair)
-  renaming (_,_ to DPair:)
+  hiding (_,_)
 
+infixl 1 _,_
 record Pair (a b : Set) : Set where
-  constructor Pair:
+  constructor _,_
   field
     fst : a
     snd : b
 
 open Pair public
-
-infixl 1 _,_
-pattern _,_ x y = Pair: x y
 
 {-# COMPILE GHC Pair = data (,) ((,)) #-}
 
