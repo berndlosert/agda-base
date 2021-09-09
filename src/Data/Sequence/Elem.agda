@@ -29,7 +29,7 @@ private
 -------------------------------------------------------------------------------
 
 record Elem (a : Set) : Set where
-  constructor Elem:
+  constructor toElem
   field getElem : a
 
 open Elem public
@@ -39,10 +39,10 @@ instance
   Measured-Elem .measure _ = toSum 1
 
   Functor-Elem : Functor Elem
-  Functor-Elem .map f (Elem: x) = Elem: (f x)
+  Functor-Elem .map f (toElem x) = toElem (f x)
 
   Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldr f z (Elem: x) = f x z
+  Foldable-Elem .foldr f z (toElem x) = f x z
 
   Traversable-Elem : Traversable Elem
-  Traversable-Elem .traverse f (Elem: x) = (| Elem: (f x) |)
+  Traversable-Elem .traverse f (toElem x) = (| toElem (f x) |)

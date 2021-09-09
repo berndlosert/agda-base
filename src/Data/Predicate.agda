@@ -7,18 +7,18 @@ open import Prelude
 private variable a : Set
 
 record Predicate (a : Set) : Set where
-  constructor Predicate:
+  constructor toPredicate
   field getPredicate : a -> Bool
 
 open Predicate
 
 instance
   Semigroup-Predicate : Semigroup (Predicate a)
-  Semigroup-Predicate ._<>_ (Predicate: p) (Predicate: q) =
-    Predicate: \ a -> p a && q a
+  Semigroup-Predicate ._<>_ (toPredicate p) (toPredicate q) =
+    toPredicate \ a -> p a && q a
 
   Monoid-Predicate : Monoid (Predicate a)
-  Monoid-Predicate .neutral = Predicate: (const true)
+  Monoid-Predicate .neutral = toPredicate (const true)
 
   Contravariant-Predicate : Contravariant Predicate
-  Contravariant-Predicate .cmap f (Predicate: p) = Predicate: (p <<< f)
+  Contravariant-Predicate .cmap f (toPredicate p) = toPredicate (p <<< f)

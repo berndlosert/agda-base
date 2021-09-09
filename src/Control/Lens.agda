@@ -54,45 +54,45 @@ instance
   Copointed-Identity .extract = runIdentity
 
 record Tagged (s b : Set) : Set where
-  constructor Tagged:
+  constructor toTagged
   field unTagged : b
 
 open Tagged public
 
 instance
   Functor-Tagged : Functor (Tagged s)
-  Functor-Tagged .map f (Tagged: x) = Tagged: (f x)
+  Functor-Tagged .map f (toTagged x) = toTagged (f x)
 
   Profunctor-Tagged : Profunctor Tagged
-  Profunctor-Tagged .lcmap _ (Tagged: x) = Tagged: x
+  Profunctor-Tagged .lcmap _ (toTagged x) = toTagged x
 
   Choice-Tagged : Choice Tagged
-  Choice-Tagged .choicel (Tagged: x) = Tagged: (left x)
+  Choice-Tagged .choicel (toTagged x) = toTagged (left x)
 
 data Exchange (a b s t : Set) : Set where
-  Exchange: : (s -> a) -> (b -> t) -> Exchange a b s t
+  toExchange : (s -> a) -> (b -> t) -> Exchange a b s t
 
 instance
   Functor-Exchange : Functor (Exchange a b s)
-  Functor-Exchange .map f (Exchange: sa bt) = Exchange: sa (f <<< bt)
+  Functor-Exchange .map f (toExchange sa bt) = toExchange sa (f <<< bt)
 
   Profunctor-Exchange : Profunctor (Exchange a b)
-  Profunctor-Exchange .lcmap f (Exchange: sa bt) = Exchange: (sa <<< f) bt
+  Profunctor-Exchange .lcmap f (toExchange sa bt) = toExchange (sa <<< f) bt
 
 data Market (a b s t : Set) : Set where
-  Market: : (b -> t) -> (s -> Either t a) -> Market a b s t
+  toMarket : (b -> t) -> (s -> Either t a) -> Market a b s t
 
 instance
   Functor-Market : Functor (Market a b s)
-  Functor-Market .map f (Market: bt seta) =
-    Market: (f <<< bt) (either (left <<< f) right <<< seta)
+  Functor-Market .map f (toMarket bt seta) =
+    toMarket (f <<< bt) (either (left <<< f) right <<< seta)
 
   Profunctor-Market : Profunctor (Market a b)
-  Profunctor-Market .lcmap f (Market: bt seta) = Market: bt (seta <<< f)
+  Profunctor-Market .lcmap f (toMarket bt seta) = toMarket bt (seta <<< f)
 
   Choice-Market : Choice (Market a b)
-  Choice-Market .choicel (Market: bt seta) =
-    Market: (left <<< bt) \ where
+  Choice-Market .choicel (toMarket bt seta) =
+    toMarket (left <<< bt) \ where
       (left s) -> either (left <<< left) right (seta s)
       (right c) -> left (right c)
 
@@ -233,7 +233,7 @@ AReview : (t b : Set) -> Set
 AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
 
 review : AReview t b -> b -> t
-review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< toIdentity
+review p = runIdentity <<< unTagged <<< p <<< toTagged <<< toIdentity
 
 -------------------------------------------------------------------------------
 -- AnIso
@@ -244,8 +244,8 @@ AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
 withIso ai k =
-  case ai (Exchange: id toIdentity) of \ where
-    (Exchange: sa bt) -> k sa (runIdentity <<< bt)
+  case ai (toExchange id toIdentity) of \ where
+    (toExchange sa bt) -> k sa (runIdentity <<< bt)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
@@ -263,8 +263,8 @@ APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
-  case ap (Market: toIdentity right) of \ where
-    (Market: bt seta) ->
+  case ap (toMarket toIdentity right) of \ where
+    (toMarket bt seta) ->
       f (runIdentity <<< bt) (either (left <<< runIdentity) right <<< seta)
 
 matching : APrism s t a b -> s -> Either t a

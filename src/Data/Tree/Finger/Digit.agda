@@ -65,31 +65,31 @@ splitDigit : {{Measured v a }}
   -> v
   -> Digit a
   -> Split (Maybe <<< Digit) a
-splitDigit _ i (One a) = Split: nothing a nothing
+splitDigit _ i (One a) = toSplit nothing a nothing
 splitDigit p i (Two a b) =
   let
     va = i <> measure a
   in
-    if p va then Split: nothing a (just (One b))
-    else Split: (just (One a)) b nothing
+    if p va then toSplit nothing a (just (One b))
+    else toSplit (just (One a)) b nothing
 splitDigit p i (Three a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then Split: nothing a (just (Two b c))
-    else if p vab then Split: (just (One a)) b (just (One c))
-    else Split: (just (Two a b)) c nothing
+    if p va then toSplit nothing a (just (Two b c))
+    else if p vab then toSplit (just (One a)) b (just (One c))
+    else toSplit (just (Two a b)) c nothing
 splitDigit p i (Four a b c d) =
   let
     va = i <> measure a
     vab = va <> measure b
     vabc = vab <> measure c
   in
-    if p va then Split: nothing a (just (Three b c d))
-    else if p vab then Split: (just (One a)) b (just (Two c d))
-    else if p vabc then Split: (just (Two a b)) c (just (One d))
-    else Split: (just (Three a b c)) d nothing
+    if p va then toSplit nothing a (just (Three b c d))
+    else if p vab then toSplit (just (One a)) b (just (Two c d))
+    else if p vabc then toSplit (just (Two a b)) c (just (One d))
+    else toSplit (just (Three a b c)) d nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -101,14 +101,14 @@ searchDigit : {{Measured v a}}
   -> Digit a
   -> v
   -> Split (Maybe <<< Digit) a
-searchDigit _ vl (One a) vr = Split: nothing a nothing
+searchDigit _ vl (One a) vr = toSplit nothing a nothing
 searchDigit p vl (Two a b) vr =
   let
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then Split: nothing a (just (One b))
-    else Split: (just (One a)) b nothing
+    if p va vb then toSplit nothing a (just (One b))
+    else toSplit (just (One a)) b nothing
 searchDigit p vl (Three a b c) vr =
   let
     va = vl <> measure a
@@ -116,9 +116,9 @@ searchDigit p vl (Three a b c) vr =
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then Split: nothing a (just (Two b c))
-    else if p vab vc then Split: (just (One a)) b (just (One c))
-    else Split: (just (Two a b)) c nothing
+    if p va vbc then toSplit nothing a (just (Two b c))
+    else if p vab vc then toSplit (just (One a)) b (just (One c))
+    else toSplit (just (Two a b)) c nothing
 searchDigit p vl (Four a b c d) vr =
   let
     va = vl <> measure a
@@ -128,10 +128,10 @@ searchDigit p vl (Four a b c d) vr =
     vabc = vab <> measure c
     vbcd = measure b <> vcd
   in
-    if p va vbcd then Split: nothing a (just (Three b c d))
-    else if p vab vcd then Split: (just (One a)) b (just (Two c d))
-    else if p vabc vd then Split: (just (Two a b)) c (just (One d))
-    else Split: (just (Three a b c)) d nothing
+    if p va vbcd then toSplit nothing a (just (Three b c d))
+    else if p vab vcd then toSplit (just (One a)) b (just (Two c d))
+    else if p vabc vd then toSplit (just (Two a b)) c (just (One d))
+    else toSplit (just (Three a b c)) d nothing
 
 -------------------------------------------------------------------------------
 -- Misc.

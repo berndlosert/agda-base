@@ -7,4 +7,4 @@ module Data.Tree.Finger.Split where
 -------------------------------------------------------------------------------
 
 data Split (f : Set -> Set) (a : Set) : Set where
-  Split: : f a -> a -> f a -> Split f a
+  toSplit : f a -> a -> f a -> Split f a

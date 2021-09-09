@@ -217,19 +217,19 @@ splitTree : {{Partial}}
   -> v
   -> FingerTree v a
   -> Split (FingerTree v) a
-splitTree _ _ (Single x) = Split: Empty x Empty
+splitTree _ _ (Single x) = toSplit Empty x Empty
 splitTree p i (Deep _ pr m sf) =
   let
     vpr = i <> measure pr
     vm = vpr <> measure m
   in
     if p vpr then (case splitDigit p i pr of \ where
-      (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+      (toSplit l x r) -> toSplit (maybe Empty digitToTree l) x (deepL r m sf))
     else if p vm then (case splitTree p vpr m of \ where
-      (Split: ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
-        (Split: l x r) -> Split: (deepR pr ml l) x (deepL r mr sf))
+      (toSplit ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
+        (toSplit l x r) -> toSplit (deepR pr ml l) x (deepL r mr sf))
     else (case splitDigit p vm sf of \ where
-      (Split: l x r) -> Split: (deepR pr  m  l) x (maybe Empty digitToTree r))
+      (toSplit l x r) -> toSplit (deepR pr  m  l) x (maybe Empty digitToTree r))
 splitTree _ _ _ = undefined
 
 split : {{Measured v a}}
@@ -239,7 +239,7 @@ split : {{Measured v a}}
 split _ Empty  =  (Empty , Empty)
 split p xs = unsafePerform $
   case splitTree p neutral xs of \ where
-    (Split: l x r) -> if p (measure xs) then (l , cons x r) else (xs , Empty)
+    (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , Empty)
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -259,7 +259,7 @@ private
     -> FingerTree v a
     -> v
     -> Split (FingerTree v) a
-  searchTree _ _ (Single x) _ = Split: Empty x Empty
+  searchTree _ _ (Single x) _ = toSplit Empty x Empty
   searchTree p vl (Deep _ pr m sf) vr =
     let
       vm =  measure m
@@ -269,12 +269,12 @@ private
       vmsr =  vm <> vsr
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-        (Split: l x r) -> Split: (maybe Empty digitToTree l) x (deepL r m sf))
+        (toSplit l x r) -> toSplit (maybe Empty digitToTree l) x (deepL r m sf))
       else if p vlpm vsr then (case searchTree p vlp m vsr of \ where
-        (Split: ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
-          (Split: l x r) -> Split: (deepR pr  ml l) x (deepL r mr sf))
+        (toSplit ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
+          (toSplit l x r) -> toSplit (deepR pr  ml l) x (deepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
-        (Split: l x r) -> Split: (deepR pr m l) x (maybe Empty digitToTree r))
+        (toSplit l x r) -> toSplit (deepR pr m l) x (maybe Empty digitToTree r))
   searchTree _ _ _ _ = undefined
 
 search : {{Measured v a}}
@@ -290,7 +290,7 @@ search p t = unsafePerform $
     if pleft && pright then OnLeft
     else if not pleft && pright then
       (case searchTree p neutral t neutral of \ where
-        (Split: l x r) -> position l x r)
+        (toSplit l x r) -> position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
 

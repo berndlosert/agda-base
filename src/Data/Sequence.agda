@@ -38,23 +38,23 @@ private
 
 abstract
   data Seq (a : Set) : Set where
-    Seq: : FingerTree (Sum Nat) (Elem a) -> Seq a
+    toSeq : FingerTree (Sum Nat) (Elem a) -> Seq a
 
   instance
     Semigroup-Seq : Semigroup (Seq a)
-    Semigroup-Seq ._<>_ (Seq: l) (Seq: r) = Seq: (l <> r)
+    Semigroup-Seq ._<>_ (toSeq l) (toSeq r) = toSeq (l <> r)
 
     Monoid-Seq : Monoid (Seq a)
-    Monoid-Seq .neutral = Seq: Tree.empty
+    Monoid-Seq .neutral = toSeq Tree.empty
 
     Foldable-Seq : Foldable Seq
-    Foldable-Seq .foldr f z (Seq: t) = foldr (f <<< getElem) z t
+    Foldable-Seq .foldr f z (toSeq t) = foldr (f <<< getElem) z t
 
     Functor-Seq : Functor Seq
-    Functor-Seq .map f (Seq: t) = Seq: (map (map f) t)
+    Functor-Seq .map f (toSeq t) = toSeq (map (map f) t)
 
     Applicative-Seq : Applicative Seq
-    Applicative-Seq .pure = Seq: <<< Tree.singleton <<< Elem:
+    Applicative-Seq .pure = toSeq <<< Tree.singleton <<< toElem
     Applicative-Seq ._<*>_ fs xs =
         bind fs \ f -> bind xs \ x -> pure (f x)
       where
@@ -69,7 +69,7 @@ abstract
     Monad-Seq ._>>=_ = flip foldMap
 
     Traversable-Seq : Traversable Seq
-    Traversable-Seq .traverse f (Seq: t) = Seq: <$> traverse (traverse f) t
+    Traversable-Seq .traverse f (toSeq t) = toSeq <$> traverse (traverse f) t
 
     Eq-Seq : {{Eq a}} -> Eq (Seq a)
     Eq-Seq ._==_ l r = toList l == toList r
@@ -79,13 +79,13 @@ abstract
 -------------------------------------------------------------------------------
 
   cons : a -> Seq a -> Seq a
-  cons x (Seq: xs) = Seq: (Tree.cons (Elem: x) xs)
+  cons x (toSeq xs) = toSeq (Tree.cons (toElem x) xs)
 
   snoc : Seq a -> a -> Seq a
-  snoc (Seq: xs) x = Seq: (Tree.snoc xs (Elem: x))
+  snoc (toSeq xs) x = toSeq (Tree.snoc xs (toElem x))
 
   singleton : a -> Seq a
-  singleton x = Seq: (Tree.singleton (Elem: x))
+  singleton x = toSeq (Tree.singleton (toElem x))
 
   fromList : List a -> Seq a
   fromList = foldr cons empty
@@ -110,16 +110,16 @@ abstract
 -------------------------------------------------------------------------------
 
   uncons : Seq a -> Maybe (Pair a (Seq a))
-  uncons (Seq: t) =
+  uncons (toSeq t) =
     case Tree.uncons t of \ where
       nothing -> nothing
-      (just (Elem: x , xs)) -> just (x , Seq: xs)
+      (just (toElem x , xs)) -> just (x , toSeq xs)
 
   unsnoc : Seq a -> Maybe (Pair (Seq a) a)
-  unsnoc (Seq: t) =
+  unsnoc (toSeq t) =
     case Tree.unsnoc t of \ where
       nothing -> nothing
-      (just (xs , Elem: x)) -> just (Seq: xs , x)
+      (just (xs , toElem x)) -> just (toSeq xs , x)
 
   head : Seq a -> Maybe a
   head = map fst <<< uncons
@@ -200,7 +200,7 @@ abstract
 -------------------------------------------------------------------------------
 
   splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
-  splitAt n (Seq: t) = bimap Seq: Seq: $ Tree.split (\ m -> n < getSum m) t
+  splitAt n (toSeq t) = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) t
 
   at : Nat -> Seq a -> Maybe a
   at n xs = splitAt n xs # snd # head
@@ -266,10 +266,10 @@ abstract
 -------------------------------------------------------------------------------
 
   inits : Seq a -> Seq (Seq a)
-  inits (Seq: t) = cons empty (Seq: (Tree.inits (Elem: <<< Seq:) t))
+  inits (toSeq t) = cons empty (toSeq (Tree.inits (toElem <<< toSeq) t))
 
   tails : Seq a -> Seq (Seq a)
-  tails (Seq: t) = snoc (Seq: (Tree.tails (Elem: <<< Seq:) t))  empty
+  tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  empty
 
   segments : Seq a -> Seq (Seq a)
   segments xs = singleton empty <>

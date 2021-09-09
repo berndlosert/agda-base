@@ -13,10 +13,10 @@ private
 record Fix (c : Container) : Set where
   inductive
   pattern
-  constructor Fix:
+  constructor toFix
   field unFix : Extension c (Fix c)
 
 open Fix public
 
 foldFix : {c : Container} -> (Extension c a -> a) -> Fix c -> a
-foldFix alg (Fix: (Extension: s p)) = alg (Extension: s \ x -> foldFix alg (p x))
+foldFix alg (toFix (toExtension s p)) = alg (toExtension s \ x -> foldFix alg (p x))

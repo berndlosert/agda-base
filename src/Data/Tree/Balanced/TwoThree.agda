@@ -86,7 +86,7 @@ private
     ThreeRight : Tree a -> a -> Tree a -> a -> TreeContext a
 
   data KickUp (a : Set) : Set where
-    KickUp: : Tree a -> a -> Tree a -> KickUp a
+    toKickUp : Tree a -> a -> Tree a -> KickUp a
 
   fromZipper : List (TreeContext a) -> Tree a -> Tree a
   fromZipper [] t = t
@@ -106,22 +106,22 @@ insert : {{Ord a}} -> a -> Tree a -> Tree a
 insert {a} v = down []
   where
     up : List (TreeContext a) -> KickUp a -> Tree a
-    up [] (KickUp: l x r) = Two l x r
+    up [] (toKickUp l x r) = Two l x r
     up (h :: ctx) kup =
       case (h , kup) of \ where
-        (TwoLeft x r , KickUp: l w m) ->
+        (TwoLeft x r , toKickUp l w m) ->
           fromZipper ctx (Three l w m x r)
-        (TwoRight l x , KickUp: m w r) ->
+        (TwoRight l x , toKickUp m w r) ->
           fromZipper ctx (Three l x m w r)
-        (ThreeLeft x c y d , KickUp: a w b) ->
-          up ctx (KickUp: (Two a w b) x (Two c y d))
-        (ThreeMiddle a x y d , KickUp: b w c) ->
-          up ctx (KickUp: (Two a x b) w (Two c y d))
-        (ThreeRight a x b y , KickUp: c w d) ->
-          up ctx (KickUp: (Two a x b) y (Two c w d))
+        (ThreeLeft x c y d , toKickUp a w b) ->
+          up ctx (toKickUp (Two a w b) x (Two c y d))
+        (ThreeMiddle a x y d , toKickUp b w c) ->
+          up ctx (toKickUp (Two a x b) w (Two c y d))
+        (ThreeRight a x b y , toKickUp c w d) ->
+          up ctx (toKickUp (Two a x b) y (Two c w d))
 
     down : List (TreeContext a) -> Tree a -> Tree a
-    down ctx Leaf = up ctx (KickUp: Leaf v Leaf)
+    down ctx Leaf = up ctx (toKickUp Leaf v Leaf)
     down ctx (Two l x r) =
       case compare v x of \ where
         EQ -> fromZipper ctx (Two l v r)
