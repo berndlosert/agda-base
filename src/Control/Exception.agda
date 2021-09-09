@@ -92,17 +92,17 @@ record MonadBracket (m : Set -> Set) : Set where
   bracketOnError : m a -> (a -> m c) -> (a -> m b) -> m b
   bracketOnError acquire release =
     map fst <<< generalBracket acquire \ where
-      _ (ExitCaseSuccess _) -> pure unit
+      _ (ExitCaseSuccess _) -> pure tt
       a _ -> do
         release a
-        pure unit
+        pure tt
 
   onError : m a -> m b -> m a
   onError action handler =
-    bracketOnError (pure unit) (const handler) (const action)
+    bracketOnError (pure tt) (const handler) (const action)
 
   finally : m a -> m b -> m a
-  finally action finalizer = bracket' (pure unit) finalizer action
+  finally action finalizer = bracket' (pure tt) finalizer action
 
 open MonadBracket {{...}} public
 

@@ -33,7 +33,7 @@ trace string expr = unsafePerformIO do
   pure expr
 
 traceA : {{Applicative f}} -> String -> f Unit
-traceA string = trace string $ pure unit
+traceA string = trace string $ pure tt
 
 traceShow : {{Show a}} -> a -> b -> b
 traceShow = trace <<< show

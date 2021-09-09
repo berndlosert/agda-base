@@ -53,7 +53,7 @@ instance
   Show-Void .showsPrec _ ()
 
   Show-Unit : Show Unit
-  Show-Unit .showsPrec _ unit = showString "unit"
+  Show-Unit .showsPrec _ tt = showString "tt"
 
   Show-Bool : Show Bool
   Show-Bool .showsPrec _ b = showString (if b then "True" else "False")

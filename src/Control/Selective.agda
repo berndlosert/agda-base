@@ -35,12 +35,12 @@ record Selective (f : Set -> Set) : Set where
 
   ifS : f Bool -> f a -> f a -> f a
   ifS x t f = branch
-    (bool (Left unit) (Right unit) <$> x)
+    (bool (Left tt) (Right tt) <$> x)
     (const <$> f)
     (const <$> t)
 
   whenS : f Bool -> f Unit -> f Unit
-  whenS b t = ifS b t (pure unit)
+  whenS b t = ifS b t (pure tt)
 
   orElse : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
   orElse x y = branch x (flip appendLeft <$> y) (pure Right)

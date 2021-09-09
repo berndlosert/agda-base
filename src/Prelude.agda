@@ -10,7 +10,7 @@ data Void : Set where
 
 open import Agda.Builtin.Unit public
   renaming (⊤ to Unit)
-  renaming (tt to unit)
+  using (tt)
 
 open import Agda.Builtin.Bool public
   using (Bool)
@@ -326,7 +326,7 @@ instance
   Eq-Void ._==_ = \ ()
 
   Eq-Unit : Eq Unit
-  Eq-Unit ._==_ unit unit = True
+  Eq-Unit ._==_ tt tt = True
 
   Eq-Bool : Eq Bool
   Eq-Bool ._==_ = \ where
@@ -431,7 +431,7 @@ instance
   Ord-Void .compare = \ ()
 
   Ord-Unit : Ord Unit
-  Ord-Unit .compare unit unit = EQ
+  Ord-Unit .compare tt tt = EQ
 
   Ord-Bool : Ord Bool
   Ord-Bool .compare False True = LT
@@ -770,7 +770,7 @@ instance
   Semigroup-Void ._<>_ = \ ()
 
   Semigroup-Unit : Semigroup Unit
-  Semigroup-Unit ._<>_ unit unit = unit
+  Semigroup-Unit ._<>_ tt tt = tt
 
   Semigroup-Ordering : Semigroup Ordering
   Semigroup-Ordering ._<>_ = \ where
@@ -828,7 +828,7 @@ open Monoid {{...}} public
 
 instance
   Monoid-Unit : Monoid Unit
-  Monoid-Unit .neutral = unit
+  Monoid-Unit .neutral = tt
 
   Monoid-Ordering : Monoid Ordering
   Monoid-Ordering .neutral = EQ
@@ -896,7 +896,7 @@ record Functor (f : Set -> Set) : Set where
   _$>_ = flip _<$_
 
   ignore : f a -> f Unit
-  ignore = unit <$_
+  ignore = tt <$_
 
   vacuous : f Void -> f a
   vacuous = map \ ()
@@ -935,7 +935,7 @@ record Contravariant (f : Set -> Set) : Set where
   field cmap : (a -> b) -> f b -> f a
 
   phantom : {{Functor f}} -> f a -> f b
-  phantom x = cmap (const unit) (map (const unit) x)
+  phantom x = cmap (const tt) (map (const tt) x)
 
 open Contravariant {{...}} public
 
@@ -1008,14 +1008,14 @@ record Applicative (f : Set -> Set) : Set where
   replicateA! n0 fa = loop n0
     where
       loop : Nat -> f Unit
-      loop 0 = pure unit
+      loop 0 = pure tt
       loop (Suc n) = fa *> loop n
 
   when : Bool -> f Unit -> f Unit
-  when p x = if p then x else pure unit
+  when p x = if p then x else pure tt
 
   unless : Bool -> f Unit -> f Unit
-  unless p x = if p then pure unit else x
+  unless p x = if p then pure tt else x
 
 open Applicative {{...}} public
 

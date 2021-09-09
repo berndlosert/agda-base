@@ -81,7 +81,7 @@ instance
 
   MonadWriter-WriterT : {{Monoid w}} -> {{Monad m}}
     -> MonadWriter w (WriterT w m)
-  MonadWriter-WriterT .tell = WriterT: <<< pure <<< (_, unit)
+  MonadWriter-WriterT .tell = WriterT: <<< pure <<< (_, tt)
   MonadWriter-WriterT .listen m = WriterT: do
     (w , x) <- runWriterT m
     pure (w , (w , x))

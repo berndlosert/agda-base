@@ -203,7 +203,7 @@ findOf l p = foldrOf l (\ x y -> if p x then Just x else y) Nothing
 
 traverseOf! : {{Functor f}}
   -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
-traverseOf! l f = map (const unit) <<< foldMapOf l f
+traverseOf! l f = map (const tt) <<< foldMapOf l f
 
 forOf! : {{Functor f}}
   -> Getting (f r) s a -> s -> (a -> f r) -> f Unit
@@ -348,7 +348,7 @@ instance
 #Just _ Nothing = pure Nothing
 
 #Nothing : Simple Traversal (Maybe a) Unit
-#Nothing f Nothing = map (const Nothing) (f unit)
+#Nothing f Nothing = map (const Nothing) (f tt)
 #Nothing _ j = pure j
 
 #head : {{Cons s s a a}} -> Simple Traversal s a

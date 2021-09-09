@@ -69,10 +69,10 @@ option : a -> Parser a -> Parser a
 option a p = p <|> pure a
 
 skipMany : Parser a -> Parser Unit
-skipMany p = many p *> pure unit
+skipMany p = many p *> pure tt
 
 skipMany1 : Parser a -> Parser Unit
-skipMany1 p = many1 p *> pure unit
+skipMany1 p = many1 p *> pure tt
 
 sepBy1 : Parser a -> Parser b -> Parser (List a)
 sepBy1 p sep = (| _::_ p (many (sep *> p)) |)
@@ -128,7 +128,7 @@ satisfy p = do
 skipWhile : (Char -> Bool) -> Parser Unit
 skipWhile p = do
   c <- anyChar
-  if p c then pure unit else empty
+  if p c then pure tt else empty
 
 skipAll : Parser Unit
 skipAll = skipWhile (const True)

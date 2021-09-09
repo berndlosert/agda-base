@@ -155,7 +155,7 @@ record Foldable (t : Set -> Set) : Set where
   module _ {{_ : Applicative f}} where
 
     traverse! : (a -> f b) -> t a -> f Unit
-    traverse! f = foldr (_*>_ <<< f) (pure unit)
+    traverse! f = foldr (_*>_ <<< f) (pure tt)
 
     for! : t a -> (a -> f b) -> f Unit
     for! = flip traverse!

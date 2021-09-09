@@ -29,10 +29,10 @@ record MonadState (s : Set) (m : Set -> Set) : Set where
   get = state \ s -> (s , s)
 
   put : s -> m Unit
-  put s = state \ _ -> (s , unit)
+  put s = state \ _ -> (s , tt)
 
   modify : (s -> s) -> m Unit
-  modify f = state \ s -> (f s , unit)
+  modify f = state \ s -> (f s , tt)
 
   gets : (s -> a) -> m a
   gets f = do
