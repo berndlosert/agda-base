@@ -22,7 +22,7 @@ abstract
   Parser = StateT String List
 
   parser : (String -> List (Pair String a)) -> Parser a
-  parser = StateT:
+  parser = toStateT
 
   runParser : Parser a -> String -> List (Pair String a)
   runParser = runStateT

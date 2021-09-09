@@ -38,7 +38,7 @@ private
 -------------------------------------------------------------------------------
 
 record WriterT (w : Set) (m : Set -> Set) (a : Set) : Set where
-  constructor WriterT:
+  constructor toWriterT
   field runWriterT : m (Pair w a)
 
 open WriterT public
@@ -48,7 +48,7 @@ execWriterT = map fst <<< runWriterT
 
 mapWriterT : (m (Pair w a) -> n (Pair w' b))
   -> WriterT w m a -> WriterT w' n b
-mapWriterT f = WriterT: <<< f <<< runWriterT
+mapWriterT f = toWriterT <<< f <<< runWriterT
 
 instance
   Functor-WriterT : {{Functor m}} -> Functor (WriterT w m)
@@ -56,36 +56,36 @@ instance
 
   Applicative-WriterT : {{Monoid w}} -> {{Applicative m}}
     -> Applicative (WriterT w m)
-  Applicative-WriterT .pure = WriterT: <<< pure <<< (neutral ,_)
+  Applicative-WriterT .pure = toWriterT <<< pure <<< (neutral ,_)
   Applicative-WriterT ._<*>_ fs xs =
-      WriterT: (| k (runWriterT fs) (runWriterT xs) |)
+      toWriterT (| k (runWriterT fs) (runWriterT xs) |)
     where
       k : _
       k (w , f) (w' , x) = (w <> w' , f x)
 
   Alternative-WriterT : {{Monoid w}} -> {{Alternative m}}
     -> Alternative (WriterT w m)
-  Alternative-WriterT .empty = WriterT: empty
-  Alternative-WriterT ._<|>_ l r = WriterT: (runWriterT l <|> runWriterT r)
+  Alternative-WriterT .empty = toWriterT empty
+  Alternative-WriterT ._<|>_ l r = toWriterT (runWriterT l <|> runWriterT r)
 
   Monad-WriterT : {{Monoid w}} -> {{Monad m}} -> Monad (WriterT w m)
-  Monad-WriterT ._>>=_ m k = WriterT: do
+  Monad-WriterT ._>>=_ m k = toWriterT do
     (w , x) <- runWriterT m
     (w' , y) <- runWriterT (k x)
     pure (w <> w' , y)
 
   MonadTrans-WriterT : {{Monoid w}} -> MonadTrans (WriterT w)
-  MonadTrans-WriterT .lift m = WriterT: do
+  MonadTrans-WriterT .lift m = toWriterT do
     x <- m
     pure (neutral , x)
 
   MonadWriter-WriterT : {{Monoid w}} -> {{Monad m}}
     -> MonadWriter w (WriterT w m)
-  MonadWriter-WriterT .tell = WriterT: <<< pure <<< (_, tt)
-  MonadWriter-WriterT .listen m = WriterT: do
+  MonadWriter-WriterT .tell = toWriterT <<< pure <<< (_, tt)
+  MonadWriter-WriterT .listen m = toWriterT do
     (w , x) <- runWriterT m
     pure (w , (w , x))
-  MonadWriter-WriterT .pass m = WriterT: do
+  MonadWriter-WriterT .pass m = toWriterT do
     (w , (f , x)) <- runWriterT m
     pure (f w , x)
 
@@ -104,10 +104,10 @@ instance
 
   MonadCatch-WriterT : {{Monoid w}} -> {{MonadCatch m}}
     -> MonadCatch (WriterT w m)
-  MonadCatch-WriterT .catch m h = WriterT: $
+  MonadCatch-WriterT .catch m h = toWriterT $
     catch (runWriterT m) (runWriterT <<< h)
 
   MonadCont-WriterT : {{Monoid w}} -> {{MonadCont m}}
     -> MonadCont (WriterT w m)
-  MonadCont-WriterT .callCC f = WriterT: $
-    callCC \ c -> (runWriterT <<< f) (WriterT: <<< c <<< (neutral ,_))
+  MonadCont-WriterT .callCC f = toWriterT $
+    callCC \ c -> (runWriterT <<< f) (toWriterT <<< c <<< (neutral ,_))

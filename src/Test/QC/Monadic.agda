@@ -32,7 +32,7 @@ abstract
   PropertyT m a = ContT (m Property) Gen a
 
   propertyT : ((a -> Gen (m Property)) -> Gen (m Property)) -> PropertyT m a
-  propertyT = ContT:
+  propertyT = toContT
 
   unPropertyT : PropertyT m a -> (a -> Gen (m Property)) -> Gen (m Property)
   unPropertyT = runContT

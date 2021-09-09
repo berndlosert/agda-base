@@ -38,45 +38,45 @@ private
 -------------------------------------------------------------------------------
 
 record ReaderT (r : Set) (m : Set -> Set) (a : Set) : Set where
-  constructor ReaderT:
+  constructor toReaderT
   field runReaderT : r -> m a
 
 open ReaderT public
 
 liftReaderT : m a -> ReaderT r m a
-liftReaderT = ReaderT: <<< const
+liftReaderT = toReaderT <<< const
 
 mapReaderT : (m a -> n b) -> ReaderT r m a -> ReaderT r n b
-mapReaderT f m = ReaderT: (f <<< runReaderT m)
+mapReaderT f m = toReaderT (f <<< runReaderT m)
 
 withReaderT : (r' -> r) -> ReaderT r m a -> ReaderT r' m a
-withReaderT f m = ReaderT: (runReaderT m <<< f)
+withReaderT f m = toReaderT (runReaderT m <<< f)
 
 instance
   Functor-ReaderT : {{Functor m}} -> Functor (ReaderT r m)
   Functor-ReaderT .map f = mapReaderT (map f)
 
   Applicative-ReaderT : {{Applicative m}} -> Applicative (ReaderT r m)
-  Applicative-ReaderT .pure = ReaderT: <<< const <<< pure
-  Applicative-ReaderT ._<*>_ f x = ReaderT: \ r ->
+  Applicative-ReaderT .pure = toReaderT <<< const <<< pure
+  Applicative-ReaderT ._<*>_ f x = toReaderT \ r ->
     runReaderT f r <*> runReaderT x r
 
   Alternative-ReaderT : {{Alternative m}} -> Alternative (ReaderT r m)
   Alternative-ReaderT .empty = liftReaderT empty
-  Alternative-ReaderT ._<|>_ m n = ReaderT: \ r ->
+  Alternative-ReaderT ._<|>_ m n = toReaderT \ r ->
     runReaderT m r <|> runReaderT n r
 
   Monad-ReaderT : {{Monad m}} -> Monad (ReaderT r m)
-  Monad-ReaderT ._>>=_ m k = ReaderT: \ r -> do
+  Monad-ReaderT ._>>=_ m k = toReaderT \ r -> do
     a <- runReaderT m r
     runReaderT (k a) r
 
   MonadReader-ReaderT : {{Monad m}} -> MonadReader r (ReaderT r m)
-  MonadReader-ReaderT .ask = ReaderT: pure
+  MonadReader-ReaderT .ask = toReaderT pure
   MonadReader-ReaderT .local f = withReaderT f
 
   MonadTrans-ReaderT : MonadTrans (ReaderT r)
-  MonadTrans-ReaderT .lift = ReaderT: <<< const
+  MonadTrans-ReaderT .lift = toReaderT <<< const
 
   MonadWriter-ReaderT : {{MonadWriter w m}} -> MonadWriter w (ReaderT r m)
   MonadWriter-ReaderT .tell = lift <<< tell
@@ -93,9 +93,9 @@ instance
   MonadThrow-ReaderT .throw = lift <<< throw
 
   MonadCatch-ReaderT : {{MonadCatch m}} -> MonadCatch (ReaderT r m)
-  MonadCatch-ReaderT .catch m h = ReaderT: \ r ->
+  MonadCatch-ReaderT .catch m h = toReaderT \ r ->
     catch (runReaderT m r) (\ e -> runReaderT (h e) r)
 
   MonadCont-ReaderT : {{MonadCont m}} -> MonadCont (ReaderT r m)
-  MonadCont-ReaderT .callCC f = ReaderT: \ r ->
-    callCC \ c -> runReaderT (f (ReaderT: <<< const <<< c)) r
+  MonadCont-ReaderT .callCC f = toReaderT \ r ->
+    callCC \ c -> runReaderT (f (toReaderT <<< const <<< c)) r
