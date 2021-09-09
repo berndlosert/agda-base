@@ -209,15 +209,15 @@ pop {a} v = down []
       t -> t
 
     down : List (TreeContext a) -> Tree a -> Maybe (Pair a (Tree a))
-    down ctx Leaf = Nothing
+    down ctx Leaf = nothing
     down ctx (Two l x r) = unsafePerform $
       case (l , r , compare v x) of \ where
         (_ , Leaf , EQ) ->
-          Just (x , up ctx Leaf)
+          just (x , up ctx Leaf)
         (l'@(Two _ _ _) , _ , EQ) ->
-          Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
         (l'@(Three _ _ _ _ _) , _ , EQ) ->
-          Just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
         (_ , _ , LT) ->
           down (TwoLeft x r :: ctx) l
         (_ , _ , _ ) ->
@@ -225,17 +225,17 @@ pop {a} v = down []
     down ctx (Three l x m y r) = unsafePerform $
       case (l , m , r , compare v x , compare v y) of \ where
         (Leaf , Leaf , Leaf , EQ , _) ->
-          Just (x , fromZipper ctx (Two Leaf y Leaf))
+          just (x , fromZipper ctx (Two Leaf y Leaf))
         (Leaf , Leaf , Leaf , _ , EQ) ->
-          Just (y , fromZipper ctx (Two Leaf x Leaf))
+          just (y , fromZipper ctx (Two Leaf x Leaf))
         (l'@(Two _ _ _) , _ , _ , EQ , _) ->
-          Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
         (l'@(Three _ _ _ _ _) , _ , _ , EQ , _) ->
-          Just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
         (_ , m'@(Two _ _ _) , _ , _ , EQ) ->
-          Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
         (_ , m'@(Three _ _ _ _ _) , _ , _ , EQ) ->
-          Just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
         (_ , _ , _ ,  LT , _) ->
           down (ThreeLeft x m y r :: ctx) l
         (_ , _ , _ ,  GT , LT) ->
@@ -251,22 +251,22 @@ delete x t = maybe t snd (pop x t)
 -------------------------------------------------------------------------------
 
 query : (a -> Ordering) -> Tree a -> Maybe a
-query _ Leaf = Nothing
+query _ Leaf = nothing
 query f (Two l x r) =
   case f x of \ where
-    EQ -> Just x
+    EQ -> just x
     LT -> query f l
     GT -> query f r
 query f (Three l x m y r) =
   case (f x , f y) of \ where
-    (EQ , _) -> Just x
+    (EQ , _) -> just x
     (LT , _) -> query f l
-    (GT , EQ) -> Just y
+    (GT , EQ) -> just y
     (GT , LT) -> query f m
     (GT , GT) -> query f r
 
 lookup : {{Ord a}} -> a -> Tree (Pair a b) -> Maybe b
-lookup x = maybe Nothing (Just <<< snd) <<< query (compare x <<< fst)
+lookup x = maybe nothing (just <<< snd) <<< query (compare x <<< fst)
 
 member : {{Ord a}} -> a -> Tree a -> Bool
 member x = maybe false (const true) <<< query (compare x)

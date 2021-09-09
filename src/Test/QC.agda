@@ -120,9 +120,9 @@ frequency xs = do
     fromMaybe (snd $ List1.head xs) (pick n xs')
   where
     pick : Nat -> List (Pair Nat (Gen a)) -> Maybe (Gen a)
-    pick n [] = Nothing
+    pick n [] = nothing
     pick n ((m , g) :: rest) =
-      if n <= m then Just g else pick (n - m) rest
+      if n <= m then just g else pick (n - m) rest
 
 elements : List1 a -> Gen a
 elements (x :| xs) = map
@@ -238,7 +238,7 @@ open Property public
 
 succeeded : Result
 succeeded = record {
-    ok = Just true;
+    ok = just true;
     stamp = [];
     arguments = [];
     reason = ""
@@ -246,7 +246,7 @@ succeeded = record {
 
 failed : Result
 failed = record {
-    ok = Just false;
+    ok = just false;
     stamp = [];
     arguments = [];
     reason = ""
@@ -254,7 +254,7 @@ failed = record {
 
 rejected : Result
 rejected = record {
-    ok = Nothing;
+    ok = nothing;
     stamp = [];
     arguments = [];
     reason = ""
@@ -365,13 +365,13 @@ private
       pairLength xss@(xs :: _) = (List.length xss , xs)
 
       percentage : Nat -> Nat -> Maybe String
-      percentage n 0 = Nothing
-      percentage n (suc m) = Just $ show ((100 * n) / suc m) <> "%"
+      percentage n 0 = nothing
+      percentage n (suc m) = just $ show ((100 * n) / suc m) <> "%"
 
       entry : Pair Nat (List String) -> String
       entry (n , s) = case percentage n ntest of \ where
-        Nothing -> ""
-        (Just p) -> p <> " " <> fold (List.intersperse ", " s)
+        nothing -> ""
+        (just p) -> p <> " " <> fold (List.intersperse ", " s)
 
       table : String
       table =
@@ -398,11 +398,11 @@ private
           res <- generate' (Config.size config ntest) rnd2 gen
           putStr $ Config.every config ntest (Result.arguments res)
           case Result.ok res of \ where
-            Nothing -> tests
+            nothing -> tests
               config prop rnd1 ntest (nfail + 1) stamps
-            (Just true) -> tests
+            (just true) -> tests
               config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
-            (Just false) -> putStr $ "Falsifiable, after "
+            (just false) -> putStr $ "Falsifiable, after "
               <> show ntest
               <> " tests:\n"
               <> String.unlines (Result.arguments res)

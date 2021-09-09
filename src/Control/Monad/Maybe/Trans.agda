@@ -53,8 +53,8 @@ instance
   Foldable-MaybeT .foldr {a = a} {b = b} f z = foldr go z <<< runMaybeT
     where
       go : Maybe a -> b -> b
-      go Nothing y = y
-      go (Just x) y = f x y
+      go nothing y = y
+      go (just x) y = f x y
 
   Traversable-MaybeT : {{Traversable m}} -> Traversable (MaybeT m)
   Traversable-MaybeT .traverse f m = MaybeT: <$> traverse (traverse f) (runMaybeT m)
@@ -67,22 +67,22 @@ instance
     pure (f <*> x)
 
   Alternative-MaybeT : {{Monad m}} -> Alternative (MaybeT m)
-  Alternative-MaybeT .empty = MaybeT: (pure Nothing)
+  Alternative-MaybeT .empty = MaybeT: (pure nothing)
   Alternative-MaybeT ._<|>_ l r = MaybeT: do
     x <- runMaybeT l
     case x of \ where
-      Nothing -> runMaybeT r
-      (Just _) -> pure x
+      nothing -> runMaybeT r
+      (just _) -> pure x
 
   Monad-MaybeT : {{Monad m}} -> Monad (MaybeT m)
   Monad-MaybeT ._>>=_ m k = MaybeT: do
     x <- runMaybeT m
     case x of \ where
-      Nothing -> pure Nothing
-      (Just y) -> runMaybeT (k y)
+      nothing -> pure nothing
+      (just y) -> runMaybeT (k y)
 
   MonadTrans-MaybeT : MonadTrans MaybeT
-  MonadTrans-MaybeT .lift = MaybeT: <<< map Just
+  MonadTrans-MaybeT .lift = MaybeT: <<< map just
 
   MonadIO-MaybeT : {{MonadIO m}} -> MonadIO (MaybeT m)
   MonadIO-MaybeT .liftIO = lift <<< liftIO

@@ -92,12 +92,12 @@ toList d = List.zip (keys d) (values d)
 delete : {{Ord k}} -> k -> Dict k v -> Dict k v
 delete k (Dict: t) =
   case Tree.query (compare k <<< getKey) t of \ where
-     Nothing -> Dict: t
-     (Just p) -> Dict: (Tree.delete p t)
+     nothing -> Dict: t
+     (just p) -> Dict: (Tree.delete p t)
 
 lookup : {{Ord k}} -> k -> Dict k v -> Maybe v
 lookup k (Dict: t) =
-  maybe Nothing (Just <<< getVal) $ Tree.query (compare k <<< getKey) t
+  maybe nothing (just <<< getVal) $ Tree.query (compare k <<< getKey) t
 
 member : {{Ord k}} -> k -> Dict k v -> Bool
 member k = maybe false (const true) <<< lookup k

@@ -31,12 +31,12 @@ record Filterable (t : Set -> Set) : Set where
   mapEither : (a -> Either b c) -> t a -> Pair (t b) (t c)
   mapEither t = (|
       _,_
-      (mapMaybe (either Just (pure Nothing) <<< t))
-      (mapMaybe (either (pure Nothing) Just <<< t))
+      (mapMaybe (either just (pure nothing) <<< t))
+      (mapMaybe (either (pure nothing) just <<< t))
     |)
 
   filter : (a -> Bool) -> t a -> t a
-  filter p = mapMaybe (\ x -> if p x then Just x else Nothing)
+  filter p = mapMaybe (\ x -> if p x then just x else nothing)
 
   partition : (a -> Bool) -> t a -> Pair (t a) (t a)
   partition p xs = (filter p xs , filter (not <<< p) xs)
@@ -54,13 +54,13 @@ record Filterable (t : Set -> Set) : Set where
 
     filterA : (a -> f Bool) -> t a -> f (t a)
     filterA p =
-      mapMaybeA (\ x -> (| bool (| Nothing |) (| (Just x) |) (p x) |))
+      mapMaybeA (\ x -> (| bool (| nothing |) (| (just x) |) (p x) |))
 
     mapEitherA : (a -> f (Either b c)) -> t a -> f (Pair (t b) (t c))
     mapEitherA f = (|
         (\ x y -> (| _,_ x y |))
-        (mapMaybeA (map (either Just (pure Nothing)) <<< f))
-        (mapMaybeA (map (either (pure Nothing) Just) <<< f))
+        (mapMaybeA (map (either just (pure nothing)) <<< f))
+        (mapMaybeA (map (either (pure nothing) just) <<< f))
       |)
 
 open Filterable {{...}} public

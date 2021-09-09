@@ -49,7 +49,7 @@ interpretGeneral : {{Monad m}}
 interpretGeneral t = general pure \ x -> (t x >>=_)
 
 already : General c r a -> Maybe a
-already = interpretGeneral (\ _ -> Nothing)
+already = interpretGeneral (\ _ -> nothing)
 
 instance
   Functor-General : Functor (General c r)

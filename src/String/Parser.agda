@@ -50,7 +50,7 @@ many1 a = (| _::_ a (many a) |)
 many a = many1 a <|> pure []
 
 optional : Parser a -> Parser (Maybe a)
-optional a = (| Just a | Nothing |)
+optional a = (| just a | nothing |)
 
 choose : Parser a -> Parser b -> Parser (Either a b)
 choose a b = (| left a | right b |)
@@ -110,8 +110,8 @@ chainr p op a = chainr1 p op <|> pure a
 parse : Parser a -> String -> Maybe a
 parse p s =
   case runParser p s of \ where
-    [] -> Nothing
-    ((_ , a) :: _) -> Just a
+    [] -> nothing
+    ((_ , a) :: _) -> just a
 
 -------------------------------------------------------------------------------
 -- Char parsers

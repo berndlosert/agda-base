@@ -110,7 +110,7 @@ defaultHints = record {
      addrSocketSet = SockNone;
      addrProtocol = defaultProtocol;
      addrAddress = SocketAddrIPv4 defaultPort 0;
-     addrCanonName = Nothing
+     addrCanonName = nothing
   }
 
 postulate

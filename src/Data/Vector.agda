@@ -102,9 +102,9 @@ fromList [] = []
 fromList (x :: xs) = x :: fromList xs
 
 take : (n : Nat) (xs : List a) -> Maybe (Vector n a)
-take 0 _ = Just []
-take (suc n) [] = Nothing
+take 0 _ = just []
+take (suc n) [] = nothing
 take (suc n) (x :: xs) =
   case take n xs of \ where
-    Nothing -> Nothing
-    (Just xs') -> Just (x :: xs')
+    nothing -> nothing
+    (just xs') -> just (x :: xs')

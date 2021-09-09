@@ -39,10 +39,10 @@ open ListT public
 module _ {{_ : Monad m}} where
 
   nilT : ListT m a
-  nilT .runListT = pure Nothing
+  nilT .runListT = pure nothing
 
   consT : a -> ListT m a -> ListT m a
-  consT x xs .runListT = pure $ Just (x , xs)
+  consT x xs .runListT = pure $ just (x , xs)
 
   singletonT : a -> ListT m a
   singletonT x = consT x nilT
@@ -53,8 +53,8 @@ module _ {{_ : Monad m}} where
   {-# TERMINATING #-}
   foldListT : (b -> a -> m b) -> b -> ListT m a -> m b
   foldListT f b m = runListT m >>= \ where
-    Nothing -> pure b
-    (Just (x , xs)) -> f b x >>= \ b' -> foldListT f b' xs
+    nothing -> pure b
+    (just (x , xs)) -> f b x >>= \ b' -> foldListT f b' xs
 
   {-# TERMINATING #-}
   hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
@@ -65,8 +65,8 @@ instance
   {-# TERMINATING #-}
   Semigroup-ListT : {{Monad m}} -> Semigroup (ListT m a)
   Semigroup-ListT ._<>_ l r .runListT = runListT l >>= \ where
-    Nothing -> runListT r
-    (Just (x , xs)) -> pure $ Just (x , xs <> r)
+    nothing -> runListT r
+    (just (x , xs)) -> pure $ just (x , xs <> r)
 
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
   Monoid-ListT .neutral = nilT
@@ -74,28 +74,28 @@ instance
   {-# TERMINATING #-}
   Functor-ListT : {{Monad m}} -> Functor (ListT m)
   Functor-ListT .map f m .runListT = runListT m >>= \ where
-    Nothing -> pure Nothing
-    (Just (x , xs)) -> pure $ Just (f x , map f xs)
+    nothing -> pure nothing
+    (just (x , xs)) -> pure $ just (f x , map f xs)
 
   {-# TERMINATING #-}
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
-  Applicative-ListT .pure x .runListT = pure (Just (x , neutral))
+  Applicative-ListT .pure x .runListT = pure (just (x , neutral))
   Applicative-ListT ._<*>_ fs xs .runListT = runListT fs >>= \ where
-    Nothing -> pure Nothing
-    (Just (f , fs')) -> runListT $ (map f xs) <> (fs' <*> xs)
+    nothing -> pure nothing
+    (just (f , fs')) -> runListT $ (map f xs) <> (fs' <*> xs)
 
   {-# TERMINATING #-}
   Monad-ListT : {{Monad m}} -> Monad (ListT m)
   Monad-ListT ._>>=_ m k .runListT = runListT m >>= \ where
-    Nothing -> pure Nothing
-    (Just (x , xs)) -> runListT $ k x <> (xs >>= k)
+    nothing -> pure nothing
+    (just (x , xs)) -> runListT $ k x <> (xs >>= k)
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
   Alternative-ListT .empty = neutral
   Alternative-ListT ._<|>_ = _<>_
 
   MonadTrans-ListT : MonadTrans ListT
-  MonadTrans-ListT .lift m .runListT = map (Just <<< (_, neutral)) m
+  MonadTrans-ListT .lift m .runListT = map (just <<< (_, neutral)) m
 
   MonadIO-ListT : {{MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
@@ -119,12 +119,12 @@ instance
     -> MonadWriter w (ListT m)
   MonadWriter-ListT .tell = lift <<< tell
   MonadWriter-ListT .listen m .runListT = runListT m >>= \ where
-    Nothing -> pure Nothing
-    (Just (x , xs)) -> do
+    nothing -> pure nothing
+    (just (x , xs)) -> do
       (a , w) <- listen (pure x)
-      pure $ Just ((a , w) , listen xs)
+      pure $ just ((a , w) , listen xs)
   MonadWriter-ListT .pass m .runListT = runListT m >>= \ where
-    Nothing -> pure Nothing
-    (Just ((x , f) , rest)) -> do
+    nothing -> pure nothing
+    (just ((x , f) , rest)) -> do
       a <- pass $ pure (x , f)
-      pure $ Just (a , pass rest)
+      pure $ just (a , pass rest)

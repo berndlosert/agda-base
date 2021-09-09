@@ -80,16 +80,16 @@ splitNode p i (Node2 _ a b) =
   let
     va = i <> measure a
   in
-    if p va then Split: Nothing a (Just (One b))
-    else Split: (Just (One a)) b Nothing
+    if p va then Split: nothing a (just (One b))
+    else Split: (just (One a)) b nothing
 splitNode p i (Node3 _ a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then Split: Nothing a (Just (Two b c))
-    else if p vab then Split: (Just (One a)) b (Just (One c))
-    else Split: (Just (Two a b)) c Nothing
+    if p va then Split: nothing a (just (Two b c))
+    else if p vab then Split: (just (One a)) b (just (One c))
+    else Split: (just (Two a b)) c nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -106,8 +106,8 @@ searchNode p vl (Node2 _ a b) vr =
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then Split: Nothing a (Just (One b))
-    else Split: (Just (One a)) b Nothing
+    if p va vb then Split: nothing a (just (One b))
+    else Split: (just (One a)) b nothing
 searchNode p vl (Node3 _ a b c) vr =
   let
     va = vl <> measure a
@@ -115,9 +115,9 @@ searchNode p vl (Node3 _ a b c) vr =
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then Split: Nothing a (Just (Two b c))
-    else if p vab vc then Split: (Just (One a)) b (Just (One c))
-    else Split: (Just (Two a b)) c Nothing
+    if p va vbc then Split: nothing a (just (Two b c))
+    else if p vab vc then Split: (just (One a)) b (just (One c))
+    else Split: (just (Two a b)) c nothing
 
 -------------------------------------------------------------------------------
 -- Misc.

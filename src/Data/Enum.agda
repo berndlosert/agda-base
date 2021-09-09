@@ -25,9 +25,9 @@ open Enum {{...}} public
 
 instance
   Enum-Nat : Enum Nat
-  Enum-Nat .next x = Just (suc x)
-  Enum-Nat .previous 0 = Nothing
-  Enum-Nat .previous (suc n) = Just n
+  Enum-Nat .next x = just (suc x)
+  Enum-Nat .previous 0 = nothing
+  Enum-Nat .previous (suc n) = just n
   Enum-Nat .enumFromTo m n =
       let k = max (m - n) (n - m)
       in go k m n
@@ -39,11 +39,11 @@ instance
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .next (pos n) = Just $ pos (suc n)
-  Enum-Int .next (negsuc n) = Just $ neg n
-  Enum-Int .previous (pos 0) = Just $ negsuc 0
-  Enum-Int .previous (pos (suc n)) = Just $ pos n
-  Enum-Int .previous (negsuc n) = Just $ negsuc (suc n)
+  Enum-Int .next (pos n) = just $ pos (suc n)
+  Enum-Int .next (negsuc n) = just $ neg n
+  Enum-Int .previous (pos 0) = just $ negsuc 0
+  Enum-Int .previous (pos (suc n)) = just $ pos n
+  Enum-Int .previous (negsuc n) = just $ negsuc (suc n)
   Enum-Int .enumFromTo m n =
     case m - n of \ where
       (pos k) -> (\ i -> pos i + n) <$> enumFromTo k 0
@@ -52,10 +52,10 @@ instance
   Enum-Char : Enum Char
   Enum-Char .next c =
     if c == maxChar
-      then Nothing
+      then nothing
       else chr <$> next (ord c)
   Enum-Char .previous c =
     if c == minChar
-      then Nothing
+      then nothing
       else chr <$> previous (ord c)
   Enum-Char .enumFromTo c d = chr <$> enumFromTo (ord c) (ord d)

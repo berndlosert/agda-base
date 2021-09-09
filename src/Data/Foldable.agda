@@ -94,10 +94,10 @@ record Foldable (t : Set -> Set) : Set where
   length = foldr (const suc) zero
 
   find : (a -> Bool) -> t a -> Maybe a
-  find {a} p = foldl' go Nothing
+  find {a} p = foldl' go nothing
     where
       go : Maybe a -> a -> Step (Maybe a)
-      go _ x = if p x then Done (Just x) else Continue Nothing
+      go _ x = if p x then Done (just x) else Continue nothing
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe false (const true) (find p xs)
@@ -131,18 +131,18 @@ record Foldable (t : Set -> Set) : Set where
     notElem a s = not (elem a s)
 
   minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  minimumBy {a} cmp = foldl min' Nothing
+  minimumBy {a} cmp = foldl min' nothing
     where
       min' : Maybe a -> a -> Maybe a
-      min' Nothing x = Just x
-      min' (Just x) y = Just (if cmp x y == LT then x else y)
+      min' nothing x = just x
+      min' (just x) y = just (if cmp x y == LT then x else y)
 
   maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  maximumBy {a} cmp = foldl max' Nothing
+  maximumBy {a} cmp = foldl max' nothing
     where
       max' : Maybe a -> a -> Maybe a
-      max' Nothing x = Just x
-      max' (Just x) y = Just (if cmp x y == GT then x else y)
+      max' nothing x = just x
+      max' (just x) y = just (if cmp x y == GT then x else y)
 
   module _ {{_ : Ord a}} where
 

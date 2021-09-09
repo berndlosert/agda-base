@@ -67,28 +67,28 @@ build g = g _::_ []
 -------------------------------------------------------------------------------
 
 head : List a -> Maybe a
-head [] = Nothing
-head (x :: _) = Just x
+head [] = nothing
+head (x :: _) = just x
 
 tail : List a -> Maybe (List a)
-tail [] = Nothing
-tail (_ :: xs) = Just xs
+tail [] = nothing
+tail (_ :: xs) = just xs
 
 uncons : List a -> Maybe (Pair a (List a))
-uncons [] = Nothing
-uncons (x :: xs) = Just (x , xs)
+uncons [] = nothing
+uncons (x :: xs) = just (x , xs)
 
 unsnoc : List a -> Maybe (Pair (List a) a)
-unsnoc = foldr go Nothing
+unsnoc = foldr go nothing
   where
     go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
-    go x Nothing = Just ([] , x)
-    go x (Just (xs , e)) = Just (x :: xs , e)
+    go x nothing = just ([] , x)
+    go x (just (xs , e)) = just (x :: xs , e)
 
 init : List a -> Maybe (List a)
-init [] = Nothing
-init (x :: []) = Just []
-init (x :: x' :: xs) = (| _::_ (Just x) (init (x' :: xs)) |)
+init [] = nothing
+init (x :: []) = just []
+init (x :: x' :: xs) = (| _::_ (just x) (init (x' :: xs)) |)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -149,7 +149,7 @@ splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List a -> Maybe a
 at 0 xs = head xs
-at (suc n) [] = Nothing
+at (suc n) [] = nothing
 at (suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
@@ -158,10 +158,10 @@ updateAt (suc n) f (x :: xs) = x :: updateAt n f xs
 updateAt _ _ [] = []
 
 deleteAt : Nat -> List a -> List a
-deleteAt n = updateAt n (const Nothing)
+deleteAt n = updateAt n (const nothing)
 
 modifyAt : Nat -> (a -> a) -> List a -> List a
-modifyAt n f = updateAt n (f >>> Just)
+modifyAt n f = updateAt n (f >>> just)
 
 setAt : Nat -> a -> List a -> List a
 setAt n x = modifyAt n (const x)
@@ -251,7 +251,7 @@ module _ {{_ : Eq a}} where
       g : List a -> a -> Maybe (List a)
       g s a = let s' = dropWhile (_/= a) s in
         case s' of \ where
-          [] -> Nothing
+          [] -> nothing
           _ -> tail s'
 
 -------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ module _ {{_ : Ord a}} where
 
 stripPrefix : {{Eq a}} -> List a -> List a -> Maybe (List a)
 stripPrefix xs ys =
-  if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
+  if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
 
 dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
@@ -426,8 +426,8 @@ permutations xs = do
 -------------------------------------------------------------------------------
 
 lookup : {{Eq a}} -> a -> List (Pair a b) -> Maybe b
-lookup a [] = Nothing
-lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
+lookup a [] = nothing
+lookup a ((a' , b) :: xs) = if a == a' then just b else lookup a xs
 
 -------------------------------------------------------------------------------
 -- Misc.

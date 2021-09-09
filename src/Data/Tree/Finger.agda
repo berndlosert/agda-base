@@ -167,29 +167,29 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons Empty = Nothing
-uncons (Single x) = Just (x , Empty)
-uncons (Deep _ (One x) m sf) = Just (x , rotL m sf)
-uncons (Deep _ (Two a b) m sf) = Just (a , deep (One b) m sf)
-uncons (Deep _ (Three a b c) m sf) = Just (a , deep (Two b c) m sf)
-uncons (Deep _ (Four a b c d) m sf) = Just (a , deep (Three b c d) m sf)
+uncons Empty = nothing
+uncons (Single x) = just (x , Empty)
+uncons (Deep _ (One x) m sf) = just (x , rotL m sf)
+uncons (Deep _ (Two a b) m sf) = just (a , deep (One b) m sf)
+uncons (Deep _ (Three a b c) m sf) = just (a , deep (Two b c) m sf)
+uncons (Deep _ (Four a b c d) m sf) = just (a , deep (Three b c d) m sf)
 
-unsnoc Empty = Nothing
-unsnoc (Single x) = Just (Empty , x)
-unsnoc (Deep _ pr m (One x)) = Just (rotR pr m , x)
-unsnoc (Deep _ pr m (Two a b)) = Just (deep pr m (One a) , b)
-unsnoc (Deep _ pr m (Three a b c)) = Just (deep pr m (Two a b) , c)
-unsnoc (Deep _ pr m (Four a b c d)) = Just (deep pr m (Three a b c) , d)
+unsnoc Empty = nothing
+unsnoc (Single x) = just (Empty , x)
+unsnoc (Deep _ pr m (One x)) = just (rotR pr m , x)
+unsnoc (Deep _ pr m (Two a b)) = just (deep pr m (One a) , b)
+unsnoc (Deep _ pr m (Three a b c)) = just (deep pr m (Two a b) , c)
+unsnoc (Deep _ pr m (Four a b c d)) = just (deep pr m (Three a b c) , d)
 
 rotL m sf =
   case uncons m of \ where
-    Nothing -> digitToTree sf
-    (Just (a , m')) -> Deep (measure m <> measure sf) (nodeToDigit a) m' sf
+    nothing -> digitToTree sf
+    (just (a , m')) -> Deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
 rotR pr m =
   case unsnoc m of \ where
-    Nothing -> digitToTree pr
-    (Just (m' , a)) -> Deep (measure pr <> measure m) pr m' (nodeToDigit a)
+    nothing -> digitToTree pr
+    (just (m' , a)) -> Deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
 -- Splitting
@@ -200,16 +200,16 @@ deepL : {{Measured v a}}
   -> FingerTree v (Node v a)
   -> Digit a
   -> FingerTree v a
-deepL Nothing m sf = rotL m sf
-deepL (Just pr) m sf = deep pr m sf
+deepL nothing m sf = rotL m sf
+deepL (just pr) m sf = deep pr m sf
 
 deepR : {{Measured v a}}
   -> Digit a
   -> FingerTree v (Node v a)
   -> Maybe (Digit a)
   -> FingerTree v a
-deepR pr m Nothing = rotR pr m
-deepR pr m (Just sf) = deep pr m sf
+deepR pr m nothing = rotR pr m
+deepR pr m (just sf) = deep pr m sf
 
 splitTree : {{Partial}}
   -> {{Measured v a}}
@@ -305,8 +305,8 @@ inits f (Single x) = Single (f (Single x))
 inits f (Deep n pr m sf) = unsafePerform $
   let
     f' ms = case unsnoc ms of \ where
-      Nothing -> undefined
-      (Just (m' , node)) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
+      nothing -> undefined
+      (just (m' , node)) -> map (\ sf' -> f (deep pr m' sf')) (initsNode node)
   in
     Deep n (map (f <<< digitToTree) (initsDigit pr))
       (inits f' m)
@@ -319,8 +319,8 @@ tails f (Single x) = Single (f (Single x))
 tails f (Deep n pr m sf) = unsafePerform $
   let
     f' ms = case uncons ms of \ where
-      Nothing -> undefined
-      (Just (node , m')) -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
+      nothing -> undefined
+      (just (node , m')) -> map (\ pr' -> f (deep pr' m' sf)) (tailsNode node)
   in
     Deep n (map (\ pr' -> f (deep pr' m sf)) (tailsDigit pr))
       (tails f' m)

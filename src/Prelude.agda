@@ -72,8 +72,8 @@ open Pair public
 
 open import Agda.Builtin.Maybe public
   using (Maybe)
-  renaming (nothing to Nothing)
-  renaming (just to Just)
+  using (nothing)
+  using (just)
 
 open import Agda.Builtin.List public
   using (List)
@@ -270,23 +270,23 @@ apply (f , x) = f x
 -------------------------------------------------------------------------------
 
 isJust : Maybe a -> Bool
-isJust (Just _) = true
+isJust (just _) = true
 isJust _ = false
 
-isNothing : Maybe a -> Bool
-isNothing (Just _) = false
-isNothing _ = true
+isnothing : Maybe a -> Bool
+isnothing (just _) = false
+isnothing _ = true
 
 fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
-fromJust (Just a) = a
+fromJust (just a) = a
 
 maybe : b -> (a -> b) -> Maybe a -> b
-maybe b f Nothing = b
-maybe b f (Just a) = f a
+maybe b f nothing = b
+maybe b f (just a) = f a
 
 fromMaybe : a -> Maybe a -> a
-fromMaybe _ (Just x) = x
-fromMaybe x Nothing = x
+fromMaybe _ (just x) = x
+fromMaybe x nothing = x
 
 -------------------------------------------------------------------------------
 -- IO primitives
@@ -373,8 +373,8 @@ instance
 
   Eq-Maybe : {{Eq a}} -> Eq (Maybe a)
   Eq-Maybe ._==_ = \ where
-    Nothing Nothing -> true
-    (Just x) (Just y) -> x == y
+    nothing nothing -> true
+    (just x) (just y) -> x == y
     _ _ -> false
 
   Eq-List : {{Eq a}} -> Eq (List a)
@@ -504,10 +504,10 @@ instance
       EQ -> compare y z
 
   Ord-Maybe : {{Ord a}} -> Ord (Maybe a)
-  Ord-Maybe .compare Nothing Nothing = EQ
-  Ord-Maybe .compare Nothing _ = LT
-  Ord-Maybe .compare (Just x) (Just y) = compare x y
-  Ord-Maybe .compare (Just _) _ = GT
+  Ord-Maybe .compare nothing nothing = EQ
+  Ord-Maybe .compare nothing _ = LT
+  Ord-Maybe .compare (just x) (just y) = compare x y
+  Ord-Maybe .compare (just _) _ = GT
 
 -------------------------------------------------------------------------------
 -- FromNat
@@ -795,9 +795,9 @@ instance
 
   Semigroup-Maybe : {{Semigroup a}} -> Semigroup (Maybe a)
   Semigroup-Maybe ._<>_ = \ where
-    Nothing x -> x
-    x Nothing -> x
-    (Just x) (Just y) -> Just (x <> y)
+    nothing x -> x
+    x nothing -> x
+    (just x) (just y) -> just (x <> y)
 
   Semigroup-List : Semigroup (List a)
   Semigroup-List ._<>_ = \ where
@@ -843,7 +843,7 @@ instance
   Monoid-Pair .neutral = (neutral , neutral)
 
   Monoid-Maybe : {{Semigroup a}} -> Monoid (Maybe a)
-  Monoid-Maybe .neutral = Nothing
+  Monoid-Maybe .neutral = nothing
 
   Monoid-List : Monoid (List a)
   Monoid-List .neutral = []
@@ -914,7 +914,7 @@ instance
   Functor-Pair .map f (x , y) = (x , f y)
 
   Functor-Maybe : Functor Maybe
-  Functor-Maybe .map f = maybe Nothing (Just <<< f)
+  Functor-Maybe .map f = maybe nothing (just <<< f)
 
   Functor-List : Functor List
   Functor-List .map f = \ where
@@ -1039,10 +1039,10 @@ instance
   Applicative-Pair ._<*>_ (u , f) (v , x) = (u <> v , f x)
 
   Applicative-Maybe : Applicative Maybe
-  Applicative-Maybe .pure = Just
+  Applicative-Maybe .pure = just
   Applicative-Maybe ._<*>_ = \ where
-    (Just f) -> map f
-    Nothing _ -> Nothing
+    (just f) -> map f
+    nothing _ -> nothing
 
   Applicative-List : Applicative List
   Applicative-List .pure = _:: []
@@ -1103,8 +1103,8 @@ instance
 
   Monad-Maybe : Monad Maybe
   Monad-Maybe ._>>=_ = \ where
-    Nothing _ -> Nothing
-    (Just x) k -> k x
+    nothing _ -> nothing
+    (just x) k -> k x
 
   Monad-List : Monad List
   Monad-List ._>>=_ = \ where

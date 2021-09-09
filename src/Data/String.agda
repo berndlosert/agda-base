@@ -54,8 +54,8 @@ append = _<>_
 
 uncons : String -> Maybe (Pair Char String)
 uncons s = case primStringUncons s of \ where
-  (Just p) -> Just (fst p , snd p)
-  Nothing -> Nothing
+  (just p) -> just (fst p , snd p)
+  nothing -> nothing
 
 unsnoc : String -> Maybe (Pair String Char)
 unsnoc s = lmap pack <$> List.unsnoc (unpack s)
@@ -100,7 +100,7 @@ reverse s = pack $ List.reverse $ unpack s
 {-# COMPILE GHC reverse = Text.reverse #-}
 
 -------------------------------------------------------------------------------
--- Justification
+-- justification
 -------------------------------------------------------------------------------
 
 justifyLeft : Nat -> Char -> String -> String
@@ -213,15 +213,15 @@ data Uncons : String -> Set where
   _::_ : (c : Char) (s : String) -> Uncons (cons c s)
 
 unconsCorrect : (s : String) -> case uncons s of \ where
-  Nothing -> s === ""
-  (Just (c , s')) -> s === cons c s'
+  nothing -> s === ""
+  (just (c , s')) -> s === cons c s'
 
 unconsCorrect = trustMe
 
 asUncons : (s : String) -> Uncons s
 asUncons s with uncons s | unconsCorrect s
-... | Nothing | refl = []
-... | Just (c , s') | refl = c :: s'
+... | nothing | refl = []
+... | just (c , s') | refl = c :: s'
 
 fromUncons : {s : String} -> Uncons s -> String
 fromUncons {s} _ = s

@@ -46,8 +46,8 @@ snoc : List1 a -> a -> List1 a
 snoc xs x = xs <> singleton x
 
 fromList : List a -> Maybe (List1 a)
-fromList [] = Nothing
-fromList (x :: xs) = Just (x :| xs)
+fromList [] = nothing
+fromList (x :: xs) = just (x :| xs)
 
 iterateN : Nat1 -> (a -> a) -> a -> List1 a
 iterateN (suc 0) f x = singleton x
@@ -89,8 +89,8 @@ init (x :| xs) = maybe [] (x ::_) (List.init xs)
 reverse : List1 a -> List1 a
 reverse (x :| xs) =
   case fromList (List.reverse xs) of \ where
-    Nothing -> x :| []
-    (Just xs') -> snoc xs' x
+    nothing -> x :| []
+    (just xs') -> snoc xs' x
 
 intersperse : a -> List1 a -> List1 a
 intersperse sep (x :| []) = x :| []
@@ -129,8 +129,8 @@ splitAt : Nat -> List1 a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List1 a -> Maybe a
-at 0 (x :| _) = Just x
-at (suc n) (x :| []) = Nothing
+at 0 (x :| _) = just x
+at (suc n) (x :| []) = nothing
 at (suc n) (x :| (y :: ys)) = at n (y :| ys)
 
 updateAt : Nat -> (a -> Maybe a) -> List1 a -> List a
@@ -138,7 +138,7 @@ updateAt 0 f (x :| xs) = maybe xs (_:: xs) (f x)
 updateAt (suc n) f (x :| xs) = x :: List.updateAt n f xs
 
 deleteAt : Nat -> List1 a -> List a
-deleteAt n = updateAt n (const Nothing)
+deleteAt n = updateAt n (const nothing)
 
 modifyAt : Nat -> (a -> a) -> List1 a -> List1 a
 modifyAt 0 f (x :| xs) = f x :| xs
@@ -228,7 +228,7 @@ segments (x :| y :: ys) = foldr _<>_ ((x :| []) :| []) (tails <$> inits (y :| ys
 --      g : List a -> a -> Maybe (List a)
 --      g s a = let s' = dropWhile (_/= a) s in
 --        case s' of \ where
---          [] -> Nothing
+--          [] -> nothing
 --          _ -> tail s'
 --
 ---------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ segments (x :| y :: ys) = foldr _<>_ ((x :| []) :| []) (tails <$> inits (y :| ys
 --
 --stripPrefix : {{Eq a}} -> List a -> List a -> Maybe (List a)
 --stripPrefix xs ys =
---  if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
+--  if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
 --
 --dropPrefix : {{Eq a}} -> List a -> List a -> List a
 --dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
@@ -405,8 +405,8 @@ segments (x :| y :: ys) = foldr _<>_ ((x :| []) :| []) (tails <$> inits (y :| ys
 ---------------------------------------------------------------------------------
 --
 --lookup : {{Eq a}} -> a -> List (Pair a b) -> Maybe b
---lookup a [] = Nothing
---lookup a ((a' , b) :: xs) = if a == a' then Just b else lookup a xs
+--lookup a [] = nothing
+--lookup a ((a' , b) :: xs) = if a == a' then just b else lookup a xs
 --
 ---------------------------------------------------------------------------------
 ---- Misc.

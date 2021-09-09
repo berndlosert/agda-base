@@ -98,9 +98,9 @@ instance
 
   Show-Maybe : {{Show a}} -> Show (Maybe a)
   Show-Maybe .showsPrec d = \ where
-    (Just x) -> showParen (d > appPrec)
+    (just x) -> showParen (d > appPrec)
       (showString "Just " <<< showsPrec appPrec+1 x)
-    Nothing -> showString "Nothing"
+    nothing -> showString "nothing"
 
   Show-List : {{Show a}} -> Show (List a)
   Show-List .showsPrec _ [] = showString "[]"

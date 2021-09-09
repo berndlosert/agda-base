@@ -43,8 +43,8 @@ open Traversable {{...}} public
 instance
   Traversable-Maybe : Traversable Maybe
   Traversable-Maybe .traverse f = \ where
-    Nothing -> (| Nothing |)
-    (Just x) -> (| Just (f x) |)
+    nothing -> (| nothing |)
+    (just x) -> (| just (f x) |)
 
   Traversable-List : Traversable List
   Traversable-List .traverse f = \ where

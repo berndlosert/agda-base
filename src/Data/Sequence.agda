@@ -112,14 +112,14 @@ abstract
   uncons : Seq a -> Maybe (Pair a (Seq a))
   uncons (Seq: t) =
     case Tree.uncons t of \ where
-      Nothing -> Nothing
-      (Just (Elem: x , xs)) -> Just (x , Seq: xs)
+      nothing -> nothing
+      (just (Elem: x , xs)) -> just (x , Seq: xs)
 
   unsnoc : Seq a -> Maybe (Pair (Seq a) a)
   unsnoc (Seq: t) =
     case Tree.unsnoc t of \ where
-      Nothing -> Nothing
-      (Just (xs , Elem: x)) -> Just (Seq: xs , x)
+      nothing -> nothing
+      (just (xs , Elem: x)) -> just (Seq: xs , x)
 
   head : Seq a -> Maybe a
   head = map fst <<< uncons
@@ -128,7 +128,7 @@ abstract
   tail = map snd <<< uncons
 
   init : Seq a -> Maybe (Seq a)
-  init s = maybe Nothing (Just <<< fst) (unsnoc s)
+  init s = maybe nothing (just <<< fst) (unsnoc s)
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -140,8 +140,8 @@ abstract
   intersperse : a -> Seq a -> Seq a
   intersperse sep s =
     case uncons s of \ where
-      Nothing -> empty
-      (Just (x , xs)) -> cons x (| _#_ xs (cons (const sep) (singleton id)) |)
+      nothing -> empty
+      (just (x , xs)) -> cons x (| _#_ xs (cons (const sep) (singleton id)) |)
 
 -------------------------------------------------------------------------------
 -- Indexed folds
@@ -208,14 +208,14 @@ abstract
   updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
   updateAt n f xs = let (l , r) = splitAt n xs in
     case uncons r of \ where
-      Nothing -> xs
-      (Just (x , r')) -> l <> maybe r' (flip cons r') (f x)
+      nothing -> xs
+      (just (x , r')) -> l <> maybe r' (flip cons r') (f x)
 
   deleteAt : Nat -> Seq a -> Seq a
-  deleteAt n = updateAt n (const Nothing)
+  deleteAt n = updateAt n (const nothing)
 
   modifyAt : Nat -> (a -> a) -> Seq a -> Seq a
-  modifyAt n f = updateAt n (f >>> Just)
+  modifyAt n f = updateAt n (f >>> just)
 
   setAt : Nat -> a -> Seq a -> Seq a
   setAt n x = modifyAt n (const x)
@@ -223,7 +223,7 @@ abstract
   insertAt : Nat -> a -> Seq a -> Seq a
   insertAt n x xs = let (l , r) = splitAt n xs in
     case uncons r of \ where
-      Nothing -> l <> singleton x
+      nothing -> l <> singleton x
       _ -> l <> cons x r
 
 -------------------------------------------------------------------------------
@@ -298,11 +298,11 @@ abstract
   zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
   zipWith f as bs =
     case uncons as of \ where
-      Nothing -> empty
-      (Just (x , xs)) ->
+      nothing -> empty
+      (just (x , xs)) ->
         case uncons bs of \ where
-          Nothing -> empty
-          (Just (y , ys)) -> cons (f x y) (zipWith f xs ys)
+          nothing -> empty
+          (just (y , ys)) -> cons (f x y) (zipWith f xs ys)
 
   zip : Seq a -> Seq b -> Seq (Pair a b)
   zip = zipWith _,_
@@ -343,7 +343,7 @@ abstract
         g : Seq a -> a -> Maybe (Seq a)
         g s a = let s' = dropWhileL (_/= a) s in
           if null s'
-            then Nothing
+            then nothing
             else tail s'
 
 -------------------------------------------------------------------------------
@@ -352,14 +352,14 @@ abstract
 
   stripPrefix : {{Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
   stripPrefix xs ys =
-    if isPrefixOf xs ys then Just (drop (length xs) ys) else Nothing
+    if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
 
   {-# TERMINATING #-}
   groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
   groupBy eq as =
     case uncons as of \ where
-      Nothing -> empty
-      (Just (x , xs)) ->
+      nothing -> empty
+      (just (x , xs)) ->
         let (ys , zs) = spanl (eq x) xs
         in cons (cons x ys) (groupBy eq zs)
 
@@ -374,18 +374,18 @@ abstract
   intercalate : {{Monoid a}} -> a -> Seq a -> a
   intercalate sep as =
     case uncons as of \ where
-      Nothing -> neutral
-      (Just (a , as')) ->
+      nothing -> neutral
+      (just (a , as')) ->
         case uncons as' of \ where
-          Nothing -> a
-          (Just (x , xs)) -> a <> sep <> intercalate sep (cons x xs)
+          nothing -> a
+          (just (x , xs)) -> a <> sep <> intercalate sep (cons x xs)
 
   {-# TERMINATING #-}
   transpose : Seq (Seq a) -> Seq (Seq a)
   transpose ass =
     case uncons ass of \ where
-      Nothing -> empty
-      (Just (heads , tails)) -> zipCons heads (transpose tails)
+      nothing -> empty
+      (just (heads , tails)) -> zipCons heads (transpose tails)
 
 -------------------------------------------------------------------------------
 -- Set-like operations
@@ -395,8 +395,8 @@ abstract
   deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
   deleteBy eq x xs =
     case uncons xs of \ where
-      Nothing -> empty
-      (Just (y , ys)) ->
+      nothing -> empty
+      (just (y , ys)) ->
         if eq x y
           then ys
           else (cons y (deleteBy eq x ys))
@@ -408,14 +408,14 @@ abstract
       elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
       elemBy eq y ys =
         case uncons ys of \ where
-           Nothing -> false
-           (Just (x , xs)) -> eq x y || elemBy eq y xs
+           nothing -> false
+           (just (x , xs)) -> eq x y || elemBy eq y xs
 
       nubBy' : Seq a -> Seq a -> Seq a
       nubBy' as xs =
         case uncons as of \ where
-          Nothing -> empty
-          (Just (y , ys)) ->
+          nothing -> empty
+          (just (y , ys)) ->
             if elemBy eq y xs
               then nubBy' ys xs
               else cons y (nubBy' ys (cons y xs))
@@ -442,8 +442,8 @@ abstract
   insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
   insertBy cmp x as =
     case uncons as of \ where
-      Nothing -> singleton x
-      (Just (y , xs)) ->
+      nothing -> singleton x
+      (just (y , xs)) ->
         case cmp x y of \ where
           LT -> cons x (cons y xs)
           _ -> cons y (insertBy cmp x xs)
@@ -452,8 +452,8 @@ abstract
   sortBy : (a -> a -> Ordering) -> Seq a -> Seq a
   sortBy cmp as =
     case uncons as of \ where
-      Nothing -> empty
-      (Just (x , xs)) -> insertBy cmp x (sortBy cmp xs)
+      nothing -> empty
+      (just (x , xs)) -> insertBy cmp x (sortBy cmp xs)
 
   module _ {{_ : Ord a}} where
 
@@ -474,5 +474,5 @@ abstract
   lookup : {{Eq a}} -> a -> Seq (Pair a b) -> Maybe b
   lookup a s =
     case uncons s of \ where
-      Nothing -> Nothing
-      (Just ((a' , b) , xs)) -> if a == a' then Just b else lookup a xs
+      nothing -> nothing
+      (just ((a' , b) , xs)) -> if a == a' then just b else lookup a xs

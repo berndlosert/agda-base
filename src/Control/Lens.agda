@@ -190,7 +190,7 @@ lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
-preview l = map getFirst <<< foldMapOf l (Just <<< First:)
+preview l = map getFirst <<< foldMapOf l (just <<< First:)
 
 firstOf : Getting (First a) s a -> s -> a
 firstOf l = getFirst <<< foldMapOf l First:
@@ -199,7 +199,7 @@ lastOf : Getting (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l Last:
 
 findOf : Getting (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
-findOf l p = foldrOf l (\ x y -> if p x then Just x else y) Nothing
+findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing
 
 traverseOf! : {{Functor f}}
   -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
@@ -303,8 +303,8 @@ instance
   Each-Pair .each f (a , b) = (| _,_ (f a) (f b) |)
 
   Each-Maybe : Each (Maybe a) (Maybe b) a b
-  Each-Maybe .each f Nothing = pure Nothing
-  Each-Maybe .each f (Just x) = map pure (f x)
+  Each-Maybe .each f nothing = pure nothing
+  Each-Maybe .each f (just x) = map pure (f x)
 
   Each-Either : Each (Either a a) (Either b b) a b
   Each-Either .each f (left a) = map left (f a)
@@ -344,12 +344,12 @@ instance
 #Right _ (left x) = pure (left x)
 
 #Just : Traversal (Maybe a) (Maybe b) a b
-#Just f (Just x) = map Just (f x)
-#Just _ Nothing = pure Nothing
+#Just f (just x) = map just (f x)
+#Just _ nothing = pure nothing
 
-#Nothing : Simple Traversal (Maybe a) Unit
-#Nothing f Nothing = map (const Nothing) (f tt)
-#Nothing _ j = pure j
+#nothing : Simple Traversal (Maybe a) Unit
+#nothing f nothing = map (const nothing) (f tt)
+#nothing _ j = pure j
 
 #head : {{Cons s s a a}} -> Simple Traversal s a
 #head = #Cons <<< #fst

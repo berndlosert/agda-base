@@ -35,9 +35,9 @@ open Alternative {{...}} public
 
 instance
   Alternative-Maybe : Alternative Maybe
-  Alternative-Maybe .empty = Nothing
+  Alternative-Maybe .empty = nothing
   Alternative-Maybe ._<|>_ = \ where
-    Nothing r -> r
+    nothing r -> r
     l _ -> l
 
   Alternative-List : Alternative List
