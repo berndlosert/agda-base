@@ -351,8 +351,8 @@ verbose = record quick {
 -------------------------------------------------------------------------------
 
 private
-  done : String -> Nat -> List (List String) -> IO Unit
-  done mesg ntest stamps =
+  finish : String -> Nat -> List (List String) -> IO Unit
+  finish mesg ntest stamps =
       do putStr (mesg <> " " <> show ntest <> " tests" <> table)
     where
       display : List String -> String
@@ -390,9 +390,9 @@ private
     -> List (List String) -> IO Unit
   tests config prop@(toProperty gen) rnd0 ntest nfail stamps =
     if ntest == Config.maxTest config
-      then done "OK, passed" ntest stamps
+      then finish "OK, passed" ntest stamps
       else if nfail == Config.maxFail config
-        then done "Arguments exhausted after" ntest stamps
+        then finish "Arguments exhausted after" ntest stamps
         else do
           let (rnd1 , rnd2) = splitGen rnd0
           res <- generate' (Config.size config ntest) rnd2 gen

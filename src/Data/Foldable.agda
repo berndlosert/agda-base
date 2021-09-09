@@ -24,8 +24,8 @@ private
 -------------------------------------------------------------------------------
 
 data Step (a : Set) : Set where
-  Done : a -> Step a
-  Continue : a -> Step a
+  done : a -> Step a
+  continue : a -> Step a
 
 -------------------------------------------------------------------------------
 -- Foldable
@@ -66,8 +66,8 @@ record Foldable (t : Set -> Set) : Set where
     where
       go : a -> (b -> b) -> b -> b
       go x k z = case f z x of \ where
-        (Done result) -> result
-        (Continue accum) -> k accum
+        (done result) -> result
+        (continue accum) -> k accum
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} f = flip $ foldr go pure
@@ -97,7 +97,7 @@ record Foldable (t : Set -> Set) : Set where
   find {a} p = foldl' go nothing
     where
       go : Maybe a -> a -> Step (Maybe a)
-      go _ x = if p x then Done (just x) else Continue nothing
+      go _ x = if p x then done (just x) else continue nothing
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe false (const true) (find p xs)

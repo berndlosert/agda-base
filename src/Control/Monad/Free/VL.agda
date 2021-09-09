@@ -27,7 +27,7 @@ Effect = (Set -> Set) -> Set
 
 infixr 4 _:<_
 data Effects (m : Set -> Set) : List Effect -> Set where
-  Done : Effects m []
+  done : Effects m []
   _:<_ : f m -> Effects m fs -> Effects m (f :: fs)
 
 -------------------------------------------------------------------------------
