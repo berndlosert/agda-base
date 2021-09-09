@@ -155,16 +155,16 @@ Getting : (r s a : Set) -> Set
 Getting r s a = (a -> Const r a) -> s -> Const r s
 
 to : (s -> a) -> Getting r s a
-to f k = Const: <<< getConst <<< k <<< f
+to f k = toConst <<< getConst <<< k <<< f
 
 view : Getting a s a -> s -> a
-view g = getConst <<< g Const:
+view g = getConst <<< g toConst
 
 foldMapOf : Getting r s a -> (a -> r) -> s -> r
-foldMapOf g k = getConst <<< g (Const: <<< k)
+foldMapOf g k = getConst <<< g (toConst <<< k)
 
 foldOf : Getting a s a -> s -> a
-foldOf l = getConst <<< l Const:
+foldOf l = getConst <<< l toConst
 
 foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l f z = flip appEndo z <<< foldMapOf l (toEndo <<< f)
@@ -217,13 +217,13 @@ ASetter : (s t a b : Set) -> Set
 ASetter s t a b = (a -> Identity b) -> s -> Identity t
 
 over : ASetter s t a b -> (a -> b) -> s -> t
-over g k = runIdentity <<< g (Identity: <<< k)
+over g k = runIdentity <<< g (toIdentity <<< k)
 
 set : ASetter s t a b -> b -> s -> t
-set f b = runIdentity <<< f (\ _ -> Identity: b)
+set f b = runIdentity <<< f (\ _ -> toIdentity b)
 
 sets : ((a -> b) -> s -> t) -> ASetter s t a b
-sets f k = Identity: <<< f (runIdentity <<< k)
+sets f k = toIdentity <<< f (runIdentity <<< k)
 
 -------------------------------------------------------------------------------
 -- AReview
@@ -233,7 +233,7 @@ AReview : (t b : Set) -> Set
 AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
 
 review : AReview t b -> b -> t
-review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< Identity:
+review p = runIdentity <<< unTagged <<< p <<< Tagged: <<< toIdentity
 
 -------------------------------------------------------------------------------
 -- AnIso
@@ -244,7 +244,7 @@ AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
 withIso ai k =
-  case ai (Exchange: id Identity:) of \ where
+  case ai (Exchange: id toIdentity) of \ where
     (Exchange: sa bt) -> k sa (runIdentity <<< bt)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
@@ -263,7 +263,7 @@ APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
-  case ap (Market: Identity: right) of \ where
+  case ap (Market: toIdentity right) of \ where
     (Market: bt seta) ->
       f (runIdentity <<< bt) (either (left <<< runIdentity) right <<< seta)
 
@@ -291,7 +291,7 @@ open Folded {{...}} public
 instance
   Folded-List : Folded (List a) a
   Folded-List .folded f [] = neutral
-  Folded-List .folded f (x :: xs) = Const: (getConst $ f x) <> folded f xs
+  Folded-List .folded f (x :: xs) = toConst (getConst $ f x) <> folded f xs
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b

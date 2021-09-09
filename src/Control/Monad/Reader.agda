@@ -41,7 +41,7 @@ runReader : Reader r a -> r -> a
 runReader m = runIdentity <<< runReaderT m
 
 mapReader : (a -> b) -> Reader r a -> Reader r b
-mapReader f = mapReaderT (Identity: <<< f <<< runIdentity)
+mapReader f = mapReaderT (toIdentity <<< f <<< runIdentity)
 
 withReader : (r' -> r) -> Reader r a -> Reader r' a
 withReader f m = withReaderT f m

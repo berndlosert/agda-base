@@ -24,7 +24,7 @@ private
 -------------------------------------------------------------------------------
 
 record Identity (a : Set) : Set where
-  constructor Identity:
+  constructor toIdentity
   field runIdentity : a
 
 open Identity public
@@ -37,19 +37,19 @@ instance
   Ord-Identity .compare x y = compare (runIdentity x) (runIdentity y)
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity ._<>_ x y = Identity: (runIdentity x <> runIdentity y)
+  Semigroup-Identity ._<>_ x y = toIdentity (runIdentity x <> runIdentity y)
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
-  Monoid-Identity .neutral = Identity: neutral
+  Monoid-Identity .neutral = toIdentity neutral
 
   Foldable-Identity : Foldable Identity
   Foldable-Identity .foldr f z x = f (runIdentity x) z
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map f = Identity: <<< f <<< runIdentity
+  Functor-Identity .map f = toIdentity <<< f <<< runIdentity
 
   Applicative-Identity : Applicative Identity
-  Applicative-Identity .pure = Identity:
+  Applicative-Identity .pure = toIdentity
   Applicative-Identity ._<*>_ = map <<< runIdentity
 
   Monad-Identity : Monad Identity
@@ -57,4 +57,4 @@ instance
 
   Show-Identity : {{Show a}} -> Show (Identity a)
   Show-Identity .showsPrec d x = showParen (d > appPrec)
-    (showString "Identity: " <<< showsPrec appPrec+1 (runIdentity x))
+    (showString "toIdentity " <<< showsPrec appPrec+1 (runIdentity x))

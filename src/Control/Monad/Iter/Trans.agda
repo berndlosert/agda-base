@@ -99,7 +99,7 @@ instance
           (right r') -> pure $ right (l' <|> r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
-  MonadFree-IterT .wrap (Identity: iter) = delay iter
+  MonadFree-IterT .wrap (toIdentity iter) = delay iter
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map left m
