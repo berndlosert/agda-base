@@ -47,13 +47,13 @@ record Bits (a : Set) : Set where
   notBit x i = x xor (bit i)
 
   shiftL : a -> Nat -> a
-  shiftL x i = shift x (Pos i)
+  shiftL x i = shift x (pos i)
 
   shiftR : a -> Nat -> a
   shiftR x i = shift x (neg i)
 
   rotateL : a -> Nat -> a
-  rotateL x i = rotate x (Pos i)
+  rotateL x i = rotate x (pos i)
 
   rotateR : a -> Nat -> a
   rotateR x i = rotate x (neg i)

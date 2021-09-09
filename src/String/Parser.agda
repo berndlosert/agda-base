@@ -215,7 +215,7 @@ nat = chainl1 digit' (pure \ m n -> 10 * m + n)
         (Char.toDigit n)
 
 int : Parser Int
-int = (| neg (char '-' *> nat) | Pos (char '+' *> nat) | Pos nat |)
+int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 
 -------------------------------------------------------------------------------
 -- Misc. parsers

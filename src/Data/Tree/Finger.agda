@@ -246,7 +246,7 @@ split p xs = unsafePerform $
 -------------------------------------------------------------------------------
 
 data SearchResult (v a : Set) : Set where
-  Position : FingerTree v a -> a -> FingerTree v a -> SearchResult v a
+  position : FingerTree v a -> a -> FingerTree v a -> SearchResult v a
   OnLeft : SearchResult v a
   OnRight : SearchResult v a
   Nowhere : SearchResult v a
@@ -290,7 +290,7 @@ search p t = unsafePerform $
     if pleft && pright then OnLeft
     else if not pleft && pright then
       (case searchTree p neutral t neutral of \ where
-        (Split: l x r) -> Position l x r)
+        (Split: l x r) -> position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
 

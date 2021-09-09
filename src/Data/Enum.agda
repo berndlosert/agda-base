@@ -39,15 +39,15 @@ instance
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .next (Pos n) = Just $ Pos (Suc n)
-  Enum-Int .next (NegSuc n) = Just $ neg n
-  Enum-Int .previous (Pos 0) = Just $ NegSuc 0
-  Enum-Int .previous (Pos (Suc n)) = Just $ Pos n
-  Enum-Int .previous (NegSuc n) = Just $ NegSuc (Suc n)
+  Enum-Int .next (pos n) = Just $ pos (Suc n)
+  Enum-Int .next (negsuc n) = Just $ neg n
+  Enum-Int .previous (pos 0) = Just $ negsuc 0
+  Enum-Int .previous (pos (Suc n)) = Just $ pos n
+  Enum-Int .previous (negsuc n) = Just $ negsuc (Suc n)
   Enum-Int .enumFromTo m n =
     case m - n of \ where
-      (Pos k) -> (\ i -> Pos i + n) <$> enumFromTo k 0
-      (NegSuc k) -> (\ i -> Pos i + m) <$> enumFromTo 0 (Suc k)
+      (pos k) -> (\ i -> pos i + n) <$> enumFromTo k 0
+      (negsuc k) -> (\ i -> pos i + m) <$> enumFromTo 0 (Suc k)
 
   Enum-Char : Enum Char
   Enum-Char .next c =

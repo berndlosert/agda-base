@@ -183,7 +183,7 @@ instance
   Arbitrary-Int : Arbitrary Int
   Arbitrary-Int .arbitrary = sized \ where
     0 -> choose (0 , 0)
-    (Suc n) -> choose (NegSuc n , Pos (Suc n))
+    (Suc n) -> choose (negsuc n , pos (Suc n))
 
   Arbitrary-Float : Arbitrary Float
   Arbitrary-Float .arbitrary = sized \ n ->

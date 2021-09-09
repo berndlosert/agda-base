@@ -30,8 +30,8 @@ data Nat1 : Set where
 
 open import Agda.Builtin.Int public
   using (Int)
-  renaming (pos to Pos)
-  renaming (negsuc to NegSuc)
+  using (pos)
+  using (negsuc)
 
 open import Agda.Builtin.Float public
   using (Float)
@@ -206,12 +206,12 @@ pred (Suc n) = n
 -------------------------------------------------------------------------------
 
 neg : Nat -> Int
-neg 0 = Pos 0
-neg (Suc n) = NegSuc n
+neg 0 = pos 0
+neg (Suc n) = negsuc n
 
 diff : Nat -> Nat -> Int
-diff m 0 = Pos m
-diff Zero (Suc n) = NegSuc n
+diff m 0 = pos m
+diff Zero (Suc n) = negsuc n
 diff (Suc m) (Suc n) = diff m n
 
 ------------------------------------------------------------------------------
@@ -349,8 +349,8 @@ instance
 
   Eq-Int : Eq Int
   Eq-Int ._==_ = \ where
-    (Pos m) (Pos n) -> m == n
-    (NegSuc m) (NegSuc n) -> m == n
+    (pos m) (pos n) -> m == n
+    (negsuc m) (negsuc n) -> m == n
     _ _ -> false
 
   Eq-Float : Eq Float
@@ -458,10 +458,10 @@ instance
 
   Ord-Int : Ord Int
   Ord-Int .compare = \ where
-    (Pos m) (Pos n) -> compare m n
-    (NegSuc m) (NegSuc n) -> compare n m
-    (Pos _) (NegSuc _) -> GT
-    (NegSuc _) (Pos _) -> LT
+    (pos m) (pos n) -> compare m n
+    (negsuc m) (negsuc n) -> compare n m
+    (pos _) (negsuc _) -> GT
+    (negsuc _) (pos _) -> LT
 
   Ord-Float : Ord Float
   Ord-Float .compare x y =
@@ -534,7 +534,7 @@ instance
 
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint _ = Unit
-  FromNat-Int .fromNat n = Pos n
+  FromNat-Int .fromNat n = pos n
 
   FromNat-Float : FromNat Float
   FromNat-Float .FromNatConstraint _ = Unit
@@ -558,8 +558,8 @@ instance
 
   ToNat-Int : ToNat Int
   ToNat-Int .ToNatConstraint _ = Unit
-  ToNat-Int .toNat (Pos n) = n
-  ToNat-Int .toNat (NegSuc n) = 0
+  ToNat-Int .toNat (pos n) = n
+  ToNat-Int .toNat (negsuc n) = 0
 
 -------------------------------------------------------------------------------
 -- FromNeg
@@ -683,54 +683,54 @@ instance
 
   Add-Int : Add Int
   Add-Int ._+_ = \ where
-    (NegSuc m) (NegSuc n) -> NegSuc (Suc (m + n))
-    (NegSuc m) (Pos n) -> diff n (Suc m)
-    (Pos m) (NegSuc n) -> diff m (Suc n)
-    (Pos m) (Pos n) -> Pos (m + n)
+    (negsuc m) (negsuc n) -> negsuc (Suc (m + n))
+    (negsuc m) (pos n) -> diff n (Suc m)
+    (pos m) (negsuc n) -> diff m (Suc n)
+    (pos m) (pos n) -> pos (m + n)
 
   Sub-Int : Sub Int
   Sub-Int .Diff = Int
   Sub-Int ._-_ = \ where
-    m (Pos n) -> m + (neg n)
-    m (NegSuc n) -> m + Pos (Suc n)
+    m (pos n) -> m + (neg n)
+    m (negsuc n) -> m + pos (Suc n)
 
   Neg-Int : Neg Int
   Neg-Int .-_ = \ where
-    (Pos 0) -> Pos 0
-    (Pos (Suc n)) -> NegSuc n
-    (NegSuc n) -> Pos (Suc n)
+    (pos 0) -> pos 0
+    (pos (Suc n)) -> negsuc n
+    (negsuc n) -> pos (Suc n)
 
   Mul-Int : Mul Int
   Mul-Int ._*_ = \ where
-    (Pos n) (Pos m) -> Pos (n * m)
-    (NegSuc n) (NegSuc m) -> Pos (Suc n * Suc m)
-    (Pos n) (NegSuc m) -> neg (n * Suc m)
-    (NegSuc n) (Pos m) -> neg (Suc n * m)
+    (pos n) (pos m) -> pos (n * m)
+    (negsuc n) (negsuc m) -> pos (Suc n * Suc m)
+    (pos n) (negsuc m) -> neg (n * Suc m)
+    (negsuc n) (pos m) -> neg (Suc n * m)
 
   Exp-Int : Exp Int
   Exp-Int .Power = Nat
-  Exp-Int ._^_ m 0 = Pos 0
+  Exp-Int ._^_ m 0 = pos 0
   Exp-Int ._^_ m (Suc n) = m * m ^ n
 
   Divisor-Int : Divisor Int
-  Divisor-Int .divisor (Pos 0) = false
+  Divisor-Int .divisor (pos 0) = false
   Divisor-Int .divisor _ = true
 
   Div-Int : Div Int
   Div-Int .Divisor-super = Divisor-Int
   Div-Int ._/_ = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (m / n)
-    (Pos m) (NegSuc n) -> neg (m / Suc n)
-    (NegSuc m) (Pos n@(Suc _)) -> neg (Suc m / n)
-    (NegSuc m) (NegSuc n) -> Pos (Suc m / Suc n)
+    (pos m) (pos n@(Suc _)) -> pos (m / n)
+    (pos m) (negsuc n) -> neg (m / Suc n)
+    (negsuc m) (pos n@(Suc _)) -> neg (Suc m / n)
+    (negsuc m) (negsuc n) -> pos (Suc m / Suc n)
 
   Mod-Int : Mod Int
   Mod-Int .Divisor-super = Divisor-Int
   Mod-Int ._%_ = \ where
-    (Pos m) (Pos n@(Suc _)) -> Pos (m % n)
-    (Pos m) (NegSuc n) -> Pos (m % Suc n)
-    (NegSuc m) (Pos n@(Suc _)) -> neg (Suc m % n)
-    (NegSuc m) (NegSuc n) -> neg (Suc m % Suc n)
+    (pos m) (pos n@(Suc _)) -> pos (m % n)
+    (pos m) (negsuc n) -> pos (m % Suc n)
+    (negsuc m) (pos n@(Suc _)) -> neg (Suc m % n)
+    (negsuc m) (negsuc n) -> neg (Suc m % Suc n)
 
   Add-Float : Add Float
   Add-Float ._+_ = Agda.Builtin.Float.primFloatPlus
