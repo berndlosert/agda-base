@@ -26,32 +26,32 @@ private
 -------------------------------------------------------------------------------
 
 data Digit (a : Set) : Set where
-  One : a -> Digit a
-  Two : a -> a -> Digit a
-  Three : a -> a -> a -> Digit a
-  Four : a -> a -> a -> a -> Digit a
+  one : a -> Digit a
+  two : a -> a -> Digit a
+  three : a -> a -> a -> Digit a
+  four : a -> a -> a -> a -> Digit a
 
 instance
   Foldable-Digit : Foldable Digit
   Foldable-Digit .foldr f z = \ where
-    (One a) -> f a z
-    (Two a b) -> f a (f b z)
-    (Three a b c) -> f a (f b (f c z))
-    (Four a b c d) -> f a (f b (f c (f d z)))
+    (one a) -> f a z
+    (two a b) -> f a (f b z)
+    (three a b c) -> f a (f b (f c z))
+    (four a b c d) -> f a (f b (f c (f d z)))
 
   Functor-Digit : Functor Digit
   Functor-Digit .map f = \ where
-    (One a) -> One (f a)
-    (Two a b) -> Two (f a) (f b)
-    (Three a b c) -> Three (f a) (f b) (f c)
-    (Four a b c d) -> Four (f a) (f b) (f c) (f d)
+    (one a) -> one (f a)
+    (two a b) -> two (f a) (f b)
+    (three a b c) -> three (f a) (f b) (f c)
+    (four a b c d) -> four (f a) (f b) (f c) (f d)
 
   Traversable-Digit : Traversable Digit
   Traversable-Digit .traverse f = \ where
-    (One a) -> (| One (f a) |)
-    (Two a b) -> (| Two (f a) (f b) |)
-    (Three a b c) -> (| Three (f a) (f b) (f c) |)
-    (Four a b c d) -> (| Four (f a) (f b) (f c) (f d) |)
+    (one a) -> (| one (f a) |)
+    (two a b) -> (| two (f a) (f b) |)
+    (three a b c) -> (| three (f a) (f b) (f c) |)
+    (four a b c d) -> (| four (f a) (f b) (f c) (f d) |)
 
   Measured-Digit : {{Measured v a}} -> Measured v (Digit a)
   Measured-Digit .measure = foldMap measure
@@ -65,31 +65,31 @@ splitDigit : {{Measured v a }}
   -> v
   -> Digit a
   -> Split (Maybe <<< Digit) a
-splitDigit _ i (One a) = toSplit nothing a nothing
-splitDigit p i (Two a b) =
+splitDigit _ i (one a) = toSplit nothing a nothing
+splitDigit p i (two a b) =
   let
     va = i <> measure a
   in
-    if p va then toSplit nothing a (just (One b))
-    else toSplit (just (One a)) b nothing
-splitDigit p i (Three a b c) =
+    if p va then toSplit nothing a (just (one b))
+    else toSplit (just (one a)) b nothing
+splitDigit p i (three a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then toSplit nothing a (just (Two b c))
-    else if p vab then toSplit (just (One a)) b (just (One c))
-    else toSplit (just (Two a b)) c nothing
-splitDigit p i (Four a b c d) =
+    if p va then toSplit nothing a (just (two b c))
+    else if p vab then toSplit (just (one a)) b (just (one c))
+    else toSplit (just (two a b)) c nothing
+splitDigit p i (four a b c d) =
   let
     va = i <> measure a
     vab = va <> measure b
     vabc = vab <> measure c
   in
-    if p va then toSplit nothing a (just (Three b c d))
-    else if p vab then toSplit (just (One a)) b (just (Two c d))
-    else if p vabc then toSplit (just (Two a b)) c (just (One d))
-    else toSplit (just (Three a b c)) d nothing
+    if p va then toSplit nothing a (just (three b c d))
+    else if p vab then toSplit (just (one a)) b (just (two c d))
+    else if p vabc then toSplit (just (two a b)) c (just (one d))
+    else toSplit (just (three a b c)) d nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -101,25 +101,25 @@ searchDigit : {{Measured v a}}
   -> Digit a
   -> v
   -> Split (Maybe <<< Digit) a
-searchDigit _ vl (One a) vr = toSplit nothing a nothing
-searchDigit p vl (Two a b) vr =
+searchDigit _ vl (one a) vr = toSplit nothing a nothing
+searchDigit p vl (two a b) vr =
   let
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then toSplit nothing a (just (One b))
-    else toSplit (just (One a)) b nothing
-searchDigit p vl (Three a b c) vr =
+    if p va vb then toSplit nothing a (just (one b))
+    else toSplit (just (one a)) b nothing
+searchDigit p vl (three a b c) vr =
   let
     va = vl <> measure a
     vab = va <> measure b
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then toSplit nothing a (just (Two b c))
-    else if p vab vc then toSplit (just (One a)) b (just (One c))
-    else toSplit (just (Two a b)) c nothing
-searchDigit p vl (Four a b c d) vr =
+    if p va vbc then toSplit nothing a (just (two b c))
+    else if p vab vc then toSplit (just (one a)) b (just (one c))
+    else toSplit (just (two a b)) c nothing
+searchDigit p vl (four a b c d) vr =
   let
     va = vl <> measure a
     vd = measure d <> vr
@@ -128,23 +128,23 @@ searchDigit p vl (Four a b c d) vr =
     vabc = vab <> measure c
     vbcd = measure b <> vcd
   in
-    if p va vbcd then toSplit nothing a (just (Three b c d))
-    else if p vab vcd then toSplit (just (One a)) b (just (Two c d))
-    else if p vabc vd then toSplit (just (Two a b)) c (just (One d))
-    else toSplit (just (Three a b c)) d nothing
+    if p va vbcd then toSplit nothing a (just (three b c d))
+    else if p vab vcd then toSplit (just (one a)) b (just (two c d))
+    else if p vabc vd then toSplit (just (two a b)) c (just (one d))
+    else toSplit (just (three a b c)) d nothing
 
 -------------------------------------------------------------------------------
 -- Misc.
 -------------------------------------------------------------------------------
 
 initsDigit : Digit a -> Digit (Digit a)
-initsDigit (One a) = One (One a)
-initsDigit (Two a b) = Two (One a) (Two a b)
-initsDigit (Three a b c) = Three (One a) (Two a b) (Three a b c)
-initsDigit (Four a b c d) = Four (One a) (Two a b) (Three a b c) (Four a b c d)
+initsDigit (one a) = one (one a)
+initsDigit (two a b) = two (one a) (two a b)
+initsDigit (three a b c) = three (one a) (two a b) (three a b c)
+initsDigit (four a b c d) = four (one a) (two a b) (three a b c) (four a b c d)
 
 tailsDigit : Digit a -> Digit (Digit a)
-tailsDigit (One a) = One (One a)
-tailsDigit (Two a b) = Two (Two a b) (One b)
-tailsDigit (Three a b c) = Three (Three a b c) (Two b c) (One c)
-tailsDigit (Four a b c d) = Four (Four a b c d) (Three b c d) (Two c d) (One d)
+tailsDigit (one a) = one (one a)
+tailsDigit (two a b) = two (two a b) (one b)
+tailsDigit (three a b c) = three (three a b c) (two b c) (one c)
+tailsDigit (four a b c d) = four (four a b c d) (three b c d) (two c d) (one d)

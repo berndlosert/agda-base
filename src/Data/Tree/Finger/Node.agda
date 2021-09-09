@@ -27,44 +27,44 @@ private
 -------------------------------------------------------------------------------
 
 data Node (v a : Set) : Set where
-  Node2 : v -> a -> a -> Node v a
+  node2 : v -> a -> a -> Node v a
   Node3 : v -> a -> a -> a -> Node v a
 
-node2 : {{Measured v a}} -> a -> a -> Node v a
-node2 a b = Node2 (measure a <> measure b) a b
+node2' : {{Measured v a}} -> a -> a -> Node v a
+node2' a b = node2 (measure a <> measure b) a b
 
-node3 : {{Measured v a}} -> a -> a -> a -> Node v a
-node3 a b c = Node3 (measure a <> measure b <> measure c) a b c
+node3' : {{Measured v a}} -> a -> a -> a -> Node v a
+node3' a b c = Node3 (measure a <> measure b <> measure c) a b c
 
 nodeToDigit : Node v a -> Digit a
-nodeToDigit (Node2 _ a b) = Two a b
-nodeToDigit (Node3 _ a b c) = Three a b c
+nodeToDigit (node2 _ a b) = two a b
+nodeToDigit (Node3 _ a b c) = three a b c
 
 nodes : {{Measured v a}} -> List a -> List (Node v a)
-nodes (a :: b :: []) = node2 a b :: []
-nodes (a :: b :: c :: []) = node3 a b c :: []
-nodes (a :: b :: c :: d :: []) = node2 a b :: node2 c d :: []
-nodes (a :: b :: c :: xs) = node3 a b c :: nodes xs
+nodes (a :: b :: []) = node2' a b :: []
+nodes (a :: b :: c :: []) = node3' a b c :: []
+nodes (a :: b :: c :: d :: []) = node2' a b :: node2' c d :: []
+nodes (a :: b :: c :: xs) = node3' a b c :: nodes xs
 nodes _ = []
 
 instance
   Foldable-Node : Foldable (Node v)
   Foldable-Node .foldr f z = \ where
-    (Node2 _ a b) -> f a (f b z)
+    (node2 _ a b) -> f a (f b z)
     (Node3 _ a b c) -> f a (f b (f c z))
 
   Functor-Node : Functor (Node v)
   Functor-Node .map f = \ where
-    (Node2 v a b) -> Node2 v (f a) (f b)
+    (node2 v a b) -> node2 v (f a) (f b)
     (Node3 v a b c) -> Node3 v (f a) (f b) (f c)
 
   Traversable-Node : Traversable (Node v)
   Traversable-Node .traverse f = \ where
-    (Node2 v a b) -> (| (Node2 v) (f a) (f b) |)
+    (node2 v a b) -> (| (node2 v) (f a) (f b) |)
     (Node3 v a b c) -> (| (Node3 v) (f a) (f b) (f c) |)
 
   Measured-Node : {{Monoid v}} -> Measured v (Node v a)
-  Measured-Node .measure (Node2 v _ _) = v
+  Measured-Node .measure (node2 v _ _) = v
   Measured-Node .measure (Node3 v _ _ _) = v
 
 -------------------------------------------------------------------------------
@@ -76,20 +76,20 @@ splitNode : {{Measured v a}}
   -> v
   -> Node v a
   -> Split (Maybe <<< Digit) a
-splitNode p i (Node2 _ a b) =
+splitNode p i (node2 _ a b) =
   let
     va = i <> measure a
   in
-    if p va then toSplit nothing a (just (One b))
-    else toSplit (just (One a)) b nothing
+    if p va then toSplit nothing a (just (one b))
+    else toSplit (just (one a)) b nothing
 splitNode p i (Node3 _ a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
   in
-    if p va then toSplit nothing a (just (Two b c))
-    else if p vab then toSplit (just (One a)) b (just (One c))
-    else toSplit (just (Two a b)) c nothing
+    if p va then toSplit nothing a (just (two b c))
+    else if p vab then toSplit (just (one a)) b (just (one c))
+    else toSplit (just (two a b)) c nothing
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -101,13 +101,13 @@ searchNode : {{Measured v a}}
   -> Node v a
   -> v
   -> Split (Maybe <<< Digit) a
-searchNode p vl (Node2 _ a b) vr =
+searchNode p vl (node2 _ a b) vr =
   let
     va = vl <> measure a
     vb = measure b <> vr
   in
-    if p va vb then toSplit nothing a (just (One b))
-    else toSplit (just (One a)) b nothing
+    if p va vb then toSplit nothing a (just (one b))
+    else toSplit (just (one a)) b nothing
 searchNode p vl (Node3 _ a b c) vr =
   let
     va = vl <> measure a
@@ -115,18 +115,18 @@ searchNode p vl (Node3 _ a b c) vr =
     vc = measure c <> vr
     vbc = measure b <> vc
   in
-    if p va vbc then toSplit nothing a (just (Two b c))
-    else if p vab vc then toSplit (just (One a)) b (just (One c))
-    else toSplit (just (Two a b)) c nothing
+    if p va vbc then toSplit nothing a (just (two b c))
+    else if p vab vc then toSplit (just (one a)) b (just (one c))
+    else toSplit (just (two a b)) c nothing
 
 -------------------------------------------------------------------------------
 -- Misc.
 -------------------------------------------------------------------------------
 
 initsNode : Node v a -> Node v (Digit a)
-initsNode (Node2 v a b) = Node2 v (One a) (Two a b)
-initsNode (Node3 v a b c) = Node3 v (One a) (Two a b) (Three a b c)
+initsNode (node2 v a b) = node2 v (one a) (two a b)
+initsNode (Node3 v a b c) = Node3 v (one a) (two a b) (three a b c)
 
 tailsNode : Node v a -> Node v (Digit a)
-tailsNode (Node2 v a b) = Node2 v (Two a b) (One b)
-tailsNode (Node3 v a b c) = Node3 v (Three a b c) (Two b c) (One c)
+tailsNode (node2 v a b) = node2 v (two a b) (one b)
+tailsNode (Node3 v a b c) = Node3 v (three a b c) (two b c) (one c)
