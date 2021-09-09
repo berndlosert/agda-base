@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Tree.Balanced.TwoThree where
+module Data.Tree.Balanced.twothree where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -24,9 +24,9 @@ private
 -------------------------------------------------------------------------------
 
 data Tree (a : Set) : Set where
-  Leaf : Tree a
-  Two : Tree a -> a -> Tree a -> Tree a
-  Three : Tree a -> a -> Tree a -> a -> Tree a -> Tree a
+  leaf : Tree a
+  two : Tree a -> a -> Tree a -> Tree a
+  three : Tree a -> a -> Tree a -> a -> Tree a -> Tree a
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -35,24 +35,24 @@ data Tree (a : Set) : Set where
 instance
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr f z = \ where
-    Leaf -> z
-    (Two l x r) -> foldr f (f x (foldr f z r)) l
-    (Three l x m y r) -> foldr f (f x (foldr f (f y (foldr f z r)) m)) l
+    leaf -> z
+    (two l x r) -> foldr f (f x (foldr f z r)) l
+    (three l x m y r) -> foldr f (f x (foldr f (f y (foldr f z r)) m)) l
 
   Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t t' = toList t == toList t'
 
   Show-Tree : {{Show a}} -> Show (Tree a)
-  Show-Tree .showsPrec _ Leaf = showString "Leaf"
-  Show-Tree .showsPrec d (Two l x r) = showParen (d > appPrec)
-    (showString "Two "
+  Show-Tree .showsPrec _ leaf = showString "leaf"
+  Show-Tree .showsPrec d (two l x r) = showParen (d > appPrec)
+    (showString "two "
     <<< showsPrec appPrec+1 l
     <<< showString " "
     <<< showsPrec appPrec+1 x
     <<< showString " "
     <<< showsPrec appPrec+1 r)
-  Show-Tree .showsPrec d (Three l x m y r) = showParen (d > appPrec)
-    (showString "Three "
+  Show-Tree .showsPrec d (three l x m y r) = showParen (d > appPrec)
+    (showString "three "
     <<< showsPrec appPrec+1 l
     <<< showString " "
     <<< showsPrec appPrec+1 x
@@ -68,10 +68,10 @@ instance
 -------------------------------------------------------------------------------
 
 empty : Tree a
-empty = Leaf
+empty = leaf
 
 singleton : a -> Tree a
-singleton x = Two Leaf x Leaf
+singleton x = two leaf x leaf
 
 -------------------------------------------------------------------------------
 -- Helpers for inserting and deleting
@@ -79,11 +79,11 @@ singleton x = Two Leaf x Leaf
 
 private
   data TreeContext (a : Set) : Set where
-    TwoLeft : a -> Tree a -> TreeContext a
-    TwoRight : Tree a -> a -> TreeContext a
-    ThreeLeft : a -> Tree a -> a -> Tree a -> TreeContext a
-    ThreeMiddle : Tree a -> a -> a -> Tree a -> TreeContext a
-    ThreeRight : Tree a -> a -> Tree a -> a -> TreeContext a
+    twoLeft : a -> Tree a -> TreeContext a
+    twoRight : Tree a -> a -> TreeContext a
+    threeLeft : a -> Tree a -> a -> Tree a -> TreeContext a
+    threeMiddle : Tree a -> a -> a -> Tree a -> TreeContext a
+    threeRight : Tree a -> a -> Tree a -> a -> TreeContext a
 
   data KickUp (a : Set) : Set where
     toKickUp : Tree a -> a -> Tree a -> KickUp a
@@ -92,11 +92,11 @@ private
   fromZipper [] t = t
   fromZipper (h :: ctx) t =
     case h of \ where
-      (TwoLeft x r) -> fromZipper ctx (Two t x r)
-      (TwoRight l x) -> fromZipper ctx (Two l x t)
-      (ThreeLeft x m y r) -> fromZipper ctx (Three t x m y r)
-      (ThreeMiddle l x y r) -> fromZipper ctx (Three l x t y r)
-      (ThreeRight l x m y) -> fromZipper ctx (Three l x m y t)
+      (twoLeft x r) -> fromZipper ctx (two t x r)
+      (twoRight l x) -> fromZipper ctx (two l x t)
+      (threeLeft x m y r) -> fromZipper ctx (three t x m y r)
+      (threeMiddle l x y r) -> fromZipper ctx (three l x t y r)
+      (threeRight l x m y) -> fromZipper ctx (three l x m y t)
 
 -------------------------------------------------------------------------------
 -- Inserting
@@ -106,34 +106,34 @@ insert : {{Ord a}} -> a -> Tree a -> Tree a
 insert {a} v = down []
   where
     up : List (TreeContext a) -> KickUp a -> Tree a
-    up [] (toKickUp l x r) = Two l x r
+    up [] (toKickUp l x r) = two l x r
     up (h :: ctx) kup =
       case (h , kup) of \ where
-        (TwoLeft x r , toKickUp l w m) ->
-          fromZipper ctx (Three l w m x r)
-        (TwoRight l x , toKickUp m w r) ->
-          fromZipper ctx (Three l x m w r)
-        (ThreeLeft x c y d , toKickUp a w b) ->
-          up ctx (toKickUp (Two a w b) x (Two c y d))
-        (ThreeMiddle a x y d , toKickUp b w c) ->
-          up ctx (toKickUp (Two a x b) w (Two c y d))
-        (ThreeRight a x b y , toKickUp c w d) ->
-          up ctx (toKickUp (Two a x b) y (Two c w d))
+        (twoLeft x r , toKickUp l w m) ->
+          fromZipper ctx (three l w m x r)
+        (twoRight l x , toKickUp m w r) ->
+          fromZipper ctx (three l x m w r)
+        (threeLeft x c y d , toKickUp a w b) ->
+          up ctx (toKickUp (two a w b) x (two c y d))
+        (threeMiddle a x y d , toKickUp b w c) ->
+          up ctx (toKickUp (two a x b) w (two c y d))
+        (threeRight a x b y , toKickUp c w d) ->
+          up ctx (toKickUp (two a x b) y (two c w d))
 
     down : List (TreeContext a) -> Tree a -> Tree a
-    down ctx Leaf = up ctx (toKickUp Leaf v Leaf)
-    down ctx (Two l x r) =
+    down ctx leaf = up ctx (toKickUp leaf v leaf)
+    down ctx (two l x r) =
       case compare v x of \ where
-        EQ -> fromZipper ctx (Two l v r)
-        LT -> down (TwoLeft x r :: ctx) l
-        GT -> down (TwoRight l x :: ctx) r
-    down ctx (Three l x m y r) =
+        EQ -> fromZipper ctx (two l v r)
+        LT -> down (twoLeft x r :: ctx) l
+        GT -> down (twoRight l x :: ctx) r
+    down ctx (three l x m y r) =
       case (compare v x , compare v y) of \ where
-        (EQ , _) -> fromZipper ctx (Three l v m y r)
-        (_ , EQ) -> fromZipper ctx (Three l x m v r)
-        (LT , _) -> down (ThreeLeft x m y r :: ctx) l
-        (GT , LT) -> down (ThreeMiddle l x y r :: ctx) m
-        (_ , _) -> down (ThreeRight l x m y :: ctx) r
+        (EQ , _) -> fromZipper ctx (three l v m y r)
+        (_ , EQ) -> fromZipper ctx (three l x m v r)
+        (LT , _) -> down (threeLeft x m y r :: ctx) l
+        (GT , LT) -> down (threeMiddle l x y r :: ctx) m
+        (_ , _) -> down (threeRight l x m y :: ctx) r
 
 -------------------------------------------------------------------------------
 -- Deleting
@@ -146,102 +146,102 @@ pop {a} v = down []
     up [] t = t
     up (h :: ctx) t =
       case (h , t) of \ where
-        (TwoLeft x Leaf , Leaf) ->
-          fromZipper ctx (Two Leaf x Leaf)
-        (TwoRight Leaf x , Leaf) ->
-          fromZipper ctx (Two Leaf x Leaf)
-        (TwoLeft x (Two m y r) , l) ->
-          up ctx (Three l x m y r)
-        (TwoRight (Two l x m) y , r) ->
-          up ctx (Three l x m y r)
-        (TwoLeft x (Three b y c z d) , a) ->
-          fromZipper ctx (Two (Two a x b) y (Two c z d))
-        (TwoRight (Three a x b y c) z , d) ->
-          fromZipper ctx (Two (Two a x b) y (Two c z d))
-        (ThreeLeft x Leaf y Leaf , Leaf) ->
-          fromZipper ctx (Three Leaf x Leaf y Leaf)
-        (ThreeMiddle Leaf x y Leaf , Leaf) ->
-          fromZipper ctx (Three Leaf x Leaf y Leaf)
-        (ThreeRight Leaf x Leaf y , Leaf) ->
-          fromZipper ctx (Three Leaf x Leaf y Leaf)
-        (ThreeLeft x (Two b y c) z d , a) ->
-          fromZipper ctx (Two (Three a x b y c) z d)
-        (ThreeMiddle (Two a x b) y z d , c) ->
-          fromZipper ctx (Two (Three a x b y c) z d)
-        (ThreeMiddle a x y (Two c z d) , b) ->
-          fromZipper ctx (Two a x (Three b y c z d))
-        (ThreeRight a x (Two b y c) z , d) ->
-          fromZipper ctx (Two a x (Three b y c z d))
-        (ThreeLeft w (Three b x c y d) z e , a) ->
-          fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
-        (ThreeMiddle (Three a w b x c) y z e , d) ->
-          fromZipper ctx (Three (Two a w b) x (Two c y d) z e)
-        (ThreeMiddle a w x (Three c y d z e) , b) ->
-          fromZipper ctx (Three a w (Two b x c) y (Two d z e))
-        (ThreeRight a w (Three b x c y d) z , e) ->
-          fromZipper ctx (Three a w (Two b x c) y (Two d z e))
+        (twoLeft x leaf , leaf) ->
+          fromZipper ctx (two leaf x leaf)
+        (twoRight leaf x , leaf) ->
+          fromZipper ctx (two leaf x leaf)
+        (twoLeft x (two m y r) , l) ->
+          up ctx (three l x m y r)
+        (twoRight (two l x m) y , r) ->
+          up ctx (three l x m y r)
+        (twoLeft x (three b y c z d) , a) ->
+          fromZipper ctx (two (two a x b) y (two c z d))
+        (twoRight (three a x b y c) z , d) ->
+          fromZipper ctx (two (two a x b) y (two c z d))
+        (threeLeft x leaf y leaf , leaf) ->
+          fromZipper ctx (three leaf x leaf y leaf)
+        (threeMiddle leaf x y leaf , leaf) ->
+          fromZipper ctx (three leaf x leaf y leaf)
+        (threeRight leaf x leaf y , leaf) ->
+          fromZipper ctx (three leaf x leaf y leaf)
+        (threeLeft x (two b y c) z d , a) ->
+          fromZipper ctx (two (three a x b y c) z d)
+        (threeMiddle (two a x b) y z d , c) ->
+          fromZipper ctx (two (three a x b y c) z d)
+        (threeMiddle a x y (two c z d) , b) ->
+          fromZipper ctx (two a x (three b y c z d))
+        (threeRight a x (two b y c) z , d) ->
+          fromZipper ctx (two a x (three b y c z d))
+        (threeLeft w (three b x c y d) z e , a) ->
+          fromZipper ctx (three (two a w b) x (two c y d) z e)
+        (threeMiddle (three a w b x c) y z e , d) ->
+          fromZipper ctx (three (two a w b) x (two c y d) z e)
+        (threeMiddle a w x (three c y d z e) , b) ->
+          fromZipper ctx (three a w (two b x c) y (two d z e))
+        (threeRight a w (three b x c y d) z , e) ->
+          fromZipper ctx (three a w (two b x c) y (two d z e))
         (_ , _) -> t
 
     maxNode : {{Partial}} -> Tree a -> a
     maxNode = \ where
-      (Two _ x Leaf) -> x
-      (Two _ _ r@(Two _ _ _)) -> maxNode r
-      (Two _ _ r@(Three _ _ _ _ _)) -> maxNode r
-      (Three _ _ _ x Leaf) -> x
-      (Three _ _ _ _ r@(Two _ _ _)) -> maxNode r
-      (Three _ _ _ _ r@(Three _ _ _ _ _)) -> maxNode r
+      (two _ x leaf) -> x
+      (two _ _ r@(two _ _ _)) -> maxNode r
+      (two _ _ r@(three _ _ _ _ _)) -> maxNode r
+      (three _ _ _ x leaf) -> x
+      (three _ _ _ _ r@(two _ _ _)) -> maxNode r
+      (three _ _ _ _ r@(three _ _ _ _ _)) -> maxNode r
       _ -> undefined
 
     removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
     removeMaxNode ctx = \ where
-      (Two Leaf _ Leaf) ->
-        up ctx Leaf
-      (Two l x r@(Two _ _ _)) ->
-        removeMaxNode (TwoRight l x :: ctx) r
-      (Two l x r@(Three _ _ _ _ _)) ->
-        removeMaxNode (TwoRight l x :: ctx) r
-      (Three Leaf x Leaf _ Leaf) ->
-        up (TwoRight Leaf x :: ctx) Leaf
-      (Three l x m y r@(Two _ _ _)) ->
-        removeMaxNode (ThreeRight l x m y :: ctx) r
-      (Three l x m y r@(Three _ _ _ _ _)) ->
-        removeMaxNode (ThreeRight l x m y :: ctx) r
+      (two leaf _ leaf) ->
+        up ctx leaf
+      (two l x r@(two _ _ _)) ->
+        removeMaxNode (twoRight l x :: ctx) r
+      (two l x r@(three _ _ _ _ _)) ->
+        removeMaxNode (twoRight l x :: ctx) r
+      (three leaf x leaf _ leaf) ->
+        up (twoRight leaf x :: ctx) leaf
+      (three l x m y r@(two _ _ _)) ->
+        removeMaxNode (threeRight l x m y :: ctx) r
+      (three l x m y r@(three _ _ _ _ _)) ->
+        removeMaxNode (threeRight l x m y :: ctx) r
       t -> t
 
     down : List (TreeContext a) -> Tree a -> Maybe (Pair a (Tree a))
-    down ctx Leaf = nothing
-    down ctx (Two l x r) = unsafePerform $
+    down ctx leaf = nothing
+    down ctx (two l x r) = unsafePerform $
       case (l , r , compare v x) of \ where
-        (_ , Leaf , EQ) ->
-          just (x , up ctx Leaf)
-        (l'@(Two _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
-        (l'@(Three _ _ _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (TwoLeft (maxNode l') r :: ctx) l')
+        (_ , leaf , EQ) ->
+          just (x , up ctx leaf)
+        (l'@(two _ _ _) , _ , EQ) ->
+          just (x , removeMaxNode (twoLeft (maxNode l') r :: ctx) l')
+        (l'@(three _ _ _ _ _) , _ , EQ) ->
+          just (x , removeMaxNode (twoLeft (maxNode l') r :: ctx) l')
         (_ , _ , LT) ->
-          down (TwoLeft x r :: ctx) l
+          down (twoLeft x r :: ctx) l
         (_ , _ , _ ) ->
-          down (TwoRight l x :: ctx) r
-    down ctx (Three l x m y r) = unsafePerform $
+          down (twoRight l x :: ctx) r
+    down ctx (three l x m y r) = unsafePerform $
       case (l , m , r , compare v x , compare v y) of \ where
-        (Leaf , Leaf , Leaf , EQ , _) ->
-          just (x , fromZipper ctx (Two Leaf y Leaf))
-        (Leaf , Leaf , Leaf , _ , EQ) ->
-          just (y , fromZipper ctx (Two Leaf x Leaf))
-        (l'@(Two _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
-        (l'@(Three _ _ _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (ThreeLeft (maxNode l') m y r :: ctx) l')
-        (_ , m'@(Two _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
-        (_ , m'@(Three _ _ _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (ThreeMiddle l x (maxNode m') r :: ctx) m')
+        (leaf , leaf , leaf , EQ , _) ->
+          just (x , fromZipper ctx (two leaf y leaf))
+        (leaf , leaf , leaf , _ , EQ) ->
+          just (y , fromZipper ctx (two leaf x leaf))
+        (l'@(two _ _ _) , _ , _ , EQ , _) ->
+          just (x , removeMaxNode (threeLeft (maxNode l') m y r :: ctx) l')
+        (l'@(three _ _ _ _ _) , _ , _ , EQ , _) ->
+          just (x , removeMaxNode (threeLeft (maxNode l') m y r :: ctx) l')
+        (_ , m'@(two _ _ _) , _ , _ , EQ) ->
+          just (x , removeMaxNode (threeMiddle l x (maxNode m') r :: ctx) m')
+        (_ , m'@(three _ _ _ _ _) , _ , _ , EQ) ->
+          just (x , removeMaxNode (threeMiddle l x (maxNode m') r :: ctx) m')
         (_ , _ , _ ,  LT , _) ->
-          down (ThreeLeft x m y r :: ctx) l
+          down (threeLeft x m y r :: ctx) l
         (_ , _ , _ ,  GT , LT) ->
-          down (ThreeMiddle l x y r :: ctx) m
+          down (threeMiddle l x y r :: ctx) m
         (_ , _ , _ ,  _ , _ ) ->
-          down (ThreeRight l x m y :: ctx) r
+          down (threeRight l x m y :: ctx) r
 
 delete : {{Ord a}} -> a -> Tree a -> Tree a
 delete x t = maybe t snd (pop x t)
@@ -251,13 +251,13 @@ delete x t = maybe t snd (pop x t)
 -------------------------------------------------------------------------------
 
 query : (a -> Ordering) -> Tree a -> Maybe a
-query _ Leaf = nothing
-query f (Two l x r) =
+query _ leaf = nothing
+query f (two l x r) =
   case f x of \ where
     EQ -> just x
     LT -> query f l
     GT -> query f r
-query f (Three l x m y r) =
+query f (three l x m y r) =
   case (f x , f y) of \ where
     (EQ , _) -> just x
     (LT , _) -> query f l
@@ -276,7 +276,7 @@ member x = maybe false (const true) <<< query (compare x)
 -------------------------------------------------------------------------------
 
 fromList : {{Ord a}} -> List a -> Tree a
-fromList xs = foldr insert Leaf xs
+fromList xs = foldr insert leaf xs
 
 map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
@@ -285,28 +285,28 @@ mapMonotonic : (a -> b) -> Tree a -> Tree b
 mapMonotonic {a} {b} f = go
   where
     go : Tree a -> Tree b
-    go Leaf = Leaf
-    go (Two l x r) = Two (go l) (f x) (go r)
-    go (Three l x m y r) = Three (go l) (f x) (go m) (f y) (go r)
+    go leaf = leaf
+    go (two l x r) = two (go l) (f x) (go r)
+    go (three l x m y r) = three (go l) (f x) (go m) (f y) (go r)
 
 merge : {{Ord a}} -> Tree a -> Tree a -> Tree a
 merge t t' = foldr insert t t'
 
 filter : {{Ord a}} -> (a -> Bool) -> Tree a -> Tree a
-filter p Leaf = Leaf
-filter p (Two l x r) =
+filter p leaf = leaf
+filter p (two l x r) =
   let
     l' = filter p l
     r' = filter p r
   in
-    if p x then Two l' x r' else merge l' r'
-filter p (Three l x m y r) =
+    if p x then two l' x r' else merge l' r'
+filter p (three l x m y r) =
   let
     l' = filter p l
     m' = filter p m
     r' = filter p r
   in case (p x , p y) of \ where
     (false , false) -> merge (merge l' m') r'
-    (true , true) -> Three l' x m' y r'
-    (false , true) -> Two (merge l' m') y r'
-    (true , false) -> Two l' x (merge m' r')
+    (true , true) -> three l' x m' y r'
+    (false , true) -> two (merge l' m') y r'
+    (true , false) -> two l' x (merge m' r')
