@@ -44,7 +44,7 @@ open import Agda.Builtin.String public
 
 open import Agda.Builtin.Equality public
   renaming (_≡_ to _===_)
-  renaming (refl to Refl)
+  using (refl)
 
 Function : Set -> Set -> Set
 Function a b = a -> b

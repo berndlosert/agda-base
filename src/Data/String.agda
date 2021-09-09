@@ -220,8 +220,8 @@ unconsCorrect = trustMe
 
 asUncons : (s : String) -> Uncons s
 asUncons s with uncons s | unconsCorrect s
-... | Nothing | Refl = []
-... | Just (c , s') | Refl = c :: s'
+... | Nothing | refl = []
+... | Just (c , s') | refl = c :: s'
 
 fromUncons : {s : String} -> Uncons s -> String
 fromUncons {s} _ = s
