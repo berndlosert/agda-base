@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Tree.Balanced.twothree where
+module Data.Tree.Balanced.TwoThree where
 
 -------------------------------------------------------------------------------
 -- Imports
