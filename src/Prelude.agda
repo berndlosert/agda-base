@@ -273,9 +273,9 @@ isJust : Maybe a -> Bool
 isJust (just _) = true
 isJust _ = false
 
-isnothing : Maybe a -> Bool
-isnothing (just _) = false
-isnothing _ = true
+isNothing : Maybe a -> Bool
+isNothing (just _) = false
+isNothing _ = true
 
 fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
 fromJust (just a) = a
