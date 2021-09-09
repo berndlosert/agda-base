@@ -47,7 +47,7 @@ snoc xs x = xs <> singleton x
 iterateN : Nat -> (a -> a) -> a -> List a
 iterateN 0 f x = []
 iterateN 1 f x = singleton x
-iterateN (Suc n) f x = f x :: iterateN n f x
+iterateN (suc n) f x = f x :: iterateN n f x
 
 replicate : Nat -> a -> List a
 replicate n = iterateN n id
@@ -57,7 +57,7 @@ replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat -> f (List a)
     loop 0 = pure []
-    loop (Suc n) = (| _::_ fa (loop n) |)
+    loop (suc n) = (| _::_ fa (loop n) |)
 
 build : (forall {b} -> (a -> b -> b) -> b -> b) -> List a
 build g = g _::_ []
@@ -119,12 +119,12 @@ dropWhile p xs@(x :: xs') = if p x then dropWhile p xs' else xs
 take : Nat -> List a -> List a
 take _ [] = []
 take 0 xs = []
-take (Suc n) (x :: xs) = x :: take n xs
+take (suc n) (x :: xs) = x :: take n xs
 
 drop : Nat -> List a -> List a
 drop _ [] = []
 drop 0 xs = xs
-drop (Suc n) (x :: xs) = drop n xs
+drop (suc n) (x :: xs) = drop n xs
 
 span : (a -> Bool) -> List a -> Pair (List a) (List a)
 span p xs = (takeWhile p xs , dropWhile p xs)
@@ -142,19 +142,19 @@ indexed xs = go 0 xs
   where
     go : Nat -> List a -> List (Pair Nat a)
     go _ [] = []
-    go n (y :: ys) = (n , y) :: go (Suc n) ys
+    go n (y :: ys) = (n , y) :: go (suc n) ys
 
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List a -> Maybe a
 at 0 xs = head xs
-at (Suc n) [] = Nothing
-at (Suc n) (x :: xs) = at n xs
+at (suc n) [] = Nothing
+at (suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
-updateAt (Suc n) f (x :: xs) = x :: updateAt n f xs
+updateAt (suc n) f (x :: xs) = x :: updateAt n f xs
 updateAt _ _ [] = []
 
 deleteAt : Nat -> List a -> List a
@@ -168,7 +168,7 @@ setAt n x = modifyAt n (const x)
 
 insertAt : Nat -> a -> List a -> List a
 insertAt 0 x (y :: ys) = x :: y :: ys
-insertAt (Suc n) x (y :: ys) = y :: insertAt n x ys
+insertAt (suc n) x (y :: ys) = y :: insertAt n x ys
 insertAt _ _ [] = []
 
 -------------------------------------------------------------------------------
@@ -405,8 +405,8 @@ sublists = filterA $ const (false :: true :: [])
 sublistsN : Nat -> List a -> List (List a)
 sublistsN 0 _ = singleton []
 sublistsN _ [] = []
-sublistsN (Suc n) (x :: xs) =
-  map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
+sublistsN (suc n) (x :: xs) =
+  map (x ::_) (sublistsN n xs) <> sublistsN (suc n) xs
 
 leaveOutOne : List a -> List (Pair a (List a))
 leaveOutOne [] = []

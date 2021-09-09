@@ -50,8 +50,8 @@ fromList [] = Nothing
 fromList (x :: xs) = Just (x :| xs)
 
 iterateN : Nat1 -> (a -> a) -> a -> List1 a
-iterateN (Suc 0) f x = singleton x
-iterateN (Suc n) f x = f x :| List.iterateN n f x
+iterateN (suc 0) f x = singleton x
+iterateN (suc n) f x = f x :| List.iterateN n f x
 
 replicate : Nat1 -> a -> List1 a
 replicate n = iterateN n id
@@ -60,8 +60,8 @@ replicateA : {{Applicative f}} -> Nat1 -> f a -> f (List1 a)
 replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat1 -> f (List1 a)
-    loop (Suc 0) = map singleton fa
-    loop (Suc (Suc n)) = (| cons fa (loop (Suc n)) |)
+    loop (suc 0) = map singleton fa
+    loop (suc (suc n)) = (| cons fa (loop (suc n)) |)
 
 -------------------------------------------------------------------------------
 -- Destructors
@@ -123,33 +123,33 @@ break p (x :| xs) = List.break p (x :: xs)
 -------------------------------------------------------------------------------
 
 indexed : List1 a -> List1 (Pair Nat a)
-indexed (x :| xs) = (0 , x) :| map (lmap Suc) (List.indexed xs)
+indexed (x :| xs) = (0 , x) :| map (lmap suc) (List.indexed xs)
 
 splitAt : Nat -> List1 a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
 at : Nat -> List1 a -> Maybe a
 at 0 (x :| _) = Just x
-at (Suc n) (x :| []) = Nothing
-at (Suc n) (x :| (y :: ys)) = at n (y :| ys)
+at (suc n) (x :| []) = Nothing
+at (suc n) (x :| (y :: ys)) = at n (y :| ys)
 
 updateAt : Nat -> (a -> Maybe a) -> List1 a -> List a
 updateAt 0 f (x :| xs) = maybe xs (_:: xs) (f x)
-updateAt (Suc n) f (x :| xs) = x :: List.updateAt n f xs
+updateAt (suc n) f (x :| xs) = x :: List.updateAt n f xs
 
 deleteAt : Nat -> List1 a -> List a
 deleteAt n = updateAt n (const Nothing)
 
 modifyAt : Nat -> (a -> a) -> List1 a -> List1 a
 modifyAt 0 f (x :| xs) = f x :| xs
-modifyAt (Suc n) f (x :| xs) = x :| List.modifyAt n f xs
+modifyAt (suc n) f (x :| xs) = x :| List.modifyAt n f xs
 
 setAt : Nat -> a -> List1 a -> List1 a
 setAt n x = modifyAt n (const x)
 
 insertAt : Nat -> a -> List1 a -> List1 a
 insertAt 0 x (y :| ys) = x :| y :: ys
-insertAt (Suc n) x (y :| ys) = y :| List.insertAt n x ys
+insertAt (suc n) x (y :| ys) = y :| List.insertAt n x ys
 
 -------------------------------------------------------------------------------
 -- Segments
@@ -384,8 +384,8 @@ segments (x :| y :: ys) = foldr _<>_ ((x :| []) :| []) (tails <$> inits (y :| ys
 --sublistsN : Nat -> List a -> List (List a)
 --sublistsN 0 _ = singleton []
 --sublistsN _ [] = []
---sublistsN (Suc n) (x :: xs) =
---  map (x ::_) (sublistsN n xs) <> sublistsN (Suc n) xs
+--sublistsN (suc n) (x :: xs) =
+--  map (x ::_) (sublistsN n xs) <> sublistsN (suc n) xs
 --
 --leaveOutOne : List a -> List (Pair a (List a))
 --leaveOutOne [] = []

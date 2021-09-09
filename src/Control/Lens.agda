@@ -187,7 +187,7 @@ hasn't : Getting All s a -> s -> Bool
 hasn't l = getAll <<< foldMapOf l (\ _ -> All: false)
 
 lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
-lengthOf l = foldlOf l (\ n _ -> Suc n) Zero
+lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
 preview : Getting (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (Just <<< First:)

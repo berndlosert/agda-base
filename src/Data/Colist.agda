@@ -30,7 +30,7 @@ data Colist (i : Size) (a : Set) : Set where
 take : Nat -> Colist SizeInf a -> List a
 take _ [] = []
 take 0 _ =  []
-take (Suc n) (x :: xs) = x :: take n (force xs)
+take (suc n) (x :: xs) = x :: take n (force xs)
 
 instance
   Semigroup-Colist : Semigroup (Colist i a)

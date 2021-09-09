@@ -47,7 +47,7 @@ private
 -- Generates n random Word64 values.
 genWord64s : {{RandomGen g}} -> Nat -> g -> Pair (List Word64) g
 genWord64s 0 g0 = ([] , g0)
-genWord64s (Suc n) g0 =
+genWord64s (suc n) g0 =
   let
     (w , g1) = genWord64 g0
     (ws , g) = genWord64s n g1

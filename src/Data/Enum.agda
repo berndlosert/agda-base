@@ -25,29 +25,29 @@ open Enum {{...}} public
 
 instance
   Enum-Nat : Enum Nat
-  Enum-Nat .next x = Just (Suc x)
+  Enum-Nat .next x = Just (suc x)
   Enum-Nat .previous 0 = Nothing
-  Enum-Nat .previous (Suc n) = Just n
+  Enum-Nat .previous (suc n) = Just n
   Enum-Nat .enumFromTo m n =
       let k = max (m - n) (n - m)
       in go k m n
     where
       go : Nat -> Nat -> Nat -> List Nat
       go 0 m _ = m :: []
-      go (Suc k) m n =
+      go (suc k) m n =
         let m' = if m < n then m + 1 else m - 1
         in m :: go k m' n
 
   Enum-Int : Enum Int
-  Enum-Int .next (pos n) = Just $ pos (Suc n)
+  Enum-Int .next (pos n) = Just $ pos (suc n)
   Enum-Int .next (negsuc n) = Just $ neg n
   Enum-Int .previous (pos 0) = Just $ negsuc 0
-  Enum-Int .previous (pos (Suc n)) = Just $ pos n
-  Enum-Int .previous (negsuc n) = Just $ negsuc (Suc n)
+  Enum-Int .previous (pos (suc n)) = Just $ pos n
+  Enum-Int .previous (negsuc n) = Just $ negsuc (suc n)
   Enum-Int .enumFromTo m n =
     case m - n of \ where
       (pos k) -> (\ i -> pos i + n) <$> enumFromTo k 0
-      (negsuc k) -> (\ i -> pos i + m) <$> enumFromTo 0 (Suc k)
+      (negsuc k) -> (\ i -> pos i + m) <$> enumFromTo 0 (suc k)
 
   Enum-Char : Enum Char
   Enum-Char .next c =

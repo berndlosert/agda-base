@@ -68,7 +68,7 @@ instance
   Show-Nat .showsPrec _ = showString <<< primShowNat
 
   Show-Nat1 : Show Nat1
-  Show-Nat1 .showsPrec _ (Suc n) = showString $ primShowNat (Suc n)
+  Show-Nat1 .showsPrec _ (suc n) = showString $ primShowNat (suc n)
 
   Show-Int : Show Int
   Show-Int .showsPrec _ = showString <<< primShowInteger

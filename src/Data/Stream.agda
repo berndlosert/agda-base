@@ -66,11 +66,11 @@ prepend (a :: as) ys .tail = prepend as ys
 
 take : Nat -> Stream a -> List a
 take 0 _ = []
-take (Suc n) as = head as :: take n (tail as)
+take (suc n) as = head as :: take n (tail as)
 
 at : Nat -> Stream a -> a
 at 0 as = head as
-at (Suc n) as = at n (tail as)
+at (suc n) as = at n (tail as)
 
 cycle : List1 a -> Stream a
 cycle (x :| xs) .head = x

@@ -65,7 +65,7 @@ instance
 
 variant : Nat -> Gen a -> Gen a
 variant v (Gen: m) =
-    Gen: \ r n -> m (Stream.at (Suc v) (rands r)) n
+    Gen: \ r n -> m (Stream.at (suc v) (rands r)) n
   where
     rands : {{RandomGen g}} -> g -> Stream g
     rands g = Stream.unfold splitGen g
@@ -183,7 +183,7 @@ instance
   Arbitrary-Int : Arbitrary Int
   Arbitrary-Int .arbitrary = sized \ where
     0 -> choose (0 , 0)
-    (Suc n) -> choose (negsuc n , pos (Suc n))
+    (suc n) -> choose (negsuc n , pos (suc n))
 
   Arbitrary-Float : Arbitrary Float
   Arbitrary-Float .arbitrary = sized \ n ->
@@ -366,7 +366,7 @@ private
 
       percentage : Nat -> Nat -> Maybe String
       percentage n 0 = Nothing
-      percentage n (Suc m) = Just $ show ((100 * n) / Suc m) <> "%"
+      percentage n (suc m) = Just $ show ((100 * n) / suc m) <> "%"
 
       entry : Pair Nat (List String) -> String
       entry (n , s) = case percentage n ntest of \ where

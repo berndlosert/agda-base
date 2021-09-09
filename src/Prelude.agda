@@ -22,11 +22,11 @@ data Ordering : Set where
 
 open import Agda.Builtin.Nat public
   using (Nat)
-  renaming (zero to Zero)
-  renaming (suc to Suc)
+  using (zero)
+  using (suc)
 
 data Nat1 : Set where
-  Suc : Nat -> Nat1
+  suc : Nat -> Nat1
 
 open import Agda.Builtin.Int public
   using (Int)
@@ -192,14 +192,14 @@ true && x = x
 
 applyN : Nat -> (a -> a) -> a -> a
 applyN 0 _ x = x
-applyN (Suc n) f x = f (applyN n f x)
+applyN (suc n) f x = f (applyN n f x)
 
 monus : Nat -> Nat -> Nat
 monus = Agda.Builtin.Nat._-_
 
 pred : Nat -> Nat
 pred 0 = 0
-pred (Suc n) = n
+pred (suc n) = n
 
 -------------------------------------------------------------------------------
 -- Int primitives
@@ -207,12 +207,12 @@ pred (Suc n) = n
 
 neg : Nat -> Int
 neg 0 = pos 0
-neg (Suc n) = negsuc n
+neg (suc n) = negsuc n
 
 diff : Nat -> Nat -> Int
 diff m 0 = pos m
-diff Zero (Suc n) = negsuc n
-diff (Suc m) (Suc n) = diff m n
+diff zero (suc n) = negsuc n
+diff (suc m) (suc n) = diff m n
 
 ------------------------------------------------------------------------------
 -- Either primitives
@@ -345,7 +345,7 @@ instance
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
 
   Eq-Nat1 : Eq Nat1
-  Eq-Nat1 ._==_ (Suc m) (Suc n) = m == n
+  Eq-Nat1 ._==_ (suc m) (suc n) = m == n
 
   Eq-Int : Eq Int
   Eq-Int ._==_ = \ where
@@ -454,7 +454,7 @@ instance
     else GT
 
   Ord-Nat1 : Ord Nat1
-  Ord-Nat1 .compare (Suc m) (Suc n) = compare m n
+  Ord-Nat1 .compare (suc m) (suc n) = compare m n
 
   Ord-Int : Ord Int
   Ord-Int .compare = \ where
@@ -530,7 +530,7 @@ instance
   FromNat-Nat1 : FromNat Nat1
   FromNat-Nat1 .FromNatConstraint 0 = Void
   FromNat-Nat1 .FromNatConstraint _ = Unit
-  FromNat-Nat1 .fromNat (Suc n) = Suc n
+  FromNat-Nat1 .fromNat (suc n) = suc n
 
   FromNat-Int : FromNat Int
   FromNat-Int .FromNatConstraint _ = Unit
@@ -554,7 +554,7 @@ open ToNat {{...}} public
 instance
   ToNat-Nat1 : ToNat Nat1
   ToNat-Nat1 .ToNatConstraint _ = Unit
-  ToNat-Nat1 .toNat (Suc n) = Suc n
+  ToNat-Nat1 .toNat (suc n) = suc n
 
   ToNat-Int : ToNat Int
   ToNat-Int .ToNatConstraint _ = Unit
@@ -656,7 +656,7 @@ instance
   Exp-Nat : Exp Nat
   Exp-Nat .Power = Nat
   Exp-Nat ._^_ m 0 = 1
-  Exp-Nat ._^_ m (Suc n) = m * m ^ n
+  Exp-Nat ._^_ m (suc n) = m * m ^ n
 
   Divisor-Nat : Divisor Nat
   Divisor-Nat .divisor 0 = false
@@ -664,53 +664,53 @@ instance
 
   Div-Nat : Div Nat
   Div-Nat .Divisor-super = Divisor-Nat
-  Div-Nat ._/_ m (Suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  Div-Nat ._/_ m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
 
   Mod-Nat : Mod Nat
   Mod-Nat .Divisor-super = Divisor-Nat
-  Mod-Nat ._%_ m (Suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  Mod-Nat ._%_ m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
 
   Add-Nat1 : Add Nat1
-  Add-Nat1 ._+_ (Suc m) (Suc n) = Suc (Suc (m + n))
+  Add-Nat1 ._+_ (suc m) (suc n) = suc (suc (m + n))
 
   Mul-Nat1 : Mul Nat1
-  Mul-Nat1 ._*_ (Suc m) (Suc n) = Suc (m * n + m + n)
+  Mul-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
 
   Exp-Nat1 : Exp Nat1
   Exp-Nat1 .Power = Nat
-  Exp-Nat1 ._^_ m 0 = Suc 0
-  Exp-Nat1 ._^_ m (Suc n) = m * m ^ n
+  Exp-Nat1 ._^_ m 0 = suc 0
+  Exp-Nat1 ._^_ m (suc n) = m * m ^ n
 
   Add-Int : Add Int
   Add-Int ._+_ = \ where
-    (negsuc m) (negsuc n) -> negsuc (Suc (m + n))
-    (negsuc m) (pos n) -> diff n (Suc m)
-    (pos m) (negsuc n) -> diff m (Suc n)
+    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
+    (negsuc m) (pos n) -> diff n (suc m)
+    (pos m) (negsuc n) -> diff m (suc n)
     (pos m) (pos n) -> pos (m + n)
 
   Sub-Int : Sub Int
   Sub-Int .Diff = Int
   Sub-Int ._-_ = \ where
     m (pos n) -> m + (neg n)
-    m (negsuc n) -> m + pos (Suc n)
+    m (negsuc n) -> m + pos (suc n)
 
   Neg-Int : Neg Int
   Neg-Int .-_ = \ where
     (pos 0) -> pos 0
-    (pos (Suc n)) -> negsuc n
-    (negsuc n) -> pos (Suc n)
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
 
   Mul-Int : Mul Int
   Mul-Int ._*_ = \ where
     (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (Suc n * Suc m)
-    (pos n) (negsuc m) -> neg (n * Suc m)
-    (negsuc n) (pos m) -> neg (Suc n * m)
+    (negsuc n) (negsuc m) -> pos (suc n * suc m)
+    (pos n) (negsuc m) -> neg (n * suc m)
+    (negsuc n) (pos m) -> neg (suc n * m)
 
   Exp-Int : Exp Int
   Exp-Int .Power = Nat
   Exp-Int ._^_ m 0 = pos 0
-  Exp-Int ._^_ m (Suc n) = m * m ^ n
+  Exp-Int ._^_ m (suc n) = m * m ^ n
 
   Divisor-Int : Divisor Int
   Divisor-Int .divisor (pos 0) = false
@@ -719,18 +719,18 @@ instance
   Div-Int : Div Int
   Div-Int .Divisor-super = Divisor-Int
   Div-Int ._/_ = \ where
-    (pos m) (pos n@(Suc _)) -> pos (m / n)
-    (pos m) (negsuc n) -> neg (m / Suc n)
-    (negsuc m) (pos n@(Suc _)) -> neg (Suc m / n)
-    (negsuc m) (negsuc n) -> pos (Suc m / Suc n)
+    (pos m) (pos n@(suc _)) -> pos (m / n)
+    (pos m) (negsuc n) -> neg (m / suc n)
+    (negsuc m) (pos n@(suc _)) -> neg (suc m / n)
+    (negsuc m) (negsuc n) -> pos (suc m / suc n)
 
   Mod-Int : Mod Int
   Mod-Int .Divisor-super = Divisor-Int
   Mod-Int ._%_ = \ where
-    (pos m) (pos n@(Suc _)) -> pos (m % n)
-    (pos m) (negsuc n) -> pos (m % Suc n)
-    (negsuc m) (pos n@(Suc _)) -> neg (Suc m % n)
-    (negsuc m) (negsuc n) -> neg (Suc m % Suc n)
+    (pos m) (pos n@(suc _)) -> pos (m % n)
+    (pos m) (negsuc n) -> pos (m % suc n)
+    (negsuc m) (pos n@(suc _)) -> neg (suc m % n)
+    (negsuc m) (negsuc n) -> neg (suc m % suc n)
 
   Add-Float : Add Float
   Add-Float ._+_ = Agda.Builtin.Float.primFloatPlus
@@ -822,7 +822,7 @@ record Monoid (a : Set) : Set where
 
   mtimes : Nat -> a -> a
   mtimes 0 _ = neutral
-  mtimes (Suc n) x = x <> mtimes n x
+  mtimes (suc n) x = x <> mtimes n x
 
 open Monoid {{...}} public
 
@@ -1009,7 +1009,7 @@ record Applicative (f : Set -> Set) : Set where
     where
       loop : Nat -> f Unit
       loop 0 = pure tt
-      loop (Suc n) = fa *> loop n
+      loop (suc n) = fa *> loop n
 
   when : Bool -> f Unit -> f Unit
   when p x = if p then x else pure tt

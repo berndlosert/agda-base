@@ -91,7 +91,7 @@ record Foldable (t : Set -> Set) : Set where
   concatMap = foldMap
 
   length : t a -> Nat
-  length = foldr (const Suc) Zero
+  length = foldr (const suc) zero
 
   find : (a -> Bool) -> t a -> Maybe a
   find {a} p = foldl' go Nothing

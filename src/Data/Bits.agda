@@ -64,7 +64,7 @@ record Bits (a : Set) : Set where
     where
       go : Nat -> Nat
       go 0 = 0
-      go n@(Suc n-1) = if testBit x n then n else go n-1
+      go n@(suc n-1) = if testBit x n then n else go n-1
 
   countTrailingZeros : a -> Nat
   countTrailingZeros x =
@@ -72,7 +72,7 @@ record Bits (a : Set) : Set where
     where
       go : Nat -> Nat -> Nat
       go 0 n = n
-      go (Suc m) n =
+      go (suc m) n =
         if testBit x n then n
         else go m (n + 1)
 

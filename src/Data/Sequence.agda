@@ -93,7 +93,7 @@ abstract
   iterateN : Nat -> (a -> a) -> a -> Seq a
   iterateN 0 f x = empty
   iterateN 1 f x = singleton x
-  iterateN (Suc n) f x = cons (f x) (iterateN n f x)
+  iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
   replicate : Nat -> a -> Seq a
   replicate n = iterateN n id
@@ -103,7 +103,7 @@ abstract
     where
       loop : Nat -> f (Seq a)
       loop 0 = pure empty
-      loop (Suc n) = (| cons fa (loop n) |)
+      loop (suc n) = (| cons fa (loop n) |)
 
 -------------------------------------------------------------------------------
 -- Destructors
@@ -235,7 +235,7 @@ abstract
 
   breakr : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   breakr p xs =
-    foldr (\ n _ -> swap (splitAt (Suc n) xs)) (xs , empty) (indicesr p xs)
+    foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , empty) (indicesr p xs)
 
   spanl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
   spanl p = breakl (not <<< p)
