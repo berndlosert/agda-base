@@ -16,9 +16,9 @@ open import Agda.Builtin.Size public
   using (SizeUniv)
   using (Size)
   using (Size<_)
-  renaming (↑_ to SizeSuc)
-  renaming (∞ to SizeInf)
-  renaming (_⊔ˢ_ to SizeMax)
+  renaming (↑_ to szsuc)
+  renaming (∞ to szinf)
+  renaming (_⊔ˢ_ to szmax)
 
 -------------------------------------------------------------------------------
 -- Thunk

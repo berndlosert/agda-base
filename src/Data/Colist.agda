@@ -27,7 +27,7 @@ data Colist (i : Size) (a : Set) : Set where
   [] : Colist i a
   _::_ : a -> Thunk i (\ j -> Colist j a) -> Colist i a
 
-take : Nat -> Colist SizeInf a -> List a
+take : Nat -> Colist szinf a -> List a
 take _ [] = []
 take 0 _ =  []
 take (suc n) (x :: xs) = x :: take n (force xs)
