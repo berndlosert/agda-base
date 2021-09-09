@@ -62,8 +62,8 @@ instance
 
 postulate
   SocketSet : Set
-  SockNone : SocketSet
-  SockStream : SocketSet
+  sockNone : SocketSet
+  sockStream : SocketSet
 
 -------------------------------------------------------------------------------
 -- AddrFamily
@@ -71,21 +71,21 @@ postulate
 
 postulate
   AddrFamily : Set
-  AFInet : AddrFamily
-  AFUnspec : AddrFamily
+  afInet : AddrFamily
+  afUnspec : AddrFamily
 
 -------------------------------------------------------------------------------
 -- AddrInfoFlag
 -------------------------------------------------------------------------------
 
 data AddrInfoFlag : Set where
-  AIAddrConfig : AddrInfoFlag
-  AIAll : AddrInfoFlag
-  AICanonName : AddrInfoFlag
-  AINumericHost : AddrInfoFlag
-  AINumericServ : AddrInfoFlag
-  AIPassive : AddrInfoFlag
-  AIV4Mapped : AddrInfoFlag
+  aiAddrConfig : AddrInfoFlag
+  aiAll : AddrInfoFlag
+  aiCanonName : AddrInfoFlag
+  aiNumericHost : AddrInfoFlag
+  aiNumericServ : AddrInfoFlag
+  aiPassive : AddrInfoFlag
+  aiV4Mapped : AddrInfoFlag
 
 -------------------------------------------------------------------------------
 -- AddrInfo
@@ -106,8 +106,8 @@ open AddrInfo public
 defaultHints : AddrInfo
 defaultHints = record {
      addrFlags = [];
-     addrFamily = AFUnspec;
-     addrSocketSet = SockNone;
+     addrFamily = afUnspec;
+     addrSocketSet = sockNone;
      addrProtocol = defaultProtocol;
      addrAddress = SocketAddrIPv4 defaultPort 0;
      addrCanonName = nothing
@@ -147,7 +147,7 @@ listen s n = listen' s n
 
 postulate
   SocketOption : Set
-  ReuseAddr : SocketOption
+  reuseAddr : SocketOption
   setSocketOption : Socket -> SocketOption -> Int -> IO Unit
 
 -------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ postulate
 {-# COMPILE GHC recv = \ s n -> recv s (fromInteger n)  #-}
 
 {-# COMPILE GHC SocketOption = type SocketOption #-}
-{-# COMPILE GHC ReuseAddr = ReuseAddr #-}
+{-# COMPILE GHC reuseAddr = ReuseAddr #-}
 {-# COMPILE GHC setSocketOption = \ s o i -> setSocketOption s o (fromInteger i) #-}
 
 {-# COMPILE GHC SocketAddr = type SockAddr #-}
@@ -194,12 +194,12 @@ postulate
 {-# COMPILE GHC AddrInfoFlag = data AddrInfoFlag (AI_ADDRCONFIG | AI_ALL | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE | AI_V4MAPPED) #-}
 
 {-# COMPILE GHC AddrFamily = type Family #-}
-{-# COMPILE GHC AFInet = AF_INET #-}
-{-# COMPILE GHC AFUnspec = AF_UNSPEC #-}
+{-# COMPILE GHC afInet = AF_INET #-}
+{-# COMPILE GHC afUnspec = AF_UNSPEC #-}
 
 {-# COMPILE GHC SocketSet = type SocketSet #-}
-{-# COMPILE GHC SockStream = Stream #-}
-{-# COMPILE GHC SockNone = NoSocketSet #-}
+{-# COMPILE GHC sockStream = Stream #-}
+{-# COMPILE GHC sockNone = NoSocketSet #-}
 
 {-# COMPILE GHC ProtocolNumber = type ProtocolNumber #-}
 {-# COMPILE GHC defaultProtocol = defaultProtocol #-}
