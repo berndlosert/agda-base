@@ -26,7 +26,7 @@ record Strong (p : Set -> Set -> Set) : Set where
     strongl : p a b -> p (Pair a c) (Pair b c)
 
   strongr : p a b -> p (Pair c a) (Pair c b)
-  strongr c = dimap swap swap (first c)
+  strongr c = dimap swap swap (strongl c)
 
   infixr 3 _***_
   _***_ : {{Category p}} -> p a b -> p c d -> p (Pair a c) (Pair b d)
@@ -44,4 +44,4 @@ open Strong {{...}} public
 
 instance
   Strong-Function : Strong Function
-  Strong-Function .strongr f (a , c) = (f a , c)
+  Strong-Function .strongl f (a , c) = (f a , c)
