@@ -125,9 +125,12 @@ frequency xs = do
       if n <= m then just g else pick (n - m) rest
 
 elements : List1 a -> Gen a
-elements (x :| xs) = map
-  (\ n -> fromMaybe x (List.at n (x :: xs)))
-  (choose (0 , length xs))
+elements (x :| xs) =
+  let
+    N = choose (0 , length xs)
+    at n = fromMaybe x $ List.at n (x :: xs)
+  in
+    map at N
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
