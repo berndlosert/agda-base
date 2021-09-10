@@ -114,11 +114,14 @@ oneof (g :| gs) = do
 
 frequency : List1 (Pair Nat1 (Gen a)) -> Gen a
 frequency xs = do
-    let xs' = map (\ where (n , g) -> (toNat n , g)) (toList xs)
-    let N = sum $ map fst xs'
-    n <- choose (1 , N)
+    let xs' = map (lmap toNat') (toList xs)
+    let sumFreqs = sum (map fst xs')
+    n <- choose (1 , sumFreqs)
     fromMaybe (snd $ List1.head xs) (pick n xs')
   where
+    toNat' : Nat1 -> Nat
+    toNat' n = toNat n
+
     pick : Nat -> List (Pair Nat (Gen a)) -> Maybe (Gen a)
     pick n [] = nothing
     pick n ((m , g) :: rest) =
