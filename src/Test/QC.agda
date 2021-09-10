@@ -112,16 +112,18 @@ oneof (g :| gs) = do
   n <- choose (0 , length gs)
   fromMaybe g (List.at n gs)
 
+{-# TERMINATING #-}
 frequency : List1 (Pair Nat1 (Gen a)) -> Gen a
-frequency xs = do
-    let sumFreqs = foldl _+_ (fst $ List1.head xs) (map fst $ List1.tail xs)
+frequency freqs = do
+    let sumFreqs = sum1 (map fst freqs)
     n <- choose (1 , sumFreqs)
-    fromMaybe (snd $ List1.head xs) (pick (toNat n) (toList xs))
+    pick (toNat n) freqs
   where
-    pick : Nat -> List (Pair Nat1 (Gen a)) -> Maybe (Gen a)
-    pick n [] = nothing
-    pick n ((m , g) :: rest) =
-      if n <= toNat m then just g else pick (n - toNat m) rest
+    pick : Nat -> List1 (Pair Nat1 (Gen a)) -> Gen a
+    pick _ ((_ , g) :| []) = g
+    pick n ((m , g) :| mg :: mgs) =
+      let m' = toNat m
+      in if n <= m' then g else pick (n - m') (mg :| mgs)
 
 elements : List1 a -> Gen a
 elements (x :| xs) =
