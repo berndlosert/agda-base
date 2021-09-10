@@ -40,7 +40,7 @@ instance
   Semigroup-Const ._<>_ x y = toConst (getConst x <> getConst y)
 
   Monoid-Const : {{Monoid a}} -> Monoid (Const a b)
-  Monoid-Const .neutral = toConst neutral
+  Monoid-Const .mempty = toConst mempty
 
   Foldable-Const : Foldable (Const a)
   Foldable-Const .foldr _ z _ = z
@@ -55,7 +55,7 @@ instance
   Contravariant-Const .cmap f = toConst <<< getConst
 
   Applicative-Const : {{Monoid a}} -> Applicative (Const a)
-  Applicative-Const .pure _ = toConst neutral
+  Applicative-Const .pure _ = toConst mempty
   Applicative-Const ._<*>_ f x = toConst (getConst f <> getConst x)
 
   Show-Const : {{Show a}} -> Show (Const a b)

@@ -58,7 +58,7 @@ instance
 
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)
-  Alternative-EitherT .empty = toEitherT $ pure (left neutral)
+  Alternative-EitherT .empty = toEitherT $ pure (left mempty)
   Alternative-EitherT ._<|>_ l r =
     toEitherT $ runEitherT l >>= \ where
       (left e) -> map (either (left <<< (e <>_)) right) (runEitherT r)

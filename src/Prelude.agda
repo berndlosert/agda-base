@@ -818,38 +818,38 @@ instance
 record Monoid (a : Set) : Set where
   field
     overlap {{Semigroup-super}} : Semigroup a
-    neutral : a
+    mempty : a
 
   mtimes : Nat -> a -> a
-  mtimes 0 _ = neutral
+  mtimes 0 _ = mempty
   mtimes (suc n) x = x <> mtimes n x
 
 open Monoid {{...}} public
 
 instance
   Monoid-Unit : Monoid Unit
-  Monoid-Unit .neutral = tt
+  Monoid-Unit .mempty = tt
 
   Monoid-Ordering : Monoid Ordering
-  Monoid-Ordering .neutral = EQ
+  Monoid-Ordering .mempty = EQ
 
   Monoid-String : Monoid String
-  Monoid-String .neutral = ""
+  Monoid-String .mempty = ""
 
   Monoid-Function : {{Monoid b}} -> Monoid (a -> b)
-  Monoid-Function .neutral = const neutral
+  Monoid-Function .mempty = const mempty
 
   Monoid-Pair : {{Monoid a}} -> {{Monoid b}} -> Monoid (Pair a b)
-  Monoid-Pair .neutral = (neutral , neutral)
+  Monoid-Pair .mempty = (mempty , mempty)
 
   Monoid-Maybe : {{Semigroup a}} -> Monoid (Maybe a)
-  Monoid-Maybe .neutral = nothing
+  Monoid-Maybe .mempty = nothing
 
   Monoid-List : Monoid (List a)
-  Monoid-List .neutral = []
+  Monoid-List .mempty = []
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
-  Monoid-IO .neutral = pureIO neutral
+  Monoid-IO .mempty = pureIO mempty
 
 -------------------------------------------------------------------------------
 -- Category
@@ -1035,7 +1035,7 @@ instance
     (right f) -> map f
 
   Applicative-Pair : {{Monoid a}} -> Applicative (Pair a)
-  Applicative-Pair .pure = (neutral ,_)
+  Applicative-Pair .pure = (mempty ,_)
   Applicative-Pair ._<*>_ (u , f) (v , x) = (u <> v , f x)
 
   Applicative-Maybe : Applicative Maybe

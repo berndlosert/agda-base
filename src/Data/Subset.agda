@@ -91,7 +91,7 @@ abstract
     Semigroup-Subset ._<>_ = union
 
     Monoid-Subset : {{Ord a}} -> Monoid (Subset a)
-    Monoid-Subset .neutral = empty
+    Monoid-Subset .mempty = empty
 
     Show-Subset : {{Show a}} -> Show (Subset a)
     Show-Subset .showsPrec d xs = showParen (d > appPrec)

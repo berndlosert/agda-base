@@ -125,7 +125,7 @@ instance
       pass' $ runIterT $ hoistIterT clean $ listen iter
     where
       clean : forall {a} -> m a -> m a
-      clean = pass <<< map (const neutral ,_)
+      clean = pass <<< map (const mempty ,_)
 
       c : Set
       c = Pair w (Pair (w -> w) a)

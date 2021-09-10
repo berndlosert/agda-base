@@ -38,7 +38,7 @@ instance
   Semigroup-Bytes ._<>_ = append
 
   Monoid-Bytes : Monoid Bytes
-  Monoid-Bytes .neutral = empty
+  Monoid-Bytes .mempty = empty
 
 -------------------------------------------------------------------------------
 -- FFI

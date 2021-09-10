@@ -26,7 +26,7 @@ instance
   Semigroup-All ._<>_ x y = toAll (getAll x && getAll y)
 
   Monoid-All : Monoid All
-  Monoid-All .neutral = toAll true
+  Monoid-All .mempty = toAll true
 
   Show-All : Show All
   Show-All .showsPrec d x = showParen (d > appPrec) $

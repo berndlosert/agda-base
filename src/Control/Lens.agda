@@ -290,7 +290,7 @@ open Folded {{...}} public
 
 instance
   Folded-List : Folded (List a) a
-  Folded-List .folded f [] = neutral
+  Folded-List .folded f [] = mempty
   Folded-List .folded f (x :: xs) = toConst (getConst $ f x) <> folded f xs
 
 record Each (s t a b : Set) : Set where

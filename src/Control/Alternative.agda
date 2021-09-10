@@ -41,5 +41,5 @@ instance
     l _ -> l
 
   Alternative-List : Alternative List
-  Alternative-List .empty = neutral
+  Alternative-List .empty = mempty
   Alternative-List ._<|>_ = _<>_

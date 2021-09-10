@@ -35,7 +35,7 @@ record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap {b} {a} f = foldr go neutral
+  foldMap {b} {a} f = foldr go mempty
     where
       go : a -> b -> b
       go x z = f x <> z
@@ -46,7 +46,7 @@ record Foldable (t : Set -> Set) : Set where
       instance
         monoid : Monoid b
         monoid .Semigroup-super ._<>_ = f
-        monoid .neutral = z
+        monoid .mempty = z
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id

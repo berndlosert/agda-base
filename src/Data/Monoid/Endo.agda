@@ -33,4 +33,4 @@ instance
   Semigroup-Endo ._<>_ g f = toEndo (appEndo g <<< appEndo f)
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .neutral = toEndo id
+  Monoid-Endo .mempty = toEndo id

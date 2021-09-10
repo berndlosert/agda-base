@@ -45,7 +45,7 @@ abstract
     Semigroup-Seq ._<>_ (toSeq l) (toSeq r) = toSeq (l <> r)
 
     Monoid-Seq : Monoid (Seq a)
-    Monoid-Seq .neutral = toSeq Tree.empty
+    Monoid-Seq .mempty = toSeq Tree.empty
 
     Foldable-Seq : Foldable Seq
     Foldable-Seq .foldr f z (toSeq t) = foldr (f <<< getElem) z t
@@ -62,7 +62,7 @@ abstract
         bind = flip foldMap
 
     Alternative-Seq : Alternative Seq
-    Alternative-Seq .empty = neutral
+    Alternative-Seq .empty = mempty
     Alternative-Seq ._<|>_ = _<>_
 
     Monad-Seq : Monad Seq
@@ -374,7 +374,7 @@ abstract
   intercalate : {{Monoid a}} -> a -> Seq a -> a
   intercalate sep as =
     case uncons as of \ where
-      nothing -> neutral
+      nothing -> mempty
       (just (a , as')) ->
         case uncons as' of \ where
           nothing -> a

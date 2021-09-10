@@ -18,7 +18,7 @@ instance
     toPredicate \ a -> p a && q a
 
   Monoid-Predicate : Monoid (Predicate a)
-  Monoid-Predicate .neutral = toPredicate (const true)
+  Monoid-Predicate .mempty = toPredicate (const true)
 
   Contravariant-Predicate : Contravariant Predicate
   Contravariant-Predicate .cmap f (toPredicate p) = toPredicate (p <<< f)

@@ -391,7 +391,7 @@ module _ {{_ : Eq a}} where
 -------------------------------------------------------------------------------
 
 intercalate : {{Monoid a}} -> a -> List a -> a
-intercalate sep [] = neutral
+intercalate sep [] = mempty
 intercalate sep (s :: []) = s
 intercalate sep (s :: rest) = s <> sep <> intercalate sep rest
 

@@ -36,7 +36,7 @@ data FingerTree (v a : Set) : Set where
 instance
   Measured-FingerTree : {{Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure = \ where
-    nil -> neutral
+    nil -> mempty
     (single x) -> measure x
     (deep v _ _ _) -> v
 
@@ -142,7 +142,7 @@ instance
   Semigroup-FingerTree ._<>_ xs ys = app3 xs [] ys
 
   Monoid-FingerTree : {{Measured v a}} -> Monoid (FingerTree v a)
-  Monoid-FingerTree .neutral = nil
+  Monoid-FingerTree .mempty = nil
 
 -------------------------------------------------------------------------------
 -- uncons & unsnoc
@@ -238,7 +238,7 @@ split : {{Measured v a}}
   -> Pair (FingerTree v a) (FingerTree v a)
 split _ nil  =  (nil , nil)
 split p xs = unsafePerform $
-  case splitTree p neutral xs of \ where
+  case splitTree p mempty xs of \ where
     (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , nil)
 
 -------------------------------------------------------------------------------
@@ -284,12 +284,12 @@ search : {{Measured v a}}
 search p t = unsafePerform $
   let
     vt = measure t
-    pleft = p neutral vt
-    pright = p vt neutral
+    pleft = p mempty vt
+    pright = p vt mempty
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p neutral t neutral of \ where
+      (case searchTree p mempty t mempty of \ where
         (toSplit l x r) -> position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere

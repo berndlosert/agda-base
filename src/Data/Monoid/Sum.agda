@@ -37,10 +37,10 @@ instance
   Semigroup-Sum-Int ._<>_ m n = toSum (getSum m + getSum n)
 
   Monoid-Sum-Nat : Monoid (Sum Nat)
-  Monoid-Sum-Nat .neutral = toSum 0
+  Monoid-Sum-Nat .mempty = toSum 0
 
   Monoid-Sum-Int : Monoid (Sum Int)
-  Monoid-Sum-Int .neutral = toSum 0
+  Monoid-Sum-Int .mempty = toSum 0
 
   Functor-Sum : Functor Sum
   Functor-Sum .map f = toSum <<< f <<< getSum

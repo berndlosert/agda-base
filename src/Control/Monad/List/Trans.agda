@@ -69,7 +69,7 @@ instance
     (just (x , xs)) -> pure $ just (x , xs <> r)
 
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
-  Monoid-ListT .neutral = nilT
+  Monoid-ListT .mempty = nilT
 
   {-# TERMINATING #-}
   Functor-ListT : {{Monad m}} -> Functor (ListT m)
@@ -79,7 +79,7 @@ instance
 
   {-# TERMINATING #-}
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
-  Applicative-ListT .pure x .runListT = pure (just (x , neutral))
+  Applicative-ListT .pure x .runListT = pure (just (x , mempty))
   Applicative-ListT ._<*>_ fs xs .runListT = runListT fs >>= \ where
     nothing -> pure nothing
     (just (f , fs')) -> runListT $ (map f xs) <> (fs' <*> xs)
@@ -91,11 +91,11 @@ instance
     (just (x , xs)) -> runListT $ k x <> (xs >>= k)
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
-  Alternative-ListT .empty = neutral
+  Alternative-ListT .empty = mempty
   Alternative-ListT ._<|>_ = _<>_
 
   MonadTrans-ListT : MonadTrans ListT
-  MonadTrans-ListT .lift m .runListT = map (just <<< (_, neutral)) m
+  MonadTrans-ListT .lift m .runListT = map (just <<< (_, mempty)) m
 
   MonadIO-ListT : {{MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
