@@ -112,15 +112,23 @@ oneof (g :| gs) = do
   n <- choose (0 , length gs)
   fromMaybe g (List.at n gs)
 
-frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
-frequency {a} freqs = do
-    let sumFreqs = sum (map fst freqs)
-    n <- choose (1 , sumFreqs)
-    pick n freqs
+frequency : (freqs : List (Pair Nat (Gen a)))
+  -> {{Assume $ sum (map fst freqs) > 0}}
+  -> Gen a
+frequency {a} freqs =
+    if sumFreqs > 0 then ok else error "Tests.QC.frequency: bad argument"
   where
+    sumFreqs : Nat
+    sumFreqs = sum (map fst freqs)
+
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick _ [] = undefined
+    pick _ [] = error "Tests.QC.frequency: bad argument - empty list"
     pick n ((m , g) :: rest) = if n <= m then g else pick (n - m) rest
+
+    ok : Gen a
+    ok = do
+      n <- choose (1 , sumFreqs)
+      pick n freqs
 
 elements : List1 a -> Gen a
 elements (x :| xs) =
