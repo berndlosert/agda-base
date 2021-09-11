@@ -153,7 +153,7 @@ seq a b = const b $! a
 -- Bool primitives
 -------------------------------------------------------------------------------
 
-Assumes : Bool -> Set
+Assumes : a -> Set
 Assumes _ = Unit
 
 Assert : Bool -> Set
@@ -181,6 +181,10 @@ infixr 3 _&&_
 _&&_ : Bool -> Bool -> Bool
 false && _ = false
 true && x = x
+
+infixr 0 _implies_
+_implies_ : Bool -> Bool -> Bool
+x implies y = not x || y
 
 -------------------------------------------------------------------------------
 -- Nat primitives

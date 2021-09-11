@@ -281,7 +281,10 @@ fromList xs = foldr insert leaf xs
 map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList
 
-mapMonotonic : (a -> b) -> Tree a -> Tree b
+mapMonotonic : {{_ : Ord a}} {{_ : Ord b}}
+  -> (f : (a -> b))
+  -> {{Assumes $ \ x y -> x <= y implies f x <= f y}}
+  -> Tree a -> Tree b
 mapMonotonic {a} {b} f = go
   where
     go : Tree a -> Tree b
