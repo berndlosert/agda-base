@@ -252,11 +252,11 @@ data SearchResult (v a : Set) : Set where
   Nowhere : SearchResult v a
 
 private
-  searchTree : {{Partial}}
-    -> {{Measured v a}}
+  searchTree : {{Measured v a}}
     -> (v -> v -> Bool)
     -> v
-    -> FingerTree v a
+    -> (t : FingerTree v a)
+    -> {{Assumes $ not (null t)}}
     -> v
     -> Split (FingerTree v) a
   searchTree _ _ (single x) _ = toSplit nil x nil
@@ -275,13 +275,13 @@ private
           (toSplit l x r) -> toSplit (deep'R pr  ml l) x (deep'L r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
         (toSplit l x r) -> toSplit (deep'R pr m l) x (maybe nil digitToTree r))
-  searchTree _ _ _ _ = undefined
+  searchTree _ _ _ _ = error "Data.Tree.Finger.searchTree: bad argument"
 
 search : {{Measured v a}}
   -> (v -> v -> Bool)
   -> FingerTree v a
   -> SearchResult v a
-search p t = unsafePerform $
+search p t =
   let
     vt = measure t
     pleft = p mempty vt
