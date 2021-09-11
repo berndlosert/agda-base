@@ -149,12 +149,14 @@ instance
 -------------------------------------------------------------------------------
 
 uncons : {{Measured v a}}
-  -> FingerTree v a
-  -> Maybe (Pair a (FingerTree v a))
+  -> (t : FingerTree v a)
+  -> {{Assumes $ not (null t)}}
+  -> Pair a (FingerTree v a)
 
 unsnoc : {{Measured v a}}
-  -> FingerTree v a
-  -> Maybe (Pair (FingerTree v a) a)
+  -> (t : FingerTree v a)
+  -> {{Assumes $ not (null t)}}
+  -> Pair (FingerTree v a) a
 
 private
   rotL : {{Measured v a}}
@@ -167,29 +169,27 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons nil = nothing
-uncons (single x) = just (x , nil)
-uncons (deep _ (one x) m sf) = just (x , rotL m sf)
-uncons (deep _ (two a b) m sf) = just (a , deep' (one b) m sf)
-uncons (deep _ (three a b c) m sf) = just (a , deep' (two b c) m sf)
-uncons (deep _ (four a b c d) m sf) = just (a , deep' (three b c d) m sf)
+uncons nil = error "Data.Tree.Finger.uncons: bad argument"
+uncons (single x) = (x , nil)
+uncons (deep _ (one x) m sf) = (x , rotL m sf)
+uncons (deep _ (two a b) m sf) = (a , deep' (one b) m sf)
+uncons (deep _ (three a b c) m sf) = (a , deep' (two b c) m sf)
+uncons (deep _ (four a b c d) m sf) = (a , deep' (three b c d) m sf)
 
-unsnoc nil = nothing
-unsnoc (single x) = just (nil , x)
-unsnoc (deep _ pr m (one x)) = just (rotR pr m , x)
-unsnoc (deep _ pr m (two a b)) = just (deep' pr m (one a) , b)
-unsnoc (deep _ pr m (three a b c)) = just (deep' pr m (two a b) , c)
-unsnoc (deep _ pr m (four a b c d)) = just (deep' pr m (three a b c) , d)
+unsnoc nil = error "Data.Tree.Finger.unsnoc: bad argument"
+unsnoc (single x) = (nil , x)
+unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
+unsnoc (deep _ pr m (two a b)) = (deep' pr m (one a) , b)
+unsnoc (deep _ pr m (three a b c)) = (deep' pr m (two a b) , c)
+unsnoc (deep _ pr m (four a b c d)) = (deep' pr m (three a b c) , d)
 
-rotL m sf =
-  case uncons m of \ where
-    nothing -> digitToTree sf
-    (just (a , m')) -> deep (measure m <> measure sf) (nodeToDigit a) m' sf
+rotL nil sf = digitToTree sf
+rotL m sf = let (a , m') = uncons m in
+  deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
-rotR pr m =
-  case unsnoc m of \ where
-    nothing -> digitToTree pr
-    (just (m' , a)) -> deep (measure pr <> measure m) pr m' (nodeToDigit a)
+rotR pr nil = digitToTree pr
+rotR pr m = let (m' , a) = unsnoc m in
+  deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
 -- Splitting
@@ -302,11 +302,10 @@ inits : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 inits _ nil = nil
 inits f (single x) = single (f (single x))
-inits f (deep n pr m sf) = unsafePerform $
+inits f (deep n pr m sf) =
   let
     f' ms = case unsnoc ms of \ where
-      nothing -> undefined
-      (just (m' , node)) -> map (\ sf' -> f (deep' pr m' sf')) (initsNode node)
+      (m' , node) -> map (\ sf' -> f (deep' pr m' sf')) (initsNode node)
   in
     deep n (map (f <<< digitToTree) (initsDigit pr))
       (inits f' m)
@@ -319,8 +318,7 @@ tails f (single x) = single (f (single x))
 tails f (deep n pr m sf) = unsafePerform $
   let
     f' ms = case uncons ms of \ where
-      nothing -> undefined
-      (just (node , m')) -> map (\ pr' -> f (deep' pr' m' sf)) (tailsNode node)
+      (node , m') -> map (\ pr' -> f (deep' pr' m' sf)) (tailsNode node)
   in
     deep n (map (\ pr' -> f (deep' pr' m sf)) (tailsDigit pr))
       (tails f' m)
