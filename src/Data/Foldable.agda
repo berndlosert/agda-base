@@ -184,6 +184,3 @@ instance
   Foldable-List .foldr f z = \ where
     [] -> z
     (x :: xs) -> f x (foldr f z xs)
-
-  Foldable-List1 : Foldable List1
-  Foldable-List1 .foldr f z (x :| xs) = f x (foldr f z xs)

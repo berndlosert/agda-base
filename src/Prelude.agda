@@ -80,10 +80,6 @@ open import Agda.Builtin.List public
   using ([])
   renaming (_∷_ to _::_)
 
-infixr 5 _:|_
-data List1 (a : Set) : Set where
-  _:|_ : a -> List a -> List1 a
-
 open import Agda.Builtin.IO public
   using (IO)
 
@@ -387,9 +383,6 @@ instance
     (x :: xs) (y :: ys) -> x == y && xs == ys
     _ _ -> false
 
-  Eq-List1 : {{Eq a}} -> Eq (List1 a)
-  Eq-List1 ._==_ (x :| xs) (y :| ys) = x == y && xs == ys
-
 -------------------------------------------------------------------------------
 -- Ord
 -------------------------------------------------------------------------------
@@ -483,13 +476,6 @@ instance
   Ord-List .compare [] (x :: xs) = LT
   Ord-List .compare (x :: xs) [] = GT
   Ord-List .compare (x :: xs) (y :: ys) =
-    case compare x y of \ where
-      LT -> LT
-      EQ -> compare xs ys
-      GT -> GT
-
-  Ord-List1 : {{Ord a}} -> Ord (List1 a)
-  Ord-List1 .compare (x :| xs) (y :| ys) =
     case compare x y of \ where
       LT -> LT
       EQ -> compare xs ys
@@ -808,9 +794,6 @@ instance
     [] ys -> ys
     (x :: xs) ys -> x :: (xs <> ys)
 
-  Semigroup-List1 : Semigroup (List1 a)
-  Semigroup-List1 ._<>_ (x :| xs) (y :| ys) = x :| (xs <> y :: ys)
-
   Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
     (| _<>_ x y |)
@@ -924,9 +907,6 @@ instance
   Functor-List .map f = \ where
     [] -> []
     (x :: xs) -> f x :: map f xs
-
-  Functor-List1 : Functor List1
-  Functor-List1 .map f (x :| xs) = f x :| map f xs
 
   Functor-IO : Functor IO
   Functor-IO .map = mapIO
@@ -1054,10 +1034,6 @@ instance
     [] _ -> []
     (f :: fs) xs -> (f <$> xs) <> (fs <*> xs)
 
-  Applicative-List1 : Applicative List1
-  Applicative-List1 .pure x = x :| []
-  Applicative-List1 ._<*>_ (f :| fs) (x :| xs) = f x :| (f :: fs <*> xs)
-
   Applicative-IO : Applicative IO
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
@@ -1114,16 +1090,6 @@ instance
   Monad-List ._>>=_ = \ where
     [] k -> []
     (x :: xs) k -> k x <> (xs >>= k)
-
-  Monad-List1 : Monad List1
-  Monad-List1 ._>>=_ (x :| xs) k =
-      case k x of \ where
-        (y :| ys) ->
-          let ys' = xs >>= k >>> toList
-          in y :| (ys <> ys')
-    where
-      toList : List1 a -> List a
-      toList (z :| zs) = z :: zs
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO

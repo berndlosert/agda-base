@@ -113,6 +113,3 @@ instance
           go : {{Show a}} -> List a -> ShowS
           go [] = showString ""
           go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
-
-  Show-List1 : {{Show a}} -> Show (List1 a)
-  Show-List1 .showsPrec d (x :| xs) = showsPrec d (x :: xs)
