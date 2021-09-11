@@ -235,9 +235,6 @@ instance
         then (lo , g)
         else lmap (_+ lo) (genNat' (hi - lo) g)
 
-  RandomR-Nat1 : RandomR Nat1
-  RandomR-Nat1 .randomR (suc m , suc n) g = lmap suc (randomR (m , n) g)
-
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (i , j) g =
     let
