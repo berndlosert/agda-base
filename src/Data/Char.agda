@@ -24,18 +24,18 @@ isLower = primIsLower
 isDigit : Char -> Bool
 isDigit = primIsDigit
 
-toDigit : Char -> Maybe Nat
-toDigit '0' = just 0
-toDigit '1' = just 1
-toDigit '2' = just 2
-toDigit '3' = just 3
-toDigit '4' = just 4
-toDigit '5' = just 5
-toDigit '6' = just 6
-toDigit '7' = just 7
-toDigit '8' = just 8
-toDigit '9' = just 9
-toDigit _ = nothing
+toDigit : (c : Char) -> {{Assumes $ isDigit c}} -> Nat
+toDigit '0' = 0
+toDigit '1' = 1
+toDigit '2' = 2
+toDigit '3' = 3
+toDigit '4' = 4
+toDigit '5' = 5
+toDigit '6' = 6
+toDigit '7' = 7
+toDigit '8' = 8
+toDigit '9' = 9
+toDigit _ = error "Data.Char.toDigit: bad argument"
 
 isAlpha : Char -> Bool
 isAlpha = primIsAlpha
