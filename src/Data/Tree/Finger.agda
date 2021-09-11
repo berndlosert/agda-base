@@ -211,11 +211,11 @@ deep'R : {{Measured v a}}
 deep'R pr m nothing = rotR pr m
 deep'R pr m (just sf) = deep' pr m sf
 
-splitTree : {{Partial}}
-  -> {{Measured v a}}
+splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
-  -> FingerTree v a
+  -> (t : FingerTree v a)
+  -> {{Assumes $ not (null t)}}
   -> Split (FingerTree v) a
 splitTree _ _ (single x) = toSplit nil x nil
 splitTree p i (deep _ pr m sf) =
@@ -230,14 +230,14 @@ splitTree p i (deep _ pr m sf) =
         (toSplit l x r) -> toSplit (deep'R pr ml l) x (deep'L r mr sf))
     else (case splitDigit p vm sf of \ where
       (toSplit l x r) -> toSplit (deep'R pr  m  l) x (maybe nil digitToTree r))
-splitTree _ _ _ = undefined
+splitTree _ _ _ = error "Data.Tree.Fingered.splitTree: bad argument"
 
 split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
   -> Pair (FingerTree v a) (FingerTree v a)
 split _ nil  =  (nil , nil)
-split p xs = unsafePerform $
+split p xs =
   case splitTree p mempty xs of \ where
     (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , nil)
 
