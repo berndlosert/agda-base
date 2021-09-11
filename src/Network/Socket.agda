@@ -138,7 +138,8 @@ private
   postulate
     listen' : Socket -> Nat -> IO Unit
 
-listen : Socket -> (n : Nat) -> {{Assert $ n > 0}} -> IO Unit
+listen : Socket -> (n : Nat) -> {{Assumes $ n > 0}} -> IO Unit
+listen _ 0 = error "Network.Socket.listen: bad argument"
 listen s n = listen' s n
 
 -------------------------------------------------------------------------------

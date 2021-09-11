@@ -233,11 +233,13 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
+fromLeft : (val : Either a b) -> {{Assumes $ isLeft val}} -> a
 fromLeft (left x) = x
+fromLeft _ = error "Prelude.fromLeft: bad argument"
 
-fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
+fromRight : (val : Either a b) -> {{Assumes $ isRight val}} -> b
 fromRight (right x) = x
+fromRight  _ = error "Prelude.fromRight: bad argument"
 
 -------------------------------------------------------------------------------
 -- Pair primitives
