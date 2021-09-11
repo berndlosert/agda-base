@@ -288,7 +288,7 @@ instance
 {-# COMPILE GHC word8IsSigned = isSigned #-}
 {-# COMPILE GHC word8PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word8Plus = (+) #-}
-{-# COMPILE GHC word8Plus = (*) #-}
+{-# COMPILE GHC word8Times = (*) #-}
 
 {-# COMPILE GHC Word16 = type Word16 #-}
 {-# COMPILE GHC natToWord16 = fromInteger #-}
@@ -305,7 +305,7 @@ instance
 {-# COMPILE GHC word16IsSigned = isSigned #-}
 {-# COMPILE GHC word16PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word16Plus = (+) #-}
-{-# COMPILE GHC word16Plus = (*) #-}
+{-# COMPILE GHC word16Times = (*) #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC natToWord32 = fromInteger #-}
@@ -322,7 +322,7 @@ instance
 {-# COMPILE GHC word32IsSigned = isSigned #-}
 {-# COMPILE GHC word32PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word32Plus = (+) #-}
-{-# COMPILE GHC word32Plus = (*) #-}
+{-# COMPILE GHC word32Times = (*) #-}
 
 {-# COMPILE GHC word64Eq = (==) #-}
 {-# COMPILE GHC word64Compare = compare #-}
@@ -336,5 +336,5 @@ instance
 {-# COMPILE GHC word64IsSigned = isSigned #-}
 {-# COMPILE GHC word64PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word64Plus = (+) #-}
-{-# COMPILE GHC word64Plus = (*) #-}
+{-# COMPILE GHC word64Times = (*) #-}
 

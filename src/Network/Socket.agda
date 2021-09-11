@@ -57,13 +57,13 @@ instance
   Show-SocketAddr .showsPrec _ = showString <<< sockedAddrShow
 
 -------------------------------------------------------------------------------
--- SocketSet
+-- SocketType
 -------------------------------------------------------------------------------
 
 postulate
-  SocketSet : Set
-  sockNone : SocketSet
-  sockStream : SocketSet
+  SocketType : Set
+  sockNone : SocketType
+  sockStream : SocketType
 
 -------------------------------------------------------------------------------
 -- AddrFamily
@@ -96,7 +96,7 @@ record AddrInfo : Set where
   field
     addrFlags : List AddrInfoFlag
     addrFamily : AddrFamily
-    addrSocketSet : SocketSet
+    addrSocketType : SocketType
     addrProtocol : ProtocolNumber
     addrAddress : SocketAddr
     addrCanonName : Maybe (List Char)
@@ -107,7 +107,7 @@ defaultHints : AddrInfo
 defaultHints = record {
      addrFlags = [];
      addrFamily = afUnspec;
-     addrSocketSet = sockNone;
+     addrSocketType = sockNone;
      addrProtocol = defaultProtocol;
      addrAddress = SocketAddrIPv4 defaultPort 0;
      addrCanonName = nothing
@@ -123,7 +123,7 @@ postulate
 
 postulate
   Socket : Set
-  socket : AddrFamily -> SocketSet -> ProtocolNumber -> IO Socket
+  socket : AddrFamily -> SocketType -> ProtocolNumber -> IO Socket
   openSocket : AddrInfo -> IO Socket
   connect : Socket -> SocketAddr -> IO Unit
   bind : Socket -> SocketAddr -> IO Unit
@@ -198,9 +198,9 @@ postulate
 {-# COMPILE GHC afInet = AF_INET #-}
 {-# COMPILE GHC afUnspec = AF_UNSPEC #-}
 
-{-# COMPILE GHC SocketSet = type SocketSet #-}
+{-# COMPILE GHC SocketType = type SocketType #-}
 {-# COMPILE GHC sockStream = Stream #-}
-{-# COMPILE GHC sockNone = NoSocketSet #-}
+{-# COMPILE GHC sockNone = NoSocketType #-}
 
 {-# COMPILE GHC ProtocolNumber = type ProtocolNumber #-}
 {-# COMPILE GHC defaultProtocol = defaultProtocol #-}

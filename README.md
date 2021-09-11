@@ -73,6 +73,8 @@ agda --compile hello.agda
 Save the following code into a file called `echo-server.agda`:
 
 ```agda
+{-# OPTIONS --type-in-type #-}
+
 open import Prelude
 
 open import Data.Bytes as Bytes using ()
@@ -83,9 +85,9 @@ open import System.IO
 
 runTCPEchoServer : IO Unit
 runTCPEchoServer = do
-  (serverAddr , _) <- getAddrInfo Nothing (Just "127.0.0.1") (Just "7000")
-  serverSocket <- socket (addrFamily serverAddr) SockStream defaultProtocol
-  setSocketOption serverSocket ReuseAddr 1
+  (serverAddr , _) <- getAddrInfo nothing (just "127.0.0.1") (just "7000")
+  serverSocket <- socket (addrFamily serverAddr) sockStream defaultProtocol
+  setSocketOption serverSocket reuseAddr 1
   bind serverSocket (addrAddress serverAddr)
   listen serverSocket 1
   (clientSocket , _) <- accept serverSocket

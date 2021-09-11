@@ -20,6 +20,8 @@ open import Agda.Builtin.Bool public
 data Ordering : Set where
   LT EQ GT : Ordering
 
+{-# COMPILE GHC Ordering = data Ordering (LT | EQ | GT) #-}
+
 open import Agda.Builtin.Nat public
   using (Nat)
   using (zero)
