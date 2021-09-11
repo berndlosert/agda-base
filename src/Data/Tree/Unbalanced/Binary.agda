@@ -56,6 +56,18 @@ instance
     <<< showsPrec appPrec+1 r)
 
 -------------------------------------------------------------------------------
+-- Predicates
+-------------------------------------------------------------------------------
+
+isLeaf : Tree a -> Bool
+isLeaf leaf = true
+isLeaf _ = false
+
+isNode : Tree a -> Bool
+isNode (node _ _ _) = true
+isNode _ = false
+
+-------------------------------------------------------------------------------
 -- Basic operations
 -------------------------------------------------------------------------------
 
@@ -83,7 +95,7 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) -> {{Assumes $ not (null t)}} -> Pair a (Tree a)
+  delMin : (t : Tree a) -> {{Assert $ isNode t}} -> Pair a (Tree a)
   delMin (node leaf x r) = (x , r)
   delMin (node l@(node _ _ _) x r) =
     let (y , l') = delMin l
@@ -98,7 +110,7 @@ module _ {{_ : Ord a}} where
       (GT , _ , _) -> node l y (delete x r)
       (EQ , leaf ,  _) -> r
       (EQ , _ , leaf) -> l
-      (EQ , _ , t) -> let (z , r') = delMin t in node l z r'
+      (EQ , _ , t@(node _ _ _)) -> let (z , r') = delMin t in node l z r'
 
   member : a -> Tree a -> Bool
   member x leaf = false

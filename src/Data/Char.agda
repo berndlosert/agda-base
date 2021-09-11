@@ -24,7 +24,7 @@ isLower = primIsLower
 isDigit : Char -> Bool
 isDigit = primIsDigit
 
-toDigit : (c : Char) -> {{Assumes $ isDigit c}} -> Nat
+toDigit : (c : Char) -> {{Assert $ isDigit c}} -> Nat
 toDigit '0' = 0
 toDigit '1' = 1
 toDigit '2' = 2

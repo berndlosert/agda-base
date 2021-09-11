@@ -155,9 +155,6 @@ seq a b = const b $! a
 -- Bool primitives
 -------------------------------------------------------------------------------
 
-Assumes : a -> Set
-Assumes _ = Unit
-
 Assert : Bool -> Set
 Assert false = Void
 Assert true = Unit
@@ -239,11 +236,11 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-fromLeft : (val : Either a b) -> {{Assumes $ isLeft val}} -> a
+fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
 fromLeft (left x) = x
 fromLeft _ = error "Prelude.fromLeft: bad argument"
 
-fromRight : (val : Either a b) -> {{Assumes $ isRight val}} -> b
+fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
 fromRight (right x) = x
 fromRight  _ = error "Prelude.fromRight: bad argument"
 
@@ -281,7 +278,7 @@ isNothing : Maybe a -> Bool
 isNothing (just _) = false
 isNothing _ = true
 
-fromJust : (val : Maybe a) -> {{Assumes $ isJust val}} -> a
+fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
 fromJust (just a) = a
 fromJust nothing = error "Prelude.fromJust: bad argument"
 

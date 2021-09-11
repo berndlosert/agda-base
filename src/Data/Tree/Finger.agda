@@ -79,6 +79,22 @@ digitToTree (three a b c) = deep' (two a b) nil (one c)
 digitToTree (four a b c d) = deep' (two a b) nil (two c d)
 
 -------------------------------------------------------------------------------
+-- Predicates
+-------------------------------------------------------------------------------
+
+isNil : FingerTree v a -> Bool
+isNil nil = true
+isNil _ = false
+
+isSingle : FingerTree v a -> Bool
+isSingle (single _) = true
+isSingle _ = false
+
+isDeep : FingerTree v a -> Bool
+isDeep (deep _ _ _ _) = true
+isDeep _ = false
+
+-------------------------------------------------------------------------------
 -- Cons operator
 -------------------------------------------------------------------------------
 
@@ -150,12 +166,12 @@ instance
 
 uncons : {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assumes $ not (null t)}}
+  -> {{Assert $ not (isNil t)}}
   -> Pair a (FingerTree v a)
 
 unsnoc : {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assumes $ not (null t)}}
+  -> {{Assert $ not (isNil t)}}
   -> Pair (FingerTree v a) a
 
 private
@@ -184,11 +200,11 @@ unsnoc (deep _ pr m (three a b c)) = (deep' pr m (two a b) , c)
 unsnoc (deep _ pr m (four a b c d)) = (deep' pr m (three a b c) , d)
 
 rotL nil sf = digitToTree sf
-rotL m sf = let (a , m') = uncons m in
+rotL m sf = let (a , m') = uncons m {{trustMe}} in
   deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
 rotR pr nil = digitToTree pr
-rotR pr m = let (m' , a) = unsnoc m in
+rotR pr m = let (m' , a) = unsnoc m {{trustMe}} in
   deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
@@ -215,7 +231,7 @@ splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> (t : FingerTree v a)
-  -> {{Assumes $ not (null t)}}
+  -> {{Assert $ not (isNil t)}}
   -> Split (FingerTree v) a
 splitTree _ _ (single x) = toSplit nil x nil
 splitTree p i (deep _ pr m sf) =
@@ -225,7 +241,7 @@ splitTree p i (deep _ pr m sf) =
   in
     if p vpr then (case splitDigit p i pr of \ where
       (toSplit l x r) -> toSplit (maybe nil digitToTree l) x (deep'L r m sf))
-    else if p vm then (case splitTree p vpr m of \ where
+    else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
       (toSplit ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
         (toSplit l x r) -> toSplit (deep'R pr ml l) x (deep'L r mr sf))
     else (case splitDigit p vm sf of \ where
@@ -238,7 +254,7 @@ split : {{Measured v a}}
   -> Pair (FingerTree v a) (FingerTree v a)
 split _ nil  =  (nil , nil)
 split p xs =
-  case splitTree p mempty xs of \ where
+  case splitTree p mempty xs {{trustMe}} of \ where
     (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , nil)
 
 -------------------------------------------------------------------------------
@@ -256,7 +272,7 @@ private
     -> (v -> v -> Bool)
     -> v
     -> (t : FingerTree v a)
-    -> {{Assumes $ not (null t)}}
+    -> {{Assert $ not (isNil t)}}
     -> v
     -> Split (FingerTree v) a
   searchTree _ _ (single x) _ = toSplit nil x nil
@@ -270,7 +286,7 @@ private
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
         (toSplit l x r) -> toSplit (maybe nil digitToTree l) x (deep'L r m sf))
-      else if p vlpm vsr then (case searchTree p vlp m vsr of \ where
+      else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
         (toSplit ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
           (toSplit l x r) -> toSplit (deep'R pr  ml l) x (deep'L r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
@@ -289,7 +305,7 @@ search p t =
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p mempty t mempty of \ where
+      (case searchTree p mempty t {{trustMe}} mempty of \ where
         (toSplit l x r) -> position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
@@ -304,7 +320,7 @@ inits _ nil = nil
 inits f (single x) = single (f (single x))
 inits f (deep n pr m sf) =
   let
-    f' ms = case unsnoc ms of \ where
+    f' ms = case unsnoc ms {{trustMe}} of \ where
       (m' , node) -> map (\ sf' -> f (deep' pr m' sf')) (initsNode node)
   in
     deep n (map (f <<< digitToTree) (initsDigit pr))
@@ -317,7 +333,7 @@ tails _ nil = nil
 tails f (single x) = single (f (single x))
 tails f (deep n pr m sf) = unsafePerform $
   let
-    f' ms = case uncons ms of \ where
+    f' ms = case uncons ms {{trustMe}} of \ where
       (node , m') -> map (\ pr' -> f (deep' pr' m' sf)) (tailsNode node)
   in
     deep n (map (\ pr' -> f (deep' pr' m sf)) (tailsDigit pr))

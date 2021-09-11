@@ -52,25 +52,25 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons : (s : String) -> {{Assumes $ s /= ""}} -> Pair Char String
+uncons : (s : String) -> {{Assert $ s /= ""}} -> Pair Char String
 uncons s = case primStringUncons s of \ where
   (just p) -> fst p , snd p
   nothing -> error "Data.String.uncons: bad argument"
 
-unsnoc : (s : String) -> {{Assumes $ s /= ""}} -> Pair String Char
-unsnoc s = lmap pack $ List.unsnoc (unpack s)
+unsnoc : (s : String) -> {{Assert $ s /= ""}} -> Pair String Char
+unsnoc s = lmap pack $ List.unsnoc (unpack s) {{trustMe}}
 
-head : (s : String) -> {{Assumes $ s /= ""}} -> Char
+head : (s : String) -> {{Assert $ s /= ""}} -> Char
 head s = fst (uncons s)
 
-tail : (s : String) -> {{Assumes $ s /= ""}} -> String
+tail : (s : String) -> {{Assert $ s /= ""}} -> String
 tail s = snd (uncons s)
 
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) -> {{Assumes $ s /= ""}} -> String
-init s = pack $ List.init $ unpack s
+init : (s : String) -> {{Assert $ s /= ""}} -> String
+init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}

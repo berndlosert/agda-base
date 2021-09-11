@@ -119,7 +119,9 @@ parse p s =
 
 anyChar : Parser Char
 anyChar = toParser \ where
-  s -> if s == "" then [] else List.singleton (swap (String.uncons s))
+  s -> if s == ""
+    then []
+    else List.singleton (swap (String.uncons s {{trustMe}}))
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
@@ -211,7 +213,7 @@ nat = chainl1 digit' (pure \ m n -> 10 * m + n)
     digit' : Parser Nat
     digit' = do
       n <- digit
-      pure (Char.toDigit n)
+      pure (Char.toDigit n {{trustMe}})
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)

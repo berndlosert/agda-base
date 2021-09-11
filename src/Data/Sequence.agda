@@ -110,16 +110,14 @@ abstract
 -------------------------------------------------------------------------------
 
   uncons : Seq a -> Maybe (Pair a (Seq a))
-  uncons (toSeq t) =
-    case Tree.uncons t of \ where
-      nothing -> nothing
-      (just (toElem x , xs)) -> just (x , toSeq xs)
+  uncons (toSeq t) = if Tree.isNil t then nothing else
+    case Tree.uncons t {{trustMe}} of \ where
+      (toElem x , xs) -> just (x , toSeq xs)
 
   unsnoc : Seq a -> Maybe (Pair (Seq a) a)
-  unsnoc (toSeq t) =
-    case Tree.unsnoc t of \ where
-      nothing -> nothing
-      (just (xs , toElem x)) -> just (toSeq xs , x)
+  unsnoc (toSeq t) = if Tree.isNil t then nothing else
+    case Tree.unsnoc t {{trustMe}} of \ where
+      (xs , toElem x) -> just (toSeq xs , x)
 
   head : Seq a -> Maybe a
   head = map fst <<< uncons
