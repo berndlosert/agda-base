@@ -83,12 +83,12 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : {{Partial}} -> Tree a -> Pair a (Tree a)
+  delMin : (t : Tree a) -> {{Assumes $ not (null t)}} -> Pair a (Tree a)
   delMin (node leaf x r) = (x , r)
   delMin (node l@(node _ _ _) x r) =
     let (y , l') = delMin l
     in (y , node l' x r)
-  delMin _ = undefined
+  delMin _ = error "Data.Tree.Unbalanced.delMin: bad argument"
 
   delete : a -> Tree a -> Tree a
   delete _ leaf = leaf
