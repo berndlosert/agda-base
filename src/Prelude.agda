@@ -160,6 +160,9 @@ seq a b = const b $! a
 -- Bool primitives
 -------------------------------------------------------------------------------
 
+Assumes : Bool -> Set
+Assumes _ = Unit
+
 Assert : Bool -> Set
 Assert false = Void
 Assert true = Unit
@@ -277,8 +280,9 @@ isNothing : Maybe a -> Bool
 isNothing (just _) = false
 isNothing _ = true
 
-fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
+fromJust : (val : Maybe a) -> {{Assumes $ isJust val}} -> a
 fromJust (just a) = a
+fromJust nothing = error "Prelude.fromJust: bad argument"
 
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f nothing = b

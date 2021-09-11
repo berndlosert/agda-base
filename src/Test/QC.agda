@@ -108,13 +108,13 @@ sample g = do
   traverse! print cases
 
 oneof : (gs : List (Gen a)) -> {{Assumes $ not (null gs)}} -> Gen a
+oneof [] = error "Test.QC.oneof: bad argument"
 oneof gs = do
   n <- choose (0 , length gs - 1)
-  fromMaybe
-    (error "Test.QC.oneof: bad argument")
-    (List.at n gs)
+  List.at n gs
 
 elements : (xs : List a) -> {{Assumes $ not (null xs)}} -> Gen a
+elements [] = error "Test.QC.elements: bad argument"
 elements xs = oneof (map pure xs)
 
 frequency : (freqs : List (Pair Nat (Gen a)))

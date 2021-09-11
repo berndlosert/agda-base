@@ -66,9 +66,9 @@ build g = g _::_ []
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : List a -> Maybe a
-head [] = nothing
-head (x :: _) = just x
+head : (xs : List a) -> {{Assumes $ not (null xs)}} -> a
+head [] = error "Data.List.head: bad argument"
+head (x :: _) = x
 
 tail : List a -> Maybe (List a)
 tail [] = nothing
@@ -147,9 +147,9 @@ indexed xs = go 0 xs
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
-at : Nat -> List a -> Maybe a
+at : (n : Nat) -> (xs : List a) -> {{Assumes $ n < length xs}} -> a
 at 0 xs = head xs
-at (suc n) [] = nothing
+at (suc n) [] = error "Data.List.at: bad argument"
 at (suc n) (x :: xs) = at n xs
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
