@@ -131,14 +131,11 @@ frequency {a} freqs =
       pick n freqs
 
 elements : (xs : List a) -> {{Assumes $ not (null xs)}} -> Gen a
-elements xs =
-  let
-    N = choose (0 , length xs - 1)
-    at n = fromMaybe
-      (error "Test.QC.elements: bad argument")
-      (List.at n xs)
-  in
-    map at N
+elements xs = do
+  n <- choose (0 , length xs - 1)
+  pure $ fromMaybe
+    (error "Test.QC.elements: bad argument")
+    (List.at n xs)
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
