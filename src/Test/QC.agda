@@ -107,10 +107,15 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : List1 (Gen a) -> Gen a
-oneof (g :| gs) = do
-  n <- choose (0 , length gs)
-  fromMaybe g (List.at n gs)
+oneof : (gs : List (Gen a)) -> {{Assumes $ not (null gs)}} -> Gen a
+oneof gs = do
+  n <- choose (0 , length gs - 1)
+  fromMaybe
+    (error "Test.QC.oneof: bad argument")
+    (List.at n gs)
+
+elements : (xs : List a) -> {{Assumes $ not (null xs)}} -> Gen a
+elements xs = oneof (map pure xs)
 
 frequency : (freqs : List (Pair Nat (Gen a)))
   -> {{Assumes $ sum (map fst freqs) > 0}}
@@ -129,13 +134,6 @@ frequency {a} freqs =
     ok = do
       n <- choose (1 , sumFreqs)
       pick n freqs
-
-elements : (xs : List a) -> {{Assumes $ not (null xs)}} -> Gen a
-elements xs = do
-  n <- choose (0 , length xs - 1)
-  pure $ fromMaybe
-    (error "Test.QC.elements: bad argument")
-    (List.at n xs)
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
