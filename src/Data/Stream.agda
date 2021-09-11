@@ -9,6 +9,7 @@ module Data.Stream where
 open import Prelude
 
 open import Control.Comonad
+open import Data.Foldable
 open import Data.List as List using ()
 
 -------------------------------------------------------------------------------
@@ -72,9 +73,10 @@ at : Nat -> Stream a -> a
 at 0 as = head as
 at (suc n) as = at n (tail as)
 
-cycle : List1 a -> Stream a
-cycle (x :| xs) .head = x
-cycle {a} (x :| xs) .tail = cycle' xs
+cycle : (xs : List a) -> {{Assumes $ not (null xs)}} -> Stream a
+cycle [] = error "Data.Stream.cycle: bad argument"
+cycle (x :: xs) .head = x
+cycle {a} (x :: xs) .tail = cycle' xs
   where
     cycle' : List a -> Stream a
     cycle' [] .head = x
