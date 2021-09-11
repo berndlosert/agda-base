@@ -117,10 +117,12 @@ elements [] = error "Test.QC.elements: bad argument"
 elements xs = oneof (map pure xs)
 
 frequency : (freqs : List (Pair Nat (Gen a)))
-  -> {{Assumes $ sum (map fst freqs) > 0}}
+  -> {{Assumes $ all (_> 0) (map fst freqs)}}
   -> Gen a
 frequency {a} freqs =
-    if sumFreqs > 0 then ok else error "Test.QC.frequency: bad argument"
+    if all (_> 0) (map fst freqs)
+      then ok
+      else error "Test.QC.frequency: bad argument"
   where
     sumFreqs : Nat
     sumFreqs = sum (map fst freqs)
