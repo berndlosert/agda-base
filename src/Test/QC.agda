@@ -113,16 +113,16 @@ oneof (g :| gs) = do
   fromMaybe g (List.at n gs)
 
 frequency : (freqs : List (Pair Nat (Gen a)))
-  -> {{Assume $ sum (map fst freqs) > 0}}
+  -> {{Assumes $ sum (map fst freqs) > 0}}
   -> Gen a
 frequency {a} freqs =
-    if sumFreqs > 0 then ok else error "Tests.QC.frequency: bad argument"
+    if sumFreqs > 0 then ok else error "Test.QC.frequency: bad argument"
   where
     sumFreqs : Nat
     sumFreqs = sum (map fst freqs)
 
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick _ [] = error "Tests.QC.frequency: bad argument - empty list"
+    pick _ [] = error "Test.QC.frequency: bad argument"
     pick n ((m , g) :: rest) = if n <= m then g else pick (n - m) rest
 
     ok : Gen a
@@ -130,11 +130,13 @@ frequency {a} freqs =
       n <- choose (1 , sumFreqs)
       pick n freqs
 
-elements : List1 a -> Gen a
-elements (x :| xs) =
+elements : (xs : List a) -> {{Assumes $ not (null xs)}} -> Gen a
+elements xs =
   let
-    N = choose (0 , length xs)
-    at n = fromMaybe x $ List.at n (x :: xs)
+    N = choose (0 , length xs - 1)
+    at n = fromMaybe
+      (error "Test.QC.elements: bad argument")
+      (List.at n xs)
   in
     map at N
 
@@ -184,7 +186,7 @@ open Coarbitrary {{...}} public
 
 instance
   Arbitrary-Bool : Arbitrary Bool
-  Arbitrary-Bool .arbitrary = elements (true :| false :: [])
+  Arbitrary-Bool .arbitrary = elements (true :: false :: [])
 
   Arbitrary-Nat : Arbitrary Nat
   Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)
