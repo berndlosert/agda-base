@@ -52,25 +52,25 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons : String -> Maybe (Pair Char String)
+uncons : (s : String) -> {{Assumes $ s /= ""}} -> Pair Char String
 uncons s = case primStringUncons s of \ where
-  (just p) -> just (fst p , snd p)
-  nothing -> nothing
+  (just p) -> fst p , snd p
+  nothing -> error "Data.String.uncons: bad argument"
 
-unsnoc : String -> Maybe (Pair String Char)
-unsnoc s = lmap pack <$> List.unsnoc (unpack s)
+unsnoc : (s : String) -> {{Assumes $ s /= ""}} -> Pair String Char
+unsnoc s = lmap pack $ List.unsnoc (unpack s)
 
-head : String -> Maybe Char
-head s = map fst (uncons s)
+head : (s : String) -> {{Assumes $ s /= ""}} -> Char
+head s = fst (uncons s)
 
-tail : String -> Maybe String
-tail s = map snd (uncons s)
+tail : (s : String) -> {{Assumes $ s /= ""}} -> String
+tail s = snd (uncons s)
 
 length : String -> Nat
 length = List.length <<< unpack
 
-init : String -> Maybe String
-init = map pack <<< List.init <<< unpack
+init : (s : String) -> {{Assumes $ s /= ""}} -> String
+init s = pack $ List.init $ unpack s
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
@@ -203,38 +203,3 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
-
--------------------------------------------------------------------------------
--- View types
--------------------------------------------------------------------------------
-
-data Uncons : String -> Set where
-  [] : Uncons ""
-  _::_ : (c : Char) (s : String) -> Uncons (cons c s)
-
-unconsCorrect : (s : String) -> case uncons s of \ where
-  nothing -> s === ""
-  (just (c , s')) -> s === cons c s'
-
-unconsCorrect = trustMe
-
-asUncons : (s : String) -> Uncons s
-asUncons s with uncons s | unconsCorrect s
-... | nothing | refl = []
-... | just (c , s') | refl = c :: s'
-
-fromUncons : {s : String} -> Uncons s -> String
-fromUncons {s} _ = s
-
-data AsList : String -> Set where
-  [] : AsList ""
-  _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
-
-{-# TERMINATING #-}
-asList : (s : String) -> AsList s
-asList s with asUncons s
-... | [] = []
-... | c :: s' = c :: asList s'
-
-fromList : {s : String} -> AsList s -> String
-fromList {s} _ = s

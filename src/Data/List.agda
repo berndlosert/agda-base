@@ -70,25 +70,26 @@ head : (xs : List a) -> {{Assumes $ not (null xs)}} -> a
 head [] = error "Data.List.head: bad argument"
 head (x :: _) = x
 
-tail : List a -> Maybe (List a)
-tail [] = nothing
-tail (_ :: xs) = just xs
+tail : (xs : List a) -> {{Assumes $ not (null xs)}} -> List a
+tail [] = error "Data.List.tail: bad argument"
+tail (_ :: xs) = xs
 
-uncons : List a -> Maybe (Pair a (List a))
-uncons [] = nothing
-uncons (x :: xs) = just (x , xs)
+uncons : (xs : List a) -> {{Assumes $ not (null xs)}} -> Pair a (List a)
+uncons [] = error "Data.List.uncons: bad argument"
+uncons (x :: xs) = (x , xs)
 
-unsnoc : List a -> Maybe (Pair (List a) a)
-unsnoc = foldr go nothing
+unsnoc : (xs : List a) -> {{Assumes $ not (null xs)}} -> Pair (List a) a
+unsnoc [] = error "Data.List.unsnoc: bad argument"
+unsnoc = fromJust <<< foldr go nothing
   where
     go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
     go x nothing = just ([] , x)
     go x (just (xs , e)) = just (x :: xs , e)
 
-init : List a -> Maybe (List a)
-init [] = nothing
-init (x :: []) = just []
-init (x :: x' :: xs) = (| _::_ (just x) (init (x' :: xs)) |)
+init : (xs : List a) -> {{Assumes $ not (null xs)}} -> List a
+init [] = error "Data.List.init: bad argument"
+init (x :: []) = []
+init (x :: xs) = x :: init xs
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -252,7 +253,7 @@ module _ {{_ : Eq a}} where
       g s a = let s' = dropWhile (_/= a) s in
         case s' of \ where
           [] -> nothing
-          _ -> tail s'
+          _ -> just (tail s')
 
 -------------------------------------------------------------------------------
 -- Sorting

@@ -118,7 +118,8 @@ parse p s =
 -------------------------------------------------------------------------------
 
 anyChar : Parser Char
-anyChar = toParser (String.uncons >>> maybe [] (swap >>> List.singleton))
+anyChar = toParser \ where
+  s -> if s == "" then [] else List.singleton (swap (String.uncons s))
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do

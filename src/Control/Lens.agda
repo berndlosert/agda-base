@@ -314,17 +314,6 @@ instance
   Each-List .each f [] = pure []
   Each-List .each f (x :: xs) = (| _::_ (f x) (each f xs) |)
 
-record Cons (s t a b : Set) : Set where
-  field #Cons : Prism s t (Pair a s) (Pair b t)
-
-open Cons {{...}} public
-
-instance
-  Cons-List : Cons (List a) (List b) a b
-  Cons-List .#Cons = prism (uncurry _::_) \ where
-    (a :: as) -> right (a , as)
-    [] -> left []
-
 -------------------------------------------------------------------------------
 -- Some specific optics
 -------------------------------------------------------------------------------
@@ -350,9 +339,3 @@ instance
 #nothing : Simple Traversal (Maybe a) Unit
 #nothing f nothing = map (const nothing) (f tt)
 #nothing _ j = pure j
-
-#head : {{Cons s s a a}} -> Simple Traversal s a
-#head = #Cons <<< #fst
-
-#tail : {{Cons s s a a}} -> Simple Traversal s s
-#tail = #Cons <<< #snd
