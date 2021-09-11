@@ -182,7 +182,7 @@ pop {a} v = down []
           fromZipper ctx (three a w (two b x c) y (two d z e))
         (_ , _) -> t
 
-    maxNode : {{Partial}} -> Tree a -> a
+    maxNode : (t : Tree a) -> {{Assumes $ not (null t)}} -> a
     maxNode = \ where
       (two _ x leaf) -> x
       (two _ _ r@(two _ _ _)) -> maxNode r
@@ -190,7 +190,7 @@ pop {a} v = down []
       (three _ _ _ x leaf) -> x
       (three _ _ _ _ r@(two _ _ _)) -> maxNode r
       (three _ _ _ _ r@(three _ _ _ _ _)) -> maxNode r
-      _ -> undefined
+      _ -> error "Data.Tree.Balanced.TwoThree.maxNode: bad argument"
 
     removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
     removeMaxNode ctx = \ where
