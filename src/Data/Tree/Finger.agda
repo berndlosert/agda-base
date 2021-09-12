@@ -331,7 +331,7 @@ tails : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 tails _ nil = nil
 tails f (single x) = single (f (single x))
-tails f (deep n pr m sf) = unsafePerform $
+tails f (deep n pr m sf) =
   let
     f' ms = case uncons ms {{trustMe}} of \ where
       (node , m') -> map (\ pr' -> f (deep' pr' m' sf)) (tailsNode node)
