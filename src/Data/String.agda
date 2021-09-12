@@ -9,6 +9,7 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String
+open import Constraint.NonEmpty
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 
@@ -52,24 +53,29 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons : (s : String) -> {{Assert $ s /= ""}} -> Pair Char String
+uncons : (s : String) -> {{Assert $ nonempty s}} -> Pair Char String
+uncons "" = error "Data.String.uncons: bad argument"
 uncons s = case primStringUncons s of \ where
   (just p) -> fst p , snd p
   nothing -> error "Data.String.uncons: bad argument"
 
-unsnoc : (s : String) -> {{Assert $ s /= ""}} -> Pair String Char
+unsnoc : (s : String) -> {{Assert $ nonempty s}} -> Pair String Char
+unsnoc "" = error "Data.String.unsnoc: bad argument"
 unsnoc s = lmap pack $ List.unsnoc (unpack s) {{trustMe}}
 
-head : (s : String) -> {{Assert $ s /= ""}} -> Char
+head : (s : String) -> {{Assert $ nonempty s}} -> Char
+head "" = error "Data.String.head: bad argument"
 head s = fst (uncons s)
 
-tail : (s : String) -> {{Assert $ s /= ""}} -> String
+tail : (s : String) -> {{Assert $ nonempty s}} -> String
+tail "" = error "Data.String.tail: bad argument"
 tail s = snd (uncons s)
 
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) -> {{Assert $ s /= ""}} -> String
+init : (s : String) -> {{Assert $ nonempty s}} -> String
+init "" = error "Data.String.init: bad argument"
 init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
