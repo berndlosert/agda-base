@@ -8,6 +8,7 @@ module Data.List where
 
 open import Prelude
 
+open import Constraint.NonEmpty
 open import Control.Monad.Free.General
 open import Data.Monoid.Endo
 open import Data.Filterable
@@ -30,18 +31,6 @@ private
   variable
     a b c : Set
     f : Set -> Set
-
--------------------------------------------------------------------------------
--- Constructor predicates
--------------------------------------------------------------------------------
-
-isNil : List a -> Bool
-isNil [] = true
-isNil _ = false
-
-isCons : List a -> Bool
-isCons [] = false
-isCons _ = true
 
 -------------------------------------------------------------------------------
 -- Constructors
@@ -78,19 +67,19 @@ build g = g _::_ []
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : (xs : List a) -> {{Assert $ isCons xs}} -> a
+head : (xs : List a) -> {{Assert $ nonempty xs}} -> a
 head [] = error "Data.List.head: bad argument"
 head (x :: _) = x
 
-tail : (xs : List a) -> {{Assert $ isCons xs}} -> List a
+tail : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
 tail [] = error "Data.List.tail: bad argument"
 tail (_ :: xs) = xs
 
-uncons : (xs : List a) -> {{Assert $ isCons xs}} -> Pair a (List a)
+uncons : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair a (List a)
 uncons [] = error "Data.List.uncons: bad argument"
 uncons (x :: xs) = (x , xs)
 
-unsnoc : (xs : List a) -> {{Assert $ isCons xs}} -> Pair (List a) a
+unsnoc : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair (List a) a
 unsnoc [] = error "Data.List.unsnoc: bad argument"
 unsnoc xs = fromJust (foldr go nothing xs) {{trustMe}}
   where
@@ -98,7 +87,7 @@ unsnoc xs = fromJust (foldr go nothing xs) {{trustMe}}
     go x nothing = just ([] , x)
     go x (just (xs , e)) = just (x :: xs , e)
 
-init : (xs : List a) -> {{Assert $ isCons xs}} -> List a
+init : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
 init [] = error "Data.List.init: bad argument"
 init (x :: []) = []
 init (x :: xs@(_ :: _)) = x :: init xs
@@ -162,7 +151,7 @@ splitAt n xs = (take n xs , drop n xs)
 
 at : (n : Nat)
   -> (xs : List a)
-  -> {{Assert $ isCons xs}}
+  -> {{Assert $ nonempty xs}}
   -> {{Assert $ n < length xs}}
   -> a
 at _ [] = error "Data.List.at: bad argument"
