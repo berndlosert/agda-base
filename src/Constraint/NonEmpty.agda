@@ -26,6 +26,10 @@ record NonEmptyness (a : Set) : Set where
 open NonEmptyness {{...}} public
 
 instance
+  NonEmptyness-String : NonEmptyness String
+  NonEmptyness-String .nonempty "" = false
+  NonEmptyness-String .nonempty _ = true
+
   NonEmptyness-Maybe : NonEmptyness (Maybe a)
   NonEmptyness-Maybe .nonempty = isJust
 
