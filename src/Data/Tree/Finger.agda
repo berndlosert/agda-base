@@ -79,7 +79,7 @@ digitToTree (three a b c) = deep' (two a b) nil (one c)
 digitToTree (four a b c d) = deep' (two a b) nil (two c d)
 
 -------------------------------------------------------------------------------
--- Predicates
+-- Constructor predicates
 -------------------------------------------------------------------------------
 
 isNil : FingerTree v a -> Bool
