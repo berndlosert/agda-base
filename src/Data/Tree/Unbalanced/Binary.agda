@@ -8,6 +8,7 @@ module Data.Tree.Unbalanced.Binary where
 
 open import Prelude hiding (map)
 
+open import Constraint.NonEmpty
 open import Data.Foldable
 open import Data.Traversable
 open import String.Show
@@ -33,6 +34,10 @@ data Tree (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
+  NonEmptyness-Tree : NonEmptyness (Tree a)
+  NonEmptyness-Tree .nonempty leaf = false
+  NonEmptyness-Tree .nonempty _ = true
+
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr f z = \ where
     leaf -> z
@@ -54,18 +59,6 @@ instance
     <<< showsPrec appPrec+1 x
     <<< showString " "
     <<< showsPrec appPrec+1 r)
-
--------------------------------------------------------------------------------
--- Constructor predicates
--------------------------------------------------------------------------------
-
-isLeaf : Tree a -> Bool
-isLeaf leaf = true
-isLeaf _ = false
-
-isNode : Tree a -> Bool
-isNode (node _ _ _) = true
-isNode _ = false
 
 -------------------------------------------------------------------------------
 -- Basic operations
@@ -95,7 +88,7 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) -> {{Assert $ isNode t}} -> Pair a (Tree a)
+  delMin : (t : Tree a) -> {{Assert $ nonempty t}} -> Pair a (Tree a)
   delMin (node leaf x r) = (x , r)
   delMin (node l@(node _ _ _) x r) =
     let (y , l') = delMin l
@@ -104,7 +97,7 @@ module _ {{_ : Ord a}} where
 
   delete : a -> Tree a -> Tree a
   delete _ leaf = leaf
-  delete x (node l y r) = unsafePerform $
+  delete x (node l y r) =
     case (compare x y , l , r) of \ where
       (LT , _ , _) -> node (delete x l) y r
       (GT , _ , _) -> node l y (delete x r)
