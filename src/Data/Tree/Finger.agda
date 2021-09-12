@@ -8,6 +8,7 @@ module Data.Tree.Finger where
 
 open import Prelude
 
+open import Constraint.NonEmpty
 open import Data.Foldable
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
@@ -39,6 +40,10 @@ instance
     nil -> mempty
     (single x) -> measure x
     (deep v _ _ _) -> v
+
+  NonEmptyness-FingerTree : NonEmptyness (FingerTree v a)
+  NonEmptyness-FingerTree .nonempty nil = false
+  NonEmptyness-FingerTree .nonempty _ = true
 
   Foldable-FingerTree : Foldable (FingerTree v)
   Foldable-FingerTree .foldr _ z nil = z
@@ -77,22 +82,6 @@ digitToTree (one a) = single a
 digitToTree (two a b) = deep' (one a) nil (one b)
 digitToTree (three a b c) = deep' (two a b) nil (one c)
 digitToTree (four a b c d) = deep' (two a b) nil (two c d)
-
--------------------------------------------------------------------------------
--- Constructor predicates
--------------------------------------------------------------------------------
-
-isNil : FingerTree v a -> Bool
-isNil nil = true
-isNil _ = false
-
-isSingle : FingerTree v a -> Bool
-isSingle (single _) = true
-isSingle _ = false
-
-isDeep : FingerTree v a -> Bool
-isDeep (deep _ _ _ _) = true
-isDeep _ = false
 
 -------------------------------------------------------------------------------
 -- Cons operator
@@ -166,12 +155,12 @@ instance
 
 uncons : {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assert $ not (isNil t)}}
+  -> {{Assert $ nonempty t}}
   -> Pair a (FingerTree v a)
 
 unsnoc : {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assert $ not (isNil t)}}
+  -> {{Assert $ nonempty t}}
   -> Pair (FingerTree v a) a
 
 private
@@ -231,7 +220,7 @@ splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
   -> (t : FingerTree v a)
-  -> {{Assert $ not (isNil t)}}
+  -> {{Assert $ nonempty t}}
   -> Split (FingerTree v) a
 splitTree _ _ (single x) = toSplit nil x nil
 splitTree p i (deep _ pr m sf) =
@@ -272,7 +261,7 @@ private
     -> (v -> v -> Bool)
     -> v
     -> (t : FingerTree v a)
-    -> {{Assert $ not (isNil t)}}
+    -> {{Assert $ nonempty t}}
     -> v
     -> Split (FingerTree v) a
   searchTree _ _ (single x) _ = toSplit nil x nil
