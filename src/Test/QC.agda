@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type --guardedness #-}
+{-# OPTIONS --type-in-type #-}
 
 module Test.QC where
 
@@ -12,7 +12,6 @@ open import Constraint.NonEmpty
 open import Data.Enum
 open import Data.Float as Float using ()
 open import Data.List as List using ()
-open import Data.Stream as Stream using (Stream)
 open import Data.String as String using ()
 open import Data.Foldable
 open import Data.Traversable
@@ -65,10 +64,7 @@ instance
 
 variant : Nat -> Gen a -> Gen a
 variant v (toGen m) =
-    toGen \ r n -> m (Stream.at (suc v) (rands r)) n
-  where
-    rands : {{RandomGen g}} -> g -> Stream g
-    rands g = Stream.unfold splitGen g
+  toGen \ g k -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) k
 
 generate' : Nat -> StdGen -> Gen a -> a
 generate' n rnd (toGen m) = let (size , rnd') = randomR (0 , n) rnd in
