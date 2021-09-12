@@ -226,7 +226,7 @@ pop {a} v = down []
 
     down : List (TreeContext a) -> Tree a -> Maybe (Pair a (Tree a))
     down ctx leaf = nothing
-    down ctx (two l x r) = unsafePerform $
+    down ctx (two l x r) =
       case (l , r , compare v x) of \ where
         (_ , leaf , EQ) ->
           just (x , up ctx leaf)
@@ -238,7 +238,7 @@ pop {a} v = down []
           down (twoLeft x r :: ctx) l
         (_ , _ , _ ) ->
           down (twoRight l x :: ctx) r
-    down ctx (three l x m y r) = unsafePerform $
+    down ctx (three l x m y r) =
       case (l , m , r , compare v x , compare v y) of \ where
         (leaf , leaf , leaf , EQ , _) ->
           just (x , fromZipper ctx (two leaf y leaf))
