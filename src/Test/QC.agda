@@ -8,6 +8,7 @@ module Test.QC where
 
 open import Prelude
 
+open import Constraint.NonEmpty
 open import Data.Enum
 open import Data.Float as Float using ()
 open import Data.List as List using ()
@@ -106,13 +107,13 @@ sample g = do
   cases <- sample' g
   traverse! print cases
 
-oneof : (gs : List (Gen a)) -> {{Assert $ List.isCons gs}} -> Gen a
+oneof : (gs : List (Gen a)) -> {{Assert $ nonempty gs}} -> Gen a
 oneof [] = error "Test.QC.oneof: bad argument"
 oneof gs = do
   n <- choose (0 , length gs - 1)
   List.at n gs {{trustMe}} {{trustMe}}
 
-elements : (xs : List a) -> {{Assert $ List.isCons xs}} -> Gen a
+elements : (xs : List a) -> {{Assert $ nonempty xs}} -> Gen a
 elements [] = error "Test.QC.elements: bad argument"
 elements xs = oneof (map pure xs) {{trustMe}}
 
@@ -338,7 +339,7 @@ record Config : Set where
     every : Nat -> List String -> String
 
 quick : Config
-quick = unsafePerform $
+quick =
   record {
     maxTest = 100;
     maxFail = 1000;
