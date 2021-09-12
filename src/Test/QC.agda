@@ -64,7 +64,7 @@ instance
 
 variant : Nat -> Gen a -> Gen a
 variant v (toGen m) =
-  toGen \ g k -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) k
+  toGen \ g n -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) n
 
 generate' : Nat -> StdGen -> Gen a -> a
 generate' n rnd (toGen m) = let (size , rnd') = randomR (0 , n) rnd in
