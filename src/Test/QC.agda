@@ -67,8 +67,8 @@ variant v (toGen m) =
   toGen \ g n -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) n
 
 generate' : Nat -> StdGen -> Gen a -> a
-generate' n rnd (toGen m) = let (size , rnd') = randomR (0 , n) rnd in
-  m rnd' size
+generate' n rnd (toGen m) =
+  let (size , rnd') = randomR (0 , n) rnd in m rnd' size
 
 sized : (Nat -> Gen a) -> Gen a
 sized f = toGen \ r n -> let toGen m = f n in m r n
