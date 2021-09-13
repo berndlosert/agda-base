@@ -138,6 +138,34 @@ tail nil = error "Data.Sequence.tail: bad argument"
 tail xs = snd (uncons xs)
 
 -------------------------------------------------------------------------------
+-- Views
+-------------------------------------------------------------------------------
+
+data Uncons (a : Set) : Seq a -> Set where
+  [] : Uncons a nil
+  _::_ : (x : a) (xs : Seq a) -> Uncons a (cons x xs)
+
+cons-uncons : (xs : Seq a) {{_ : Assert $ nonempty xs}}
+  -> let (y , ys) = uncons xs in cons y ys === xs
+cons-uncons _ = trustMe
+
+toUncons : (xs : Seq a) -> Uncons a xs
+toUncons nil = []
+toUncons xs with uncons xs {{trustMe}} | cons-uncons xs {{trustMe}}
+... | (y , ys) | refl = y :: ys
+
+data ViewL (a : Set) : Seq a -> Set where
+  [] : ViewL a nil
+  _::_ : (x : a) {xs : Seq a} -> ViewL a xs -> ViewL a (cons x xs)
+
+{-# TERMINATING #-}
+viewl : (xs : Seq a) -> ViewL a xs
+viewl nil = []
+viewl xs with toUncons xs
+... | [] = []
+... | y :: ys = y :: viewl ys
+
+-------------------------------------------------------------------------------
 -- Transformations
 -------------------------------------------------------------------------------
 
