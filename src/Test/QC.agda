@@ -107,7 +107,7 @@ oneof : (gs : List (Gen a)) -> {{Assert $ nonempty gs}} -> Gen a
 oneof [] = error "Test.QC.oneof: bad argument"
 oneof gs = do
   n <- choose (0 , length gs - 1)
-  List.at n gs {{trustMe}} {{trustMe}}
+  List.at n gs {{trustMe}}
 
 elements : (xs : List a) -> {{Assert $ nonempty xs}} -> Gen a
 elements [] = error "Test.QC.elements: bad argument"
