@@ -81,7 +81,7 @@ instance
   Eq-Seq ._==_ l r = toList l == toList r
 
 -------------------------------------------------------------------------------
--- Constructors
+-- Construction
 -------------------------------------------------------------------------------
 
 pattern nil = toSeq Tree.nil
@@ -98,13 +98,13 @@ singleton x = toSeq (Tree.singleton (toElem x))
 fromFoldable : {{Foldable t}} -> t a -> Seq a
 fromFoldable = foldr cons empty
 
-iterateN : Nat -> (a -> a) -> a -> Seq a
-iterateN 0 f x = empty
-iterateN 1 f x = singleton x
-iterateN (suc n) f x = cons (f x) (iterateN n f x)
+-------------------------------------------------------------------------------
+-- Construction: Repetition
+-------------------------------------------------------------------------------
 
 replicate : Nat -> a -> Seq a
-replicate n = iterateN n id
+replicate 0 _ = nil
+replicate (suc n) x = cons x (replicate n x)
 
 replicateA : {{Applicative f}} -> Nat -> f a -> f (Seq a)
 replicateA {f} {a} n0 fa = loop n0
@@ -114,7 +114,16 @@ replicateA {f} {a} n0 fa = loop n0
     loop (suc n) = (| cons fa (loop n) |)
 
 -------------------------------------------------------------------------------
--- Destructors
+-- Construction: Iterative construction
+-------------------------------------------------------------------------------
+
+iterateN : Nat -> (a -> a) -> a -> Seq a
+iterateN 0 f x = empty
+iterateN 1 f x = singleton x
+iterateN (suc n) f x = cons (f x) (iterateN n f x)
+
+-------------------------------------------------------------------------------
+-- Destruction
 -------------------------------------------------------------------------------
 
 uncons : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair a (Seq a)
@@ -138,7 +147,7 @@ tail nil = error "Data.Sequence.tail: bad argument"
 tail xs = snd (uncons xs)
 
 -------------------------------------------------------------------------------
--- Views
+-- Deconstruction: Views
 -------------------------------------------------------------------------------
 
 data Uncons (a : Set) : Seq a -> Set where
@@ -166,85 +175,47 @@ viewl xs with toUncons xs
 ... | y :: ys = y :: viewl ys
 
 -------------------------------------------------------------------------------
--- Transformations
+-- Scans
 -------------------------------------------------------------------------------
 
-reverse : Seq a -> Seq a
-reverse = foldl (flip cons) empty
+scanl : (b -> a -> b) -> b -> Seq a -> Seq b
+scanl f b xs = cons b (snd $ mapAccumL (\ x z -> dup (f x z)) b xs)
 
-intersperse : a -> Seq a -> Seq a
-intersperse sep nil = nil
-intersperse sep xs =
-  let (y , ys) = uncons xs {{trustMe}}
-  in cons y (| _#_ ys (cons (const sep) (singleton id)) |)
+scanr : (a -> b -> b) -> b -> Seq a -> Seq b
+scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dup (f x z)) b xs) b
 
 -------------------------------------------------------------------------------
--- Indexed folds
+-- Sublists
 -------------------------------------------------------------------------------
 
-ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
-ifoldr {a} {b} f z xs =
-    foldr go (const z) xs 0
-  where
-    go : a -> (Nat -> b) -> Nat -> b
-    go x g n = f n x (g (n + 1))
+tails : Seq a -> Seq (Seq a)
+tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  empty
 
-ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
-ifoldl {b} {a} f z xs =
-    foldl go (const z) xs (length xs - 1)
-  where
-    go : (Nat -> b) -> a -> Nat -> b
-    go g x n = f (g (n - 1)) n x
+inits : Seq a -> Seq (Seq a)
+inits (toSeq t) = cons empty (toSeq (Tree.inits (toElem <<< toSeq) t))
 
 -------------------------------------------------------------------------------
--- Searching with a predicate
+-- Sorting
 -------------------------------------------------------------------------------
 
-indicesl : (a -> Bool) -> Seq a -> List Nat
-indicesl {a} p = ifoldr go []
-  where
-    go : Nat -> a -> List Nat -> List Nat
-    go n x ns = if p x then n :: ns else ns
-
-indicesr : (a -> Bool) -> Seq a -> List Nat
-indicesr {a} p = ifoldl go []
-  where
-    go : List Nat -> Nat -> a -> List Nat
-    go ns n x = if p x then n :: ns else ns
-
-filter : (a -> Bool) -> Seq a -> Seq a
-filter {a} p = foldl go empty
-  where
-    go : Seq a -> a -> Seq a
-    go xs x = if p x then snoc xs x else xs
-
-filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
-filterA {f} {a} p = foldr go (pure empty)
-  where
-    go : a -> f (Seq a) -> f (Seq a)
-    go x xs = (| if_then_else_ (p x) (| (cons x) xs |) xs |)
-
-partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-partition {a} p = foldl go (empty , empty)
-  where
-    go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
-    go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
 -------------------------------------------------------------------------------
--- Indexed functions
+-- Indexing
 -------------------------------------------------------------------------------
 
 splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
 splitAt n (toSeq t) = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) t
 
-at : (n : Nat) -> (xs : Seq a) -> {{Assert $ n < length xs}} -> a
-at n xs =
- let
-   (ys , zs) = splitAt n xs
- in
-   if nonempty zs
-     then head zs {{trustMe}}
-     else error "Data.Sequence.at: bad argument"
+take : Nat -> Seq a -> Seq a
+take n = fst <<< splitAt n
+
+drop : Nat -> Seq a -> Seq a
+drop n = snd <<< splitAt n
+
+insertAt : Nat -> a -> Seq a -> Seq a
+insertAt n x xs =
+  let (l , r) = splitAt n xs
+  in l <> singleton x <> r
 
 updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
 updateAt _ _ nil = nil
@@ -262,19 +233,48 @@ updateAt n f xs =
 deleteAt : Nat -> Seq a -> Seq a
 deleteAt n = updateAt n (const nothing)
 
-modifyAt : Nat -> (a -> a) -> Seq a -> Seq a
-modifyAt n f = updateAt n (f >>> just)
+-------------------------------------------------------------------------------
+-- Folds
+-------------------------------------------------------------------------------
 
-setAt : Nat -> a -> Seq a -> Seq a
-setAt n x = modifyAt n (const x)
+ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
+ifoldr {a} {b} f z xs =
+    foldr go (const z) xs 0
+  where
+    go : a -> (Nat -> b) -> Nat -> b
+    go x g n = f n x (g (n + 1))
 
-insertAt : Nat -> a -> Seq a -> Seq a
-insertAt n x xs =
-  let (l , r) = splitAt n xs
-  in l <> singleton x <> r
+ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
+ifoldl {b} {a} f z xs =
+    foldl go (const z) xs (length xs - 1)
+  where
+    go : (Nat -> b) -> a -> Nat -> b
+    go g x n = f (g (n - 1)) n x
 
 -------------------------------------------------------------------------------
--- Extracting sublists
+-- Indexing: Indexing with predicates
+-------------------------------------------------------------------------------
+
+indicesl : (a -> Bool) -> Seq a -> List Nat
+indicesl {a} p = ifoldr go []
+  where
+    go : Nat -> a -> List Nat -> List Nat
+    go n x ns = if p x then n :: ns else ns
+
+indicesr : (a -> Bool) -> Seq a -> List Nat
+indicesr {a} p = ifoldl go []
+  where
+    go : List Nat -> Nat -> a -> List Nat
+    go ns n x = if p x then n :: ns else ns
+
+filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
+filterA {f} {a} p = foldr go (pure empty)
+  where
+    go : a -> f (Seq a) -> f (Seq a)
+    go x xs = (| if_then_else_ (p x) (| (cons x) xs |) xs |)
+
+-------------------------------------------------------------------------------
+-- Sublists: Sequential searches
 -------------------------------------------------------------------------------
 
 breakl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
@@ -302,43 +302,33 @@ dropWhileL p = snd <<< spanl p
 dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
 
-take : Nat -> Seq a -> Seq a
-take n = fst <<< splitAt n
+partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
+partition {a} p = foldl go (empty , empty)
+  where
+    go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
+    go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
-drop : Nat -> Seq a -> Seq a
-drop n = snd <<< splitAt n
-
--------------------------------------------------------------------------------
--- Segments
--------------------------------------------------------------------------------
-
-inits : Seq a -> Seq (Seq a)
-inits (toSeq t) = cons empty (toSeq (Tree.inits (toElem <<< toSeq) t))
-
-tails : Seq a -> Seq (Seq a)
-tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  empty
-
-segments : Seq a -> Seq (Seq a)
-segments xs = singleton empty <>
-  (filter (not <<< null) $ foldr _<>_ empty (tails <$> inits xs))
-
-segmentsOfSize : Nat -> Seq a -> Seq (Seq a)
-segmentsOfSize 0 _ = singleton empty
-segmentsOfSize n xs =
-  filter (\ ys -> length ys == n) $ foldr _<>_ empty (tails <$> inits xs)
+filter : (a -> Bool) -> Seq a -> Seq a
+filter {a} p = foldl go empty
+  where
+    go : Seq a -> a -> Seq a
+    go xs x = if p x then snoc xs x else xs
 
 -------------------------------------------------------------------------------
--- Scans
+-- Transformations
 -------------------------------------------------------------------------------
 
-scanl : (b -> a -> b) -> b -> Seq a -> Seq b
-scanl f b xs = cons b (snd $ mapAccumL (\ x z -> dup (f x z)) b xs)
+reverse : Seq a -> Seq a
+reverse = foldl (flip cons) empty
 
-scanr : (a -> b -> b) -> b -> Seq a -> Seq b
-scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dup (f x z)) b xs) b
+intersperse : a -> Seq a -> Seq a
+intersperse sep nil = nil
+intersperse sep xs =
+  let (y , ys) = uncons xs {{trustMe}}
+  in cons y (| _#_ ys (cons (const sep) (singleton id)) |)
 
 -------------------------------------------------------------------------------
--- Zipping functions
+-- Transformations: Zips and unzip
 -------------------------------------------------------------------------------
 
 {-# TERMINATING #-}
@@ -368,165 +358,3 @@ zipCons {a} heads tails =
     -- head in heads.
     excess : Seq (Seq a)
     excess = snd (splitAt (length heads) tails)
-
--------------------------------------------------------------------------------
--- Predicates
--------------------------------------------------------------------------------
-
-module _ {{_ : Eq a}} where
-
-  isPrefixOf : Seq a -> Seq a -> Bool
-  isPrefixOf xs ys = take (length xs) ys == xs
-
-  isSuffixOf : Seq a -> Seq a -> Bool
-  isSuffixOf xs ys = isPrefixOf xs (drop (length xs) ys)
-
-  isInfixOf : Seq a -> Seq a -> Bool
-  isInfixOf xs ys = maybe false (const true) $
-    find (_== xs) (segmentsOfSize (length xs) ys)
-
-  isSubsequenceOf : Seq a -> Seq a -> Bool
-  isSubsequenceOf xs ys = maybe false (const true) (foldlM g ys xs)
-    where
-      g : Seq a -> a -> Maybe (Seq a)
-      g s a = let s' = dropWhileL (_/= a) s in
-        if null s'
-          then nothing
-          else just (tail s' {{trustMe}})
-
--------------------------------------------------------------------------------
--- Sublists
--------------------------------------------------------------------------------
-
-stripPrefix : {{Eq a}} -> Seq a -> Seq a -> Maybe (Seq a)
-stripPrefix xs ys =
-  if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
-
-{-# TERMINATING #-}
-groupBy : (a -> a -> Bool) -> Seq a -> Seq (Seq a)
-groupBy eq nil = nil
-groupBy eq as =
-  let
-    (x , xs) = uncons as {{trustMe}}
-    (ys , zs) = spanl (eq x) xs
-  in
-    cons (cons x ys) (groupBy eq zs)
-
-group : {{Eq a}} -> Seq a -> Seq (Seq a)
-group = groupBy _==_
-
--------------------------------------------------------------------------------
--- Transformations
--------------------------------------------------------------------------------
-
-{-# TERMINATING #-} 
-intercalate : {{Monoid a}} -> a -> Seq a -> a
-intercalate _ nil = mempty
-intercalate sep as =
-  let
-    (x , xs) = uncons as {{trustMe}}
-  in
-    case nonempty xs of \ where
-      true ->
-        let (y , ys) = uncons xs {{trustMe}}
-        in x <> sep <> intercalate sep (cons y ys)
-      false ->
-        x
-
-{-# TERMINATING #-}
-transpose : Seq (Seq a) -> Seq (Seq a)
-transpose nil = nil
-transpose xs =
-  let (hs , ts) = uncons xs {{trustMe}}
-  in zipCons hs (transpose ts)
-
--------------------------------------------------------------------------------
--- Set-like operations
--------------------------------------------------------------------------------
-
-{-# TERMINATING #-}
-deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
-deleteBy _ _ nil = nil
-deleteBy eq x xs =
-  let
-    (y , ys) = uncons xs {{trustMe}}
-  in
-    if eq x y
-      then ys
-      else (cons y (deleteBy eq x ys))
-
---{-# TERMINATING #-}
---nubBy : (a -> a -> Bool) -> Seq a -> Seq a
---nubBy {a} eq l = nubBy' l empty
---  where
---    elemBy : (a -> a -> Bool) -> a -> Seq a -> Bool
---    elemBy eq y ys =
---      case uncons ys of \ where
---         nothing -> false
---         (just (x , xs)) -> eq x y || elemBy eq y xs
---
---    nubBy' : Seq a -> Seq a -> Seq a
---    nubBy' as xs =
---      case uncons as of \ where
---        nothing -> empty
---        (just (y , ys)) ->
---          if elemBy eq y xs
---            then nubBy' ys xs
---            else cons y (nubBy' ys (cons y xs))
---
---unionBy : (a -> a -> Bool) -> Seq a -> Seq a -> Seq a
---unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
---
---module _ {{_ : Eq a}} where
---
---  delete : a -> Seq a -> Seq a
---  delete = deleteBy _==_
---
---  nub : Seq a -> Seq a
---  nub = nubBy _==_
---
---  union : Seq a -> Seq a -> Seq a
---  union = unionBy _==_
---
----------------------------------------------------------------------------------
----- Sorting
----------------------------------------------------------------------------------
---
---{-# TERMINATING #-}
---insertBy : (a -> a -> Ordering) -> a -> Seq a -> Seq a
---insertBy cmp x as =
---  case uncons as of \ where
---    nothing -> singleton x
---    (just (y , xs)) ->
---      case cmp x y of \ where
---        LT -> cons x (cons y xs)
---        _ -> cons y (insertBy cmp x xs)
---
---{-# TERMINATING #-}
---sortBy : (a -> a -> Ordering) -> Seq a -> Seq a
---sortBy cmp as =
---  case uncons as of \ where
---    nothing -> empty
---    (just (x , xs)) -> insertBy cmp x (sortBy cmp xs)
---
---module _ {{_ : Ord a}} where
---
---  insert : a -> Seq a -> Seq a
---  insert = insertBy compare
---
---  sort : Seq a -> Seq a
---  sort = sortBy compare
---
---  sortOn : (b -> a) -> Seq b -> Seq b
---  sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
---
----------------------------------------------------------------------------------
----- Searching
----------------------------------------------------------------------------------
---
---{-# TERMINATING #-}
---lookup : {{Eq a}} -> a -> Seq (Pair a b) -> Maybe b
---lookup a s =
---  case uncons s of \ where
---    nothing -> nothing
---    (just ((a' , b) , xs)) -> if a == a' then just b else lookup a xs
