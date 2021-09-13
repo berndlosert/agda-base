@@ -412,20 +412,21 @@ transpose xs =
   let (hs , ts) = uncons xs {{trustMe}}
   in zipCons hs (transpose ts)
 
----------------------------------------------------------------------------------
----- Set-like operations
----------------------------------------------------------------------------------
---
---{-# TERMINATING #-}
---deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
---deleteBy eq x xs =
---  case uncons xs of \ where
---    nothing -> empty
---    (just (y , ys)) ->
---      if eq x y
---        then ys
---        else (cons y (deleteBy eq x ys))
---
+-------------------------------------------------------------------------------
+-- Set-like operations
+-------------------------------------------------------------------------------
+
+{-# TERMINATING #-}
+deleteBy : (a -> a -> Bool) -> a -> Seq a -> Seq a
+deleteBy _ _ nil = nil
+deleteBy eq x xs =
+  let
+    (y , ys) = uncons xs {{trustMe}}
+  in
+    if eq x y
+      then ys
+      else (cons y (deleteBy eq x ys))
+
 --{-# TERMINATING #-}
 --nubBy : (a -> a -> Bool) -> Seq a -> Seq a
 --nubBy {a} eq l = nubBy' l empty
