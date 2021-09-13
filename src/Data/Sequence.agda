@@ -387,31 +387,31 @@ groupBy eq as =
 group : {{Eq a}} -> Seq a -> Seq (Seq a)
 group = groupBy _==_
 
----------------------------------------------------------------------------------
----- Transformations
----------------------------------------------------------------------------------
---
---{-# TERMINATING #-} 
---intercalate : {{Monoid a}} -> a -> Seq a -> a
---intercalate _ nil = mempty
---intercalate sep as =
---  let
---    (x , xs) = uncons as {{trustMe}}
---  in
---    case nonempty xs of \ where
---      true ->
---        let (y , ys) = uncons xs
---        in x <> sep <> intercalate sep (cons y ys)
---      false ->
---        x
---
---{-# TERMINATING #-}
---transpose : Seq (Seq a) -> Seq (Seq a)
---transpose ass =
---  case uncons ass of \ where
---    nothing -> empty
---    (just (heads , tails)) -> zipCons heads (transpose tails)
---
+-------------------------------------------------------------------------------
+-- Transformations
+-------------------------------------------------------------------------------
+
+{-# TERMINATING #-} 
+intercalate : {{Monoid a}} -> a -> Seq a -> a
+intercalate _ nil = mempty
+intercalate sep as =
+  let
+    (x , xs) = uncons as {{trustMe}}
+  in
+    case nonempty xs of \ where
+      true ->
+        let (y , ys) = uncons xs {{trustMe}}
+        in x <> sep <> intercalate sep (cons y ys)
+      false ->
+        x
+
+{-# TERMINATING #-}
+transpose : Seq (Seq a) -> Seq (Seq a)
+transpose nil = nil
+transpose xs =
+  let (hs , ts) = uncons xs {{trustMe}}
+  in zipCons hs (transpose ts)
+
 ---------------------------------------------------------------------------------
 ---- Set-like operations
 ---------------------------------------------------------------------------------
