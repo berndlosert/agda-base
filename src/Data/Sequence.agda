@@ -95,8 +95,8 @@ snoc (toSeq xs) x = toSeq (Tree.snoc xs (toElem x))
 singleton : a -> Seq a
 singleton x = toSeq (Tree.singleton (toElem x))
 
-fromList : List a -> Seq a
-fromList = foldr cons empty
+fromFoldable : {{Foldable t}} -> t a -> Seq a
+fromFoldable = foldr cons empty
 
 iterateN : Nat -> (a -> a) -> a -> Seq a
 iterateN 0 f x = empty
@@ -209,10 +209,7 @@ partition {a} p = foldl go (empty , empty)
 splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
 splitAt n (toSeq t) = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) t
 
-at : (n : Nat)
-  -> (xs : Seq a)
-  -> {{Assert $ nonempty xs && n < length xs}}
-  -> a
+at : (n : Nat) -> (xs : Seq a) -> {{Assert $ n < length xs}} -> a
 at n xs =
  let
    (ys , zs) = splitAt n xs
