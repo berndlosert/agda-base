@@ -311,7 +311,7 @@ groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
 groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
 chunksOf : Nat -> List a -> List (List a)
-chunksOf {a} n xs = fromMaybe [] (petrol go (length xs) xs)
+chunksOf {a} n xs = combust go xs
   where
     go : Fn (List a) (List (List a))
     go [] = pure []
@@ -320,8 +320,7 @@ chunksOf {a} n xs = fromMaybe [] (petrol go (length xs) xs)
       pure $ take n xs :: res
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
-breakOn {a} needle haystack =
-    combust go haystack
+breakOn {a} needle haystack = combust go haystack
   where
     go : Fn (List a) (Pair (List a) (List a))
     go haystack = do
@@ -334,8 +333,7 @@ breakOn {a} needle haystack =
             pure $ lmap (x ::_) res
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
-splitOn {a} needle haystack =
-    fromMaybe [] (petrol go (length haystack) haystack)
+splitOn {a} needle haystack = combust go haystack
   where
     go : Fn (List a) (List (List a))
     go [] = pure $ singleton []
