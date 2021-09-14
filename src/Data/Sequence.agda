@@ -30,7 +30,7 @@ open Data.Traversable public
 
 private
   variable
-    a b c v : Set
+    a b c s v : Set
     f t : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -79,6 +79,17 @@ instance
 
   Eq-Seq : {{Eq a}} -> Eq (Seq a)
   Eq-Seq ._==_ l r = toList l == toList r
+
+-------------------------------------------------------------------------------
+-- Private misc.
+-------------------------------------------------------------------------------
+
+private
+  splitMap : (Sum Nat -> s -> Pair s s)
+    -> (s -> a -> b)
+    -> s -> Seq a -> Seq b
+  splitMap split f0 s0 (toSeq xs0) = toSeq $
+    Tree.splitMapTreeE split (\ where s' (toElem a) -> toElem (f0 s' a)) s0 xs0
 
 -------------------------------------------------------------------------------
 -- Construction
