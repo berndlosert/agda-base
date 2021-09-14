@@ -229,8 +229,10 @@ cons-uncons : (s : String) {{_ : Assert $ nonempty s}}
   -> (uncurry cons) (uncons s) === s
 cons-uncons = trustMe
 
-{-# TERMINATING #-}
 asList : (s : String) -> AsList s
-asList "" = []
-asList s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
-... | c , s' | refl = c :: asList s'
+asList = combust go
+  where
+    go : DFn String AsList
+    go "" = pure []
+    go s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
+    ... | c , s' | refl = call s' >>= (c ::_) >>> pure
