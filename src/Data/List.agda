@@ -149,11 +149,7 @@ indexed xs = go 0 xs
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
-at : (n : Nat)
-  -> (xs : List a)
-  -> {{Assert $ nonempty xs}}
-  -> {{Assert $ n < length xs}}
-  -> a
+at : (n : Nat) -> (xs : List a) -> {{Assert $ n < length xs}} -> a
 at _ [] = error "Data.List.at: bad argument"
 at 0 (x :: []) = x
 at 0 (x :: _) = error "Data.List.at: bad argument"
