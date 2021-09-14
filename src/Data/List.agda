@@ -295,7 +295,7 @@ dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy {a} eq xs = fromMaybe [] (petrol go (length xs) xs)
+groupBy {a} eq = combust go
   where
     go : Fn (List a) (List (List a))
     go [] = pure []

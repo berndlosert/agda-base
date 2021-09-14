@@ -71,3 +71,10 @@ engine f (suc n) = engine f n <<< expand f
 
 petrol : DFn c r -> Nat -> (x : c) -> Maybe (r x)
 petrol f n x = already $ engine f n $ f x
+
+{-# TERMINATING #-}
+combust : DFn c r -> (x : c) -> r x
+combust {c} {r} f x = loop (f x)
+  where
+    loop : General c r (r x) -> r x
+    loop y = maybe (loop (expand f y)) id (already y)
