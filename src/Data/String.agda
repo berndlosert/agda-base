@@ -182,16 +182,14 @@ words : String -> List String
 words = combust go
   where
     go  : Fn String (List String)
-    go s =
-      let
-        s' = dropWhile Char.isSpace s
-      in
-        if s' == ""
-          then pure []
-          else do
-            let (w , s'') = break Char.isSpace s'
-            ws <- call s''
-            pure $ w :: ws
+    go s = do
+      let s' = dropWhile Char.isSpace s
+      case s' == "" of \ where
+        true -> pure []
+        false -> do
+          let (w , s'') = break Char.isSpace s'
+          ws <- call s''
+          pure $ w :: ws
 
 unwords : List String -> String
 unwords [] = ""
