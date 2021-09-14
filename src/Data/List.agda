@@ -321,7 +321,7 @@ chunksOf {a} n xs = fromMaybe [] (petrol go (length xs) xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn {a} needle haystack =
-    fromMaybe ([] , []) (petrol go (length haystack) haystack)
+    combust go haystack
   where
     go : Fn (List a) (Pair (List a) (List a))
     go haystack = do

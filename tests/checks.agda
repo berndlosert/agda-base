@@ -16,3 +16,19 @@ groupTest :
   map String.unpack
     ("M" :: "i" :: "ss" :: "i" :: "ss" :: "i" :: "pp" :: "i" :: [])
 groupTest = refl
+
+breakOnTest1 :
+  List.breakOn
+    (String.unpack "::")
+    (String.unpack "a::b::c")
+  ===
+    (String.unpack "a" , String.unpack "::b::c")
+breakOnTest1 = refl
+
+breakOnTest2 :
+  List.breakOn
+    (String.unpack "/")
+    (String.unpack "foobar")
+  ===
+    (String.unpack "foobar", [])
+breakOnTest2 = refl
