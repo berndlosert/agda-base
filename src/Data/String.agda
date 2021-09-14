@@ -209,3 +209,21 @@ unlines = List.fold <<< map (_<> "\n")
 {-# COMPILE GHC unwords = Text.unwords #-}
 {-# COMPILE GHC lines = Text.lines #-}
 {-# COMPILE GHC unlines = Text.unlines #-}
+
+-------------------------------------------------------------------------------
+-- View
+-------------------------------------------------------------------------------
+
+data AsList : String -> Set where
+  [] : AsList ""
+  _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
+
+cons-uncons : (s : String) {{_ : Assert $ nonempty s}}
+  -> (uncurry cons) (uncons s) === s
+cons-uncons = trustMe
+
+{-# TERMINATING #-}
+asList : (s : String) -> AsList s
+asList "" = []
+asList s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
+... | c , s' | refl = c :: asList s'
