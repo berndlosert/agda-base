@@ -2,6 +2,7 @@
 
 open import Prelude
 
+open import Data.Enum
 open import Data.List as List using ()
 open import Data.String as String using ()
 
@@ -32,3 +33,13 @@ breakOnTest2 :
   ===
     (String.unpack "foobar", [])
 breakOnTest2 = refl
+
+chunksOfTest :
+  List.chunksOf 3 (enumFromTo {Nat} 1 10)
+  ===
+  (1 :: 2 :: 3 :: [])
+  :: (4 :: 5 :: 6 :: [])
+  :: (7 :: 8 :: 9 :: [])
+  :: (10 :: [])
+  :: []
+chunksOfTest = refl
