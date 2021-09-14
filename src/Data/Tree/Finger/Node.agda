@@ -20,7 +20,7 @@ open import Data.Traversable
 
 private
   variable
-    a v : Set
+    a b s v : Set
 
 -------------------------------------------------------------------------------
 -- Node
@@ -28,17 +28,17 @@ private
 
 data Node (v a : Set) : Set where
   node2 : v -> a -> a -> Node v a
-  Node3 : v -> a -> a -> a -> Node v a
+  node3 : v -> a -> a -> a -> Node v a
 
 node2' : {{Measured v a}} -> a -> a -> Node v a
 node2' a b = node2 (measure a <> measure b) a b
 
 node3' : {{Measured v a}} -> a -> a -> a -> Node v a
-node3' a b c = Node3 (measure a <> measure b <> measure c) a b c
+node3' a b c = node3 (measure a <> measure b <> measure c) a b c
 
 nodeToDigit : Node v a -> Digit a
 nodeToDigit (node2 _ a b) = two a b
-nodeToDigit (Node3 _ a b c) = three a b c
+nodeToDigit (node3 _ a b c) = three a b c
 
 nodes : {{Measured v a}} -> List a -> List (Node v a)
 nodes (a :: b :: []) = node2' a b :: []
@@ -51,21 +51,21 @@ instance
   Foldable-Node : Foldable (Node v)
   Foldable-Node .foldr f z = \ where
     (node2 _ a b) -> f a (f b z)
-    (Node3 _ a b c) -> f a (f b (f c z))
+    (node3 _ a b c) -> f a (f b (f c z))
 
   Functor-Node : Functor (Node v)
   Functor-Node .map f = \ where
     (node2 v a b) -> node2 v (f a) (f b)
-    (Node3 v a b c) -> Node3 v (f a) (f b) (f c)
+    (node3 v a b c) -> node3 v (f a) (f b) (f c)
 
   Traversable-Node : Traversable (Node v)
   Traversable-Node .traverse f = \ where
     (node2 v a b) -> (| (node2 v) (f a) (f b) |)
-    (Node3 v a b c) -> (| (Node3 v) (f a) (f b) (f c) |)
+    (node3 v a b c) -> (| (node3 v) (f a) (f b) (f c) |)
 
   Measured-Node : {{Monoid v}} -> Measured v (Node v a)
   Measured-Node .measure (node2 v _ _) = v
-  Measured-Node .measure (Node3 v _ _ _) = v
+  Measured-Node .measure (node3 v _ _ _) = v
 
 -------------------------------------------------------------------------------
 -- Splitting
@@ -82,7 +82,7 @@ splitNode p i (node2 _ a b) =
   in
     if p va then toSplit nothing a (just (one b))
     else toSplit (just (one a)) b nothing
-splitNode p i (Node3 _ a b c) =
+splitNode p i (node3 _ a b c) =
   let
     va = i <> measure a
     vab = va <> measure b
@@ -108,7 +108,7 @@ searchNode p vl (node2 _ a b) vr =
   in
     if p va vb then toSplit nothing a (just (one b))
     else toSplit (just (one a)) b nothing
-searchNode p vl (Node3 _ a b c) vr =
+searchNode p vl (node3 _ a b c) vr =
   let
     va = vl <> measure a
     vab = va <> measure b
@@ -125,8 +125,22 @@ searchNode p vl (Node3 _ a b c) vr =
 
 initsNode : Node v a -> Node v (Digit a)
 initsNode (node2 v a b) = node2 v (one a) (two a b)
-initsNode (Node3 v a b c) = Node3 v (one a) (two a b) (three a b c)
+initsNode (node3 v a b c) = node3 v (one a) (two a b) (three a b c)
 
 tailsNode : Node v a -> Node v (Digit a)
 tailsNode (node2 v a b) = node2 v (two a b) (one b)
-tailsNode (Node3 v a b c) = Node3 v (three a b c) (two b c) (one c)
+tailsNode (node3 v a b c) = node3 v (three a b c) (two b c) (one c)
+
+splitMapNode : {{Measured Nat a}}
+  -> (Nat -> s -> Pair s s)
+  -> (s -> a -> b)
+  -> s -> Node Nat a -> Node Nat b
+splitMapNode split f s (node2 ns a b) =
+  let (first , second) = split (measure a) s
+  in node2 ns (f first a) (f second b)
+splitMapNode split f s (node3 ns a b c) =
+  let
+    (first , r) = split (measure a) s
+    (second , third) = split (measure b) r
+  in
+    node3 ns (f first a) (f second b) (f third c)
