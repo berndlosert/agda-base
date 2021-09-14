@@ -10,6 +10,7 @@ open import Prelude
 
 open import Agda.Builtin.String
 open import Constraint.NonEmpty
+open import Control.Monad.Free.General
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 
@@ -177,17 +178,20 @@ split f s = map pack $ List.split f (unpack s)
 -- Breaking into lines and words
 -------------------------------------------------------------------------------
 
-{-# TERMINATING #-}
 words : String -> List String
-words s =
-  let
-    s' = dropWhile Char.isSpace s
-  in
-    if s' == ""
-      then []
-      else
-        let (w , s'') = break Char.isSpace s'
-        in (w :: words s'')
+words = combust go
+  where
+    go  : Fn String (List String)
+    go s =
+      let
+        s' = dropWhile Char.isSpace s
+      in
+        if s' == ""
+          then pure []
+          else do
+            let (w , s'') = break Char.isSpace s'
+            ws <- call s''
+            pure $ w :: ws
 
 unwords : List String -> String
 unwords [] = ""
