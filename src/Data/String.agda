@@ -179,10 +179,15 @@ split f s = map pack $ List.split f (unpack s)
 
 {-# TERMINATING #-}
 words : String -> List String
-words s = let s' = dropWhile Char.isSpace s in
-  if s' == ""
-    then []
-    else let (w , s'') = break Char.isSpace s' in (w :: words s'')
+words s =
+  let
+    s' = dropWhile Char.isSpace s
+  in
+    if s' == ""
+      then []
+      else
+        let (w , s'') = break Char.isSpace s'
+        in (w :: words s'')
 
 unwords : List String -> String
 unwords [] = ""
@@ -194,12 +199,12 @@ unwords (w :: ws) = w <> go ws
 
 lines : String -> List String
 lines s =
-  let (l , ls) = foldl f ("" , []) s
-  in List.reverse (if l == "" then ls else (l :: ls))
+    let (l , ls) = foldl go ("" , []) s
+    in List.reverse (if l == "" then ls else (l :: ls))
   where
-    f : Pair String (List String) -> Char -> Pair String (List String)
-    f (l , ls) '\n' = ("" , l :: ls)
-    f (l , ls) c = (snoc l c , ls)
+    go : Pair String (List String) -> Char -> Pair String (List String)
+    go (l , ls) '\n' = ("" , l :: ls)
+    go (l , ls) c = (snoc l c , ls)
 
 unlines : List String -> String
 unlines = List.fold <<< map (_<> "\n")
