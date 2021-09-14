@@ -346,13 +346,13 @@ splitMapTreeN split f s (deep n pr m sf) =
   in
     deep n pr' m' sf'
 
-splitMapTreeE : {{Measured (Sum Nat) a}}
+splitMapTree : {{Measured (Sum Nat) a}}
   -> ((Sum Nat) -> s -> Pair s s)
   -> (s -> a -> b)
   -> s -> FingerTree (Sum Nat) a -> FingerTree (Sum Nat) b
-splitMapTreeE split f s nil = nil
-splitMapTreeE split f s (single xs) = single (f s xs)
-splitMapTreeE split f s (deep n pr m sf) =
+splitMapTree split f s nil = nil
+splitMapTree split f s (single xs) = single (f s xs)
+splitMapTree split f s (deep n pr m sf) =
   let
     spr = measure pr
     sm = getSum n - (getSum $! spr) - getSum (measure sf)
