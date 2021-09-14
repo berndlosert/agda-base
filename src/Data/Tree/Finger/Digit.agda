@@ -19,7 +19,7 @@ open import Data.Traversable
 
 private
   variable
-    a v : Set
+    a b s v : Set
 
 -------------------------------------------------------------------------------
 -- Digit
@@ -148,3 +148,25 @@ tailsDigit (one a) = one (one a)
 tailsDigit (two a b) = two (two a b) (one b)
 tailsDigit (three a b c) = three (three a b c) (two b c) (one c)
 tailsDigit (four a b c d) = four (four a b c d) (three b c d) (two c d) (one d)
+
+splitMapDigit : {{Measured Nat a}}
+  -> (Nat -> s -> Pair s s)
+  -> (s -> a -> b)
+  -> s -> Digit a -> Digit b
+splitMapDigit split f s (one a) = one (f s a)
+splitMapDigit split f s (two a b) =
+  let (first , second) = split (measure a) s
+  in two (f first a) (f second b)
+splitMapDigit split f s (three a b c) =
+  let
+    (first , r) = split (measure a) s
+    (second , third) = split (measure b) r
+  in
+    three (f first a) (f second b) (f third c)
+splitMapDigit split f s (four a b c d) =
+  let
+    (first , s') = split (measure a) s
+    (middle , fourth) = split (measure b <> measure c) s'
+    (second , third) = split (measure b) middle
+  in
+    four (f first a) (f second b) (f third c) (f fourth d)
