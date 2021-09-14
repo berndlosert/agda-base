@@ -43,3 +43,9 @@ chunksOfTest :
   :: (10 :: [])
   :: []
 chunksOfTest = refl
+
+testWords :
+  String.words "abc 123  xyz "
+  ===
+  "abc" :: "123" :: "xyz" :: []
+testWords = refl
