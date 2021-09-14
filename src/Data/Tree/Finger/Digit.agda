@@ -166,7 +166,7 @@ splitMapDigit split f s (three a b c) =
 splitMapDigit split f s (four a b c d) =
   let
     (first , s') = split (measure a) s
-    (middle , fourth) = split (measure b <> measure c) s'
+    (middle , fourth) = split (measure b + measure c) s'
     (second , third) = split (measure b) middle
   in
     four (f first a) (f second b) (f third c) (f fourth d)
