@@ -106,7 +106,7 @@ reverse s = pack $ List.reverse $ unpack s
 {-# COMPILE GHC reverse = Text.reverse #-}
 
 -------------------------------------------------------------------------------
--- justification
+-- Justification
 -------------------------------------------------------------------------------
 
 justifyLeft : Nat -> Char -> String -> String
