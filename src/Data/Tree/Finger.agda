@@ -10,6 +10,7 @@ open import Prelude
 
 open import Constraint.NonEmpty
 open import Data.Foldable
+open import Data.Monoid.Sum
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
@@ -345,18 +346,18 @@ splitMapTreeN split f s (deep n pr m sf) =
   in
     deep n pr' m' sf'
 
-splitMapTreeE : {{Measured Nat a}}
-  -> (Nat -> s -> Pair s s)
+splitMapTreeE : {{Measured (Sum Nat) a}}
+  -> ((Sum Nat) -> s -> Pair s s)
   -> (s -> a -> b)
-  -> s -> FingerTree Nat a -> FingerTree Nat b
+  -> s -> FingerTree (Sum Nat) a -> FingerTree (Sum Nat) b
 splitMapTreeE split f s nil = nil
 splitMapTreeE split f s (single xs) = single (f s xs)
 splitMapTreeE split f s (deep n pr m sf) =
   let
     spr = measure pr
-    sm = n - spr - measure sf
+    sm = getSum n - getSum spr - getSum (measure sf)
     (prs , r) = split spr s
-    (ms , sfs) = split sm r
+    (ms , sfs) = split (toSum sm) r
     pr' = splitMapDigit split f prs pr
     m' = splitMapTreeN split (splitMapNode split f) ms m
     sf' = splitMapDigit split f sfs sf
