@@ -344,3 +344,21 @@ splitMapTreeN split f s (deep n pr m sf) =
     sf' = splitMapDigit split f sfs sf
   in
     deep n pr' m' sf'
+
+splitMapTreeE : {{Measured Nat a}}
+  -> (Nat -> s -> Pair s s)
+  -> (s -> a -> b)
+  -> s -> FingerTree Nat a -> FingerTree Nat b
+splitMapTreeE split f s nil = nil
+splitMapTreeE split f s (single xs) = single (f s xs)
+splitMapTreeE split f s (deep n pr m sf) =
+  let
+    spr = measure pr
+    sm = n - spr - measure sf
+    (prs , r) = split spr s
+    (ms , sfs) = split sm r
+    pr' = splitMapDigit split f prs pr
+    m' = splitMapTreeN split (splitMapNode split f) ms m
+    sf' = splitMapDigit split f sfs sf
+  in
+    deep n pr' m' sf'
