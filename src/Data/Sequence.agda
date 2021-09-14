@@ -89,7 +89,7 @@ private
     -> (s -> a -> b)
     -> s -> Seq a -> Seq b
   splitMap split f0 s0 (toSeq xs0) = toSeq $
-    Tree.splitMapTreeE split (\ where s' (toElem a) -> toElem (f0 s' a)) s0 xs0
+    Tree.splitMapTree split (\ where s' (toElem a) -> toElem (f0 s' a)) s0 xs0
 
 -------------------------------------------------------------------------------
 -- Construction
