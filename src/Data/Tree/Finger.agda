@@ -329,10 +329,10 @@ tails f (deep n pr m sf) =
       (tails f' m)
       (map (f <<< digitToTree) (tailsDigit sf))
 
-splitMapTreeN : {{Measured Nat a}}
-  -> (Nat -> s -> Pair s s)
-  -> (s -> Node Nat a -> b)
-  -> s -> FingerTree Nat (Node Nat a) -> FingerTree Nat b
+splitMapTreeN : {{Measured v a}}
+  -> (v -> s -> Pair s s)
+  -> (s -> Node v a -> b)
+  -> s -> FingerTree v (Node v a) -> FingerTree v b
 splitMapTreeN split f s nil = nil
 splitMapTreeN split f s (single xs) = single (f s xs)
 splitMapTreeN split f s (deep n pr m sf) =
