@@ -22,7 +22,7 @@ open import Data.Tree.Finger.Split
 
 private
   variable
-    a b v : Set
+    a b s v : Set
     f : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -328,3 +328,19 @@ tails f (deep n pr m sf) =
     deep n (map (\ pr' -> f (deep' pr' m sf)) (tailsDigit pr))
       (tails f' m)
       (map (f <<< digitToTree) (tailsDigit sf))
+
+splitMapTreeN : {{Measured Nat a}}
+  -> (Nat -> s -> Pair s s)
+  -> (s -> Node Nat a -> b)
+  -> s -> FingerTree Nat (Node Nat a) -> FingerTree Nat b
+splitMapTreeN split f s nil = nil
+splitMapTreeN split f s (single xs) = single (f s xs)
+splitMapTreeN split f s (deep n pr m sf) =
+  let
+    (prs , r) = split (measure pr) s
+    (ms , sfs) = split (measure m) r
+    pr' = splitMapDigit split f prs pr
+    m' = splitMapTreeN split (splitMapNode split f) ms m
+    sf' = splitMapDigit split f sfs sf
+  in
+    deep n pr' m' sf'
