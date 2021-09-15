@@ -130,17 +130,3 @@ initsNode (node3 v a b c) = node3 v (one a) (two a b) (three a b c)
 tailsNode : Node v a -> Node v (Digit a)
 tailsNode (node2 v a b) = node2 v (two a b) (one b)
 tailsNode (node3 v a b c) = node3 v (three a b c) (two b c) (one c)
-
-splitMapNode : {{Measured v a}}
-  -> (v -> s -> Pair s s)
-  -> (s -> a -> b)
-  -> s -> Node v a -> Node v b
-splitMapNode split f s (node2 ns a b) =
-  let (first , second) = split (measure a) s
-  in node2 ns (f first a) (f second b)
-splitMapNode split f s (node3 ns a b c) =
-  let
-    (first , r) = split (measure a) s
-    (second , third) = split (measure b) r
-  in
-    node3 ns (f first a) (f second b) (f third c)

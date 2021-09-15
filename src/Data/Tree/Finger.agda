@@ -329,37 +329,3 @@ tails f (deep n pr m sf) =
     deep n (map (\ pr' -> f (deep' pr' m sf)) (tailsDigit pr))
       (tails f' m)
       (map (f <<< digitToTree) (tailsDigit sf))
-
-splitMapTreeN : {{Measured v a}}
-  -> (v -> s -> Pair s s)
-  -> (s -> Node v a -> b)
-  -> s -> FingerTree v (Node v a) -> FingerTree v b
-splitMapTreeN split f s nil = nil
-splitMapTreeN split f s (single xs) = single (f s xs)
-splitMapTreeN split f s (deep n pr m sf) =
-  let
-    (prs , r) = split (measure pr) s
-    (ms , sfs) = split (measure m) r
-    pr' = splitMapDigit split f prs pr
-    m' = splitMapTreeN split (splitMapNode split f) ms m
-    sf' = splitMapDigit split f sfs sf
-  in
-    deep n pr' m' sf'
-
-splitMapTree : {{Measured (Sum Nat) a}}
-  -> ((Sum Nat) -> s -> Pair s s)
-  -> (s -> a -> b)
-  -> s -> FingerTree (Sum Nat) a -> FingerTree (Sum Nat) b
-splitMapTree split f s nil = nil
-splitMapTree split f s (single xs) = single (f s xs)
-splitMapTree split f s (deep n pr m sf) =
-  let
-    spr = measure pr
-    sm = getSum n - (getSum $! spr) - getSum (measure sf)
-    (prs , r) = split spr s
-    (ms , sfs) = split (toSum $! sm) r
-    pr' = splitMapDigit split f prs pr
-    m' = splitMapTreeN split (splitMapNode split f) ms m
-    sf' = splitMapDigit split f sfs sf
-  in
-    deep n pr' m' sf'
