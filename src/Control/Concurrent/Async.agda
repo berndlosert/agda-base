@@ -205,7 +205,7 @@ instance
     toConcurrently $ fromEither <$> race as bs
 
   Semigroup-Concurrently : {{Semigroup a}} -> Semigroup (Concurrently a)
-  Semigroup-Concurrently ._<>_ x y = (| _<>_ x y |)
+  Semigroup-Concurrently ._<>_ x y = (| x <> y |)
 
   Monoid-Concurrently : {{Monoid a}} -> Monoid (Concurrently a)
   Monoid-Concurrently .mempty = pure mempty

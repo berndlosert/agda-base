@@ -772,7 +772,7 @@ instance
 
   Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
   Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
-    (| _<>_ x y |)
+    (| x <> y |)
 
 -------------------------------------------------------------------------------
 -- Monoid
@@ -954,7 +954,7 @@ record Applicative (f : Set -> Set) : Set where
 
   infixl 4 _<**>_
   _<**>_ : f a -> f (a -> b) -> f b
-  xs <**> fs = (| _#_ xs fs |)
+  xs <**> fs = (| xs # fs |)
 
   infixl 4 _*>_
   _*>_ : f a -> f b -> f b

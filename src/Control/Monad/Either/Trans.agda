@@ -54,7 +54,7 @@ instance
   Applicative-EitherT : {{Monad m}} -> Applicative (EitherT e m)
   Applicative-EitherT .pure = toEitherT <<< pure <<< pure
   Applicative-EitherT ._<*>_ f x =
-    toEitherT (| _<*>_ (runEitherT f) (runEitherT x) |)
+    toEitherT (| runEitherT f <*> runEitherT x |)
 
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)

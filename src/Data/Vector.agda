@@ -81,7 +81,7 @@ instance
   Traversable-Vector : Traversable (Vector n)
   Traversable-Vector .traverse f = \ where
     [] -> (| [] |)
-    (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
+    (x :: xs) -> (| f x :: traverse f xs |)
 
 -------------------------------------------------------------------------------
 -- More functions

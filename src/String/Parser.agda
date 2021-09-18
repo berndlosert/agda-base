@@ -46,7 +46,7 @@ abstract
 
 {-# NON_TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
-many1 a = (| _::_ a (many a) |)
+many1 a = (| a :: many a |)
 many a = many1 a <|> pure []
 
 optional : Parser a -> Parser (Maybe a)
@@ -72,7 +72,7 @@ skipMany1 : Parser a -> Parser Unit
 skipMany1 p = many1 p *> pure tt
 
 sepBy1 : Parser a -> Parser b -> Parser (List a)
-sepBy1 p sep = (| _::_ p (many (sep *> p)) |)
+sepBy1 p sep = (| p :: many (sep *> p) |)
 
 sepBy : Parser a -> Parser b -> Parser (List a)
 sepBy p sep = sepBy1 p sep <|> pure []

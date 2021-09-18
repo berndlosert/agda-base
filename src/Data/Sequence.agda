@@ -81,17 +81,6 @@ instance
   Eq-Seq ._==_ l r = toList l == toList r
 
 -------------------------------------------------------------------------------
--- Private misc.
--------------------------------------------------------------------------------
-
-private
-  splitMap : (Sum Nat -> s -> Pair s s)
-    -> (s -> a -> b)
-    -> s -> Seq a -> Seq b
-  splitMap split f0 s0 (toSeq xs0) = toSeq $
-    Tree.splitMapTree split (\ where s' (toElem a) -> toElem (f0 s' a)) s0 xs0
-
--------------------------------------------------------------------------------
 -- Construction
 -------------------------------------------------------------------------------
 
@@ -282,7 +271,7 @@ filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
 filterA {f} {a} p = foldr go (pure empty)
   where
     go : a -> f (Seq a) -> f (Seq a)
-    go x xs = (| if_then_else_ (p x) (| (cons x) xs |) xs |)
+    go x xs = (| if p x then (| (cons x) xs |) else xs |)
 
 -------------------------------------------------------------------------------
 -- Sublists: Sequential searches
@@ -336,7 +325,7 @@ intersperse : a -> Seq a -> Seq a
 intersperse sep nil = nil
 intersperse sep xs =
   let (y , ys) = uncons xs {{trustMe}}
-  in cons y (| _#_ ys (cons (const sep) (singleton id)) |)
+  in cons y (| ys # cons (const sep) (singleton id) |)
 
 -------------------------------------------------------------------------------
 -- Transformations: Zips and unzip

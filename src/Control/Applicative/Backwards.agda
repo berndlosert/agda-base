@@ -34,4 +34,4 @@ instance
   Applicative-Backwards : {{Applicative f}} -> Applicative (Backwards f)
   Applicative-Backwards .pure x = toBackwards (pure x)
   Applicative-Backwards ._<*>_ (toBackwards f) (toBackwards x) =
-    toBackwards (| _#_ x f |)
+    toBackwards (| x # f |)

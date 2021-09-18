@@ -58,7 +58,7 @@ replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat -> f (List a)
     loop 0 = pure []
-    loop (suc n) = (| _::_ fa (loop n) |)
+    loop (suc n) = (| fa :: loop n |)
 
 build : (forall {b} -> (a -> b -> b) -> b -> b) -> List a
 build g = g _::_ []

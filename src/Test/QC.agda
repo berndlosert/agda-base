@@ -195,7 +195,7 @@ instance
     in choose (- n' , n')
 
   Arbitrary-Pair : {{Arbitrary a}} -> {{Arbitrary b}} -> Arbitrary (Pair a b)
-  Arbitrary-Pair .arbitrary = (| _,_ arbitrary arbitrary |)
+  Arbitrary-Pair .arbitrary = (| arbitrary , arbitrary |)
 
   Arbitrary-List : {{Arbitrary a}} -> Arbitrary (List a)
   Arbitrary-List .arbitrary = sized \ n -> do

@@ -300,7 +300,7 @@ open Each {{...}} public
 
 instance
   Each-Pair : Each (Pair a a) (Pair b b) a b
-  Each-Pair .each f (a , b) = (| _,_ (f a) (f b) |)
+  Each-Pair .each f (a , b) = (| f a , f b |)
 
   Each-Maybe : Each (Maybe a) (Maybe b) a b
   Each-Maybe .each f nothing = pure nothing
@@ -312,7 +312,7 @@ instance
 
   Each-List : Each (List a) (List b) a b
   Each-List .each f [] = pure []
-  Each-List .each f (x :: xs) = (| _::_ (f x) (each f xs) |)
+  Each-List .each f (x :: xs) = (| f x :: each f xs |)
 
 -------------------------------------------------------------------------------
 -- Some specific optics

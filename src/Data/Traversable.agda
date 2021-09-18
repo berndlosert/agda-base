@@ -49,7 +49,7 @@ instance
   Traversable-List : Traversable List
   Traversable-List .traverse f = \ where
     [] -> (| [] |)
-    (x :: xs) -> (| _::_ (f x) (traverse f xs) |)
+    (x :: xs) -> (| f x :: traverse f xs |)
 
   Traversable-Reverse : {{Traversable f}} -> Traversable (Reverse f)
   Traversable-Reverse .traverse f (toReverse x) =

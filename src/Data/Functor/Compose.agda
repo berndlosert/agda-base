@@ -40,7 +40,7 @@ instance
     -> Applicative (Compose f g)
   Applicative-Compose .pure x = toCompose (pure (pure x))
   Applicative-Compose ._<*>_ f x =
-    toCompose (| _<*>_ (getCompose f) (getCompose x) |)
+    toCompose (| getCompose f <*> getCompose x |)
 
   Foldable-Compose : {{Foldable f}} -> {{Foldable g}}
     -> Foldable (Compose f g)
