@@ -58,7 +58,7 @@ record Filterable (t : Set -> Set) : Set where
 
     mapEitherA : (a -> f (Either b c)) -> t a -> f (Pair (t b) (t c))
     mapEitherA f = (|
-        (\ x y -> (| _,_ x y |))
+        (\ x y -> (| x , y |))
         (mapMaybeA (map (either just (pure nothing)) <<< f))
         (mapMaybeA (map (either (pure nothing) just) <<< f))
       |)
