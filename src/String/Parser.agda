@@ -90,15 +90,15 @@ prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 {-# NON_TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
 postfix wrap p op = (| (wrap <$> p) # rest |)
-  where rest = _>>>_ <$> op <*> rest <|> pure id
+  where rest = (| op >>> rest |) <|> pure id
 
 {-# NON_TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
-infixl1 wrap p op = postfix wrap p (flip <$> op <*> p)
+infixl1 wrap p op = postfix wrap p (| flip op p |)
 
 {-# NON_TERMINATING #-}
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
-infixr1 wrap p op = (| p # flip <$> op <*> infixr1 wrap p op <|> pure wrap |)
+infixr1 wrap p op = (| p # (| flip op (infixr1 wrap p op) |) <|> pure wrap |)
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 = infixl1 id
