@@ -88,8 +88,8 @@ prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
 prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 
 {-# NON_TERMINATING #-}
-postfix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
-postfix wrap op p = (wrap <$> p) <**> rest
+postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
+postfix wrap p op = (wrap <$> p) <**> rest
   where rest = _>>>_ <$> op <*> rest <|> pure id
 
 {-# NON_TERMINATING #-}
