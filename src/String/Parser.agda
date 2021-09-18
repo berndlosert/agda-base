@@ -228,6 +228,12 @@ int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 -- Misc. parsers
 -------------------------------------------------------------------------------
 
+eof : Parser Unit
+eof = toParser \ s -> if s == "" then pure ("" , tt) else []
+
+fully : Parser a -> Parser a
+fully p = skipSpaces *> p <* eof
+
 lexeme : Parser a -> Parser a
 lexeme p = p <* skipSpaces
 
