@@ -29,11 +29,12 @@ record Filterable (t : Set -> Set) : Set where
     mapMaybe : (a -> Maybe b) -> t a -> t b
 
   mapEither : (a -> Either b c) -> t a -> Pair (t b) (t c)
-  mapEither t = (|
-      _,_
-      (mapMaybe (either just (pure nothing) <<< t))
-      (mapMaybe (either (pure nothing) just <<< t))
-    |)
+  mapEither t =
+    let
+      l = mapMaybe (either just (pure nothing) <<< t)
+      r = mapMaybe (either (pure nothing) just <<< t)
+    in
+      (| l , r |)
 
   filter : (a -> Bool) -> t a -> t a
   filter p = mapMaybe (\ x -> if p x then just x else nothing)
