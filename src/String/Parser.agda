@@ -94,8 +94,7 @@ postfix wrap p op = (wrap <$> p) <**> rest
 
 {-# NON_TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
-infixl1 wrap p op = (wrap <$> p) <**> rest
-  where rest = _>>>_ <$> (flip <$> op <*> p) <*> rest <|> pure id
+infixl1 wrap p op = postfix wrap p (flip <$> op <*> p)
 
 {-# NON_TERMINATING #-}
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
