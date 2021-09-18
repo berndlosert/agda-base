@@ -55,7 +55,7 @@ record Filterable (t : Set -> Set) : Set where
 
     filterA : (a -> f Bool) -> t a -> f (t a)
     filterA p =
-      mapMaybeA (\ x -> (| bool (| nothing |) (| (just x) |) (p x) |))
+      mapMaybeA \ x -> (| if p x then (| (just x) |) else (| nothing |) |)
 
     mapEitherA : (a -> f (Either b c)) -> t a -> f (Pair (t b) (t c))
     mapEitherA f = (|
