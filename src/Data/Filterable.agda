@@ -63,7 +63,7 @@ record Filterable (t : Set -> Set) : Set where
         l = mapMaybeA (map (either just (pure nothing)) <<< f)
         r = mapMaybeA (map (either (pure nothing) just) <<< f)
       in
-        (| (map2 _,_) l r |)
+        (| (\ x y -> (| x , y |)) l r |)
 
 open Filterable {{...}} public
 

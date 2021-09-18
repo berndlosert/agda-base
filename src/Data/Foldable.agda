@@ -170,6 +170,9 @@ record Foldable (t : Set -> Set) : Set where
     asum : t (f a) -> f a
     asum = foldr _<|>_ empty
 
+    choice : t (f a) -> f a
+    choice ps = foldr _<|>_ empty ps
+
 open Foldable {{...}} public
 
 -------------------------------------------------------------------------------
