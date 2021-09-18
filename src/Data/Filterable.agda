@@ -37,7 +37,7 @@ record Filterable (t : Set -> Set) : Set where
       (| l , r |)
 
   filter : (a -> Bool) -> t a -> t a
-  filter p = mapMaybe (\ x -> if p x then just x else nothing)
+  filter p = mapMaybe \ x -> if p x then just x else nothing
 
   partition : (a -> Bool) -> t a -> Pair (t a) (t a)
   partition p xs = (filter p xs , filter (not <<< p) xs)
