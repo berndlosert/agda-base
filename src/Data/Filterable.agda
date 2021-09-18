@@ -58,11 +58,12 @@ record Filterable (t : Set -> Set) : Set where
       mapMaybeA \ x -> (| if p x then (| (just x) |) else (| nothing |) |)
 
     mapEitherA : (a -> f (Either b c)) -> t a -> f (Pair (t b) (t c))
-    mapEitherA f = (|
-        (\ x y -> (| x , y |))
-        (mapMaybeA (map (either just (pure nothing)) <<< f))
-        (mapMaybeA (map (either (pure nothing) just) <<< f))
-      |)
+    mapEitherA f =
+      let
+        l = mapMaybeA (map (either just (pure nothing)) <<< f)
+        r = mapMaybeA (map (either (pure nothing) just) <<< f)
+      in
+        (| (map2 _,_) l r |)
 
 open Filterable {{...}} public
 
