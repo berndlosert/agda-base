@@ -55,9 +55,6 @@ optional a = (| just a | nothing |)
 choose : Parser a -> Parser b -> Parser (Either a b)
 choose a b = (| left a | right b |)
 
-choice : List (Parser a) -> Parser a
-choice ps = List.foldr _<|>_ empty ps
-
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
 exactly n p = List.sequence (List.replicate n p)
@@ -87,21 +84,22 @@ endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
 {-# NON_TERMINATING #-}
+infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
+infixl1 wrap p op = (wrap <$> p) <**> rest
+  where rest = (| _>>>_  (| flip op p |) rest |) <|> pure id
+
+{-# NON_TERMINATING #-}
+infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
+infixr1 wrap p op = p <**> (flip <$> op <*> infixr1 wrap p op <|> pure wrap)
+
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
-chainl1 {a} p op = (| _#_ p rest |)
-  where
-    rest : Parser (a -> a)
-    rest = (| _>>>_ (| flip op p |) rest | id |)
+chainl1 = infixl1 id
 
 chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainl p op a = chainl1 p op <|> pure a
 
-{-# NON_TERMINATING #-}
 chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
-chainr1 {a} p op = (| _#_ p rest |)
-  where
-    rest : Parser (a -> a)
-    rest = (| flip op (chainr1 p op) | id |)
+chainr1 = infixr1 id
 
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
