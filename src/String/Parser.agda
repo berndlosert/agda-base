@@ -84,9 +84,18 @@ endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
 {-# NON_TERMINATING #-}
+prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
+prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
+
+{-# NON_TERMINATING #-}
+postfix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
+postfix wrap op p = (wrap <$> p) <**> rest
+  where rest = _>>>_ <$> op <*> rest <|> pure id
+
+{-# NON_TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
 infixl1 wrap p op = (wrap <$> p) <**> rest
-  where rest = (| _>>>_  (| flip op p |) rest |) <|> pure id
+  where rest = _>>>_ <$> (flip <$> op <*> p) <*> rest <|> pure id
 
 {-# NON_TERMINATING #-}
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
