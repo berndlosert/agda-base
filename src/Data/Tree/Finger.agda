@@ -99,7 +99,7 @@ cons a (deep s (two b c) m sf) =
 cons a (deep s (three b c d) m sf) =
   deep (measure a <> s) (four a b c d) m sf
 cons a (deep s (four b c d e) m sf) =
-  deep (measure a <> s) (two a b) (cons (node3' c d e) m) sf
+  deep (measure a <> s) (two a b) (cons (mkNode3 c d e) m) sf
 
 consAll : {{Measured v a}} -> {{Foldable f}}
   -> f a -> FingerTree v a -> FingerTree v a
@@ -120,7 +120,7 @@ snoc (deep s pr m (two a b)) c =
 snoc (deep s pr m (three a b c)) d =
   deep (s <> measure d) pr m (four a b c d)
 snoc (deep s pr m (four a b c d)) e =
-  deep (s <> measure e) pr (snoc m (node3' a b c)) (two d e)
+  deep (s <> measure e) pr (snoc m (mkNode3 a b c)) (two d e)
 
 snocAll : {{Measured v a}} -> {{Foldable f}}
   -> FingerTree v a -> f a -> FingerTree v a

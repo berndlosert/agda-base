@@ -30,21 +30,21 @@ data Node (v a : Set) : Set where
   node2 : v -> a -> a -> Node v a
   node3 : v -> a -> a -> a -> Node v a
 
-node2' : {{Measured v a}} -> a -> a -> Node v a
-node2' a b = node2 (measure a <> measure b) a b
+mkNode2 : {{Measured v a}} -> a -> a -> Node v a
+mkNode2 a b = node2 (measure a <> measure b) a b
 
-node3' : {{Measured v a}} -> a -> a -> a -> Node v a
-node3' a b c = node3 (measure a <> measure b <> measure c) a b c
+mkNode3 : {{Measured v a}} -> a -> a -> a -> Node v a
+mkNode3 a b c = node3 (measure a <> measure b <> measure c) a b c
 
 nodeToDigit : Node v a -> Digit a
 nodeToDigit (node2 _ a b) = two a b
 nodeToDigit (node3 _ a b c) = three a b c
 
 nodes : {{Measured v a}} -> List a -> List (Node v a)
-nodes (a :: b :: []) = node2' a b :: []
-nodes (a :: b :: c :: []) = node3' a b c :: []
-nodes (a :: b :: c :: d :: []) = node2' a b :: node2' c d :: []
-nodes (a :: b :: c :: xs) = node3' a b c :: nodes xs
+nodes (a :: b :: []) = mkNode2 a b :: []
+nodes (a :: b :: c :: []) = mkNode3 a b c :: []
+nodes (a :: b :: c :: d :: []) = mkNode2 a b :: mkNode2 c d :: []
+nodes (a :: b :: c :: xs) = mkNode3 a b c :: nodes xs
 nodes _ = []
 
 instance
