@@ -46,10 +46,10 @@ private
 
 interpretGeneral : {{Monad m}}
   -> (t : (x : c) -> m (r x)) -> General c r a -> m a
-interpretGeneral t = general pure \ x -> (t x >>=_)
+interpretGeneral t = general pure \ x -> t x >>=_
 
 already : General c r a -> Maybe a
-already = interpretGeneral (\ _ -> nothing)
+already = interpretGeneral \ _ -> nothing
 
 instance
   Functor-General : Functor (General c r)
