@@ -37,27 +37,27 @@ private
 -- Seq
 -------------------------------------------------------------------------------
 
-private
-  data Seq' (a : Set) : Set where
-    toSeq : FingerTree (Sum Nat) (Elem a) -> Seq' a
+record Seq (a : Set) : Set where
+  constructor toSeq
+  field unSeq : FingerTree (Sum Nat) (Elem a)
 
-Seq = Seq'
+open Seq
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ (toSeq l) (toSeq r) = toSeq (l <> r)
+  Semigroup-Seq ._<>_ l r = toSeq (unSeq l <> unSeq r)
 
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = toSeq Tree.empty
 
   NonEmptyness-Seq : NonEmptyness (Seq a)
-  NonEmptyness-Seq .nonempty (toSeq t) = nonempty t
+  NonEmptyness-Seq .nonempty xs = nonempty (unSeq xs)
 
   Foldable-Seq : Foldable Seq
-  Foldable-Seq .foldr f z (toSeq t) = foldr (f <<< getElem) z t
+  Foldable-Seq .foldr f z xs = foldr (f <<< getElem) z (unSeq xs)
 
   Functor-Seq : Functor Seq
-  Functor-Seq .map f (toSeq t) = toSeq (map (map f) t)
+  Functor-Seq .map f xs = toSeq (map f <$> unSeq xs)
 
   Applicative-Seq : Applicative Seq
   Applicative-Seq .pure = toSeq <<< Tree.singleton <<< toElem
@@ -75,7 +75,7 @@ instance
   Monad-Seq ._>>=_ = flip foldMap
 
   Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f (toSeq t) = toSeq <$> traverse (traverse f) t
+  Traversable-Seq .traverse f xs = toSeq <$> traverse (traverse f) (unSeq xs)
 
   Eq-Seq : {{Eq a}} -> Eq (Seq a)
   Eq-Seq ._==_ l r = toList l == toList r
@@ -87,10 +87,10 @@ instance
 pattern nil = toSeq Tree.empty
 
 cons : a -> Seq a -> Seq a
-cons x (toSeq xs) = toSeq (Tree.cons (toElem x) xs)
+cons x xs = toSeq (Tree.cons (toElem x) (unSeq xs))
 
 snoc : Seq a -> a -> Seq a
-snoc (toSeq xs) x = toSeq (Tree.snoc xs (toElem x))
+snoc xs x = toSeq (Tree.snoc (unSeq xs) (toElem x))
 
 singleton : a -> Seq a
 singleton x = toSeq (Tree.singleton (toElem x))
@@ -128,14 +128,14 @@ iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
 uncons : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair a (Seq a)
 uncons nil = error "Data.Sequence.uncons: bad argument"
-uncons (toSeq t) =
-  case Tree.uncons t {{trustMe}} of \ where
+uncons xs =
+  case Tree.uncons (unSeq xs) {{trustMe}} of \ where
     (toElem x , xs) -> (x , toSeq xs)
 
 unsnoc : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair (Seq a) a
 unsnoc nil = error "Data.Sequence.uncons: bad argument"
-unsnoc (toSeq t) =
-  case Tree.unsnoc t {{trustMe}} of \ where
+unsnoc xs =
+  case Tree.unsnoc (unSeq xs) {{trustMe}} of \ where
     (xs , toElem x) -> (toSeq xs , x)
 
 head : (xs : Seq a) -> {{Assert $ nonempty xs}} -> a
@@ -189,10 +189,10 @@ scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dup (f x z)) b xs) b
 -------------------------------------------------------------------------------
 
 tails : Seq a -> Seq (Seq a)
-tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  azero
+tails xs = snoc (toSeq (Tree.tails (toElem <<< toSeq) (unSeq xs))) azero
 
 inits : Seq a -> Seq (Seq a)
-inits (toSeq t) = cons azero (toSeq (Tree.inits (toElem <<< toSeq) t))
+inits xs = cons azero (toSeq (Tree.inits (toElem <<< toSeq) (unSeq xs)))
 
 -------------------------------------------------------------------------------
 -- Sorting
@@ -204,7 +204,7 @@ inits (toSeq t) = cons azero (toSeq (Tree.inits (toElem <<< toSeq) t))
 -------------------------------------------------------------------------------
 
 splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
-splitAt n (toSeq t) = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) t
+splitAt n xs = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) (unSeq xs)
 
 take : Nat -> Seq a -> Seq a
 take n = fst <<< splitAt n
