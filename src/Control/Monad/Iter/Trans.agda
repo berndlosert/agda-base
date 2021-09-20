@@ -87,7 +87,7 @@ instance
 
   {-# NON_TERMINATING #-}
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
-  Alternative-IterT .empty = never
+  Alternative-IterT .azero = never
   Alternative-IterT ._<|>_ l r .runIterT = do
     resultl <- runIterT l
     case resultl of \ where

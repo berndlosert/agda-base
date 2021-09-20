@@ -142,12 +142,12 @@ anyChar = toParser \ where
 satisfy : (Char -> Bool) -> Parser Char
 satisfy p = do
   c <- anyChar
-  if p c then pure c else empty
+  if p c then pure c else azero
 
 skipWhile : (Char -> Bool) -> Parser Unit
 skipWhile p = do
   c <- anyChar
-  if p c then pure tt else empty
+  if p c then pure tt else azero
 
 skipAll : Parser Unit
 skipAll = skipWhile (const true)

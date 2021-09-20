@@ -199,7 +199,7 @@ instance
     toConcurrently $ apply <$> concurrently f x
 
   Alternative-Concurrently : Alternative Concurrently
-  Alternative-Concurrently .empty = let 2^32 = 4294967296 in
+  Alternative-Concurrently .azero = let 2^32 = 4294967296 in
     toConcurrently $ forever $ threadDelay 2^32
   Alternative-Concurrently ._<|>_ (toConcurrently as) (toConcurrently bs) =
     toConcurrently $ fromEither <$> race as bs

@@ -168,10 +168,10 @@ record Foldable (t : Set -> Set) : Set where
   module _ {{_ : Alternative f}} where
 
     asum : t (f a) -> f a
-    asum = foldr _<|>_ empty
+    asum = foldr _<|>_ azero
 
     choice : t (f a) -> f a
-    choice ps = foldr _<|>_ empty ps
+    choice ps = foldr _<|>_ azero ps
 
 open Foldable {{...}} public
 

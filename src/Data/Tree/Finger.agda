@@ -31,42 +31,39 @@ private
 -------------------------------------------------------------------------------
 
 data FingerTree (v a : Set) : Set where
-  nil : FingerTree v a
+  empty : FingerTree v a
   single : a -> FingerTree v a
   deep : v -> Digit a -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
 
 instance
   Measured-FingerTree : {{Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure = \ where
-    nil -> mempty
+    empty -> mempty
     (single x) -> measure x
     (deep v _ _ _) -> v
 
   NonEmptyness-FingerTree : NonEmptyness (FingerTree v a)
-  NonEmptyness-FingerTree .nonempty nil = false
+  NonEmptyness-FingerTree .nonempty empty = false
   NonEmptyness-FingerTree .nonempty _ = true
 
   Foldable-FingerTree : Foldable (FingerTree v)
-  Foldable-FingerTree .foldr _ z nil = z
+  Foldable-FingerTree .foldr _ z empty = z
   Foldable-FingerTree .foldr f z (single x) = f x z
   Foldable-FingerTree .foldr f z (deep _ pr m sf) =
     foldr f (foldr (flip (foldr f)) (foldr f z sf) m) pr
 
   Functor-FingerTree : Functor (FingerTree v)
   Functor-FingerTree .map f = \ where
-    nil -> nil
+    empty -> empty
     (single x) -> single (f x)
     (deep v pr m sf) -> deep v (map f pr) (map (map f) m) (map f sf)
 
   Traversable-FingerTree : Traversable (FingerTree v)
   Traversable-FingerTree .traverse f = \ where
-    nil -> pure nil
+    empty -> pure empty
     (single x) -> (| single (f x) |)
     (deep v pr m sf) ->
       (| (deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
-
-empty : FingerTree v a
-empty = nil
 
 singleton : a -> FingerTree v a
 singleton = single
@@ -80,9 +77,9 @@ deep' pr m sf = deep (measure pr <> measure m <> measure sf) pr m sf
 
 digitToTree : {{Measured v a}} -> Digit a -> FingerTree v a
 digitToTree (one a) = single a
-digitToTree (two a b) = deep' (one a) nil (one b)
-digitToTree (three a b c) = deep' (two a b) nil (one c)
-digitToTree (four a b c d) = deep' (two a b) nil (two c d)
+digitToTree (two a b) = deep' (one a) empty (one b)
+digitToTree (three a b c) = deep' (two a b) empty (one c)
+digitToTree (four a b c d) = deep' (two a b) empty (two c d)
 
 -------------------------------------------------------------------------------
 -- Cons operator
@@ -90,8 +87,8 @@ digitToTree (four a b c d) = deep' (two a b) nil (two c d)
 
 cons : {{Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
-cons a nil = single a
-cons a (single b) = deep' (one a) nil (one b)
+cons a empty = single a
+cons a (single b) = deep' (one a) empty (one b)
 cons a (deep s (one b) m sf) =
   deep (measure a <> s) (two a b) m sf
 cons a (deep s (two b c) m sf) =
@@ -111,8 +108,8 @@ consAll = flip (foldr cons)
 
 snoc : {{Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
-snoc nil a = single a
-snoc (single a) b = deep' (one a) nil (one b)
+snoc empty a = single a
+snoc (single a) b = deep' (one a) empty (one b)
 snoc (deep s pr m (one a)) b =
   deep (s <> measure b) pr m (two a b)
 snoc (deep s pr m (two a b)) c =
@@ -136,8 +133,8 @@ private
     -> List a
     -> FingerTree v a
     -> FingerTree v a
-  app3 nil ts xs = consAll ts xs
-  app3 xs ts nil = snocAll xs ts
+  app3 empty ts xs = consAll ts xs
+  app3 xs ts empty = snocAll xs ts
   app3 (single x) ts xs = cons x (consAll ts xs)
   app3 xs ts (single x) = snoc (snocAll xs ts) x
   app3 (deep _ pr1 m1 sf1) ts (deep _ pr2 m2 sf2) =
@@ -148,7 +145,7 @@ instance
   Semigroup-FingerTree ._<>_ xs ys = app3 xs [] ys
 
   Monoid-FingerTree : {{Measured v a}} -> Monoid (FingerTree v a)
-  Monoid-FingerTree .mempty = nil
+  Monoid-FingerTree .mempty = empty
 
 -------------------------------------------------------------------------------
 -- uncons & unsnoc
@@ -175,25 +172,25 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons nil = error "Data.Tree.Finger.uncons: bad argument"
-uncons (single x) = (x , nil)
+uncons empty = error "Data.Tree.Finger.uncons: bad argument"
+uncons (single x) = (x , empty)
 uncons (deep _ (one x) m sf) = (x , rotL m sf)
 uncons (deep _ (two a b) m sf) = (a , deep' (one b) m sf)
 uncons (deep _ (three a b c) m sf) = (a , deep' (two b c) m sf)
 uncons (deep _ (four a b c d) m sf) = (a , deep' (three b c d) m sf)
 
-unsnoc nil = error "Data.Tree.Finger.unsnoc: bad argument"
-unsnoc (single x) = (nil , x)
+unsnoc empty = error "Data.Tree.Finger.unsnoc: bad argument"
+unsnoc (single x) = (empty , x)
 unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
 unsnoc (deep _ pr m (two a b)) = (deep' pr m (one a) , b)
 unsnoc (deep _ pr m (three a b c)) = (deep' pr m (two a b) , c)
 unsnoc (deep _ pr m (four a b c d)) = (deep' pr m (three a b c) , d)
 
-rotL nil sf = digitToTree sf
+rotL empty sf = digitToTree sf
 rotL m sf = let (a , m') = uncons m {{trustMe}} in
   deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
-rotR pr nil = digitToTree pr
+rotR pr empty = digitToTree pr
 rotR pr m = let (m' , a) = unsnoc m {{trustMe}} in
   deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
@@ -223,29 +220,29 @@ splitTree : {{Measured v a}}
   -> (t : FingerTree v a)
   -> {{Assert $ nonempty t}}
   -> Split (FingerTree v) a
-splitTree _ _ (single x) = toSplit nil x nil
+splitTree _ _ (single x) = toSplit empty x empty
 splitTree p i (deep _ pr m sf) =
   let
     vpr = i <> measure pr
     vm = vpr <> measure m
   in
     if p vpr then (case splitDigit p i pr of \ where
-      (toSplit l x r) -> toSplit (maybe nil digitToTree l) x (deep'L r m sf))
+      (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (deep'L r m sf))
     else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
       (toSplit ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
         (toSplit l x r) -> toSplit (deep'R pr ml l) x (deep'L r mr sf))
     else (case splitDigit p vm sf of \ where
-      (toSplit l x r) -> toSplit (deep'R pr  m  l) x (maybe nil digitToTree r))
+      (toSplit l x r) -> toSplit (deep'R pr  m  l) x (maybe empty digitToTree r))
 splitTree _ _ _ = error "Data.Tree.Fingered.splitTree: bad argument"
 
 split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
   -> Pair (FingerTree v a) (FingerTree v a)
-split _ nil  =  (nil , nil)
+split _ empty  =  (empty , empty)
 split p xs =
   case splitTree p mempty xs {{trustMe}} of \ where
-    (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , nil)
+    (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , empty)
 
 -------------------------------------------------------------------------------
 -- Searching
@@ -265,7 +262,7 @@ private
     -> {{Assert $ nonempty t}}
     -> v
     -> Split (FingerTree v) a
-  searchTree _ _ (single x) _ = toSplit nil x nil
+  searchTree _ _ (single x) _ = toSplit empty x empty
   searchTree p vl (deep _ pr m sf) vr =
     let
       vm =  measure m
@@ -275,12 +272,12 @@ private
       vmsr =  vm <> vsr
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-        (toSplit l x r) -> toSplit (maybe nil digitToTree l) x (deep'L r m sf))
+        (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (deep'L r m sf))
       else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
         (toSplit ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
           (toSplit l x r) -> toSplit (deep'R pr  ml l) x (deep'L r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
-        (toSplit l x r) -> toSplit (deep'R pr m l) x (maybe nil digitToTree r))
+        (toSplit l x r) -> toSplit (deep'R pr m l) x (maybe empty digitToTree r))
   searchTree _ _ _ _ = error "Data.Tree.Finger.searchTree: bad argument"
 
 search : {{Measured v a}}
@@ -306,7 +303,7 @@ search p t =
 
 inits : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
-inits _ nil = nil
+inits _ empty = empty
 inits f (single x) = single (f (single x))
 inits f (deep n pr m sf) =
   let
@@ -319,7 +316,7 @@ inits f (deep n pr m sf) =
 
 tails : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
-tails _ nil = nil
+tails _ empty = empty
 tails f (single x) = single (f (single x))
 tails f (deep n pr m sf) =
   let

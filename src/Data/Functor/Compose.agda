@@ -53,6 +53,6 @@ instance
 
   Alternative-Compose : {{Alternative f}} -> {{Applicative g}}
     -> Alternative (Compose f g)
-  Alternative-Compose .empty = toCompose empty
+  Alternative-Compose .azero = toCompose azero
   Alternative-Compose ._<|>_ l r =
     toCompose (getCompose l <|> getCompose r)

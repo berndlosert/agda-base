@@ -45,7 +45,7 @@ instance
   Applicative-STM ._<*>_ = apSTM
 
   Alternative-STM : Alternative STM
-  Alternative-STM .empty = retry
+  Alternative-STM .azero = retry
   Alternative-STM ._<|>_ = orElse
 
   Monad-STM : Monad STM

@@ -68,7 +68,7 @@ instance
 
   Alternative-StateT : {{Alternative m}} -> {{Monad m}} ->
     Alternative (StateT s m)
-  Alternative-StateT .empty = toStateT (const empty)
+  Alternative-StateT .azero = toStateT (const azero)
   Alternative-StateT ._<|>_ l r = toStateT \ s ->
     runStateT l s <|> runStateT r s
 

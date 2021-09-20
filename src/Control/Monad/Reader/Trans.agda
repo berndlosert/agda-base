@@ -62,7 +62,7 @@ instance
     runReaderT f r <*> runReaderT x r
 
   Alternative-ReaderT : {{Alternative m}} -> Alternative (ReaderT r m)
-  Alternative-ReaderT .empty = liftReaderT empty
+  Alternative-ReaderT .azero = liftReaderT azero
   Alternative-ReaderT ._<|>_ m n = toReaderT \ r ->
     runReaderT m r <|> runReaderT n r
 

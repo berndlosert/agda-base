@@ -91,7 +91,7 @@ instance
     (just (x , xs)) -> runListT $ k x <> (xs >>= k)
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
-  Alternative-ListT .empty = mempty
+  Alternative-ListT .azero = mempty
   Alternative-ListT ._<|>_ = _<>_
 
   MonadTrans-ListT : MonadTrans ListT

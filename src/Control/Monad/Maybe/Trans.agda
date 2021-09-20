@@ -67,7 +67,7 @@ instance
     pure (f <*> x)
 
   Alternative-MaybeT : {{Monad m}} -> Alternative (MaybeT m)
-  Alternative-MaybeT .empty = toMaybeT (pure nothing)
+  Alternative-MaybeT .azero = toMaybeT (pure nothing)
   Alternative-MaybeT ._<|>_ l r = toMaybeT do
     x <- runMaybeT l
     case x of \ where

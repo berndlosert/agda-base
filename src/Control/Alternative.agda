@@ -25,21 +25,21 @@ record Alternative (f : Set -> Set) : Set where
   field
     overlap {{Applicative-super}} : Applicative f
     _<|>_ : f a -> f a -> f a
-    empty : f a
+    azero : f a
 
   guard : Bool -> f Unit
   guard true = pure tt
-  guard false = empty
+  guard false = azero
 
 open Alternative {{...}} public
 
 instance
   Alternative-Maybe : Alternative Maybe
-  Alternative-Maybe .empty = nothing
+  Alternative-Maybe .azero = nothing
   Alternative-Maybe ._<|>_ = \ where
     nothing r -> r
     l _ -> l
 
   Alternative-List : Alternative List
-  Alternative-List .empty = mempty
+  Alternative-List .azero = mempty
   Alternative-List ._<|>_ = _<>_

@@ -59,7 +59,7 @@ instance
     liftCoyoneda $ (\ u v -> f u (g v)) <$> x <*> y
 
   Alternative-Coyoneda : {{Alternative f}} -> Alternative (Coyoneda f)
-  Alternative-Coyoneda .empty = liftCoyoneda empty
+  Alternative-Coyoneda .azero = liftCoyoneda azero
   Alternative-Coyoneda ._<|>_ l r =
     liftCoyoneda $ lowerCoyoneda l <|> lowerCoyoneda r
 

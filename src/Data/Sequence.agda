@@ -68,7 +68,7 @@ instance
       bind = flip foldMap
 
   Alternative-Seq : Alternative Seq
-  Alternative-Seq .empty = mempty
+  Alternative-Seq .azero = mempty
   Alternative-Seq ._<|>_ = _<>_
 
   Monad-Seq : Monad Seq
@@ -84,7 +84,7 @@ instance
 -- Construction
 -------------------------------------------------------------------------------
 
-pattern nil = toSeq Tree.nil
+pattern nil = toSeq Tree.empty
 
 cons : a -> Seq a -> Seq a
 cons x (toSeq xs) = toSeq (Tree.cons (toElem x) xs)
@@ -96,7 +96,7 @@ singleton : a -> Seq a
 singleton x = toSeq (Tree.singleton (toElem x))
 
 fromFoldable : {{Foldable t}} -> t a -> Seq a
-fromFoldable = foldr cons empty
+fromFoldable = foldr cons azero
 
 -------------------------------------------------------------------------------
 -- Construction: Repetition
@@ -110,7 +110,7 @@ replicateA : {{Applicative f}} -> Nat -> f a -> f (Seq a)
 replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat -> f (Seq a)
-    loop 0 = pure empty
+    loop 0 = pure azero
     loop (suc n) = (| cons fa (loop n) |)
 
 -------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ replicateA {f} {a} n0 fa = loop n0
 -------------------------------------------------------------------------------
 
 iterateN : Nat -> (a -> a) -> a -> Seq a
-iterateN 0 f x = empty
+iterateN 0 f x = azero
 iterateN 1 f x = singleton x
 iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
@@ -189,10 +189,10 @@ scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dup (f x z)) b xs) b
 -------------------------------------------------------------------------------
 
 tails : Seq a -> Seq (Seq a)
-tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  empty
+tails (toSeq t) = snoc (toSeq (Tree.tails (toElem <<< toSeq) t))  azero
 
 inits : Seq a -> Seq (Seq a)
-inits (toSeq t) = cons empty (toSeq (Tree.inits (toElem <<< toSeq) t))
+inits (toSeq t) = cons azero (toSeq (Tree.inits (toElem <<< toSeq) t))
 
 -------------------------------------------------------------------------------
 -- Sorting
@@ -268,7 +268,7 @@ indicesr {a} p = ifoldl go []
     go ns n x = if p x then n :: ns else ns
 
 filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
-filterA {f} {a} p = foldr go (pure empty)
+filterA {f} {a} p = foldr go (pure azero)
   where
     go : a -> f (Seq a) -> f (Seq a)
     go x xs = (| if p x then (| (cons x) xs |) else xs |)
@@ -278,11 +278,11 @@ filterA {f} {a} p = foldr go (pure empty)
 -------------------------------------------------------------------------------
 
 breakl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , empty) (indicesl p xs)
+breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , azero) (indicesl p xs)
 
 breakr : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
 breakr p xs =
-  foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , empty) (indicesr p xs)
+  foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , azero) (indicesr p xs)
 
 spanl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
 spanl p = breakl (not <<< p)
@@ -303,13 +303,13 @@ dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
 
 partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-partition {a} p = foldl go (empty , empty)
+partition {a} p = foldl go (nil , nil)
   where
     go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
     go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
 filter : (a -> Bool) -> Seq a -> Seq a
-filter {a} p = foldl go empty
+filter {a} p = foldl go azero
   where
     go : Seq a -> a -> Seq a
     go xs x = if p x then snoc xs x else xs
@@ -319,7 +319,7 @@ filter {a} p = foldl go empty
 -------------------------------------------------------------------------------
 
 reverse : Seq a -> Seq a
-reverse = foldl (flip cons) empty
+reverse = foldl (flip cons) azero
 
 intersperse : a -> Seq a -> Seq a
 intersperse sep nil = nil
@@ -353,7 +353,7 @@ zipCons {a} heads tails =
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
     padding : Seq (Seq a)
-    padding = replicate (length heads - length tails) empty
+    padding = replicate (length heads - length tails) azero
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess : Seq (Seq a)

@@ -65,7 +65,7 @@ instance
 
   Alternative-WriterT : {{Monoid w}} -> {{Alternative m}}
     -> Alternative (WriterT w m)
-  Alternative-WriterT .empty = toWriterT empty
+  Alternative-WriterT .azero = toWriterT azero
   Alternative-WriterT ._<|>_ l r = toWriterT (runWriterT l <|> runWriterT r)
 
   Monad-WriterT : {{Monoid w}} -> {{Monad m}} -> Monad (WriterT w m)
