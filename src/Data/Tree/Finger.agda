@@ -32,14 +32,14 @@ private
 
 data FingerTree (v a : Set) : Set where
   empty : FingerTree v a
-  single : a -> FingerTree v a
+  singleton : a -> FingerTree v a
   deep : v -> Digit a -> FingerTree v (Node v a) -> Digit a -> FingerTree v a
 
 instance
   Measured-FingerTree : {{Measured v a}} -> Measured v (FingerTree v a)
   Measured-FingerTree .measure = \ where
     empty -> mempty
-    (single x) -> measure x
+    (singleton x) -> measure x
     (deep v _ _ _) -> v
 
   NonEmptyness-FingerTree : NonEmptyness (FingerTree v a)
@@ -48,38 +48,35 @@ instance
 
   Foldable-FingerTree : Foldable (FingerTree v)
   Foldable-FingerTree .foldr _ z empty = z
-  Foldable-FingerTree .foldr f z (single x) = f x z
+  Foldable-FingerTree .foldr f z (singleton x) = f x z
   Foldable-FingerTree .foldr f z (deep _ pr m sf) =
     foldr f (foldr (flip (foldr f)) (foldr f z sf) m) pr
 
   Functor-FingerTree : Functor (FingerTree v)
   Functor-FingerTree .map f = \ where
     empty -> empty
-    (single x) -> single (f x)
+    (singleton x) -> singleton (f x)
     (deep v pr m sf) -> deep v (map f pr) (map (map f) m) (map f sf)
 
   Traversable-FingerTree : Traversable (FingerTree v)
   Traversable-FingerTree .traverse f = \ where
     empty -> pure empty
-    (single x) -> (| single (f x) |)
+    (singleton x) -> (| singleton (f x) |)
     (deep v pr m sf) ->
       (| (deep v) (traverse f pr) (traverse (traverse f) m) (traverse f sf) |)
 
-singleton : a -> FingerTree v a
-singleton = single
-
-deep' : {{Measured v a}}
+mkDeep : {{Measured v a}}
   -> Digit a
   -> FingerTree v (Node v a)
   -> Digit a
   -> FingerTree v a
-deep' pr m sf = deep (measure pr <> measure m <> measure sf) pr m sf
+mkDeep pr m sf = deep (measure pr <> measure m <> measure sf) pr m sf
 
 digitToTree : {{Measured v a}} -> Digit a -> FingerTree v a
-digitToTree (one a) = single a
-digitToTree (two a b) = deep' (one a) empty (one b)
-digitToTree (three a b c) = deep' (two a b) empty (one c)
-digitToTree (four a b c d) = deep' (two a b) empty (two c d)
+digitToTree (one a) = singleton a
+digitToTree (two a b) = mkDeep (one a) empty (one b)
+digitToTree (three a b c) = mkDeep (two a b) empty (one c)
+digitToTree (four a b c d) = mkDeep (two a b) empty (two c d)
 
 -------------------------------------------------------------------------------
 -- Cons operator
@@ -87,8 +84,8 @@ digitToTree (four a b c d) = deep' (two a b) empty (two c d)
 
 cons : {{Measured v a}} -> a -> FingerTree v a -> FingerTree v a
 
-cons a empty = single a
-cons a (single b) = deep' (one a) empty (one b)
+cons a empty = singleton a
+cons a (singleton b) = mkDeep (one a) empty (one b)
 cons a (deep s (one b) m sf) =
   deep (measure a <> s) (two a b) m sf
 cons a (deep s (two b c) m sf) =
@@ -108,8 +105,8 @@ consAll = flip (foldr cons)
 
 snoc : {{Measured v a}} -> FingerTree v a -> a -> FingerTree v a
 
-snoc empty a = single a
-snoc (single a) b = deep' (one a) empty (one b)
+snoc empty a = singleton a
+snoc (singleton a) b = mkDeep (one a) empty (one b)
 snoc (deep s pr m (one a)) b =
   deep (s <> measure b) pr m (two a b)
 snoc (deep s pr m (two a b)) c =
@@ -135,10 +132,10 @@ private
     -> FingerTree v a
   app3 empty ts xs = consAll ts xs
   app3 xs ts empty = snocAll xs ts
-  app3 (single x) ts xs = cons x (consAll ts xs)
-  app3 xs ts (single x) = snoc (snocAll xs ts) x
+  app3 (singleton x) ts xs = cons x (consAll ts xs)
+  app3 xs ts (singleton x) = snoc (snocAll xs ts) x
   app3 (deep _ pr1 m1 sf1) ts (deep _ pr2 m2 sf2) =
-    deep' pr1 (app3 m1 (nodes (toList sf1 <> ts <> toList pr2)) m2) sf2
+    mkDeep pr1 (app3 m1 (nodes (toList sf1 <> ts <> toList pr2)) m2) sf2
 
 instance
   Semigroup-FingerTree : {{Measured v a}} -> Semigroup (FingerTree v a)
@@ -173,18 +170,18 @@ private
     -> FingerTree v a
 
 uncons empty = error "Data.Tree.Finger.uncons: bad argument"
-uncons (single x) = (x , empty)
+uncons (singleton x) = (x , empty)
 uncons (deep _ (one x) m sf) = (x , rotL m sf)
-uncons (deep _ (two a b) m sf) = (a , deep' (one b) m sf)
-uncons (deep _ (three a b c) m sf) = (a , deep' (two b c) m sf)
-uncons (deep _ (four a b c d) m sf) = (a , deep' (three b c d) m sf)
+uncons (deep _ (two a b) m sf) = (a , mkDeep (one b) m sf)
+uncons (deep _ (three a b c) m sf) = (a , mkDeep (two b c) m sf)
+uncons (deep _ (four a b c d) m sf) = (a , mkDeep (three b c d) m sf)
 
 unsnoc empty = error "Data.Tree.Finger.unsnoc: bad argument"
-unsnoc (single x) = (empty , x)
+unsnoc (singleton x) = (empty , x)
 unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
-unsnoc (deep _ pr m (two a b)) = (deep' pr m (one a) , b)
-unsnoc (deep _ pr m (three a b c)) = (deep' pr m (two a b) , c)
-unsnoc (deep _ pr m (four a b c d)) = (deep' pr m (three a b c) , d)
+unsnoc (deep _ pr m (two a b)) = (mkDeep pr m (one a) , b)
+unsnoc (deep _ pr m (three a b c)) = (mkDeep pr m (two a b) , c)
+unsnoc (deep _ pr m (four a b c d)) = (mkDeep pr m (three a b c) , d)
 
 rotL empty sf = digitToTree sf
 rotL m sf = let (a , m') = uncons m {{trustMe}} in
@@ -198,21 +195,21 @@ rotR pr m = let (m' , a) = unsnoc m {{trustMe}} in
 -- Splitting
 -------------------------------------------------------------------------------
 
-deep'L : {{Measured v a}}
+mkDeepL : {{Measured v a}}
   -> Maybe (Digit a)
   -> FingerTree v (Node v a)
   -> Digit a
   -> FingerTree v a
-deep'L nothing m sf = rotL m sf
-deep'L (just pr) m sf = deep' pr m sf
+mkDeepL nothing m sf = rotL m sf
+mkDeepL (just pr) m sf = mkDeep pr m sf
 
-deep'R : {{Measured v a}}
+mkDeepR : {{Measured v a}}
   -> Digit a
   -> FingerTree v (Node v a)
   -> Maybe (Digit a)
   -> FingerTree v a
-deep'R pr m nothing = rotR pr m
-deep'R pr m (just sf) = deep' pr m sf
+mkDeepR pr m nothing = rotR pr m
+mkDeepR pr m (just sf) = mkDeep pr m sf
 
 splitTree : {{Measured v a}}
   -> (v -> Bool)
@@ -220,19 +217,19 @@ splitTree : {{Measured v a}}
   -> (t : FingerTree v a)
   -> {{Assert $ nonempty t}}
   -> Split (FingerTree v) a
-splitTree _ _ (single x) = toSplit empty x empty
+splitTree _ _ (singleton x) = toSplit empty x empty
 splitTree p i (deep _ pr m sf) =
   let
     vpr = i <> measure pr
     vm = vpr <> measure m
   in
     if p vpr then (case splitDigit p i pr of \ where
-      (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (deep'L r m sf))
+      (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
     else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
       (toSplit ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
-        (toSplit l x r) -> toSplit (deep'R pr ml l) x (deep'L r mr sf))
+        (toSplit l x r) -> toSplit (mkDeepR pr ml l) x (mkDeepL r mr sf))
     else (case splitDigit p vm sf of \ where
-      (toSplit l x r) -> toSplit (deep'R pr  m  l) x (maybe empty digitToTree r))
+      (toSplit l x r) -> toSplit (mkDeepR pr  m  l) x (maybe empty digitToTree r))
 splitTree _ _ _ = error "Data.Tree.Fingered.splitTree: bad argument"
 
 split : {{Measured v a}}
@@ -262,7 +259,7 @@ private
     -> {{Assert $ nonempty t}}
     -> v
     -> Split (FingerTree v) a
-  searchTree _ _ (single x) _ = toSplit empty x empty
+  searchTree _ _ (singleton x) _ = toSplit empty x empty
   searchTree p vl (deep _ pr m sf) vr =
     let
       vm =  measure m
@@ -272,12 +269,12 @@ private
       vmsr =  vm <> vsr
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-        (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (deep'L r m sf))
+        (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
       else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
         (toSplit ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
-          (toSplit l x r) -> toSplit (deep'R pr  ml l) x (deep'L r mr sf))
+          (toSplit l x r) -> toSplit (mkDeepR pr  ml l) x (mkDeepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
-        (toSplit l x r) -> toSplit (deep'R pr m l) x (maybe empty digitToTree r))
+        (toSplit l x r) -> toSplit (mkDeepR pr m l) x (maybe empty digitToTree r))
   searchTree _ _ _ _ = error "Data.Tree.Finger.searchTree: bad argument"
 
 search : {{Measured v a}}
@@ -304,25 +301,25 @@ search p t =
 inits : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 inits _ empty = empty
-inits f (single x) = single (f (single x))
+inits f (singleton x) = singleton (f (singleton x))
 inits f (deep n pr m sf) =
   let
     f' ms = case unsnoc ms {{trustMe}} of \ where
-      (m' , node) -> map (\ sf' -> f (deep' pr m' sf')) (initsNode node)
+      (m' , node) -> map (\ sf' -> f (mkDeep pr m' sf')) (initsNode node)
   in
     deep n (map (f <<< digitToTree) (initsDigit pr))
       (inits f' m)
-      (map (f <<< deep' pr m) (initsDigit sf))
+      (map (f <<< mkDeep pr m) (initsDigit sf))
 
 tails : {{Measured v a}}
   -> (FingerTree v a -> b) -> FingerTree v a -> FingerTree v b
 tails _ empty = empty
-tails f (single x) = single (f (single x))
+tails f (singleton x) = singleton (f (singleton x))
 tails f (deep n pr m sf) =
   let
     f' ms = case uncons ms {{trustMe}} of \ where
-      (node , m') -> map (\ pr' -> f (deep' pr' m' sf)) (tailsNode node)
+      (node , m') -> map (\ pr' -> f (mkDeep pr' m' sf)) (tailsNode node)
   in
-    deep n (map (\ pr' -> f (deep' pr' m sf)) (tailsDigit pr))
+    deep n (map (\ pr' -> f (mkDeep pr' m sf)) (tailsDigit pr))
       (tails f' m)
       (map (f <<< digitToTree) (tailsDigit sf))
