@@ -2,6 +2,10 @@
 
 module String.Parser where
 
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
 open import Prelude hiding (bool)
 
 open import Control.Alternative
@@ -11,7 +15,13 @@ open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
 
-private variable a b c : Set
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b c : Set
 
 -------------------------------------------------------------------------------
 -- Parser (definition and instances)
