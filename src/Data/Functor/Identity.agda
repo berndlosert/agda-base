@@ -31,10 +31,10 @@ open Identity public
 
 instance
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity ._==_ x y = runIdentity x == runIdentity y
+  Eq-Identity ._==_ = equating runIdentity
 
   Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity .compare x y = compare (runIdentity x) (runIdentity y)
+  Ord-Identity .compare = comparing runIdentity
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
   Semigroup-Identity ._<>_ x y = toIdentity (runIdentity x <> runIdentity y)
