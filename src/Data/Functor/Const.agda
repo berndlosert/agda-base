@@ -31,10 +31,10 @@ open Const public
 
 instance
   Eq-Const : {{Eq a}} -> Eq (Const a b)
-  Eq-Const ._==_ x y = getConst x == getConst y
+  Eq-Const ._==_ = equating getConst
 
   Ord-Const : {{Ord a}} -> Ord (Const a b)
-  Ord-Const .compare x y = compare (getConst x) (getConst y)
+  Ord-Const .compare = comparing getConst
 
   Semigroup-Const : {{Semigroup a}} -> Semigroup (Const a b)
   Semigroup-Const ._<>_ x y = toConst (getConst x <> getConst y)
