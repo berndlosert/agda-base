@@ -45,11 +45,11 @@ instance
 -- Dict
 -------------------------------------------------------------------------------
 
-private
-  data Dict' (k v : Set) : Set where
-    toDict : Tree (KeyVal k v) -> Dict' k v
+record Dict (k v : Set) : Set where
+  constructor toDict
+  field unDict : Tree (KeyVal k v)
 
-Dict = Dict'
+open Dict
 
 -------------------------------------------------------------------------------
 -- Construction
@@ -66,17 +66,17 @@ singleton k v = toDict $ Tree.singleton $ (toKeyVal k v)
 -------------------------------------------------------------------------------
 
 keys : Dict k v -> List k
-keys (toDict t) = foldMap (getKey >>> List.singleton) t
+keys kvs = foldMap (getKey >>> List.singleton) (unDict kvs)
 
 values : Dict k v -> List v
-values (toDict t) = foldMap (getVal >>> List.singleton) t
+values kvs = foldMap (getVal >>> List.singleton) (unDict kvs)
 
 -------------------------------------------------------------------------------
 -- Other operations
 -------------------------------------------------------------------------------
 
 insert : {{Ord k}} -> k -> v -> Dict k v -> Dict k v
-insert k v (toDict t) = toDict (Tree.insert (toKeyVal k v) t)
+insert k v kvs = toDict (Tree.insert (toKeyVal k v) (unDict kvs))
 
 fromList : {{Ord k}} -> List (Pair k v) -> Dict k v
 fromList [] = empty
@@ -87,23 +87,25 @@ fromList {k} {v} kvs = go kvs empty
     go ((k , v) :: rest) d = go rest (insert k v d)
 
 toList : Dict k v -> List (Pair k v)
-toList d = List.zip (keys d) (values d)
+toList kvs = List.zip (keys kvs) (values kvs)
 
 delete : {{Ord k}} -> k -> Dict k v -> Dict k v
-delete k (toDict t) =
-  case Tree.query (compare k <<< getKey) t of \ where
+delete k kvs =
+  let t = unDict kvs
+  in case Tree.query (compare k <<< getKey) t of \ where
      nothing -> toDict t
      (just p) -> toDict (Tree.delete p t)
 
 lookup : {{Ord k}} -> k -> Dict k v -> Maybe v
-lookup k (toDict t) =
-  maybe nothing (just <<< getVal) $ Tree.query (compare k <<< getKey) t
+lookup k kvs =
+  let res = Tree.query (compare k <<< getKey) (unDict kvs)
+  in maybe nothing (just <<< getVal) res
 
 member : {{Ord k}} -> k -> Dict k v -> Bool
 member k = maybe false (const true) <<< lookup k
 
 map : {{Ord k}} -> (a -> b) -> Dict k a -> Dict k b
-map {a = a} {b = b} f (toDict t) = toDict (Tree.map go t)
+map {a = a} {b = b} f kvs = toDict (Tree.map go (unDict kvs))
   where
     go : KeyVal k a -> KeyVal k b
     go (toKeyVal k v) = toKeyVal k (f v)
@@ -114,9 +116,9 @@ map {a = a} {b = b} f (toDict t) = toDict (Tree.map go t)
 
 instance
   Foldable-Dict : Foldable (Dict k)
-  Foldable-Dict .foldr f z (toDict t) =
-    foldr (\ where (toKeyVal _ x) y -> f x y) z t
+  Foldable-Dict .foldr f z kvs =
+    foldr (\ where (toKeyVal _ x) y -> f x y) z (unDict kvs)
 
   Show-Dict : {{Show k}} -> {{Show v}} -> Show (Dict k v)
-  Show-Dict .showsPrec d m = showParen (d > 10) $
-    showString "fromList " <<< shows (toList m)
+  Show-Dict .showsPrec d kvs = showParen (d > 10) $
+    showString "fromList " <<< shows (toList kvs)
