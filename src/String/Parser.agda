@@ -26,17 +26,17 @@ private
 -- Types
 -------------------------------------------------------------------------------
 
-data Reply (a : Set) : Set where
-  ok : a -> String -> Reply a
-  err : Reply a
+data Flag : Set where
+  consumed : Flag
+  empty : Flag
 
-data Consumed (a : Set) : Set where
-  consumed : Reply a -> Consumed a
-  empty : Reply a -> Consumed a
+data Result (a : Set) : Set where
+  ok : Flag -> a -> String -> Result a
+  err : Flag -> Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
-  field runParser : String -> Consumed a
+  field runParser : String -> Result a
 
 open Parser
 
@@ -48,40 +48,36 @@ instance
   Functor-Parser : Functor Parser
   Functor-Parser .map f p = toParser \ where
     s -> case runParser p s of \ where
-      (empty (ok x s')) -> empty (ok (f x) s')
-      (consumed (ok x s')) -> consumed (ok (f x) s')
-      (empty err) -> empty err
-      (consumed err) -> consumed err
+      (ok flag x s') -> ok flag (f x) s'
+      (err flag) -> err flag
 
   Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure x = toParser (empty <<< ok x)
+  Applicative-Parser .pure = toParser <<< ok empty
   Applicative-Parser ._<*>_ p q = toParser \ where
     s -> case runParser p s of \ where
-      (empty (ok f s')) -> runParser (map f q) s'
-      (consumed (ok f s')) -> runParser (map f q) s'
-      (empty err) -> empty err
-      (consumed err) -> consumed err
+      (ok flag f s') -> runParser (map f q) s'
+      (err flag) -> err flag
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    s -> empty err
+    s -> err empty
   Alternative-Parser ._<|>_ l r = toParser \ where
     s -> case runParser l s of \ where
-      (empty err) -> runParser r s
-      (empty anok) -> case runParser r s of \ where
-        (empty _) -> empty anok
+      (err empty) -> runParser r s
+      (ok empty x s') -> case runParser r s of \ where
+        (ok empty _ _) -> ok empty x s'
+        (err empty) -> err empty
         aconsumed -> aconsumed
       aconsumed -> aconsumed
 
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
     s -> case runParser m s of \ where
-      (empty (ok x s')) -> runParser (k x) s'
-      (empty err) -> empty err
-      (consumed (ok x s')) -> case runParser (k x) s' of \ where
-        (consumed areply) -> consumed areply
-        (empty areply) -> consumed areply
-      (consumed err) -> consumed err
+      (ok empty x s') -> runParser (k x) s'
+      (ok consumed x s') -> case runParser (k x) s' of \ where
+        (ok _ x' s'') -> ok consumed x' s''
+        (err _) -> err consumed
+      (err flag) -> err flag
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -90,8 +86,8 @@ instance
 try : Parser a -> Parser a
 try p = toParser \ where
   s -> case runParser p s of \ where
-    (consumed err) -> empty err
-    (consumed anok) -> consumed anok
+    (err consumed) -> err empty
+    (ok consumed x s') -> ok consumed x s'
     anempty -> anempty
 
 notFollowedBy : Parser a -> Parser Unit
@@ -167,8 +163,7 @@ chainr p op a = chainr1 p op <|> pure a
 
 parse : Parser a -> String -> Maybe a
 parse p s = case runParser p s of \ where
- (consumed (ok x _)) -> just x
- (empty (ok x _)) -> just x
+ (ok flag x _) -> just x
  _ -> nothing
 
 -------------------------------------------------------------------------------
@@ -178,8 +173,8 @@ parse p s = case runParser p s of \ where
 anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
-    then empty err
-    else consumed (uncurry ok (String.uncons s {{trustMe}}))
+    then err empty
+    else uncurry (ok consumed) (String.uncons s {{trustMe}})
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy test = do
@@ -256,7 +251,7 @@ word1 = do
   pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s -> consumed (uncurry ok (String.break p s))
+takeWhile p = toParser \ s -> uncurry (ok consumed) (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
