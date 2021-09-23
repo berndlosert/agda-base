@@ -9,7 +9,6 @@ module String.Parser where
 open import Prelude hiding (bool)
 
 open import Control.Alternative
-open import Control.Monad.State.Trans
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.String as String using ()
@@ -24,41 +23,79 @@ private
     a b c : Set
 
 -------------------------------------------------------------------------------
--- Parser (definition and instances)
+-- Parser
 -------------------------------------------------------------------------------
 
-abstract
-  Parser : Set -> Set
-  Parser = StateT String List
+data Reply (a : Set) : Set where
+  ok : a -> String -> Reply a
+  err : Reply a
 
-  toParser : (String -> List (Pair String a)) -> Parser a
-  toParser = toStateT
+data Consumed (a : Set) : Set where
+  consumed : Reply a -> Consumed a
+  empty : Reply a -> Consumed a
 
-  runParser : Parser a -> String -> List (Pair String a)
-  runParser = runStateT
+record Parser (a : Set) : Set where
+  constructor toParser
+  field runParser : String -> Consumed a
 
-  instance
-    Functor-Parser : Functor Parser
-    Functor-Parser = Functor-StateT
+open Parser
 
-    Applicative-Parser : Applicative Parser
-    Applicative-Parser = Applicative-StateT
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
 
-    Alternative-Parser : Alternative Parser
-    Alternative-Parser = Alternative-StateT
+instance
+  Functor-Parser : Functor Parser
+  Functor-Parser .map f p = toParser \ where
+    s -> case runParser p s of \ where
+      (empty (ok x s')) -> empty (ok (f x) s')
+      (consumed (ok x s')) -> consumed (ok (f x) s')
+      (empty err) -> empty err
+      (consumed err) -> consumed err
 
-    Monad-Parser : Monad Parser
-    Monad-Parser = Monad-StateT
+  Applicative-Parser : Applicative Parser
+  Applicative-Parser .pure x = toParser (empty <<< ok x)
+  Applicative-Parser ._<*>_ p q = toParser \ where
+    s -> case runParser p s of \ where
+      (empty (ok f s')) -> runParser (map f q) s'
+      (consumed (ok f s')) -> runParser (map f q) s'
+      (empty err) -> empty err
+      (consumed err) -> consumed err
+
+  Alternative-Parser : Alternative Parser
+  Alternative-Parser .azero = toParser \ where
+    s -> empty err
+  Alternative-Parser ._<|>_ l r = toParser \ where
+    s -> case runParser l s of \ where
+      (empty err) -> runParser r s
+      (empty anok) -> case runParser r s of \ where
+        (empty _) -> empty anok
+        aconsumed -> aconsumed
+      aconsumed -> aconsumed
+
+  Monad-Parser : Monad Parser
+  Monad-Parser ._>>=_ m k = toParser \ where
+    s -> case runParser m s of \ where
+      (empty (ok x s')) -> runParser (k x) s'
+      (empty err) -> empty err
+      (consumed (ok x s')) -> case runParser (k x) s' of \ where
+        (consumed areply) -> consumed areply
+        (empty areply) -> consumed areply
+      (consumed err) -> consumed err
 
 -------------------------------------------------------------------------------
 -- Combinators
 -------------------------------------------------------------------------------
 
-first : Parser a -> Parser a
-first p = toParser \ where
+try : Parser a -> Parser a
+try p = toParser \ where
   s -> case runParser p s of \ where
-    (r :: rs) -> r :: []
-    [] -> []
+    (consumed err) -> empty err
+    (consumed anok) -> consumed anok
+    anempty -> anempty
+
+notFollowedBy : Parser a -> Parser Unit
+notFollowedBy p = try ((p *> azero) <|> pure tt)
 
 {-# NON_TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
@@ -128,12 +165,11 @@ chainr1 = infixr1 id
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
 
--- Run a parser on a string and get the first result.
 parse : Parser a -> String -> Maybe a
-parse p s =
-  case runParser p s of \ where
-    [] -> nothing
-    ((_ , a) :: _) -> just a
+parse p s = case runParser p s of \ where
+ (consumed (ok x _)) -> just x
+ (empty (ok x _)) -> just x
+ _ -> nothing
 
 -------------------------------------------------------------------------------
 -- Char parsers
@@ -142,13 +178,13 @@ parse p s =
 anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
-    then []
-    else List.singleton (swap (String.uncons s {{trustMe}}))
+    then empty err
+    else consumed (uncurry ok (String.uncons s {{trustMe}}))
 
 satisfy : (Char -> Bool) -> Parser Char
-satisfy p = do
+satisfy test = do
   c <- anyChar
-  if p c then pure c else azero
+  if test c then pure c else azero
 
 skipWhile : (Char -> Bool) -> Parser Unit
 skipWhile p = do
@@ -220,7 +256,7 @@ word1 = do
   pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s -> List.singleton (String.break p s)
+takeWhile p = toParser \ s -> consumed (uncurry ok (String.break p s))
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
@@ -245,7 +281,7 @@ int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 -------------------------------------------------------------------------------
 
 eof : Parser Unit
-eof = toParser \ s -> if s == "" then pure ("" , tt) else []
+eof = notFollowedBy anyChar
 
 fully : Parser a -> Parser a
 fully p = skipSpaces *> p <* eof
