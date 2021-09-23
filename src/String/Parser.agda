@@ -28,7 +28,7 @@ private
 
 data Consumed : Set where
   consumed : Consumed
-  empty : Consumed
+  unconsumed : Consumed
 
 data Result (a : Set) : Set where
   ok : Consumed -> Pair a String -> Result a
@@ -53,7 +53,7 @@ instance
 
   Applicative-Parser : Applicative Parser
   Applicative-Parser .pure x = toParser \ where
-    s -> ok empty (x , s)
+    s -> ok unconsumed (x , s)
   Applicative-Parser ._<*>_ p q = toParser \ where
     s -> case runParser p s of \ where
       (ok aconsumed (f , s')) -> runParser (map f q) s'
@@ -61,20 +61,20 @@ instance
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    s -> err empty
+    s -> err unconsumed
   Alternative-Parser ._<|>_ l r = toParser \ where
     s -> case runParser l s of \ where
-      (err empty) -> runParser r s
-      (ok empty out) -> case runParser r s of \ where
-        (ok empty _) -> ok empty out
-        (err empty) -> err empty
+      (err unconsumed) -> runParser r s
+      (ok unconsumed out) -> case runParser r s of \ where
+        (ok unconsumed _) -> ok unconsumed out
+        (err unconsumed) -> err unconsumed
         aconsumed -> aconsumed
       aconsumed -> aconsumed
 
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
     s -> case runParser m s of \ where
-      (ok empty (x , s')) -> runParser (k x) s'
+      (ok unconsumed (x , s')) -> runParser (k x) s'
       (ok consumed (x , s')) -> case runParser (k x) s' of \ where
         (ok _ out) -> ok consumed out
         (err _) -> err consumed
@@ -87,9 +87,9 @@ instance
 try : Parser a -> Parser a
 try p = toParser \ where
   s -> case runParser p s of \ where
-    (err consumed) -> err empty
+    (err consumed) -> err unconsumed
     (ok consumed out) -> ok consumed out
-    anempty -> anempty
+    anunconsumed -> anunconsumed
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = try ((p *> azero) <|> pure tt)
@@ -174,7 +174,7 @@ parse p s = case runParser p s of \ where
 anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
-    then err empty
+    then err unconsumed
     else ok consumed (String.uncons s {{trustMe}})
 
 satisfy : (Char -> Bool) -> Parser Char
