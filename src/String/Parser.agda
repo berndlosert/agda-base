@@ -26,13 +26,12 @@ private
 -- Types
 -------------------------------------------------------------------------------
 
-data ConsumedFlag : Set where
-  consumed : ConsumedFlag
-  unconsumed : ConsumedFlag
+pattern consumed = true
+pattern unconsumed = false
 
 data Result (a : Set) : Set where
-  ok : ConsumedFlag -> Pair a String -> Result a
-  err : ConsumedFlag -> Result a
+  ok : Bool -> Pair a String -> Result a
+  err : Bool -> Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
@@ -47,38 +46,38 @@ open Parser
 instance
   Functor-Parser : Functor Parser
   Functor-Parser .map f p = toParser \ where
-    s -> case runParser p s of \ where
-      (ok flag (x , s')) -> ok flag (f x , s')
-      (err flag) -> err flag
+    input -> case runParser p input of \ where
+      (ok b (x , rest)) -> ok b (f x , rest)
+      (err b) -> err b
 
   Applicative-Parser : Applicative Parser
   Applicative-Parser .pure x = toParser \ where
-    s -> ok unconsumed (x , s)
+    input -> ok unconsumed (x , input)
   Applicative-Parser ._<*>_ p q = toParser \ where
-    s -> case runParser p s of \ where
-      (ok flag (f , s')) -> runParser (map f q) s'
-      (err flag) -> err flag
+    input -> case runParser p input of \ where
+      (ok b (f , rest)) -> runParser (map f q) rest
+      (err b) -> err b
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    s -> err unconsumed
+    input -> err unconsumed
   Alternative-Parser ._<|>_ l r = toParser \ where
-    s -> case runParser l s of \ where
-      (err unconsumed) -> runParser r s
-      (ok unconsumed out) -> case runParser r s of \ where
+    input -> case runParser l input of \ where
+      (err unconsumed) -> runParser r input
+      (ok unconsumed out) -> case runParser r input of \ where
         (ok unconsumed _) -> ok unconsumed out
         (err unconsumed) -> err unconsumed
-        flag -> flag
-      flag -> flag
+        res -> res
+      res -> res
 
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
-    s -> case runParser m s of \ where
-      (ok unconsumed (x , s')) -> runParser (k x) s'
-      (ok consumed (x , s')) -> case runParser (k x) s' of \ where
+    input -> case runParser m input of \ where
+      (ok unconsumed (x , rest)) -> runParser (k x) rest
+      (ok consumed (x , rest)) -> case runParser (k x) rest of \ where
         (ok _ out) -> ok consumed out
         (err _) -> err consumed
-      (err flag) -> err flag
+      (err b) -> err b
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -86,10 +85,10 @@ instance
 
 try : Parser a -> Parser a
 try p = toParser \ where
-  s -> case runParser p s of \ where
+  input -> case runParser p input of \ where
     (err consumed) -> err unconsumed
     (ok consumed out) -> ok consumed out
-    anunconsumed -> anunconsumed
+    res -> res
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = try ((p *> azero) <|> pure tt)
@@ -163,7 +162,7 @@ chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
 
 parse : Parser a -> String -> Maybe a
-parse p s = case runParser p s of \ where
+parse p input = case runParser p input of \ where
  (ok _ (x , _)) -> just x
  _ -> nothing
 
@@ -247,12 +246,12 @@ word : Parser String
 word1 : Parser String
 word = word1 <|> (pure "")
 word1 = do
-  c <- letter
-  s <- word
-  pure (String.cons c s)
+  l <- letter
+  w <- word
+  pure (String.cons l w)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s -> ok consumed (String.break p s)
+takeWhile p = toParser (ok consumed <<< String.break p)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
