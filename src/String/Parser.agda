@@ -26,13 +26,13 @@ private
 -- Types
 -------------------------------------------------------------------------------
 
-data Consumed : Set where
-  consumed : Consumed
-  unconsumed : Consumed
+data Flag : Set where
+  consumed : Flag
+  unconsumed : Flag
 
 data Result (a : Set) : Set where
-  ok : Consumed -> Pair a String -> Result a
-  err : Consumed -> Result a
+  ok : Flag -> Pair a String -> Result a
+  err : Flag -> Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
@@ -48,16 +48,16 @@ instance
   Functor-Parser : Functor Parser
   Functor-Parser .map f p = toParser \ where
     s -> case runParser p s of \ where
-      (ok aconsumed (x , s')) -> ok aconsumed (f x , s')
-      (err aconsumed) -> err aconsumed
+      (ok flag (x , s')) -> ok flag (f x , s')
+      (err flag) -> err flag
 
   Applicative-Parser : Applicative Parser
   Applicative-Parser .pure x = toParser \ where
     s -> ok unconsumed (x , s)
   Applicative-Parser ._<*>_ p q = toParser \ where
     s -> case runParser p s of \ where
-      (ok aconsumed (f , s')) -> runParser (map f q) s'
-      (err aconsumed) -> err aconsumed
+      (ok flag (f , s')) -> runParser (map f q) s'
+      (err flag) -> err flag
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
@@ -68,8 +68,8 @@ instance
       (ok unconsumed out) -> case runParser r s of \ where
         (ok unconsumed _) -> ok unconsumed out
         (err unconsumed) -> err unconsumed
-        aconsumed -> aconsumed
-      aconsumed -> aconsumed
+        flag -> flag
+      flag -> flag
 
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
@@ -78,7 +78,7 @@ instance
       (ok consumed (x , s')) -> case runParser (k x) s' of \ where
         (ok _ out) -> ok consumed out
         (err _) -> err consumed
-      (err aconsumed) -> err aconsumed
+      (err flag) -> err flag
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -164,7 +164,7 @@ chainr p op a = chainr1 p op <|> pure a
 
 parse : Parser a -> String -> Maybe a
 parse p s = case runParser p s of \ where
- (ok aconsumed (x , _)) -> just x
+ (ok _ (x , _)) -> just x
  _ -> nothing
 
 -------------------------------------------------------------------------------
