@@ -31,7 +31,7 @@ data Consumed : Set where
   empty : Consumed
 
 data Result (a : Set) : Set where
-  ok : Consumed -> a -> String -> Result a
+  ok : Consumed -> Pair a String -> Result a
   err : Consumed -> Result a
 
 record Parser (a : Set) : Set where
@@ -48,14 +48,15 @@ instance
   Functor-Parser : Functor Parser
   Functor-Parser .map f p = toParser \ where
     s -> case runParser p s of \ where
-      (ok aconsumed x s') -> ok aconsumed (f x) s'
+      (ok aconsumed (x , s')) -> ok aconsumed (f x , s')
       (err aconsumed) -> err aconsumed
 
   Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure = toParser <<< ok empty
+  Applicative-Parser .pure x = toParser \ where
+    s -> ok empty (x , s)
   Applicative-Parser ._<*>_ p q = toParser \ where
     s -> case runParser p s of \ where
-      (ok aconsumed f s') -> runParser (map f q) s'
+      (ok aconsumed (f , s')) -> runParser (map f q) s'
       (err aconsumed) -> err aconsumed
 
   Alternative-Parser : Alternative Parser
@@ -64,8 +65,8 @@ instance
   Alternative-Parser ._<|>_ l r = toParser \ where
     s -> case runParser l s of \ where
       (err empty) -> runParser r s
-      (ok empty x s') -> case runParser r s of \ where
-        (ok empty _ _) -> ok empty x s'
+      (ok empty out) -> case runParser r s of \ where
+        (ok empty _) -> ok empty out
         (err empty) -> err empty
         aconsumed -> aconsumed
       aconsumed -> aconsumed
@@ -73,9 +74,9 @@ instance
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
     s -> case runParser m s of \ where
-      (ok empty x s') -> runParser (k x) s'
-      (ok consumed x s') -> case runParser (k x) s' of \ where
-        (ok _ x' s'') -> ok consumed x' s''
+      (ok empty (x , s')) -> runParser (k x) s'
+      (ok consumed (x , s')) -> case runParser (k x) s' of \ where
+        (ok _ out) -> ok consumed out
         (err _) -> err consumed
       (err aconsumed) -> err aconsumed
 
@@ -87,7 +88,7 @@ try : Parser a -> Parser a
 try p = toParser \ where
   s -> case runParser p s of \ where
     (err consumed) -> err empty
-    (ok consumed x s') -> ok consumed x s'
+    (ok consumed out) -> ok consumed out
     anempty -> anempty
 
 notFollowedBy : Parser a -> Parser Unit
@@ -163,7 +164,7 @@ chainr p op a = chainr1 p op <|> pure a
 
 parse : Parser a -> String -> Maybe a
 parse p s = case runParser p s of \ where
- (ok aconsumed x _) -> just x
+ (ok aconsumed (x , _)) -> just x
  _ -> nothing
 
 -------------------------------------------------------------------------------
@@ -174,7 +175,7 @@ anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
     then err empty
-    else uncurry (ok consumed) (String.uncons s {{trustMe}})
+    else ok consumed (String.uncons s {{trustMe}})
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy test = do
@@ -251,7 +252,7 @@ word1 = do
   pure (String.cons c s)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ s -> uncurry (ok consumed) (String.break p s)
+takeWhile p = toParser \ s -> ok consumed (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
