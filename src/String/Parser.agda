@@ -26,13 +26,13 @@ private
 -- Types
 -------------------------------------------------------------------------------
 
-data Flag : Set where
-  consumed : Flag
-  unconsumed : Flag
+data ConsumedFlag : Set where
+  consumed : ConsumedFlag
+  unconsumed : ConsumedFlag
 
 data Result (a : Set) : Set where
-  ok : Flag -> Pair a String -> Result a
-  err : Flag -> Result a
+  ok : ConsumedFlag -> Pair a String -> Result a
+  err : ConsumedFlag -> Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
