@@ -70,10 +70,6 @@ instance
   Alternative-Parser ._<|>_ l r = toParser \ where
     input -> case runParser l input of \ where
       (err unconsumed) -> runParser r input
-      (ok unconsumed out) -> case runParser r input of \ where
-        (ok unconsumed _) -> ok unconsumed out
-        (err unconsumed) -> err unconsumed
-        res -> res
       res -> res
 
   Monad-Parser : Monad Parser
@@ -95,9 +91,6 @@ try p = toParser \ where
     (err consumed) -> err unconsumed
     (ok consumed out) -> ok consumed out
     res -> res
-
-notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = try ((p *> azero) <|> pure tt)
 
 {-# NON_TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
@@ -167,10 +160,8 @@ chainr1 = infixr1 id
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = chainr1 p op <|> pure a
 
-parse : Parser a -> String -> Maybe a
-parse p input = case runParser p input of \ where
- (ok _ (x , _)) -> just x
- _ -> nothing
+notFollowedBy : Parser a -> Parser Unit
+notFollowedBy p = try ((p *> azero) <|> pure tt)
 
 -------------------------------------------------------------------------------
 -- Char parsers
@@ -181,6 +172,9 @@ anyChar = toParser \ where
   s -> if s == ""
     then err unconsumed
     else ok consumed (String.uncons s {{trustMe}})
+
+eof : Parser Unit
+eof = notFollowedBy anyChar
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy test = do
@@ -278,9 +272,6 @@ int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 -- Misc. parsers
 -------------------------------------------------------------------------------
 
-eof : Parser Unit
-eof = notFollowedBy anyChar
-
 fully : Parser a -> Parser a
 fully p = skipSpaces *> p <* eof
 
@@ -289,3 +280,12 @@ lexeme p = p <* skipSpaces
 
 symbol : String -> Parser String
 symbol s = lexeme (string s)
+
+-------------------------------------------------------------------------------
+-- Executing parsers
+-------------------------------------------------------------------------------
+
+execParser : Parser a -> String -> Maybe a
+execParser p input = case runParser p input of \ where
+ (ok _ (x , _)) -> just x
+ _ -> nothing
