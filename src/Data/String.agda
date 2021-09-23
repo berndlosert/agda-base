@@ -82,8 +82,6 @@ init s = pack $ List.init (unpack s) {{trustMe}}
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
 {-# COMPILE GHC snoc = Text.snoc #-}
-{-# COMPILE GHC uncons = Text.uncons #-}
-{-# COMPILE GHC unsnoc = Text.unsnoc #-}
 {-# COMPILE GHC length = toInteger . Text.length #-}
 
 -------------------------------------------------------------------------------
