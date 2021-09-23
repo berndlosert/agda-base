@@ -245,10 +245,7 @@ string = map String.pack <<< traverse char <<< String.unpack
 word : Parser String
 word1 : Parser String
 word = word1 <|> (pure "")
-word1 = do
-  l <- letter
-  w <- word
-  pure (String.cons l w)
+word1 = (| String.cons letter word |)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = toParser (ok consumed <<< String.break p)
