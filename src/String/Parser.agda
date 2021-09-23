@@ -48,15 +48,15 @@ instance
   Functor-Parser : Functor Parser
   Functor-Parser .map f p = toParser \ where
     s -> case runParser p s of \ where
-      (ok flag x s') -> ok flag (f x) s'
-      (err flag) -> err flag
+      (ok aconsumed x s') -> ok aconsumed (f x) s'
+      (err aconsumed) -> err aconsumed
 
   Applicative-Parser : Applicative Parser
   Applicative-Parser .pure = toParser <<< ok empty
   Applicative-Parser ._<*>_ p q = toParser \ where
     s -> case runParser p s of \ where
-      (ok flag f s') -> runParser (map f q) s'
-      (err flag) -> err flag
+      (ok aconsumed f s') -> runParser (map f q) s'
+      (err aconsumed) -> err aconsumed
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
@@ -77,7 +77,7 @@ instance
       (ok consumed x s') -> case runParser (k x) s' of \ where
         (ok _ x' s'') -> ok consumed x' s''
         (err _) -> err consumed
-      (err flag) -> err flag
+      (err aconsumed) -> err aconsumed
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -163,7 +163,7 @@ chainr p op a = chainr1 p op <|> pure a
 
 parse : Parser a -> String -> Maybe a
 parse p s = case runParser p s of \ where
- (ok flag x _) -> just x
+ (ok aconsumed x _) -> just x
  _ -> nothing
 
 -------------------------------------------------------------------------------
