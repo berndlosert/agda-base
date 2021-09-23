@@ -54,6 +54,12 @@ abstract
 -- Combinators
 -------------------------------------------------------------------------------
 
+first : Parser a -> Parser a
+first p = toParser \ where
+  s -> case runParser p s of \ where
+    (r :: rs) -> r :: []
+    [] -> []
+
 {-# NON_TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
 many1 a = (| a :: many a |)
