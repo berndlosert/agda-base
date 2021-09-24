@@ -76,6 +76,7 @@ instance
       (ok unconsumed out) -> case runParser r input of \ where
         (ok consumed out') -> ok consumed out'
         (ok unconsumed out') -> ok unconsumed out
+        (err b) -> err b
       (err consumed) -> err consumed
       (ok consumed out) -> ok consumed out
 
@@ -98,7 +99,7 @@ try p = toParser \ where
     (err consumed) -> err unconsumed
     res -> res
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
 many1 a = (| a :: many a |)
 many a = many1 a <|> pure []
@@ -137,20 +138,20 @@ endBy p sep = many (p <* sep)
 endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
 prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
 postfix wrap p op = (| (wrap <$> p) # rest |)
   where rest = (| op >>> rest |) <|> pure id
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
 infixl1 wrap p op = postfix wrap p (| flip op p |)
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
 infixr1 wrap p op = (| p # (| flip op (infixr1 wrap p op) |) <|> pure wrap |)
 
