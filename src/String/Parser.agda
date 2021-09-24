@@ -103,6 +103,12 @@ try p = toParser \ where
     (err yes) -> err no
     res -> res
 
+notFollowedBy : Parser a -> Parser Unit
+notFollowedBy p = toParser \ where
+  input -> case runParser p input of \ where
+    (ok _ _) -> err no
+    (err _) -> ok no (tt , input)
+
 option : a -> Parser a -> Parser a
 option a p = p <|> pure a
 
@@ -170,9 +176,6 @@ chainr1 = infixr1 id
 
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
 chainr p op a = option a (chainr1 p op)
-
-notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = try (option tt (p *> azero))
 
 -------------------------------------------------------------------------------
 -- Char parsers
