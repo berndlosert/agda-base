@@ -32,12 +32,13 @@ private
 -- Parser
 -------------------------------------------------------------------------------
 
-pattern consumed = true
-pattern unconsumed = false
+data Consumed : Set where
+  yes : Consumed
+  no : Consumed
 
 data Result (a : Set) : Set where
-  ok : Bool -> Pair a String -> Result a
-  err : Bool -> Result a
+  ok : Consumed -> Pair a String -> Result a
+  err : Consumed -> Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
@@ -49,45 +50,48 @@ open Parser
 -- Instances
 -------------------------------------------------------------------------------
 
+private
+  pureParser : a -> Parser a
+  pureParser x = toParser \ where
+    input -> ok no (x , input)
+
+  bindParser : Parser a -> (a -> Parser b) -> Parser b
+  bindParser m k = toParser \ where
+    input -> case runParser m input of \ where
+      (ok no (x , rest)) -> runParser (k x) rest
+      (err no) -> err no
+      (ok yes (x , rest)) -> case runParser (k x) rest of \ where
+        (ok c out) -> ok c out
+        (err c) -> err c
+      (err yes) -> err yes
+
+  mapParser : (a -> b) -> Parser a -> Parser b
+  mapParser f x = bindParser x (f >>> pureParser)
+
+  apParser : Parser (a -> b) -> Parser a -> Parser b
+  apParser p q = bindParser p \ f -> bindParser q \ x -> pureParser (f x)
+
 instance
   Functor-Parser : Functor Parser
-  Functor-Parser .map f p = toParser \ where
-    input -> case runParser p input of \ where
-      (ok b (x , rest)) -> ok b (f x , rest)
-      (err b) -> err b
+  Functor-Parser .map = mapParser
 
   Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure x = toParser \ where
-    input -> ok unconsumed (x , input)
-  Applicative-Parser ._<*>_ p q = toParser \ where
-    input -> case runParser p input of \ where
-      (ok unconsumed (f , rest)) -> runParser (map f q) rest
-      (ok consumed (f , rest)) -> case runParser (map f q) rest of \ where
-        (ok _ out) -> ok consumed out
-        (err _) -> err consumed
-      (err b) -> err b
+  Applicative-Parser .pure = pureParser
+  Applicative-Parser ._<*>_ = apParser
+
+  Monad-Parser : Monad Parser
+  Monad-Parser ._>>=_ = bindParser
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    input -> err unconsumed
+    input -> err no
   Alternative-Parser ._<|>_ l r = toParser \ where
     input -> case runParser l input of \ where
-      (err unconsumed) -> runParser r input
-      (ok unconsumed out) -> case runParser r input of \ where
-        (ok consumed out') -> ok consumed out'
-        (ok unconsumed out') -> ok unconsumed out
-        (err b) -> err b
-      (err consumed) -> err consumed
-      (ok consumed out) -> ok consumed out
-
-  Monad-Parser : Monad Parser
-  Monad-Parser ._>>=_ m k = toParser \ where
-    input -> case runParser m input of \ where
-      (ok unconsumed (x , rest)) -> runParser (k x) rest
-      (ok consumed (x , rest)) -> case runParser (k x) rest of \ where
-        (ok _ out) -> ok consumed out
-        (err _) -> err consumed
-      (err b) -> err b
+      (err no) -> case runParser r input of \ where
+        (err no) -> err no
+        (ok no out) -> ok no out
+        res -> res
+      res -> res
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -96,7 +100,7 @@ instance
 try : Parser a -> Parser a
 try p = toParser \ where
   input -> case runParser p input of \ where
-    (err consumed) -> err unconsumed
+    (err yes) -> err no
     res -> res
 
 {-# TERMINATING #-}
@@ -177,8 +181,8 @@ notFollowedBy p = try ((p *> azero) <|> pure tt)
 anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
-    then err unconsumed
-    else ok consumed (String.uncons s {{trustMe}})
+    then err no
+    else ok yes (String.uncons s {{trustMe}})
 
 eof : Parser Unit
 eof = notFollowedBy anyChar
@@ -255,7 +259,7 @@ word = word1 <|> (pure "")
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser (ok consumed <<< String.break p)
+takeWhile p = toParser (ok yes <<< String.break p)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
