@@ -248,7 +248,7 @@ tab = char '\t'
 string : String -> Parser String
 string = map String.pack <<< traverse char <<< String.unpack
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 word : Parser String
 word1 : Parser String
 word = word1 <|> (pure "")
