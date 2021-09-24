@@ -61,7 +61,10 @@ instance
     input -> ok unconsumed (x , input)
   Applicative-Parser ._<*>_ p q = toParser \ where
     input -> case runParser p input of \ where
-      (ok b (f , rest)) -> runParser (map f q) rest
+      (ok unconsumed (f , rest)) -> runParser (map f q) rest
+      (ok consumed (f , rest)) -> case runParser (map f q) rest of \ where
+        (ok _ out) -> ok consumed out
+        (err _) -> err consumed
       (err b) -> err b
 
   Alternative-Parser : Alternative Parser
@@ -70,7 +73,11 @@ instance
   Alternative-Parser ._<|>_ l r = toParser \ where
     input -> case runParser l input of \ where
       (err unconsumed) -> runParser r input
-      res -> res
+      (ok unconsumed out) -> case runParser r input of \ where
+        (ok consumed out') -> ok consumed out'
+        (ok unconsumed out') -> ok unconsumed out
+      (err consumed) -> err consumed
+      (ok consumed out) -> ok consumed out
 
   Monad-Parser : Monad Parser
   Monad-Parser ._>>=_ m k = toParser \ where
