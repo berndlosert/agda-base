@@ -100,13 +100,6 @@ instance
     nothing -> showString "nothing"
 
   Show-List : {{Show a}} -> Show (List a)
-  Show-List .showsPrec _ [] = showString "[]"
-  Show-List .showsPrec d (x :: xs) =
-      showString "[" <<< content <<< showString "]"
-    where
-      content : ShowS
-      content = showsPrec d x <<< go xs
-        where
-          go : {{Show a}} -> List a -> ShowS
-          go [] = showString ""
-          go (y :: ys) = showString ", " <<< showsPrec d y <<< go ys
+  Show-List .showsPrec d = \ where
+    [] -> showString "[]"
+    (x :: xs) -> showsPrec d x <<< showString " :: " <<< showsPrec d xs
