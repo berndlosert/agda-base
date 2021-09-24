@@ -103,10 +103,13 @@ try p = toParser \ where
     (err yes) -> err no
     res -> res
 
+option : a -> Parser a -> Parser a
+option a p = p <|> pure a
+
 {-# TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
 many1 a = (| a :: many a |)
-many a = many1 a <|> pure []
+many a = option [] (many1 a)
 
 optional : Parser a -> Parser (Maybe a)
 optional a = (| just a | nothing |)
@@ -121,9 +124,6 @@ exactly n p = List.sequence (List.replicate n p)
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> q <* p'
 
-option : a -> Parser a -> Parser a
-option a p = p <|> pure a
-
 skipMany : Parser a -> Parser Unit
 skipMany p = many p *> pure tt
 
@@ -134,7 +134,7 @@ sepBy1 : Parser a -> Parser b -> Parser (List a)
 sepBy1 p sep = (| p :: many (sep *> p) |)
 
 sepBy : Parser a -> Parser b -> Parser (List a)
-sepBy p sep = sepBy1 p sep <|> pure []
+sepBy p sep = option [] (sepBy1 p sep)
 
 endBy : Parser a -> Parser b -> Parser (List a)
 endBy p sep = many (p <* sep)
@@ -149,7 +149,7 @@ prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 {-# TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
 postfix wrap p op = (| (wrap <$> p) # rest |)
-  where rest = (| op >>> rest |) <|> pure id
+  where rest = option id (| op >>> rest |)
 
 {-# TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
@@ -163,16 +163,16 @@ chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 = infixl1 id
 
 chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
-chainl p op a = chainl1 p op <|> pure a
+chainl p op a = option a (chainl1 p op)
 
 chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainr1 = infixr1 id
 
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
-chainr p op a = chainr1 p op <|> pure a
+chainr p op a = option a (chainr1 p op)
 
 notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = try ((p *> azero) <|> pure tt)
+notFollowedBy p = try (option tt (p *> azero))
 
 -------------------------------------------------------------------------------
 -- Char parsers
@@ -255,7 +255,7 @@ string = map String.pack <<< traverse char <<< String.unpack
 {-# TERMINATING #-}
 word : Parser String
 word1 : Parser String
-word = word1 <|> (pure "")
+word = option "" word1
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
@@ -284,13 +284,19 @@ int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 -------------------------------------------------------------------------------
 
 fully : Parser a -> Parser a
-fully p = skipSpaces *> p <* eof
+fully = between skipSpaces eof
 
 lexeme : Parser a -> Parser a
 lexeme p = p <* skipSpaces
 
 symbol : String -> Parser String
-symbol s = lexeme (string s)
+symbol = lexeme <<< string
+
+token : Parser a -> Parser a
+token = lexeme <<< try
+
+keyword : String -> Parser Unit
+keyword s = token (string s *> notFollowedBy alphaNum)
 
 -------------------------------------------------------------------------------
 -- Executing parsers
