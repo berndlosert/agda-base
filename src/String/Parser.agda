@@ -107,7 +107,7 @@ exactly 0 p = pure []
 exactly n p = List.sequence (List.replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
-between p p' q = p *> (q <* p')
+between p p' q = p *> q <* p'
 
 option : a -> Parser a -> Parser a
 option a p = p <|> pure a
