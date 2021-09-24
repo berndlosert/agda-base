@@ -89,7 +89,6 @@ try : Parser a -> Parser a
 try p = toParser \ where
   input -> case runParser p input of \ where
     (err consumed) -> err unconsumed
-    (ok consumed out) -> ok consumed out
     res -> res
 
 {-# NON_TERMINATING #-}
