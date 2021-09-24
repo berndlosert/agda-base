@@ -89,14 +89,14 @@ instance
   Show-Either : {{Show a}} -> {{Show b}} -> Show (Either a b)
   Show-Either .showsPrec d = \ where
     (left x) -> showParen (d > appPrec)
-      (showString "Left " <<< showsPrec appPrec+1 x)
+      (showString "left " <<< showsPrec appPrec+1 x)
     (right x) -> showParen (d > appPrec)
-      (showString "Right " <<< showsPrec appPrec+1 x)
+      (showString "right " <<< showsPrec appPrec+1 x)
 
   Show-Maybe : {{Show a}} -> Show (Maybe a)
   Show-Maybe .showsPrec d = \ where
     (just x) -> showParen (d > appPrec)
-      (showString "Just " <<< showsPrec appPrec+1 x)
+      (showString "just " <<< showsPrec appPrec+1 x)
     nothing -> showString "nothing"
 
   Show-List : {{Show a}} -> Show (List a)
