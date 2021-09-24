@@ -197,8 +197,8 @@ oneOf cs = satisfy (\ c -> List.elem c cs)
 noneOf : List Char -> Parser Char
 noneOf cs = satisfy (\ c -> List.notElem c cs)
 
-letter : Parser Char
-letter = satisfy Char.isAlpha
+alpha : Parser Char
+alpha = satisfy Char.isAlpha
 
 lower : Parser Char
 lower = satisfy Char.isLower
@@ -213,7 +213,7 @@ hexDigit : Parser Char
 hexDigit = satisfy Char.isHexDigit
 
 alphaNum : Parser Char
-alphaNum = letter <|> digit
+alphaNum = alpha <|> digit
 
 space : Parser Char
 space = satisfy Char.isSpace
@@ -244,7 +244,7 @@ string = map String.pack <<< traverse char <<< String.unpack
 word : Parser String
 word1 : Parser String
 word = word1 <|> (pure "")
-word1 = (| String.cons letter word |)
+word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = toParser (ok consumed <<< String.break p)
