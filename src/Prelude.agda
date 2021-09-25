@@ -815,24 +815,36 @@ instance
   Monoid-IO .mempty = pureIO mempty
 
 -------------------------------------------------------------------------------
--- Category
+-- Semigroupoid
 -------------------------------------------------------------------------------
 
-record Category (p : Set -> Set -> Set) : Set where
+record Semigroupoid (p : Set -> Set -> Set) : Set where
   infixr 9 _<<<_
-  field
-    _<<<_ : p b c -> p a b -> p a c
-    id : p a a
+  field _<<<_ : p b c -> p a b -> p a c
 
   infixr 9 _>>>_
   _>>>_ : p a b -> p b c -> p a c
   _>>>_ = flip _<<<_
 
+open Semigroupoid {{...}} public
+
+instance
+  Semigroupoid-Function : Semigroupoid Function
+  Semigroupoid-Function ._<<<_ f g x = f (g x)
+
+-------------------------------------------------------------------------------
+-- Category
+-------------------------------------------------------------------------------
+
+record Category (p : Set -> Set -> Set) : Set where
+  field
+    {{Semigroupoid-super}} : Semigroupoid p
+    id : p a a
+
 open Category {{...}} public
 
 instance
   Category-Function : Category Function
-  Category-Function ._<<<_ f g x = f (g x)
   Category-Function .id x = x
 
 -------------------------------------------------------------------------------
