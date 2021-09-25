@@ -20,12 +20,12 @@ private
     f m t : Set -> Set
 
 -------------------------------------------------------------------------------
--- Step (for foldl')
+-- Short (for foldl')
 -------------------------------------------------------------------------------
 
-data Step (a : Set) : Set where
-  done : a -> Step a
-  continue : a -> Step a
+data Short (a : Set) : Set where
+  done : a -> Short a
+  continue : a -> Short a
 
 -------------------------------------------------------------------------------
 -- Foldable
@@ -61,7 +61,7 @@ record Foldable (t : Set -> Set) : Set where
       go x k z = k $! f z x
 
   -- Short-circuiting foldl.
-  foldl' : (b -> a -> Step b) -> b -> t a -> b
+  foldl' : (b -> a -> Short b) -> b -> t a -> b
   foldl' {b} {a} f = flip $ foldr go id
     where
       go : a -> (b -> b) -> b -> b
@@ -96,7 +96,7 @@ record Foldable (t : Set -> Set) : Set where
   find : (a -> Bool) -> t a -> Maybe a
   find {a} p = foldl' go nothing
     where
-      go : Maybe a -> a -> Step (Maybe a)
+      go : Maybe a -> a -> Short (Maybe a)
       go _ x = if p x then done (just x) else continue nothing
 
   any : (a -> Bool) -> t a -> Bool
