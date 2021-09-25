@@ -8,7 +8,7 @@ module Control.Reduce where
 
 open import Prelude
 
-open import Data.Foldable hiding (continue)
+open import Data.Foldable hiding (continue; done)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -20,11 +20,27 @@ private
     m t : Set -> Set
 
 -------------------------------------------------------------------------------
+-- Reduced
+-------------------------------------------------------------------------------
+
+data Reduced (a : Set) : Set where
+  reduced : Bool -> a -> Reduced a
+
+instance
+  Functor-Reduced : Functor Reduced
+  Functor-Reduced .map f (reduced b x) = reduced b (f x)
+
+  Applicative-Reduced : Applicative Reduced
+  Applicative-Reduced .pure = reduced false
+  Applicative-Reduced ._<*>_ (reduced b f) (reduced b' x) =
+    reduced (b && b') (f x)
+
+-------------------------------------------------------------------------------
 -- Reducer
 -------------------------------------------------------------------------------
 
 data Reducer (a b : Set) : Set where
-  reducer : (c -> a -> Either c c) -> c -> (c -> b) -> Reducer a b
+  reducer : (c -> a -> Reduced c) -> c -> (c -> b) -> Reducer a b
 
 instance
   Functor-Reducer : Functor (Reducer a)
@@ -34,26 +50,23 @@ instance
   Applicative-Reducer : Applicative (Reducer a)
   Applicative-Reducer .pure x =
     let
-      step _ _ = left tt
+      step _ _ = reduced true tt
       init = tt
       extract = const x
     in
       reducer step init extract
   Applicative-Reducer ._<*>_
-    (reducer {c} step1 init1 extract1) (reducer {d} step2 init2 extract2) =
+    (reducer step1 init1 extract1) (reducer step2 init2 extract2) =
         reducer step init extract
       where
         init : _
-        init = (right init1 , right init2)
+        init = (init1 , init2)
 
         extract : _
-        extract p = extract1 (fromEither (fst p)) (extract2 (fromEither (snd p)))
+        extract (f , x) = extract1 f (extract2 x)
 
         step : _
-        step (left f , left x) y = left (left f , left x)
-        step (right f , left x) y = right (step1 f y , left x)
-        step (right f , right x) y = right (step1 f y , step2 x y)
-        step (left f , right x) y = right (left f , step2 x y)
+        step (f , x) y = (| (step1 f y) , (step2 x y) |)
 
 -------------------------------------------------------------------------------
 -- Functions
@@ -64,13 +77,15 @@ reduce {t} {a} {b} (reducer {c} step init extract) xs =
     foldr go extract xs init
   where
     go : a -> (c -> b) -> c -> b
-    go x k z = either extract (k $!_) (step z x)
+    go x k z = case step z x of \ where
+      (reduced true y) -> extract y
+      (reduced false y) -> k $! y
 
 reducer' : (c -> a -> c) -> c -> (c -> b) -> Reducer a b
 reducer' {c} {a} step init extract = reducer step' init extract
   where
-    step' : c -> a -> Either c c
-    step' z x = right (step z x)
+    step' : c -> a -> Reduced c
+    step' z x = reduced false (step z x)
 
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' step init id
