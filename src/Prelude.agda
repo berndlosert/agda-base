@@ -1055,7 +1055,7 @@ open Monad {{...}} public
 
 instance
   Monad-Function : Monad (Function a)
-  Monad-Function ._>>=_ m k = \ a -> k (m a) a
+  Monad-Function ._>>=_ f g = \ x -> g (f x) x
 
   Monad-Either : Monad (Either a)
   Monad-Either ._>>=_ = \ where
