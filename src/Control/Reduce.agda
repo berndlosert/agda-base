@@ -81,8 +81,11 @@ intoSum : {{fn : FromNat a}}
   -> Reducer a a
 intoSum = intoFold _+_ 0
 
-intoLength : Reducer a Nat
-intoLength = intoFold (\ n _ -> suc n) 0
+intoLength : Reducer a Float
+intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoAverage : Reducer Float Float
-intoAverage = (| intoSum / (toFloat <$> intoLength) |)
+intoAverage = (| div intoSum intoLength |)
+  where
+    div : Float -> Float -> Float
+    div x y = x / y
