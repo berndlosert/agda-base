@@ -6,7 +6,7 @@ module Data.Float where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude as Prelude hiding (fromNat)
 
 open import Agda.Builtin.Float
 
@@ -76,3 +76,6 @@ acosh = primFloatACosh
 
 atanh : Float -> Float
 atanh = primFloatATanh
+
+fromNat : Nat -> Float
+fromNat n = Prelude.fromNat n
