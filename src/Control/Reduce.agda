@@ -114,7 +114,10 @@ filtering p (reducer step init extract) =
 
 concatMapping : {{Foldable t}} -> (a -> t b) -> Transducer a b
 concatMapping f (reducer step init extract) =
-  reducer (\ z x -> reduced false (reduce (reducer step z id) (f x)) init extract
+  reducer
+    (\ z x -> reduced false (reduce (reducer step z id) (f x)))
+    init
+    extract
 
 -------------------------------------------------------------------------------
 -- Some reducers
