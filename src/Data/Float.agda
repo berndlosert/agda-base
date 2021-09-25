@@ -79,3 +79,7 @@ atanh = primFloatATanh
 
 fromNat : Nat -> Float
 fromNat n = Prelude.fromNat n
+
+fromInt : Int -> Float
+fromInt (pos n) = fromNat n
+fromInt (negsuc n) = - (fromNat $ suc n)
