@@ -153,7 +153,7 @@ at : (n : Nat) -> (xs : List a) -> {{Assert $ n < length xs}} -> a
 at _ [] = error "Data.List.at: bad argument"
 at 0 (x :: []) = x
 at 0 (x :: _) = error "Data.List.at: bad argument"
-at (suc n) (x :: y :: ys) = at n (y :: ys)
+at (suc n) (x :: y :: ys) = at n (y :: ys) {{trustMe}}
 at (suc n) (x :: _) = error "Data.List.at: bad argument"
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
