@@ -69,7 +69,14 @@ instance
         step (f , x) y = f seq x seq (| (step1 f y) , (step2 x y) |)
 
 -------------------------------------------------------------------------------
--- Functions
+-- Transducer
+-------------------------------------------------------------------------------
+
+Transducer : Set -> Set -> Set
+Transducer a b = forall {c} -> Reducer b c -> Reducer a c
+
+-------------------------------------------------------------------------------
+-- Destruction
 -------------------------------------------------------------------------------
 
 reduce : {{Foldable t}} -> Reducer a b -> t a -> b
@@ -81,6 +88,13 @@ reduce {t} {a} {b} (reducer {c} step init extract) xs =
       (reduced true y) -> extract y
       (reduced false y) -> k $! y
 
+transduce : {{Foldable t}} -> Transducer a b -> Reducer b c -> t a -> c
+transduce t r = reduce (t r)
+
+-------------------------------------------------------------------------------
+-- Construction
+-------------------------------------------------------------------------------
+
 reducer' : (c -> a -> c) -> c -> (c -> b) -> Reducer a b
 reducer' {c} {a} step init extract = reducer step' init extract
   where
@@ -89,6 +103,10 @@ reducer' {c} {a} step init extract = reducer step' init extract
 
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' step init id
+
+-------------------------------------------------------------------------------
+-- Some reducers
+-------------------------------------------------------------------------------
 
 intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
