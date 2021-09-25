@@ -8,7 +8,6 @@ module Control.Reduce where
 
 open import Prelude
 
-open import Data.Float as Float using ()
 open import Data.Foldable hiding (continue; done)
 
 -------------------------------------------------------------------------------
@@ -91,14 +90,26 @@ reducer' {c} {a} step init extract = reducer step' init extract
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' step init id
 
-intoSum : {{fn : FromNat a}}
-  -> {{Add a}}
-  -> {{FromNatConstraint {{fn}} 0}}
-  -> Reducer a a
-intoSum = intoFold _+_ 0
-
 intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
-intoAverage : Reducer Float Float
-intoAverage = (| Float.divide intoSum (Float.fromNat <$> intoLength) |)
+intoList : Reducer a (List a)
+intoList = reducer' (\ z x -> z <<< (x ::_)) id (_$ [])
+
+intoNull : Reducer a Bool
+intoNull = reducer (\ _ _ -> reduced true false) true id
+
+intoAnd : Reducer Bool Bool
+intoAnd =
+  reducer (\ z x -> if x then reduced false z else reduced true x) false id
+
+intoOr : Reducer Bool Bool
+intoOr =
+  reducer (\z x -> if x then reduced true x else reduced false z) false id
+
+module _ {{fn : FromNat a}} where
+  intoSum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> Reducer a a
+  intoSum = intoFold _+_ 0
+
+  intoProduct : {{Mul a}} -> {{FromNatConstraint {{fn}} 1}} -> Reducer a a
+  intoProduct = intoFold _*_ 1
