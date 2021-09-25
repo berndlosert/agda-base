@@ -81,5 +81,5 @@ intoSum : {{fn : FromNat a}}
   -> Reducer a a
 intoSum = intoFold _+_ 0
 
-intoLength : Fold a Nat
+intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> suc n) 0
