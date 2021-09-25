@@ -148,8 +148,9 @@ infixr 0 _$!_
 _$!_ : (a -> b) -> a -> b
 f $! x = primForce x f
 
-seq : a -> b -> b
-seq a b = const b $! a
+infixr 9 _seq_
+_seq_ : a -> b -> b
+a seq b = const b $! a
 
 -------------------------------------------------------------------------------
 -- Bool primitives

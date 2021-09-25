@@ -8,6 +8,7 @@ module Control.Reduce where
 
 open import Prelude
 
+open import Data.Float as Float using ()
 open import Data.Foldable hiding (continue; done)
 
 -------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ instance
         extract (f , x) = extract1 f (extract2 x)
 
         step : _
-        step (f , x) y = (| (step1 f y) , (step2 x y) |)
+        step (f , x) y = f seq x seq (| (step1 f y) , (step2 x y) |)
 
 -------------------------------------------------------------------------------
 -- Functions
@@ -96,11 +97,8 @@ intoSum : {{fn : FromNat a}}
   -> Reducer a a
 intoSum = intoFold _+_ 0
 
-intoLength : Reducer a Float
+intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoAverage : Reducer Float Float
-intoAverage = (| div intoSum intoLength |)
-  where
-    div : Float -> Float -> Float
-    div x y = x / y
+intoAverage = (| Float.divide intoSum (Float.fromNat <$> intoLength) |)

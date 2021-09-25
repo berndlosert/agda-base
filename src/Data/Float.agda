@@ -14,11 +14,14 @@ open import Agda.Builtin.Float
 -- Float primitives
 -------------------------------------------------------------------------------
 
+divide : Float -> Float -> Float
+divide = primFloatDiv
+
 NaN : Float
-NaN = primFloatDiv 0.0 0.0
+NaN = divide 0.0 0.0
 
 infinity : Float
-infinity = primFloatDiv 1.0 0.0
+infinity = divide 1.0 0.0
 
 sqrt : Float -> Float
 sqrt = primFloatSqrt
