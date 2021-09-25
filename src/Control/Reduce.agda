@@ -83,3 +83,6 @@ intoSum = intoFold _+_ 0
 
 intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> suc n) 0
+
+intoAverage : Reducer Float Float
+intoAverage = (| intoSum / (toFloat <$> intoLength) |)
