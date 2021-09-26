@@ -128,8 +128,8 @@ taking n (reducer init step done) = reducer init' step' done'
     step' : _
     step' (0 , z) x = reduced true (0 , z)
     step' (suc m , z) x = case step z x of \ where
-      (reduced true y) -> reduced true (suc m , y)
-      (reduced false y) -> reduced false (m , y)
+      (reduced true z') -> reduced true (suc m , z')
+      (reduced false z') -> reduced false (m , z')
 
     done' : _
     done' (_ , z) = done z
