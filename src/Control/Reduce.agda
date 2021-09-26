@@ -119,6 +119,21 @@ concatMapping f (reducer init step done) =
   let step' z x = reduced false (reduce (reducer z step id) (f x))
   in reducer init step' done
 
+taking : Nat -> Transducer a a
+taking n (reducer init step done) = reducer init' step' done'
+  where
+    init' : _
+    init' = (n , init)
+
+    step' : _
+    step' (0 , z) x = reduced true (0 , z)
+    step' (suc m , z) x = case step z x of \ where
+      (reduced true y) -> reduced true (suc m , y)
+      (reduced false y) -> reduced false (m , y)
+
+    done' : _
+    done' (_ , z) = done z
+
 -------------------------------------------------------------------------------
 -- Some reducers
 -------------------------------------------------------------------------------
