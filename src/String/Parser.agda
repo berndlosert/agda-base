@@ -10,6 +10,7 @@ open import Prelude hiding (bool)
 
 open import Control.Alternative
 open import Data.Char as Char using ()
+open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
@@ -33,16 +34,15 @@ private
 -------------------------------------------------------------------------------
 
 data Consumed : Set where
-  yes : Consumed
-  no : Consumed
+  consumed : Bool -> Consumed
 
 data Result (a : Set) : Set where
-  ok : Consumed -> Pair a String -> Result a
-  err : Consumed -> Result a
+  ok : a -> String -> Result a
+  err : Result a
 
 record Parser (a : Set) : Set where
   constructor toParser
-  field runParser : String -> Result a
+  field runParser : String -> Pair Consumed (Result a)
 
 open Parser
 
@@ -53,13 +53,13 @@ open Parser
 private
   pureParser : a -> Parser a
   pureParser x = toParser \ where
-    s -> ok no (x , s)
+    s -> (consumed false , ok x s)
 
   bindParser : Parser a -> (a -> Parser b) -> Parser b
   bindParser m k = toParser \ where
     s -> case runParser m s of \ where
-      (ok c (x , s')) -> runParser (k x) s'
-      (err c) -> err c
+      (_ , ok x s') -> runParser (k x) s'
+      (c , err) -> (c , err)
 
   mapParser : (a -> b) -> Parser a -> Parser b
   mapParser f x = bindParser x (f >>> pureParser)
@@ -80,12 +80,11 @@ instance
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    s -> err no
+    s -> (consumed false , err)
   Alternative-Parser ._<|>_ l r = toParser \ where
     s -> case runParser l s of \ where
-      (err no) -> case runParser r s of \ where
-        (err no) -> err no
-        (ok no out) -> ok no out
+      (consumed false , err) -> case runParser r s of \ where
+        (consumed false , res) -> (consumed false , res)
         other -> other
       other -> other
 
@@ -96,14 +95,14 @@ instance
 try : Parser a -> Parser a
 try p = toParser \ where
   s -> case runParser p s of \ where
-    (err yes) -> err no
+    (consumed true , err) -> (consumed false , err)
     other -> other
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = toParser \ where
   s -> case runParser p s of \ where
-    (ok _ _) -> err no
-    (err _) -> ok no (tt , s)
+    (_ , ok _ _) -> (consumed false , err)
+    (_ , err) -> (consumed false , ok tt s)
 
 option : a -> Parser a -> Parser a
 option a p = p <|> pure a
@@ -121,7 +120,7 @@ choose a b = (| left a | right b |)
 
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
-exactly n p = List.sequence (List.replicate n p)
+exactly n p = sequence (List.replicate n p)
 
 between : Parser a -> Parser b -> Parser c -> Parser c
 between p p' q = p *> q <* p'
@@ -180,8 +179,8 @@ chainr p op a = option a (chainr1 p op)
 anyChar : Parser Char
 anyChar = toParser \ where
   s -> if s == ""
-    then err no
-    else ok yes (String.uncons s {{trustMe}})
+    then (consumed false , err)
+    else (consumed true , uncurry ok (String.uncons s {{trustMe}}))
 
 eof : Parser Unit
 eof = notFollowedBy anyChar
@@ -203,10 +202,10 @@ char : Char -> Parser Char
 char c = satisfy (c ==_)
 
 oneOf : List Char -> Parser Char
-oneOf cs = satisfy (\ c -> List.elem c cs)
+oneOf cs = satisfy (_elem cs)
 
 noneOf : List Char -> Parser Char
-noneOf cs = satisfy (\ c -> List.notElem c cs)
+noneOf cs = satisfy (_notElem cs)
 
 alpha : Parser Char
 alpha = satisfy Char.isAlpha
@@ -215,7 +214,7 @@ lower : Parser Char
 lower = satisfy Char.isLower
 
 upper : Parser Char
-upper = satisfy (\ c -> Char.isAlpha c && not (Char.isLower c))
+upper = satisfy (| Char.isAlpha && (not <<< Char.isLower) |)
 
 digit : Parser Char
 digit = satisfy Char.isDigit
@@ -258,7 +257,8 @@ word = option "" word1
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser (ok yes <<< String.break p)
+takeWhile p = toParser \ where
+  s -> (consumed true , uncurry ok (String.break p s))
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
@@ -303,5 +303,5 @@ keyword s = token (string s *> notFollowedBy alphaNum)
 
 execParser : Parser a -> String -> Maybe a
 execParser p s = case runParser p s of \ where
- (ok _ (x , _)) -> just x
+ (_ , ok x _) -> just x
  _ -> nothing

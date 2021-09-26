@@ -124,11 +124,11 @@ record Foldable (t : Set -> Set) : Set where
 
   module _ {{_ : Eq a}} where
 
-    elem : a -> t a -> Bool
-    elem = any <<< _==_
+    _elem_ : a -> t a -> Bool
+    _elem_ = any <<< _==_
 
-    notElem : a -> t a -> Bool
-    notElem a s = not (elem a s)
+    _notElem_ : a -> t a -> Bool
+    x notElem xs = not (x elem xs)
 
   minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
   minimumBy {a} cmp = foldl min' nothing
