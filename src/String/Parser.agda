@@ -53,17 +53,13 @@ open Parser
 private
   pureParser : a -> Parser a
   pureParser x = toParser \ where
-    input -> ok no (x , input)
+    s -> ok no (x , s)
 
   bindParser : Parser a -> (a -> Parser b) -> Parser b
   bindParser m k = toParser \ where
-    input -> case runParser m input of \ where
-      (ok no (x , rest)) -> runParser (k x) rest
-      (err no) -> err no
-      (ok yes (x , rest)) -> case runParser (k x) rest of \ where
-        (ok c out) -> ok c out
-        (err c) -> err c
-      (err yes) -> err yes
+    s -> case runParser m s of \ where
+      (ok c (x , s')) -> runParser (k x) s'
+      (err c) -> err c
 
   mapParser : (a -> b) -> Parser a -> Parser b
   mapParser f x = bindParser x (f >>> pureParser)
@@ -84,14 +80,14 @@ instance
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    input -> err no
+    s -> err no
   Alternative-Parser ._<|>_ l r = toParser \ where
-    input -> case runParser l input of \ where
-      (err no) -> case runParser r input of \ where
+    s -> case runParser l s of \ where
+      (err no) -> case runParser r s of \ where
         (err no) -> err no
         (ok no out) -> ok no out
-        res -> res
-      res -> res
+        other -> other
+      other -> other
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -99,15 +95,15 @@ instance
 
 try : Parser a -> Parser a
 try p = toParser \ where
-  input -> case runParser p input of \ where
+  s -> case runParser p s of \ where
     (err yes) -> err no
-    res -> res
+    other -> other
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = toParser \ where
-  input -> case runParser p input of \ where
+  s -> case runParser p s of \ where
     (ok _ _) -> err no
-    (err _) -> ok no (tt , input)
+    (err _) -> ok no (tt , s)
 
 option : a -> Parser a -> Parser a
 option a p = p <|> pure a
@@ -154,8 +150,8 @@ prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 
 {-# TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
-postfix wrap p op = (| (wrap <$> p) # rest |)
-  where rest = option id (| op >>> rest |)
+postfix wrap p op = (| (wrap <$> p) # s' |)
+  where s' = option id (| op >>> s' |)
 
 {-# TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
@@ -306,6 +302,6 @@ keyword s = token (string s *> notFollowedBy alphaNum)
 -------------------------------------------------------------------------------
 
 execParser : Parser a -> String -> Maybe a
-execParser p input = case runParser p input of \ where
+execParser p s = case runParser p s of \ where
  (ok _ (x , _)) -> just x
  _ -> nothing
