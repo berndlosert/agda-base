@@ -106,18 +106,18 @@ intoFold step init = reducer' init step id
 
 mapping : (a -> b) -> Transducer a b
 mapping f (reducer init step done) =
-  reducer init (\ z x -> step z (f x)) done
+  let step' z x = step z (f x)
+  in reducer init step' done
 
 filtering : (a -> Bool) -> Transducer a a
 filtering p (reducer init step done) =
-  reducer init (\ z x -> if p x then step z x else reduced false z) done
+  let step' z x = if p x then step z x else reduced false z
+  in reducer init step' done
 
 concatMapping : {{Foldable t}} -> (a -> t b) -> Transducer a b
 concatMapping f (reducer init step done) =
-  reducer
-    init
-    (\ z x -> reduced false (reduce (reducer z step id) (f x)))
-    done
+  let step' z x = reduced false (reduce (reducer z step id) (f x))
+  in reducer init step' done
 
 -------------------------------------------------------------------------------
 -- Some reducers
@@ -127,14 +127,31 @@ intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoList : Reducer a (List a)
-intoList = reducer' id (\ z x -> z <<< (x ::_)) (_$ [])
+intoList =
+  let
+    init = id
+    step z x = z <<< (x ::_)
+    done = _$ []
+  in
+    reducer' init step done
 
 intoNull : Reducer a Bool
-intoNull = reducer true (\ _ _ -> reduced true false) id
+intoNull =
+  let
+    init = true
+    step _ _ = reduced true false
+    done = id
+  in
+    reducer init step done
 
 intoAnd : Reducer Bool Bool
 intoAnd =
-  reducer false (\ z x -> if x then reduced false z else reduced true x) id
+  let
+    init = false
+    step z x = if x then reduced false z else reduced true x
+    done = id
+  in
+    reducer init step done
 
 intoOr : Reducer Bool Bool
 intoOr =
