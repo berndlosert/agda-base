@@ -162,6 +162,12 @@ intoOr =
   in
     reducer init step done
 
+intoAll : (a -> Bool) -> Reducer a Bool
+intoAll p = mapping p intoAnd
+
+intoAny : (a -> Bool) -> Reducer a Bool
+intoAny p = mapping p intoOr
+
 module _ {{fn : FromNat a}} where
   intoSum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> Reducer a a
   intoSum = intoFold _+_ 0
