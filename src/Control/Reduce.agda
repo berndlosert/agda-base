@@ -155,7 +155,12 @@ intoAnd =
 
 intoOr : Reducer Bool Bool
 intoOr =
-  reducer false (\z x -> if x then reduced true x else reduced false z) id
+  let
+    init = false
+    step z x = if x then reduced true x else reduced false z
+    done = id
+  in
+    reducer init step done
 
 module _ {{fn : FromNat a}} where
   intoSum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> Reducer a a
