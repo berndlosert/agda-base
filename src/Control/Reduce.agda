@@ -44,26 +44,26 @@ data Reducer (a b : Set) : Set where
 
 instance
   Functor-Reducer : Functor (Reducer a)
-  Functor-Reducer .map f (reducer step init extract) =
-    reducer step init (extract >>> f)
+  Functor-Reducer .map f (reducer step init done) =
+    reducer step init (done >>> f)
 
   Applicative-Reducer : Applicative (Reducer a)
   Applicative-Reducer .pure x =
     let
       step _ _ = reduced true tt
       init = tt
-      extract = const x
+      done = const x
     in
-      reducer step init extract
+      reducer step init done
   Applicative-Reducer ._<*>_
-    (reducer step1 init1 extract1) (reducer step2 init2 extract2) =
-        reducer step init extract
+    (reducer step1 init1 done1) (reducer step2 init2 done2) =
+        reducer step init done
       where
         init : _
         init = (init1 , init2)
 
-        extract : _
-        extract (f , x) = extract1 f (extract2 x)
+        done : _
+        done (f , x) = done1 f (done2 x)
 
         step : _
         step (f , x) y = f seq x seq (| (step1 f y) , (step2 x y) |)
@@ -80,12 +80,12 @@ Transducer a b = forall {c} -> Reducer b c -> Reducer a c
 -------------------------------------------------------------------------------
 
 reduce : {{Foldable t}} -> Reducer a b -> t a -> b
-reduce {t} {a} {b} (reducer {c} step init extract) xs =
-    foldr go extract xs init
+reduce {t} {a} {b} (reducer {c} step init done) xs =
+    foldr go done xs init
   where
     go : a -> (c -> b) -> c -> b
     go x k z = case step z x of \ where
-      (reduced true y) -> extract y
+      (reduced true y) -> done y
       (reduced false y) -> k $! y
 
 transduce : {{Foldable t}} -> Transducer a b -> Reducer b c -> t a -> c
@@ -96,7 +96,7 @@ transduce t r = reduce (t r)
 -------------------------------------------------------------------------------
 
 reducer' : (c -> a -> c) -> c -> (c -> b) -> Reducer a b
-reducer' {c} {a} step init extract = reducer step' init extract
+reducer' {c} {a} step init done = reducer step' init done
   where
     step' : c -> a -> Reduced c
     step' z x = reduced false (step z x)
@@ -105,19 +105,19 @@ intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' step init id
 
 mapping : (a -> b) -> Transducer a b
-mapping f (reducer step init extract) =
-  reducer (\ z x -> step z (f x)) init extract
+mapping f (reducer step init done) =
+  reducer (\ z x -> step z (f x)) init done
 
 filtering : (a -> Bool) -> Transducer a a
-filtering p (reducer step init extract) =
-  reducer (\ z x -> if p x then step z x else reduced false z) init extract
+filtering p (reducer step init done) =
+  reducer (\ z x -> if p x then step z x else reduced false z) init done
 
 concatMapping : {{Foldable t}} -> (a -> t b) -> Transducer a b
-concatMapping f (reducer step init extract) =
+concatMapping f (reducer step init done) =
   reducer
     (\ z x -> reduced false (reduce (reducer step z id) (f x)))
     init
-    extract
+    done
 
 -------------------------------------------------------------------------------
 -- Some reducers
