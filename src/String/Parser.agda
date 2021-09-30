@@ -33,16 +33,14 @@ private
 -- Parser
 -------------------------------------------------------------------------------
 
-data Consumed : Set where
-  consumed : Bool -> Consumed
-
-data Result (a : Set) : Set where
-  ok : a -> String -> Result a
-  err : Result a
-
 record Parser (a : Set) : Set where
   constructor toParser
-  field unParser : String -> Pair Consumed (Result a)
+  field
+    unParser : forall {b}
+      -> String
+      -> (cok : a -> String -> b) (cerr : b)
+      -> (eok : a -> String -> b) (eerr : b)
+      -> b
 
 open Parser
 
@@ -50,43 +48,46 @@ open Parser
 -- Instances
 -------------------------------------------------------------------------------
 
-private
-  pureParser : a -> Parser a
-  pureParser x = toParser \ where
-    s -> (consumed false , ok x s)
-
-  bindParser : Parser a -> (a -> Parser b) -> Parser b
-  bindParser m k = toParser \ where
-    s -> case unParser m s of \ where
-      (_ , ok x s') -> unParser (k x) s'
-      (c , err) -> (c , err)
-
-  mapParser : (a -> b) -> Parser a -> Parser b
-  mapParser f x = bindParser x (f >>> pureParser)
-
-  apParser : Parser (a -> b) -> Parser a -> Parser b
-  apParser p q = bindParser p \ f -> bindParser q \ x -> pureParser (f x)
-
 instance
   Functor-Parser : Functor Parser
-  Functor-Parser .map = mapParser
+  Functor-Parser .map f p = toParser \ where
+    s cok cerr eok eerr -> unParser p s (cok <<< f) cerr (eok <<< f) eerr
 
   Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure = pureParser
-  Applicative-Parser ._<*>_ = apParser
+  Applicative-Parser .pure x = toParser \ where
+    s _ _ eok _ -> eok x s
+  Applicative-Parser ._<*>_ m k = toParser \ where
+    s cok cerr eok eerr ->
+      let
+        mcok x s' = unParser k s' (cok <<< x) cerr (cok <<< x) cerr
+        meok x s' = unParser k s' (cok <<< x) cerr (eok <<< x) eerr
+      in
+        unParser m s mcok cerr meok eerr
 
   Monad-Parser : Monad Parser
-  Monad-Parser ._>>=_ = bindParser
+  Monad-Parser ._>>=_ m k = toParser \ where
+    s cok cerr eok eerr ->
+      let
+        mcok x s' = unParser (k x) s' cok cerr cok cerr
+        meok x s' = unParser (k x) s' cok cerr eok eerr
+      in
+        unParser m s mcok cerr meok eerr
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = toParser \ where
-    s -> (consumed false , err)
-  Alternative-Parser ._<|>_ l r = toParser \ where
-    s -> case unParser l s of \ where
-      (consumed false , err) -> case unParser r s of \ where
-        (consumed false , res) -> (consumed false , res)
-        other -> other
-      other -> other
+    s _ _ _ eerr -> eerr
+  Alternative-Parser ._<|>_ m n = toParser \ where
+    s cok cerr eok eerr ->
+      let
+        meerr =
+          let
+            ncerr = cerr
+            neok x s' = eok x s'
+            neerr = eerr
+          in
+            unParser n s cok ncerr neok neerr
+      in
+        unParser m s cok cerr eok meerr
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -94,15 +95,20 @@ instance
 
 try : Parser a -> Parser a
 try p = toParser \ where
-  s -> case unParser p s of \ where
-    (consumed true , err) -> (consumed false , err)
-    other -> other
+  s cok _ eok eerr ->
+    let eerr' = eerr
+    in unParser p s cok eerr' eok eerr'
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = toParser \ where
-  s -> case unParser p s of \ where
-    (_ , ok _ _) -> (consumed false , err)
-    (_ , err) -> (consumed false , ok tt s)
+  s _ _ eok eerr ->
+    let
+      cok' _ _ = eerr
+      cerr' = eok tt s
+      eok' _ _ = eerr
+      eerr' = eok tt s
+    in
+      unParser p s cok' cerr' eok' eerr'
 
 option : a -> Parser a -> Parser a
 option a p = p <|> pure a
@@ -178,9 +184,10 @@ chainr p op a = option a (chainr1 p op)
 
 anyChar : Parser Char
 anyChar = toParser \ where
-  s -> if s == ""
-    then (consumed false , err)
-    else (consumed true , uncurry ok (String.uncons s {{trustMe}}))
+  s cok _ _ eerr ->
+    if s == ""
+      then eerr
+      else uncurry cok (String.uncons s {{trustMe}})
 
 eof : Parser Unit
 eof = notFollowedBy anyChar
@@ -258,7 +265,7 @@ word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
 takeWhile p = toParser \ where
-  s -> (consumed true , uncurry ok (String.break p s))
+  s cok _ _ _ -> uncurry cok (String.break p s)
 
 takeAll : Parser String
 takeAll = takeWhile (const true)
@@ -302,6 +309,11 @@ keyword s = token (string s *> notFollowedBy alphaNum)
 -------------------------------------------------------------------------------
 
 runParser : Parser a -> String -> Maybe a
-runParser p s = case unParser p s of \ where
- (_ , ok x _) -> just x
- _ -> nothing
+runParser p s =
+  let
+    cok x _ = just x
+    cerr = nothing
+    eok x _ = just x
+    eerr = nothing
+  in
+    unParser p s cok cerr eok eerr
