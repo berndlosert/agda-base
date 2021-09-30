@@ -14,6 +14,7 @@ open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
+open import String.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -43,6 +44,21 @@ record Parser (a : Set) : Set where
       -> b
 
 open Parser
+
+-------------------------------------------------------------------------------
+-- Auxiliary types
+-------------------------------------------------------------------------------
+
+data Consumption : Set where
+  consumed : Consumption
+  empty : Consumption
+
+data Result (a : Set) : Set where
+  ok : a -> Result a
+  err : Result a
+
+data Reply (a : Set) : Set where
+  reply : Consumption -> Result a -> Reply a
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -88,6 +104,23 @@ instance
             unParser n s cok ncerr neok neerr
       in
         unParser m s cok cerr eok meerr
+
+  Show-Consumption : Show Consumption
+  Show-Consumption .showsPrec _ = \ where
+    consumed -> showString "consumed"
+    empty -> showString "empty"
+
+  Show-Result : {{Show a}} -> Show (Result a)
+  Show-Result .showsPrec _ err = showString "err"
+  Show-Result .showsPrec d (ok x) = showParen (d > appPrec) $
+    showString "ok " <<< showsPrec appPrec+1 x
+
+  Show-Reply : {{Show a}} -> Show (Reply a)
+  Show-Reply .showsPrec d (reply consumption result) =
+    showString "reply "
+    <<< showsPrec d consumption
+    <<< showString " "
+    <<< showsPrec d result
 
 -------------------------------------------------------------------------------
 -- Combinators
@@ -182,20 +215,20 @@ chainr p op a = option a (chainr1 p op)
 -- Char parsers
 -------------------------------------------------------------------------------
 
-anyChar : Parser Char
-anyChar = toParser \ where
+satisfy : (Char -> Bool) -> Parser Char
+satisfy test = toParser \ where
   s cok _ _ eerr ->
     if s == ""
       then eerr
-      else uncurry cok (String.uncons s {{trustMe}})
+      else
+        let (c , s') = String.uncons s {{trustMe}}
+        in if test c then cok c s' else eerr
+
+anyChar : Parser Char
+anyChar = satisfy (const true)
 
 eof : Parser Unit
 eof = notFollowedBy anyChar
-
-satisfy : (Char -> Bool) -> Parser Char
-satisfy test = do
-  c <- anyChar
-  if test c then pure c else azero
 
 skipWhile : (Char -> Bool) -> Parser Unit
 skipWhile p = do
@@ -230,7 +263,7 @@ hexDigit : Parser Char
 hexDigit = satisfy Char.isHexDigit
 
 alphaNum : Parser Char
-alphaNum = alpha <|> digit
+alphaNum = satisfy Char.isAlphaNum
 
 space : Parser Char
 space = satisfy Char.isSpace
@@ -245,7 +278,7 @@ crlf : Parser Char
 crlf = char '\r' *> newline
 
 endOfLine : Parser Char
-endOfLine = newline <|> crlf
+endOfLine = try newline <|> crlf
 
 tab : Parser Char
 tab = char '\t'
@@ -315,5 +348,15 @@ runParser p s =
     cerr = nothing
     eok x _ = just x
     eerr = nothing
+  in
+    unParser p s cok cerr eok eerr
+
+runParser' : Parser a -> String -> Reply a
+runParser' p s =
+  let
+    cok x _ = reply consumed (ok x)
+    cerr = reply consumed err
+    eok x _ = reply empty (ok x)
+    eerr = reply empty err
   in
     unParser p s cok cerr eok eerr

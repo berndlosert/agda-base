@@ -40,6 +40,9 @@ toDigit _ = error "Data.Char.toDigit: bad argument"
 isAlpha : Char -> Bool
 isAlpha = primIsAlpha
 
+isAlphaNum : Char -> Bool
+isAlphaNum c = isAlpha c || isDigit c
+
 isSpace : Char -> Bool
 isSpace = primIsSpace
 
