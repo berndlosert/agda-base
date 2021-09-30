@@ -42,7 +42,7 @@ data Result (a : Set) : Set where
 
 record Parser (a : Set) : Set where
   constructor toParser
-  field runParser : String -> Pair Consumed (Result a)
+  field unParser : String -> Pair Consumed (Result a)
 
 open Parser
 
@@ -57,8 +57,8 @@ private
 
   bindParser : Parser a -> (a -> Parser b) -> Parser b
   bindParser m k = toParser \ where
-    s -> case runParser m s of \ where
-      (_ , ok x s') -> runParser (k x) s'
+    s -> case unParser m s of \ where
+      (_ , ok x s') -> unParser (k x) s'
       (c , err) -> (c , err)
 
   mapParser : (a -> b) -> Parser a -> Parser b
@@ -82,8 +82,8 @@ instance
   Alternative-Parser .azero = toParser \ where
     s -> (consumed false , err)
   Alternative-Parser ._<|>_ l r = toParser \ where
-    s -> case runParser l s of \ where
-      (consumed false , err) -> case runParser r s of \ where
+    s -> case unParser l s of \ where
+      (consumed false , err) -> case unParser r s of \ where
         (consumed false , res) -> (consumed false , res)
         other -> other
       other -> other
@@ -94,13 +94,13 @@ instance
 
 try : Parser a -> Parser a
 try p = toParser \ where
-  s -> case runParser p s of \ where
+  s -> case unParser p s of \ where
     (consumed true , err) -> (consumed false , err)
     other -> other
 
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = toParser \ where
-  s -> case runParser p s of \ where
+  s -> case unParser p s of \ where
     (_ , ok _ _) -> (consumed false , err)
     (_ , err) -> (consumed false , ok tt s)
 
@@ -298,10 +298,10 @@ keyword : String -> Parser Unit
 keyword s = token (string s *> notFollowedBy alphaNum)
 
 -------------------------------------------------------------------------------
--- Executing parsers
+-- Running parsers
 -------------------------------------------------------------------------------
 
-execParser : Parser a -> String -> Maybe a
-execParser p s = case runParser p s of \ where
+runParser : Parser a -> String -> Maybe a
+runParser p s = case unParser p s of \ where
  (_ , ok x _) -> just x
  _ -> nothing
