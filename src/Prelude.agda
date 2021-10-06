@@ -584,161 +584,161 @@ instance
 -- Arithmetic operations
 -------------------------------------------------------------------------------
 
-record Add (a : Set) : Set where
+record HasAdd (a : Set) : Set where
   infixl 6 _+_
   field _+_ : a -> a -> a
 
-open Add {{...}} public
+open HasAdd {{...}} public
 
-record Sub (a : Set) : Set where
+record HasSub (a : Set) : Set where
   infixl 6 _-_
   field
     Diff : Set
     _-_ : a -> a -> Diff
 
-open Sub {{...}} public
+open HasSub {{...}} public
 
-record Neg (a : Set) : Set where
+record HasNeg (a : Set) : Set where
   field -_ : a -> a
 
-open Neg {{...}} public
+open HasNeg {{...}} public
 
-record Mul (a : Set) : Set where
+record HasMul (a : Set) : Set where
   infixl 7 _*_
   field _*_ : a -> a -> a
 
-open Mul {{...}} public
+open HasMul {{...}} public
 
-record Exp (a : Set) : Set where
+record HasExp (a : Set) : Set where
   infixr 8 _^_
   field
     Power : Set
     _^_ : a -> Power -> a
 
-open Exp {{...}} public
+open HasExp {{...}} public
 
 record Divisor (a : Set) : Set where
   field divisor : a -> Bool
 
 open Divisor {{...}} public
 
-record Div (a : Set) : Set where
+record HasDiv (a : Set) : Set where
   infixl 7 _/_
   field
     overlap {{Divisor-super}} : Divisor a
     _/_ : (x y : a) -> {{Assert $ divisor y}} -> a
 
-open Div {{...}} public
+open HasDiv {{...}} public
 
-record Mod (a : Set) : Set where
+record HasMod (a : Set) : Set where
   infixl 7 _%_
   field
     overlap {{Divisor-super}} : Divisor a
     _%_ : (x y : a) -> {{Assert $ divisor y}} -> a
 
-open Mod {{...}} public
+open HasMod {{...}} public
 
 instance
-  Add-Nat : Add Nat
-  Add-Nat ._+_ = Agda.Builtin.Nat._+_
+  HasAdd-Nat : HasAdd Nat
+  HasAdd-Nat ._+_ = Agda.Builtin.Nat._+_
 
-  Sub-Nat : Sub Nat
-  Sub-Nat .Diff = Nat
-  Sub-Nat ._-_ = Agda.Builtin.Nat._-_
+  HasSub-Nat : HasSub Nat
+  HasSub-Nat .Diff = Nat
+  HasSub-Nat ._-_ = Agda.Builtin.Nat._-_
 
-  Mul-Nat : Mul Nat
-  Mul-Nat ._*_ = Agda.Builtin.Nat._*_
+  HasMul-Nat : HasMul Nat
+  HasMul-Nat ._*_ = Agda.Builtin.Nat._*_
 
-  Exp-Nat : Exp Nat
-  Exp-Nat .Power = Nat
-  Exp-Nat ._^_ m 0 = 1
-  Exp-Nat ._^_ m (suc n) = m * m ^ n
+  HasExp-Nat : HasExp Nat
+  HasExp-Nat .Power = Nat
+  HasExp-Nat ._^_ m 0 = 1
+  HasExp-Nat ._^_ m (suc n) = m * m ^ n
 
   Divisor-Nat : Divisor Nat
   Divisor-Nat .divisor 0 = false
   Divisor-Nat .divisor _ = true
 
-  Div-Nat : Div Nat
-  Div-Nat .Divisor-super = Divisor-Nat
-  Div-Nat ._/_ m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  HasDiv-Nat : HasDiv Nat
+  HasDiv-Nat .Divisor-super = Divisor-Nat
+  HasDiv-Nat ._/_ m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
 
-  Mod-Nat : Mod Nat
-  Mod-Nat .Divisor-super = Divisor-Nat
-  Mod-Nat ._%_ m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  HasMod-Nat : HasMod Nat
+  HasMod-Nat .Divisor-super = Divisor-Nat
+  HasMod-Nat ._%_ m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
 
-  Add-Int : Add Int
-  Add-Int ._+_ = \ where
+  HasAdd-Int : HasAdd Int
+  HasAdd-Int ._+_ = \ where
     (negsuc m) (negsuc n) -> negsuc (suc (m + n))
     (negsuc m) (pos n) -> diff n (suc m)
     (pos m) (negsuc n) -> diff m (suc n)
     (pos m) (pos n) -> pos (m + n)
 
-  Sub-Int : Sub Int
-  Sub-Int .Diff = Int
-  Sub-Int ._-_ = \ where
+  HasSub-Int : HasSub Int
+  HasSub-Int .Diff = Int
+  HasSub-Int ._-_ = \ where
     m (pos n) -> m + (neg n)
     m (negsuc n) -> m + pos (suc n)
 
-  Neg-Int : Neg Int
-  Neg-Int .-_ = \ where
+  HasNeg-Int : HasNeg Int
+  HasNeg-Int .-_ = \ where
     (pos 0) -> pos 0
     (pos (suc n)) -> negsuc n
     (negsuc n) -> pos (suc n)
 
-  Mul-Int : Mul Int
-  Mul-Int ._*_ = \ where
+  HasMul-Int : HasMul Int
+  HasMul-Int ._*_ = \ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> neg (n * suc m)
     (negsuc n) (pos m) -> neg (suc n * m)
 
-  Exp-Int : Exp Int
-  Exp-Int .Power = Nat
-  Exp-Int ._^_ m 0 = pos 0
-  Exp-Int ._^_ m (suc n) = m * m ^ n
+  HasExp-Int : HasExp Int
+  HasExp-Int .Power = Nat
+  HasExp-Int ._^_ m 0 = pos 0
+  HasExp-Int ._^_ m (suc n) = m * m ^ n
 
   Divisor-Int : Divisor Int
   Divisor-Int .divisor (pos 0) = false
   Divisor-Int .divisor _ = true
 
-  Div-Int : Div Int
-  Div-Int .Divisor-super = Divisor-Int
-  Div-Int ._/_ = \ where
+  HasDiv-Int : HasDiv Int
+  HasDiv-Int .Divisor-super = Divisor-Int
+  HasDiv-Int ._/_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m / n)
     (pos m) (negsuc n) -> neg (m / suc n)
     (negsuc m) (pos n@(suc _)) -> neg (suc m / n)
     (negsuc m) (negsuc n) -> pos (suc m / suc n)
 
-  Mod-Int : Mod Int
-  Mod-Int .Divisor-super = Divisor-Int
-  Mod-Int ._%_ = \ where
+  HasMod-Int : HasMod Int
+  HasMod-Int .Divisor-super = Divisor-Int
+  HasMod-Int ._%_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m % n)
     (pos m) (negsuc n) -> pos (m % suc n)
     (negsuc m) (pos n@(suc _)) -> neg (suc m % n)
     (negsuc m) (negsuc n) -> neg (suc m % suc n)
 
-  Add-Float : Add Float
-  Add-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+  HasAdd-Float : HasAdd Float
+  HasAdd-Float ._+_ = Agda.Builtin.Float.primFloatPlus
 
-  Sub-Float : Sub Float
-  Sub-Float .Diff = Float
-  Sub-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+  HasSub-Float : HasSub Float
+  HasSub-Float .Diff = Float
+  HasSub-Float ._-_ = Agda.Builtin.Float.primFloatMinus
 
-  Neg-Float : Neg Float
-  Neg-Float .-_ = Agda.Builtin.Float.primFloatNegate
+  HasNeg-Float : HasNeg Float
+  HasNeg-Float .-_ = Agda.Builtin.Float.primFloatNegate
 
-  Mul-Float : Mul Float
-  Mul-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+  HasMul-Float : HasMul Float
+  HasMul-Float ._*_ = Agda.Builtin.Float.primFloatTimes
 
-  Exp-Float : Exp Float
-  Exp-Float .Power = Float
-  Exp-Float ._^_ = Agda.Builtin.Float.primFloatPow
+  HasExp-Float : HasExp Float
+  HasExp-Float .Power = Float
+  HasExp-Float ._^_ = Agda.Builtin.Float.primFloatPow
 
   Divisor-Float : Divisor Float
   Divisor-Float .divisor _ = true
 
-  Div-Float : Div Float
-  Div-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
+  HasDiv-Float : HasDiv Float
+  HasDiv-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup

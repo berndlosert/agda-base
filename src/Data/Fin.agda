@@ -37,16 +37,16 @@ module _ {n : Nat} {{_ : Assert $ divisor n}} where
     ToNat-Fin .ToNatConstraint _ = Unit
     ToNat-Fin .toNat (toFin m) = m % n
 
-    Add-Fin : Add (Fin n)
-    Add-Fin ._+_ (toFin k) (toFin m) = toFin $ (k + m) % n
+    HasAdd-Fin : HasAdd (Fin n)
+    HasAdd-Fin ._+_ (toFin k) (toFin m) = toFin $ (k + m) % n
 
-    Sub-Fin : Sub (Fin n)
-    Sub-Fin .Diff = Fin n
-    Sub-Fin ._-_ (toFin k) (toFin m) =
+    HasSub-Fin : HasSub (Fin n)
+    HasSub-Fin .Diff = Fin n
+    HasSub-Fin ._-_ (toFin k) (toFin m) =
       toFin $ if k >= m then (k - m) % n else n - ((m - k) % n)
 
-    Mul-Fin : Mul (Fin n)
-    Mul-Fin ._*_ (toFin k) (toFin m) = toFin $ (k * m) % n
+    HasMul-Fin : HasMul (Fin n)
+    HasMul-Fin ._*_ (toFin k) (toFin m) = toFin $ (k * m) % n
 
     Show-Fin : Show (Fin n)
     Show-Fin .showsPrec _ m = showString $ show $ toNat m

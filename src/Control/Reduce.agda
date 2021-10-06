@@ -183,9 +183,8 @@ intoAll p = mapping p intoAnd
 intoAny : (a -> Bool) -> Reducer a Bool
 intoAny p = mapping p intoOr
 
-module _ {{fn : FromNat a}} where
-  intoSum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> Reducer a a
-  intoSum = intoFold _+_ 0
+intoSum : {{HasAdd a}} -> {{HasNat 0 a}} -> Reducer a a
+intoSum = intoFold _+_ 0
 
-  intoProduct : {{Mul a}} -> {{FromNatConstraint {{fn}} 1}} -> Reducer a a
-  intoProduct = intoFold _*_ 1
+intoProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
+intoProduct = intoFold _*_ 1

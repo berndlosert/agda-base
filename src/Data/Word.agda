@@ -67,11 +67,11 @@ instance
   Bits-Word8 .isSigned = word8IsSigned
   Bits-Word8 .popCount = word8PopCount
 
-  Add-Word8 : Add Word8
-  Add-Word8 ._+_ = word8Plus
+  HasAdd-Word8 : HasAdd Word8
+  HasAdd-Word8 ._+_ = word8Plus
 
-  Mul-Word8 : Mul Word8
-  Mul-Word8 ._*_ = word8Times
+  HasMul-Word8 : HasMul Word8
+  HasMul-Word8 ._*_ = word8Times
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -130,11 +130,11 @@ instance
   Bits-Word16 .isSigned = word16IsSigned
   Bits-Word16 .popCount = word16PopCount
 
-  Add-Word16 : Add Word16
-  Add-Word16 ._+_ = word16Plus
+  HasAdd-Word16 : HasAdd Word16
+  HasAdd-Word16 ._+_ = word16Plus
 
-  Mul-Word16 : Mul Word16
-  Mul-Word16 ._*_ = word16Times
+  HasMul-Word16 : HasMul Word16
+  HasMul-Word16 ._*_ = word16Times
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -193,11 +193,11 @@ instance
   Bits-Word32 .isSigned = word32IsSigned
   Bits-Word32 .popCount = word32PopCount
 
-  Add-Word32 : Add Word32
-  Add-Word32 ._+_ = word32Plus
+  HasAdd-Word32 : HasAdd Word32
+  HasAdd-Word32 ._+_ = word32Plus
 
-  Mul-Word32 : Mul Word32
-  Mul-Word32 ._*_ = word32Times
+  HasMul-Word32 : HasMul Word32
+  HasMul-Word32 ._*_ = word32Times
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -260,11 +260,11 @@ instance
   Bits-Word64 .isSigned = word64IsSigned
   Bits-Word64 .popCount = word64PopCount
 
-  Add-Word64 : Add Word64
-  Add-Word64 ._+_ = word64Plus
+  HasAdd-Word64 : HasAdd Word64
+  HasAdd-Word64 ._+_ = word64Plus
 
-  Mul-Word64 : Mul Word64
-  Mul-Word64 ._*_ = word64Times
+  HasMul-Word64 : HasMul Word64
+  HasMul-Word64 ._*_ = word64Times
 
 -------------------------------------------------------------------------------
 -- FFI
