@@ -523,6 +523,33 @@ instance
   FromNat-Float .fromNat n = Agda.Builtin.Float.primNatToFloat n
 
 -------------------------------------------------------------------------------
+-- HasZero, HasOne
+-------------------------------------------------------------------------------
+
+record HasZero (a : Set) : Set where
+  field
+    {{FromNat-super}} : FromNat a
+    {{FromNatConstraint-super}} : FromNatConstraint {{FromNat-super}} 0
+
+open HasZero {{...}} public
+
+record HasOne (a : Set) : Set where
+  field
+    {{FromNat-super}} : FromNat a
+    {{FromNatConstraint-super}} : FromNatConstraint {{FromNat-super}} 1
+
+open HasOne {{...}} public
+
+instance
+  HasZero-global : {{fn : FromNat a}}
+    -> {{FromNatConstraint {{fn}} 0}} -> HasZero a
+  HasZero-global = record {}
+
+  HasOne-global : {{fn : FromNat a}}
+    -> {{FromNatConstraint {{fn}} 1}} -> HasOne a
+  HasOne-global = record {}
+
+-------------------------------------------------------------------------------
 -- ToNat
 -------------------------------------------------------------------------------
 

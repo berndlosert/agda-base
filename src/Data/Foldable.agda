@@ -114,13 +114,11 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> false) true
 
-  module _ {{fn : FromNat a}} where
+  sum : {{Add a}} -> {{HasZero a}} -> t a -> a
+  sum = foldl _+_ 0
 
-    sum : {{Add a}} -> {{FromNatConstraint {{fn}} 0}} -> t a -> a
-    sum = foldl _+_ 0
-
-    product : {{Mul a}} -> {{FromNatConstraint {{fn}} 1}} -> t a -> a
-    product = foldl _*_ 1
+  product : {{Mul a}} -> {{HasOne a}} -> t a -> a
+  product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where
 
