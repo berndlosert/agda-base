@@ -8,7 +8,7 @@ module Control.Reduce where
 
 open import Prelude
 
-open import Data.Foldable hiding (continue; done)
+open import Data.Foldable
 
 -------------------------------------------------------------------------------
 -- Variables
