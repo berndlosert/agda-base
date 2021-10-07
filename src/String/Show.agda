@@ -10,6 +10,7 @@ open import Prelude
 
 open import Agda.Builtin.Int
 open import Agda.Builtin.Float
+open import Agda.Builtin.Reflection
 open import Agda.Builtin.String
 
 -------------------------------------------------------------------------------
@@ -103,3 +104,6 @@ instance
   Show-List .showsPrec d = \ where
     [] -> showString "[]"
     (x :: xs) -> showsPrec d x <<< showString " :: " <<< showsPrec d xs
+
+  Show-Name : Show Name
+  Show-Name .showsPrec d n = showString (primShowQName n)
