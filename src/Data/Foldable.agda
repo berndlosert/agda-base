@@ -20,14 +20,6 @@ private
     f m t : Set -> Set
 
 -------------------------------------------------------------------------------
--- Short (for foldl')
--------------------------------------------------------------------------------
-
-data Short (a : Set) : Set where
-  done : a -> Short a
-  continue : a -> Short a
-
--------------------------------------------------------------------------------
 -- Foldable
 -------------------------------------------------------------------------------
 
@@ -60,15 +52,6 @@ record Foldable (t : Set -> Set) : Set where
       go : a -> (b -> b) -> b -> b
       go x k z = k $! f z x
 
-  -- Short-circuiting foldl.
-  foldl' : (b -> a -> Short b) -> b -> t a -> b
-  foldl' {b} {a} f = flip $ foldr go id
-    where
-      go : a -> (b -> b) -> b -> b
-      go x k z = case f z x of \ where
-        (done result) -> result
-        (continue accum) -> k accum
-
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} f = flip $ foldr go pure
     where
@@ -94,10 +77,11 @@ record Foldable (t : Set -> Set) : Set where
   length = foldr (const suc) zero
 
   find : (a -> Bool) -> t a -> Maybe a
-  find {a} p = foldl' go nothing
+  find {a} p =
+      either just (const nothing) <<< foldlM go tt
     where
-      go : Maybe a -> a -> Short (Maybe a)
-      go _ x = if p x then done (just x) else continue nothing
+      go : Unit -> a -> Either a Unit
+      go _ x = if p x then left x else right tt
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe false (const true) (find p xs)
