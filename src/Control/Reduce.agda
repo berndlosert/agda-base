@@ -131,6 +131,40 @@ taking n (reducer init step done) = reducer init' step' done'
     done' : _
     done' (_ , z) = done z
 
+takingWhile : (a -> Bool) -> Transducer a a
+takingWhile p (reducer init step done) =
+  let step' z x = if p x then step z x else reduced true z
+  in reducer init step' done
+
+dropping : Nat -> Transducer a a
+dropping n (reducer init step done) = reducer init' step' done'
+  where
+    init' : _
+    init' = (n , init)
+
+    step' : _
+    step' (0 , z) x = map (0 ,_) (step z x)
+    step' (suc n' , z) x = reduced false (n' , z)
+
+    done' : _
+    done' (_ , z) = done z
+
+droppingWhile : (a -> Bool) -> Transducer a a
+droppingWhile p (reducer init step done) = reducer init' step' done'
+  where
+    init' : _
+    init' = (false , init)
+
+    step' : _
+    step' (false , z) x =
+      if p x
+        then reduced false (false , z)
+        else map (true ,_) (step z x)
+    step' (true , z) x = map (true ,_) (step z x)
+
+    done' : _
+    done' (_ , z) = done z
+
 -------------------------------------------------------------------------------
 -- Some reducers
 -------------------------------------------------------------------------------
