@@ -13,7 +13,7 @@ open import Prelude
 -------------------------------------------------------------------------------
 
 record Container : Set where
-  constructor toContainer
+  constructor container
   field
     Shape : Set
     position : Shape -> Set
@@ -44,7 +44,7 @@ Product c d .position = \ where
 -------------------------------------------------------------------------------
 
 record Extension (c : Container) (a : Set) : Set where
-  constructor toExtension
+  constructor extension
   field
     shape : Shape c
     position : position c shape -> a
@@ -53,4 +53,4 @@ open Extension public
 
 instance
   Functor-Extension : {c : Container} -> Functor (Extension c)
-  Functor-Extension .map f (toExtension s p) = toExtension s (f <<< p)
+  Functor-Extension .map f (extension s p) = extension s (f <<< p)

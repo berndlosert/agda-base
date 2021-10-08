@@ -19,4 +19,4 @@ record Fix (c : Container) : Set where
 open Fix public
 
 foldFix : {c : Container} -> (Extension c a -> a) -> Fix c -> a
-foldFix alg (toFix (toExtension s p)) = alg (toExtension s \ x -> foldFix alg (p x))
+foldFix alg (toFix (extension s p)) = alg (extension s \ x -> foldFix alg (p x))

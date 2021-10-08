@@ -28,16 +28,16 @@ Free : Container -> Set -> Set
 Free c a = Fix $ Sum (Const a) c
 
 inn : Extension c (Free c a) -> Free c a
-inn (toExtension s p) = toFix (toExtension (right s) p)
+inn (extension s p) = toFix (extension (right s) p)
 
 private
   pureFree : a -> Free c a
-  pureFree x = toFix (toExtension (left x) \ ())
+  pureFree x = toFix (extension (left x) \ ())
 
   bindFree : Free c a -> (a -> Free c b) -> Free c b
-  bindFree (toFix (toExtension (left x) _)) k = k x
-  bindFree (toFix (toExtension (right s) p)) k =
-    inn (toExtension s (\ x -> bindFree (p x) k))
+  bindFree (toFix (extension (left x) _)) k = k x
+  bindFree (toFix (extension (right s) p)) k =
+    inn (extension s (\ x -> bindFree (p x) k))
 
 instance
   Functor-Free : Functor (Free c)
