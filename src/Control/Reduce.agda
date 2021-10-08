@@ -98,6 +98,9 @@ reducer' {c} {a} init step done =
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' init step id
 
+intoFoldMap : {{Monoid c}} -> (a -> c) -> (c -> b) -> Reducer a b
+intoFoldMap f = reducer' mempty (\ z x -> z <> f x)
+
 mapping : (a -> b) -> Transducer a b
 mapping f (reducer init step done) =
   let step' z x = step z (f x)
@@ -165,3 +168,44 @@ intoProduct = intoFold _*_ 1
 
 intoFirst : Reducer a (Maybe a)
 intoFirst = reducer nothing (\ _ x -> reduced true (just x)) id
+
+intoLast : Reducer a (Maybe a)
+intoLast = intoFold (const just) nothing
+
+intoElem : {{Eq a}} -> a -> Reducer a Bool
+intoElem x = intoAny (_== x)
+
+intoFind : (a -> Bool) -> Reducer a (Maybe a)
+intoFind p = filtering p intoFirst
+
+intoMinimum : {{Ord a}} -> Reducer a (Maybe a)
+intoMinimum {a} = intoFold go nothing
+  where
+    go : Maybe a -> a -> Maybe a
+    go nothing x = just x
+    go (just x) y = just (min x y)
+
+intoMaximum : {{Ord a}} -> Reducer a (Maybe a)
+intoMaximum {a} = intoFold go nothing
+  where
+    go : Maybe a -> a -> Maybe a
+    go nothing x = just x
+    go (just x) y = just (max x y)
+
+intoMinimumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
+intoMinimumBy {a} cmp = intoFold go nothing
+  where
+    go : Maybe a -> a -> Maybe a
+    go nothing x = just x
+    go (just x) y = just $ case cmp x y of \ where
+      GT -> y
+      _ -> x
+
+intoMaximumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
+intoMaximumBy {a} cmp = intoFold go nothing
+  where
+    go : Maybe a -> a -> Maybe a
+    go nothing x = just x
+    go (just x) y = just $ case cmp x y of \ where
+      LT -> y
+      _ -> x
