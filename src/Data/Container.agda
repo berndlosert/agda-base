@@ -16,26 +16,26 @@ record Container : Set where
   constructor container
   field
     Shape : Set
-    position : Shape -> Set
+    Position : Shape -> Set
 
 open Container public
 
 Id : Container
 Id .Shape = Unit
-Id .position = const Unit
+Id .Position = const Unit
 
 Const : Set -> Container
 Const a .Shape = a
-Const a .position = const Void
+Const a .Position = const Void
 
 Sum : Container -> Container -> Container
 Sum c d .Shape = Either (Shape c) (Shape d)
-Sum c d .position = either (position c) (position d)
+Sum c d .Position = either (Position c) (Position d)
 
 Product : Container -> Container -> Container
 Product c d .Shape = Pair (Shape c) (Shape d)
-Product c d .position = \ where
-  (s , t) -> Either (position c s) (position d t)
+Product c d .Position = \ where
+  (s , t) -> Either (Position c s) (Position d t)
 
 -------------------------------------------------------------------------------
 -- Extension
@@ -45,7 +45,7 @@ record Extension (c : Container) (a : Set) : Set where
   constructor extension
   field
     shape : Shape c
-    position : position c shape -> a
+    position : Position c shape -> a
 
 open Extension public
 
