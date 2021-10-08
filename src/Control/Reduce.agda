@@ -49,12 +49,7 @@ instance
 
   Applicative-Reducer : Applicative (Reducer a)
   Applicative-Reducer .pure x =
-    let
-      init = tt
-      step _ _ = reduced true tt
-      done = const x
-    in
-      reducer init step done
+    reducer tt (\ _ _ -> reduced true tt) (const x)
   Applicative-Reducer ._<*>_
     (reducer init1 step1 done1) (reducer init2 step2 done2) =
         reducer init step done
@@ -96,10 +91,9 @@ transduce t r = reduce (t r)
 -------------------------------------------------------------------------------
 
 reducer' : c -> (c -> a -> c) -> (c -> b) -> Reducer a b
-reducer' {c} {a} init step done = reducer init step' done
-  where
-    step' : c -> a -> Reduced c
-    step' z x = reduced false (step z x)
+reducer' {c} {a} init step done =
+  let step' z x = reduced false (step z x)
+  in reducer init step' done
 
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' init step id
@@ -142,40 +136,20 @@ intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoList : Reducer a (List a)
-intoList =
-  let
-    init = id
-    step z x = z <<< (x ::_)
-    done = _$ []
-  in
-    reducer' init step done
+intoList = reducer' id (\ z x -> z <<< (x ::_)) (_$ [])
 
 intoNull : Reducer a Bool
-intoNull =
-  let
-    init = true
-    step _ _ = reduced true false
-    done = id
-  in
-    reducer init step done
+intoNull = reducer true (\ _ _ -> reduced true false) id
 
 intoAnd : Reducer Bool Bool
 intoAnd =
-  let
-    init = false
-    step z x = if x then reduced false z else reduced true x
-    done = id
-  in
-    reducer init step done
+  let step z x = if x then reduced false z else reduced true x
+  in reducer false step id
 
 intoOr : Reducer Bool Bool
 intoOr =
-  let
-    init = false
-    step z x = if x then reduced true x else reduced false z
-    done = id
-  in
-    reducer init step done
+  let step z x = if x then reduced true x else reduced false z
+  in reducer false step id
 
 intoAll : (a -> Bool) -> Reducer a Bool
 intoAll p = mapping p intoAnd
@@ -188,3 +162,6 @@ intoSum = intoFold _+_ 0
 
 intoProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
 intoProduct = intoFold _*_ 1
+
+intoFirst : Reducer a (Maybe a)
+intoFirst = reducer nothing (\ _ x -> reduced true (just x)) id
