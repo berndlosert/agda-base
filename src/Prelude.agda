@@ -18,6 +18,7 @@ import Agda.Builtin.Sigma as Sigma
 import Agda.Builtin.Maybe as Maybe
 import Agda.Builtin.List as List
 import Agda.Builtin.IO as IO
+import Agda.Builtin.Strict as Strict
 
 -------------------------------------------------------------------------------
 -- Primitive types
@@ -166,11 +167,9 @@ absurd = \ ()
 -- Strictness primitives
 -------------------------------------------------------------------------------
 
-open import Agda.Builtin.Strict
-
 infixr 0 _$!_
 _$!_ : (a -> b) -> a -> b
-f $! x = primForce x f
+f $! x = Strict.primForce x f
 
 infixr 9 _seq_
 _seq_ : a -> b -> b
