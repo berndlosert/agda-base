@@ -14,7 +14,6 @@ open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports

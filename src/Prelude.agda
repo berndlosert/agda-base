@@ -3,16 +3,33 @@
 module Prelude where
 
 -------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
+import Agda.Builtin.Unit as Unit
+import Agda.Builtin.Bool as Bool
+import Agda.Builtin.Nat as Nat
+import Agda.Builtin.Int as Int
+import Agda.Builtin.Float as Float
+import Agda.Builtin.Char as Char
+import Agda.Builtin.String as String
+import Agda.Builtin.Equality as Equality
+import Agda.Builtin.Sigma as Sigma
+import Agda.Builtin.Maybe as Maybe
+import Agda.Builtin.List as List
+import Agda.Builtin.IO as IO
+
+-------------------------------------------------------------------------------
 -- Primitive types
 -------------------------------------------------------------------------------
 
 data Void : Set where
 
-open import Agda.Builtin.Unit public
+open Unit public
   renaming (⊤ to Unit)
   using (tt)
 
-open import Agda.Builtin.Bool public
+open Bool public
   using (Bool)
   using (false)
   using (true)
@@ -22,26 +39,26 @@ data Ordering : Set where
 
 {-# COMPILE GHC Ordering = data Ordering (LT | EQ | GT) #-}
 
-open import Agda.Builtin.Nat public
+open Nat public
   using (Nat)
   using (zero)
   using (suc)
 
-open import Agda.Builtin.Int public
+open Int public
   using (Int)
   using (pos)
   using (negsuc)
 
-open import Agda.Builtin.Float public
+open Float public
   using (Float)
 
-open import Agda.Builtin.Char public
+open Char public
   using (Char)
 
-open import Agda.Builtin.String public
+open String public
   using (String)
 
-open import Agda.Builtin.Equality public
+open Equality public
   renaming (_≡_ to _===_)
   using (refl)
 
@@ -54,7 +71,7 @@ data Either (a b : Set) : Set where
 
 {-# COMPILE GHC Either = data Either (Left | Right) #-}
 
-open import Agda.Builtin.Sigma public
+open Sigma public
   renaming (Σ to DPair)
   hiding (_,_)
 
@@ -69,17 +86,17 @@ open Pair public
 
 {-# COMPILE GHC Pair = data (,) ((,)) #-}
 
-open import Agda.Builtin.Maybe public
+open Maybe public
   using (Maybe)
   using (nothing)
   using (just)
 
-open import Agda.Builtin.List public
+open List public
   using (List)
   using ([])
   renaming (_∷_ to _::_)
 
-open import Agda.Builtin.IO public
+open IO public
   using (IO)
 
 -------------------------------------------------------------------------------
@@ -199,7 +216,7 @@ applyN 0 _ x = x
 applyN (suc n) f x = f (applyN n f x)
 
 monus : Nat -> Nat -> Nat
-monus = Agda.Builtin.Nat._-_
+monus = Nat._-_
 
 pred : Nat -> Nat
 pred 0 = 0
@@ -345,7 +362,7 @@ instance
     _ _ -> false
 
   Eq-Nat : Eq Nat
-  Eq-Nat ._==_ = Agda.Builtin.Nat._==_
+  Eq-Nat ._==_ = Nat._==_
 
   Eq-Int : Eq Int
   Eq-Int ._==_ = \ where
@@ -354,13 +371,13 @@ instance
     _ _ -> false
 
   Eq-Float : Eq Float
-  Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
+  Eq-Float ._==_ = Float.primFloatEquality
 
   Eq-Char : Eq Char
-  Eq-Char ._==_ = Agda.Builtin.Char.primCharEquality
+  Eq-Char ._==_ = Char.primCharEquality
 
   Eq-String : Eq String
-  Eq-String ._==_ = Agda.Builtin.String.primStringEquality
+  Eq-String ._==_ = String.primStringEquality
 
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ = \ where
@@ -447,7 +464,7 @@ instance
   Ord-Nat : Ord Nat
   Ord-Nat .compare m n =
     if m == n then EQ
-    else if Agda.Builtin.Nat._<_ m n then LT
+    else if Nat._<_ m n then LT
     else GT
 
   Ord-Int : Ord Int
@@ -460,12 +477,12 @@ instance
   Ord-Float : Ord Float
   Ord-Float .compare x y =
     if x == y then EQ
-    else if Agda.Builtin.Float.primFloatLess x y then LT
+    else if Float.primFloatLess x y then LT
     else GT
 
   Ord-Char : Ord Char
   Ord-Char .compare l r =
-    let ord = Agda.Builtin.Char.primCharToNat
+    let ord = Char.primCharToNat
     in compare (ord l) (ord r)
 
   Ord-List : {{Ord a}} -> Ord (List a)
@@ -480,7 +497,7 @@ instance
 
   Ord-String : Ord String
   Ord-String .compare l r =
-    let unpack = Agda.Builtin.String.primStringToList
+    let unpack = String.primStringToList
     in compare (unpack l) (unpack r)
 
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
@@ -520,7 +537,7 @@ instance
 
   FromNat-Float : FromNat Float
   FromNat-Float .FromNatConstraint _ = Unit
-  FromNat-Float .fromNat n = Agda.Builtin.Float.primNatToFloat n
+  FromNat-Float .fromNat n = Float.primNatToFloat n
 
 -------------------------------------------------------------------------------
 -- HasNat
@@ -578,7 +595,7 @@ instance
   FromNeg-Float : FromNeg Float
   FromNeg-Float .FromNegConstraint _ = Unit
   FromNeg-Float .fromNeg n =
-    Agda.Builtin.Float.primFloatNegate (Agda.Builtin.Float.primNatToFloat n)
+    Float.primFloatNegate (Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
 -- Arithmetic operations
@@ -640,14 +657,14 @@ open HasMod {{...}} public
 
 instance
   HasAdd-Nat : HasAdd Nat
-  HasAdd-Nat ._+_ = Agda.Builtin.Nat._+_
+  HasAdd-Nat ._+_ = Nat._+_
 
   HasSub-Nat : HasSub Nat
   HasSub-Nat .Diff = Nat
-  HasSub-Nat ._-_ = Agda.Builtin.Nat._-_
+  HasSub-Nat ._-_ = Nat._-_
 
   HasMul-Nat : HasMul Nat
-  HasMul-Nat ._*_ = Agda.Builtin.Nat._*_
+  HasMul-Nat ._*_ = Nat._*_
 
   HasExp-Nat : HasExp Nat
   HasExp-Nat .Power = Nat
@@ -660,11 +677,11 @@ instance
 
   HasDiv-Nat : HasDiv Nat
   HasDiv-Nat .Divisor-super = Divisor-Nat
-  HasDiv-Nat ._/_ m (suc n) = Agda.Builtin.Nat.div-helper 0 n m n
+  HasDiv-Nat ._/_ m (suc n) = Nat.div-helper 0 n m n
 
   HasMod-Nat : HasMod Nat
   HasMod-Nat .Divisor-super = Divisor-Nat
-  HasMod-Nat ._%_ m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
+  HasMod-Nat ._%_ m (suc n) = Nat.mod-helper 0 n m n
 
   HasAdd-Int : HasAdd Int
   HasAdd-Int ._+_ = \ where
@@ -718,27 +735,27 @@ instance
     (negsuc m) (negsuc n) -> neg (suc m % suc n)
 
   HasAdd-Float : HasAdd Float
-  HasAdd-Float ._+_ = Agda.Builtin.Float.primFloatPlus
+  HasAdd-Float ._+_ = Float.primFloatPlus
 
   HasSub-Float : HasSub Float
   HasSub-Float .Diff = Float
-  HasSub-Float ._-_ = Agda.Builtin.Float.primFloatMinus
+  HasSub-Float ._-_ = Float.primFloatMinus
 
   HasNeg-Float : HasNeg Float
-  HasNeg-Float .-_ = Agda.Builtin.Float.primFloatNegate
+  HasNeg-Float .-_ = Float.primFloatNegate
 
   HasMul-Float : HasMul Float
-  HasMul-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+  HasMul-Float ._*_ = Float.primFloatTimes
 
   HasExp-Float : HasExp Float
   HasExp-Float .Power = Float
-  HasExp-Float ._^_ = Agda.Builtin.Float.primFloatPow
+  HasExp-Float ._^_ = Float.primFloatPow
 
   Divisor-Float : Divisor Float
   Divisor-Float .divisor _ = true
 
   HasDiv-Float : HasDiv Float
-  HasDiv-Float ._/_ x y = Agda.Builtin.Float.primFloatDiv x y
+  HasDiv-Float ._/_ x y = Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup
@@ -764,7 +781,7 @@ instance
     GT _ -> GT
 
   Semigroup-String : Semigroup String
-  Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
+  Semigroup-String ._<>_ = String.primStringAppend
 
   Semigroup-Function : {{Semigroup b}} -> Semigroup (a -> b)
   Semigroup-Function ._<>_ f g = \ x -> f x <> g x
@@ -1096,3 +1113,87 @@ instance
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
+
+-------------------------------------------------------------------------------
+-- Show
+-------------------------------------------------------------------------------
+
+ShowS : Set
+ShowS = String -> String
+
+record Show (a : Set) : Set where
+  field showsPrec : Nat -> a -> ShowS
+
+  shows : a -> ShowS
+  shows = showsPrec 0
+
+  show : a -> String
+  show x = shows x ""
+
+open Show {{...}} public
+
+showString : String -> ShowS
+showString = _<>_
+
+showParen : Bool -> ShowS -> ShowS
+showParen b p = if b then showString "(" <<< p <<< showString ")" else p
+
+appPrec appPrec+1 : Nat
+appPrec = 10
+appPrec+1 = 11
+
+instance
+  Show-Void : Show Void
+  Show-Void .showsPrec _ ()
+
+  Show-Unit : Show Unit
+  Show-Unit .showsPrec _ tt = showString "tt"
+
+  Show-Bool : Show Bool
+  Show-Bool .showsPrec _ b = showString (if b then "true" else "false")
+
+  Show-Ordering : Show Ordering
+  Show-Ordering .showsPrec _ = \ where
+    LT -> showString "LT"
+    EQ -> showString "EQ"
+    GT -> showString "GT"
+
+  Show-Nat : Show Nat
+  Show-Nat .showsPrec _ = showString <<< String.primShowNat
+
+  Show-Int : Show Int
+  Show-Int .showsPrec _ = showString <<< Int.primShowInteger
+
+  Show-Float : Show Float
+  Show-Float .showsPrec _ = showString <<< Float.primShowFloat
+
+  Show-Char : Show Char
+  Show-Char .showsPrec _ = showString <<< String.primShowChar
+
+  Show-String : Show String
+  Show-String .showsPrec _ = showString <<< String.primShowString
+
+  Show-Function : Show (Function a b)
+  Show-Function .showsPrec _ _ = showString "<function>"
+
+  Show-Pair : {{Show a}} -> {{Show b}} -> Show (Pair a b)
+  Show-Pair .showsPrec d (x , y) = showString "(" <<< showsPrec d x
+    <<< showString " , " <<< showsPrec d y <<< showString ")"
+
+  Show-Either : {{Show a}} -> {{Show b}} -> Show (Either a b)
+  Show-Either .showsPrec d = \ where
+    (left x) -> showParen (d > appPrec)
+      (showString "left " <<< showsPrec appPrec+1 x)
+    (right x) -> showParen (d > appPrec)
+      (showString "right " <<< showsPrec appPrec+1 x)
+
+  Show-Maybe : {{Show a}} -> Show (Maybe a)
+  Show-Maybe .showsPrec d = \ where
+    (just x) -> showParen (d > appPrec)
+      (showString "just " <<< showsPrec appPrec+1 x)
+    nothing -> showString "nothing"
+
+  Show-List : {{Show a}} -> Show (List a)
+  Show-List .showsPrec d = \ where
+    [] -> showString "[]"
+    (x :: xs) -> showsPrec d x <<< showString " :: " <<< showsPrec d xs

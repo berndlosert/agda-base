@@ -11,7 +11,6 @@ open import Prelude hiding (map)
 open import Data.Foldable
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

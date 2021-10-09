@@ -9,7 +9,6 @@ module Data.Functor.Identity where
 open import Prelude
 
 open import Data.Foldable
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

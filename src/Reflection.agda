@@ -33,6 +33,9 @@ instance
           then LT
           else GT
 
+  Show-Name : Show Name
+  Show-Name .showsPrec d n = showString (primShowQName n)
+
   Functor-TC : Functor TC
   Functor-TC .map f m = bindTC m (f >>> returnTC)
 
@@ -43,3 +46,5 @@ instance
 
   Monad-TC : Monad TC
   Monad-TC ._>>=_ = bindTC
+
+

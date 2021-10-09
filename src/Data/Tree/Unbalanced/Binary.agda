@@ -11,7 +11,6 @@ open import Prelude hiding (map)
 open import Constraint.NonEmpty
 open import Data.Foldable
 open import Data.Traversable
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

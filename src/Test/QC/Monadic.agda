@@ -12,7 +12,6 @@ open import Test.QC
 open import Control.Monad.Cont.Trans
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables

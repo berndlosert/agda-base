@@ -9,7 +9,6 @@ module Control.Concurrent where
 open import Prelude
 
 open import Control.Exception
-open import String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
