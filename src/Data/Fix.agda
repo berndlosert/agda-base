@@ -19,7 +19,7 @@ private
     a : Set
 
 -------------------------------------------------------------------------------
--- Fix
+-- Fix (a.k.a W)
 -------------------------------------------------------------------------------
 
 record Fix (c : Container) : Set where
@@ -30,5 +30,7 @@ record Fix (c : Container) : Set where
 
 open Fix public
 
+pattern sup s p = toFix (extension s p)
+
 foldFix : {c : Container} -> (Extension c a -> a) -> Fix c -> a
-foldFix alg (toFix (extension s p)) = alg (extension s \ x -> foldFix alg (p x))
+foldFix alg (sup s p) = alg (extension s \ x -> foldFix alg (p x))
