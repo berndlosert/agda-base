@@ -16,10 +16,10 @@ NaturalC .Position true = Unit
 Natural = Fix NaturalC
 
 Z : Natural
-Z = toFix (extension false \ ())
+Z = sup false absurd
 
 S : Natural -> Natural
-S n = toFix (extension true (const n))
+S n = sup true (const n)
 
 ListC : Set -> Container
 ListC a .Shape = Maybe a
@@ -30,11 +30,13 @@ List : Set -> Set
 List a = Fix (ListC a)
 
 nil : List a
-nil = toFix (extension nothing \ ())
+nil = sup nothing absurd
 
 cons : a -> List a -> List a
-cons x (toFix (extension nothing p)) = toFix $ extension (just x) (const nil)
-cons x (toFix (extension (just y) p)) = toFix $ extension (just x) (\ tt -> let ys = p tt in cons y ys)
+cons x (toFix (extension nothing p)) =
+  sup (just x) (const nil)
+cons x (toFix (extension (just y) p)) =
+  sup (just x) (\ _ -> let ys = p tt in cons y ys)
 
 length : List a -> Natural
 length {a} = foldFix alg
