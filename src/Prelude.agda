@@ -291,10 +291,6 @@ maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f nothing = b
 maybe b f (just a) = f a
 
-fromMaybe : a -> Maybe a -> a
-fromMaybe _ (just x) = x
-fromMaybe x nothing = x
-
 -------------------------------------------------------------------------------
 -- IO primitives
 -------------------------------------------------------------------------------

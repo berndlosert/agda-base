@@ -63,6 +63,10 @@ replicateA {f} {a} n0 fa = loop n0
 build : (forall {b} -> (a -> b -> b) -> b -> b) -> List a
 build g = g _::_ []
 
+fromMaybe : Maybe a -> List a
+fromMaybe nothing = []
+fromMaybe (just x) = x :: []
+
 -------------------------------------------------------------------------------
 -- Destructors
 -------------------------------------------------------------------------------
@@ -91,6 +95,10 @@ init : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
 init [] = error "Data.List.init: bad argument"
 init (x :: []) = []
 init (x :: xs@(_ :: _)) = x :: init xs
+
+toMaybe : List a -> Maybe a
+toMaybe [] = nothing
+toMaybe (x :: _) = just x
 
 -------------------------------------------------------------------------------
 -- Transformations
