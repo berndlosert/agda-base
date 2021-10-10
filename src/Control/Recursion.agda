@@ -1,12 +1,20 @@
 {-# OPTIONS --type-in-type #-}
 
-module Data.Signature where
+module Control.Recursion where
 
 -------------------------------------------------------------------------------
 -- Imports
 -------------------------------------------------------------------------------
 
 open import Prelude
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a : Set
 
 -------------------------------------------------------------------------------
 -- Signature
@@ -63,3 +71,22 @@ instance
 
 Algebra : Signature -> Set -> Set
 Algebra sig a = Operation sig a -> a
+
+-------------------------------------------------------------------------------
+-- Fix
+-------------------------------------------------------------------------------
+
+record Fix (sig : Signature) : Set where
+  inductive
+  pattern
+  constructor toFix
+  field unFix : Operation sig (Fix sig)
+
+open Fix public
+
+pattern sup op arg = toFix (operation op arg)
+
+foldFix : {sig : Signature} -> Algebra sig a -> Fix sig -> a
+foldFix alg (sup op arg) =
+  let arg' x = foldFix alg (arg x)
+  in alg (operation op arg')

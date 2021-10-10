@@ -10,7 +10,7 @@ open import Prelude
 
 open import Agda.Builtin.String
 open import Constraint.NonEmpty
-open import Control.Monad.Free.General
+open import Control.Recursion.General
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 
@@ -179,7 +179,7 @@ split f s = map pack $ List.split f (unpack s)
 words : String -> List String
 words = combust go
   where
-    go  : Fn String (List String)
+    go  : Rec String (List String)
     go s = do
       let s' = dropWhile Char.isSpace s
       case s' == "" of \ where
@@ -230,7 +230,7 @@ cons-uncons = trustMe
 asList : (s : String) -> AsList s
 asList = combust go
   where
-    go : DFn String AsList
+    go : DRec String AsList
     go "" = pure []
     go s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
     ... | c , s' | refl = call s' >>= (c ::_) >>> pure

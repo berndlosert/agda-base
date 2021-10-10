@@ -8,8 +8,7 @@ open import Prelude
   hiding ([])
   hiding (_::_)
 
-open import Data.Signature
-open import Data.Fix
+open import Control.Recursion
 
 variable
   a : Set

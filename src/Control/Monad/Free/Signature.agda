@@ -8,8 +8,7 @@ module Control.Monad.Free.Signature where
 
 open import Prelude
 
-open import Data.Signature
-open import Data.Fix
+open import Control.Recursion
 
 -------------------------------------------------------------------------------
 -- Variables
