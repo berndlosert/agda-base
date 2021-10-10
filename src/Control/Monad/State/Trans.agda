@@ -101,10 +101,10 @@ instance
   MonadIO-StateT : {{MonadIO m}} -> MonadIO (StateT s m)
   MonadIO-StateT .liftIO = lift <<< liftIO
 
-  MonadThrow-StateT : {{MonadThrow m}} -> MonadThrow (StateT s m)
+  MonadThrow-StateT : {{MonadThrow e m}} -> MonadThrow e (StateT s m)
   MonadThrow-StateT .throw = lift <<< throw
 
-  MonadCatch-StateT : {{MonadCatch m}} -> MonadCatch (StateT s m)
+  MonadCatch-StateT : {{MonadCatch e m}} -> MonadCatch e (StateT s m)
   MonadCatch-StateT .catch m h = toStateT \ s ->
     catch (runStateT m s) (\ e -> runStateT (h e) s)
 

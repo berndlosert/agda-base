@@ -98,12 +98,12 @@ instance
     -> MonadState s (WriterT w m)
   MonadState-WriterT .state = lift <<< state
 
-  MonadThrow-WriterT : {{Monoid w}} -> {{MonadThrow m}}
-    -> MonadThrow (WriterT w m)
+  MonadThrow-WriterT : {{Monoid w}} -> {{MonadThrow e m}}
+    -> MonadThrow e (WriterT w m)
   MonadThrow-WriterT .throw = lift <<< throw
 
-  MonadCatch-WriterT : {{Monoid w}} -> {{MonadCatch m}}
-    -> MonadCatch (WriterT w m)
+  MonadCatch-WriterT : {{Monoid w}} -> {{MonadCatch e m}}
+    -> MonadCatch e (WriterT w m)
   MonadCatch-WriterT .catch m h = toWriterT $
     catch (runWriterT m) (runWriterT <<< h)
 

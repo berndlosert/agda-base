@@ -33,10 +33,10 @@ postulate
 -- MonadThrow
 -------------------------------------------------------------------------------
 
-record MonadThrow (m : Set -> Set) : Set where
+record MonadThrow (e : Set) (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
-    throw : {{Exception e}} -> e -> m a
+    throw : e -> m a
 
 open MonadThrow {{...}} public
 
@@ -44,24 +44,24 @@ open MonadThrow {{...}} public
 -- MonadCatch
 -------------------------------------------------------------------------------
 
-record MonadCatch (m : Set -> Set) : Set where
+record MonadCatch (e : Set) (m : Set -> Set) : Set where
   field
-    overlap {{MonadThrow-super}} : MonadThrow m
-    catch : {{Exception e}} -> m a -> (e -> m a) -> m a
+    overlap {{MonadThrow-super}} : MonadThrow e m
+    catch : m a -> (e -> m a) -> m a
 
-  catchJust : {{Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
+  catchJust : (e -> Maybe b) -> m a -> (b -> m a) -> m a
   catchJust p ma handler = catch ma \ e -> maybe (throw e) handler (p e)
 
-  handle : {{Exception e}} -> (e -> m a) -> m a -> m a
+  handle : (e -> m a) -> m a -> m a
   handle = flip catch
 
-  handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
+  handleJust : (e -> Maybe b) -> (b -> m a) -> m a -> m a
   handleJust = flip <<< catchJust
 
-  try : {{Exception e}} -> m a -> m (Either e a)
+  try : m a -> m (Either e a)
   try ma = catch (map right ma) (pure <<< left)
 
-  tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
+  tryJust : (e -> Maybe b) -> m a -> m (Either b a)
   tryJust p ma = try ma >>= \ where
     (right v) -> pure (right v)
     (left e) -> maybe (throw e) (pure <<< left) (p e)
@@ -80,7 +80,10 @@ data ExitCase (a : Set) : Set where
 record MonadBracket (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
-    generalBracket : m a -> (a -> ExitCase b -> m c) -> (a -> m b) -> m (Pair b c)
+    generalBracket : m a
+      -> (a -> ExitCase b -> m c)
+      -> (a -> m b)
+      -> m (Pair b c)
 
   bracket : m a -> (a -> m c) -> (a -> m b) -> m b
   bracket acquire release =
@@ -123,10 +126,10 @@ private
       -> (a -> IO b) -> IO (Pair b c)
 
 instance
-  MonadThrow-IO : MonadThrow IO
+  MonadThrow-IO : {{Exception e}} -> MonadThrow e IO
   MonadThrow-IO .throw = throwIO
 
-  MonadCatch-IO : MonadCatch IO
+  MonadCatch-IO : {{Exception e}} -> MonadCatch e IO
   MonadCatch-IO .catch = catchIO
 
   MonadBracket-IO : MonadBracket IO

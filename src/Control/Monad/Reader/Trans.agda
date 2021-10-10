@@ -89,10 +89,10 @@ instance
   MonadIO-ReaderT : {{MonadIO m}} -> MonadIO (ReaderT r m)
   MonadIO-ReaderT .liftIO = lift <<< liftIO
 
-  MonadThrow-ReaderT : {{MonadThrow m}} -> MonadThrow (ReaderT r m)
+  MonadThrow-ReaderT : {{MonadThrow e m}} -> MonadThrow e (ReaderT r m)
   MonadThrow-ReaderT .throw = lift <<< throw
 
-  MonadCatch-ReaderT : {{MonadCatch m}} -> MonadCatch (ReaderT r m)
+  MonadCatch-ReaderT : {{MonadCatch e m}} -> MonadCatch e (ReaderT r m)
   MonadCatch-ReaderT .catch m h = toReaderT \ r ->
     catch (runReaderT m r) (\ e -> runReaderT (h e) r)
 

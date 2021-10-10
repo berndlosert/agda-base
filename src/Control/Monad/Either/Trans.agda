@@ -71,10 +71,10 @@ instance
   MonadTrans-EitherT : MonadTrans (EitherT e)
   MonadTrans-EitherT .lift = toEitherT <<< map right
 
-  MonadThrow-EitherT : {{MonadThrow m}} -> MonadThrow (EitherT e m)
+  MonadThrow-EitherT : {{MonadThrow e m}} -> MonadThrow e (EitherT e m)
   MonadThrow-EitherT .throw = lift <<< throw
 
-  MonadCatch-EitherT : {{MonadCatch m}} -> MonadCatch (EitherT e m)
+  MonadCatch-EitherT : {{MonadCatch e m}} -> MonadCatch e (EitherT e m)
   MonadCatch-EitherT .catch m k =
     toEitherT $ catch (runEitherT m) (runEitherT <<< k)
 

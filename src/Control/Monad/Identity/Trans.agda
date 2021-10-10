@@ -67,10 +67,10 @@ instance
   MonadIO-IdentityT : {{MonadIO m}} -> MonadIO (IdentityT m)
   MonadIO-IdentityT .liftIO = mkIdentityT <<< liftIO
 
-  MonadThrow-IdentityT : {{MonadThrow m}} -> MonadThrow (IdentityT m)
+  MonadThrow-IdentityT : {{MonadThrow e m}} -> MonadThrow e (IdentityT m)
   MonadThrow-IdentityT .throw = lift <<< throw
 
-  MonadCatch-IdentityT : {{MonadCatch m}} -> MonadCatch (IdentityT m)
+  MonadCatch-IdentityT : {{MonadCatch e m}} -> MonadCatch e (IdentityT m)
   MonadCatch-IdentityT .catch m h = mkIdentityT $
     catch (runIdentityT m) (\ e -> runIdentityT (h e))
 

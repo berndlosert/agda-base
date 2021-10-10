@@ -86,5 +86,5 @@ instance
   MonadState-FreeT : {{MonadState s m}} -> MonadState s (FreeT f m)
   MonadState-FreeT .state f = lift (state f)
 
-  MonadThrow-FreeT : {{MonadThrow m}} -> MonadThrow (FreeT f m)
+  MonadThrow-FreeT : {{MonadThrow e m}} -> MonadThrow e (FreeT f m)
   MonadThrow-FreeT .throw = lift <<< throw
