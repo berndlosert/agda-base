@@ -9,10 +9,10 @@ module Data.List where
 open import Prelude
 
 open import Constraint.NonEmpty
-open import Control.Monad.Free.General
 open import Data.Monoid.Endo
 open import Data.Filterable
 open import Data.Foldable
+open import Data.Rec
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy {a} eq = combust go
   where
-    go : Fn (List a) (List (List a))
+    go : Rec (List a) (List (List a))
     go [] = pure []
     go (x :: xs) = do
       let (ys , zs) = span (eq x) xs
@@ -321,7 +321,7 @@ groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 chunksOf : Nat -> List a -> List (List a)
 chunksOf {a} n xs = combust go xs
   where
-    go : Fn (List a) (List (List a))
+    go : Rec (List a) (List (List a))
     go [] = pure []
     go xs = do
       res <- call (drop n xs)
@@ -330,7 +330,7 @@ chunksOf {a} n xs = combust go xs
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn {a} needle haystack = combust go haystack
   where
-    go : Fn (List a) (Pair (List a) (List a))
+    go : Rec (List a) (Pair (List a) (List a))
     go haystack = do
       if isPrefixOf needle haystack
         then pure ([] , haystack)
@@ -343,7 +343,7 @@ breakOn {a} needle haystack = combust go haystack
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
 splitOn {a} needle haystack = combust go haystack
   where
-    go : Fn (List a) (List (List a))
+    go : Rec (List a) (List (List a))
     go [] = pure $ singleton []
     go haystack = do
       let (l , r) = breakOn needle haystack

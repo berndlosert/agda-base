@@ -24,20 +24,26 @@ private
 -- Free
 -------------------------------------------------------------------------------
 
-Free : Signature -> Set -> Set
-Free sig a = Fix (ConstS a + sig)
+record Free (sig : Signature) (a : Set) : Set where
+  constructor toFree
+  field unFree : Fix (ConstS a + sig)
+
+open Free public
+
+pattern finished x arg = toFree (sup (left x) arg)
+pattern roll symb arg = toFree (sup (right symb) arg)
 
 inn : Operation sig (Free sig a) -> Free sig a
-inn (operation symb arg) = sup (right symb) arg
+inn (operation symb arg) = roll symb (arg >>> unFree)
 
 private
   pureFree : a -> Free sig a
-  pureFree x = sup (left x) absurd
+  pureFree x = finished x absurd
 
   bindFree : Free sig a -> (a -> Free sig b) -> Free sig b
-  bindFree (sup (left x) _) k = k x
-  bindFree (sup (right symb) arg) k =
-    let arg' x = bindFree (arg x) k
+  bindFree (finished x _) k = k x
+  bindFree (roll symb arg) k =
+    let arg' x = bindFree (toFree (arg x)) k
     in inn (operation symb arg')
 
 instance
