@@ -8,7 +8,7 @@ module Data.Fix where
 
 open import Prelude
 
-open import Data.Container
+open import Data.Signature
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -19,18 +19,20 @@ private
     a : Set
 
 -------------------------------------------------------------------------------
--- Fix (a.k.a W)
+-- Fix
 -------------------------------------------------------------------------------
 
-record Fix (c : Container) : Set where
+record Fix (sig : Signature) : Set where
   inductive
   pattern
   constructor toFix
-  field unFix : Extension c (Fix c)
+  field unFix : Operation sig (Fix sig)
 
 open Fix public
 
-pattern sup s p = toFix (extension s p)
+pattern sup op arg = toFix (operation op arg)
 
-foldFix : {c : Container} -> (Extension c a -> a) -> Fix c -> a
-foldFix alg (sup s p) = alg (extension s \ x -> foldFix alg (p x))
+foldFix : {sig : Signature} -> Algebra sig a -> Fix sig -> a
+foldFix alg (sup op arg) =
+  let arg' x = foldFix alg (arg x)
+  in alg (operation op arg')

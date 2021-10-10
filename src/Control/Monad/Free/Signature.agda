@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module Control.Monad.Free.Container where
+module Control.Monad.Free.Signature where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -8,7 +8,7 @@ module Control.Monad.Free.Container where
 
 open import Prelude
 
-open import Data.Container
+open import Data.Signature
 open import Data.Fix
 
 -------------------------------------------------------------------------------
@@ -18,34 +18,35 @@ open import Data.Fix
 private
   variable
     a b : Set
-    c : Container
+    sig : Signature
 
 -------------------------------------------------------------------------------
 -- Free
 -------------------------------------------------------------------------------
 
-Free : Container -> Set -> Set
-Free c a = Fix $ Sum (Const a) c
+Free : Signature -> Set -> Set
+Free sig a = Fix (ConstS a + sig)
 
-inn : Extension c (Free c a) -> Free c a
-inn (extension s p) = toFix (extension (right s) p)
+inn : Operation sig (Free sig a) -> Free sig a
+inn (operation symb arg) = sup (right symb) arg
 
 private
-  pureFree : a -> Free c a
-  pureFree x = toFix (extension (left x) \ ())
+  pureFree : a -> Free sig a
+  pureFree x = sup (left x) absurd
 
-  bindFree : Free c a -> (a -> Free c b) -> Free c b
-  bindFree (toFix (extension (left x) _)) k = k x
-  bindFree (toFix (extension (right s) p)) k =
-    inn (extension s (\ x -> bindFree (p x) k))
+  bindFree : Free sig a -> (a -> Free sig b) -> Free sig b
+  bindFree (sup (left x) _) k = k x
+  bindFree (sup (right symb) arg) k =
+    let arg' x = bindFree (arg x) k
+    in inn (operation symb arg')
 
 instance
-  Functor-Free : Functor (Free c)
+  Functor-Free : Functor (Free sig)
   Functor-Free .map f xs = bindFree xs (pureFree <<< f)
 
-  Applicative-Free : Applicative (Free c)
+  Applicative-Free : Applicative (Free sig)
   Applicative-Free .pure = pureFree
   Applicative-Free ._<*>_ fs xs = bindFree fs \ f -> map (f $_) xs
 
-  Monad-Free : Monad (Free c)
+  Monad-Free : Monad (Free sig)
   Monad-Free ._>>=_ = bindFree
