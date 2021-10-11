@@ -59,10 +59,15 @@ instance
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)
   Alternative-EitherT .azero = toEitherT $ pure (left mempty)
-  Alternative-EitherT ._<|>_ l r =
-    toEitherT $ runEitherT l >>= \ where
-      (left e) -> map (either (left <<< (e <>_)) right) (runEitherT r)
-      (right x) -> pure (right x)
+  Alternative-EitherT ._<|>_ l r = toEitherT do
+    resl <- runEitherT l
+    case resl of \ where
+      (left el) -> do
+        resr <- runEitherT r
+        pure $ case resr of \ where
+          (left er) -> left (el <> er)
+          (right x) -> right x
+      (right x) -> pure $ right x
 
   Monad-EitherT : {{Monad m}} -> Monad (EitherT e m)
   Monad-EitherT ._>>=_ m k =
