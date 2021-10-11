@@ -126,11 +126,29 @@ private
       -> (a -> IO b) -> IO (Pair b c)
 
 instance
+  MonadThrow-Either : MonadThrow e (Either e)
+  MonadThrow-Either .throw = left
+
   MonadThrow-IO : {{Exception e}} -> MonadThrow e IO
   MonadThrow-IO .throw = throwIO
 
+  MonadCatch-Either : MonadCatch e (Either e)
+  MonadCatch-Either .catch (left e) f = f e
+  MonadCatch-Either .catch x _ = x
+
   MonadCatch-IO : {{Exception e}} -> MonadCatch e IO
   MonadCatch-IO .catch = catchIO
+
+  --MonadBracket-Either : MonadBracket (Either e)
+  --MonadBracket-Either .generalBracket acquire release use =
+  --  case acquire of \ where
+  --    (left e) -> left e
+  --    (right resource) ->
+  --      case use resource of \ where
+  --        (left e) -> release resource (ExitCaseException e) >> left e
+  --        (right b) -> do
+  --          c <- release resource (ExitCaseSuccess b)
+  --          pure (b , c)
 
   MonadBracket-IO : MonadBracket IO
   MonadBracket-IO .generalBracket = generalBracketIO

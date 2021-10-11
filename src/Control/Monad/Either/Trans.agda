@@ -71,12 +71,15 @@ instance
   MonadTrans-EitherT : MonadTrans (EitherT e)
   MonadTrans-EitherT .lift = toEitherT <<< map right
 
-  MonadThrow-EitherT : {{MonadThrow e m}} -> MonadThrow e (EitherT e m)
-  MonadThrow-EitherT .throw = lift <<< throw
+  MonadThrow-EitherT : {{Monad m}} -> MonadThrow e (EitherT e m)
+  MonadThrow-EitherT .throw = toEitherT <<< pure <<< left
 
-  MonadCatch-EitherT : {{MonadCatch e m}} -> MonadCatch e (EitherT e m)
-  MonadCatch-EitherT .catch m k =
-    toEitherT $ catch (runEitherT m) (runEitherT <<< k)
+  MonadCatch-EitherT : {{Monad m}} -> MonadCatch e (EitherT e m)
+  MonadCatch-EitherT .catch m k = toEitherT do
+    res <- runEitherT m
+    case res of \ where
+      (left e) -> runEitherT (k e)
+      (right x) -> pure (right x)
 
   MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
   MonadBracket-EitherT .generalBracket acquire release use = toEitherT do
