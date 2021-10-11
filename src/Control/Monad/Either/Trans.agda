@@ -92,12 +92,12 @@ instance
       (runEitherT acquire)
       (\ where
         (left e) _ -> pure (left e)
-        (right resource) (ExitCaseSuccess (right b)) ->
-          runEitherT (release resource (ExitCaseSuccess b))
-        (right resource) (ExitCaseException e) ->
-          runEitherT (release resource (ExitCaseException e))
+        (right resource) (exitCaseSuccess (right b)) ->
+          runEitherT (release resource (exitCaseSuccess b))
+        (right resource) (exitCaseException e) ->
+          runEitherT (release resource (exitCaseException e))
         (right resource) _ ->
-          runEitherT (release resource ExitCaseAbort))
+          runEitherT (release resource exitCaseAbort))
       (either (pure <<< left) (runEitherT <<< use))
     pure do
       c <- ec

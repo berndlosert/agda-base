@@ -73,9 +73,9 @@ open MonadCatch {{...}} public
 -------------------------------------------------------------------------------
 
 data ExitCase (a : Set) : Set where
-  ExitCaseSuccess : a -> ExitCase a
-  ExitCaseException : SomeException -> ExitCase a
-  ExitCaseAbort : ExitCase a
+  exitCaseSuccess : a -> ExitCase a
+  exitCaseException : SomeException -> ExitCase a
+  exitCaseAbort : ExitCase a
 
 record MonadBracket (m : Set -> Set) : Set where
   field
@@ -95,7 +95,7 @@ record MonadBracket (m : Set -> Set) : Set where
   bracketOnError : m a -> (a -> m c) -> (a -> m b) -> m b
   bracketOnError acquire release =
     map fst <<< generalBracket acquire \ where
-      _ (ExitCaseSuccess _) -> pure tt
+      _ (exitCaseSuccess _) -> pure tt
       a _ -> do
         release a
         pure tt
@@ -145,9 +145,9 @@ instance
   --    (left e) -> left e
   --    (right resource) ->
   --      case use resource of \ where
-  --        (left e) -> release resource (ExitCaseException e) >> left e
+  --        (left e) -> release resource (exitCaseException e) >> left e
   --        (right b) -> do
-  --          c <- release resource (ExitCaseSuccess b)
+  --          c <- release resource (exitCaseSuccess b)
   --          pure (b , c)
 
   MonadBracket-IO : MonadBracket IO
