@@ -49,3 +49,15 @@ testWords :
   ===
   "abc" :: "123" :: "xyz" :: []
 testWords = refl
+
+testFirst :
+  List.first (enumFromTo {Nat} 1 100000000)
+  ===
+  just 1
+testFirst = refl
+
+testLast :
+  List.last (enumFromTo {Nat} 1 10)
+  ===
+  just 10
+testLast = refl
