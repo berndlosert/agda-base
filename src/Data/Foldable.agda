@@ -98,6 +98,12 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> false) true
 
+  first : t a -> Maybe a
+  first = find (const true)
+
+  last : t a -> Maybe a
+  last = foldl (\ _ x -> just x) nothing
+
   sum : {{HasAdd a}} -> {{HasNat 0 a}} -> t a -> a
   sum = foldl _+_ 0
 
