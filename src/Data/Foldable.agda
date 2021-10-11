@@ -96,7 +96,9 @@ record Foldable (t : Set -> Set) : Set where
   first = find (const true)
 
   last : t a -> Maybe a
-  last = foldl (\ _ x -> just x) nothing
+  last {a} =
+    let step x = maybe (just x) just
+    in foldr step nothing
 
   sum : {{HasAdd a}} -> {{HasNat 0 a}} -> t a -> a
   sum = foldl _+_ 0
@@ -166,6 +168,5 @@ instance
   Foldable-Maybe .foldr f z = maybe z (flip f z)
 
   Foldable-List : Foldable List
-  Foldable-List .foldr f z = \ where
-    [] -> z
-    (x :: xs) -> f x (foldr f z xs)
+  Foldable-List .foldr f z [] = z
+  Foldable-List .foldr f z (x :: xs) = f x (foldr f z xs)
