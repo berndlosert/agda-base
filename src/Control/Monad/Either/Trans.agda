@@ -86,7 +86,7 @@ instance
       (left e) -> runEitherT (k e)
       (right x) -> pure (right x)
 
-  MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
+  MonadBracket-EitherT : {{MonadBracket e m}} -> MonadBracket e (EitherT e m)
   MonadBracket-EitherT .generalBracket acquire release use = toEitherT do
     (eb , ec) <- generalBracket
       (runEitherT acquire)

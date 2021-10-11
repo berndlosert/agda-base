@@ -72,16 +72,16 @@ open MonadCatch {{...}} public
 -- MonadBracket
 -------------------------------------------------------------------------------
 
-data ExitCase (a : Set) : Set where
-  exitCaseSuccess : a -> ExitCase a
-  exitCaseException : SomeException -> ExitCase a
-  exitCaseAbort : ExitCase a
+data ExitCase (e a : Set) : Set where
+  exitCaseSuccess : a -> ExitCase e a
+  exitCaseException : e -> ExitCase e a
+  exitCaseAbort : ExitCase e a
 
-record MonadBracket (m : Set -> Set) : Set where
+record MonadBracket (e : Set) (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     generalBracket : m a
-      -> (a -> ExitCase b -> m c)
+      -> (a -> ExitCase e b -> m c)
       -> (a -> m b)
       -> m (Pair b c)
 
@@ -122,7 +122,7 @@ private
   postulate
     throwIO : {{Exception e}} -> e -> IO a
     catchIO : {{Exception e}} -> IO a -> (e -> IO a) -> IO a
-    generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
+    generalBracketIO : IO a -> (a -> ExitCase SomeException b -> IO c)
       -> (a -> IO b) -> IO (Pair b c)
 
 instance
@@ -139,18 +139,18 @@ instance
   MonadCatch-IO : {{Exception e}} -> MonadCatch e IO
   MonadCatch-IO .catch = catchIO
 
-  --MonadBracket-Either : MonadBracket (Either e)
-  --MonadBracket-Either .generalBracket acquire release use =
-  --  case acquire of \ where
-  --    (left e) -> left e
-  --    (right resource) ->
-  --      case use resource of \ where
-  --        (left e) -> release resource (exitCaseException e) >> left e
-  --        (right b) -> do
-  --          c <- release resource (exitCaseSuccess b)
-  --          pure (b , c)
+  MonadBracket-Either : MonadBracket e (Either e)
+  MonadBracket-Either .generalBracket acquire release use =
+    case acquire of \ where
+      (left e) -> left e
+      (right resource) ->
+        case use resource of \ where
+          (left e) -> release resource (exitCaseException e) >> left e
+          (right b) -> do
+            c <- release resource (exitCaseSuccess b)
+            pure (b , c)
 
-  MonadBracket-IO : MonadBracket IO
+  MonadBracket-IO : MonadBracket SomeException IO
   MonadBracket-IO .generalBracket = generalBracketIO
 
 -------------------------------------------------------------------------------
@@ -163,13 +163,13 @@ instance
 
   data ExceptionDict e = Exception e => ExceptionDict
 
-  data ExitCase a
+  data ExitCase e a
     = ExitCaseSuccess a
-    | ExitCaseException SomeException
+    | ExitCaseException e
     | ExitCaseAbort
 
   generalBracket ::
-    IO a -> (a -> ExitCase b -> IO c) -> (a -> IO b) -> IO (b, c)
+    IO a -> (a -> ExitCase SomeException b -> IO c) -> (a -> IO b) -> IO (b, c)
   generalBracket acquire release use = mask $ \ unmasked -> do
     resource <- acquire
     b <- unmasked (use resource) `catch` \ e -> do
