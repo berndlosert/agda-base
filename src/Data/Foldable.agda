@@ -27,10 +27,9 @@ record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap {b} {a} f = foldr go mempty
-    where
-      go : a -> b -> b
-      go x z = f x <> z
+  foldMap f =
+    let step x acc = f x <> acc
+    in foldr step mempty
 
   foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
   foldMapBy {b} f z = foldMap {{monoid}}
@@ -44,25 +43,22 @@ record Foldable (t : Set -> Set) : Set where
   fold = foldMap id
 
   foldBy : (a -> a -> a) -> a -> t a -> a
-  foldBy f z = foldMapBy f z id
+  foldBy step init = foldMapBy step init id
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl {b} {a} f = flip $ foldr go id
-    where
-      go : a -> (b -> b) -> b -> b
-      go x k z = k $! f z x
+  foldl step =
+    let step' x k acc = k $! step acc x
+    in flip $ foldr step' id
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
-  foldlM {m} {b} {a} f = flip $ foldr go pure
-    where
-      go : a -> (b -> m b) -> b -> m b
-      go x k z = f z x >>= k
+  foldlM step =
+    let step' x k acc = step acc x >>= k
+    in flip $ foldr step' pure
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM {m} {a} {b} f = flip $ foldl go pure
-    where
-      go : (b -> m b) -> a -> b -> m b
-      go k x z = f x z >>= k
+  foldrM step =
+    let step' k x acc = step x acc >>= k
+    in flip $ foldl step' pure
 
   toList : t a -> List a
   toList = foldMap (_:: [])
@@ -77,11 +73,9 @@ record Foldable (t : Set -> Set) : Set where
   length = foldr (const suc) zero
 
   find : (a -> Bool) -> t a -> Maybe a
-  find {a} p =
-      either just (const nothing) <<< foldlM go tt
-    where
-      go : Unit -> a -> Either a Unit
-      go _ x = if p x then left x else right tt
+  find p =
+    let step _ x = if p x then left x else right tt
+    in either just (const nothing) <<< foldlM step tt
 
   any : (a -> Bool) -> t a -> Bool
   any p xs = maybe false (const true) (find p xs)
