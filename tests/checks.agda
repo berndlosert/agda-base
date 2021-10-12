@@ -3,7 +3,6 @@
 open import Prelude
 
 open import Data.Enum
-open import Data.Foldable as Foldable using ()
 open import Data.List as List using ()
 open import Data.String as String using ()
 
@@ -57,21 +56,15 @@ testEnumFromTo :
   the Int 1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: 9 :: 10 :: 11 :: 12 :: 13 :: 14 :: 15 :: 16 :: 17 :: 18 :: 19 :: 20 :: []
 testEnumFromTo = refl
 
-{-
 testFirst :
   List.first (enumFromTo {Nat} 1 100000000)
   ===
   just 1
 testFirst = refl
 
-last : {a : Set} -> List a -> Maybe a
-last [] = nothing
-last (x :: []) = just x
-last (x :: xs) = last xs
-
 testLast :
-  last (enumFromTo {Int} 1 100)
+  List.last (enumFromTo {Int} 1 1000)
   ===
-  just 100
+  just 1000
 testLast = refl
--}
+
