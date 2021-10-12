@@ -156,7 +156,7 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
-{-# NON_TERMINATING #-}
+{-# TERMINATING #-}
 fix : (a -> a) -> a
 fix f = f (fix f)
 

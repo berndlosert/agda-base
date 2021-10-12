@@ -9,7 +9,6 @@ module Data.List where
 open import Prelude
 
 open import Constraint.NonEmpty
-open import Control.Recursion.General
 open import Data.Monoid.Endo
 open import Data.Filterable
 open import Data.Foldable
@@ -303,14 +302,11 @@ dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy {a} eq = combust go
-  where
-    go : Rec (List a) (List (List a))
-    go [] = pure []
-    go (x :: xs) = do
-      let (ys , zs) = span (eq x) xs
-      res <- call zs
-      pure $ (x :: ys) :: res
+groupBy {a} eq = fix \ where
+  go [] -> []
+  go (x :: xs) ->
+    let (ys , zs) = span (eq x) xs
+    in (x :: ys) :: go zs
 
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
@@ -319,36 +315,25 @@ groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
 groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
 chunksOf : Nat -> List a -> List (List a)
-chunksOf {a} n xs = combust go xs
-  where
-    go : Rec (List a) (List (List a))
-    go [] = pure []
-    go xs = do
-      res <- call (drop n xs)
-      pure $ take n xs :: res
+chunksOf n = fix \ where
+  go [] -> []
+  go xs -> take n xs :: go (drop n xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
-breakOn {a} needle haystack = combust go haystack
-  where
-    go : Rec (List a) (Pair (List a) (List a))
-    go haystack = do
-      if isPrefixOf needle haystack
-        then pure ([] , haystack)
-        else case haystack of \ where
-          [] -> pure ([] , [])
-          (x :: xs) -> do
-            res <- call xs
-            pure $ lmap (x ::_) res
+breakOn needle = fix \ where
+  go haystack ->
+    if isPrefixOf needle haystack
+      then ([] , haystack)
+      else case haystack of \ where
+        [] -> ([] , [])
+        (x :: xs) -> lmap (x ::_) (go xs)
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
-splitOn {a} needle haystack = combust go haystack
-  where
-    go : Rec (List a) (List (List a))
-    go [] = pure $ singleton []
-    go haystack = do
-      let (l , r) = breakOn needle haystack
-      res <- call $ drop (length needle) r
-      pure $ l :: (if null r then [] else res)
+splitOn {a} needle = fix \ where
+  go [] -> singleton []
+  go haystack ->
+    let (l , r) = breakOn needle haystack
+    in l :: (if null r then [] else go (drop (length needle) r))
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []

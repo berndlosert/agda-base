@@ -8,6 +8,7 @@ module Data.Enum where
 
 open import Prelude
 
+open import Data.Bounds
 open import Data.Char
 
 -------------------------------------------------------------------------------
@@ -16,6 +17,7 @@ open import Data.Char
 
 record Enum (a : Set) : Set where
   field
+    overlap {{Bounds-super}} : Bounds a
     next : a -> a
     previous : a -> a
 

@@ -51,17 +51,18 @@ testWords :
   "abc" :: "123" :: "xyz" :: []
 testWords = refl
 
+testEnumFromTo :
+  (enumFromTo {Int} 1 20)
+  ===
+  the Int 1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: 9 :: 10 :: 11 :: 12 :: 13 :: 14 :: 15 :: 16 :: 17 :: 18 :: 19 :: 20 :: []
+testEnumFromTo = refl
+
+{-
 testFirst :
   List.first (enumFromTo {Nat} 1 100000000)
   ===
   just 1
 testFirst = refl
-
-testEnumFromTo :
-  (enumFromTo {Nat} 1 20)
-  ===
-  the Nat 1 :: 2 :: 3 :: 4 :: 5 :: 6 :: 7 :: 8 :: 9 :: 10 :: 11 :: 12 :: 13 :: 14 :: 15 :: 16 :: 17 :: 18 :: 19 :: 20 :: []
-testEnumFromTo = refl
 
 last : {a : Set} -> List a -> Maybe a
 last [] = nothing
@@ -73,4 +74,4 @@ testLast :
   ===
   just 100
 testLast = refl
-
+-}
