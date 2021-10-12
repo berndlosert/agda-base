@@ -177,17 +177,14 @@ split f s = map pack $ List.split f (unpack s)
 -------------------------------------------------------------------------------
 
 words : String -> List String
-words = combust go
-  where
-    go  : Rec String (List String)
-    go s = do
-      let s' = dropWhile Char.isSpace s
-      case s' == "" of \ where
-        true -> pure []
-        false -> do
-          let (w , s'') = break Char.isSpace s'
-          ws <- call s''
-          pure $ w :: ws
+words = fix \ where
+  go s ->
+    let s' = dropWhile Char.isSpace s
+    in case s' == "" of \ where
+      true -> []
+      false ->
+        let (w , s'') = break Char.isSpace s'
+        in w :: go s''
 
 unwords : List String -> String
 unwords [] = ""
