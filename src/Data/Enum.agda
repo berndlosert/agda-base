@@ -8,7 +8,6 @@ module Data.Enum where
 
 open import Prelude
 
-open import Control.Recursion.General
 open import Data.Char
 
 -------------------------------------------------------------------------------
