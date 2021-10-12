@@ -19,6 +19,7 @@ record Enum (a : Set) : Set where
     {{Ord-super}} : Ord a
     next : a -> Maybe a
     previous : a -> Maybe a
+    {-# TERMINATING #-}
     enumFromTo : a -> a -> List a
 
 open Enum {{...}} public
