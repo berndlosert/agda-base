@@ -16,7 +16,6 @@ open import Data.Char
 
 record Enum (a : Set) : Set where
   field
-    {{Ord-super}} : Ord a
     next : a -> a
     previous : a -> a
 
