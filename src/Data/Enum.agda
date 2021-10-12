@@ -24,19 +24,16 @@ record Enum (a : Set) : Set where
 open Enum {{...}} public
 
 instance
+  {-# TERMINATING #-}
   Enum-Nat : Enum Nat
   Enum-Nat .next x = just (suc x)
   Enum-Nat .previous 0 = nothing
   Enum-Nat .previous (suc n) = just n
   Enum-Nat .enumFromTo m n =
-      let k = max (m - n) (n - m)
-      in go k m n
-    where
-      go : Nat -> Nat -> Nat -> List Nat
-      go 0 m _ = m :: []
-      go (suc k) m n =
-        let m' = if m < n then m + 1 else m - 1
-        in m :: go k m' n
+    case compare m n of \ where
+      EQ -> m :: []
+      LT -> m :: enumFromTo (suc m) n
+      GT -> m :: enumFromTo (pred m) n
 
   Enum-Int : Enum Int
   Enum-Int .next (pos n) = just $ pos (suc n)
