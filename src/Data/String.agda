@@ -10,7 +10,6 @@ open import Prelude
 
 open import Agda.Builtin.String
 open import Constraint.NonEmpty
-open import Control.Recursion.General
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 
@@ -225,9 +224,9 @@ cons-uncons : (s : String) {{_ : Assert $ nonempty s}}
 cons-uncons = trustMe
 
 asList : (s : String) -> AsList s
-asList = combust go
+asList = fix asList'
   where
-    go : DRec String AsList
-    go "" = pure []
-    go s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
-    ... | c , s' | refl = call s' >>= (c ::_) >>> pure
+    asList' : ((s : String) -> AsList s) ->  (s : String) -> AsList s
+    asList' go "" = []
+    asList' go s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
+    ... | c , s' | refl = c :: go s'
