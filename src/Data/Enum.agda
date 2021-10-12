@@ -8,6 +8,7 @@ module Data.Enum where
 
 open import Prelude
 
+open import Control.Recursion.General
 open import Data.Char
 
 -------------------------------------------------------------------------------
@@ -24,16 +25,15 @@ record Enum (a : Set) : Set where
 open Enum {{...}} public
 
 instance
-  {-# TERMINATING #-}
   Enum-Nat : Enum Nat
   Enum-Nat .next x = just (suc x)
   Enum-Nat .previous 0 = nothing
   Enum-Nat .previous (suc n) = just n
-  Enum-Nat .enumFromTo m n =
-    case compare m n of \ where
+  Enum-Nat .enumFromTo = fix \ where
+    go m n -> case compare m n of \ where
       EQ -> m :: []
-      LT -> m :: enumFromTo (suc m) n
-      GT -> m :: enumFromTo (pred m) n
+      LT -> m :: go (suc m) n
+      GT -> m :: go (pred m) n
 
   Enum-Int : Enum Int
   Enum-Int .next (pos n) = just $ pos (suc n)
