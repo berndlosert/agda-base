@@ -71,10 +71,10 @@ expand f = interpretGeneral f
 
 engine : DRec c r -> Nat -> General c r a -> General c r a
 engine f 0 = id
-engine f (suc n) = engine f n <<< expand f
+engine f (suc n) fx = engine f n (expand f fx)
 
 petrol : DRec c r -> Nat -> (x : c) -> Maybe (r x)
-petrol f n x = already $ engine f n $ f x
+petrol f n x = already (engine f n (f x))
 
 {-# TERMINATING #-}
 combust : DRec c r -> (x : c) -> r x
