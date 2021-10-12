@@ -1198,4 +1198,5 @@ instance
   Show-List : {{Show a}} -> Show (List a)
   Show-List .showsPrec d = \ where
     [] -> showString "[]"
-    (x :: xs) -> showsPrec d x <<< showString " :: " <<< showsPrec d xs
+    (x :: xs) -> showParen (d > appPrec)
+      (showsPrec appPrec+1 x <<< showString " :: " <<< showsPrec 0 xs)
