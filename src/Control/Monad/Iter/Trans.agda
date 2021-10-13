@@ -110,11 +110,10 @@ instance
   MonadReader-IterT .ask = lift ask
   MonadReader-IterT .local f = hoistIterT (local f)
 
-  {-# TERMINATING #-}
   MonadWriter-IterT : {{MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
-  MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
-      map concat' $ listen (map listen <$> runIterT iter)
+  MonadWriter-IterT {w = w} {m = m} .listen {a = a} = fix \ where
+      go iter -> toIterT $ map concat' $ listen (map go <$> runIterT iter)
     where
       c : Set
       c = Pair w a
@@ -133,9 +132,10 @@ instance
       c = Pair w (Pair (w -> w) a)
 
       g : (Either c (IterT m c)) -> m (Either a (IterT m a))
-      g (left (w , (f , x))) = tell (f w) >> pure (left x)
-      g (right iter') =
-        pure (right (\ where .runIterT -> (join <<< map g) (runIterT iter')))
+      g = fix \ where
+        go (left (w , (f , x))) -> tell (f w) >> pure (left x)
+        go (right iter') ->
+          pure (right (\ where .runIterT -> (join <<< map go) (runIterT iter')))
 
       pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
       pass' = join <<< map g
