@@ -192,7 +192,6 @@ postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
 postfix wrap p op = (| (wrap <$> p) # s' |)
   where s' = option id (| op >>> s' |)
 
-{-# TERMINATING #-}
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
 infixl1 wrap p op = postfix wrap p (| flip op p |)
 
