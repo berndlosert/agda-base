@@ -53,7 +53,7 @@ open Selective {{...}} public
 
 whileS : {{Selective f}} -> f Bool -> f Unit
 whileS = fix \ where
-  go act -> whenS act (go act)
+  whileS act -> whenS act (whileS act)
 
 selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
 selectM mx mf = do
