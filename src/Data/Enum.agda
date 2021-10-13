@@ -23,10 +23,10 @@ record Enum (a : Set) : Set where
 
   enumFromTo : a -> a -> List a
   enumFromTo = fix \ where
-    go x y -> case compare x y of \ where
+    enumFromTo x y -> case compare x y of \ where
       EQ -> x :: []
-      LT -> x :: go (next x) y
-      GT -> x :: go (previous x) y
+      LT -> x :: enumFromTo (next x) y
+      GT -> x :: enumFromTo (previous x) y
 
 open Enum {{...}} public
 
