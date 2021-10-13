@@ -55,14 +55,14 @@ never = fix \ where
 -- terminates. If it doesn't terminate, this will loop forever.
 execIterT : {{Monad m}} -> IterT m a -> m a
 execIterT = fix \ where
-  execIterT iter -> runIterT iter >>= either pure execIterT
+  go iter -> runIterT iter >>= either pure go
 
 hoistIterT : {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> IterT m a
   -> IterT n a
 hoistIterT = fix \ where
-  hoistIterT t iter -> toIterT ((map $ hoistIterT t) <$> (t $ runIterT iter))
+  go t iter -> toIterT ((map $ go t) <$> (t $ runIterT iter))
 
 instance
   Functor-IterT : {{Monad m}} -> Functor (IterT m)
