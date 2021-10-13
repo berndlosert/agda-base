@@ -33,6 +33,5 @@ private
 Iter : Set -> Set
 Iter = IterT Identity
 
-{-# NON_TERMINATING #-}
 execIter : Iter a -> a
 execIter = runIdentity <<< execIterT
