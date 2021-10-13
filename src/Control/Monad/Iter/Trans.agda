@@ -70,12 +70,14 @@ instance
     go f iter ->
       toIterT $ map (either (left <<< f) (right <<< go f)) (runIterT iter)
 
-  {-# TERMINATING #-}
   Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
-  Applicative-IterT .pure x .runIterT = pure (left x)
-  Applicative-IterT ._<*>_ iter x .runIterT = runIterT iter >>= \ where
-    (left f) -> runIterT (map f x)
-    (right iter') -> pure (right (iter' <*> x))
+  Applicative-IterT .pure x = toIterT $ pure (left x)
+  Applicative-IterT ._<*>_ = fix \ where
+    go iter x -> toIterT do
+      res <- runIterT iter
+      case res of \ where
+        (left f) -> runIterT (map f x)
+        (right iter') -> pure (right (go iter' x))
 
   {-# TERMINATING #-}
   Monad-IterT : {{Monad m}} -> Monad (IterT m)
