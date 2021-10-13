@@ -66,11 +66,13 @@ module _ {{_ : Monad m}} where
      (f <<< (map <<< map) (bimap id (go f)) <<< runListT) m
 
 instance
-  {-# TERMINATING #-}
   Semigroup-ListT : {{Monad m}} -> Semigroup (ListT m a)
-  Semigroup-ListT ._<>_ l r .runListT = runListT l >>= \ where
-    nothing -> runListT r
-    (just (x , xs)) -> pure $ just (x , xs <> r)
+  Semigroup-ListT ._<>_ = fix \ where
+    go l r .runListT -> do
+      res <- runListT l
+      case res of \ where
+        nothing -> runListT r
+        (just (x , xs)) -> pure $ just (x , go xs r)
 
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
   Monoid-ListT .mempty = nilT
