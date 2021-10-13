@@ -1011,11 +1011,11 @@ record Applicative (f : Set -> Set) : Set where
   a <* b = (| const a b |)
 
   replicateA! : Nat -> f a -> f Unit
-  replicateA! n0 fa = loop n0
+  replicateA! n x = loop n
     where
       loop : Nat -> f Unit
       loop 0 = pure tt
-      loop (suc n) = fa *> loop n
+      loop (suc m) = x *> loop m
 
   when : Bool -> f Unit -> f Unit
   when p x = if p then x else pure tt
@@ -1025,9 +1025,9 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
-{-# NON_TERMINATING #-}
 forever : {{Applicative f}} -> f a -> f b
-forever as = as *> forever as
+forever = fix \ where
+  go x -> x *> go x
 
 instance
   Applicative-Function : Applicative (Function a)
