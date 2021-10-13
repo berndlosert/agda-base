@@ -168,13 +168,13 @@ data ViewL (a : Set) : Seq a -> Set where
   _::_ : (x : a) {xs : Seq a} -> ViewL a xs -> ViewL a (cons x xs)
 
 viewl : (xs : Seq a) -> ViewL a xs
-viewl = fix go
+viewl = fix viewl'
   where
-    go : ((xs : Seq a) -> ViewL a xs) -> (xs : Seq a) -> ViewL a xs
-    go viewl nil = []
-    go viewl xs with toUncons xs
+    viewl' : ((xs : Seq a) -> ViewL a xs) -> (xs : Seq a) -> ViewL a xs
+    viewl' go nil = []
+    viewl' go xs with toUncons xs
     ... | [] = []
-    ... | y :: ys = y :: viewl ys
+    ... | y :: ys = y :: go ys
 
 -------------------------------------------------------------------------------
 -- Scans
@@ -335,14 +335,14 @@ intersperse sep xs =
 
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
 zipWith = fix \ where
-  zipWith f nil _ -> nil
-  zipWith f _ nil -> nil
-  zipWith f as bs ->
+  go f nil _ -> nil
+  go f _ nil -> nil
+  go f as bs ->
     let
       (x , xs) = uncons as {{trustMe}}
       (y , ys) = uncons bs {{trustMe}}
     in
-      cons (f x y) (zipWith f xs ys)
+      cons (f x y) (go f xs ys)
 
 zip : Seq a -> Seq b -> Seq (Pair a b)
 zip = zipWith _,_

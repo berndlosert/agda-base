@@ -7,7 +7,6 @@ open import Control.Monad.Iter
 open import Data.Foldable
 open import Data.List as List using ()
 open import System.IO
-open import Control.Monad.Free.General
 
 variable
   a : Set
@@ -80,15 +79,15 @@ success : Situation -> Bool
 success ([] , _) = true
 success _ = false
 
-{-# TERMINATING #-}
 solution2 : Iter Situation
 solution2 = solutions' initial
   where
     solutions' : Situation -> Iter Situation
-    solutions' a =
-      if success a
-        then pure a
-        else delay $ asum $ map solutions' (move a)
+    solutions' = fix \ where
+      go a ->
+        if success a
+          then pure a
+          else delay $ asum $ map go (move a)
 
 main : IO Unit
 main = print $ execIter solution2

@@ -177,13 +177,13 @@ split f s = map pack $ List.split f (unpack s)
 
 words : String -> List String
 words = fix \ where
-  words s ->
+  go s ->
     let s' = dropWhile Char.isSpace s
     in case s' == "" of \ where
       true -> []
       false ->
         let (w , s'') = break Char.isSpace s'
-        in w :: words s''
+        in w :: go s''
 
 unwords : List String -> String
 unwords [] = ""
@@ -224,9 +224,9 @@ cons-uncons : (s : String) {{_ : Assert $ nonempty s}}
 cons-uncons = trustMe
 
 asList : (s : String) -> AsList s
-asList = fix go
+asList = fix asList'
   where
-    go : ((s : String) -> AsList s) ->  (s : String) -> AsList s
-    go asList "" = []
-    go asList s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
-    ... | c , s' | refl = c :: asList s'
+    asList' : ((s : String) -> AsList s) ->  (s : String) -> AsList s
+    asList' go "" = []
+    asList' go s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
+    ... | c , s' | refl = c :: go s'
