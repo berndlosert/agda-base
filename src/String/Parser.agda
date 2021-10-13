@@ -290,10 +290,11 @@ tab = char '\t'
 string : String -> Parser String
 string = map String.pack <<< traverse char <<< String.unpack
 
-{-# TERMINATING #-}
 word : Parser String
+word = fix \ where
+  go -> option "" (| String.cons alpha go |)
+
 word1 : Parser String
-word = option "" word1
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
