@@ -51,9 +51,9 @@ record Selective (f : Set -> Set) : Set where
 
 open Selective {{...}} public
 
-{-# NON_TERMINATING #-}
 whileS : {{Selective f}} -> f Bool -> f Unit
-whileS act = whenS act (whileS act)
+whileS = fix \ where
+  go act -> whenS act (go act)
 
 selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
 selectM mx mf = do
