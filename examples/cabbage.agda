@@ -89,5 +89,8 @@ solution2 = solutions' initial
           then pure a
           else delay $ asum $ map go (move a)
 
-main : IO Unit
-main = print $ execIter solution2
+testSolution2 :
+  execIter solution2
+  ===
+  ([] , farmer :: sheep :: cabbage :: wolf :: [])
+testSolution2 = refl
