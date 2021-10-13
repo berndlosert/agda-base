@@ -79,11 +79,13 @@ instance
         (left f) -> runIterT (map f x)
         (right iter') -> pure (right (go iter' x))
 
-  {-# TERMINATING #-}
   Monad-IterT : {{Monad m}} -> Monad (IterT m)
-  Monad-IterT ._>>=_ iter k .runIterT = runIterT iter >>= \ where
-    (left m) -> runIterT (k m)
-    (right iter') -> pure (right (iter' >>= k))
+  Monad-IterT ._>>=_ = fix \ where
+    go iter k -> toIterT do
+      res <- runIterT iter
+      case res of \ where
+        (left m) -> runIterT (k m)
+        (right iter') -> pure (right (go iter' k))
 
   {-# TERMINATING #-}
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
