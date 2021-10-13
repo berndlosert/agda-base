@@ -94,11 +94,13 @@ instance
         nothing -> pure nothing
         (just (f , fs')) -> runListT $ (map f xs) <> (go fs' xs)
 
-  {-# TERMINATING #-}
   Monad-ListT : {{Monad m}} -> Monad (ListT m)
-  Monad-ListT ._>>=_ m k .runListT = runListT m >>= \ where
-    nothing -> pure nothing
-    (just (x , xs)) -> runListT $ k x <> (xs >>= k)
+  Monad-ListT ._>>=_ = fix \ where
+    go m k .runListT -> do
+      res <- runListT m
+      case res of \ where
+        nothing -> pure nothing
+        (just (x , xs)) -> runListT $ k x <> (go xs k)
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
   Alternative-ListT .azero = mempty
