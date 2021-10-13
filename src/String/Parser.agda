@@ -143,18 +143,18 @@ notFollowedBy p = toParser \ where
       unParser p s cok' cerr' eok' eerr'
 
 option : a -> Parser a -> Parser a
-option a p = p <|> pure a
+option x p = p <|> pure x
 
 {-# TERMINATING #-}
 many1 many : Parser a -> Parser (List a)
-many1 a = (| a :: many a |)
-many a = option [] (many1 a)
+many1 p = (| p :: many p |)
+many p = option [] (many1 p)
 
 optional : Parser a -> Parser (Maybe a)
-optional a = (| just a | nothing |)
+optional p = (| just p | nothing |)
 
 choose : Parser a -> Parser b -> Parser (Either a b)
-choose a b = (| left a | right b |)
+choose l r = (| left l | right r |)
 
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
@@ -202,13 +202,13 @@ chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 = infixl1 id
 
 chainl : Parser a -> Parser (a -> a -> a) -> a -> Parser a
-chainl p op a = option a (chainl1 p op)
+chainl p op x = option x (chainl1 p op)
 
 chainr1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainr1 = infixr1 id
 
 chainr : Parser a -> Parser (a -> a -> a) -> a -> Parser a
-chainr p op a = option a (chainr1 p op)
+chainr p op x = option x (chainr1 p op)
 
 -------------------------------------------------------------------------------
 -- Char parsers
