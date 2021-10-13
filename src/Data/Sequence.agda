@@ -331,16 +331,16 @@ intersperse sep xs =
 -- Transformations: Zips and unzip
 -------------------------------------------------------------------------------
 
-{-# TERMINATING #-}
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
-zipWith f nil _ = nil
-zipWith f _ nil = nil
-zipWith f as bs =
-  let
-    (x , xs) = uncons as {{trustMe}}
-    (y , ys) = uncons bs {{trustMe}}
-  in
-    cons (f x y) (zipWith f xs ys)
+zipWith = fix \ where
+  go f nil _ -> nil
+  go f _ nil -> nil
+  go f as bs ->
+    let
+      (x , xs) = uncons as {{trustMe}}
+      (y , ys) = uncons bs {{trustMe}}
+    in
+      cons (f x y) (go f xs ys)
 
 zip : Seq a -> Seq b -> Seq (Pair a b)
 zip = zipWith _,_
