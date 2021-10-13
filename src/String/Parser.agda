@@ -187,10 +187,12 @@ prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
 prefix = fix \ where
   go wrap op p -> op <*> go wrap op p <|> wrap <$> p
 
-{-# TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
-postfix wrap p op = (| (wrap <$> p) # p' |)
-  where p' = option id (| op >>> p' |)
+postfix {a} {b} wrap p op = (| (wrap <$> p) # p' |)
+  where
+    p' : Parser (b -> b)
+    p' = fix \ where
+      go -> option id (| op >>> go |)
 
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
 infixl1 wrap p op = postfix wrap p (| flip op p |)
