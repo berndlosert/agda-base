@@ -87,18 +87,18 @@ instance
         (left m) -> runIterT (k m)
         (right iter') -> pure (right (go iter' k))
 
-  {-# TERMINATING #-}
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
   Alternative-IterT .azero = never
-  Alternative-IterT ._<|>_ l r .runIterT = do
-    resultl <- runIterT l
-    case resultl of \ where
-      (left _) -> pure resultl
-      (right l') -> do
-        resultr <- runIterT r
-        case resultr of \ where
-          (left _) -> pure resultr
-          (right r') -> pure $ right (l' <|> r')
+  Alternative-IterT ._<|>_ = fix \ where
+    go l r -> toIterT do
+      resultl <- runIterT l
+      case resultl of \ where
+        (left _) -> pure resultl
+        (right l') -> do
+          resultr <- runIterT r
+          case resultr of \ where
+            (left _) -> pure resultr
+            (right r') -> pure $ right (go l' r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (toIdentity iter) = delay iter
