@@ -77,11 +77,13 @@ instance
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
   Monoid-ListT .mempty = nilT
 
-  {-# TERMINATING #-}
   Functor-ListT : {{Monad m}} -> Functor (ListT m)
-  Functor-ListT .map f m .runListT = runListT m >>= \ where
-    nothing -> pure nothing
-    (just (x , xs)) -> pure $ just (f x , map f xs)
+  Functor-ListT .map = fix \ where
+    go f m .runListT -> do
+      res <- runListT m
+      case res of \ where
+        nothing -> pure nothing
+        (just (x , xs)) -> pure $ just (f x , go f xs)
 
   {-# TERMINATING #-}
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
