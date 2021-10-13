@@ -68,20 +68,21 @@ genNat n g0 =
       [] -> (0 , g)
 
 -- genNat' n generates a Nat in the range [0 , n].
-{-# TERMINATING #-}
 genNat' : {{RandomGen g}} -> Nat -> g -> Pair Nat g
 genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
-    log2 = \ where
-      0 -> 1
-      m -> 1 + log2 (m / 2)
+    log2 = fix \ where
+      go 0 -> 1
+      go m -> 1 + go (m / 2)
 
     k = log2 n
 
     loop : g -> Pair Nat g
-    loop g = let (m , g') = genNat k g in
-      if m > n then loop g' else (m , g')
+    loop = fix \ where
+      go g ->
+        let (m , g') = genNat k g in
+        if m > n then go g' else (m , g')
 
 -- genFloat generates a Float value in the range [0, 1).
 genFloat : {{RandomGen g}} -> g -> Pair Float g
