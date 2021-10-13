@@ -132,14 +132,13 @@ instance
       c : Set
       c = Pair w (Pair (w -> w) a)
 
-      pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
       g : (Either c (IterT m c)) -> m (Either a (IterT m a))
-
-      pass' = join <<< map g
-
       g (left (w , (f , x))) = tell (f w) >> pure (left x)
       g (right iter') =
-        pure (right (\ where .runIterT -> pass' (runIterT iter')))
+        pure (right (\ where .runIterT -> (join <<< map g) (runIterT iter')))
+
+      pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
+      pass' = join <<< map g
 
   MonadState-IterT : {{MonadState s m}} -> MonadState s (IterT m)
   MonadState-IterT .state m = lift (state m)
