@@ -167,12 +167,14 @@ data ViewL (a : Set) : Seq a -> Set where
   [] : ViewL a nil
   _::_ : (x : a) {xs : Seq a} -> ViewL a xs -> ViewL a (cons x xs)
 
-{-# TERMINATING #-}
 viewl : (xs : Seq a) -> ViewL a xs
-viewl nil = []
-viewl xs with toUncons xs
-... | [] = []
-... | y :: ys = y :: viewl ys
+viewl = fix viewl'
+  where
+    viewl' : ((xs : Seq a) -> ViewL a xs) -> (xs : Seq a) -> ViewL a xs
+    viewl' go nil = []
+    viewl' go xs with toUncons xs
+    ... | [] = []
+    ... | y :: ys = y :: go ys
 
 -------------------------------------------------------------------------------
 -- Scans
