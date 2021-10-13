@@ -1,4 +1,4 @@
-{-# OPTIONS --type-in-type --guardedness #-}
+{-# OPTIONS --type-in-type #-}
 
 module Control.Monad.Iter.Trans where
 
@@ -39,7 +39,7 @@ private
 
 {-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Set -> Set) (a : Set) : Set where
-  coinductive
+  constructor toIterT
   field runIterT : m (Either a (IterT m a))
 
 open IterT public
@@ -47,45 +47,43 @@ open IterT public
 delay : {{Monad m}} -> IterT m a -> IterT m a
 delay iter .runIterT = pure (right iter)
 
-{-# NON_TERMINATING #-}
 never : {{Monad m}} -> IterT m a
-never .runIterT = pure (right never)
+never = fix \ where
+  never -> toIterT $ pure (right never)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
-{-# NON_TERMINATING #-}
 execIterT : {{Monad m}} -> IterT m a -> m a
-execIterT iter = runIterT iter >>= either pure execIterT
+execIterT = fix \ where
+  execIterT iter -> runIterT iter >>= either pure execIterT
 
-{-# NON_TERMINATING #-}
 hoistIterT : {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> IterT m a
   -> IterT n a
-hoistIterT t iter .runIterT =
-  (map $ hoistIterT t) <$> (t $ runIterT iter)
+hoistIterT = fix \ where
+  hoistIterT t iter -> toIterT ((map $ hoistIterT t) <$> (t $ runIterT iter))
 
 instance
-  {-# NON_TERMINATING #-}
   Functor-IterT : {{Monad m}} -> Functor (IterT m)
-  Functor-IterT .map f iter .runIterT = flip map (runIterT iter) \ where
-    (left x) -> left (f x)
-    (right iter') -> right (map f iter')
+  Functor-IterT .map = fix \ where
+    go f iter ->
+      toIterT $ map (either (left <<< f) (right <<< go f)) (runIterT iter)
 
-  {-# NON_TERMINATING #-}
+  {-# TERMINATING #-}
   Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
   Applicative-IterT .pure x .runIterT = pure (left x)
   Applicative-IterT ._<*>_ iter x .runIterT = runIterT iter >>= \ where
     (left f) -> runIterT (map f x)
     (right iter') -> pure (right (iter' <*> x))
 
-  {-# NON_TERMINATING #-}
+  {-# TERMINATING #-}
   Monad-IterT : {{Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ iter k .runIterT = runIterT iter >>= \ where
     (left m) -> runIterT (k m)
     (right iter') -> pure (right (iter' >>= k))
 
-  {-# NON_TERMINATING #-}
+  {-# TERMINATING #-}
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
   Alternative-IterT .azero = never
   Alternative-IterT ._<|>_ l r .runIterT = do
@@ -108,7 +106,7 @@ instance
   MonadReader-IterT .ask = lift ask
   MonadReader-IterT .local f = hoistIterT (local f)
 
-  {-# NON_TERMINATING #-}
+  {-# TERMINATING #-}
   MonadWriter-IterT : {{MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
   MonadWriter-IterT {w = w} {m = m} .listen {a = a} iter .runIterT =
@@ -148,7 +146,7 @@ instance
   MonadThrow-IterT : {{MonadThrow e m}} -> MonadThrow e (IterT m)
   MonadThrow-IterT .throw = lift <<< throw
 
-  {-# NON_TERMINATING #-}
+  {-# TERMINATING #-}
   MonadCatch-IterT : {{MonadCatch e m}} -> MonadCatch e (IterT m)
   MonadCatch-IterT .catch iter f .runIterT =
     catch (map (flip catch f) <$> runIterT iter) (runIterT <<< f)
