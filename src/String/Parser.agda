@@ -145,10 +145,12 @@ notFollowedBy p = toParser \ where
 option : a -> Parser a -> Parser a
 option x p = p <|> pure x
 
-{-# TERMINATING #-}
-many1 many : Parser a -> Parser (List a)
+many : Parser a -> Parser (List a)
+many = fix \ where
+  go p -> option [] (| p :: go p |)
+
+many1 : Parser a -> Parser (List a)
 many1 p = (| p :: many p |)
-many p = option [] (many1 p)
 
 optional : Parser a -> Parser (Maybe a)
 optional p = (| just p | nothing |)
