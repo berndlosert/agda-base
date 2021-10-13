@@ -50,11 +50,15 @@ module _ {{_ : Monad m}} where
   toListT : {{_ : Foldable f}} -> f a -> ListT m a
   toListT = foldr consT nilT
 
-  {-# TERMINATING #-}
   foldListT : (b -> a -> m b) -> b -> ListT m a -> m b
-  foldListT f b m = runListT m >>= \ where
-    nothing -> pure b
-    (just (x , xs)) -> f b x >>= \ b' -> foldListT f b' xs
+  foldListT = fix \ where
+    go f b m -> do
+      res <- runListT m
+      case res of \ where
+        nothing -> pure b
+        (just (x , xs)) -> do
+          b' <- f b x
+          go f b' xs
 
   {-# TERMINATING #-}
   hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
