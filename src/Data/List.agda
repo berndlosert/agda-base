@@ -303,10 +303,10 @@ dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy {a} eq = fix \ where
-  go [] -> []
-  go (x :: xs) ->
+  groupBy [] -> []
+  groupBy (x :: xs) ->
     let (ys , zs) = span (eq x) xs
-    in (x :: ys) :: go zs
+    in (x :: ys) :: groupBy zs
 
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
@@ -316,24 +316,24 @@ groupOn f = groupBy (equating f) <<< sortBy (comparing f)
 
 chunksOf : Nat -> List a -> List (List a)
 chunksOf n = fix \ where
-  go [] -> []
-  go xs -> take n xs :: go (drop n xs)
+  chunksOf [] -> []
+  chunksOf xs -> take n xs :: chunksOf (drop n xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
 breakOn needle = fix \ where
-  go haystack ->
+  breakOn haystack ->
     if isPrefixOf needle haystack
       then ([] , haystack)
       else case haystack of \ where
         [] -> ([] , [])
-        (x :: xs) -> lmap (x ::_) (go xs)
+        (x :: xs) -> lmap (x ::_) (breakOn xs)
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
-splitOn {a} needle = fix \ where
-  go [] -> singleton []
-  go haystack ->
+splitOn needle = fix \ where
+  splitOn [] -> singleton []
+  splitOn haystack ->
     let (l , r) = breakOn needle haystack
-    in l :: (if null r then [] else go (drop (length needle) r))
+    in l :: (if null r then [] else splitOn (drop (length needle) r))
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []
@@ -410,10 +410,10 @@ leaveOutOne (x :: xs) = (x , xs) :: do
 
 permutations : List a -> List (List a)
 permutations = fix \ where
-  go [] -> singleton []
-  go xs -> do
+  permutations [] -> singleton []
+  permutations xs -> do
     (y , ys) <- leaveOutOne xs
-    map (y ::_) (go ys)
+    map (y ::_) (permutations ys)
 
 -------------------------------------------------------------------------------
 -- Searching
