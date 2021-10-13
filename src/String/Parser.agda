@@ -183,9 +183,9 @@ endBy p sep = many (p <* sep)
 endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
-{-# TERMINATING #-}
 prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
-prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
+prefix = fix \ where
+  go wrap op p -> op <*> go wrap op p <|> wrap <$> p
 
 {-# TERMINATING #-}
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
