@@ -135,7 +135,7 @@ instance
       g = fix \ where
         go (left (w , (f , x))) -> tell (f w) >> pure (left x)
         go (right iter') ->
-          pure (right (\ where .runIterT -> (join <<< map go) (runIterT iter')))
+          pure (right (toIterT $ (join <<< map go) (runIterT iter')))
 
       pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
       pass' = join <<< map g
