@@ -85,12 +85,14 @@ instance
         nothing -> pure nothing
         (just (x , xs)) -> pure $ just (f x , go f xs)
 
-  {-# TERMINATING #-}
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
   Applicative-ListT .pure x .runListT = pure (just (x , mempty))
-  Applicative-ListT ._<*>_ fs xs .runListT = runListT fs >>= \ where
-    nothing -> pure nothing
-    (just (f , fs')) -> runListT $ (map f xs) <> (fs' <*> xs)
+  Applicative-ListT ._<*>_ = fix \ where
+    go fs xs .runListT -> do
+      res <- runListT fs
+      case res of \ where
+        nothing -> pure nothing
+        (just (f , fs')) -> runListT $ (map f xs) <> (go fs' xs)
 
   {-# TERMINATING #-}
   Monad-ListT : {{Monad m}} -> Monad (ListT m)
