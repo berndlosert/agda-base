@@ -126,17 +126,22 @@ instance
   MonadState-ListT : {{MonadState s m}} -> MonadState s (ListT m)
   MonadState-ListT .state = lift <<< state
 
-  {-# TERMINATING #-}
   MonadWriter-ListT : {{MonadWriter w m}}
     -> MonadWriter w (ListT m)
   MonadWriter-ListT .tell = lift <<< tell
-  MonadWriter-ListT .listen m .runListT = runListT m >>= \ where
-    nothing -> pure nothing
-    (just (x , xs)) -> do
-      (a , w) <- listen (pure x)
-      pure $ just ((a , w) , listen xs)
-  MonadWriter-ListT .pass m .runListT = runListT m >>= \ where
-    nothing -> pure nothing
-    (just ((x , f) , rest)) -> do
-      a <- pass $ pure (x , f)
-      pure $ just (a , pass rest)
+  MonadWriter-ListT .listen = fix \ where
+    go m .runListT -> do
+      res <- runListT m
+      case res of \ where
+        nothing -> pure nothing
+        (just (x , xs)) -> do
+          (a , w) <- listen (pure x)
+          pure $ just ((a , w) , go xs)
+  MonadWriter-ListT .pass = fix \ where
+    go m .runListT -> do
+      res <- runListT m
+      case res of \ where
+        nothing -> pure nothing
+        (just ((x , f) , rest)) -> do
+          a <- pass $ pure (x , f)
+          pure $ just (a , go rest)
