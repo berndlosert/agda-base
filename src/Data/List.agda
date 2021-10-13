@@ -408,12 +408,12 @@ leaveOutOne (x :: xs) = (x , xs) :: do
   (y , ys) <- leaveOutOne xs
   pure (y , x :: ys)
 
-{-# TERMINATING #-}
 permutations : List a -> List (List a)
-permutations [] = singleton []
-permutations xs = do
-  (y , ys) <- leaveOutOne xs
-  map (y ::_) (permutations ys)
+permutations = fix \ where
+  go [] -> singleton []
+  go xs -> do
+    (y , ys) <- leaveOutOne xs
+    map (y ::_) (go ys)
 
 -------------------------------------------------------------------------------
 -- Searching
