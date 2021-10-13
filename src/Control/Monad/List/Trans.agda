@@ -60,10 +60,10 @@ module _ {{_ : Monad m}} where
           b' <- f b x
           go f b' xs
 
-  {-# TERMINATING #-}
   hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
-  hoistListT f m .runListT =
-     (f <<< (map <<< map) (bimap id (hoistListT f)) <<< runListT) m
+  hoistListT = fix \ where
+    go f m .runListT ->
+     (f <<< (map <<< map) (bimap id (go f)) <<< runListT) m
 
 instance
   {-# TERMINATING #-}
