@@ -150,7 +150,7 @@ instance
   MonadThrow-IterT : {{MonadThrow e m}} -> MonadThrow e (IterT m)
   MonadThrow-IterT .throw = lift <<< throw
 
-  {-# TERMINATING #-}
   MonadCatch-IterT : {{MonadCatch e m}} -> MonadCatch e (IterT m)
-  MonadCatch-IterT .catch iter f .runIterT =
-    catch (map (flip catch f) <$> runIterT iter) (runIterT <<< f)
+  MonadCatch-IterT .catch = fix \ where
+    go iter f -> toIterT $
+      catch (map (flip go f) <$> runIterT iter) (runIterT <<< f)
