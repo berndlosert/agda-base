@@ -121,16 +121,16 @@ open Partial {{...}} public
 
 postulate
   trustMe : a
-  error : String -> a
+  panic : String -> a
 
 undefined : {{Partial}} -> a
-undefined = error "Prelude.undefined"
+undefined = panic "Prelude.undefined"
 
 unsafePerform : ({{Partial}} -> a) -> a
 unsafePerform x = x {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text #-}
-{-# COMPILE GHC error = \ _ s -> error (Data.Text.unpack s) #-}
+{-# COMPILE GHC panic = \ _ s -> panic (Data.Text.unpack s) #-}
 
 -------------------------------------------------------------------------------
 -- Function primitives
@@ -262,11 +262,11 @@ isRight _ = true
 
 fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
 fromLeft (left x) = x
-fromLeft _ = error "Prelude.fromLeft: bad argument"
+fromLeft _ = panic "Prelude.fromLeft: bad argument"
 
 fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
 fromRight (right x) = x
-fromRight  _ = error "Prelude.fromRight: bad argument"
+fromRight  _ = panic "Prelude.fromRight: bad argument"
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -304,7 +304,7 @@ isNothing _ = true
 
 fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
 fromJust (just a) = a
-fromJust nothing = error "Prelude.fromJust: bad argument"
+fromJust nothing = panic "Prelude.fromJust: bad argument"
 
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe b f nothing = b

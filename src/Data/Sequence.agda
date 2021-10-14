@@ -127,23 +127,23 @@ iterateN (suc n) f x = cons (f x) (iterateN n f x)
 -------------------------------------------------------------------------------
 
 uncons : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair a (Seq a)
-uncons nil = error "Data.Sequence.uncons: bad argument"
+uncons nil = panic "Data.Sequence.uncons: bad argument"
 uncons xs =
   case Tree.uncons (unSeq xs) {{trustMe}} of \ where
     (toElem x , xs) -> (x , toSeq xs)
 
 unsnoc : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair (Seq a) a
-unsnoc nil = error "Data.Sequence.uncons: bad argument"
+unsnoc nil = panic "Data.Sequence.uncons: bad argument"
 unsnoc xs =
   case Tree.unsnoc (unSeq xs) {{trustMe}} of \ where
     (xs , toElem x) -> (toSeq xs , x)
 
 head : (xs : Seq a) -> {{Assert $ nonempty xs}} -> a
-head nil = error "Data.Sequence.head: bad argument"
+head nil = panic "Data.Sequence.head: bad argument"
 head xs = fst (uncons xs)
 
 tail : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Seq a
-tail nil = error "Data.Sequence.tail: bad argument"
+tail nil = panic "Data.Sequence.tail: bad argument"
 tail xs = snd (uncons xs)
 
 -------------------------------------------------------------------------------

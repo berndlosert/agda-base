@@ -92,7 +92,7 @@ module _ {{_ : Ord a}} where
   delMin (node l@(node _ _ _) x r) =
     let (y , l') = delMin l
     in (y , node l' x r)
-  delMin _ = error "Data.Tree.Unbalanced.delMin: bad argument"
+  delMin _ = panic "Data.Tree.Unbalanced.delMin: bad argument"
 
   delete : a -> Tree a -> Tree a
   delete _ leaf = leaf

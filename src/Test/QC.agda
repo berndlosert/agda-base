@@ -103,13 +103,13 @@ sample g = do
   traverse! print cases
 
 oneof : (gs : List (Gen a)) -> {{Assert $ nonempty gs}} -> Gen a
-oneof [] = error "Test.QC.oneof: bad argument"
+oneof [] = panic "Test.QC.oneof: bad argument"
 oneof gs = do
   n <- choose (0 , length gs - 1)
   List.at n gs {{trustMe}}
 
 elements : (xs : List a) -> {{Assert $ nonempty xs}} -> Gen a
-elements [] = error "Test.QC.elements: bad argument"
+elements [] = panic "Test.QC.elements: bad argument"
 elements xs = oneof (map pure xs) {{trustMe}}
 
 frequency : (freqs : List (Pair Nat (Gen a)))
@@ -118,13 +118,13 @@ frequency : (freqs : List (Pair Nat (Gen a)))
 frequency {a} freqs =
     if all (_> 0) (map fst freqs)
       then ok
-      else error "Test.QC.frequency: bad argument"
+      else panic "Test.QC.frequency: bad argument"
   where
     sumFreqs : Nat
     sumFreqs = sum (map fst freqs)
 
     pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick _ [] = error "Test.QC.frequency: bad argument"
+    pick _ [] = panic "Test.QC.frequency: bad argument"
     pick n ((m , g) :: rest) = if n <= m then g else pick (n - m) rest
 
     ok : Gen a

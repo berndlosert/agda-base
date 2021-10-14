@@ -35,7 +35,7 @@ toDigit '6' = 6
 toDigit '7' = 7
 toDigit '8' = 8
 toDigit '9' = 9
-toDigit _ = error "Data.Char.toDigit: bad argument"
+toDigit _ = panic "Data.Char.toDigit: bad argument"
 
 isAlpha : Char -> Bool
 isAlpha = primIsAlpha

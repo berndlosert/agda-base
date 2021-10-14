@@ -205,7 +205,7 @@ pop {a} v = down []
       (three _ _ _ x leaf) -> x
       (three _ _ _ _ r@(two _ _ _)) -> maxNode r
       (three _ _ _ _ r@(three _ _ _ _ _)) -> maxNode r
-      _ -> error "Data.Tree.Balanced.TwoThree.maxNode: bad argument"
+      _ -> panic "Data.Tree.Balanced.TwoThree.maxNode: bad argument"
 
     removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
     removeMaxNode ctx = \ where

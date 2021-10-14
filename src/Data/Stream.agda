@@ -74,7 +74,7 @@ at 0 as = head as
 at (suc n) as = at n (tail as)
 
 cycle : (xs : List a) -> {{Assert $ not (null xs)}} -> Stream a
-cycle [] = error "Data.Stream.cycle: bad argument"
+cycle [] = panic "Data.Stream.cycle: bad argument"
 cycle (x :: xs) .head = x
 cycle {a} (x :: xs) .tail = cycle' xs
   where

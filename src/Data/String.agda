@@ -54,28 +54,28 @@ append : String -> String -> String
 append = _<>_
 
 uncons : (s : String) -> {{Assert $ nonempty s}} -> Pair Char String
-uncons "" = error "Data.String.uncons: bad argument"
+uncons "" = panic "Data.String.uncons: bad argument"
 uncons s = case primStringUncons s of \ where
   (just p) -> fst p , snd p
-  nothing -> error "Data.String.uncons: bad argument"
+  nothing -> panic "Data.String.uncons: bad argument"
 
 unsnoc : (s : String) -> {{Assert $ nonempty s}} -> Pair String Char
-unsnoc "" = error "Data.String.unsnoc: bad argument"
+unsnoc "" = panic "Data.String.unsnoc: bad argument"
 unsnoc s = lmap pack $ List.unsnoc (unpack s) {{trustMe}}
 
 head : (s : String) -> {{Assert $ nonempty s}} -> Char
-head "" = error "Data.String.head: bad argument"
+head "" = panic "Data.String.head: bad argument"
 head s = fst (uncons s)
 
 tail : (s : String) -> {{Assert $ nonempty s}} -> String
-tail "" = error "Data.String.tail: bad argument"
+tail "" = panic "Data.String.tail: bad argument"
 tail s = snd (uncons s)
 
 length : String -> Nat
 length = List.length <<< unpack
 
 init : (s : String) -> {{Assert $ nonempty s}} -> String
-init "" = error "Data.String.init: bad argument"
+init "" = panic "Data.String.init: bad argument"
 init s = pack $ List.init (unpack s) {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}

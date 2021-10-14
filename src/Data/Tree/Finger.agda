@@ -169,14 +169,14 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons empty = error "Data.Tree.Finger.uncons: bad argument"
+uncons empty = panic "Data.Tree.Finger.uncons: bad argument"
 uncons (singleton x) = (x , empty)
 uncons (deep _ (one x) m sf) = (x , rotL m sf)
 uncons (deep _ (two a b) m sf) = (a , mkDeep (one b) m sf)
 uncons (deep _ (three a b c) m sf) = (a , mkDeep (two b c) m sf)
 uncons (deep _ (four a b c d) m sf) = (a , mkDeep (three b c d) m sf)
 
-unsnoc empty = error "Data.Tree.Finger.unsnoc: bad argument"
+unsnoc empty = panic "Data.Tree.Finger.unsnoc: bad argument"
 unsnoc (singleton x) = (empty , x)
 unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
 unsnoc (deep _ pr m (two a b)) = (mkDeep pr m (one a) , b)
@@ -230,7 +230,7 @@ splitTree p i (deep _ pr m sf) =
         (toSplit l x r) -> toSplit (mkDeepR pr ml l) x (mkDeepL r mr sf))
     else (case splitDigit p vm sf of \ where
       (toSplit l x r) -> toSplit (mkDeepR pr  m  l) x (maybe empty digitToTree r))
-splitTree _ _ _ = error "Data.Tree.Fingered.splitTree: bad argument"
+splitTree _ _ _ = panic "Data.Tree.Fingered.splitTree: bad argument"
 
 split : {{Measured v a}}
   -> (v -> Bool)
@@ -275,7 +275,7 @@ private
           (toSplit l x r) -> toSplit (mkDeepR pr  ml l) x (mkDeepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
         (toSplit l x r) -> toSplit (mkDeepR pr m l) x (maybe empty digitToTree r))
-  searchTree _ _ _ _ = error "Data.Tree.Finger.searchTree: bad argument"
+  searchTree _ _ _ _ = panic "Data.Tree.Finger.searchTree: bad argument"
 
 search : {{Measured v a}}
   -> (v -> v -> Bool)

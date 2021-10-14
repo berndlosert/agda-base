@@ -71,19 +71,19 @@ fromMaybe (just x) = x :: []
 -------------------------------------------------------------------------------
 
 head : (xs : List a) -> {{Assert $ nonempty xs}} -> a
-head [] = error "Data.List.head: bad argument"
+head [] = panic "Data.List.head: bad argument"
 head (x :: _) = x
 
 tail : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
-tail [] = error "Data.List.tail: bad argument"
+tail [] = panic "Data.List.tail: bad argument"
 tail (_ :: xs) = xs
 
 uncons : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair a (List a)
-uncons [] = error "Data.List.uncons: bad argument"
+uncons [] = panic "Data.List.uncons: bad argument"
 uncons (x :: xs) = (x , xs)
 
 unsnoc : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair (List a) a
-unsnoc [] = error "Data.List.unsnoc: bad argument"
+unsnoc [] = panic "Data.List.unsnoc: bad argument"
 unsnoc xs = fromJust (foldr go nothing xs) {{trustMe}}
   where
     go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
@@ -91,7 +91,7 @@ unsnoc xs = fromJust (foldr go nothing xs) {{trustMe}}
     go x (just (xs , e)) = just (x :: xs , e)
 
 init : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
-init [] = error "Data.List.init: bad argument"
+init [] = panic "Data.List.init: bad argument"
 init (x :: []) = []
 init (x :: xs@(_ :: _)) = x :: init xs
 
@@ -157,11 +157,11 @@ splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
 at : (n : Nat) -> (xs : List a) -> {{Assert $ n < length xs}} -> a
-at _ [] = error "Data.List.at: bad argument"
+at _ [] = panic "Data.List.at: bad argument"
 at 0 (x :: []) = x
-at 0 (x :: _) = error "Data.List.at: bad argument"
+at 0 (x :: _) = panic "Data.List.at: bad argument"
 at (suc n) (x :: y :: ys) = at n (y :: ys) {{trustMe}}
-at (suc n) (x :: _) = error "Data.List.at: bad argument"
+at (suc n) (x :: _) = panic "Data.List.at: bad argument"
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
