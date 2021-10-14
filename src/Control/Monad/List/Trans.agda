@@ -112,10 +112,10 @@ instance
   MonadIO-ListT : {{MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
 
-  MonadThrow-ListT : {{MonadThrow e m}} -> MonadThrow e (ListT m)
+  MonadThrow-ListT : {{MonadThrow m}} -> MonadThrow (ListT m)
   MonadThrow-ListT .throw e .runListT = throw e
 
-  MonadCatch-ListT : {{MonadCatch e m}} -> MonadCatch e (ListT m)
+  MonadCatch-ListT : {{MonadCatch m}} -> MonadCatch (ListT m)
   MonadCatch-ListT .catch m handler .runListT =
     catch (runListT m) (runListT <<< handler)
 

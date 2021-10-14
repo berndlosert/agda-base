@@ -33,10 +33,10 @@ postulate
 -- MonadThrow
 -------------------------------------------------------------------------------
 
-record MonadThrow (e : Set) (m : Set -> Set) : Set where
+record MonadThrow (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
-    throw : e -> m a
+    throw : {{Exception e}} -> e -> m a
 
 open MonadThrow {{...}} public
 
@@ -44,25 +44,25 @@ open MonadThrow {{...}} public
 -- MonadCatch
 -------------------------------------------------------------------------------
 
-record MonadCatch (e : Set) (m : Set -> Set) : Set where
+record MonadCatch (m : Set -> Set) : Set where
   field
-    overlap {{MonadThrow-super}} : MonadThrow e m
-    catch : m a -> (e -> m a) -> m a
+    overlap {{MonadThrow-super}} : MonadThrow m
+    catch : {{Exception e}} -> m a -> (e -> m a) -> m a
 
-  catchJust : (e -> Maybe b) -> m a -> (b -> m a) -> m a
+  catchJust : {{Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
   catchJust p ma handler = catch ma \ e -> maybe (throw e) handler (p e)
 
-  handle : (e -> m a) -> m a -> m a
+  handle : {{Exception e}} -> (e -> m a) -> m a -> m a
   handle = flip catch
 
-  handleJust : (e -> Maybe b) -> (b -> m a) -> m a -> m a
+  handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
   handleJust = flip <<< catchJust
 
-  try : m a -> m (Either e a)
-  try ma = catch (map right ma) (pure <<< left)
+  try : {{Exception e}} -> m a -> m (Either e a)
+  try m = catch (map right m) (pure <<< left)
 
-  tryJust : (e -> Maybe b) -> m a -> m (Either b a)
-  tryJust p ma = try ma >>= \ where
+  tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
+  tryJust p m = try m >>= \ where
     (right v) -> pure (right v)
     (left e) -> maybe (throw e) (pure <<< left) (p e)
 
@@ -72,16 +72,16 @@ open MonadCatch {{...}} public
 -- MonadBracket
 -------------------------------------------------------------------------------
 
-data ExitCase (e a : Set) : Set where
-  exitCaseSuccess : a -> ExitCase e a
-  exitCaseException : e -> ExitCase e a
-  exitCaseAbort : ExitCase e a
+data ExitCase (a : Set) : Set where
+  exitCaseSuccess : a -> ExitCase a
+  exitCaseException : SomeException -> ExitCase a
+  exitCaseAbort : ExitCase a
 
-record MonadBracket (e : Set) (m : Set -> Set) : Set where
+record MonadBracket (m : Set -> Set) : Set where
   field
     overlap {{Monad-super}} : Monad m
     generalBracket : m a
-      -> (a -> ExitCase e b -> m c)
+      -> (a -> ExitCase b -> m c)
       -> (a -> m b)
       -> m (Pair b c)
 
@@ -122,35 +122,17 @@ private
   postulate
     throwIO : {{Exception e}} -> e -> IO a
     catchIO : {{Exception e}} -> IO a -> (e -> IO a) -> IO a
-    generalBracketIO : IO a -> (a -> ExitCase SomeException b -> IO c)
+    generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
       -> (a -> IO b) -> IO (Pair b c)
 
 instance
-  MonadThrow-Either : MonadThrow e (Either e)
-  MonadThrow-Either .throw = left
-
-  MonadThrow-IO : {{Exception e}} -> MonadThrow e IO
+  MonadThrow-IO : MonadThrow IO
   MonadThrow-IO .throw = throwIO
 
-  MonadCatch-Either : MonadCatch e (Either e)
-  MonadCatch-Either .catch (left e) f = f e
-  MonadCatch-Either .catch x _ = x
-
-  MonadCatch-IO : {{Exception e}} -> MonadCatch e IO
+  MonadCatch-IO : MonadCatch IO
   MonadCatch-IO .catch = catchIO
 
-  MonadBracket-Either : MonadBracket e (Either e)
-  MonadBracket-Either .generalBracket acquire release use =
-    case acquire of \ where
-      (left e) -> left e
-      (right resource) ->
-        case use resource of \ where
-          (left e) -> release resource (exitCaseException e) >> left e
-          (right b) -> do
-            c <- release resource (exitCaseSuccess b)
-            pure (b , c)
-
-  MonadBracket-IO : MonadBracket SomeException IO
+  MonadBracket-IO : MonadBracket IO
   MonadBracket-IO .generalBracket = generalBracketIO
 
 -------------------------------------------------------------------------------
@@ -163,13 +145,13 @@ instance
 
   data ExceptionDict e = Exception e => ExceptionDict
 
-  data ExitCase e a
+  data ExitCase a
     = ExitCaseSuccess a
-    | ExitCaseException e
+    | ExitCaseException SomeException
     | ExitCaseAbort
 
   generalBracket ::
-    IO a -> (a -> ExitCase SomeException b -> IO c) -> (a -> IO b) -> IO (b, c)
+    IO a -> (a -> ExitCase b -> IO c) -> (a -> IO b) -> IO (b, c)
   generalBracket acquire release use = mask $ \ unmasked -> do
     resource <- acquire
     b <- unmasked (use resource) `catch` \ e -> do

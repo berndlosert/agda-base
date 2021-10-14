@@ -146,10 +146,10 @@ instance
   MonadIO-IterT : {{MonadIO m}} -> MonadIO (IterT m)
   MonadIO-IterT .liftIO = lift <<< liftIO
 
-  MonadThrow-IterT : {{MonadThrow e m}} -> MonadThrow e (IterT m)
+  MonadThrow-IterT : {{MonadThrow m}} -> MonadThrow (IterT m)
   MonadThrow-IterT .throw = lift <<< throw
 
-  MonadCatch-IterT : {{MonadCatch e m}} -> MonadCatch e (IterT m)
+  MonadCatch-IterT : {{MonadCatch m}} -> MonadCatch (IterT m)
   MonadCatch-IterT .catch = fix \ where
     go iter f -> toIterT $
       catch (map (flip go f) <$> runIterT iter) (runIterT <<< f)
