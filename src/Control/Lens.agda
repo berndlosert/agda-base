@@ -148,65 +148,65 @@ iso : (s -> a) -> (b -> t) -> Iso s t a b
 iso f g = dimap f (map g)
 
 -------------------------------------------------------------------------------
--- Getting operations
+-- AGetter operations
 -------------------------------------------------------------------------------
 
-Getting : (r s a : Set) -> Set
-Getting r s a = (a -> Const r a) -> s -> Const r s
+AGetter : (r s a : Set) -> Set
+AGetter r s a = (a -> Const r a) -> s -> Const r s
 
-to : (s -> a) -> Getting r s a
+to : (s -> a) -> AGetter r s a
 to f k = toConst <<< getConst <<< k <<< f
 
-view : Getting a s a -> s -> a
+view : AGetter a s a -> s -> a
 view g = getConst <<< g toConst
 
-foldMapOf : Getting r s a -> (a -> r) -> s -> r
+foldMapOf : AGetter r s a -> (a -> r) -> s -> r
 foldMapOf g k = getConst <<< g (toConst <<< k)
 
-foldOf : Getting a s a -> s -> a
+foldOf : AGetter a s a -> s -> a
 foldOf l = getConst <<< l toConst
 
-foldrOf : Getting (Endo r) s a -> (a -> r -> r) -> r -> s -> r
+foldrOf : AGetter (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l f z = flip appEndo z <<< foldMapOf l (toEndo <<< f)
 
-foldlOf : Getting (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
+foldlOf : AGetter (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
 foldlOf l f z =
   map (flip appEndo z <<< getDual) (foldMapOf l (toDual <<< toEndo <<< flip f))
 
-foldlMOf : {{Monad m}} -> Getting (Endo (r -> m r)) s a
+foldlMOf : {{Monad m}} -> AGetter (Endo (r -> m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
 foldlMOf l f z0 xs = foldrOf l (\ x k z -> f z x >>= k) pure xs z0
 
-toListOf : Getting (Endo (List a)) s a -> s -> List a
+toListOf : AGetter (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
-has : Getting Any s a -> s -> Bool
+has : AGetter Any s a -> s -> Bool
 has l = getAny <<< foldMapOf l (\ _ -> toAny true)
 
-hasn't : Getting All s a -> s -> Bool
+hasn't : AGetter All s a -> s -> Bool
 hasn't l = getAll <<< foldMapOf l (\ _ -> toAll false)
 
-lengthOf : Getting (Dual (Endo Nat)) s a -> s -> Nat
+lengthOf : AGetter (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
-preview : Getting (Maybe (First a)) s a -> s -> Maybe a
+preview : AGetter (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (just <<< toFirst)
 
-firstOf : Getting (First a) s a -> s -> a
+firstOf : AGetter (First a) s a -> s -> a
 firstOf l = getFirst <<< foldMapOf l toFirst
 
-lastOf : Getting (Last a) s a -> s -> a
+lastOf : AGetter (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l toLast
 
-findOf : Getting (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
+findOf : AGetter (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
 findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing
 
 traverseOf! : {{Functor f}}
-  -> Getting (f r) s a -> (a -> f r) -> s -> f Unit
+  -> AGetter (f r) s a -> (a -> f r) -> s -> f Unit
 traverseOf! l f = map (const tt) <<< foldMapOf l f
 
 forOf! : {{Functor f}}
-  -> Getting (f r) s a -> s -> (a -> f r) -> f Unit
+  -> AGetter (f r) s a -> s -> (a -> f r) -> f Unit
 forOf! = flip <<< traverseOf!
 
 -------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ mapped : {{Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
 
 record Folded (s a : Set) : Set where
-  field folded : {{Monoid r}} -> Getting r s a
+  field folded : {{Monoid r}} -> AGetter r s a
 
 open Folded {{...}} public
 
