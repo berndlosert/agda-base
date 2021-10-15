@@ -8,8 +8,8 @@ module Data.Tree.Unbalanced.Binary where
 
 open import Prelude hiding (map)
 
-open import Constraint.NonEmpty
 open import Data.Foldable
+open import Data.NonEmpty
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

@@ -8,10 +8,10 @@ module Data.List where
 
 open import Prelude
 
-open import Constraint.NonEmpty
-open import Data.Monoid.Endo
 open import Data.Filterable
 open import Data.Foldable
+open import Data.Monoid.Endo
+open import Data.NonEmpty
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

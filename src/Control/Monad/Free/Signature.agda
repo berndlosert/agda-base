@@ -9,6 +9,7 @@ module Control.Monad.Free.Signature where
 open import Prelude
 
 open import Control.Recursion
+open import Data.Dictionary
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -36,22 +37,19 @@ inn : Operation sig (Free sig a) -> Free sig a
 inn (operation symb arg) = roll symb (arg >>> unFree)
 
 private
-  pureFree : a -> Free sig a
-  pureFree x = finished x absurd
-
-  bindFree : Free sig a -> (a -> Free sig b) -> Free sig b
-  bindFree (finished x _) k = k x
-  bindFree (roll symb arg) k =
-    let arg' x = bindFree (toFree (arg x)) k
+  MonadDict-Free : Dict Monad (Free sig)
+  MonadDict-Free .return x = finished x absurd
+  MonadDict-Free .bind (finished x _) k = k x
+  MonadDict-Free .bind (roll symb arg) k =
+    let arg' x = MonadDict-Free .bind (toFree (arg x)) k
     in inn (operation symb arg')
 
 instance
-  Functor-Free : Functor (Free sig)
-  Functor-Free .map f xs = bindFree xs (pureFree <<< f)
+  Monad-Free : Monad (Free sig)
+  Monad-Free = fromDict MonadDict-Free
 
   Applicative-Free : Applicative (Free sig)
-  Applicative-Free .pure = pureFree
-  Applicative-Free ._<*>_ fs xs = bindFree fs \ f -> map (f $_) xs
+  Applicative-Free = Monad-Free .Applicative-super
 
-  Monad-Free : Monad (Free sig)
-  Monad-Free ._>>=_ = bindFree
+  Functor-Free : Functor (Free sig)
+  Functor-Free = Applicative-Free .Functor-super

@@ -8,9 +8,9 @@ module Data.Tree.Finger where
 
 open import Prelude
 
-open import Constraint.NonEmpty
 open import Data.Foldable
 open import Data.Monoid.Sum
+open import Data.NonEmpty
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured

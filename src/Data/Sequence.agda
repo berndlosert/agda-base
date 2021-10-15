@@ -8,11 +8,11 @@ module Data.Sequence where
 
 open import Prelude
 
-open import Constraint.NonEmpty
 open import Control.Alternative
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
+open import Data.NonEmpty
 open import Data.Traversable
 open import Data.Tree.Finger as Tree using (FingerTree)
 open import Data.Sequence.Elem

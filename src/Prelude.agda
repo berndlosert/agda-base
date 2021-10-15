@@ -130,7 +130,7 @@ unsafePerform : ({{Partial}} -> a) -> a
 unsafePerform x = x {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text #-}
-{-# COMPILE GHC panic = \ _ s -> panic (Data.Text.unpack s) #-}
+{-# COMPILE GHC panic = \ _ s -> error (Data.Text.unpack s) #-}
 
 -------------------------------------------------------------------------------
 -- Function primitives
@@ -856,12 +856,12 @@ instance
 -- Semigroupoid
 -------------------------------------------------------------------------------
 
-record Semigroupoid (p : Set -> Set -> Set) : Set where
+record Semigroupoid {k : Set} (p : k -> k -> Set) : Set where
   infixr 9 _<<<_
-  field _<<<_ : p b c -> p a b -> p a c
+  field _<<<_ : {a b c : k} -> p b c -> p a b -> p a c
 
   infixr 9 _>>>_
-  _>>>_ : p a b -> p b c -> p a c
+  _>>>_ : {a b c : k} -> p a b -> p b c -> p a c
   _>>>_ = flip _<<<_
 
 open Semigroupoid {{...}} public
@@ -874,10 +874,10 @@ instance
 -- Category
 -------------------------------------------------------------------------------
 
-record Category (p : Set -> Set -> Set) : Set where
+record Category {k : Set} (p : k -> k -> Set) : Set where
   field
     {{Semigroupoid-super}} : Semigroupoid p
-    id : p a a
+    id : {a : k} -> p a a
 
 open Category {{...}} public
 

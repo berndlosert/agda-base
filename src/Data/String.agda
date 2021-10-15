@@ -9,9 +9,9 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String
-open import Constraint.NonEmpty
 open import Data.Char as Char using ()
 open import Data.List as List using ()
+open import Data.NonEmpty
 
 -------------------------------------------------------------------------------
 -- Variables
