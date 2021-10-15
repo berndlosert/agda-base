@@ -35,7 +35,7 @@ open Dictionary {{...}} public
 record SemigroupDict (a : Set) : Set where
   field combine : a -> a -> a
 
-open SemigroupDict
+open SemigroupDict public
 
 instance
   Dictionary-Semigroup : Dictionary Semigroup
