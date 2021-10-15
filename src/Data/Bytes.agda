@@ -33,7 +33,6 @@ postulate
   singleton : Word8 -> Bytes
   foldr : (Word8 -> a -> a) -> a -> Bytes -> a
   null : Bytes -> Bool
-  showsPrecBytes : Nat -> Bytes -> ShowS
 
 instance
   Semigroup-Bytes : Semigroup Bytes
