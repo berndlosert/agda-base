@@ -9,6 +9,7 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
+open import Data.Dictionary
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -19,6 +20,11 @@ open Agda.Builtin.Reflection public
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
+
+private
+  MonadDict-TC : Dict Monad TC
+  MonadDict-TC .bind = bindTC
+  MonadDict-TC .return = returnTC
 
 instance
   Eq-Name : Eq Name
@@ -36,15 +42,11 @@ instance
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)
 
-  Functor-TC : Functor TC
-  Functor-TC .map f m = bindTC m (f >>> returnTC)
+  Monad-TC : Monad TC
+  Monad-TC = fromDict MonadDict-TC
 
   Applicative-TC : Applicative TC
-  Applicative-TC .pure = returnTC
-  Applicative-TC ._<*>_ m k =
-    bindTC m \ f -> bindTC k \ x -> pure (f x)
+  Applicative-TC = Monad-TC .Applicative-super
 
-  Monad-TC : Monad TC
-  Monad-TC ._>>=_ = bindTC
-
-
+  Functor-TC : Functor TC
+  Functor-TC = Applicative-TC .Functor-super
