@@ -31,13 +31,7 @@ instance
   Eq-Name ._==_ = primQNameEquality
 
   Ord-Name : Ord Name
-  Ord-Name .compare m n =
-    if m == n
-      then EQ
-      else
-        if primQNameLess m n
-          then LT
-          else GT
+  Ord-Name ._<_ = primQNameLess
 
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)

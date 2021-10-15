@@ -28,7 +28,7 @@ open Down public
 
 instance
   Eq-Down : {{Eq a}} -> Eq (Down a)
-  Eq-Down ._==_ = equating getDown
+  Eq-Down ._==_ = _==_ on getDown
 
   Ord-Down : {{Ord a}} -> Ord (Down a)
-  Ord-Down .compare = flip (comparing getDown)
+  Ord-Down ._<_ = _>_ on getDown

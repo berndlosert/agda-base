@@ -35,10 +35,10 @@ open KeyVal
 
 instance
   Eq-KeyVal : {{Eq a}} -> Eq (KeyVal a b)
-  Eq-KeyVal ._==_ = equating getKey
+  Eq-KeyVal ._==_ = _==_ on getKey
 
   Ord-KeyVal : {{Ord a}} -> Ord (KeyVal a b)
-  Ord-KeyVal .compare = comparing getKey
+  Ord-KeyVal ._<_ = _<_ on getKey
 
 -------------------------------------------------------------------------------
 -- Map

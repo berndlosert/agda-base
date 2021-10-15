@@ -288,7 +288,7 @@ module _ {{_ : Ord a}} where
   sort = sortBy compare
 
   sortOn : (b -> a) -> List b -> List b
-  sortOn f = map snd <<< sortBy (comparing fst) <<< map (pair f id)
+  sortOn f = map snd <<< sortBy (compare on fst) <<< map (pair f id)
 
 -------------------------------------------------------------------------------
 -- Sublists
@@ -312,7 +312,7 @@ group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
 
 groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
-groupOn f = groupBy (equating f) <<< sortBy (comparing f)
+groupOn f = groupBy (_==_ on f) <<< sortBy (compare on f)
 
 chunksOf : Nat -> List a -> List (List a)
 chunksOf n = fix \ where

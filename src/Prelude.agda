@@ -156,6 +156,9 @@ _#_ x f = f x
 case_of_ : a -> (a -> b) -> b
 case_of_ x f = f x
 
+_on_ : (b -> b -> c) -> (a -> b) -> a -> a -> c
+f on g = \ x y -> f (g x) (g y)
+
 {-# TERMINATING #-}
 fix : (a -> a) -> a
 fix f = f (fix f)
@@ -338,9 +341,6 @@ record Eq (a : Set) : Set where
   _/=_ : a -> a -> Bool
   x /= y = if x == y then false else true
 
-  equating : (b -> a) -> b -> b -> Bool
-  equating f x y = f x == f y
-
 open Eq {{...}} public
 
 instance
@@ -407,18 +407,10 @@ instance
 -------------------------------------------------------------------------------
 
 record Ord (a : Set) : Set where
+  infixl 4 _<_
   field
     overlap {{Eq-super}} : Eq a
-    compare : a -> a -> Ordering
-
-  comparing : (b -> a) -> b -> b -> Ordering
-  comparing f x y = compare (f x) (f y)
-
-  infixl 4 _<_
-  _<_ : a -> a -> Bool
-  x < y = case compare x y of \ where
-    LT -> true
-    _ -> false
+    _<_ : a -> a -> Bool
 
   infixl 4 _>_
   _>_ : a -> a -> Bool
@@ -426,9 +418,7 @@ record Ord (a : Set) : Set where
 
   infixl 4 _<=_
   _<=_ : a -> a -> Bool
-  x <= y = case compare x y of \ where
-    GT -> false
-    _ -> true
+  x <= y = x == y || x < y
 
   infixl 4 _>=_
   _>=_ : a -> a -> Bool
@@ -440,80 +430,61 @@ record Ord (a : Set) : Set where
   max : a -> a -> a
   max x y = if x < y then y else x
 
+  compare : a -> a -> Ordering
+  compare x y = if x == y then EQ else if x < y then LT else GT
+
 open Ord {{...}} public
 
 instance
   Ord-Void : Ord Void
-  Ord-Void .compare = \ ()
+  Ord-Void ._<_ = \ ()
 
   Ord-Unit : Ord Unit
-  Ord-Unit .compare tt tt = EQ
+  Ord-Unit ._<_ tt tt = false
 
   Ord-Bool : Ord Bool
-  Ord-Bool .compare false true = LT
-  Ord-Bool .compare true false = GT
-  Ord-Bool .compare _ _ = EQ
+  Ord-Bool ._<_ false true = true
+  Ord-Bool ._<_ _ _ = false
 
   Ord-Ordering : Ord Ordering
-  Ord-Ordering .compare LT EQ = LT
-  Ord-Ordering .compare LT GT = LT
-  Ord-Ordering .compare EQ LT = GT
-  Ord-Ordering .compare EQ GT = LT
-  Ord-Ordering .compare GT LT = GT
-  Ord-Ordering .compare GT EQ = GT
-  Ord-Ordering .compare _ _ = EQ
+  Ord-Ordering ._<_ LT EQ = true
+  Ord-Ordering ._<_ LT GT = true
+  Ord-Ordering ._<_ EQ GT = true
+  Ord-Ordering ._<_ _ _ = false
 
   Ord-Nat : Ord Nat
-  Ord-Nat .compare m n =
-    if m == n then EQ
-    else if Nat._<_ m n then LT
-    else GT
+  Ord-Nat ._<_ = Nat._<_
 
   Ord-Int : Ord Int
-  Ord-Int .compare = \ where
-    (pos m) (pos n) -> compare m n
-    (negsuc m) (negsuc n) -> compare n m
-    (pos _) (negsuc _) -> GT
-    (negsuc _) (pos _) -> LT
+  Ord-Int ._<_ = \ where
+    (pos m) (pos n) -> m < n
+    (negsuc m) (negsuc n) -> n < m
+    (negsuc _) (pos _) -> true
+    _ _ -> false
 
   Ord-Float : Ord Float
-  Ord-Float .compare x y =
-    if x == y then EQ
-    else if Float.primFloatLess x y then LT
-    else GT
+  Ord-Float ._<_ = Float.primFloatLess
 
   Ord-Char : Ord Char
-  Ord-Char .compare l r =
-    let ord = Char.primCharToNat
-    in compare (ord l) (ord r)
+  Ord-Char ._<_ = _<_ on Char.primCharToNat
 
   Ord-List : {{Ord a}} -> Ord (List a)
-  Ord-List .compare [] [] = EQ
-  Ord-List .compare [] (x :: xs) = LT
-  Ord-List .compare (x :: xs) [] = GT
-  Ord-List .compare (x :: xs) (y :: ys) =
-    case compare x y of \ where
-      LT -> LT
-      EQ -> compare xs ys
-      GT -> GT
+  Ord-List ._<_ [] [] = false
+  Ord-List ._<_ [] (_ :: _) = true
+  Ord-List ._<_ (_ :: _) [] = false
+  Ord-List ._<_ (x :: xs) (y :: ys) = x < y && xs < ys
 
   Ord-String : Ord String
-  Ord-String .compare l r =
-    let unpack = String.primStringToList
-    in compare (unpack l) (unpack r)
+  Ord-String ._<_ = _<_ on String.primStringToList
 
   Ord-Pair : {{Ord a}} -> {{Ord b}} -> Ord (Pair a b)
-  Ord-Pair .compare (x , y) (w , z) =
-    case compare x w of \ where
-      LT -> LT
-      GT -> GT
-      EQ -> compare y z
+  Ord-Pair ._<_ (x , y) (w , z) =
+    if x < w then true else if x == w then y < z else false
 
   Ord-Maybe : {{Ord a}} -> Ord (Maybe a)
-  Ord-Maybe .compare nothing nothing = EQ
-  Ord-Maybe .compare nothing _ = LT
-  Ord-Maybe .compare (just x) (just y) = compare x y
-  Ord-Maybe .compare (just _) _ = GT
+  Ord-Maybe ._<_ nothing (just _) = true
+  Ord-Maybe ._<_ (just x) (just y) = x < y
+  Ord-Maybe ._<_ _ _ = false
 
 -------------------------------------------------------------------------------
 -- FromNat

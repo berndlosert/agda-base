@@ -25,7 +25,7 @@ module _ {n : Nat} {{_ : Assert $ divisor n}} where
     Eq-Fin ._==_ (toFin k) (toFin m) = k % n == m % n
 
     Ord-Fin : Ord (Fin n)
-    Ord-Fin .compare (toFin k) (toFin m) = compare (k % n) (m % n)
+    Ord-Fin ._<_ (toFin k) (toFin m) = k % n < m % n
 
     FromNat-Fin : FromNat (Fin n)
     FromNat-Fin .FromNatConstraint _ = Unit

@@ -146,7 +146,7 @@ sublistOf = List.filterA \ _ -> choose (false , true)
 shuffle : List a -> Gen (List a)
 shuffle xs = do
     ns <- vectorOf (List.length xs) (choose (0 , 2^32))
-    pure (map snd (List.sortBy (comparing fst) (List.zip ns xs)))
+    pure (map snd (List.sortBy (compare on fst) (List.zip ns xs)))
   where
     2^32 : Nat
     2^32 = 4294967296
