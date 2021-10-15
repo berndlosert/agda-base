@@ -8,7 +8,6 @@ module Data.Sequence where
 
 open import Prelude
 
-open import Control.Alternative
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum

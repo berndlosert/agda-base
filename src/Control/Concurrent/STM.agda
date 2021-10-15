@@ -8,8 +8,6 @@ module Control.Concurrent.STM where
 
 open import Prelude
 
-open import Control.Alternative
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

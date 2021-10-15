@@ -8,7 +8,6 @@ module Control.Monad.Either.Trans where
 
 open import Prelude
 
-open import Control.Alternative
 open import Control.Exception
 open import Control.Monad.Cont.Class
 open import Control.Monad.Reader.Class

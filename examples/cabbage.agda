@@ -2,7 +2,6 @@
 
 open import Prelude
 
-open import Control.Alternative
 open import Control.Monad.Iter
 open import Data.Foldable
 open import Data.List as List using ()

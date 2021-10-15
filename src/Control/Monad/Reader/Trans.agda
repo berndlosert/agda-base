@@ -8,7 +8,6 @@ module Control.Monad.Reader.Trans where
 
 open import Prelude
 
-open import Control.Alternative
 open import Control.Exception
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class

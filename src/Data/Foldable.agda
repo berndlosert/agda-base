@@ -8,8 +8,6 @@ module Data.Foldable where
 
 open import Prelude
 
-open import Control.Alternative
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

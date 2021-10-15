@@ -8,7 +8,6 @@ module Control.Concurrent.Async where
 
 open import Prelude
 
-open import Control.Alternative
 open import Control.Concurrent
 open import Data.List as List using ()
 open import Data.Foldable

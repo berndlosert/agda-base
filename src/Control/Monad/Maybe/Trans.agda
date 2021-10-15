@@ -8,7 +8,6 @@ module Control.Monad.Maybe.Trans where
 
 open import Prelude
 
-open import Control.Alternative
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
 open import Data.Foldable

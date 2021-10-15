@@ -8,18 +8,11 @@ module String.Parser where
 
 open import Prelude hiding (bool)
 
-open import Control.Alternative
 open import Data.Char as Char using ()
 open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Control.Alternative public
 
 -------------------------------------------------------------------------------
 -- Variables
