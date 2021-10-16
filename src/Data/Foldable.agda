@@ -32,10 +32,9 @@ record Foldable (t : Set -> Set) : Set where
   foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
   foldMapBy {b} f z = foldMap {{monoid}}
     where
-      instance
-        monoid : Monoid b
-        monoid .Semigroup-super ._<>_ = f
-        monoid .mempty = z
+      monoid : Monoid b
+      monoid .Semigroup-super ._<>_ = f
+      monoid .mempty = z
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
