@@ -1079,6 +1079,9 @@ record Alternative (f : Set -> Set) : Set where
   guard true = pure tt
   guard false = azero
 
+  guarded : (a -> Bool) -> a -> f a
+  guarded p x = if p x then pure x else azero
+
 open Alternative {{...}} public
 
 instance
