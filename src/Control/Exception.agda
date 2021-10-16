@@ -62,9 +62,11 @@ record MonadCatch (m : Set -> Set) : Set where
   try m = catch (map right m) (pure <<< left)
 
   tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
-  tryJust p m = try m >>= \ where
-    (right v) -> pure (right v)
-    (left e) -> maybe (throw e) (pure <<< left) (p e)
+  tryJust p m = do
+    res <- try m
+    case res of \ where
+      (right v) -> pure (right v)
+      (left e) -> maybe (throw e) (pure <<< left) (p e)
 
 open MonadCatch {{...}} public
 

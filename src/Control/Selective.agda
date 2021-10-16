@@ -56,11 +56,11 @@ whileS = fix \ where
   go act -> whenS act (go act)
 
 selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
-selectM mx mf = do
-  result <- mx
-  case result of \ where
+selectM m k = do
+  res <- m
+  case res of \ where
     (left x) -> do
-      f <- mf
+      f <- k
       pure (f x)
     (right x) -> pure x
 

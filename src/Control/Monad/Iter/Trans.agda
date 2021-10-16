@@ -90,13 +90,13 @@ instance
   Alternative-IterT .azero = never
   Alternative-IterT ._<|>_ = fix \ where
     go l r -> toIterT do
-      resultl <- runIterT l
-      case resultl of \ where
+      resl <- runIterT l
+      case resl of \ where
         (left _) -> pure resultl
         (right l') -> do
-          resultr <- runIterT r
-          case resultr of \ where
-            (left _) -> pure resultr
+          resr <- runIterT r
+          case resr of \ where
+            (left _) -> pure resr
             (right r') -> pure $ right (go l' r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
