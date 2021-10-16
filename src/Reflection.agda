@@ -9,7 +9,6 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
-open import Data.Dictionary
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -20,11 +19,6 @@ open Agda.Builtin.Reflection public
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
-
-private
-  MonadDict-TC : Dict Monad TC
-  MonadDict-TC .bind = bindTC
-  MonadDict-TC .return = returnTC
 
 instance
   Eq-Name : Eq Name
@@ -37,7 +31,7 @@ instance
   Show-Name .showsPrec d n = showString (primShowQName n)
 
   Monad-TC : Monad TC
-  Monad-TC = fromDict MonadDict-TC
+  Monad-TC = asMonad bindTC returnTC
 
   Applicative-TC : Applicative TC
   Applicative-TC = Monad-TC .Applicative-super
