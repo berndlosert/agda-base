@@ -161,7 +161,7 @@ view : AGetter a s a -> s -> a
 view g = getConst <<< g toConst
 
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
-foldMapOf g step = getConst <<< g (toConst <<< step)
+foldMapOf l step = getConst <<< l (toConst <<< step)
 
 foldOf : AGetter a s a -> s -> a
 foldOf l = getConst <<< l toConst
