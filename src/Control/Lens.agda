@@ -161,21 +161,23 @@ view : AGetter a s a -> s -> a
 view g = getConst <<< g toConst
 
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
-foldMapOf g k = getConst <<< g (toConst <<< k)
+foldMapOf g step = getConst <<< g (toConst <<< step)
 
 foldOf : AGetter a s a -> s -> a
 foldOf l = getConst <<< l toConst
 
 foldrOf : AGetter (Endo r) s a -> (a -> r -> r) -> r -> s -> r
-foldrOf l f z = flip appEndo z <<< foldMapOf l (toEndo <<< f)
+foldrOf l step init = flip appEndo init <<< foldMapOf l (toEndo <<< step)
 
 foldlOf : AGetter (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
-foldlOf l f z =
-  map (flip appEndo z <<< getDual) (foldMapOf l (toDual <<< toEndo <<< flip f))
+foldlOf l step init =
+  map
+    (flip appEndo init <<< getDual)
+    (foldMapOf l (toDual <<< toEndo <<< flip step))
 
 foldlMOf : {{Monad m}} -> AGetter (Endo (r -> m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
-foldlMOf l f z0 xs = foldrOf l (\ x k z -> f z x >>= k) pure xs z0
+foldlMOf l step init xs = foldrOf l (\ x k acc -> step acc x >>= k) pure xs init
 
 toListOf : AGetter (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
