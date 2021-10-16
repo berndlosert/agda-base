@@ -343,6 +343,9 @@ record Eq (a : Set) : Set where
 
 open Eq {{...}} public
 
+asEq : (a -> a -> Bool) -> Eq a
+asEq eq ._==_ = eq
+
 instance
   Eq-Void : Eq Void
   Eq-Void ._==_ = \ ()
@@ -434,6 +437,10 @@ record Ord (a : Set) : Set where
   compare x y = if x == y then EQ else if x < y then LT else GT
 
 open Ord {{...}} public
+
+asOrd : (a -> a -> Ordering) -> Ord a
+asOrd cmp ._<_ x y = if cmp x y == LT then true else false
+asOrd cmp .Eq-super ._==_ x y = if cmp x y == EQ then true else false
 
 instance
   Ord-Void : Ord Void
@@ -740,6 +747,9 @@ record Semigroup (a : Set) : Set where
 
 open Semigroup {{...}} public
 
+asSemigroup : (a -> a -> a) -> Semigroup a
+asSemigroup f ._<>_ = f
+
 instance
   Semigroup-Void : Semigroup Void
   Semigroup-Void ._<>_ = \ ()
@@ -797,6 +807,10 @@ record Monoid (a : Set) : Set where
   mtimes (suc n) x = x <> mtimes n x
 
 open Monoid {{...}} public
+
+asMonoid : (a -> a -> a) -> a -> Monoid a
+asMonoid f z .mempty = z
+asMonoid f z .Semigroup-super ._<>_ = f
 
 instance
   Monoid-Unit : Monoid Unit
@@ -886,6 +900,9 @@ record Functor (f : Set -> Set) : Set where
   vacuous = map \ ()
 
 open Functor {{...}} public
+
+asFunctor : (forall {a} {b} -> (a -> b) -> f a -> f b) -> Functor f
+asFunctor fmap .map = fmap
 
 instance
   Functor-Function : Functor (Function a)
@@ -994,11 +1011,18 @@ record Applicative (f : Set -> Set) : Set where
   unless : Bool -> f Unit -> f Unit
   unless p x = if p then pure tt else x
 
+  forever : f a -> f b
+  forever = fix \ where
+    go x -> x *> go x
+
 open Applicative {{...}} public
 
-forever : {{Applicative f}} -> f a -> f b
-forever = fix \ where
-  go x -> x *> go x
+asApplicative : (forall {a} {b} -> f (a -> b) -> f a -> f b)
+  -> (forall {a} -> a -> f a)
+  -> Applicative f
+asApplicative ap pure' ._<*>_ = ap
+asApplicative ap pure' .pure = pure'
+asApplicative ap pure' .Functor-super .map = ap <<< pure'
 
 instance
   Applicative-Function : Applicative (Function a)
@@ -1088,6 +1112,16 @@ record Monad (m : Set -> Set) : Set where
   join = _>>= id
 
 open Monad {{...}} public
+
+asMonad : (forall {a} {b} -> m a -> (a -> m b) -> m b)
+  -> (forall {a} -> a -> m a)
+  -> Monad m
+asMonad bind return ._>>=_ = bind
+asMonad bind return .Applicative-super ._<*>_ l r =
+  bind l \ f -> bind r \ x -> return (f x)
+asMonad bind return .Applicative-super .pure = return
+asMonad bind return .Applicative-super .Functor-super .map f x =
+  bind x (return <<< f)
 
 instance
   Monad-Function : Monad (Function a)
