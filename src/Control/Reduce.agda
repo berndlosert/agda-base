@@ -76,12 +76,12 @@ Transducer a b = forall {c} -> Reducer b c -> Reducer a c
 
 reduce : {{Foldable t}} -> Reducer a b -> t a -> b
 reduce {t} {a} {b} (reducer {c} init step done) xs =
-    foldr go done xs init
+    foldr step' done xs init
   where
-    go : a -> (c -> b) -> c -> b
-    go x k z = case step z x of \ where
-      (reduced true y) -> done y
-      (reduced false y) -> k $! y
+    step' : a -> (c -> b) -> c -> b
+    step' x k acc = case step acc x of \ where
+      (reduced true acc') -> done acc'
+      (reduced false acc') -> k $! acc'
 
 transduce : {{Foldable t}} -> Transducer a b -> Reducer b c -> t a -> c
 transduce t r = reduce (t r)
@@ -92,28 +92,30 @@ transduce t r = reduce (t r)
 
 reducer' : c -> (c -> a -> c) -> (c -> b) -> Reducer a b
 reducer' {c} {a} init step done =
-  let step' z x = reduced false (step z x)
+  let step' acc x = reduced false (step acc x)
   in reducer init step' done
 
 intoFold : (b -> a -> b) -> b -> Reducer a b
 intoFold step init = reducer' init step id
 
 intoFoldMap : {{Monoid c}} -> (a -> c) -> (c -> b) -> Reducer a b
-intoFoldMap f = reducer' mempty (\ z x -> z <> f x)
+intoFoldMap f =
+  let step acc x = acc <> f x
+  in reducer' mempty step
 
 mapping : (a -> b) -> Transducer a b
 mapping f (reducer init step done) =
-  let step' z x = step z (f x)
+  let step' acc x = step acc (f x)
   in reducer init step' done
 
 filtering : (a -> Bool) -> Transducer a a
 filtering p (reducer init step done) =
-  let step' z x = if p x then step z x else reduced false z
+  let step' acc x = if p x then step acc x else reduced false acc
   in reducer init step' done
 
 concatMapping : {{Foldable t}} -> (a -> t b) -> Transducer a b
 concatMapping f (reducer init step done) =
-  let step' z x = reduced false (reduce (reducer z step id) (f x))
+  let step' acc x = reduced false (reduce (reducer acc step id) (f x))
   in reducer init step' done
 
 taking : Nat -> Transducer a a
@@ -123,17 +125,17 @@ taking n (reducer init step done) = reducer init' step' done'
     init' = (n , init)
 
     step' : _
-    step' (0 , z) x = reduced true (0 , z)
-    step' (suc m , z) x = case step z x of \ where
-      (reduced true z') -> reduced true (suc m , z')
-      (reduced false z') -> reduced false (m , z')
+    step' (0 , acc) x = reduced true (0 , acc)
+    step' (suc m , acc) x = case step acc x of \ where
+      (reduced true acc') -> reduced true (suc m , acc')
+      (reduced false acc') -> reduced false (m , acc')
 
     done' : _
-    done' (_ , z) = done z
+    done' (_ , acc) = done acc
 
 takingWhile : (a -> Bool) -> Transducer a a
 takingWhile p (reducer init step done) =
-  let step' z x = if p x then step z x else reduced true z
+  let step' acc x = if p x then step acc x else reduced true acc
   in reducer init step' done
 
 dropping : Nat -> Transducer a a
@@ -143,11 +145,11 @@ dropping n (reducer init step done) = reducer init' step' done'
     init' = (n , init)
 
     step' : _
-    step' (0 , z) x = map (0 ,_) (step z x)
-    step' (suc n' , z) x = reduced false (n' , z)
+    step' (0 , acc) x = map (0 ,_) (step acc x)
+    step' (suc n' , acc) x = reduced false (n' , acc)
 
     done' : _
-    done' (_ , z) = done z
+    done' (_ , acc) = done acc
 
 droppingWhile : (a -> Bool) -> Transducer a a
 droppingWhile p (reducer init step done) = reducer init' step' done'
@@ -156,14 +158,14 @@ droppingWhile p (reducer init step done) = reducer init' step' done'
     init' = (false , init)
 
     step' : _
-    step' (false , z) x =
+    step' (false ,  acc) x =
       if p x
-        then reduced false (false , z)
-        else map (true ,_) (step z x)
-    step' (true , z) x = map (true ,_) (step z x)
+        then reduced false (false , acc)
+        else map (true ,_) (step acc x)
+    step' (true , acc) x = map (true ,_) (step acc x)
 
     done' : _
-    done' (_ , z) = done z
+    done' (_ , acc) = done acc
 
 -------------------------------------------------------------------------------
 -- Some reducers
@@ -173,19 +175,19 @@ intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoList : Reducer a (List a)
-intoList = reducer' id (\ z x -> z <<< (x ::_)) (_$ [])
+intoList = reducer' id (\ acc x -> acc <<< (x ::_)) (_$ [])
 
 intoNull : Reducer a Bool
 intoNull = reducer true (\ _ _ -> reduced true false) id
 
 intoAnd : Reducer Bool Bool
 intoAnd =
-  let step z x = if x then reduced false z else reduced true x
+  let step acc x = if x then reduced false acc else reduced true x
   in reducer false step id
 
 intoOr : Reducer Bool Bool
 intoOr =
-  let step z x = if x then reduced true x else reduced false z
+  let step acc x = if x then reduced true x else reduced false acc
   in reducer false step id
 
 intoAll : (a -> Bool) -> Reducer a Bool
@@ -213,33 +215,33 @@ intoFind : (a -> Bool) -> Reducer a (Maybe a)
 intoFind p = filtering p intoFirst
 
 intoMinimum : {{Ord a}} -> Reducer a (Maybe a)
-intoMinimum {a} = intoFold go nothing
+intoMinimum {a} = intoFold step nothing
   where
-    go : Maybe a -> a -> Maybe a
-    go nothing x = just x
-    go (just x) y = just (min x y)
+    step : Maybe a -> a -> Maybe a
+    step nothing x = just x
+    step (just acc) x = just (min acc x)
 
 intoMaximum : {{Ord a}} -> Reducer a (Maybe a)
-intoMaximum {a} = intoFold go nothing
+intoMaximum {a} = intoFold step nothing
   where
-    go : Maybe a -> a -> Maybe a
-    go nothing x = just x
-    go (just x) y = just (max x y)
+    step : Maybe a -> a -> Maybe a
+    step nothing x = just x
+    step (just acc) x = just (max acc x)
 
 intoMinimumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
-intoMinimumBy {a} cmp = intoFold go nothing
+intoMinimumBy {a} cmp = intoFold step nothing
   where
-    go : Maybe a -> a -> Maybe a
-    go nothing x = just x
-    go (just x) y = just $ case cmp x y of \ where
-      GT -> y
-      _ -> x
+    step : Maybe a -> a -> Maybe a
+    step nothing x = just x
+    step (just acc) x = just $ case cmp acc x of \ where
+      GT -> x
+      _ -> acc
 
 intoMaximumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
-intoMaximumBy {a} cmp = intoFold go nothing
+intoMaximumBy {a} cmp = intoFold step nothing
   where
-    go : Maybe a -> a -> Maybe a
-    go nothing x = just x
-    go (just x) y = just $ case cmp x y of \ where
-      LT -> y
-      _ -> x
+    step : Maybe a -> a -> Maybe a
+    step nothing x = just x
+    step (just acc) x = just $ case cmp acc x of \ where
+      LT -> x
+      _ -> acc
