@@ -450,7 +450,7 @@ instance
   Ord-Void ._<_ = \ ()
 
   Ord-Unit : Ord Unit
-  Ord-Unit ._<_ tt tt = false
+  Ord-Unit ._<_ _ _ = false
 
   Ord-Bool : Ord Bool
   Ord-Bool ._<_ false true = true
