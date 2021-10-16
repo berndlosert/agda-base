@@ -277,9 +277,10 @@ open Testable {{...}} public
 
 forAll : {{Show a}} -> {{Testable b}} -> Gen a -> (a -> b) -> Property
 forAll gen body = toProperty do
-  a <- gen
-  res <- unProperty $ property (body a)
-  pure $ map (\ res -> record res { arguments = show a :: Result.arguments res }) res
+  x <- gen
+  res <- unProperty $ property (body x)
+  let updateRes res = record res { arguments = show x :: Result.arguments res }
+  pure (map updateRes res)
 
 infixr 0 _==>_
 _==>_ : {{Testable a}} -> Bool -> a -> Property
