@@ -74,9 +74,9 @@ instance
   Monad-Vector ._>>=_ m k = diag (map k m)
 
   Foldable-Vector : Foldable (Vector n)
-  Foldable-Vector .foldr f z = \ where
-    [] -> z
-    (x :: xs) -> f x (foldr f z xs)
+  Foldable-Vector .foldr step init = \ where
+    [] -> init
+    (x :: xs) -> step x (foldr step init xs)
 
   Traversable-Vector : Traversable (Vector n)
   Traversable-Vector .traverse f = \ where

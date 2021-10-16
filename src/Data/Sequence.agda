@@ -53,7 +53,7 @@ instance
   NonEmptyness-Seq .nonempty xs = nonempty (unSeq xs)
 
   Foldable-Seq : Foldable Seq
-  Foldable-Seq .foldr f z xs = foldr (f <<< getElem) z (unSeq xs)
+  Foldable-Seq .foldr step init xs = foldr (step <<< getElem) init (unSeq xs)
 
   Functor-Seq : Functor Seq
   Functor-Seq .map f xs = toSeq (map f <$> unSeq xs)

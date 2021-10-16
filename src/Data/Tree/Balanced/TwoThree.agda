@@ -33,10 +33,13 @@ data Tree (a : Set) : Set where
 
 instance
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldr f z = \ where
-    leaf -> z
-    (two l x r) -> foldr f (f x (foldr f z r)) l
-    (three l x m y r) -> foldr f (f x (foldr f (f y (foldr f z r)) m)) l
+  Foldable-Tree .foldr step init = \ where
+    leaf ->
+      init
+    (two l x r) ->
+      foldr step (step x (foldr step init r)) l
+    (three l x m y r) ->
+      foldr step (step x (foldr step (step y (foldr step init r)) m)) l
 
   Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ t t' = toList t == toList t'

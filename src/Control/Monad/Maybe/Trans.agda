@@ -49,14 +49,16 @@ instance
   Functor-MaybeT .map f = toMaybeT <<< map (map f) <<< runMaybeT
 
   Foldable-MaybeT : {{Foldable m}} -> Foldable (MaybeT m)
-  Foldable-MaybeT .foldr {a = a} {b = b} f z = foldr go z <<< runMaybeT
+  Foldable-MaybeT .foldr {a = a} {b = b} step init =
+      foldr step' init  <<< runMaybeT
     where
-      go : Maybe a -> b -> b
-      go nothing y = y
-      go (just x) y = f x y
+      step' : Maybe a -> b -> b
+      step' nothing acc = acc
+      step' (just x) acc = step x acc
 
   Traversable-MaybeT : {{Traversable m}} -> Traversable (MaybeT m)
-  Traversable-MaybeT .traverse f m = toMaybeT <$> traverse (traverse f) (runMaybeT m)
+  Traversable-MaybeT .traverse f m =
+    toMaybeT <$> traverse (traverse f) (runMaybeT m)
 
   Applicative-MaybeT : {{Monad m}} -> Applicative (MaybeT m)
   Applicative-MaybeT .pure = toMaybeT <<< pure <<< pure

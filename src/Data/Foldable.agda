@@ -30,7 +30,7 @@ record Foldable (t : Set -> Set) : Set where
     in foldr step mempty
 
   foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
-  foldMapBy {b} f z = foldMap {{mkMonoid f z}}
+  foldMapBy {b} step init = foldMap {{mkMonoid step init}}
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
@@ -112,14 +112,14 @@ record Foldable (t : Set -> Set) : Set where
     where
       min' : Maybe a -> a -> Maybe a
       min' nothing x = just x
-      min' (just x) y = just (if cmp x y == LT then x else y)
+      min' (just acc) x = just (if cmp acc x == LT then acc else x)
 
   maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
   maximumBy {a} cmp = foldl max' nothing
     where
       max' : Maybe a -> a -> Maybe a
       max' nothing x = just x
-      max' (just x) y = just (if cmp x y == GT then x else y)
+      max' (just acc) x = just (if cmp acc x == GT then acc else x)
 
   module _ {{_ : Ord a}} where
 
@@ -158,8 +158,8 @@ open Foldable {{...}} public
 
 instance
   Foldable-Maybe : Foldable Maybe
-  Foldable-Maybe .foldr f z = maybe z (flip f z)
+  Foldable-Maybe .foldr step init = maybe init (flip step init)
 
   Foldable-List : Foldable List
-  Foldable-List .foldr f z [] = z
-  Foldable-List .foldr f z (x :: xs) = f x (foldr f z xs)
+  Foldable-List .foldr step init [] = init
+  Foldable-List .foldr step init (x :: xs) = step x (foldr step init xs)

@@ -42,7 +42,7 @@ instance
   Functor-Elem .map f (toElem x) = toElem (f x)
 
   Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldr f z (toElem x) = f x z
+  Foldable-Elem .foldr step init (toElem x) = step x init
 
   Traversable-Elem : Traversable Elem
   Traversable-Elem .traverse f (toElem x) = (| toElem (f x) |)

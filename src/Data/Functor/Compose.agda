@@ -43,7 +43,8 @@ instance
 
   Foldable-Compose : {{Foldable f}} -> {{Foldable g}}
     -> Foldable (Compose f g)
-  Foldable-Compose .foldr f z x = foldr (flip (foldr f)) z (getCompose x)
+  Foldable-Compose .foldr step init x =
+    foldr (flip (foldr step)) init (getCompose x)
 
   Traversable-Compose : {{Traversable f}} -> {{Traversable g}}
     -> Traversable (Compose f g)

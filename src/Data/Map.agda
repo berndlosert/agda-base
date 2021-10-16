@@ -115,8 +115,8 @@ map {a = a} {b = b} f kvs = toMap (Tree.map go (unMap kvs))
 
 instance
   Foldable-Map : Foldable (Map k)
-  Foldable-Map .foldr f z kvs =
-    foldr (\ where (toKeyVal _ x) y -> f x y) z (unMap kvs)
+  Foldable-Map .foldr step init kvs =
+    foldr (\ where (toKeyVal _ x) acc -> step x acc) init (unMap kvs)
 
   Show-Map : {{Show k}} -> {{Show v}} -> Show (Map k v)
   Show-Map .showsPrec d kvs = showParen (d > 10) $

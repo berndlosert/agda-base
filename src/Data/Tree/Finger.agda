@@ -47,10 +47,10 @@ instance
   NonEmptyness-FingerTree .nonempty _ = true
 
   Foldable-FingerTree : Foldable (FingerTree v)
-  Foldable-FingerTree .foldr _ z empty = z
-  Foldable-FingerTree .foldr f z (singleton x) = f x z
-  Foldable-FingerTree .foldr f z (deep _ pr m sf) =
-    foldr f (foldr (flip (foldr f)) (foldr f z sf) m) pr
+  Foldable-FingerTree .foldr _ init empty = init
+  Foldable-FingerTree .foldr step init (singleton x) = step x init
+  Foldable-FingerTree .foldr step init (deep _ pr m sf) =
+    foldr step (foldr (flip (foldr step)) (foldr step init sf) m) pr
 
   Functor-FingerTree : Functor (FingerTree v)
   Functor-FingerTree .map f = \ where

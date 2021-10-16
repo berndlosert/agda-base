@@ -45,7 +45,7 @@ instance
   Functor-IdentityT .map f (mkIdentityT m) = mkIdentityT (map f m)
 
   Foldable-IdentityT : {{Foldable f}} -> Foldable (IdentityT f)
-  Foldable-IdentityT .foldr f z (mkIdentityT x) = foldr f z x
+  Foldable-IdentityT .foldr step init (mkIdentityT x) = foldr step init x
 
   Traversable-IdentityT : {{Traversable f}} -> Traversable (IdentityT f)
   Traversable-IdentityT .traverse f (mkIdentityT x) =

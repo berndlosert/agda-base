@@ -42,7 +42,7 @@ instance
   Monoid-Identity .mempty = toIdentity mempty
 
   Foldable-Identity : Foldable Identity
-  Foldable-Identity .foldr f z x = f (runIdentity x) z
+  Foldable-Identity .foldr step init x = step (runIdentity x) init
 
   Functor-Identity : Functor Identity
   Functor-Identity .map f = toIdentity <<< f <<< runIdentity

@@ -38,9 +38,9 @@ instance
   NonEmptyness-Tree .nonempty _ = true
 
   Foldable-Tree : Foldable Tree
-  Foldable-Tree .foldr f z = \ where
-    leaf -> z
-    (node l x r) -> foldr f (f x (foldr f z r)) l
+  Foldable-Tree .foldr step init = \ where
+    leaf -> init
+    (node l x r) -> foldr step (step x (foldr step init r)) l
 
   Eq-Tree : {{Eq a}} -> Eq (Tree a)
   Eq-Tree ._==_ = \ where

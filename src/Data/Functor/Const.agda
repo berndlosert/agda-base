@@ -42,7 +42,7 @@ instance
   Monoid-Const .mempty = toConst mempty
 
   Foldable-Const : Foldable (Const a)
-  Foldable-Const .foldr _ z _ = z
+  Foldable-Const .foldr _ init _ = init
 
   Functor-Const : Functor (Const a)
   Functor-Const .map _ = toConst <<< getConst

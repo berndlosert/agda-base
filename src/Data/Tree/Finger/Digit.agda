@@ -33,11 +33,11 @@ data Digit (a : Set) : Set where
 
 instance
   Foldable-Digit : Foldable Digit
-  Foldable-Digit .foldr f z = \ where
-    (one a) -> f a z
-    (two a b) -> f a (f b z)
-    (three a b c) -> f a (f b (f c z))
-    (four a b c d) -> f a (f b (f c (f d z)))
+  Foldable-Digit .foldr step init = \ where
+    (one a) -> step a init
+    (two a b) -> step a (step b init)
+    (three a b c) -> step a (step b (step c init))
+    (four a b c d) -> step a (step b (step c (step d init)))
 
   Functor-Digit : Functor Digit
   Functor-Digit .map f = \ where

@@ -49,9 +49,9 @@ nodes _ = []
 
 instance
   Foldable-Node : Foldable (Node v)
-  Foldable-Node .foldr f z = \ where
-    (node2 _ a b) -> f a (f b z)
-    (node3 _ a b c) -> f a (f b (f c z))
+  Foldable-Node .foldr step init = \ where
+    (node2 _ a b) -> step a (step b init)
+    (node3 _ a b c) -> step a (step b (step c init))
 
   Functor-Node : Functor (Node v)
   Functor-Node .map f = \ where
