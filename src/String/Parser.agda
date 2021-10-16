@@ -192,7 +192,7 @@ infixl1 wrap p op = postfix wrap p (| flip op p |)
 
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
 infixr1 = fix \ where
-  infixr1 wrap p op -> (| p # (| flip op (infixr1 wrap p op) |) <|> pure wrap |)
+  go wrap p op -> (| p # (| flip op (go wrap p op) |) <|> pure wrap |)
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 = infixl1 id

@@ -73,16 +73,16 @@ genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
     log2 = fix \ where
-      log2 0 -> 1
-      log2 m -> 1 + log2 (m / 2)
+      go 0 -> 1
+      go m -> 1 + go (m / 2)
 
     k = log2 n
 
     loop : g -> Pair Nat g
     loop = fix \ where
-      loop g ->
+      go g ->
         let (m , g') = genNat k g in
-        if m > n then loop g' else (m , g')
+        if m > n then go g' else (m , g')
 
 -- genFloat generates a Float value in the range [0, 1).
 genFloat : {{RandomGen g}} -> g -> Pair Float g

@@ -92,7 +92,7 @@ instance
     go l r -> toIterT do
       resl <- runIterT l
       case resl of \ where
-        (left _) -> pure resultl
+        (left _) -> pure resl
         (right l') -> do
           resr <- runIterT r
           case resr of \ where
