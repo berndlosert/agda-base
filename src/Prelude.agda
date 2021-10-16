@@ -812,8 +812,8 @@ record Monoid (a : Set) : Set where
 
 open Monoid {{...}} public
 
-asMonoid : (a -> a -> a) -> a -> Monoid a
-asMonoid f z = \ where
+mkMonoid : (a -> a -> a) -> a -> Monoid a
+mkMonoid f z = \ where
   .mempty -> z
   .Semigroup-super -> \ where
     ._<>_ -> f
