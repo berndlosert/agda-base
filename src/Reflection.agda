@@ -31,7 +31,7 @@ instance
   Show-Name .showsPrec d n = showString (primShowQName n)
 
   Monad-TC : Monad TC
-  Monad-TC = asMonad bindTC returnTC
+  Monad-TC = mkMonad bindTC returnTC
 
   Applicative-TC : Applicative TC
   Applicative-TC = Monad-TC .Applicative-super

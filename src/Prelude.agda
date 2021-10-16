@@ -343,8 +343,8 @@ record Eq (a : Set) : Set where
 
 open Eq {{...}} public
 
-asEq : (a -> a -> Bool) -> Eq a
-asEq eq = \ where
+mkEq : (a -> a -> Bool) -> Eq a
+mkEq eq = \ where
   ._==_ -> eq
 
 instance
@@ -439,8 +439,8 @@ record Ord (a : Set) : Set where
 
 open Ord {{...}} public
 
-asOrd : (a -> a -> Ordering) -> Ord a
-asOrd cmp = \ where
+mkOrd : (a -> a -> Ordering) -> Ord a
+mkOrd cmp = \ where
   ._<_ x y -> cmp x y == LT
   .Eq-super -> \ where
     ._==_ x y -> cmp x y == EQ
@@ -907,8 +907,9 @@ record Functor (f : Set -> Set) : Set where
 
 open Functor {{...}} public
 
-asFunctor : (forall {a} {b} -> (a -> b) -> f a -> f b) -> Functor f
-asFunctor fmap .map = fmap
+mkFunctor : (forall {a} {b} -> (a -> b) -> f a -> f b) -> Functor f
+mkFunctor fmap = \ where
+  .map -> fmap
 
 instance
   Functor-Function : Functor (Function a)
@@ -1023,12 +1024,14 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
-asApplicative : (forall {a} {b} -> f (a -> b) -> f a -> f b)
+mkApplicative : (forall {a} {b} -> f (a -> b) -> f a -> f b)
   -> (forall {a} -> a -> f a)
   -> Applicative f
-asApplicative ap pure' ._<*>_ = ap
-asApplicative ap pure' .pure = pure'
-asApplicative ap pure' .Functor-super .map = ap <<< pure'
+mkApplicative ap pure' = \ where
+  ._<*>_ -> ap
+  .pure -> pure'
+  .Functor-super -> \ where
+    .map -> ap <<< pure'
 
 instance
   Applicative-Function : Applicative (Function a)
@@ -1119,10 +1122,10 @@ record Monad (m : Set -> Set) : Set where
 
 open Monad {{...}} public
 
-asMonad : (forall {a} {b} -> m a -> (a -> m b) -> m b)
+mkMonad : (forall {a} {b} -> m a -> (a -> m b) -> m b)
   -> (forall {a} -> a -> m a)
   -> Monad m
-asMonad bind return = \ where
+mkMonad bind return = \ where
   ._>>=_ -> bind
   .Applicative-super -> \ where
     ._<*>_ l r -> bind l \ f -> bind r \ x -> return (f x)

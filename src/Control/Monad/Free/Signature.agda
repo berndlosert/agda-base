@@ -37,7 +37,7 @@ inn (operation symb arg) = roll symb (arg >>> unFree)
 
 instance
   Monad-Free : Monad (Free sig)
-  Monad-Free = asMonad bind return
+  Monad-Free = mkMonad bind return
     where
       bind : Free sig a -> (a -> Free sig b) -> Free sig b
       bind (finished x _) k = k x
