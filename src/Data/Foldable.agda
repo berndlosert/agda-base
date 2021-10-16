@@ -77,10 +77,10 @@ record Foldable (t : Set -> Set) : Set where
   all p = not <<< any (not <<< p)
 
   or : t Bool -> Bool
-  or = any (_== true)
+  or = any id
 
   and : t Bool -> Bool
-  and = all (_== true)
+  and = all id
 
   null : t a -> Bool
   null = foldr (\ _ _ -> false) true
