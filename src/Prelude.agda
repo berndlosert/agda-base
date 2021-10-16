@@ -441,9 +441,9 @@ open Ord {{...}} public
 
 asOrd : (a -> a -> Ordering) -> Ord a
 asOrd cmp = \ where
-  ._<_ x y -> if cmp x y == LT then true else false
+  ._<_ x y -> cmp x y == LT
   .Eq-super -> \ where
-    ._==_ x y -> if cmp x y == EQ then true else false
+    ._==_ x y -> cmp x y == EQ
 
 instance
   Ord-Void : Ord Void
