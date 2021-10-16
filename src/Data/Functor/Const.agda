@@ -58,5 +58,5 @@ instance
   Applicative-Const ._<*>_ f x = toConst (getConst f <> getConst x)
 
   Show-Const : {{Show a}} -> Show (Const a b)
-  Show-Const .showsPrec d x = showParen (d > appPrec)
+  Show-Const .showsPrec prec x = showParen (prec > appPrec)
     (showString "toConst " <<< showsPrec appPrec+1 (getConst x))

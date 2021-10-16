@@ -104,15 +104,15 @@ instance
 
   Show-Result : {{Show a}} -> Show (Result a)
   Show-Result .showsPrec _ err = showString "err"
-  Show-Result .showsPrec d (ok x) = showParen (d > appPrec) $
+  Show-Result .showsPrec prec (ok x) = showParen (prec > appPrec) $
     showString "ok " <<< showsPrec appPrec+1 x
 
   Show-Reply : {{Show a}} -> Show (Reply a)
-  Show-Reply .showsPrec d (reply consumption result) =
+  Show-Reply .showsPrec prec (reply consumption result) =
     showString "reply "
-    <<< showsPrec d consumption
-    <<< showString " "
-    <<< showsPrec d result
+      <<< showsPrec prec consumption
+      <<< showString " "
+      <<< showsPrec prec result
 
 -------------------------------------------------------------------------------
 -- Combinators

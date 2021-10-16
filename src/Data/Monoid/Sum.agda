@@ -51,5 +51,5 @@ instance
   Monad-Sum ._>>=_ (toSum x) k = k x
 
   Show-Sum : {{Show a}} -> Show (Sum a)
-  Show-Sum .showsPrec d x = showParen (d > appPrec) $
+  Show-Sum .showsPrec prec x = showParen (prec > appPrec) $
     showString "toSum " <<< showsPrec appPrec+1 (getSum x)

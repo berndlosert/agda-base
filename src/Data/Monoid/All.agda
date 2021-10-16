@@ -27,5 +27,5 @@ instance
   Monoid-All .mempty = toAll true
 
   Show-All : Show All
-  Show-All .showsPrec d x = showParen (d > appPrec) $
+  Show-All .showsPrec prec x = showParen (prec > appPrec) $
     showString "toAll " <<< showsPrec appPrec+1 (getAll x)

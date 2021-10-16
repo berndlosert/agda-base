@@ -55,5 +55,5 @@ instance
   Monad-Identity ._>>=_ x k = k (runIdentity x)
 
   Show-Identity : {{Show a}} -> Show (Identity a)
-  Show-Identity .showsPrec d x = showParen (d > appPrec)
+  Show-Identity .showsPrec prec x = showParen (prec > appPrec)
     (showString "toIdentity " <<< showsPrec appPrec+1 (runIdentity x))

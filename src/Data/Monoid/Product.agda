@@ -51,5 +51,5 @@ instance
   Monad-Product ._>>=_ (toProduct x) k = k x
 
   Show-Product : {{Show a}} -> Show (Product a)
-  Show-Product .showsPrec d x = showParen (d > appPrec) $
+  Show-Product .showsPrec prec x = showParen (prec > appPrec) $
     showString "toProduct " <<< showsPrec appPrec+1 (getProduct x)

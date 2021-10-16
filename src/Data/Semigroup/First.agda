@@ -45,5 +45,5 @@ instance
   Monad-First ._>>=_ m k = k (getFirst m)
 
   Show-First : {{Show a}} -> Show (First a)
-  Show-First .showsPrec d x = showParen (d > appPrec) $
+  Show-First .showsPrec prec x = showParen (prec > appPrec) $
     showString "toFirst " <<< showsPrec appPrec+1 (getFirst x)

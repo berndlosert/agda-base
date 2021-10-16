@@ -1224,24 +1224,24 @@ instance
   Show-Function .showsPrec _ _ = showString "<function>"
 
   Show-Pair : {{Show a}} -> {{Show b}} -> Show (Pair a b)
-  Show-Pair .showsPrec d (x , y) = showString "(" <<< showsPrec d x
-    <<< showString " , " <<< showsPrec d y <<< showString ")"
+  Show-Pair .showsPrec prec (x , y) = showString "(" <<< showsPrec prec x
+    <<< showString " , " <<< showsPrec prec y <<< showString ")"
 
   Show-Either : {{Show a}} -> {{Show b}} -> Show (Either a b)
-  Show-Either .showsPrec d = \ where
-    (left x) -> showParen (d > appPrec)
+  Show-Either .showsPrec prec = \ where
+    (left x) -> showParen (prec > appPrec)
       (showString "left " <<< showsPrec appPrec+1 x)
-    (right x) -> showParen (d > appPrec)
+    (right x) -> showParen (prec > appPrec)
       (showString "right " <<< showsPrec appPrec+1 x)
 
   Show-Maybe : {{Show a}} -> Show (Maybe a)
-  Show-Maybe .showsPrec d = \ where
-    (just x) -> showParen (d > appPrec)
+  Show-Maybe .showsPrec prec = \ where
+    (just x) -> showParen (prec > appPrec)
       (showString "just " <<< showsPrec appPrec+1 x)
     nothing -> showString "nothing"
 
   Show-List : {{Show a}} -> Show (List a)
-  Show-List .showsPrec d = \ where
+  Show-List .showsPrec prec = \ where
     [] -> showString "[]"
-    (x :: xs) -> showParen (d > appPrec)
+    (x :: xs) -> showParen (prec > appPrec)
       (showsPrec appPrec+1 x <<< showString " :: " <<< showsPrec 0 xs)

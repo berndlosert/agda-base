@@ -46,14 +46,14 @@ instance
 
   Show-Tree : {{Show a}} -> Show (Tree a)
   Show-Tree .showsPrec _ leaf = showString "leaf"
-  Show-Tree .showsPrec d (two l x r) = showParen (d > appPrec)
+  Show-Tree .showsPrec prec (two l x r) = showParen (prec > appPrec)
     (showString "two "
     <<< showsPrec appPrec+1 l
     <<< showString " "
     <<< showsPrec appPrec+1 x
     <<< showString " "
     <<< showsPrec appPrec+1 r)
-  Show-Tree .showsPrec d (three l x m y r) = showParen (d > appPrec)
+  Show-Tree .showsPrec prec (three l x m y r) = showParen (prec > appPrec)
     (showString "three "
     <<< showsPrec appPrec+1 l
     <<< showString " "

@@ -42,5 +42,5 @@ instance
   Monad-Min ._>>=_ m k = k (getMin m)
 
   Show-Min : {{Show a}} -> Show (Min a)
-  Show-Min .showsPrec d x = showParen (d > appPrec) $
+  Show-Min .showsPrec prec x = showParen (prec > appPrec) $
     showString "toMin " <<< showsPrec appPrec+1 (getMin x)

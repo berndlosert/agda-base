@@ -42,5 +42,5 @@ instance
   Monad-Max ._>>=_ m k = k (getMax m)
 
   Show-Max : {{Show a}} -> Show (Max a)
-  Show-Max .showsPrec d x = showParen (d > appPrec) $
+  Show-Max .showsPrec prec x = showParen (prec > appPrec) $
     showString "toMax " <<< showsPrec appPrec+1 (getMax x)

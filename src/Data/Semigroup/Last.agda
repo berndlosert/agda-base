@@ -45,5 +45,5 @@ instance
   Monad-Last ._>>=_ m k = k (getLast m)
 
   Show-Last : {{Show a}} -> Show (Last a)
-  Show-Last .showsPrec d x = showParen (d > appPrec) $
+  Show-Last .showsPrec prec x = showParen (prec > appPrec) $
     showString "toLast " <<< showsPrec appPrec+1 (getLast x)

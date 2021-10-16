@@ -45,5 +45,5 @@ instance
   Monad-Dual ._>>=_ (toDual x) k = k x
 
   Show-Dual : {{Show a}} -> Show (Dual a)
-  Show-Dual .showsPrec d x = showParen (d > appPrec) $
+  Show-Dual .showsPrec prec x = showParen (prec > appPrec) $
     showString "toDual " <<< showsPrec appPrec+1 (getDual x)

@@ -93,5 +93,5 @@ abstract
     Monoid-Subset .mempty = empty
 
     Show-Subset : {{Show a}} -> Show (Subset a)
-    Show-Subset .showsPrec d xs = showParen (d > appPrec)
+    Show-Subset .showsPrec prec xs = showParen (prec > appPrec)
       (showString "fromList " <<< shows (toList xs))
