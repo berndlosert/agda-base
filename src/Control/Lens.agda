@@ -70,29 +70,29 @@ instance
   Choice-Tagged .choicel (toTagged x) = toTagged (left x)
 
 data Exchange (a b s t : Set) : Set where
-  toExchange : (s -> a) -> (b -> t) -> Exchange a b s t
+  exchange : (s -> a) -> (b -> t) -> Exchange a b s t
 
 instance
   Functor-Exchange : Functor (Exchange a b s)
-  Functor-Exchange .map f (toExchange sa bt) = toExchange sa (f <<< bt)
+  Functor-Exchange .map f (exchange sa bt) = exchange sa (f <<< bt)
 
   Profunctor-Exchange : Profunctor (Exchange a b)
-  Profunctor-Exchange .lcmap f (toExchange sa bt) = toExchange (sa <<< f) bt
+  Profunctor-Exchange .lcmap f (exchange sa bt) = exchange (sa <<< f) bt
 
 data Market (a b s t : Set) : Set where
-  toMarket : (b -> t) -> (s -> Either t a) -> Market a b s t
+  market : (b -> t) -> (s -> Either t a) -> Market a b s t
 
 instance
   Functor-Market : Functor (Market a b s)
-  Functor-Market .map f (toMarket bt seta) =
-    toMarket (f <<< bt) (either (left <<< f) right <<< seta)
+  Functor-Market .map f (market bt seta) =
+    market (f <<< bt) (either (left <<< f) right <<< seta)
 
   Profunctor-Market : Profunctor (Market a b)
-  Profunctor-Market .lcmap f (toMarket bt seta) = toMarket bt (seta <<< f)
+  Profunctor-Market .lcmap f (market bt seta) = market bt (seta <<< f)
 
   Choice-Market : Choice (Market a b)
-  Choice-Market .choicel (toMarket bt seta) =
-    toMarket (left <<< bt) \ where
+  Choice-Market .choicel (market bt seta) =
+    market (left <<< bt) \ where
       (left s) -> either (left <<< left) right (seta s)
       (right c) -> left (right c)
 
@@ -246,8 +246,8 @@ AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
 withIso ai k =
-  case ai (toExchange id toIdentity) of \ where
-    (toExchange sa bt) -> k sa (runIdentity <<< bt)
+  case ai (exchange id toIdentity) of \ where
+    (exchange sa bt) -> k sa (runIdentity <<< bt)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
@@ -265,8 +265,8 @@ APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
-  case ap (toMarket toIdentity right) of \ where
-    (toMarket bt seta) ->
+  case ap (market toIdentity right) of \ where
+    (market bt seta) ->
       f (runIdentity <<< bt) (either (left <<< runIdentity) right <<< seta)
 
 matching : APrism s t a b -> s -> Either t a
