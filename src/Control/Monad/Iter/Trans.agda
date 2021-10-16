@@ -48,7 +48,7 @@ delay iter .runIterT = pure (right iter)
 
 never : {{Monad m}} -> IterT m a
 never = fix \ where
-  never -> toIterT $ pure (right never)
+  go -> toIterT $ pure (right go)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
