@@ -344,7 +344,8 @@ record Eq (a : Set) : Set where
 open Eq {{...}} public
 
 asEq : (a -> a -> Bool) -> Eq a
-asEq eq ._==_ = eq
+asEq eq = \ where
+  ._==_ -> eq
 
 instance
   Eq-Void : Eq Void
@@ -439,8 +440,10 @@ record Ord (a : Set) : Set where
 open Ord {{...}} public
 
 asOrd : (a -> a -> Ordering) -> Ord a
-asOrd cmp ._<_ x y = if cmp x y == LT then true else false
-asOrd cmp .Eq-super ._==_ x y = if cmp x y == EQ then true else false
+asOrd cmp = \ where
+  ._<_ x y -> if cmp x y == LT then true else false
+  .Eq-super -> \ where
+    ._==_ x y -> if cmp x y == EQ then true else false
 
 instance
   Ord-Void : Ord Void
@@ -748,7 +751,8 @@ record Semigroup (a : Set) : Set where
 open Semigroup {{...}} public
 
 asSemigroup : (a -> a -> a) -> Semigroup a
-asSemigroup f ._<>_ = f
+asSemigroup f = \ where
+  ._<>_ -> f
 
 instance
   Semigroup-Void : Semigroup Void
@@ -809,8 +813,10 @@ record Monoid (a : Set) : Set where
 open Monoid {{...}} public
 
 asMonoid : (a -> a -> a) -> a -> Monoid a
-asMonoid f z .mempty = z
-asMonoid f z .Semigroup-super ._<>_ = f
+asMonoid f z = \ where
+  .mempty -> z
+  .Semigroup-super -> \ where
+    ._<>_ -> f
 
 instance
   Monoid-Unit : Monoid Unit
@@ -1116,12 +1122,13 @@ open Monad {{...}} public
 asMonad : (forall {a} {b} -> m a -> (a -> m b) -> m b)
   -> (forall {a} -> a -> m a)
   -> Monad m
-asMonad bind return ._>>=_ = bind
-asMonad bind return .Applicative-super ._<*>_ l r =
-  bind l \ f -> bind r \ x -> return (f x)
-asMonad bind return .Applicative-super .pure = return
-asMonad bind return .Applicative-super .Functor-super .map f x =
-  bind x (return <<< f)
+asMonad bind return = \ where
+  ._>>=_ -> bind
+  .Applicative-super -> \ where
+    ._<*>_ l r -> bind l \ f -> bind r \ x -> return (f x)
+    .pure -> return
+    .Functor-super -> \ where
+      .map f x -> bind x (f >>> return)
 
 instance
   Monad-Function : Monad (Function a)
