@@ -10,6 +10,7 @@ open import Prelude
 
 open import Control.Exception
 open import Control.Monad.Cont.Class
+open import Control.Monad.Error.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -110,3 +111,9 @@ instance
     -> MonadCont (WriterT w m)
   MonadCont-WriterT .callCC f = aWriterT $
     callCC \ c -> (runWriterT <<< f) (aWriterT <<< c <<< (mempty ,_))
+
+  MonadError-WriterT : {{Monoid w}}
+    -> {{MonadError e m}} -> MonadError e (WriterT w m)
+  MonadError-WriterT .raiseError = lift <<< raiseError
+  MonadError-WriterT .handleError m h = aWriterT $
+    handleError (runWriterT m) (runWriterT <<< h)
