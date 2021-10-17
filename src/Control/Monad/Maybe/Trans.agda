@@ -71,17 +71,17 @@ instance
   Alternative-MaybeT : {{Monad m}} -> Alternative (MaybeT m)
   Alternative-MaybeT .azero = aMaybeT (pure nothing)
   Alternative-MaybeT ._<|>_ l r = aMaybeT do
-    x <- runMaybeT l
-    case x of \ where
+    res <- runMaybeT l
+    case res of \ where
       nothing -> runMaybeT r
-      (just _) -> pure x
+      (just _) -> pure res
 
   Monad-MaybeT : {{Monad m}} -> Monad (MaybeT m)
   Monad-MaybeT ._>>=_ m k = aMaybeT do
-    x <- runMaybeT m
-    case x of \ where
+    res <- runMaybeT m
+    case res of \ where
       nothing -> pure nothing
-      (just y) -> runMaybeT (k y)
+      (just x) -> runMaybeT (k x)
 
   MonadTrans-MaybeT : MonadTrans MaybeT
   MonadTrans-MaybeT .lift = aMaybeT <<< map just
