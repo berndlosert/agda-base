@@ -2,7 +2,7 @@
 
 open import Prelude
 
-open import Control.Exception
+open import Control.Monad.Error.Class
 open import Control.Monad.Either.Trans
 open import Control.Monad.State.Trans
 open import Data.Functor.Identity
@@ -10,11 +10,11 @@ open import Data.Functor.Identity
 variable
   m : Set -> Set
 
-decr : {{MonadState Nat m}} -> {{MonadThrow Unit m}} -> m Unit
+decr : {{MonadState Nat m}} -> {{MonadError Unit m}} -> m Unit
 decr = do
   n <- get
   case n of \ where
-    0 -> throw tt
+    0 -> raiseError tt
     (suc m) -> put m
 
 interpret1 : EitherT Unit (StateT Nat Identity) Unit
