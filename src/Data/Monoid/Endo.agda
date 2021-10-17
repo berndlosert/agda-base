@@ -21,14 +21,14 @@ private
 -------------------------------------------------------------------------------
 
 record Endo (a : Set) : Set where
-  constructor toEndo
+  constructor anEndo
   field appEndo : a -> a
 
 open Endo public
 
 instance
   Semigroup-Endo : Semigroup (Endo a)
-  Semigroup-Endo ._<>_ g f = toEndo (appEndo g <<< appEndo f)
+  Semigroup-Endo ._<>_ g f = anEndo (appEndo g <<< appEndo f)
 
   Monoid-Endo : Monoid (Endo a)
-  Monoid-Endo .mempty = toEndo id
+  Monoid-Endo .mempty = anEndo id

@@ -190,46 +190,46 @@ intoOr =
   let step acc x = if x then reduced true x else reduced false acc
   in reducer false step id
 
-intoAll : (a -> Bool) -> Reducer a Bool
-intoAll p = mapping p intoAnd
+inanAll : (a -> Bool) -> Reducer a Bool
+inanAll p = mapping p intoAnd
 
-intoAny : (a -> Bool) -> Reducer a Bool
-intoAny p = mapping p intoOr
+inanAny : (a -> Bool) -> Reducer a Bool
+inanAny p = mapping p intoOr
 
-intoSum : {{HasAdd a}} -> {{HasNat 0 a}} -> Reducer a a
-intoSum = intoFold _+_ 0
+inaSum : {{HasAdd a}} -> {{HasNat 0 a}} -> Reducer a a
+inaSum = intoFold _+_ 0
 
-intoProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
-intoProduct = intoFold _*_ 1
+inaProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
+inaProduct = intoFold _*_ 1
 
-intoFirst : Reducer a (Maybe a)
-intoFirst = reducer nothing (\ _ x -> reduced true (just x)) id
+inaFirst : Reducer a (Maybe a)
+inaFirst = reducer nothing (\ _ x -> reduced true (just x)) id
 
-intoLast : Reducer a (Maybe a)
-intoLast = intoFold (const just) nothing
+inaLast : Reducer a (Maybe a)
+inaLast = intoFold (const just) nothing
 
-intoElem : {{Eq a}} -> a -> Reducer a Bool
-intoElem x = intoAny (_== x)
+inanElem : {{Eq a}} -> a -> Reducer a Bool
+inanElem x = inanAny (_== x)
 
 intoFind : (a -> Bool) -> Reducer a (Maybe a)
-intoFind p = filtering p intoFirst
+intoFind p = filtering p inaFirst
 
-intoMinimum : {{Ord a}} -> Reducer a (Maybe a)
-intoMinimum {a} = intoFold step nothing
+inaMinimum : {{Ord a}} -> Reducer a (Maybe a)
+inaMinimum {a} = intoFold step nothing
   where
     step : Maybe a -> a -> Maybe a
     step nothing x = just x
     step (just acc) x = just (min acc x)
 
-intoMaximum : {{Ord a}} -> Reducer a (Maybe a)
-intoMaximum {a} = intoFold step nothing
+inaMaximum : {{Ord a}} -> Reducer a (Maybe a)
+inaMaximum {a} = intoFold step nothing
   where
     step : Maybe a -> a -> Maybe a
     step nothing x = just x
     step (just acc) x = just (max acc x)
 
-intoMinimumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
-intoMinimumBy {a} cmp = intoFold step nothing
+inaMinimumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
+inaMinimumBy {a} cmp = intoFold step nothing
   where
     step : Maybe a -> a -> Maybe a
     step nothing x = just x
@@ -237,8 +237,8 @@ intoMinimumBy {a} cmp = intoFold step nothing
       GT -> x
       _ -> acc
 
-intoMaximumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
-intoMaximumBy {a} cmp = intoFold step nothing
+inaMaximumBy : (a -> a -> Ordering) -> Reducer a (Maybe a)
+inaMaximumBy {a} cmp = intoFold step nothing
   where
     step : Maybe a -> a -> Maybe a
     step nothing x = just x

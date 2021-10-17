@@ -25,7 +25,7 @@ private
 -------------------------------------------------------------------------------
 
 record Compose (f g : Set -> Set) (a : Set) : Set where
-  constructor toCompose
+  constructor aCompose
   field getCompose : f (g a)
 
 open Compose public
@@ -33,13 +33,13 @@ open Compose public
 instance
   Functor-Compose : {{Functor f}} -> {{Functor g}}
     -> Functor (Compose f g)
-  Functor-Compose .map f x = toCompose (map (map f) (getCompose x))
+  Functor-Compose .map f x = aCompose (map (map f) (getCompose x))
 
   Applicative-Compose : {{Applicative f}} -> {{Applicative g}}
     -> Applicative (Compose f g)
-  Applicative-Compose .pure x = toCompose (pure (pure x))
+  Applicative-Compose .pure x = aCompose (pure (pure x))
   Applicative-Compose ._<*>_ f x =
-    toCompose (| getCompose f <*> getCompose x |)
+    aCompose (| getCompose f <*> getCompose x |)
 
   Foldable-Compose : {{Foldable f}} -> {{Foldable g}}
     -> Foldable (Compose f g)
@@ -49,10 +49,10 @@ instance
   Traversable-Compose : {{Traversable f}} -> {{Traversable g}}
     -> Traversable (Compose f g)
   Traversable-Compose .traverse f x =
-    (| toCompose (traverse (traverse f) (getCompose x)) |)
+    (| aCompose (traverse (traverse f) (getCompose x)) |)
 
   Alternative-Compose : {{Alternative f}} -> {{Applicative g}}
     -> Alternative (Compose f g)
-  Alternative-Compose .azero = toCompose azero
+  Alternative-Compose .azero = aCompose azero
   Alternative-Compose ._<|>_ l r =
-    toCompose (getCompose l <|> getCompose r)
+    aCompose (getCompose l <|> getCompose r)

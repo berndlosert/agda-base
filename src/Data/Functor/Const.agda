@@ -23,7 +23,7 @@ private
 -------------------------------------------------------------------------------
 
 record Const (a b : Set) : Set where
-  constructor toConst
+  constructor aConst
   field getConst : a
 
 open Const public
@@ -36,27 +36,27 @@ instance
   Ord-Const ._<_ = _<_ on getConst
 
   Semigroup-Const : {{Semigroup a}} -> Semigroup (Const a b)
-  Semigroup-Const ._<>_ x y = toConst (getConst x <> getConst y)
+  Semigroup-Const ._<>_ x y = aConst (getConst x <> getConst y)
 
   Monoid-Const : {{Monoid a}} -> Monoid (Const a b)
-  Monoid-Const .mempty = toConst mempty
+  Monoid-Const .mempty = aConst mempty
 
   Foldable-Const : Foldable (Const a)
   Foldable-Const .foldr _ init _ = init
 
   Functor-Const : Functor (Const a)
-  Functor-Const .map _ = toConst <<< getConst
+  Functor-Const .map _ = aConst <<< getConst
 
   Bifunctor-Const : Bifunctor Const
-  Bifunctor-Const .lmap f x = toConst (f $ getConst x)
+  Bifunctor-Const .lmap f x = aConst (f $ getConst x)
 
   Contravariant-Const : Contravariant (Const a)
-  Contravariant-Const .cmap f = toConst <<< getConst
+  Contravariant-Const .cmap f = aConst <<< getConst
 
   Applicative-Const : {{Monoid a}} -> Applicative (Const a)
-  Applicative-Const .pure _ = toConst mempty
-  Applicative-Const ._<*>_ f x = toConst (getConst f <> getConst x)
+  Applicative-Const .pure _ = aConst mempty
+  Applicative-Const ._<*>_ f x = aConst (getConst f <> getConst x)
 
   Show-Const : {{Show a}} -> Show (Const a b)
   Show-Const .showsPrec prec x = showParen (prec > appPrec)
-    (showString "toConst " <<< showsPrec appPrec+1 (getConst x))
+    (showString "aConst " <<< showsPrec appPrec+1 (getConst x))

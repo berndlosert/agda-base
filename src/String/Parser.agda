@@ -27,7 +27,7 @@ private
 -------------------------------------------------------------------------------
 
 record Parser (a : Set) : Set where
-  constructor toParser
+  constructor aParser
   field
     unParser : forall {b}
       -> String
@@ -58,13 +58,13 @@ data Reply (a : Set) : Set where
 
 instance
   Functor-Parser : Functor Parser
-  Functor-Parser .map f p = toParser \ where
+  Functor-Parser .map f p = aParser \ where
     s cok cerr eok eerr -> unParser p s (cok <<< f) cerr (eok <<< f) eerr
 
   Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure x = toParser \ where
+  Applicative-Parser .pure x = aParser \ where
     s _ _ eok _ -> eok x s
-  Applicative-Parser ._<*>_ m k = toParser \ where
+  Applicative-Parser ._<*>_ m k = aParser \ where
     s cok cerr eok eerr ->
       let
         mcok x s' = unParser k s' (cok <<< x) cerr (cok <<< x) cerr
@@ -73,7 +73,7 @@ instance
         unParser m s mcok cerr meok eerr
 
   Monad-Parser : Monad Parser
-  Monad-Parser ._>>=_ m k = toParser \ where
+  Monad-Parser ._>>=_ m k = aParser \ where
     s cok cerr eok eerr ->
       let
         mcok x s' = unParser (k x) s' cok cerr cok cerr
@@ -82,9 +82,9 @@ instance
         unParser m s mcok cerr meok eerr
 
   Alternative-Parser : Alternative Parser
-  Alternative-Parser .azero = toParser \ where
+  Alternative-Parser .azero = aParser \ where
     s _ _ _ eerr -> eerr
-  Alternative-Parser ._<|>_ m n = toParser \ where
+  Alternative-Parser ._<|>_ m n = aParser \ where
     s cok cerr eok eerr ->
       let
         meerr =
@@ -119,13 +119,13 @@ instance
 -------------------------------------------------------------------------------
 
 try : Parser a -> Parser a
-try p = toParser \ where
+try p = aParser \ where
   s cok _ eok eerr ->
     let eerr' = eerr
     in unParser p s cok eerr' eok eerr'
 
 notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = toParser \ where
+notFollowedBy p = aParser \ where
   s _ _ eok eerr ->
     let
       cok' _ _ = eerr
@@ -211,7 +211,7 @@ chainr p op x = option x (chainr1 p op)
 -------------------------------------------------------------------------------
 
 satisfy : (Char -> Bool) -> Parser Char
-satisfy test = toParser \ where
+satisfy test = aParser \ where
   s cok _ _ eerr ->
     if s == ""
       then eerr
@@ -293,7 +293,7 @@ word1 : Parser String
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = toParser \ where
+takeWhile p = aParser \ where
   s cok _ _ _ -> uncurry cok (String.break p s)
 
 takeAll : Parser String

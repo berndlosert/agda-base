@@ -24,13 +24,13 @@ private
 -------------------------------------------------------------------------------
 
 record Free (sig : Signature) (a : Set) : Set where
-  constructor toFree
+  constructor aFree
   field unFree : Fix (ConstS a + sig)
 
 open Free public
 
-pattern finished x arg = toFree (sup (left x) arg)
-pattern roll symb arg = toFree (sup (right symb) arg)
+pattern finished x arg = aFree (sup (left x) arg)
+pattern roll symb arg = aFree (sup (right symb) arg)
 
 inn : Operation sig (Free sig a) -> Free sig a
 inn (operation symb arg) = roll symb (arg >>> unFree)
@@ -42,7 +42,7 @@ instance
       bind : Free sig a -> (a -> Free sig b) -> Free sig b
       bind (finished x _) k = k x
       bind (roll symb arg) k =
-        let arg' x = bind (toFree (arg x)) k
+        let arg' x = bind (aFree (arg x)) k
         in inn (operation symb arg')
 
       return : a -> Free sig a

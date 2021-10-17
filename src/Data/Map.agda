@@ -26,7 +26,7 @@ private
 
 private
   record KeyVal (a b : Set) : Set where
-    constructor toKeyVal
+    constructor aKeyVal
     field
       getKey : a
       getVal : b
@@ -45,7 +45,7 @@ instance
 -------------------------------------------------------------------------------
 
 record Map (k v : Set) : Set where
-  constructor toMap
+  constructor aMap
   field unMap : Tree (KeyVal k v)
 
 open Map
@@ -55,10 +55,10 @@ open Map
 -------------------------------------------------------------------------------
 
 empty : Map k v
-empty = toMap Tree.empty
+empty = aMap Tree.empty
 
 singleton : k -> v -> Map k v
-singleton k v = toMap $ Tree.singleton $ (toKeyVal k v)
+singleton k v = aMap $ Tree.singleton $ (aKeyVal k v)
 
 -------------------------------------------------------------------------------
 -- Destruction
@@ -75,7 +75,7 @@ values kvs = foldMap (getVal >>> List.singleton) (unMap kvs)
 -------------------------------------------------------------------------------
 
 insert : {{Ord k}} -> k -> v -> Map k v -> Map k v
-insert k v kvs = toMap (Tree.insert (toKeyVal k v) (unMap kvs))
+insert k v kvs = aMap (Tree.insert (aKeyVal k v) (unMap kvs))
 
 fromList : {{Ord k}} -> List (Pair k v) -> Map k v
 fromList [] = empty
@@ -92,8 +92,8 @@ delete : {{Ord k}} -> k -> Map k v -> Map k v
 delete k kvs =
   let t = unMap kvs
   in case Tree.query (compare k <<< getKey) t of \ where
-     nothing -> toMap t
-     (just p) -> toMap (Tree.delete p t)
+     nothing -> aMap t
+     (just p) -> aMap (Tree.delete p t)
 
 lookup : {{Ord k}} -> k -> Map k v -> Maybe v
 lookup k kvs =
@@ -104,10 +104,10 @@ member : {{Ord k}} -> k -> Map k v -> Bool
 member k = maybe false (const true) <<< lookup k
 
 map : {{Ord k}} -> (a -> b) -> Map k a -> Map k b
-map {a = a} {b = b} f kvs = toMap (Tree.map go (unMap kvs))
+map {a = a} {b = b} f kvs = aMap (Tree.map go (unMap kvs))
   where
     go : KeyVal k a -> KeyVal k b
-    go (toKeyVal k v) = toKeyVal k (f v)
+    go (aKeyVal k v) = aKeyVal k (f v)
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -116,7 +116,7 @@ map {a = a} {b = b} f kvs = toMap (Tree.map go (unMap kvs))
 instance
   Foldable-Map : Foldable (Map k)
   Foldable-Map .foldr step init kvs =
-    foldr (\ where (toKeyVal _ x) acc -> step x acc) init (unMap kvs)
+    foldr (\ where (aKeyVal _ x) acc -> step x acc) init (unMap kvs)
 
   Show-Map : {{Show k}} -> {{Show v}} -> Show (Map k v)
   Show-Map .showsPrec d kvs = showParen (d > 10) $

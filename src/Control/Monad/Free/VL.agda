@@ -51,23 +51,23 @@ instance
 -------------------------------------------------------------------------------
 
 record Free (fs : List Effect) (a : Set) : Set where
-  constructor toFree
+  constructor aFree
   field runFree : {{Monad m}} -> Effects m fs -> m a
 
 open Free public
 
 instance
   Functor-Free : Functor (Free fs)
-  Functor-Free .map f program = toFree (map f <<< runFree program)
+  Functor-Free .map f program = aFree (map f <<< runFree program)
 
   Applicative-Free : Applicative (Free fs)
-  Applicative-Free .pure x = toFree (const $ pure x)
+  Applicative-Free .pure x = aFree (const $ pure x)
   Applicative-Free ._<*>_ fs xs =
-    toFree \ effects -> runFree fs effects <*> runFree xs effects
+    aFree \ effects -> runFree fs effects <*> runFree xs effects
 
   Monad-Free : Monad (Free fs)
   Monad-Free ._>>=_ program k =
-    toFree \ effects -> runFree program effects >>= \ x -> runFree (k x) effects
+    aFree \ effects -> runFree program effects >>= \ x -> runFree (k x) effects
 
 -- Because Elem-Implies and Elem-Obvious overlap, interpreting will not
 -- work without Agda complaining.
@@ -75,4 +75,4 @@ interpret : {{Monad m}} -> Effects m fs -> Free fs a -> m a
 interpret interpreter program = runFree program interpreter
 
 liftFree : {{Elem f fs}} -> (forall {m} -> f m -> m a) -> Free fs a
-liftFree getOp = toFree \ effects -> getOp (getElem effects)
+liftFree getOp = aFree \ effects -> getOp (getElem effects)

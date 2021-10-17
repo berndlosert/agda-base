@@ -42,7 +42,7 @@ instance
 -------------------------------------------------------------------------------
 
 record NonEmpty (a : Set) {{_ : NonEmptyness a}} : Set where
-  constructor toNonEmpty
+  constructor anNonEmpty
   field
     fromNonEmpty : a
     {{Assert-nonempty}} : Assert (nonempty fromNonEmpty)

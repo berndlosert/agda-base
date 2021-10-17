@@ -22,7 +22,7 @@ private
 
 -- Semigroup where x <> y = x
 record First (a : Set) : Set where
-  constructor toFirst
+  constructor aFirst
   field getFirst : a
 
 open First public
@@ -32,18 +32,18 @@ instance
   Semigroup-First ._<>_ x _ = x
 
   Monoid-First : {{Monoid a}} -> Monoid (First a)
-  Monoid-First .mempty = toFirst mempty
+  Monoid-First .mempty = aFirst mempty
 
   Functor-First : Functor First
-  Functor-First .map f = toFirst <<< f <<< getFirst
+  Functor-First .map f = aFirst <<< f <<< getFirst
 
   Applicative-First : Applicative First
-  Applicative-First .pure = toFirst
-  Applicative-First ._<*>_ f x = toFirst $ (getFirst f) (getFirst x)
+  Applicative-First .pure = aFirst
+  Applicative-First ._<*>_ f x = aFirst $ (getFirst f) (getFirst x)
 
   Monad-First : Monad First
   Monad-First ._>>=_ m k = k (getFirst m)
 
   Show-First : {{Show a}} -> Show (First a)
   Show-First .showsPrec prec x = showParen (prec > appPrec) $
-    showString "toFirst " <<< showsPrec appPrec+1 (getFirst x)
+    showString "aFirst " <<< showsPrec appPrec+1 (getFirst x)

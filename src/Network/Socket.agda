@@ -91,7 +91,7 @@ data AddrInfoFlag : Set where
 -------------------------------------------------------------------------------
 
 record AddrInfo : Set where
-  constructor toAddrInfo
+  constructor anAddrInfo
   field
     addrFlags : List AddrInfoFlag
     addrFamily : AddrFamily

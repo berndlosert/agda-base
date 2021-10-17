@@ -52,8 +52,8 @@ instance
     (x :: xs) -> (| f x :: traverse f xs |)
 
   Traversable-Reverse : {{Traversable f}} -> Traversable (Reverse f)
-  Traversable-Reverse .traverse f (toReverse x) =
-    map toReverse <<< forwards $ traverse (toBackwards <<< f) x
+  Traversable-Reverse .traverse f (aReverse x) =
+    map aReverse <<< forwards $ traverse (aBackwards <<< f) x
 
 -------------------------------------------------------------------------------
 -- mapAccumL, mapAccumR
@@ -63,4 +63,4 @@ mapAccumL : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c
 mapAccumL f z bs = flip runState z $ for bs (state <<< flip f)
 
 mapAccumR : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c)
-mapAccumR f z = map getReverse <<< mapAccumL f z <<< toReverse
+mapAccumR f z = map getReverse <<< mapAccumL f z <<< aReverse

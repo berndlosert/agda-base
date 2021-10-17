@@ -14,18 +14,18 @@ open import Prelude
 
 -- Bool monoid where x <> y = x && y.
 record All : Set where
-  constructor toAll
+  constructor anAll
   field getAll : Bool
 
 open All public
 
 instance
   Semigroup-All : Semigroup All
-  Semigroup-All ._<>_ x y = toAll (getAll x && getAll y)
+  Semigroup-All ._<>_ x y = anAll (getAll x && getAll y)
 
   Monoid-All : Monoid All
-  Monoid-All .mempty = toAll true
+  Monoid-All .mempty = anAll true
 
   Show-All : Show All
   Show-All .showsPrec prec x = showParen (prec > appPrec) $
-    showString "toAll " <<< showsPrec appPrec+1 (getAll x)
+    showString "anAll " <<< showsPrec appPrec+1 (getAll x)

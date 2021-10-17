@@ -29,20 +29,20 @@ private
 -------------------------------------------------------------------------------
 
 record Elem (a : Set) : Set where
-  constructor toElem
+  constructor anElem
   field getElem : a
 
 open Elem public
 
 instance
   Measured-Elem : Measured (Sum Nat) (Elem a)
-  Measured-Elem .measure _ = toSum 1
+  Measured-Elem .measure _ = aSum 1
 
   Functor-Elem : Functor Elem
-  Functor-Elem .map f (toElem x) = toElem (f x)
+  Functor-Elem .map f (anElem x) = anElem (f x)
 
   Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldr step init (toElem x) = step x init
+  Foldable-Elem .foldr step init (anElem x) = step x init
 
   Traversable-Elem : Traversable Elem
-  Traversable-Elem .traverse f (toElem x) = (| toElem (f x) |)
+  Traversable-Elem .traverse f (anElem x) = (| anElem (f x) |)

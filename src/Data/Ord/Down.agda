@@ -21,7 +21,7 @@ private
 -------------------------------------------------------------------------------
 
 record Down (a : Set) : Set where
-  constructor toDown
+  constructor aDown
   field getDown : a
 
 open Down public

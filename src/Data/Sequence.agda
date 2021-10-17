@@ -37,17 +37,17 @@ private
 -------------------------------------------------------------------------------
 
 record Seq (a : Set) : Set where
-  constructor toSeq
+  constructor aSeq
   field unSeq : FingerTree (Sum Nat) (Elem a)
 
 open Seq
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ l r = toSeq (unSeq l <> unSeq r)
+  Semigroup-Seq ._<>_ l r = aSeq (unSeq l <> unSeq r)
 
   Monoid-Seq : Monoid (Seq a)
-  Monoid-Seq .mempty = toSeq Tree.empty
+  Monoid-Seq .mempty = aSeq Tree.empty
 
   NonEmptyness-Seq : NonEmptyness (Seq a)
   NonEmptyness-Seq .nonempty xs = nonempty (unSeq xs)
@@ -56,10 +56,10 @@ instance
   Foldable-Seq .foldr step init xs = foldr (step <<< getElem) init (unSeq xs)
 
   Functor-Seq : Functor Seq
-  Functor-Seq .map f xs = toSeq (map f <$> unSeq xs)
+  Functor-Seq .map f xs = aSeq (map f <$> unSeq xs)
 
   Applicative-Seq : Applicative Seq
-  Applicative-Seq .pure = toSeq <<< Tree.singleton <<< toElem
+  Applicative-Seq .pure = aSeq <<< Tree.singleton <<< anElem
   Applicative-Seq ._<*>_ fs xs =
       bind fs \ f -> bind xs \ x -> pure (f x)
     where
@@ -74,7 +74,7 @@ instance
   Monad-Seq ._>>=_ = flip foldMap
 
   Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f xs = toSeq <$> traverse (traverse f) (unSeq xs)
+  Traversable-Seq .traverse f xs = aSeq <$> traverse (traverse f) (unSeq xs)
 
   Eq-Seq : {{Eq a}} -> Eq (Seq a)
   Eq-Seq ._==_ l r = toList l == toList r
@@ -83,16 +83,16 @@ instance
 -- Construction
 -------------------------------------------------------------------------------
 
-pattern nil = toSeq Tree.empty
+pattern nil = aSeq Tree.empty
 
 cons : a -> Seq a -> Seq a
-cons x xs = toSeq (Tree.cons (toElem x) (unSeq xs))
+cons x xs = aSeq (Tree.cons (anElem x) (unSeq xs))
 
 snoc : Seq a -> a -> Seq a
-snoc xs x = toSeq (Tree.snoc (unSeq xs) (toElem x))
+snoc xs x = aSeq (Tree.snoc (unSeq xs) (anElem x))
 
 singleton : a -> Seq a
-singleton x = toSeq (Tree.singleton (toElem x))
+singleton x = aSeq (Tree.singleton (anElem x))
 
 fromFoldable : {{Foldable t}} -> t a -> Seq a
 fromFoldable = foldr cons azero
@@ -129,13 +129,13 @@ uncons : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair a (Seq a)
 uncons nil = panic "Data.Sequence.uncons: bad argument"
 uncons xs =
   case Tree.uncons (unSeq xs) {{trustMe}} of \ where
-    (toElem x , xs) -> (x , toSeq xs)
+    (anElem x , xs) -> (x , aSeq xs)
 
 unsnoc : (xs : Seq a) -> {{Assert $ nonempty xs}} -> Pair (Seq a) a
 unsnoc nil = panic "Data.Sequence.uncons: bad argument"
 unsnoc xs =
   case Tree.unsnoc (unSeq xs) {{trustMe}} of \ where
-    (xs , toElem x) -> (toSeq xs , x)
+    (xs , anElem x) -> (aSeq xs , x)
 
 head : (xs : Seq a) -> {{Assert $ nonempty xs}} -> a
 head nil = panic "Data.Sequence.head: bad argument"
@@ -190,10 +190,10 @@ scanr f b xs = snoc (snd $ mapAccumR (\ z x -> dup (f x z)) b xs) b
 -------------------------------------------------------------------------------
 
 tails : Seq a -> Seq (Seq a)
-tails xs = snoc (toSeq (Tree.tails (toElem <<< toSeq) (unSeq xs))) azero
+tails xs = snoc (aSeq (Tree.tails (anElem <<< aSeq) (unSeq xs))) azero
 
 inits : Seq a -> Seq (Seq a)
-inits xs = cons azero (toSeq (Tree.inits (toElem <<< toSeq) (unSeq xs)))
+inits xs = cons azero (aSeq (Tree.inits (anElem <<< aSeq) (unSeq xs)))
 
 -------------------------------------------------------------------------------
 -- Sorting
@@ -205,7 +205,7 @@ inits xs = cons azero (toSeq (Tree.inits (toElem <<< toSeq) (unSeq xs)))
 -------------------------------------------------------------------------------
 
 splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
-splitAt n xs = bimap toSeq toSeq $ Tree.split (\ m -> n < getSum m) (unSeq xs)
+splitAt n xs = bimap aSeq aSeq $ Tree.split (\ m -> n < getSum m) (unSeq xs)
 
 take : Nat -> Seq a -> Seq a
 take n = fst <<< splitAt n
