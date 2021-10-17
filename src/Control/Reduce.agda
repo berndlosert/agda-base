@@ -24,35 +24,35 @@ private
 -------------------------------------------------------------------------------
 
 data Reduced (a : Set) : Set where
-  reduced : Bool -> a -> Reduced a
+  aReduced : Bool -> a -> Reduced a
 
 instance
   Functor-Reduced : Functor Reduced
-  Functor-Reduced .map f (reduced b x) = reduced b (f x)
+  Functor-Reduced .map f (aReduced b x) = aReduced b (f x)
 
   Applicative-Reduced : Applicative Reduced
-  Applicative-Reduced .pure = reduced false
-  Applicative-Reduced ._<*>_ (reduced b f) (reduced b' x) =
-    reduced (b && b') (f x)
+  Applicative-Reduced .pure = aReduced false
+  Applicative-Reduced ._<*>_ (aReduced b f) (aReduced b' x) =
+    aReduced (b && b') (f x)
 
 -------------------------------------------------------------------------------
 -- Reducer
 -------------------------------------------------------------------------------
 
 data Reducer (a b : Set) : Set where
-  reducer : c -> (c -> a -> Reduced c) -> (c -> b) -> Reducer a b
+  aReducer : c -> (c -> a -> Reduced c) -> (c -> b) -> Reducer a b
 
 instance
   Functor-Reducer : Functor (Reducer a)
-  Functor-Reducer .map f (reducer init step done) =
-    reducer init step (done >>> f)
+  Functor-Reducer .map f (aReducer init step done) =
+    aReducer init step (done >>> f)
 
   Applicative-Reducer : Applicative (Reducer a)
   Applicative-Reducer .pure x =
-    reducer tt (\ _ _ -> reduced true tt) (const x)
+    aReducer tt (\ _ _ -> aReduced true tt) (const x)
   Applicative-Reducer ._<*>_
-    (reducer init1 step1 done1) (reducer init2 step2 done2) =
-        reducer init step done
+    (aReducer init1 step1 done1) (aReducer init2 step2 done2) =
+        aReducer init step done
       where
         init : _
         init = (init1 , init2)
@@ -75,13 +75,13 @@ Transducer a b = forall {c} -> Reducer b c -> Reducer a c
 -------------------------------------------------------------------------------
 
 reduce : {{Foldable t}} -> Reducer a b -> t a -> b
-reduce {t} {a} {b} (reducer {c} init step done) xs =
+reduce {t} {a} {b} (aReducer {c} init step done) xs =
     foldr step' done xs init
   where
     step' : a -> (c -> b) -> c -> b
     step' x k acc = case step acc x of \ where
-      (reduced true acc') -> done acc'
-      (reduced false acc') -> k $! acc'
+      (aReduced true acc') -> done acc'
+      (aReduced false acc') -> k $! acc'
 
 transduce : {{Foldable t}} -> Transducer a b -> Reducer b c -> t a -> c
 transduce t r = reduce (t r)
@@ -90,69 +90,69 @@ transduce t r = reduce (t r)
 -- Construction
 -------------------------------------------------------------------------------
 
-reducer' : c -> (c -> a -> c) -> (c -> b) -> Reducer a b
-reducer' {c} {a} init step done =
-  let step' acc x = reduced false (step acc x)
-  in reducer init step' done
+aReducer' : c -> (c -> a -> c) -> (c -> b) -> Reducer a b
+aReducer' {c} {a} init step done =
+  let step' acc x = aReduced false (step acc x)
+  in aReducer init step' done
 
 intoFold : (b -> a -> b) -> b -> Reducer a b
-intoFold step init = reducer' init step id
+intoFold step init = aReducer' init step id
 
 intoFoldMap : {{Monoid c}} -> (a -> c) -> (c -> b) -> Reducer a b
 intoFoldMap f =
   let step acc x = acc <> f x
-  in reducer' mempty step
+  in aReducer' mempty step
 
 mapping : (a -> b) -> Transducer a b
-mapping f (reducer init step done) =
+mapping f (aReducer init step done) =
   let step' acc x = step acc (f x)
-  in reducer init step' done
+  in aReducer init step' done
 
 filtering : (a -> Bool) -> Transducer a a
-filtering p (reducer init step done) =
-  let step' acc x = if p x then step acc x else reduced false acc
-  in reducer init step' done
+filtering p (aReducer init step done) =
+  let step' acc x = if p x then step acc x else aReduced false acc
+  in aReducer init step' done
 
 concatMapping : {{Foldable t}} -> (a -> t b) -> Transducer a b
-concatMapping f (reducer init step done) =
-  let step' acc x = reduced false (reduce (reducer acc step id) (f x))
-  in reducer init step' done
+concatMapping f (aReducer init step done) =
+  let step' acc x = aReduced false (reduce (aReducer acc step id) (f x))
+  in aReducer init step' done
 
 taking : Nat -> Transducer a a
-taking n (reducer init step done) = reducer init' step' done'
+taking n (aReducer init step done) = aReducer init' step' done'
   where
     init' : _
     init' = (n , init)
 
     step' : _
-    step' (0 , acc) x = reduced true (0 , acc)
+    step' (0 , acc) x = aReduced true (0 , acc)
     step' (suc m , acc) x = case step acc x of \ where
-      (reduced true acc') -> reduced true (suc m , acc')
-      (reduced false acc') -> reduced false (m , acc')
+      (aReduced true acc') -> aReduced true (suc m , acc')
+      (aReduced false acc') -> aReduced false (m , acc')
 
     done' : _
     done' (_ , acc) = done acc
 
 takingWhile : (a -> Bool) -> Transducer a a
-takingWhile p (reducer init step done) =
-  let step' acc x = if p x then step acc x else reduced true acc
-  in reducer init step' done
+takingWhile p (aReducer init step done) =
+  let step' acc x = if p x then step acc x else aReduced true acc
+  in aReducer init step' done
 
 dropping : Nat -> Transducer a a
-dropping n (reducer init step done) = reducer init' step' done'
+dropping n (aReducer init step done) = aReducer init' step' done'
   where
     init' : _
     init' = (n , init)
 
     step' : _
     step' (0 , acc) x = map (0 ,_) (step acc x)
-    step' (suc n' , acc) x = reduced false (n' , acc)
+    step' (suc n' , acc) x = aReduced false (n' , acc)
 
     done' : _
     done' (_ , acc) = done acc
 
 droppingWhile : (a -> Bool) -> Transducer a a
-droppingWhile p (reducer init step done) = reducer init' step' done'
+droppingWhile p (aReducer init step done) = aReducer init' step' done'
   where
     init' : _
     init' = (false , init)
@@ -160,7 +160,7 @@ droppingWhile p (reducer init step done) = reducer init' step' done'
     step' : _
     step' (false ,  acc) x =
       if p x
-        then reduced false (false , acc)
+        then aReduced false (false , acc)
         else map (true ,_) (step acc x)
     step' (true , acc) x = map (true ,_) (step acc x)
 
@@ -168,27 +168,27 @@ droppingWhile p (reducer init step done) = reducer init' step' done'
     done' (_ , acc) = done acc
 
 -------------------------------------------------------------------------------
--- Some reducers
+-- Some aReducers
 -------------------------------------------------------------------------------
 
 intoLength : Reducer a Nat
 intoLength = intoFold (\ n _ -> n + 1) 0
 
 intoList : Reducer a (List a)
-intoList = reducer' id (\ acc x -> acc <<< (x ::_)) (_$ [])
+intoList = aReducer' id (\ acc x -> acc <<< (x ::_)) (_$ [])
 
 intoNull : Reducer a Bool
-intoNull = reducer true (\ _ _ -> reduced true false) id
+intoNull = aReducer true (\ _ _ -> aReduced true false) id
 
 intoAnd : Reducer Bool Bool
 intoAnd =
-  let step acc x = if x then reduced false acc else reduced true x
-  in reducer false step id
+  let step acc x = if x then aReduced false acc else aReduced true x
+  in aReducer false step id
 
 intoOr : Reducer Bool Bool
 intoOr =
-  let step acc x = if x then reduced true x else reduced false acc
-  in reducer false step id
+  let step acc x = if x then aReduced true x else aReduced false acc
+  in aReducer false step id
 
 inanAll : (a -> Bool) -> Reducer a Bool
 inanAll p = mapping p intoAnd
@@ -203,7 +203,7 @@ inaProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
 inaProduct = intoFold _*_ 1
 
 inaFirst : Reducer a (Maybe a)
-inaFirst = reducer nothing (\ _ x -> reduced true (just x)) id
+inaFirst = aReducer nothing (\ _ x -> aReduced true (just x)) id
 
 inaLast : Reducer a (Maybe a)
 inaLast = intoFold (const just) nothing

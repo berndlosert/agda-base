@@ -46,8 +46,8 @@ length : List a -> Nat
 length {a} = foldFix alg
   where
     alg : Algebra (ListS a) Nat
-    alg (operation nothing _) = zero
-    alg (operation (just _) arg) = suc (arg tt)
+    alg (anOperation nothing _) = zero
+    alg (anOperation (just _) arg) = suc (arg tt)
 
 one = suc zero
 two = suc one

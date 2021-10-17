@@ -21,19 +21,19 @@ private
 -------------------------------------------------------------------------------
 
 record Signature : Set where
-  constructor signature
+  constructor aSignature
   field
     Symbol : Set
     Arity : Symbol -> Set
 
 open Signature public
 
--- The signature consisting of one symbol tt representing the id function.
+-- The aSignature consisting of one symbol tt representing the id function.
 IdS : Signature
 IdS .Symbol = Unit
 IdS .Arity = const Unit
 
--- ConstS a is the signature where each x : a is a constant symbol.
+-- ConstS a is the aSignature where each x : a is a constant symbol.
 ConstS : Set -> Signature
 ConstS a .Symbol = a
 ConstS a .Arity = const Void
@@ -54,7 +54,7 @@ instance
 -------------------------------------------------------------------------------
 
 record Operation (sig : Signature) (a : Set) : Set where
-  constructor operation
+  constructor anOperation
   field
     symbol : Symbol sig
     argument : Arity sig symbol -> a
@@ -63,7 +63,7 @@ open Operation public
 
 instance
   Functor-Operation : {sig : Signature} -> Functor (Operation sig)
-  Functor-Operation .map f (operation symb arg) = operation symb (f <<< arg)
+  Functor-Operation .map f (anOperation symb arg) = anOperation symb (f <<< arg)
 
 -------------------------------------------------------------------------------
 -- Algebra
@@ -84,9 +84,9 @@ record Fix (sig : Signature) : Set where
 
 open Fix public
 
-pattern sup op arg = aFix (operation op arg)
+pattern sup op arg = aFix (anOperation op arg)
 
 foldFix : {sig : Signature} -> Algebra sig a -> Fix sig -> a
 foldFix alg (sup op arg) =
   let arg' x = foldFix alg (arg x)
-  in alg (operation op arg')
+  in alg (anOperation op arg')

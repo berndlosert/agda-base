@@ -33,7 +33,7 @@ pattern finished x arg = aFree (sup (left x) arg)
 pattern roll symb arg = aFree (sup (right symb) arg)
 
 inn : Operation sig (Free sig a) -> Free sig a
-inn (operation symb arg) = roll symb (arg >>> unFree)
+inn (anOperation symb arg) = roll symb (arg >>> unFree)
 
 instance
   Monad-Free : Monad (Free sig)
@@ -43,7 +43,7 @@ instance
       bind (finished x _) k = k x
       bind (roll symb arg) k =
         let arg' x = bind (aFree (arg x)) k
-        in inn (operation symb arg')
+        in inn (anOperation symb arg')
 
       return : a -> Free sig a
       return x = finished x absurd
