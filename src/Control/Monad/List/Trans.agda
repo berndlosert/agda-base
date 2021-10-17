@@ -9,8 +9,8 @@ module Control.Monad.List.Trans where
 open import Prelude
 
 open import Control.Exception
-open import Control.Monad.IO.Class
 open import Control.Monad.Error.Class
+open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
