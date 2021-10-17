@@ -1,6 +1,6 @@
 open import Prelude
 open import Data.Enum
-open import Data.Traversable
+open import Data.Foldable
 open import System.IO
 
 fizz buzz num fizzbuzz : Nat -> Maybe String
@@ -11,5 +11,5 @@ fizzbuzz n = fizz n <> buzz n <|> num n
 
 main : IO Unit
 main =
-  for (enumFromTo 1 100) \ n ->
+  for! (enumFromTo 1 100) \ n ->
     putStrLn (fromJust (fizzbuzz n) {{trustMe}})
