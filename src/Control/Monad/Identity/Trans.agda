@@ -9,6 +9,7 @@ module Control.Monad.Identity.Trans where
 open import Prelude
 
 open import Control.Exception
+open import Control.Monad.Error.Class
 open import Control.Monad.Cont.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
@@ -77,3 +78,8 @@ instance
   MonadCont-IdentityT : {{MonadCont m}} -> MonadCont (IdentityT m)
   MonadCont-IdentityT .callCC f = anIdentityT $
     callCC \ c -> runIdentityT (f (anIdentityT <<< c))
+
+  MonadError-IdentityT : {{MonadError e m}} -> MonadError e (IdentityT m)
+  MonadError-IdentityT .raiseError = lift <<< raiseError
+  MonadError-IdentityT .handleError m h = anIdentityT $
+    handleError (runIdentityT m) (runIdentityT <<< h)
