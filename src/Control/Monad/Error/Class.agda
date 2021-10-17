@@ -24,7 +24,7 @@ private
 
 record MonadError (e : Set) (m : Set -> Set) : Set where
   field
-    {{Monad-super}} : Monad m
+    overlap {{Monad-super}} : Monad m
     raiseError : e -> m a
     handleError : m a -> (e -> m a) -> m a
 
