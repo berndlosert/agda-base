@@ -10,6 +10,7 @@ open import Prelude
 
 open import Control.Exception
 open import Control.Monad.Cont.Class
+open import Control.Monad.Error.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
@@ -110,3 +111,8 @@ instance
   MonadCont-StateT : {{MonadCont m}} -> MonadCont (StateT s m)
   MonadCont-StateT .callCC f = aStateT \ s ->
     callCC \ c -> runStateT (f (\ x -> aStateT \ _ -> c (s , x))) s
+
+  MonadError-StateT : {{MonadError e m}} -> MonadError e (StateT s m)
+  MonadError-StateT .raiseError = lift <<< raiseError
+  MonadError-StateT .handleError m h = aStateT \ s ->
+    handleError (runStateT m s) (\ e -> runStateT (h e) s)
