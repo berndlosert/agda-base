@@ -8,6 +8,7 @@ module Control.Monad.Maybe.Trans where
 
 open import Prelude
 
+open import Control.Monad.Error.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
 open import Data.Foldable
@@ -25,7 +26,7 @@ open Control.Monad.Trans.Class public
 
 private
   variable
-    a b : Set
+    a b e : Set
     m n : Set -> Set
 
 -------------------------------------------------------------------------------
@@ -87,3 +88,8 @@ instance
 
   MonadIO-MaybeT : {{MonadIO m}} -> MonadIO (MaybeT m)
   MonadIO-MaybeT .liftIO = lift <<< liftIO
+
+  MonadError-MaybeT : {{MonadError e m}} -> MonadError e (MaybeT m)
+  MonadError-MaybeT .raiseError = lift <<< raiseError
+  MonadError-MaybeT .handleError m h = aMaybeT $
+    handleError (runMaybeT m) (runMaybeT <<< h)
