@@ -10,6 +10,7 @@ open import Prelude
 
 open import Control.Exception
 open import Control.Monad.IO.Class
+open import Control.Monad.Error.Class
 open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
@@ -144,3 +145,8 @@ instance
         (just ((x , f) , rest)) -> do
           a <- pass $ pure (x , f)
           pure $ just (a , go rest)
+
+  MonadError-ListT : {{MonadError e m}} -> MonadError e (ListT m)
+  MonadError-ListT .raiseError = lift <<< raiseError
+  MonadError-ListT .handleError m h .runListT =
+    handleError (runListT m) (runListT <<< h)
