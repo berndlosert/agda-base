@@ -8,7 +8,7 @@ module Control.Monad.Free.Signature where
 
 open import Prelude
 
-open import Control.Monad.Raw
+open import Control.Monad.Kleisli
 open import Control.Recursion
 
 -------------------------------------------------------------------------------
@@ -37,12 +37,12 @@ inn : Operation sig (Free sig a) -> Free sig a
 inn (anOperation symb arg) = roll symb (arg >>> unFree)
 
 instance
-  RawMonad-Free : RawMonad (Free sig)
-  RawMonad-Free .bind (finished x _) k = k x
-  RawMonad-Free .bind (roll symb arg) k =
-    let arg' x = bind (aFree (arg x)) k
+  Triple-Free : Triple (Free sig)
+  Triple-Free .joinMap k (finished x _) = k x
+  Triple-Free .joinMap k (roll symb arg) =
+    let arg' x = joinMap k (aFree (arg x))
     in inn (anOperation symb arg')
-  RawMonad-Free .return x = finished x absurd
+  Triple-Free .return x = finished x absurd
 
   Functor-Free : Functor (Free sig)
   Functor-Free .map = liftM

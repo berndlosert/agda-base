@@ -9,7 +9,7 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
-open import Control.Monad.Raw
+open import Control.Monad.Kleisli
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -31,9 +31,9 @@ instance
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)
 
-  RawMonad-TC : RawMonad TC
-  RawMonad-TC .bind = bindTC
-  RawMonad-TC .return = returnTC
+  Triple-TC : Triple TC
+  Triple-TC .joinMap = flip bindTC
+  Triple-TC .return = returnTC
 
   Functor-TC : Functor TC
   Functor-TC .map = liftM
