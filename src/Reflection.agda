@@ -32,7 +32,7 @@ instance
   Show-Name .showsPrec d n = showString (primShowQName n)
 
   Triple-TC : Triple TC
-  Triple-TC .joinMap = flip bindTC
+  Triple-TC .flatMap = flip bindTC
   Triple-TC .return = returnTC
 
   Functor-TC : Functor TC

@@ -38,9 +38,9 @@ inn (anOperation symb arg) = roll symb (arg >>> unFree)
 
 instance
   Triple-Free : Triple (Free sig)
-  Triple-Free .joinMap k (finished x _) = k x
-  Triple-Free .joinMap k (roll symb arg) =
-    let arg' x = joinMap k (aFree (arg x))
+  Triple-Free .flatMap k (finished x _) = k x
+  Triple-Free .flatMap k (roll symb arg) =
+    let arg' x = flatMap k (aFree (arg x))
     in inn (anOperation symb arg')
   Triple-Free .return x = finished x absurd
 

@@ -23,17 +23,20 @@ private
 
 record Triple (m : Set -> Set) : Set where
   field
-    joinMap : (a -> m b) -> m a -> m b
+    flatMap : (a -> m b) -> m a -> m b
     return : a -> m a
 
+  flatten : m (m a) -> m a
+  flatten = flatMap id
+
   bind : m a -> (a -> m b) -> m b
-  bind = flip joinMap
+  bind = flip flatMap
 
   liftM : (a -> b) -> m a -> m b
-  liftM f = joinMap (f >>> return)
+  liftM f = flatMap (f >>> return)
 
   ap : m (a -> b) -> m a -> m b
-  ap mf mx = joinMap (\ f -> liftM f mx) mf
+  ap mf mx = flatMap (\ f -> liftM f mx) mf
 
 open Triple {{...}} public
 
