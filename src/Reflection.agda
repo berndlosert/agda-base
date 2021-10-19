@@ -9,6 +9,7 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
+open import Control.Monad.Raw
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -30,11 +31,16 @@ instance
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)
 
-  Monad-TC : Monad TC
-  Monad-TC = mkMonad bindTC returnTC
-
-  Applicative-TC : Applicative TC
-  Applicative-TC = Monad-TC .Applicative-super
+  RawMonad-TC : RawMonad TC
+  RawMonad-TC .bind = bindTC
+  RawMonad-TC .return = returnTC
 
   Functor-TC : Functor TC
-  Functor-TC = Applicative-TC .Functor-super
+  Functor-TC .map = liftM
+
+  Applicative-TC : Applicative TC
+  Applicative-TC .pure = return
+  Applicative-TC ._<*>_ = ap
+
+  Monad-TC : Monad TC
+  Monad-TC ._>>=_ = bind

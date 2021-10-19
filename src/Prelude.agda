@@ -343,10 +343,6 @@ record Eq (a : Set) : Set where
 
 open Eq {{...}} public
 
-mkEq : (a -> a -> Bool) -> Eq a
-mkEq eq = \ where
-  ._==_ -> eq
-
 instance
   Eq-Void : Eq Void
   Eq-Void ._==_ = \ ()
@@ -438,12 +434,6 @@ record Ord (a : Set) : Set where
   compare x y = if x == y then EQ else if x < y then LT else GT
 
 open Ord {{...}} public
-
-mkOrd : (a -> a -> Ordering) -> Ord a
-mkOrd cmp = \ where
-  ._<_ x y -> cmp x y == LT
-  .Eq-super -> \ where
-    ._==_ x y -> cmp x y == EQ
 
 instance
   Ord-Void : Ord Void
@@ -812,12 +802,6 @@ record Monoid (a : Set) : Set where
 
 open Monoid {{...}} public
 
-mkMonoid : (a -> a -> a) -> a -> Monoid a
-mkMonoid f z = \ where
-  .mempty -> z
-  .Semigroup-super -> \ where
-    ._<>_ -> f
-
 instance
   Monoid-Unit : Monoid Unit
   Monoid-Unit .mempty = tt
@@ -906,10 +890,6 @@ record Functor (f : Set -> Set) : Set where
   vacuous = map \ ()
 
 open Functor {{...}} public
-
-mkFunctor : (forall {a} {b} -> (a -> b) -> f a -> f b) -> Functor f
-mkFunctor fmap = \ where
-  .map -> fmap
 
 instance
   Functor-Function : Functor (Function a)
@@ -1024,15 +1004,6 @@ record Applicative (f : Set -> Set) : Set where
 
 open Applicative {{...}} public
 
-mkApplicative : (forall {a} {b} -> f (a -> b) -> f a -> f b)
-  -> (forall {a} -> a -> f a)
-  -> Applicative f
-mkApplicative ap pure' = \ where
-  ._<*>_ -> ap
-  .pure -> pure'
-  .Functor-super -> \ where
-    .map -> ap <<< pure'
-
 instance
   Applicative-Function : Applicative (Function a)
   Applicative-Function .pure = const
@@ -1124,17 +1095,6 @@ record Monad (m : Set -> Set) : Set where
   join = _>>= id
 
 open Monad {{...}} public
-
-mkMonad : (forall {a} {b} -> m a -> (a -> m b) -> m b)
-  -> (forall {a} -> a -> m a)
-  -> Monad m
-mkMonad bind return = \ where
-  ._>>=_ -> bind
-  .Applicative-super -> \ where
-    ._<*>_ l r -> bind l \ f -> bind r \ x -> return (f x)
-    .pure -> return
-    .Functor-super -> \ where
-      .map f x -> bind x (f >>> return)
 
 instance
   Monad-Function : Monad (Function a)

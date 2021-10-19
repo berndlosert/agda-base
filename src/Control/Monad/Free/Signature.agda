@@ -8,6 +8,7 @@ module Control.Monad.Free.Signature where
 
 open import Prelude
 
+open import Control.Monad.Raw
 open import Control.Recursion
 
 -------------------------------------------------------------------------------
@@ -36,20 +37,19 @@ inn : Operation sig (Free sig a) -> Free sig a
 inn (anOperation symb arg) = roll symb (arg >>> unFree)
 
 instance
-  Monad-Free : Monad (Free sig)
-  Monad-Free = mkMonad bind return
-    where
-      bind : Free sig a -> (a -> Free sig b) -> Free sig b
-      bind (finished x _) k = k x
-      bind (roll symb arg) k =
-        let arg' x = bind (aFree (arg x)) k
-        in inn (anOperation symb arg')
-
-      return : a -> Free sig a
-      return x = finished x absurd
-
-  Applicative-Free : Applicative (Free sig)
-  Applicative-Free = Monad-Free .Applicative-super
+  RawMonad-Free : RawMonad (Free sig)
+  RawMonad-Free .bind (finished x _) k = k x
+  RawMonad-Free .bind (roll symb arg) k =
+    let arg' x = bind (aFree (arg x)) k
+    in inn (anOperation symb arg')
+  RawMonad-Free .return x = finished x absurd
 
   Functor-Free : Functor (Free sig)
-  Functor-Free = Applicative-Free .Functor-super
+  Functor-Free .map = liftM
+
+  Applicative-Free : Applicative (Free sig)
+  Applicative-Free .pure = return
+  Applicative-Free ._<*>_ = ap
+
+  Monad-Free : Monad (Free sig)
+  Monad-Free ._>>=_ = bind

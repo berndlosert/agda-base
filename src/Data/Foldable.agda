@@ -30,7 +30,11 @@ record Foldable (t : Set -> Set) : Set where
     in foldr step mempty
 
   foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
-  foldMapBy {b} step init = foldMap {{mkMonoid step init}}
+  foldMapBy {b} step init = foldMap {{monoid}}
+    where
+      monoid : Monoid b
+      monoid .mempty = init
+      monoid .Semigroup-super ._<>_ = step
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
