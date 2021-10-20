@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type --guardedness #-}
-
 open import Prelude
 
 open import Control.Monad.Iter

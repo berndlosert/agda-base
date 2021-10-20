@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 open import Prelude
 
 open import Control.Monad.Error.Class

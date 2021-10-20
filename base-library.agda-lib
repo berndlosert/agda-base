@@ -1,2 +1,6 @@
 name: base-library
 include: src
+flags:
+  --type-in-type
+  --guardedness
+  --no-positivity-check

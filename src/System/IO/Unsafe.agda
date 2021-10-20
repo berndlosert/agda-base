@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module System.IO.Unsafe where
 
 open import Prelude

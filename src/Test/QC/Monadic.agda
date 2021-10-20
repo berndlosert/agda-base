@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type --guardedness #-}
-
 module Test.QC.Monadic where
 
 -------------------------------------------------------------------------------

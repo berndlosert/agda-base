@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Monad.Iter.Trans where
 
 -------------------------------------------------------------------------------

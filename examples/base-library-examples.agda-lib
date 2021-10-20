@@ -1,2 +1,6 @@
 name: agda-base-examples
 include: ../src/ .
+flags:
+  --type-in-type
+  --guardedness
+  --no-positivity-check

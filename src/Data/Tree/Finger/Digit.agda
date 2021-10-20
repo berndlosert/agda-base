@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Data.Tree.Finger.Digit where
 
 -------------------------------------------------------------------------------

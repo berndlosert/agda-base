@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Control.Applicative.Backwards where
 
 -------------------------------------------------------------------------------

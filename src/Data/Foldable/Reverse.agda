@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 module Data.Foldable.Reverse where
 
 -------------------------------------------------------------------------------

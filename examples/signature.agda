@@ -1,5 +1,3 @@
-{-# OPTIONS --type-in-type #-}
-
 open import Prelude
   hiding (Nat)
   hiding (zero)
