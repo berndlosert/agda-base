@@ -28,7 +28,6 @@ private
 -- ListT
 -------------------------------------------------------------------------------
 
-{-# NO_POSITIVITY_CHECK #-}
 record ListT (m : Set -> Set) (a : Set) : Set where
   field runListT : m (Maybe (Pair a (ListT m a)))
 

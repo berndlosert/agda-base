@@ -34,7 +34,6 @@ private
 -- IterT
 -------------------------------------------------------------------------------
 
-{-# NO_POSITIVITY_CHECK #-}
 record IterT (m : Set -> Set) (a : Set) : Set where
   constructor anIterT
   field runIterT : m (Either a (IterT m a))
