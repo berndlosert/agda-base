@@ -84,9 +84,9 @@ open Fix public
 
 pattern sup op arg = aFix (anOperation op arg)
 
-foldFix : {sig : Signature} -> Algebra sig a -> Fix sig -> a
-foldFix alg (sup symb arg) =
-  let arg' x = foldFix alg (arg x)
+cata : {sig : Signature} -> Algebra sig a -> Fix sig -> a
+cata alg (sup symb arg) =
+  let arg' x = cata alg (arg x)
   in alg (anOperation symb arg')
 
 -------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ record Cofix (sig : Signature) : Set where
 
 open Cofix public
 
-unfoldCofix : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
-unfoldCofix coalg x .unCofix =
-  let (anOperation symb arg) = coalg x
-  in anOperation symb (\ n -> unfoldCofix coalg (arg n))
+ana : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
+ana coalg x .unCofix =
+  let anOperation symb arg = coalg x
+  in anOperation symb (\ n -> ana coalg (arg n))
