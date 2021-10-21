@@ -64,37 +64,19 @@ instance
   Functor-Operation .map f (anOperation symb arg) = anOperation symb (f <<< arg)
 
 -------------------------------------------------------------------------------
--- Algebra
+-- Fix
 -------------------------------------------------------------------------------
+
+data Fix (sig : Signature) : Set where
+  aFix : Operation sig (Fix sig) -> Fix sig
 
 Algebra : Signature -> Set -> Set
 Algebra sig a = Operation sig a -> a
 
--------------------------------------------------------------------------------
--- Fix
--------------------------------------------------------------------------------
-
-record Fix (sig : Signature) : Set where
-  inductive
-  pattern
-  constructor aFix
-  field unFix : Operation sig (Fix sig)
-
-open Fix public
-
-pattern sup op arg = aFix (anOperation op arg)
-
 cata : {sig : Signature} -> Algebra sig a -> Fix sig -> a
-cata alg (sup symb arg) =
+cata alg (aFix (anOperation symb arg)) =
   let arg' x = cata alg (arg x)
   in alg (anOperation symb arg')
-
--------------------------------------------------------------------------------
--- Coalgebra
--------------------------------------------------------------------------------
-
-Coalgebra : Signature -> Set -> Set
-Coalgebra sig a = a -> Operation sig a
 
 -------------------------------------------------------------------------------
 -- Cofix
@@ -106,7 +88,10 @@ record Cofix (sig : Signature) : Set where
 
 open Cofix public
 
+Coalgebra : Signature -> Set -> Set
+Coalgebra sig a = a -> Operation sig a
+
 ana : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
 ana coalg x .unCofix =
   let anOperation symb arg = coalg x
-  in anOperation symb (\ n -> ana coalg (arg n))
+  in anOperation symb \ n -> ana coalg (arg n)
