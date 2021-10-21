@@ -102,12 +102,9 @@ Coalgebra sig a = a -> Operation sig a
 
 record Cofix (sig : Signature) : Set where
   coinductive
-  constructor aCofix
   field unCofix : Operation sig (Cofix sig)
 
 open Cofix public
-
-pattern inf symb arg = aCofix (anOperation symb arg)
 
 ana : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
 ana coalg x .unCofix =
