@@ -107,6 +107,8 @@ record Cofix (sig : Signature) : Set where
 
 open Cofix public
 
+pattern inf symb arg = aCofix (anOperation symb arg)
+
 ana : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
 ana coalg x .unCofix =
   let anOperation symb arg = coalg x
