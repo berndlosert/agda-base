@@ -85,6 +85,29 @@ open Fix public
 pattern sup op arg = aFix (anOperation op arg)
 
 foldFix : {sig : Signature} -> Algebra sig a -> Fix sig -> a
-foldFix alg (sup op arg) =
+foldFix alg (sup symb arg) =
   let arg' x = foldFix alg (arg x)
-  in alg (anOperation op arg')
+  in alg (anOperation symb arg')
+
+-------------------------------------------------------------------------------
+-- Coalgebra
+-------------------------------------------------------------------------------
+
+Coalgebra : Signature -> Set -> Set
+Coalgebra sig a = a -> Operation sig a
+
+-------------------------------------------------------------------------------
+-- Cofix
+-------------------------------------------------------------------------------
+
+record Cofix (sig : Signature) : Set where
+  coinductive
+  constructor aCofix
+  field unCofix : Operation sig (Cofix sig)
+
+open Cofix public
+
+unfoldCofix : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
+unfoldCofix coalg x .unCofix =
+  let op = coalg x
+  in anOperation (symbol op) (\ n -> unfoldCofix coalg (argument op n))
