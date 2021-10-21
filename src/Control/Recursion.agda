@@ -109,5 +109,5 @@ open Cofix public
 
 unfoldCofix : {sig : Signature} -> Coalgebra sig a -> a -> Cofix sig
 unfoldCofix coalg x .unCofix =
-  let op = coalg x
-  in anOperation (symbol op) (\ n -> unfoldCofix coalg (argument op n))
+  let (anOperation symb arg) = coalg x
+  in anOperation symb (\ n -> unfoldCofix coalg (arg n))
