@@ -532,25 +532,6 @@ instance
   FromNat-Float .fromNat n = Float.primNatToFloat n
 
 -------------------------------------------------------------------------------
--- AsNat
--------------------------------------------------------------------------------
-
-record FromAnyNat (a : Set) : Set where
-  field fromAnyNat : Nat -> a
-
-open FromAnyNat {{...}} public
-
-instance
-  FromAnyNat-Nat : FromAnyNat Nat
-  FromAnyNat-Nat .fromAnyNat n = n
-
-  FromAnyNat-Int : FromAnyNat Int
-  FromAnyNat-Int .fromAnyNat n = pos n
-
-  FromAnyNat-Float : FromAnyNat Float
-  FromAnyNat-Float .fromAnyNat n = Float.primNatToFloat n
-
--------------------------------------------------------------------------------
 -- HasNat
 -------------------------------------------------------------------------------
 

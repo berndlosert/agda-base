@@ -84,7 +84,7 @@ solution2 = solutions' initial
       go a ->
         if success a
           then pure a
-          else delay' $ asum $ map go (move a)
+          else delay $ asum $ map go (move a)
 
 testSolution2 :
   execIter solution2
