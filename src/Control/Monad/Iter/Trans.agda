@@ -40,8 +40,8 @@ record IterT (m : Set -> Set) (a : Set) : Set where
 
 open IterT public
 
-delay' : {{Monad m}} -> IterT m a -> IterT m a
-delay' iter .runIterT = pure (right iter)
+delay : {{Monad m}} -> IterT m a -> IterT m a
+delay iter .runIterT = pure (right iter)
 
 never : {{Monad m}} -> IterT m a
 never = fix \ where
@@ -97,7 +97,7 @@ instance
             (right r') -> pure $ right (go l' r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
-  MonadFree-IterT .wrap (anIdentity iter) = delay' iter
+  MonadFree-IterT .wrap (anIdentity iter) = delay iter
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map left m

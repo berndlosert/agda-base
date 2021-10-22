@@ -6,34 +6,31 @@ module Data.Colist where
 
 open import Prelude
 
-open import Data.Size
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
 private
   variable
-    i : Size
     a : Set
 
 -------------------------------------------------------------------------------
 -- Colist
 -------------------------------------------------------------------------------
 
-data Colist (i : Size) (a : Set) : Set where
-  [] : Colist i a
-  _::_ : a -> Thunk i (\ j -> Colist j a) -> Colist i a
+data Colist (a : Set) : Set where
+  [] : Colist a
+  _::_ : a -> Inf (Colist a) -> Colist a
 
-take : Nat -> Colist szinf a -> List a
+take : Nat -> Colist a -> List a
 take _ [] = []
 take 0 _ =  []
-take (suc n) (x :: xs) = x :: take n (forceThunk xs)
+take (suc n) (x :: xs) = x :: take n (flat xs)
 
 instance
-  Semigroup-Colist : Semigroup (Colist i a)
+  Semigroup-Colist : Semigroup (Colist a)
   Semigroup-Colist ._<>_ [] ys = []
-  Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .forceThunk -> (xs .forceThunk <> ys)
+  Semigroup-Colist ._<>_ (x :: xs) ys = x :: sharp (flat xs <> ys)
 
-  Monoid-Colist : Monoid (Colist i a)
+  Monoid-Colist : Monoid (Colist a)
   Monoid-Colist .mempty = []
