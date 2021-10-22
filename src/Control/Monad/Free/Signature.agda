@@ -28,8 +28,8 @@ record Free (sig : Signature) (a : Set) : Set where
 
 open Free public
 
-pattern finished x arg = aFree (sup (left x) arg)
-pattern roll symb arg = aFree (sup (right symb) arg)
+pattern finished x arg = aFree (aFix (anOperation (left x) arg))
+pattern roll symb arg = aFree (aFix (anOperation (right symb) arg))
 
 inn : Operation sig (Free sig a) -> Free sig a
 inn (anOperation symb arg) = roll symb (arg >>> unFree)

@@ -17,6 +17,7 @@ import Agda.Builtin.Maybe as Maybe
 import Agda.Builtin.List as List
 import Agda.Builtin.IO as IO
 import Agda.Builtin.Strict as Strict
+import Agda.Builtin.Coinduction as Coinduction
 
 -------------------------------------------------------------------------------
 -- Primitive types
@@ -97,6 +98,11 @@ open List public
 
 open IO public
   using (IO)
+
+open Coinduction public
+  renaming (∞ to Lazy)
+  renaming (♯_ to delay)
+  renaming (♭ to force)
 
 -------------------------------------------------------------------------------
 -- Variables

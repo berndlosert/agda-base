@@ -28,12 +28,12 @@ data Colist (i : Size) (a : Set) : Set where
 take : Nat -> Colist szinf a -> List a
 take _ [] = []
 take 0 _ =  []
-take (suc n) (x :: xs) = x :: take n (force xs)
+take (suc n) (x :: xs) = x :: take n (forceThunk xs)
 
 instance
   Semigroup-Colist : Semigroup (Colist i a)
   Semigroup-Colist ._<>_ [] ys = []
-  Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .force -> (xs .force <> ys)
+  Semigroup-Colist ._<>_ (x :: xs) ys = x :: \ where .forceThunk -> (xs .forceThunk <> ys)
 
   Monoid-Colist : Monoid (Colist i a)
   Monoid-Colist .mempty = []

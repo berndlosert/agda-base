@@ -149,12 +149,12 @@ shuffle xs = do
     2^32 : Nat
     2^32 = 4294967296
 
-delay : Gen (Gen a -> a)
-delay = aGen \ r n g -> unGen g r n
+delay' : Gen (Gen a -> a)
+delay' = aGen \ r n g -> unGen g r n
 
 promote : {{Monad m}} -> m (Gen a) -> Gen (m a)
 promote m = do
-  eval <- delay
+  eval <- delay'
   pure (map eval m)
 
 -------------------------------------------------------------------------------
