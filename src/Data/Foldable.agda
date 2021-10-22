@@ -64,8 +64,8 @@ record Foldable (t : Set -> Set) : Set where
   concatMap : (a -> List b) -> t a -> List b
   concatMap = foldMap
 
-  length : t a -> Nat
-  length = foldr (const suc) zero
+  length : {{FromAnyNat b}} -> t a -> b
+  length = fromAnyNat <<< foldr (const suc) 0
 
   find : (a -> Bool) -> t a -> Maybe a
   find p =

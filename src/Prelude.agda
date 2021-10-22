@@ -532,6 +532,25 @@ instance
   FromNat-Float .fromNat n = Float.primNatToFloat n
 
 -------------------------------------------------------------------------------
+-- AsNat
+-------------------------------------------------------------------------------
+
+record FromAnyNat (a : Set) : Set where
+  field fromAnyNat : Nat -> a
+
+open FromAnyNat {{...}} public
+
+instance
+  FromAnyNat-Nat : FromAnyNat Nat
+  FromAnyNat-Nat .fromAnyNat n = n
+
+  FromAnyNat-Int : FromAnyNat Int
+  FromAnyNat-Int .fromAnyNat n = pos n
+
+  FromAnyNat-Float : FromAnyNat Float
+  FromAnyNat-Float .fromAnyNat n = Float.primNatToFloat n
+
+-------------------------------------------------------------------------------
 -- HasNat
 -------------------------------------------------------------------------------
 
@@ -626,24 +645,19 @@ record HasExp (a : Set) : Set where
 
 open HasExp {{...}} public
 
-record Divisor (a : Set) : Set where
-  field divisor : a -> Bool
-
-open Divisor {{...}} public
-
 record HasDiv (a : Set) : Set where
   infixl 7 _/_
   field
-    overlap {{Divisor-super}} : Divisor a
-    _/_ : (x y : a) -> {{Assert $ divisor y}} -> a
+    Div : a -> a -> Set
+    _/_ : (x y : a) -> Div x y
 
 open HasDiv {{...}} public
 
 record HasMod (a : Set) : Set where
   infixl 7 _%_
   field
-    overlap {{Divisor-super}} : Divisor a
-    _%_ : (x y : a) -> {{Assert $ divisor y}} -> a
+    Mod : a -> a -> Set
+    _%_ : (x y : a) -> Mod x y
 
 open HasMod {{...}} public
 
@@ -663,16 +677,14 @@ instance
   HasExp-Nat ._^_ m 0 = 1
   HasExp-Nat ._^_ m (suc n) = m * m ^ n
 
-  Divisor-Nat : Divisor Nat
-  Divisor-Nat .divisor 0 = false
-  Divisor-Nat .divisor _ = true
-
   HasDiv-Nat : HasDiv Nat
-  HasDiv-Nat .Divisor-super = Divisor-Nat
+  HasDiv-Nat .Div _ 0 = {{Void}} -> Nat
+  HasDiv-Nat .Div _ (suc _) = Nat
   HasDiv-Nat ._/_ m (suc n) = Nat.div-helper 0 n m n
 
   HasMod-Nat : HasMod Nat
-  HasMod-Nat .Divisor-super = Divisor-Nat
+  HasMod-Nat .Mod _ 0 = {{Void}} -> Nat
+  HasMod-Nat .Mod _ (suc _) = Nat
   HasMod-Nat ._%_ m (suc n) = Nat.mod-helper 0 n m n
 
   HasAdd-Int : HasAdd Int
@@ -706,12 +718,9 @@ instance
   HasExp-Int ._^_ m 0 = pos 0
   HasExp-Int ._^_ m (suc n) = m * m ^ n
 
-  Divisor-Int : Divisor Int
-  Divisor-Int .divisor (pos 0) = false
-  Divisor-Int .divisor _ = true
-
   HasDiv-Int : HasDiv Int
-  HasDiv-Int .Divisor-super = Divisor-Int
+  HasDiv-Int .Div _ (pos 0) = {{Void}} -> Int
+  HasDiv-Int .Div _ _ = Int
   HasDiv-Int ._/_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m / n)
     (pos m) (negsuc n) -> neg (m / suc n)
@@ -719,7 +728,8 @@ instance
     (negsuc m) (negsuc n) -> pos (suc m / suc n)
 
   HasMod-Int : HasMod Int
-  HasMod-Int .Divisor-super = Divisor-Int
+  HasMod-Int .Mod _ (pos 0) = {{Void}} -> Int
+  HasMod-Int .Mod _ _ = Int
   HasMod-Int ._%_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m % n)
     (pos m) (negsuc n) -> pos (m % suc n)
@@ -743,10 +753,8 @@ instance
   HasExp-Float .Power = Float
   HasExp-Float ._^_ = Float.primFloatPow
 
-  Divisor-Float : Divisor Float
-  Divisor-Float .divisor _ = true
-
   HasDiv-Float : HasDiv Float
+  HasDiv-Float .Div _ _ = Float
   HasDiv-Float ._/_ x y = Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------

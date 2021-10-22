@@ -1,8 +1,12 @@
 open import Prelude
 
 open import Data.Enum
+open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
+
+avg : List Float -> Float
+avg = (| sum / length |)
 
 reverseTest :
   List.reverse ('a' :: 'b' :: 'c' :: []) === 'c' :: 'b' :: 'a' :: []
