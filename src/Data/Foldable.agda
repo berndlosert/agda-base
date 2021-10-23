@@ -64,8 +64,8 @@ record Foldable (t : Set -> Set) : Set where
   concatMap : (a -> List b) -> t a -> List b
   concatMap = foldMap
 
-  length : t a -> Nat
-  length = foldr (const suc) 0
+  length : {{FromNat b}} -> t a -> b
+  length = fromNat <<< foldr (const suc) 0
 
   find : (a -> Bool) -> t a -> Maybe a
   find p =
@@ -95,10 +95,10 @@ record Foldable (t : Set -> Set) : Set where
     let step x = maybe (just x) just
     in foldr step nothing
 
-  sum : {{HasAdd a}} -> {{HasNat 0 a}} -> t a -> a
+  sum : {{HasAdd a}} -> {{FromNat a}} -> t a -> a
   sum = foldl _+_ 0
 
-  product : {{HasMul a}} -> {{HasNat 1 a}} -> t a -> a
+  product : {{HasMul a}} -> {{FromNat a}} -> t a -> a
   product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where

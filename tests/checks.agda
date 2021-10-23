@@ -5,6 +5,7 @@ open import Data.Float as Float using ()
 open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
+open import System.IO
 
 avg : List Float -> Float
 avg = (| sum / (Float.fromNat <<< length) |)
@@ -76,3 +77,6 @@ testPermutations :
   ===
   (1 :: 2 :: 3 :: []) :: (1 :: 3 :: 2 :: []) :: (2 :: 1 :: 3 :: []) :: (2 :: 3 :: 1 :: []) :: (3 :: 1 :: 2 :: []) :: (3 :: 2 :: 1 :: []) :: []
 testPermutations = refl
+
+main : IO Unit
+main = print "hello"

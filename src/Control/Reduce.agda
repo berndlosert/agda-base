@@ -194,10 +194,10 @@ inanAll p = mapping p intoAnd
 inanAny : (a -> Bool) -> Reducer a Bool
 inanAny p = mapping p intoOr
 
-inaSum : {{HasAdd a}} -> {{HasNat 0 a}} -> Reducer a a
+inaSum : {{HasAdd a}} -> {{FromNat a}} -> Reducer a a
 inaSum = intoFold _+_ 0
 
-inaProduct : {{HasMul a}} -> {{HasNat 1 a}} -> Reducer a a
+inaProduct : {{HasMul a}} -> {{FromNat a}} -> Reducer a a
 inaProduct = intoFold _*_ 1
 
 inaFirst : Reducer a (Maybe a)

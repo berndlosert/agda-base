@@ -511,8 +511,7 @@ instance
 
 record FromNat (a : Set) : Set where
   field
-    FromNatConstraint : Nat -> Set
-    fromNat : (n : Nat) -> {{FromNatConstraint n}} -> a
+    fromNat : (n : Nat) -> a
 
 open FromNat {{...}} public
 
@@ -520,34 +519,13 @@ open FromNat {{...}} public
 
 instance
   FromNat-Nat : FromNat Nat
-  FromNat-Nat .FromNatConstraint _ = Unit
   FromNat-Nat .fromNat n = n
 
   FromNat-Int : FromNat Int
-  FromNat-Int .FromNatConstraint _ = Unit
   FromNat-Int .fromNat n = pos n
 
   FromNat-Float : FromNat Float
-  FromNat-Float .FromNatConstraint _ = Unit
   FromNat-Float .fromNat n = Float.primNatToFloat n
-
--------------------------------------------------------------------------------
--- HasNat
--------------------------------------------------------------------------------
-
-record HasNat (n : Nat) (a : Set) : Set where
-  field
-    {{FromNat-super}} : FromNat a
-    {{FromNatConstraint-super}} : FromNatConstraint {{FromNat-super}} n
-
-open HasNat {{...}} public
-
-instance
-  HasNat-global : {n : Nat}
-    -> {{fn : FromNat a}}
-    -> {{FromNatConstraint {{fn}} n}}
-    -> HasNat n a
-  HasNat-global = record {}
 
 -------------------------------------------------------------------------------
 -- ToNat
@@ -555,14 +533,12 @@ instance
 
 record ToNat (a : Set) : Set where
   field
-    ToNatConstraint : a -> Set
-    toNat : (x : a) -> {{ToNatConstraint x}} -> Nat
+    toNat : a -> Nat
 
 open ToNat {{...}} public
 
 instance
   ToNat-Int : ToNat Int
-  ToNat-Int .ToNatConstraint _ = Unit
   ToNat-Int .toNat (pos n) = n
   ToNat-Int .toNat (negsuc n) = 0
 
@@ -571,9 +547,7 @@ instance
 -------------------------------------------------------------------------------
 
 record FromNeg (a : Set) : Set where
-  field
-    FromNegConstraint : Nat -> Set
-    fromNeg : (n : Nat) -> {{FromNegConstraint n}} -> a
+  field fromNeg : Nat -> a
 
 open FromNeg {{...}} public
 
@@ -581,11 +555,9 @@ open FromNeg {{...}} public
 
 instance
   FromNeg-Int : FromNeg Int
-  FromNeg-Int .FromNegConstraint _ = Unit
   FromNeg-Int .fromNeg n = neg n
 
   FromNeg-Float : FromNeg Float
-  FromNeg-Float .FromNegConstraint _ = Unit
   FromNeg-Float .fromNeg n =
     Float.primFloatNegate (Float.primNatToFloat n)
 

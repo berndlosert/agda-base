@@ -38,11 +38,9 @@ private
 
 instance
   FromNat-Word8 : FromNat Word8
-  FromNat-Word8 .FromNatConstraint = const Unit
   FromNat-Word8 .fromNat n = natToWord8 n
 
   ToNat-Word8 : ToNat Word8
-  ToNat-Word8 .ToNatConstraint = const Unit
   ToNat-Word8 .toNat w = word8ToNat w
 
   Eq-Word8 : Eq Word8
@@ -101,11 +99,9 @@ private
 
 instance
   FromNat-Word16 : FromNat Word16
-  FromNat-Word16 .FromNatConstraint = const Unit
   FromNat-Word16 .fromNat n = natToWord16 n
 
   ToNat-Word16 : ToNat Word16
-  ToNat-Word16 .ToNatConstraint _ = Unit
   ToNat-Word16 .toNat w = word16ToNat w
 
   Eq-Word16 : Eq Word16
@@ -164,11 +160,9 @@ private
 
 instance
   FromNat-Word32 : FromNat Word32
-  FromNat-Word32 .FromNatConstraint = const Unit
   FromNat-Word32 .fromNat n = natToWord32 n
 
   ToNat-Word32 : ToNat Word32
-  ToNat-Word32 .ToNatConstraint _ = Unit
   ToNat-Word32 .toNat w = word32ToNat w
 
   Eq-Word32 : Eq Word32
@@ -231,11 +225,9 @@ private
 
 instance
   FromNat-Word64 : FromNat Word64
-  FromNat-Word64 .FromNatConstraint = const Unit
   FromNat-Word64 .fromNat n = natToWord64 n
 
   ToNat-Word64 : ToNat Word64
-  ToNat-Word64 .ToNatConstraint _ = Unit
   ToNat-Word64 .toNat w = word64ToNat w
 
   Eq-Word64 : Eq Word64
