@@ -29,9 +29,9 @@ instance
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)
 
-  Triple-TC : Triple TC
-  Triple-TC .flatMap = flip bindTC
-  Triple-TC .return = returnTC
+  KleisliTriple-TC : KleisliTriple TC
+  KleisliTriple-TC .flatMap = flip bindTC
+  KleisliTriple-TC .return = returnTC
 
   Functor-TC : Functor TC
   Functor-TC .map = liftM

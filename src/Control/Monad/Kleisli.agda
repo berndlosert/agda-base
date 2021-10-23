@@ -16,10 +16,10 @@ private
     m : Set -> Set
 
 -------------------------------------------------------------------------------
--- Triple
+-- KleisliTriple
 -------------------------------------------------------------------------------
 
-record Triple (m : Set -> Set) : Set where
+record KleisliTriple (m : Set -> Set) : Set where
   field
     flatMap : (a -> m b) -> m a -> m b
     return : a -> m a
@@ -36,7 +36,7 @@ record Triple (m : Set -> Set) : Set where
   ap : m (a -> b) -> m a -> m b
   ap mf mx = flatMap (\ f -> liftM f mx) mf
 
-open Triple {{...}} public
+open KleisliTriple {{...}} public
 
 -------------------------------------------------------------------------------
 -- Kleisli
