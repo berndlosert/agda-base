@@ -1039,6 +1039,17 @@ record Monad (m : Set -> Set) : Set where
   join : m (m a) -> m a
   join = _>>= id
 
+  ap : m (a -> b) -> m a -> m b
+  ap mf mx = do
+    f <- mf
+    x <- mx
+    pure (f x)
+
+  liftM : (a -> b) -> m a -> m b
+  liftM f mx = do
+    x <- mx
+    pure (f x)
+
 open Monad {{...}} public
 
 instance
