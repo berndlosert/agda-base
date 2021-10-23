@@ -80,7 +80,8 @@ instance
     where
       cojoin : Reducer a b -> Reducer a (Reducer a b)
       cojoin (aReducer init step done) =
-        aReducer init step (\ acc -> aReducer acc step done)
+        let done' acc = aReducer acc step done
+        in aReducer init step done'
 
 -------------------------------------------------------------------------------
 -- Transducer
