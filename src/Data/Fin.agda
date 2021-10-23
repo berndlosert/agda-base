@@ -35,7 +35,7 @@ module _ {n : Nat} where
     HasAdd-Fin ._+_ (aFin k) (aFin m) = aFin $ (k + m) % suc n
 
     HasSub-Fin : HasSub (Fin (suc n))
-    HasSub-Fin .Diff = Fin (suc n)
+    HasSub-Fin .Sub _ _ = Fin (suc n)
     HasSub-Fin ._-_ (aFin k) (aFin m) =
       aFin $ if k >= m then (k - m) % suc n else n - ((m - k) % suc n)
 

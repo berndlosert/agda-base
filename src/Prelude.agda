@@ -235,10 +235,6 @@ pred (suc n) = n
 -- Int primitives
 -------------------------------------------------------------------------------
 
-neg : Nat -> Int
-neg 0 = pos 0
-neg (suc n) = negsuc n
-
 diff : Nat -> Nat -> Int
 diff m 0 = pos m
 diff zero (suc n) = negsuc n
@@ -530,18 +526,19 @@ instance
 -------------------------------------------------------------------------------
 
 record FromNeg (a : Set) : Set where
-  field fromNeg : Nat -> a
+  field neg : Nat -> a
 
 open FromNeg {{...}} public
 
-{-# BUILTIN FROMNEG fromNeg #-}
+{-# BUILTIN FROMNEG neg #-}
 
 instance
   FromNeg-Int : FromNeg Int
-  FromNeg-Int .fromNeg n = neg n
+  FromNeg-Int .neg 0 = pos 0
+  FromNeg-Int .neg (suc n) = negsuc n
 
   FromNeg-Float : FromNeg Float
-  FromNeg-Float .fromNeg n =
+  FromNeg-Float .neg n =
     Float.primFloatNegate (Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
