@@ -73,7 +73,7 @@ agda --compile hello.agda
 Save the following code into a file called `echo-server.agda`:
 
 ```agda
-{-# OPTIONS --guardedness --sized-types #-}
+{-# OPTIONS --guardedness #-}
 
 open import Prelude
 

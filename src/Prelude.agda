@@ -18,7 +18,6 @@ import Agda.Builtin.List as List
 import Agda.Builtin.IO as IO
 import Agda.Builtin.Strict as Strict
 import Agda.Builtin.Coinduction as Coinduction
-import Agda.Builtin.Size as Size
 
 -------------------------------------------------------------------------------
 -- Primitive types
@@ -104,20 +103,6 @@ open Coinduction public
   renaming (∞ to Inf)
   renaming (♯_ to sharp)
   renaming (♭ to flat)
-
-open Size public
-  using (SizeUniv)
-  using (Size)
-  using (Size<_)
-  renaming (↑_ to sizeSuc)
-  renaming (∞ to sizeInf)
-  renaming (_⊔ˢ_ to sizeMax)
-
-record Thunk (i : Size) (f : Size -> Set) : Set where
-  coinductive
-  field forceThunk : {j : Size< i} -> f j
-
-open Thunk public
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -3,5 +3,4 @@ include: src
 flags:
   --type-in-type
   --guardedness
-  --sized-types
   --no-positivity-check
