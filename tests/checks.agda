@@ -78,5 +78,8 @@ testPermutations :
   (1 :: 2 :: 3 :: []) :: (1 :: 3 :: 2 :: []) :: (2 :: 1 :: 3 :: []) :: (2 :: 3 :: 1 :: []) :: (3 :: 1 :: 2 :: []) :: (3 :: 2 :: 1 :: []) :: []
 testPermutations = refl
 
+x : Nat
+x = 1 + 2 - 3 + 4
+
 main : IO Unit
-main = print "hello"
+main = print x

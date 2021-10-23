@@ -495,8 +495,7 @@ instance
 -------------------------------------------------------------------------------
 
 record FromNat (a : Set) : Set where
-  field
-    fromNat : (n : Nat) -> a
+  field fromNat : Nat -> a
 
 open FromNat {{...}} public
 
@@ -517,8 +516,7 @@ instance
 -------------------------------------------------------------------------------
 
 record ToNat (a : Set) : Set where
-  field
-    toNat : a -> Nat
+  field toNat : a -> Nat
 
 open ToNat {{...}} public
 
@@ -559,8 +557,8 @@ open HasAdd {{...}} public
 record HasSub (a : Set) : Set where
   infixl 6 _-_
   field
-    Diff : Set
-    _-_ : a -> a -> Diff
+    Sub : a -> a -> Set
+    _-_ : (x y : a) -> Sub x y
 
 open HasSub {{...}} public
 
@@ -604,7 +602,7 @@ instance
   HasAdd-Nat ._+_ = Nat._+_
 
   HasSub-Nat : HasSub Nat
-  HasSub-Nat .Diff = Nat
+  HasSub-Nat .Sub _ _ = Nat
   HasSub-Nat ._-_ = Nat._-_
 
   HasMul-Nat : HasMul Nat
@@ -633,7 +631,7 @@ instance
     (pos m) (pos n) -> pos (m + n)
 
   HasSub-Int : HasSub Int
-  HasSub-Int .Diff = Int
+  HasSub-Int .Sub _ _ = Int
   HasSub-Int ._-_ = \ where
     m (pos n) -> m + (neg n)
     m (negsuc n) -> m + pos (suc n)
@@ -678,7 +676,7 @@ instance
   HasAdd-Float ._+_ = Float.primFloatPlus
 
   HasSub-Float : HasSub Float
-  HasSub-Float .Diff = Float
+  HasSub-Float .Sub _ _ = Float
   HasSub-Float ._-_ = Float.primFloatMinus
 
   HasNeg-Float : HasNeg Float
