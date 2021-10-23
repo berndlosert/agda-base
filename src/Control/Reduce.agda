@@ -45,6 +45,11 @@ instance
   Functor-Reducer .map f (aReducer init step done) =
     aReducer init step (done >>> f)
 
+  Profunctor-Reducer : Profunctor Reducer
+  Profunctor-Reducer .lcmap f (aReducer init step done) =
+    let step' acc x = step acc (f x)
+    in aReducer init step' done
+
   Applicative-Reducer : Applicative (Reducer a)
   Applicative-Reducer .pure x =
     aReducer tt (\ _ _ -> aReduced true tt) (const x)
@@ -56,10 +61,11 @@ instance
         init = (init1 , init2)
 
         step : _
-        step (f , x) y = f seq x seq (| (step1 f y) , (step2 x y) |)
+        step (acc1 , acc2) x =
+          acc1 seq acc2 seq (| (step1 acc1 x) , (step2 acc2 x) |)
 
         done : _
-        done (f , x) = done1 f (done2 x)
+        done (acc1 , acc2) = done1 acc1 (done2 acc2)
 
 -------------------------------------------------------------------------------
 -- Transducer
