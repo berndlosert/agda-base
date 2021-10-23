@@ -6,6 +6,7 @@ module Control.Reduce where
 
 open import Prelude
 
+open import Control.Comonad
 open import Data.Foldable
 
 -------------------------------------------------------------------------------
@@ -66,6 +67,20 @@ instance
 
         done : _
         done (acc1 , acc2) = done1 acc1 (done2 acc2)
+
+  Semigroup-Reducer : {{Semigroup b}} -> Semigroup (Reducer a b)
+  Semigroup-Reducer ._<>_ r1 r2 = (| r1 <> r2 |)
+
+  Monoid-Reducer : {{Monoid b}} -> Monoid (Reducer a b)
+  Monoid-Reducer .mempty = pure mempty
+
+  Comonad-Reducer : Comonad (Reducer a)
+  Comonad-Reducer .extract (aReducer init _ done) = done init
+  Comonad-Reducer .extend f = map f <<< cojoin
+    where
+      cojoin : Reducer a b -> Reducer a (Reducer a b)
+      cojoin (aReducer init step done) =
+        aReducer init step (\ acc -> aReducer acc step done)
 
 -------------------------------------------------------------------------------
 -- Transducer
