@@ -170,6 +170,19 @@ fix f = f (fix f)
 absurd : Void -> a
 absurd = \ ()
 
+applyN : Nat -> (a -> a) -> a -> a
+applyN 0 _ x = x
+applyN (suc n) f x = f (applyN n f x)
+
+uncurry : (a -> b -> c) -> Pair a b -> c
+uncurry f (x , y) = f x y
+
+curry : (Pair a b -> c) -> a -> b -> c
+curry f x y = f (x , y)
+
+apply : Pair (a -> b) a -> b
+apply (f , x) = f x
+
 -------------------------------------------------------------------------------
 -- Strictness primitives
 -------------------------------------------------------------------------------
@@ -216,30 +229,6 @@ infixr 0 _implies_
 _implies_ : Bool -> Bool -> Bool
 x implies y = not x || y
 
--------------------------------------------------------------------------------
--- Nat primitives
--------------------------------------------------------------------------------
-
-applyN : Nat -> (a -> a) -> a -> a
-applyN 0 _ x = x
-applyN (suc n) f x = f (applyN n f x)
-
-monus : Nat -> Nat -> Nat
-monus = Nat._-_
-
-pred : Nat -> Nat
-pred 0 = 0
-pred (suc n) = n
-
--------------------------------------------------------------------------------
--- Int primitives
--------------------------------------------------------------------------------
-
-diff : Nat -> Nat -> Int
-diff m 0 = pos m
-diff zero (suc n) = negsuc n
-diff (suc m) (suc n) = diff m n
-
 ------------------------------------------------------------------------------
 -- Either primitives
 -------------------------------------------------------------------------------
@@ -283,15 +272,6 @@ swap = pair snd fst
 
 dup : a -> Pair a a
 dup x = (x , x)
-
-uncurry : (a -> b -> c) -> Pair a b -> c
-uncurry f (x , y) = f x y
-
-curry : (Pair a b -> c) -> a -> b -> c
-curry f x y = f (x , y)
-
-apply : Pair (a -> b) a -> b
-apply (f , x) = f x
 
 -------------------------------------------------------------------------------
 -- Maybe primitives
@@ -622,10 +602,15 @@ instance
 
   HasAdd-Int : HasAdd Int
   HasAdd-Int ._+_ = \ where
-    (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-    (negsuc m) (pos n) -> diff n (suc m)
-    (pos m) (negsuc n) -> diff m (suc n)
-    (pos m) (pos n) -> pos (m + n)
+      (negsuc m) (negsuc n) -> negsuc (suc (m + n))
+      (negsuc m) (pos n) -> diff n (suc m)
+      (pos m) (negsuc n) -> diff m (suc n)
+      (pos m) (pos n) -> pos (m + n)
+    where
+      diff : Nat -> Nat -> Int
+      diff m 0 = pos m
+      diff zero (suc n) = negsuc n
+      diff (suc m) (suc n) = diff m n
 
   HasSub-Int : HasSub Int
   HasSub-Int .Sub _ _ = Int
