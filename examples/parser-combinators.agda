@@ -25,18 +25,18 @@ instance
 
 ident = pack <$> (| alpha :: many alphaNum |)
 
-op : Char -> Parser Char
-op symb = between spaces spaces (char symb)
-
 {-# TERMINATING #-}
 expr term negate atom : Parser Expr
-expr = chainl1 term (Add <$ op '+' <|> Sub <$ token (char '-'))
+expr = chainl1 term (Add <$ token (char '+') <|> Sub <$ token (char '-'))
 term = chainl1 negate (Mul <$ token (char '*'))
 negate = Neg <$> (keyword "negate" *> negate) <|> atom
-atom = between (token $ char '(') (token $ char ')') expr <|> (| Num nat | Var ident |)
+atom = token (char '(') *> expr <* token (char ')') <|> (| Num (lexeme nat) | Var (lexeme ident) |)
+
+test = lexeme (char '(') *> lexeme nat <* lexeme (char ')')
 
 main : IO Unit
 main = do
-  print $ runParser expr "x - 7"
+  print $ runParser expr "( x + 7 ) "
+  print $ runParser expr "x + 7"
   print $ runParser (expr <* eof) "x + 7"
   print $ runParser expr "negatex"

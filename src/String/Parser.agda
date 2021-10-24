@@ -6,6 +6,7 @@ module String.Parser where
 
 open import Prelude hiding (bool)
 
+open import Control.Monad.Kleisli
 open import Data.Char as Char using ()
 open import Data.Foldable
 open import Data.List as List using ()
@@ -55,29 +56,26 @@ data Reply (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
-  Functor-Parser : Functor Parser
-  Functor-Parser .map f p = aParser \ where
-    s cok cerr eok eerr -> unParser p s (cok <<< f) cerr (eok <<< f) eerr
-
-  Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure x = aParser \ where
-    s _ _ eok _ -> eok x s
-  Applicative-Parser ._<*>_ m k = aParser \ where
-    s cok cerr eok eerr ->
-      let
-        mcok x s' = unParser k s' (cok <<< x) cerr (cok <<< x) cerr
-        meok x s' = unParser k s' (cok <<< x) cerr (eok <<< x) eerr
-      in
-        unParser m s mcok cerr meok eerr
-
-  Monad-Parser : Monad Parser
-  Monad-Parser ._>>=_ m k = aParser \ where
+  KleisliTriple-Parser : KleisliTriple Parser
+  KleisliTriple-Parser .flatMap k m = aParser \ where
     s cok cerr eok eerr ->
       let
         mcok x s' = unParser (k x) s' cok cerr cok cerr
         meok x s' = unParser (k x) s' cok cerr eok eerr
       in
         unParser m s mcok cerr meok eerr
+  KleisliTriple-Parser .return x = aParser \ where
+    s _ _ eok _ -> eok x s
+
+  Functor-Parser : Functor Parser
+  Functor-Parser .map = liftM
+
+  Applicative-Parser : Applicative Parser
+  Applicative-Parser .pure = return
+  Applicative-Parser ._<*>_ = ap
+
+  Monad-Parser : Monad Parser
+  Monad-Parser ._>>=_ = bind
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = aParser \ where
