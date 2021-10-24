@@ -95,6 +95,12 @@ instance
       in
         unParser m s cok cerr eok meerr
 
+  Semigroup-Parser : {{Semigroup a}} -> Semigroup (Parser a)
+  Semigroup-Parser ._<>_ p q = (| p <> q |)
+
+  Monoid-Parser : {{Monoid a}} -> Monoid (Parser a)
+  Monoid-Parser .mempty = pure mempty
+
   Show-Consumption : Show Consumption
   Show-Consumption .showsPrec _ = \ where
     consumed -> showString "consumed"
@@ -261,8 +267,8 @@ alphaNum = satisfy Char.isAlphaNum
 space : Parser Char
 space = satisfy Char.isSpace
 
-skipSpaces : Parser Unit
-skipSpaces = skipMany space
+spaces : Parser Unit
+spaces = skipMany space
 
 newline : Parser Char
 newline = char '\n'
@@ -317,10 +323,10 @@ int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
 -------------------------------------------------------------------------------
 
 fully : Parser a -> Parser a
-fully = between skipSpaces eof
+fully = between spaces eof
 
 lexeme : Parser a -> Parser a
-lexeme p = p <* skipSpaces
+lexeme p = p <* spaces
 
 symbol : String -> Parser String
 symbol = lexeme <<< string
