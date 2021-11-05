@@ -126,6 +126,12 @@ try p = aParser \ where
     let eerr' = eerr
     in unParser p s cok eerr' eok eerr'
 
+lookAhead : Parser a -> Parser a
+lookAhead p = aParser \ where
+  s cok cerr eok eerr ->
+    let eok' a _ = eok a s
+    in unParser p s eok' cerr eok' eerr
+
 notFollowedBy : Parser a -> Parser Unit
 notFollowedBy p = aParser \ where
   s _ _ eok eerr ->
@@ -141,11 +147,15 @@ option : a -> Parser a -> Parser a
 option x p = p <|> pure x
 
 many : Parser a -> Parser (List a)
-many = fix \ where
-  go p -> option [] (| p :: go p |)
+many p = fix \ where
+  go -> option [] (| p :: go |)
 
 many1 : Parser a -> Parser (List a)
 many1 p = (| p :: many p |)
+
+manyTill : Parser a -> Parser b -> Parser (List a)
+manyTill p q = fix \ where
+  go -> ([] <$ q) <|> (| p :: go |)
 
 optional : Parser a -> Parser (Maybe a)
 optional p = (| just p | nothing |)
