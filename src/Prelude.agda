@@ -534,8 +534,8 @@ open HasAdd {{...}} public
 record HasSub (a : Set) : Set where
   infixl 6 _-_
   field
-    Sub : a -> a -> Set
-    _-_ : (x y : a) -> Sub x y
+    SubResult : a -> a -> Set
+    _-_ : (x y : a) -> SubResult x y
 
 open HasSub {{...}} public
 
@@ -561,16 +561,16 @@ open HasExp {{...}} public
 record HasDiv (a : Set) : Set where
   infixl 7 _/_
   field
-    Div : a -> a -> Set
-    _/_ : (x y : a) -> Div x y
+    DivResult : a -> a -> Set
+    _/_ : (x y : a) -> DivResult x y
 
 open HasDiv {{...}} public
 
 record HasMod (a : Set) : Set where
   infixl 7 _%_
   field
-    Mod : a -> a -> Set
-    _%_ : (x y : a) -> Mod x y
+    ModResult : a -> a -> Set
+    _%_ : (x y : a) -> ModResult x y
 
 open HasMod {{...}} public
 
@@ -579,7 +579,7 @@ instance
   HasAdd-Nat ._+_ = Nat._+_
 
   HasSub-Nat : HasSub Nat
-  HasSub-Nat .Sub _ _ = Nat
+  HasSub-Nat .SubResult _ _ = Nat
   HasSub-Nat ._-_ = Nat._-_
 
   HasMul-Nat : HasMul Nat
@@ -591,13 +591,13 @@ instance
   HasExp-Nat ._^_ m (suc n) = m * m ^ n
 
   HasDiv-Nat : HasDiv Nat
-  HasDiv-Nat .Div _ 0 = {{Void}} -> Nat
-  HasDiv-Nat .Div _ (suc _) = Nat
+  HasDiv-Nat .DivResult _ 0 = {{Void}} -> Nat
+  HasDiv-Nat .DivResult _ (suc _) = Nat
   HasDiv-Nat ._/_ m (suc n) = Nat.div-helper 0 n m n
 
   HasMod-Nat : HasMod Nat
-  HasMod-Nat .Mod _ 0 = {{Void}} -> Nat
-  HasMod-Nat .Mod _ (suc _) = Nat
+  HasMod-Nat .ModResult _ 0 = {{Void}} -> Nat
+  HasMod-Nat .ModResult _ (suc _) = Nat
   HasMod-Nat ._%_ m (suc n) = Nat.mod-helper 0 n m n
 
   HasAdd-Int : HasAdd Int
@@ -613,7 +613,7 @@ instance
       diff (suc m) (suc n) = diff m n
 
   HasSub-Int : HasSub Int
-  HasSub-Int .Sub _ _ = Int
+  HasSub-Int .SubResult _ _ = Int
   HasSub-Int ._-_ = \ where
     m (pos n) -> m + (neg n)
     m (negsuc n) -> m + pos (suc n)
@@ -637,8 +637,8 @@ instance
   HasExp-Int ._^_ m (suc n) = m * m ^ n
 
   HasDiv-Int : HasDiv Int
-  HasDiv-Int .Div _ (pos 0) = {{Void}} -> Int
-  HasDiv-Int .Div _ _ = Int
+  HasDiv-Int .DivResult _ (pos 0) = {{Void}} -> Int
+  HasDiv-Int .DivResult _ _ = Int
   HasDiv-Int ._/_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m / n)
     (pos m) (negsuc n) -> neg (m / suc n)
@@ -646,8 +646,8 @@ instance
     (negsuc m) (negsuc n) -> pos (suc m / suc n)
 
   HasMod-Int : HasMod Int
-  HasMod-Int .Mod _ (pos 0) = {{Void}} -> Int
-  HasMod-Int .Mod _ _ = Int
+  HasMod-Int .ModResult _ (pos 0) = {{Void}} -> Int
+  HasMod-Int .ModResult _ _ = Int
   HasMod-Int ._%_ = \ where
     (pos m) (pos n@(suc _)) -> pos (m % n)
     (pos m) (negsuc n) -> pos (m % suc n)
@@ -658,7 +658,7 @@ instance
   HasAdd-Float ._+_ = Float.primFloatPlus
 
   HasSub-Float : HasSub Float
-  HasSub-Float .Sub _ _ = Float
+  HasSub-Float .SubResult _ _ = Float
   HasSub-Float ._-_ = Float.primFloatMinus
 
   HasNeg-Float : HasNeg Float
@@ -672,7 +672,7 @@ instance
   HasExp-Float ._^_ = Float.primFloatPow
 
   HasDiv-Float : HasDiv Float
-  HasDiv-Float .Div _ _ = Float
+  HasDiv-Float .DivResult _ _ = Float
   HasDiv-Float ._/_ x y = Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
