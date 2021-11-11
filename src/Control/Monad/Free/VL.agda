@@ -18,23 +18,23 @@ private
     fs : List ((Set -> Set) -> Set)
 
 -------------------------------------------------------------------------------
--- Effect / Effects
+-- Effect / Handler
 -------------------------------------------------------------------------------
 
 Effect : Set
 Effect = (Set -> Set) -> Set
 
 infixr 4 _:'_
-data Effects : List Effect -> (Set -> Set) -> Set where
-  [] : Effects [] m
-  _:'_ : f m -> Effects fs m -> Effects (f :: fs) m
+data Handler : List Effect -> (Set -> Set) -> Set where
+  [] : Handler [] m
+  _:'_ : f m -> Handler fs m -> Handler (f :: fs) m
 
 -------------------------------------------------------------------------------
 -- Elem
 -------------------------------------------------------------------------------
 
 record Elem (f : Effect) (fs : List Effect) : Set where
-  field getElem : Effects fs m -> f m
+  field getElem : Handler fs m -> f m
 
 open Elem {{...}} public
 
@@ -75,7 +75,7 @@ instance
 
 record Free (fs : List Effect) (a : Set) : Set where
   constructor aFree
-  field runFree : {{Monad m}} -> Effects fs m -> m a
+  field runFree : {{Monad m}} -> Handler fs m -> m a
 
 open Free public
 
@@ -86,14 +86,14 @@ instance
   Applicative-Free : Applicative (Free fs)
   Applicative-Free .pure x = aFree (const $ pure x)
   Applicative-Free ._<*>_ fs xs =
-    aFree \ effects -> runFree fs effects <*> runFree xs effects
+    aFree \ handler -> runFree fs handler <*> runFree xs handler
 
   Monad-Free : Monad (Free fs)
   Monad-Free ._>>=_ program k =
-    aFree \ effects -> runFree program effects >>= \ x -> runFree (k x) effects
+    aFree \ handler -> runFree program handler >>= \ x -> runFree (k x) handler
 
-interpret : {{Monad m}} -> Effects fs m -> Free fs a -> m a
-interpret interpreter program = runFree program interpreter
+interpret : {{Monad m}} -> Handler fs m -> Free fs a -> m a
+interpret handler program = runFree program handler
 
 liftFree : {{Elem f fs}} -> (forall {m} -> f m -> m a) -> Free fs a
-liftFree getOp = aFree \ effects -> getOp (getElem effects)
+liftFree getOp = aFree \ handler -> getOp (getElem handler)
