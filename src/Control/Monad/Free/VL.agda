@@ -24,10 +24,10 @@ private
 Effect : Set
 Effect = (Set -> Set) -> Set
 
-infixr 4 _w/_
+infixr 4 _:'_
 data Effects (m : Set -> Set) : List Effect -> Set where
-  noOp : Effects m []
-  _w/_ : f m -> Effects m fs -> Effects m (f :: fs)
+  [] : Effects m []
+  _:'_ : f m -> Effects m fs -> Effects m (f :: fs)
 
 -------------------------------------------------------------------------------
 -- Elem
@@ -40,34 +40,34 @@ open Elem {{...}} public
 
 instance
   Elem0 : Elem f (f :: fs)
-  Elem0 .getElem (f w/ _) = f
+  Elem0 .getElem (f :' _) = f
 
   Elem1 : Elem f (f1 :: f :: fs)
-  Elem1 .getElem (_ w/ f w/ _) = f
+  Elem1 .getElem (_ :' f :' _) = f
 
   Elem2 : Elem f (f1 :: f2 :: f :: fs)
-  Elem2 .getElem (_ w/ _ w/ f w/ _) = f
+  Elem2 .getElem (_ :' _ :' f :' _) = f
 
   Elem3 : Elem f (f1 :: f2 :: f3 :: f :: fs)
-  Elem3 .getElem (_ w/ _ w/ _ w/ f w/ _) = f
+  Elem3 .getElem (_ :' _ :' _ :' f :' _) = f
 
   Elem4 : Elem f (f1 :: f2 :: f3 :: f4 :: f :: fs)
-  Elem4 .getElem (_ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem4 .getElem (_ :' _ :' _ :' _ :' f :' _) = f
 
   Elem5 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f :: fs)
-  Elem5 .getElem (_ w/ _ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem5 .getElem (_ :' _ :' _ :' _ :' _ :' f :' _) = f
 
   Elem6 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f :: fs)
-  Elem6 .getElem (_ w/ _ w/ _ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem6 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
   Elem7 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f :: fs)
-  Elem7 .getElem (_ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem7 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
   Elem8 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f :: fs)
-  Elem8 .getElem (_ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem8 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
   Elem9 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f9 :: f :: fs)
-  Elem9 .getElem (_ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ _ w/ f w/ _) = f
+  Elem9 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
 -------------------------------------------------------------------------------
 -- Free (van Laarhoven)
