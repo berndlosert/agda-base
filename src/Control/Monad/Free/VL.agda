@@ -39,11 +39,11 @@ record Elem (f : Effect) (fs : List Effect) : Set where
 open Elem {{...}} public
 
 instance
-  Elem-Implies : {{Elem f fs}} -> Elem f (g :: fs)
-  Elem-Implies .getElem (_ :< effs) = getElem effs
+  Elem-Base : Elem f (f :: fs)
+  Elem-Base .getElem (f :< _) = f
 
-  Elem-Obvious : Elem f (f :: fs)
-  Elem-Obvious .getElem (f :< _) = f
+  Elem-Rec : {{Elem f fs}} -> Elem f (g :: fs)
+  Elem-Rec .getElem (_ :< effs) = getElem effs
 
 -------------------------------------------------------------------------------
 -- Free (van Laarhoven)
