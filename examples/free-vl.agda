@@ -3,7 +3,11 @@
 open import Prelude
 
 open import Data.Bytes
+open import Control.Concurrent
+open import Control.Exception
 open import Control.Monad.Free.VL
+open import System.IO
+open import System.Random as R using ()
 
 variable
   a : Set
@@ -11,8 +15,14 @@ variable
 
 Url : Set
 Url = String
-postulate RequestBody : Set
-postulate Response : Set -> Set
+
+postulate
+  RequestBody : Set
+  Response : Set -> Set
+  HttpException : Set
+  instance Exception-HttpException : Exception HttpException
+  get : Url -> IO (Response Bytes)
+  post : Url -> RequestBody -> IO (Response Bytes)
 
 record Http (m : Set -> Set) : Set where
   field
@@ -83,3 +93,29 @@ withLog preMsg postMsg program = do
 program : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}} -> {{Elem Logging fs}}
   -> Free fs (Either Nat (Response Bytes))
 program = withLog "running request!" "done!" (repeatReq "http://aaronlevin.ca")
+
+handleExcep : HttpException -> Either Nat a
+handleExcep _ = panic "unhandled HttpException"
+
+httpIO : Http IO
+httpIO = \ where
+  .getHttpEff req -> catch (right <$> get req) (pure <<< handleExcep)
+  .postHttpEff req body -> catch (right <$> post req body) (pure <<< handleExcep)
+
+logIO : Logging IO
+logIO = \ where
+  .logEff -> putStrLn
+
+randIO : Random IO
+randIO = \ where
+  .getRandEff -> R.randomRIO (0 , 100)
+
+suspendIO : Suspend IO
+suspendIO = \ where
+  .suspendEff -> threadDelay
+
+ioInterpreter : Effects IO (Http :: Logging :: Random :: Suspend :: [])
+ioInterpreter = httpIO :< logIO :< randIO :< suspendIO :< done
+
+main : IO Unit
+main = interpret ioInterpreter program >> putStrLn "exit!"
