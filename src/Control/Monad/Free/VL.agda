@@ -10,11 +10,12 @@ open import Prelude
 -- Variables
 -------------------------------------------------------------------------------
 
-variable
-  a : Set
-  m : Set -> Set
-  f g : (Set -> Set) -> Set
-  fs : List ((Set -> Set) -> Set)
+private
+  variable
+    a : Set
+    m : Set -> Set
+    f g : (Set -> Set) -> Set
+    fs : List ((Set -> Set) -> Set)
 
 -------------------------------------------------------------------------------
 -- Effect / Effects
