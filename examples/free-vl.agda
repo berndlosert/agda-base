@@ -105,7 +105,7 @@ logIO = \ where
 
 randIO : Random IO
 randIO = \ where
-  .getRandEff -> R.randomRIO (0 , 100)
+  .getRandEff -> R.randomRIO (0 , 10)
 
 suspendIO : Suspend IO
 suspendIO = \ where
