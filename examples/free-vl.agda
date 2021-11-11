@@ -115,7 +115,7 @@ suspendIO = \ where
   .suspendEff -> threadDelay
 
 ioInterpreter : Effects IO (Http :: Logging :: Random :: Suspend :: [])
-ioInterpreter = httpIO :< logIO :< randIO :< suspendIO :< done
+ioInterpreter = httpIO :' logIO :' randIO :' suspendIO :' []
 
 main : IO Unit
 main = interpret ioInterpreter program >> putStrLn "exit!"
