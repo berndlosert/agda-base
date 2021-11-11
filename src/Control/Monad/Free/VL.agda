@@ -74,26 +74,25 @@ instance
 -------------------------------------------------------------------------------
 
 record Free (fs : List Effect) (a : Set) : Set where
-  constructor aFree
   field runFree : {{Monad m}} -> Handler fs m -> m a
 
 open Free public
 
 instance
   Functor-Free : Functor (Free fs)
-  Functor-Free .map f program = aFree (map f <<< runFree program)
+  Functor-Free .map f program .runFree = map f <<< runFree program
 
   Applicative-Free : Applicative (Free fs)
-  Applicative-Free .pure x = aFree (const $ pure x)
-  Applicative-Free ._<*>_ fs xs =
-    aFree \ handler -> runFree fs handler <*> runFree xs handler
+  Applicative-Free .pure x .runFree = const (pure x)
+  Applicative-Free ._<*>_ fs xs .runFree handler =
+    runFree fs handler <*> runFree xs handler
 
   Monad-Free : Monad (Free fs)
-  Monad-Free ._>>=_ program k =
-    aFree \ handler -> runFree program handler >>= \ x -> runFree (k x) handler
+  Monad-Free ._>>=_ program k .runFree handler =
+    runFree program handler >>= \ x -> runFree (k x) handler
 
 interpret : {{Monad m}} -> Handler fs m -> Free fs a -> m a
 interpret handler program = runFree program handler
 
 liftFree : {{Elem f fs}} -> (forall {m} -> f m -> m a) -> Free fs a
-liftFree getOp = aFree \ handler -> getOp (getElem handler)
+liftFree getOp .runFree handler = getOp (getElem handler)
