@@ -88,8 +88,9 @@ instance
     runFree fs handler <*> runFree xs handler
 
   Monad-Free : Monad (Free fs)
-  Monad-Free ._>>=_ program k .runFree handler =
-    runFree program handler >>= \ x -> runFree (k x) handler
+  Monad-Free ._>>=_ program k .runFree handler = do
+    res <- runFree program handler
+    runFree (k res) handler
 
 interpret : {{Monad m}} -> Handler fs m -> Free fs a -> m a
 interpret handler program = runFree program handler
