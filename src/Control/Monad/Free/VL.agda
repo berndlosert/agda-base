@@ -14,7 +14,7 @@ private
   variable
     a : Set
     m : Set -> Set
-    f g : (Set -> Set) -> Set
+    f f1 f2 f3 f4 f5 f6 f7 f8 f9 : (Set -> Set) -> Set
     fs : List ((Set -> Set) -> Set)
 
 -------------------------------------------------------------------------------
@@ -39,11 +39,35 @@ record Elem (f : Effect) (fs : List Effect) : Set where
 open Elem {{...}} public
 
 instance
-  Elem-Base : Elem f (f :: fs)
-  Elem-Base .getElem (f :< _) = f
+  Elem0 : Elem f (f :: fs)
+  Elem0 .getElem (f :< _) = f
 
-  Elem-Rec : {{Elem f fs}} -> Elem f (g :: fs)
-  Elem-Rec .getElem (_ :< effs) = getElem effs
+  Elem1 : Elem f (f1 :: f :: fs)
+  Elem1 .getElem (_ :< f :< _) = f
+
+  Elem2 : Elem f (f1 :: f2 :: f :: fs)
+  Elem2 .getElem (_ :< _ :< f :< _) = f
+
+  Elem3 : Elem f (f1 :: f2 :: f3 :: f :: fs)
+  Elem3 .getElem (_ :< _ :< _ :< f :< _) = f
+
+  Elem4 : Elem f (f1 :: f2 :: f3 :: f4 :: f :: fs)
+  Elem4 .getElem (_ :< _ :< _ :< _ :< f :< _) = f
+
+  Elem5 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f :: fs)
+  Elem5 .getElem (_ :< _ :< _ :< _ :< _ :< f :< _) = f
+
+  Elem6 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f :: fs)
+  Elem6 .getElem (_ :< _ :< _ :< _ :< _ :< _ :< f :< _) = f
+
+  Elem7 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f :: fs)
+  Elem7 .getElem (_ :< _ :< _ :< _ :< _ :< _ :< _ :< f :< _) = f
+
+  Elem8 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f :: fs)
+  Elem8 .getElem (_ :< _ :< _ :< _ :< _ :< _ :< _ :< _ :< f :< _) = f
+
+  Elem9 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f9 :: f :: fs)
+  Elem9 .getElem (_ :< _ :< _ :< _ :< _ :< _ :< _ :< _ :< _ :< f :< _) = f
 
 -------------------------------------------------------------------------------
 -- Free (van Laarhoven)
