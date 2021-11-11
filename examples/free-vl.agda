@@ -114,7 +114,7 @@ suspendIO : Suspend IO
 suspendIO = \ where
   .suspendEff -> threadDelay
 
-ioInterpreter : Effects IO (Http :: Logging :: Random :: Suspend :: [])
+ioInterpreter : Effects (Http :: Logging :: Random :: Suspend :: []) IO
 ioInterpreter = httpIO :' logIO :' randIO :' suspendIO :' []
 
 main : IO Unit
