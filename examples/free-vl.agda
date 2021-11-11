@@ -127,11 +127,11 @@ repeatReq url = do
   where
     go : Nat -> _ -> _
     go 0 r = pure r
-    go (suc i) _ = do
+    go (suc n) _ = do
         eResponse <- getHttp url
         case eResponse of \ where
             r@(right _) -> pure r
-            l@(left _) -> suspend 100 >> go i eResponse
+            l@(left _) -> suspend 100 >> go n eResponse
 
 withLog : {{Elem Logging fs}}
   -> String -> String -> Free fs a -> Free fs a
