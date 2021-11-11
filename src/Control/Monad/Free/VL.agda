@@ -25,16 +25,16 @@ Effect : Set
 Effect = (Set -> Set) -> Set
 
 infixr 4 _:'_
-data Effects (m : Set -> Set) : List Effect -> Set where
-  [] : Effects m []
-  _:'_ : f m -> Effects m fs -> Effects m (f :: fs)
+data Effects : List Effect -> (Set -> Set) -> Set where
+  [] : Effects [] m
+  _:'_ : f m -> Effects fs m -> Effects (f :: fs) m
 
 -------------------------------------------------------------------------------
 -- Elem
 -------------------------------------------------------------------------------
 
 record Elem (f : Effect) (fs : List Effect) : Set where
-  field getElem : Effects m fs -> f m
+  field getElem : Effects fs m -> f m
 
 open Elem {{...}} public
 
@@ -75,7 +75,7 @@ instance
 
 record Free (fs : List Effect) (a : Set) : Set where
   constructor aFree
-  field runFree : {{Monad m}} -> Effects m fs -> m a
+  field runFree : {{Monad m}} -> Effects fs m -> m a
 
 open Free public
 
@@ -92,7 +92,7 @@ instance
   Monad-Free ._>>=_ program k =
     aFree \ effects -> runFree program effects >>= \ x -> runFree (k x) effects
 
-interpret : {{Monad m}} -> Effects m fs -> Free fs a -> m a
+interpret : {{Monad m}} -> Effects fs m -> Free fs a -> m a
 interpret interpreter program = runFree program interpreter
 
 liftFree : {{Elem f fs}} -> (forall {m} -> f m -> m a) -> Free fs a
