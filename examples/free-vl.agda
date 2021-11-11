@@ -32,20 +32,17 @@ record Http (m : Set -> Set) : Set where
 open Http
 
 record Logging (m : Set -> Set) : Set where
-  field
-     logEff : String -> m Unit
+  field logEff : String -> m Unit
 
 open Logging
 
 record Random (m : Set -> Set) : Set where
-  field
-    getRandEff : m Nat
+  field getRandEff : m Nat
 
 open Random
 
 record Suspend (m : Set -> Set) : Set where
-  field
-    suspendEff : Nat -> m Unit
+  field suspendEff : Nat -> m Unit
 
 open Suspend
 
@@ -114,8 +111,8 @@ suspendIO : Suspend IO
 suspendIO = \ where
   .suspendEff -> threadDelay
 
-ioInterpreter : Effects (Http :: Logging :: Random :: Suspend :: []) IO
-ioInterpreter = httpIO :' logIO :' randIO :' suspendIO :' []
+ioHandler : Handler (Http :: Logging :: Random :: Suspend :: []) IO
+ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
 
 main : IO Unit
-main = interpret ioInterpreter program >> putStrLn "exit!"
+main = interpret ioHandler program >> putStrLn "exit!"
