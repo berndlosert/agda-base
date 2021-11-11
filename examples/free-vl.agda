@@ -99,21 +99,17 @@ handleExcep : HttpException -> Either Nat a
 handleExcep _ = panic "unhandled HttpException"
 
 httpIO : Http IO
-httpIO = \ where
-  .getHttpEff req -> catch (right <$> get req) (pure <<< handleExcep)
-  .postHttpEff req body -> catch (right <$> post req body) (pure <<< handleExcep)
+httpIO .getHttpEff req = catch (right <$> get req) (pure <<< handleExcep)
+httpIO .postHttpEff req body = catch (right <$> post req body) (pure <<< handleExcep)
 
 logIO : Logging IO
-logIO = \ where
-  .logEff -> putStrLn
+logIO .logEff = putStrLn
 
 randIO : Random IO
-randIO = \ where
-  .getRandEff -> R.randomRIO (0 , 10)
+randIO .getRandEff = R.randomRIO (0 , 10)
 
 suspendIO : Suspend IO
-suspendIO = \ where
-  .suspendEff -> threadDelay
+suspendIO .suspendEff = threadDelay
 
 ioHandler : Handler (Http :: Logging :: Random :: Suspend :: []) IO
 ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
