@@ -37,7 +37,7 @@ postulate
   post : Url -> RequestBody -> IO (Response Bytes)
 
 -------------------------------------------------------------------------------
--- Http effect
+-- Effects
 -------------------------------------------------------------------------------
 
 record Http (m : Set -> Set) : Set where
@@ -47,6 +47,25 @@ record Http (m : Set -> Set) : Set where
 
 open Http
 
+record Logging (m : Set -> Set) : Set where
+  field logEff : String -> m Unit
+
+open Logging
+
+record Random (m : Set -> Set) : Set where
+  field getRandEff : m Nat
+
+open Random
+
+record Suspend (m : Set -> Set) : Set where
+  field suspendEff : Nat -> m Unit
+
+open Suspend
+
+-------------------------------------------------------------------------------
+-- Smart constructors
+-------------------------------------------------------------------------------
+
 getHttp : {{Elem Http fs}}
   -> Url -> Free fs (Either Nat (Response Bytes))
 getHttp url = liftFree (flip getHttpEff url)
@@ -55,38 +74,11 @@ postHttp : {{Elem Http fs}}
   -> Url -> RequestBody -> Free fs (Either Nat (Response Bytes))
 postHttp url body = liftFree (\ http -> postHttpEff http url body)
 
--------------------------------------------------------------------------------
--- Logging effect
--------------------------------------------------------------------------------
-
-record Logging (m : Set -> Set) : Set where
-  field logEff : String -> m Unit
-
-open Logging
-
 logMsg : {{Elem Logging fs}} -> String -> Free fs Unit
 logMsg msg = liftFree (flip logEff msg)
 
--------------------------------------------------------------------------------
--- Random effect
--------------------------------------------------------------------------------
-
-record Random (m : Set -> Set) : Set where
-  field getRandEff : m Nat
-
-open Random
-
 getRand : {{Elem Random fs}} -> Free fs Nat
 getRand = liftFree getRandEff
-
--------------------------------------------------------------------------------
--- Suspend effect
--------------------------------------------------------------------------------
-
-record Suspend (m : Set -> Set) : Set where
-  field suspendEff : Nat -> m Unit
-
-open Suspend
 
 suspend : {{Elem Suspend fs}} -> Nat -> Free fs Unit
 suspend n = liftFree (flip suspendEff n)
