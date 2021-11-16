@@ -27,41 +27,41 @@ data Product1 {k : Set} : List (k -> Set) -> k -> Set where
   _:'_ : f a -> Product1 fs a -> Product1 (f :: fs) a
 
 -------------------------------------------------------------------------------
--- Elem
+-- Member
 -------------------------------------------------------------------------------
 
-record Elem {k : Set} (f : k -> Set) (fs : List (k -> Set)) : Set where
-  field getElem : Product1 fs a -> f a
+record Member {k : Set} (f : k -> Set) (fs : List (k -> Set)) : Set where
+  field prj : Product1 fs a -> f a
 
-open Elem {{...}} public
+open Member {{...}} public
 
 instance
-  Elem-0 : Elem f (f :: fs)
-  Elem-0 .getElem (f :' _) = f
+  Member-0 : Member f (f :: fs)
+  Member-0 .prj (f :' _) = f
 
-  Elem-1 : Elem f (f1 :: f :: fs)
-  Elem-1 .getElem (_ :' f :' _) = f
+  Member-1 : Member f (f1 :: f :: fs)
+  Member-1 .prj (_ :' f :' _) = f
 
-  Elem-2 : Elem f (f1 :: f2 :: f :: fs)
-  Elem-2 .getElem (_ :' _ :' f :' _) = f
+  Member-2 : Member f (f1 :: f2 :: f :: fs)
+  Member-2 .prj (_ :' _ :' f :' _) = f
 
-  Elem-3 : Elem f (f1 :: f2 :: f3 :: f :: fs)
-  Elem-3 .getElem (_ :' _ :' _ :' f :' _) = f
+  Member-3 : Member f (f1 :: f2 :: f3 :: f :: fs)
+  Member-3 .prj (_ :' _ :' _ :' f :' _) = f
 
-  Elem-4 : Elem f (f1 :: f2 :: f3 :: f4 :: f :: fs)
-  Elem-4 .getElem (_ :' _ :' _ :' _ :' f :' _) = f
+  Member-4 : Member f (f1 :: f2 :: f3 :: f4 :: f :: fs)
+  Member-4 .prj (_ :' _ :' _ :' _ :' f :' _) = f
 
-  Elem-5 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f :: fs)
-  Elem-5 .getElem (_ :' _ :' _ :' _ :' _ :' f :' _) = f
+  Member-5 : Member f (f1 :: f2 :: f3 :: f4 :: f5 :: f :: fs)
+  Member-5 .prj (_ :' _ :' _ :' _ :' _ :' f :' _) = f
 
-  Elem-6 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f :: fs)
-  Elem-6 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
+  Member-6 : Member f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f :: fs)
+  Member-6 .prj (_ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
-  Elem-7 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f :: fs)
-  Elem-7 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
+  Member-7 : Member f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f :: fs)
+  Member-7 .prj (_ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
-  Elem-8 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f :: fs)
-  Elem-8 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
+  Member-8 : Member f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f :: fs)
+  Member-8 .prj (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
 
-  Elem-9 : Elem f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f9 :: f :: fs)
-  Elem-9 .getElem (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f
+  Member-9 : Member f (f1 :: f2 :: f3 :: f4 :: f5 :: f6 :: f7 :: f8 :: f9 :: f :: fs)
+  Member-9 .prj (_ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' _ :' f :' _) = f

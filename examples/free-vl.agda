@@ -67,22 +67,22 @@ open Suspend
 -- Smart constructors
 -------------------------------------------------------------------------------
 
-getHttp : {{Elem Http fs}}
+getHttp : {{Member Http fs}}
   -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
-getHttp url = liftFree \ prod -> getHttpEff (getElem prod) url
+getHttp url = liftFree \ prod -> getHttpEff (prj prod) url
 
-postHttp : {{Elem Http fs}}
+postHttp : {{Member Http fs}}
   -> Url -> RequestBody -> Free (Product1 fs) (Either Nat (Response Bytes))
-postHttp url body = liftFree \ prod -> postHttpEff (getElem prod) url body
+postHttp url body = liftFree \ prod -> postHttpEff (prj prod) url body
 
-logMsg : {{Elem Logging fs}} -> String -> Free (Product1 fs) Unit
-logMsg msg = liftFree \ prod -> logEff (getElem prod) msg
+logMsg : {{Member Logging fs}} -> String -> Free (Product1 fs) Unit
+logMsg msg = liftFree \ prod -> logEff (prj prod) msg
 
-getRand : {{Elem Random fs}} -> Free (Product1 fs) Nat
-getRand = liftFree \ prod -> getRandEff (getElem prod)
+getRand : {{Member Random fs}} -> Free (Product1 fs) Nat
+getRand = liftFree \ prod -> getRandEff (prj prod)
 
-suspend : {{Elem Suspend fs}} -> Nat -> Free (Product1 fs) Unit
-suspend n = liftFree \ prod -> suspendEff (getElem prod) n
+suspend : {{Member Suspend fs}} -> Nat -> Free (Product1 fs) Unit
+suspend n = liftFree \ prod -> suspendEff (prj prod) n
 
 -------------------------------------------------------------------------------
 -- Effect handlers
@@ -111,7 +111,7 @@ ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
 -- Some programs
 -------------------------------------------------------------------------------
 
-repeatReq : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}}
+repeatReq : {{Member Http fs}} -> {{Member Random fs}} -> {{Member Suspend fs}}
   -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
 repeatReq url = do
     numRetries <- getRand
@@ -126,7 +126,7 @@ repeatReq url = do
             r@(right _) -> pure r
             l@(left _) -> suspend 100 >> go n eResponse
 
-withLog : {{Elem Logging fs}}
+withLog : {{Member Logging fs}}
   -> String -> String -> Free (Product1 fs) a -> Free (Product1 fs) a
 withLog preMsg postMsg program = do
   logMsg preMsg
@@ -134,7 +134,7 @@ withLog preMsg postMsg program = do
   logMsg postMsg
   pure a
 
-program : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}} -> {{Elem Logging fs}}
+program : {{Member Http fs}} -> {{Member Random fs}} -> {{Member Suspend fs}} -> {{Member Logging fs}}
   -> Free (Product1 fs) (Either Nat (Response Bytes))
 program = withLog "running request!" "done!" (repeatReq "http://aaronlevin.ca")
 
