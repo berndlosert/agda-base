@@ -1,4 +1,4 @@
-module Data.Union where
+module Data.Open.Sum where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -16,12 +16,12 @@ private
     as : List Set
 
 -------------------------------------------------------------------------------
--- Union
+-- Sum
 -------------------------------------------------------------------------------
 
-data Union : List Set -> Set where
-  here : a -> Union (a :: as)
-  there : Union as -> Union (a :: as)
+data Sum : List Set -> Set where
+  here : a -> Sum (a :: as)
+  there : Sum as -> Sum (a :: as)
 
 -------------------------------------------------------------------------------
 -- Member
@@ -29,8 +29,8 @@ data Union : List Set -> Set where
 
 record Member (a : Set) (as : List Set) : Set where
   field
-    inj : a -> Union as
-    prj : (b : Set) -> {{a === b}} -> Union as -> Maybe a
+    inj : a -> Sum as
+    prj : (b : Set) -> {{a === b}} -> Sum as -> Maybe a
 
 open Member {{...}} public
 
