@@ -10,6 +10,7 @@ open import Data.Bytes
 open import Control.Concurrent
 open import Control.Exception
 open import Control.Monad.Free.VL
+open import Data.Open.Product1
 open import System.IO
 open import System.Random as R using ()
 
@@ -19,7 +20,7 @@ open import System.Random as R using ()
 
 variable
   a : Set
-  fs : List Effect
+  fs : List ((Set -> Set) -> Set)
 
 Url : Set
 Url = String
@@ -67,21 +68,21 @@ open Suspend
 -------------------------------------------------------------------------------
 
 getHttp : {{Elem Http fs}}
-  -> Url -> Free fs (Either Nat (Response Bytes))
-getHttp url = liftFree (flip getHttpEff url)
+  -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
+getHttp url = liftFree \ prod -> getHttpEff (getElem prod) url
 
 postHttp : {{Elem Http fs}}
-  -> Url -> RequestBody -> Free fs (Either Nat (Response Bytes))
-postHttp url body = liftFree (\ http -> postHttpEff http url body)
+  -> Url -> RequestBody -> Free (Product1 fs) (Either Nat (Response Bytes))
+postHttp url body = liftFree \ prod -> postHttpEff (getElem prod) url body
 
-logMsg : {{Elem Logging fs}} -> String -> Free fs Unit
-logMsg msg = liftFree (flip logEff msg)
+logMsg : {{Elem Logging fs}} -> String -> Free (Product1 fs) Unit
+logMsg msg = liftFree \ prod -> logEff (getElem prod) msg
 
-getRand : {{Elem Random fs}} -> Free fs Nat
-getRand = liftFree getRandEff
+getRand : {{Elem Random fs}} -> Free (Product1 fs) Nat
+getRand = liftFree \ prod -> getRandEff (getElem prod)
 
-suspend : {{Elem Suspend fs}} -> Nat -> Free fs Unit
-suspend n = liftFree (flip suspendEff n)
+suspend : {{Elem Suspend fs}} -> Nat -> Free (Product1 fs) Unit
+suspend n = liftFree \ prod -> suspendEff (getElem prod) n
 
 -------------------------------------------------------------------------------
 -- Effect handlers
@@ -103,7 +104,7 @@ randIO .getRandEff = R.randomRIO (0 , 10)
 suspendIO : Suspend IO
 suspendIO .suspendEff = threadDelay
 
-ioHandler : Handler (Http :: Logging :: Random :: Suspend :: []) IO
+ioHandler : Product1 (Http :: Logging :: Random :: Suspend :: []) IO
 ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
 
 -------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
 -------------------------------------------------------------------------------
 
 repeatReq : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}}
-  -> Url -> Free fs (Either Nat (Response Bytes))
+  -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
 repeatReq url = do
     numRetries <- getRand
     eResponse <- getHttp url
@@ -126,7 +127,7 @@ repeatReq url = do
             l@(left _) -> suspend 100 >> go n eResponse
 
 withLog : {{Elem Logging fs}}
-  -> String -> String -> Free fs a -> Free fs a
+  -> String -> String -> Free (Product1 fs) a -> Free (Product1 fs) a
 withLog preMsg postMsg program = do
   logMsg preMsg
   a <- program
@@ -134,7 +135,7 @@ withLog preMsg postMsg program = do
   pure a
 
 program : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}} -> {{Elem Logging fs}}
-  -> Free fs (Either Nat (Response Bytes))
+  -> Free (Product1 fs) (Either Nat (Response Bytes))
 program = withLog "running request!" "done!" (repeatReq "http://aaronlevin.ca")
 
 -------------------------------------------------------------------------------
