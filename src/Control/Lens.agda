@@ -324,17 +324,17 @@ instance
 #snd : Lens (Pair a b) (Pair a c) b c
 #snd k (x , y) = map (x ,_) (k y)
 
-#Left : Traversal (Either a c) (Either b c) a b
-#Left f (left x) = map left (f x)
-#Left _ (right y) = pure (right y)
+#left : Traversal (Either a c) (Either b c) a b
+#left f (left x) = map left (f x)
+#left _ (right y) = pure (right y)
 
-#Right : Traversal (Either a b) (Either a c) b c
-#Right f (right y) = map right (f y)
-#Right _ (left x) = pure (left x)
+#right : Traversal (Either a b) (Either a c) b c
+#right f (right y) = map right (f y)
+#right _ (left x) = pure (left x)
 
-#Just : Traversal (Maybe a) (Maybe b) a b
-#Just f (just x) = map just (f x)
-#Just _ nothing = pure nothing
+#just : Traversal (Maybe a) (Maybe b) a b
+#just f (just x) = map just (f x)
+#just _ nothing = pure nothing
 
 #nothing : Simple Traversal (Maybe a) Unit
 #nothing f nothing = map (const nothing) (f tt)
