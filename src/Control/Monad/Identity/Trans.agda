@@ -70,8 +70,8 @@ instance
   MonadThrow-IdentityT .throw = lift <<< throw
 
   MonadCatch-IdentityT : {{MonadCatch m}} -> MonadCatch (IdentityT m)
-  MonadCatch-IdentityT .catch m h = anIdentityT $
-    catch (runIdentityT m) (\ e -> runIdentityT (h e))
+  MonadCatch-IdentityT ._catch_ m h = anIdentityT $
+    (runIdentityT m) catch (\ e -> runIdentityT (h e))
 
   MonadCont-IdentityT : {{MonadCont m}} -> MonadCont (IdentityT m)
   MonadCont-IdentityT .callCC f = anIdentityT $

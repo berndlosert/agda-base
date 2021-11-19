@@ -41,4 +41,4 @@ instance
 
   MonadError-IO : MonadError IOException IO
   MonadError-IO .raiseError = throw
-  MonadError-IO .handleError = catch
+  MonadError-IO .handleError = _catch_

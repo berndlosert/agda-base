@@ -146,6 +146,6 @@ instance
   MonadThrow-IterT .throw = lift <<< throw
 
   MonadCatch-IterT : {{MonadCatch m}} -> MonadCatch (IterT m)
-  MonadCatch-IterT .catch = fix \ where
+  MonadCatch-IterT ._catch_ = fix \ where
     go iter f -> anIterT $
-      catch (map (flip go f) <$> runIterT iter) (runIterT <<< f)
+      (map (flip go f) <$> runIterT iter) catch (runIterT <<< f)

@@ -113,8 +113,8 @@ instance
   MonadThrow-ListT .throw e .runListT = throw e
 
   MonadCatch-ListT : {{MonadCatch m}} -> MonadCatch (ListT m)
-  MonadCatch-ListT .catch m handler .runListT =
-    catch (runListT m) (runListT <<< handler)
+  MonadCatch-ListT ._catch_ m handler .runListT =
+    (runListT m) catch (runListT <<< handler)
 
   MonadReader-ListT : {{MonadReader r m}} -> MonadReader r (ListT m)
   MonadReader-ListT .ask = lift ask

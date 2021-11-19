@@ -102,8 +102,8 @@ instance
 
   MonadCatch-WriterT : {{Monoid w}} -> {{MonadCatch m}}
     -> MonadCatch (WriterT w m)
-  MonadCatch-WriterT .catch m h = aWriterT $
-    catch (runWriterT m) (runWriterT <<< h)
+  MonadCatch-WriterT ._catch_ m h = aWriterT $
+    (runWriterT m) catch (runWriterT <<< h)
 
   MonadCont-WriterT : {{Monoid w}} -> {{MonadCont m}}
     -> MonadCont (WriterT w m)

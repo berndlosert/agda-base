@@ -78,8 +78,8 @@ instance
   MonadThrow-EitherT .throw = lift <<< throw
 
   MonadCatch-EitherT : {{MonadCatch m}} -> MonadCatch (EitherT e m)
-  MonadCatch-EitherT .catch m k = anEitherT $
-    catch (runEitherT m) (runEitherT <<< k)
+  MonadCatch-EitherT ._catch_ m k = anEitherT $
+    (runEitherT m) catch (runEitherT <<< k)
 
   MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
   MonadBracket-EitherT .generalBracket acquire release use = anEitherT do

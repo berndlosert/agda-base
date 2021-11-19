@@ -91,8 +91,8 @@ instance
   MonadThrow-ReaderT .throw = lift <<< throw
 
   MonadCatch-ReaderT : {{MonadCatch m}} -> MonadCatch (ReaderT r m)
-  MonadCatch-ReaderT .catch m h = aReaderT \ r ->
-    catch (runReaderT m r) (\ e -> runReaderT (h e) r)
+  MonadCatch-ReaderT ._catch_ m h = aReaderT \ r ->
+    (runReaderT m r) catch (\ e -> runReaderT (h e) r)
 
   MonadCont-ReaderT : {{MonadCont m}} -> MonadCont (ReaderT r m)
   MonadCont-ReaderT .callCC f = aReaderT \ r ->

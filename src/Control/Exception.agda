@@ -43,21 +43,22 @@ open MonadThrow {{...}} public
 -------------------------------------------------------------------------------
 
 record MonadCatch (m : Set -> Set) : Set where
+  infixl 9 _catch_
   field
     overlap {{MonadThrow-super}} : MonadThrow m
-    catch : {{Exception e}} -> m a -> (e -> m a) -> m a
+    _catch_ : {{Exception e}} -> m a -> (e -> m a) -> m a
 
   catchJust : {{Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
-  catchJust p ma handler = catch ma \ e -> maybe (throw e) handler (p e)
+  catchJust p m handler = m catch \ e -> maybe (throw e) handler (p e)
 
   handle : {{Exception e}} -> (e -> m a) -> m a -> m a
-  handle = flip catch
+  handle = flip _catch_
 
   handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
   handleJust = flip <<< catchJust
 
   try : {{Exception e}} -> m a -> m (Either e a)
-  try m = catch (map right m) (pure <<< left)
+  try m = (map right m) catch (pure <<< left)
 
   tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
   tryJust p m = do
@@ -130,7 +131,7 @@ instance
   MonadThrow-IO .throw = throwIO
 
   MonadCatch-IO : MonadCatch IO
-  MonadCatch-IO .catch = catchIO
+  MonadCatch-IO ._catch_ = catchIO
 
   MonadBracket-IO : MonadBracket IO
   MonadBracket-IO .generalBracket = generalBracketIO

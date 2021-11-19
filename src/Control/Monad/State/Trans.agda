@@ -103,8 +103,8 @@ instance
   MonadThrow-StateT .throw = lift <<< throw
 
   MonadCatch-StateT : {{MonadCatch m}} -> MonadCatch (StateT s m)
-  MonadCatch-StateT .catch m h = aStateT \ s ->
-    catch (runStateT m s) (\ e -> runStateT (h e) s)
+  MonadCatch-StateT ._catch_ m h = aStateT \ s ->
+    (runStateT m s) catch (\ e -> runStateT (h e) s)
 
   MonadCont-StateT : {{MonadCont m}} -> MonadCont (StateT s m)
   MonadCont-StateT .callCC f = aStateT \ s ->
