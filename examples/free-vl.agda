@@ -92,8 +92,8 @@ handleExcep : HttpException -> Either Nat a
 handleExcep _ = panic "unhandled HttpException"
 
 httpIO : Http IO
-httpIO .getHttpEff req = catch (right <$> get req) (pure <<< handleExcep)
-httpIO .postHttpEff req body = catch (right <$> post req body) (pure <<< handleExcep)
+httpIO .getHttpEff req = (right <$> get req) catch (pure <<< handleExcep)
+httpIO .postHttpEff req body = (right <$> post req body) catch (pure <<< handleExcep)
 
 logIO : Logging IO
 logIO .logEff = putStrLn
