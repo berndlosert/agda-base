@@ -24,7 +24,9 @@ postulate
 {-# COMPILE GHC Exception-MyException = ExceptionDict #-}
 
 main : IO Unit
-main =
+main = do
   (throw ThisException)
     catch (\ (e : MyException) -> throw ThatException)
     catch (\ (e : MyException) -> putStrLn "oops")
+  (throw (userException "oops"))
+    catch (\ (e : IOException) -> putStrLn "caught ya")
