@@ -15,17 +15,19 @@ private
     a b c e : Set
 
 -------------------------------------------------------------------------------
--- Exception, SomeException, IOException
+-- Exception, SomeException
 -------------------------------------------------------------------------------
 
 postulate
   Exception : Set -> Set
   SomeException : Set
-  IOException : Set
 
   toException : {{Exception e}} -> e -> SomeException
   fromException : {{Exception e}} -> SomeException -> Maybe e
   displayException : {{Exception e}} -> e -> String
+
+  instance
+    Exception-SomeException : Exception SomeException
 
 -------------------------------------------------------------------------------
 -- MonadThrow
@@ -111,13 +113,19 @@ record MonadBracket (m : Set -> Set) : Set where
 open MonadBracket {{...}} public
 
 -------------------------------------------------------------------------------
--- Instances
+-- IOException
 -------------------------------------------------------------------------------
 
 postulate
+  IOException : Set
+  userException : String -> IOException
+
   instance
-    Exception-SomeException : Exception SomeException
     Exception-IOException : Exception IOException
+
+-------------------------------------------------------------------------------
+-- IO instances
+-------------------------------------------------------------------------------
 
 private
   postulate
@@ -142,7 +150,7 @@ instance
 
 {-# FOREIGN GHC
   import Control.Exception
-  import Data.Text (pack)
+  import Data.Text (pack, unpack)
 
   data ExceptionDict e = Exception e => ExceptionDict
 
@@ -174,3 +182,4 @@ instance
 {-# COMPILE GHC throwIO = \ _ _ ExceptionDict -> throwIO #-}
 {-# COMPILE GHC catchIO = \ _ _ ExceptionDict -> catch #-}
 {-# COMPILE GHC generalBracketIO = \ _ _ _ -> generalBracket #-}
+{-# COMPILE GHC userException = userError . unpack #-}
