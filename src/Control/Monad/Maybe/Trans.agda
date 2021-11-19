@@ -89,5 +89,5 @@ instance
 
   MonadError-MaybeT : {{MonadError e m}} -> MonadError e (MaybeT m)
   MonadError-MaybeT .throwError = lift <<< throwError
-  MonadError-MaybeT .catchError m h = aMaybeT $
-    catchError (runMaybeT m) (runMaybeT <<< h)
+  MonadError-MaybeT ._catchError_ m h = aMaybeT $
+    (runMaybeT m) catchError (runMaybeT <<< h)

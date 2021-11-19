@@ -100,5 +100,5 @@ instance
 
   MonadError-ReaderT : {{MonadError e m}} -> MonadError e (ReaderT r m)
   MonadError-ReaderT .throwError = lift <<< throwError
-  MonadError-ReaderT .catchError m h = aReaderT \ r ->
-    catchError (runReaderT m r) (\ e -> runReaderT (h e) r)
+  MonadError-ReaderT ._catchError_ m h = aReaderT \ r ->
+    (runReaderT m r) catchError (\ e -> runReaderT (h e) r)

@@ -120,7 +120,7 @@ instance
 
   MonadError-EitherT : {{Monad m}} -> MonadError e (EitherT e m)
   MonadError-EitherT .throwError = anEitherT <<< pure <<< left
-  MonadError-EitherT .catchError m h = anEitherT do
+  MonadError-EitherT ._catchError_ m h = anEitherT do
     res <- runEitherT m
     case res of \ where
       (left e) -> runEitherT (h e)

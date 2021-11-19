@@ -79,5 +79,5 @@ instance
 
   MonadError-IdentityT : {{MonadError e m}} -> MonadError e (IdentityT m)
   MonadError-IdentityT .throwError = lift <<< throwError
-  MonadError-IdentityT .catchError m h = anIdentityT $
-    catchError (runIdentityT m) (runIdentityT <<< h)
+  MonadError-IdentityT ._catchError_ m h = anIdentityT $
+    (runIdentityT m) catchError (runIdentityT <<< h)

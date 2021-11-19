@@ -112,5 +112,5 @@ instance
 
   MonadError-StateT : {{MonadError e m}} -> MonadError e (StateT s m)
   MonadError-StateT .throwError = lift <<< throwError
-  MonadError-StateT .catchError m h = aStateT \ s ->
-    catchError (runStateT m s) (\ e -> runStateT (h e) s)
+  MonadError-StateT ._catchError_ m h = aStateT \ s ->
+    (runStateT m s) catchError (\ e -> runStateT (h e) s)

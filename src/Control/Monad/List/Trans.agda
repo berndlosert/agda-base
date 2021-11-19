@@ -145,5 +145,5 @@ instance
 
   MonadError-ListT : {{MonadError e m}} -> MonadError e (ListT m)
   MonadError-ListT .throwError = lift <<< throwError
-  MonadError-ListT .catchError m h .runListT =
-    catchError (runListT m) (runListT <<< h)
+  MonadError-ListT ._catchError_ m h .runListT =
+    (runListT m) catchError (runListT <<< h)
