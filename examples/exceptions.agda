@@ -3,9 +3,6 @@ open import Prelude
 open import Control.Exception
 open import System.IO
 
-variable
-  e : Set
-
 data MyException : Set where
   ThisException ThatException : MyException
 
