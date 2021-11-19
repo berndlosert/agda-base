@@ -119,8 +119,8 @@ instance
     callCC \ c -> runEitherT (f $ anEitherT <<< c <<< right)
 
   MonadError-EitherT : {{Monad m}} -> MonadError e (EitherT e m)
-  MonadError-EitherT .raiseError = anEitherT <<< pure <<< left
-  MonadError-EitherT .handleError m h = anEitherT do
+  MonadError-EitherT .throwError = anEitherT <<< pure <<< left
+  MonadError-EitherT .catchError m h = anEitherT do
     res <- runEitherT m
     case res of \ where
       (left e) -> runEitherT (h e)

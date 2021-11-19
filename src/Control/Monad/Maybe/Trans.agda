@@ -88,6 +88,6 @@ instance
   MonadIO-MaybeT .liftIO = lift <<< liftIO
 
   MonadError-MaybeT : {{MonadError e m}} -> MonadError e (MaybeT m)
-  MonadError-MaybeT .raiseError = lift <<< raiseError
-  MonadError-MaybeT .handleError m h = aMaybeT $
-    handleError (runMaybeT m) (runMaybeT <<< h)
+  MonadError-MaybeT .throwError = lift <<< throwError
+  MonadError-MaybeT .catchError m h = aMaybeT $
+    catchError (runMaybeT m) (runMaybeT <<< h)

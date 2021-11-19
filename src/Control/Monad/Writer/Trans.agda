@@ -112,6 +112,6 @@ instance
 
   MonadError-WriterT : {{Monoid w}}
     -> {{MonadError e m}} -> MonadError e (WriterT w m)
-  MonadError-WriterT .raiseError = lift <<< raiseError
-  MonadError-WriterT .handleError m h = aWriterT $
-    handleError (runWriterT m) (runWriterT <<< h)
+  MonadError-WriterT .throwError = lift <<< throwError
+  MonadError-WriterT .catchError m h = aWriterT $
+    catchError (runWriterT m) (runWriterT <<< h)

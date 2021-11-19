@@ -111,6 +111,6 @@ instance
     callCC \ c -> runStateT (f (\ x -> aStateT \ _ -> c (s , x))) s
 
   MonadError-StateT : {{MonadError e m}} -> MonadError e (StateT s m)
-  MonadError-StateT .raiseError = lift <<< raiseError
-  MonadError-StateT .handleError m h = aStateT \ s ->
-    handleError (runStateT m s) (\ e -> runStateT (h e) s)
+  MonadError-StateT .throwError = lift <<< throwError
+  MonadError-StateT .catchError m h = aStateT \ s ->
+    catchError (runStateT m s) (\ e -> runStateT (h e) s)

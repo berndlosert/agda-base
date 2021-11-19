@@ -144,6 +144,6 @@ instance
           pure $ just (a , go rest)
 
   MonadError-ListT : {{MonadError e m}} -> MonadError e (ListT m)
-  MonadError-ListT .raiseError = lift <<< raiseError
-  MonadError-ListT .handleError m h .runListT =
-    handleError (runListT m) (runListT <<< h)
+  MonadError-ListT .throwError = lift <<< throwError
+  MonadError-ListT .catchError m h .runListT =
+    catchError (runListT m) (runListT <<< h)

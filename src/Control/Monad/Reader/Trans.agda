@@ -99,6 +99,6 @@ instance
     callCC \ c -> runReaderT (f (aReaderT <<< const <<< c)) r
 
   MonadError-ReaderT : {{MonadError e m}} -> MonadError e (ReaderT r m)
-  MonadError-ReaderT .raiseError = lift <<< raiseError
-  MonadError-ReaderT .handleError m h = aReaderT \ r ->
-    handleError (runReaderT m r) (\ e -> runReaderT (h e) r)
+  MonadError-ReaderT .throwError = lift <<< throwError
+  MonadError-ReaderT .catchError m h = aReaderT \ r ->
+    catchError (runReaderT m r) (\ e -> runReaderT (h e) r)

@@ -78,6 +78,6 @@ instance
     callCC \ c -> runIdentityT (f (anIdentityT <<< c))
 
   MonadError-IdentityT : {{MonadError e m}} -> MonadError e (IdentityT m)
-  MonadError-IdentityT .raiseError = lift <<< raiseError
-  MonadError-IdentityT .handleError m h = anIdentityT $
-    handleError (runIdentityT m) (runIdentityT <<< h)
+  MonadError-IdentityT .throwError = lift <<< throwError
+  MonadError-IdentityT .catchError m h = anIdentityT $
+    catchError (runIdentityT m) (runIdentityT <<< h)
