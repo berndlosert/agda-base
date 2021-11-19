@@ -193,7 +193,7 @@ f $! x = Strict.primForce x f
 
 infixr 9 _seq_
 _seq_ : a -> b -> b
-a seq b = const b $! a
+x seq y = const y $! x
 
 -------------------------------------------------------------------------------
 -- Bool primitives
