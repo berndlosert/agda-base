@@ -30,9 +30,9 @@ postulate
   wait : Async a -> IO a
   waitAny : List (Async a) -> IO (Pair (Async a) a)
   waitEither : Async a -> Async b -> IO (Either a b)
-  waitEither! : Async a -> Async b -> IO Unit
+  waitEither* : Async a -> Async b -> IO Unit
   waitBoth : Async a -> Async b -> IO (Pair a b)
-  waitBoth! : Async a -> Async b -> IO Unit
+  waitBoth* : Async a -> Async b -> IO Unit
   cancel : Async a -> IO Unit
   withAsync : IO a -> (Async a -> IO b) -> IO b
 
@@ -42,11 +42,11 @@ race l r =
   withAsync r \ b ->
   waitEither a b
 
-race! : IO a -> IO b -> IO Unit
-race! l r =
+race* : IO a -> IO b -> IO Unit
+race* l r =
   withAsync l \ a ->
   withAsync r \ b ->
-  waitEither! a b
+  waitEither* a b
 
 concurrently : IO a -> IO b -> IO (Pair a b)
 concurrently l r =
@@ -54,8 +54,8 @@ concurrently l r =
   withAsync r \ b ->
   waitBoth a b
 
-concurrently! : IO a -> IO b -> IO Unit
-concurrently! l r = ignore (concurrently l r)
+concurrently* : IO a -> IO b -> IO Unit
+concurrently* l r = ignore (concurrently l r)
 
 -------------------------------------------------------------------------------
 -- Async FFI
@@ -170,9 +170,9 @@ concurrently! l r = ignore (concurrently l r)
 {-# COMPILE GHC wait = \ _ a -> wait a #-}
 {-# COMPILE GHC waitAny = \ _ as -> waitAny as #-}
 {-# COMPILE GHC waitEither = \ _ _ a b -> waitEither a b #-}
-{-# COMPILE GHC waitEither! = \ _ _ a b -> waitEither_ a b #-}
+{-# COMPILE GHC waitEither* = \ _ _ a b -> waitEither_ a b #-}
 {-# COMPILE GHC waitBoth = \ _ _ a b -> waitBoth a b #-}
-{-# COMPILE GHC waitBoth! = \ _ _ a b -> waitBoth_ a b #-}
+{-# COMPILE GHC waitBoth* = \ _ _ a b -> waitBoth_ a b #-}
 {-# COMPILE GHC cancel = \ _ a -> cancel a #-}
 {-# COMPILE GHC withAsync = \ _ _ a k -> withAsync a k #-}
 
@@ -210,13 +210,13 @@ instance
 mapConcurrently : {{Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
 mapConcurrently f = runConcurrently <<< traverse (aConcurrently <<< f)
 
-mapConcurrently! : {{Foldable f}} -> (a -> IO b) -> f a -> IO Unit
-mapConcurrently! f = runConcurrently <<< foldMap (aConcurrently <<< ignore <<< f)
+mapConcurrently* : {{Foldable f}} -> (a -> IO b) -> f a -> IO Unit
+mapConcurrently* f = runConcurrently <<< foldMap (aConcurrently <<< ignore <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
 replicateConcurrently cnt =
   runConcurrently <<< sequence <<< List.replicate cnt <<< aConcurrently
 
-replicateConcurrently! : Nat -> IO a -> IO Unit
-replicateConcurrently! cnt =
+replicateConcurrently* : Nat -> IO a -> IO Unit
+replicateConcurrently* cnt =
   runConcurrently <<< fold <<< List.replicate cnt <<< aConcurrently <<< ignore

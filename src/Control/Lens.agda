@@ -201,13 +201,13 @@ lastOf l = getLast <<< foldMapOf l aLast
 findOf : AGetter (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
 findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing
 
-traverseOf! : {{Functor f}}
+traverseOf* : {{Functor f}}
   -> AGetter (f r) s a -> (a -> f r) -> s -> f Unit
-traverseOf! l f = map (const tt) <<< foldMapOf l f
+traverseOf* l f = map (const tt) <<< foldMapOf l f
 
-forOf! : {{Functor f}}
+forOf* : {{Functor f}}
   -> AGetter (f r) s a -> s -> (a -> f r) -> f Unit
-forOf! = flip <<< traverseOf!
+forOf* = flip <<< traverseOf*
 
 -------------------------------------------------------------------------------
 -- ASetter

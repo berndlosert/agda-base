@@ -98,7 +98,7 @@ sample' g = traverse generate do
 sample : {{Show a}} -> Gen a -> IO Unit
 sample g = do
   cases <- sample' g
-  traverse! print cases
+  traverse* print cases
 
 oneof : (gs : List (Gen a)) -> {{Assert $ nonempty gs}} -> Gen a
 oneof [] = panic "Test.QC.oneof: bad argument"
