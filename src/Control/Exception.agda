@@ -62,12 +62,6 @@ record MonadCatch (m : Set -> Set) : Set where
   catchJust p action handler =
     action catch \ e -> maybe (throw e) handler (p e)
 
-  handle : {{Exception e}} -> (e -> m a) -> m a -> m a
-  handle = flip _catch_
-
-  handleJust : {{Exception e}} -> (e -> Maybe b) -> (b -> m a) -> m a -> m a
-  handleJust = flip <<< catchJust
-
   try : {{Exception e}} -> m a -> m (Either e a)
   try action = (map right action) catch (pure <<< left)
 
