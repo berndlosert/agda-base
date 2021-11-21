@@ -1,5 +1,4 @@
 open import Prelude
-  hiding (Sub)
 
 open import Data.String
 open import String.Parser
