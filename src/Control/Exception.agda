@@ -50,8 +50,17 @@ record MonadCatch (m : Set -> Set) : Set where
     overlap {{MonadThrow-super}} : MonadThrow m
     _catch_ : {{Exception e}} -> m a -> (e -> m a) -> m a
 
+  infixl 9 _catchAll_
+  _catchAll_ : m a -> (SomeException -> m a) -> m a
+  _catchAll_ = _catch_
+
+  catchIf : {{Exception e}} -> (e -> Bool) -> m a -> (e -> m a) -> m a
+  catchIf p action handler =
+    action catch \ e -> if p e then handler e else throw e
+
   catchJust : {{Exception e}} -> (e -> Maybe b) -> m a -> (b -> m a) -> m a
-  catchJust p m handler = m catch \ e -> maybe (throw e) handler (p e)
+  catchJust p action handler =
+    action catch \ e -> maybe (throw e) handler (p e)
 
   handle : {{Exception e}} -> (e -> m a) -> m a -> m a
   handle = flip _catch_
@@ -60,14 +69,18 @@ record MonadCatch (m : Set -> Set) : Set where
   handleJust = flip <<< catchJust
 
   try : {{Exception e}} -> m a -> m (Either e a)
-  try m = (map right m) catch (pure <<< left)
+  try action = (map right action) catch (pure <<< left)
 
   tryJust : {{Exception e}} -> (e -> Maybe b) -> m a -> m (Either b a)
-  tryJust p m = do
-    res <- try m
+  tryJust p action = do
+    res <- try action
     case res of \ where
       (right v) -> pure (right v)
       (left e) -> maybe (throw e) (pure <<< left) (p e)
+
+  infixl 9 _onException_
+  _onException_ : m a -> m b -> m a
+  action onException handler = action catchAll \ e -> handler *> throw e
 
 open MonadCatch {{...}} public
 
@@ -103,12 +116,14 @@ record MonadBracket (m : Set -> Set) : Set where
         release a
         pure tt
 
-  onError : m a -> m b -> m a
-  onError action handler =
+  infixl 9 _onError_
+  _onError_ : m a -> m b -> m a
+  action onError handler =
     bracketOnError (pure tt) (const handler) (const action)
 
-  finally : m a -> m b -> m a
-  finally action finalizer = bracket' (pure tt) finalizer action
+  infixl 9 _finally_
+  _finally_ : m a -> m b -> m a
+  action finally finalizer = bracket' (pure tt) finalizer action
 
 open MonadBracket {{...}} public
 
