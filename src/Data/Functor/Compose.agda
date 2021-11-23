@@ -54,3 +54,8 @@ instance
   Alternative-Compose .azero = aCompose azero
   Alternative-Compose ._<|>_ l r =
     aCompose (getCompose l <|> getCompose r)
+
+  Monad-Compose : {{Monad f}} -> {{Monad g}} -> {{Traversable g}}
+    -> Monad (Compose f g)
+  Monad-Compose ._>>=_ m k =
+    aCompose (getCompose m >>= map join <<< traverse (getCompose <<< k))
