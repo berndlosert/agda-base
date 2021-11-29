@@ -47,6 +47,7 @@ brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencies
 rm -rf /usr/local/etc/unbound
 rm -rf /usr/local/etc/gnutls
 rm -rf /usr/local/etc/openssl@1.1
+rm -rf /usr/local/etc/ca-certificates
 rm -rf /usr/local/share/emacs/site-lisp/agda
 ```
 
