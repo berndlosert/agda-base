@@ -46,6 +46,12 @@ record Filterable (t : Set -> Set) : Set where
   partitionEithers : t (Either a b) -> Pair (t a) (t b)
   partitionEithers = mapEither id
 
+  lefts : t (Either a b) -> t a
+  lefts = fst <<< partitionEithers
+
+  rights : t (Either a b) -> t b
+  rights = snd <<< partitionEithers
+
   module _ {{_ : Traversable t}} {{_ : Applicative f}} where
 
     mapMaybeA : (a -> f (Maybe b)) -> t a -> f (t b)
