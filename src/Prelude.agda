@@ -252,6 +252,14 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
+maybeLeft : Either a b -> Maybe a
+maybeLeft (left x) = just x
+maybeLeft _ = nothing
+
+maybeRight : Either a b -> Maybe b
+maybeRight (right x) = just x
+maybeRight _ = nothing
+
 fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
 fromLeft (left x) = x
 fromLeft _ = panic "Prelude.fromLeft: bad argument"
