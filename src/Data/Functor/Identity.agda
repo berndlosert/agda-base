@@ -6,6 +6,7 @@ module Data.Functor.Identity where
 
 open import Prelude
 
+open import Control.Comonad
 open import Data.Foldable
 
 -------------------------------------------------------------------------------
@@ -51,6 +52,10 @@ instance
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ x k = k (runIdentity x)
+
+  Comonad-Identity : Comonad Identity
+  Comonad-Identity .extract = runIdentity
+  Comonad-Identity .extend f x = anIdentity (f x)
 
   Show-Identity : {{Show a}} -> Show (Identity a)
   Show-Identity .showsPrec prec x = showParen (prec > appPrec)
