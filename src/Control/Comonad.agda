@@ -21,8 +21,8 @@ private
 record Comonad (w : Set -> Set) : Set where
   field
     {{super}} : Functor w
-    extend : (w a -> b) -> w a -> w b
     extract : w a -> a
+    extend : (w a -> b) -> w a -> w b
 
   duplicate : w a -> w (w a)
   duplicate = extend id
@@ -36,3 +36,8 @@ record Comonad (w : Set -> Set) : Set where
   f =>= g = g <<< extend f
 
 open Comonad {{...}} public
+
+instance
+  Comonad-Function : {{Monoid a}} -> Comonad (Function a)
+  Comonad-Function .extract w = w mempty
+  Comonad-Function .extend f w x = f \ y -> w (x <> y)
