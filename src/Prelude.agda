@@ -4,6 +4,7 @@ module Prelude where
 -- Imports
 -------------------------------------------------------------------------------
 
+import Agda.Primitive as Primitive
 import Agda.Builtin.Unit as Unit
 import Agda.Builtin.Bool as Bool
 import Agda.Builtin.Nat as Nat
@@ -22,6 +23,12 @@ import Agda.Builtin.Coinduction as Coinduction
 -------------------------------------------------------------------------------
 -- Primitive types
 -------------------------------------------------------------------------------
+
+open Primitive public
+  using (Level)
+  using (lzero)
+  using (lsuc)
+  renaming (_⊔_ to _lmax_)
 
 data Void : Set where
 
@@ -486,6 +493,10 @@ open FromNat {{...}} public
 {-# BUILTIN FROMNAT fromNat #-}
 
 instance
+  FromNat-Level : FromNat Level
+  FromNat-Level .fromNat 0 = lzero
+  FromNat-Level .fromNat (suc n) = lsuc (fromNat n)
+
   FromNat-Nat : FromNat Nat
   FromNat-Nat .fromNat n = n
 
