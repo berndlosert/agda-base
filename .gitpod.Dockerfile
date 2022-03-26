@@ -11,4 +11,4 @@ RUN brew install agda; brew uninstall --ignore-dependencies emacs; brew deps ema
   mkdir ~/.agda; \
   echo /workspace/agda-base/base-library.agda-lib >> ~/.agda/libraries; \
   echo base-library >> ~/.agda/defaults \
-  sed -i -e 's/gcc-5/gcc-9/g' $(ghc --print-libdir)/settings
+  sed -i -e 's/gcc-5/gcc-9/g' /home/linuxbrew/.linuxbrew/Cellar/ghc/8.10.7_1/lib/ghc-8.10.7/settings
