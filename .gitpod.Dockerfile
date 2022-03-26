@@ -10,4 +10,5 @@ RUN brew install agda; brew uninstall --ignore-dependencies emacs; brew deps ema
   cabal update; cabal install --lib ieee754; cabal install --lib network; \
   mkdir ~/.agda; \
   echo /workspace/agda-base/base-library.agda-lib >> ~/.agda/libraries; \
-  echo base-library >> ~/.agda/defaults
+  echo base-library >> ~/.agda/defaults \
+  sed -i -e 's/gcc-5/gcc-9/g' $(ghc --print-libdir)/settings
