@@ -9,6 +9,8 @@ data MyException : Set where
 postulate
   instance
     Exception-MyException : Exception MyException
+    
+  unsafeFun : Bool -> IO Bool
 
 {-# FOREIGN GHC
   import Control.Exception
@@ -18,10 +20,14 @@ postulate
     deriving Show
 
   instance Exception MyException
+
+  unsafeFun :: Bool -> IO Bool
+  unsafeFun _ = ioError (userError "oh no")
 #-}
 
 {-# COMPILE GHC MyException = data MyException (ThisException | ThatException) #-}
 {-# COMPILE GHC Exception-MyException = ExceptionDict #-}
+{-# COMPILE GHC unsafeFun = unsafeFun #-}
 
 main : IO Unit
 main = do
@@ -30,3 +36,6 @@ main = do
     catch (\ (e : MyException) -> putStrLn "oops")
   (throw (userException "oops"))
     catch (\ (e : IOException) -> putStrLn "caught ya")
+  b <- (unsafeFun true) catch (\ (e : IOException) -> pure true)
+  print b
+  putStrLn "the end"
