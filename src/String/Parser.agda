@@ -25,16 +25,30 @@ private
 -- Parser
 -------------------------------------------------------------------------------
 
-record Parser (a : Set) : Set where
-  constructor aParser
-  field
-    unParser : forall {b}
+abstract
+  Parser : Set -> Set
+  Parser a = {b : Set}
       -> String
       -> (cok : a -> String -> b) (cerr : b)
       -> (eok : a -> String -> b) (eerr : b)
       -> b
 
-open Parser
+  private
+    aParser : ({b : Set}
+      -> String
+      -> (cok : a -> String -> b) (cerr : b)
+      -> (eok : a -> String -> b) (eerr : b)
+      -> b) 
+      -> Parser a
+    aParser p = p
+
+    unParser : Parser a 
+      -> {b : Set}
+      -> String
+      -> (cok : a -> String -> b) (cerr : b)
+      -> (eok : a -> String -> b) (eerr : b)
+      -> b
+    unParser p = p
 
 -------------------------------------------------------------------------------
 -- Auxiliary types
