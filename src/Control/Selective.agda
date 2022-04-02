@@ -32,10 +32,10 @@ record Selective (f : Set -> Set) : Set where
   branch x l r = map (map left) x <*? map (map right) l <*? r
 
   ifS : f Bool -> f a -> f a -> f a
-  ifS x t f = branch
-    (bool (left tt) (right tt) <$> x)
-    (const <$> f)
-    (const <$> t)
+  ifS b t f = branch 
+    (| if b then (pure $ right tt) else (pure $ left tt) |) 
+    (| const f |) 
+    (| const t |)
 
   whenS : f Bool -> f Unit -> f Unit
   whenS b t = ifS b t (pure tt)
