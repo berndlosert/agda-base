@@ -33,7 +33,7 @@ record Selective (f : Set -> Set) : Set where
 
   ifS : f Bool -> f a -> f a -> f a
   ifS b t f = branch 
-    (| if b then (pure $ right tt) else (pure $ left tt) |) 
+    (| if b then pure $ right tt else pure $ left tt |) 
     (| const f |) 
     (| const t |)
 
