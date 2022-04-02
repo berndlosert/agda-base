@@ -4,7 +4,7 @@ module String.Parser where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (bool)
+open import Prelude
 
 open import Control.Monad.Kleisli
 open import Data.Char as Char using ()
