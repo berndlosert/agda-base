@@ -34,11 +34,14 @@ private
 -- Seq
 -------------------------------------------------------------------------------
 
-record Seq (a : Set) : Set where
-  constructor aSeq
-  field unSeq : FingerTree (Sum Nat) (Elem a)
+private
+  record Seq' (a : Set) : Set where
+    constructor aSeq
+    field unSeq : FingerTree (Sum Nat) (Elem a)
 
-open Seq
+  open Seq'
+
+Seq = Seq'
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
