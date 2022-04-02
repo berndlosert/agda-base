@@ -87,6 +87,9 @@ record Foldable (t : Set -> Set) : Set where
   null : t a -> Bool
   null = foldr (\ _ _ -> false) true
 
+  defaulting : b -> (t a -> b) -> t a -> b
+  defaulting d f xs = if null xs then d else f xs
+
   first : t a -> Maybe a
   first = find (const true)
 
