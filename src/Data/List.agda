@@ -156,10 +156,8 @@ splitAt n xs = (take n xs , drop n xs)
 
 at : (n : Nat) -> (xs : List a) -> {{Assert $ n < length xs}} -> a
 at _ [] = panic "Data.List.at: bad argument"
-at 0 (x :: []) = x
-at 0 (x :: _) = panic "Data.List.at: bad argument"
-at (suc n) (x :: y :: ys) = at n (y :: ys) {{trustMe}}
-at (suc n) (x :: _) = panic "Data.List.at: bad argument"
+at 0 (x :: _) = x
+at (suc n) (_ :: xs) = at n xs {{trustMe}}
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
