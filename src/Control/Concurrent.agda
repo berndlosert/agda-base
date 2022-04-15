@@ -46,11 +46,13 @@ postulate
   forkFinally : IO a -> (Either SomeException a -> IO Unit) -> IO ThreadId
   killThread : ThreadId -> IO Unit
   yield : IO Unit
+  timeout : (microseconds : Nat) -> IO a -> IO (Maybe a)
 
 -------------------------------------------------------------------------------
 -- FFI
 -------------------------------------------------------------------------------
 
+{-# FOREIGN GHC import System.Timeout #-}
 {-# FOREIGN GHC import Control.Concurrent #-}
 {-# FOREIGN GHC import Data.Text (pack) #-}
 {-# COMPILE GHC ThreadId = type ThreadId #-}
@@ -63,3 +65,4 @@ postulate
 {-# COMPILE GHC forkFinally = \ _ -> forkFinally #-}
 {-# COMPILE GHC killThread = killThread #-}
 {-# COMPILE GHC yield = yield #-}
+{-# COMPILE GHC timeout = \ _ -> timeout . fromInteger #-}
