@@ -203,6 +203,19 @@ instance
 
   data ExceptionDict e = Exception e => ExceptionDict
 
+  isSyncException :: Exception e => e -> Bool
+  isSyncException e =
+    case fromException (toException e) of
+        Just (SomeAsyncException _) -> False
+        Nothing -> True
+
+  isAsyncException :: Exception e => e -> Bool
+  isAsyncException = not . isSyncException
+
+  catchIO :: (Exception e) => IO a -> (e -> IO a) -> IO a
+  catchIO f g = f `catch` \e ->
+    if isSyncException e then g e else throwIO e
+
   newtype RestoreIO = RestoreIO (forall a. () -> IO a -> IO a)
 
   maskIO :: () -> (RestoreIO -> IO b) -> IO b
@@ -222,7 +235,7 @@ instance
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
 {-# COMPILE GHC throwIO = \ _ _ ExceptionDict -> throwIO #-}
-{-# COMPILE GHC catchIO = \ _ _ ExceptionDict -> catch #-}
+{-# COMPILE GHC catchIO = \ _ _ ExceptionDict -> catchIO #-}
 {-# COMPILE GHC RestoreIO = data RestoreIO (RestoreIO) #-}
 {-# COMPILE GHC maskIO = maskIO #-}
 {-# COMPILE GHC uninterruptibleMaskIO = uninterruptibleMaskIO #-}
