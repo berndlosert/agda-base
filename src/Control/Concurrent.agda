@@ -59,10 +59,10 @@ postulate
 {-# COMPILE GHC threadIdEq = (==) #-}
 {-# COMPILE GHC threadIdLess = (<) #-}
 {-# COMPILE GHC threadIdShow = pack . show #-}
-{-# COMPILE GHC threadDelay = threadDelay . fromInteger #-}
+{-# COMPILE GHC threadDelay = threadDelay . fromInteger . min (toInteger (maxBound :: Int)) #-}
 {-# COMPILE GHC myThreadId = myThreadId #-}
 {-# COMPILE GHC forkIO = forkIO #-}
 {-# COMPILE GHC forkFinally = \ _ -> forkFinally #-}
 {-# COMPILE GHC killThread = killThread #-}
 {-# COMPILE GHC yield = yield #-}
-{-# COMPILE GHC timeout = \ _ -> timeout . fromInteger #-}
+{-# COMPILE GHC timeout = \ _ -> timeout . fromInteger .  min (toInteger (maxBound :: Int)) #-}
