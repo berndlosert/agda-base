@@ -1,0 +1,43 @@
+module Data.STRef where
+
+-------------------------------------------------------------------------------
+-- Imports
+-------------------------------------------------------------------------------
+
+open import Prelude
+
+open import Control.Monad.ST
+
+-------------------------------------------------------------------------------
+-- Variables
+-------------------------------------------------------------------------------
+
+private
+  variable
+    a b s : Set
+
+-------------------------------------------------------------------------------
+-- STRef
+-------------------------------------------------------------------------------
+
+postulate
+  STRef : Set -> Set -> Set
+  newSTRef : a -> ST s (STRef s a)
+  readSTRef : STRef s a -> ST s a
+  writeSTRef : STRef s a -> a -> ST s Unit
+  modifySTRef : STRef s a -> (a -> a) -> ST s Unit
+  atomicModifySTRef : STRef s a -> (a -> Pair a b) -> ST s b
+  atomicWriteSTRef : STRef s a -> a -> ST s Unit
+
+-------------------------------------------------------------------------------
+-- FFI
+-------------------------------------------------------------------------------
+
+{-# FOREIGN GHC import Data.STRef #-}
+{-# COMPILE GHC STRef = type STRef #-}
+{-# COMPILE GHC newSTRef = \ _ _ -> newSTRef #-}
+{-# COMPILE GHC readSTRef = \ _ _ -> readSTRef #-}
+{-# COMPILE GHC writeSTRef = \ _ _ r -> writeSTRef r #-}
+{-# COMPILE GHC modifySTRef = \ _ _ r -> modifySTRef' r #-}
+{-# COMPILE GHC atomicModifySTRef = \ _ _ _ r -> atomicModifySTRef' r #-}
+{-# COMPILE GHC atomicWriteSTRef = \ _ _ r -> atomicWriteSTRef r #-}

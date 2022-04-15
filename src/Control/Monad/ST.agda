@@ -20,9 +20,6 @@ private
 
 postulate
   ST : Set -> Set -> Set
-  -- N.B. Requires adding -XImpredicativeSets to the --ghc-flag option when
-  -- compiling. Otherwise, you will get impredicativity errors.
-  runST : (forall {s} -> ST s a) -> a
 
 private
   postulate
@@ -43,6 +40,24 @@ instance
   Monad-ST ._>>=_ = bindST
 
 -------------------------------------------------------------------------------
+-- runST
+-------------------------------------------------------------------------------
+
+private
+  -- This guy is needed to avoid impredicativity issues.
+  record ST' (a : Set) : Set where
+    constructor anST'
+    field unST' : forall {s} -> ST s a
+
+  open ST'
+  
+  postulate
+    runST' : ST' a -> a
+
+runST : (forall {s} -> ST s a) -> a
+runST st = runST' (anST' st)
+
+-------------------------------------------------------------------------------
 -- ST FFI
 -------------------------------------------------------------------------------
 
@@ -50,13 +65,16 @@ instance
 {-# FOREIGN GHC
   import Control.Monad.ST
 
-  runST' :: () -> (forall s. () -> ST s a) -> a
-  runST' _ f = runST (f ())
+  newtype ST' a = ST' (forall s. () -> ST s a)
+
+  runST' :: () -> ST' a -> a
+  runST' _ (ST' st) = runST (st ())
 #-}
 
 {-# COMPILE GHC ST = type ST #-}
-{-# COMPILE GHC runST = runST' #-}
 {-# COMPILE GHC mapST = \ _ _ _ -> fmap #-}
 {-# COMPILE GHC pureST = \ _ _ -> pure #-}
 {-# COMPILE GHC apST = \ _ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindST = \ _ _ _ -> (>>=) #-}
+{-# COMPILE GHC ST' = data ST' (ST') #-}
+{-# COMPILE GHC runST' = runST' #-}
