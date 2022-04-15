@@ -1,7 +1,9 @@
 FROM gitpod/workspace-full
 
 # Install custom tools, runtime, etc.
-RUN brew install agda; brew uninstall --ignore-dependencies emacs; brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencies; \
+RUN brew install agda; \
+  brew install haskell-language-server; \ 
+  brew uninstall --ignore-dependencies emacs; brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencies; \
   rm -rf /home/linuxbrew/.linuxbrew/etc/unbound; \
   rm -rf /home/linuxbrew/.linuxbrew/etc/gnutls; \
   rm -rf /home/linuxbrew/.linuxbrew/etc/openssl@1.1; \
