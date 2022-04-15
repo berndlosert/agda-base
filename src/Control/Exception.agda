@@ -29,6 +29,10 @@ postulate
   instance
     Exception-SomeException : Exception SomeException
 
+instance
+  Show-SomeException : Show SomeException
+  Show-SomeException .showsPrec _ e = showString (displayException e)
+  
 -------------------------------------------------------------------------------
 -- MonadThrow
 -------------------------------------------------------------------------------
