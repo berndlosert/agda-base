@@ -78,6 +78,25 @@ record MonadCatch (m : Set -> Set) : Set where
 
 open MonadCatch {{...}} public
 
+
+-------------------------------------------------------------------------------
+-- MonadMask
+-------------------------------------------------------------------------------
+
+record MonadMask (m : Set -> Set) : Set where
+  field
+    overlap {{Monad-super}} : Monad m
+    mask : ((forall {a} -> m a -> m a) -> m b) -> m b
+    uninterruptibleMask : ((forall {a} -> m a -> m a) -> m b) -> m b
+
+  mask' : m a -> m a
+  mask' = mask <<< const
+
+  uninterruptibleMask' : m a -> m a
+  uninterruptibleMask' = uninterruptibleMask <<< const
+
+open MonadMask {{...}} public
+
 -------------------------------------------------------------------------------
 -- MonadBracket
 -------------------------------------------------------------------------------
@@ -89,11 +108,20 @@ data ExitCase (a : Set) : Set where
 
 record MonadBracket (m : Set -> Set) : Set where
   field
-    overlap {{Monad-super}} : Monad m
-    generalBracket : m a
+    overlap {{MonadCatch-super}} : MonadCatch m
+    overlap {{MonadMask-super}} : MonadMask m
+
+  generalBracket : m a
       -> (a -> ExitCase b -> m c)
       -> (a -> m b)
       -> m (Pair b c)
+  generalBracket acquire release use = mask $ \ restore -> do
+    resource <- acquire
+    b <- restore (use resource) catch \ e -> do
+      release resource (exitCaseException e)
+      throw e
+    c <- release resource (exitCaseSuccess b)
+    pure (b , c)
 
   bracket : m a -> (a -> m c) -> (a -> m b) -> m b
   bracket acquire release =
@@ -137,11 +165,18 @@ postulate
 -------------------------------------------------------------------------------
 
 private
+  -- This guy is needed to avoid impredicativity issues when compiling.
+  record RestoreIO : Set where
+    constructor aRestoreIO
+    field runRestoreIO : forall {a} -> IO a -> IO a
+
+  open RestoreIO
+
   postulate
     throwIO : {{Exception e}} -> e -> IO a
     catchIO : {{Exception e}} -> IO a -> (e -> IO a) -> IO a
-    generalBracketIO : IO a -> (a -> ExitCase b -> IO c)
-      -> (a -> IO b) -> IO (Pair b c)
+    maskIO : (RestoreIO -> IO b) -> IO b
+    uninterruptibleMaskIO : (RestoreIO -> IO b) -> IO b
 
 instance
   MonadThrow-IO : MonadThrow IO
@@ -150,8 +185,13 @@ instance
   MonadCatch-IO : MonadCatch IO
   MonadCatch-IO ._catch_ = catchIO
 
+  MonadMask-IO : MonadMask IO
+  MonadMask-IO .mask io = maskIO \ restore -> io (runRestoreIO restore)
+  MonadMask-IO .uninterruptibleMask io = 
+    uninterruptibleMaskIO \ restore -> io (runRestoreIO restore) 
+
   MonadBracket-IO : MonadBracket IO
-  MonadBracket-IO .generalBracket = generalBracketIO
+  MonadBracket-IO  = record {}
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -163,20 +203,14 @@ instance
 
   data ExceptionDict e = Exception e => ExceptionDict
 
-  data ExitCase a
-    = ExitCaseSuccess a
-    | ExitCaseException SomeException
-    | ExitCaseAbort
+  newtype RestoreIO = RestoreIO (forall a. () -> IO a -> IO a)
 
-  generalBracket ::
-    IO a -> (a -> ExitCase b -> IO c) -> (a -> IO b) -> IO (b, c)
-  generalBracket acquire release use = mask $ \ unmasked -> do
-    resource <- acquire
-    b <- unmasked (use resource) `catch` \ e -> do
-      _ <- release resource (ExitCaseException e)
-      throwIO e
-    c <- release resource (ExitCaseSuccess b)
-    pure (b, c)
+  maskIO :: () -> (RestoreIO -> IO b) -> IO b
+  maskIO _ io = mask $ \ restore -> io $ RestoreIO (const restore)
+
+  uninterruptibleMaskIO :: () -> (RestoreIO -> IO b) -> IO b
+  uninterruptibleMaskIO _ io = uninterruptibleMask $ 
+    \ restore -> io $ RestoreIO (const restore)
 #-}
 
 {-# COMPILE GHC Exception = type ExceptionDict #-}
@@ -187,8 +221,9 @@ instance
 {-# COMPILE GHC toException = \ _ ExceptionDict -> toException #-}
 {-# COMPILE GHC fromException = \ _ ExceptionDict -> fromException #-}
 {-# COMPILE GHC displayException = \ _ ExceptionDict -> pack . displayException #-}
-{-# COMPILE GHC ExitCase = data ExitCase (ExitCaseSuccess | ExitCaseException | ExitCaseAbort) #-}
 {-# COMPILE GHC throwIO = \ _ _ ExceptionDict -> throwIO #-}
 {-# COMPILE GHC catchIO = \ _ _ ExceptionDict -> catch #-}
-{-# COMPILE GHC generalBracketIO = \ _ _ _ -> generalBracket #-}
+{-# COMPILE GHC RestoreIO = data RestoreIO (RestoreIO) #-}
+{-# COMPILE GHC maskIO = maskIO #-}
+{-# COMPILE GHC uninterruptibleMaskIO = uninterruptibleMaskIO #-}
 {-# COMPILE GHC userException = userError . unpack #-}
