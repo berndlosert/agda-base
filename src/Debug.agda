@@ -1,4 +1,4 @@
-module Debug.Trace where
+module Debug where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -18,31 +18,26 @@ private
     f : Set -> Set
 
 -------------------------------------------------------------------------------
--- traceIO, trace, etc.
+-- trace, spy, etc.
 -------------------------------------------------------------------------------
 
-postulate
-  traceIO : String -> IO Unit
+private
+  postulate
+    traceIO : String -> IO Unit
 
 trace : String -> a -> a
-trace string expr = unsafePerformIO do
-  traceIO string
-  pure expr
+trace s x = unsafePerformIO do
+  traceIO s
+  pure x
 
 traceA : {{Applicative f}} -> String -> f Unit
-traceA string = trace string $ pure tt
+traceA s = trace s $ pure tt
 
-traceShow : {{Show a}} -> a -> b -> b
-traceShow = trace <<< show
+spy : {{Show a}} -> String -> a -> a
+spy s x = trace (s <> ":" <> show x) x
 
-traceShowA : {{Show a}} -> {{Applicative f}} -> a -> f Unit
-traceShowA = traceA <<< show
-
-traceId : String -> String
-traceId a = trace a a
-
-traceShowId : {{Show a}} -> a -> a
-traceShowId a = trace (show a) a
+spyWith : {{Show b}} -> String -> (a -> b) -> a -> a
+spyWith s f x = trace (s <> ":" <> show (f x)) x
 
 -------------------------------------------------------------------------------
 -- FFI
