@@ -34,10 +34,10 @@ traceA : {{Applicative f}} -> String -> f Unit
 traceA s = trace s $ pure tt
 
 spy : {{Show a}} -> String -> a -> a
-spy s x = trace (s <> ":" <> show x) x
+spy s x = trace (s <> ": " <> show x) x
 
 spyWith : {{Show b}} -> String -> (a -> b) -> a -> a
-spyWith s f x = trace (s <> ":" <> show (f x)) x
+spyWith s f x = trace (s <> ": " <> show (f x)) x
 
 -------------------------------------------------------------------------------
 -- FFI
