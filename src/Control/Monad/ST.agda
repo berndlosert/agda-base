@@ -1,3 +1,6 @@
+-- IMPORTANT:
+--   Using this module requires compiling with --ghc-flag=-XImpredicativeTypes
+
 module Control.Monad.ST where
 
 -------------------------------------------------------------------------------

@@ -26,8 +26,6 @@ postulate
   readSTRef : STRef s a -> ST s a
   writeSTRef : STRef s a -> a -> ST s Unit
   modifySTRef : STRef s a -> (a -> a) -> ST s Unit
-  atomicModifySTRef : STRef s a -> (a -> Pair a b) -> ST s b
-  atomicWriteSTRef : STRef s a -> a -> ST s Unit
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -39,5 +37,3 @@ postulate
 {-# COMPILE GHC readSTRef = \ _ _ -> readSTRef #-}
 {-# COMPILE GHC writeSTRef = \ _ _ r -> writeSTRef r #-}
 {-# COMPILE GHC modifySTRef = \ _ _ r -> modifySTRef' r #-}
-{-# COMPILE GHC atomicModifySTRef = \ _ _ _ r -> atomicModifySTRef' r #-}
-{-# COMPILE GHC atomicWriteSTRef = \ _ _ r -> atomicWriteSTRef r #-}
