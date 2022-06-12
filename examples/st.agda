@@ -16,4 +16,4 @@ sumST xs = runST $ do           -- runST takes out stateful code and makes it pu
     readSTRef n                 -- read the value of n, and return it.
 
 main : IO Unit
-main = print $ sumST (1 :: 3 :: 6 :: 9 :: [])
+main = print $ sumST (1 :: 3 :: 6 :: 19 :: [])

@@ -1,5 +1,5 @@
--- IMPORTANT:
---   Using this module requires compiling with --ghc-flag=-XImpredicativeTypes
+-- IMPORTANT: Programs using this module will need to be compiled with
+-- agda -c --ghc-flag=-XImpredicativeTypes
 
 module Control.Monad.ST where
 
@@ -46,19 +46,8 @@ instance
 -- runST
 -------------------------------------------------------------------------------
 
-private
-  -- This guy is needed to avoid impredicativity issues.
-  record ST' (a : Set) : Set where
-    constructor anST'
-    field unST' : forall {s} -> ST s a
-
-  open ST'
-  
-  postulate
-    runST' : ST' a -> a
-
-runST : (forall {s} -> ST s a) -> a
-runST st = runST' (anST' st)
+postulate
+  runST : (forall {s} -> ST s a) -> a
 
 -------------------------------------------------------------------------------
 -- ST FFI
@@ -68,10 +57,8 @@ runST st = runST' (anST' st)
 {-# FOREIGN GHC
   import Control.Monad.ST
 
-  newtype ST' a = ST' (forall s. () -> ST s a)
-
-  runST' :: () -> ST' a -> a
-  runST' _ (ST' st) = runST (st ())
+  runST' :: () -> (forall s. () -> ST s a) -> a
+  runST' _ st = runST (st ())
 #-}
 
 {-# COMPILE GHC ST = type ST #-}
@@ -80,4 +67,4 @@ runST st = runST' (anST' st)
 {-# COMPILE GHC apST = \ _ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindST = \ _ _ _ -> (>>=) #-}
 {-# COMPILE GHC ST' = data ST' (ST') #-}
-{-# COMPILE GHC runST' = runST' #-}
+{-# COMPILE GHC runST = runST' #-}
