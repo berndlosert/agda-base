@@ -17,8 +17,8 @@ open import Data.Foldable.Reverse
 
 private
   variable
-    a b c : Set
-    f t : Set -> Set
+    a b s : Set
+    f m t : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Traversable
@@ -54,11 +54,15 @@ instance
     map aReverse <<< forwards $ traverse (aBackwards <<< f) x
 
 -------------------------------------------------------------------------------
--- mapAccumL, mapAccumR
+-- mapAccumL, mapAccumR, mapAccumM
 -------------------------------------------------------------------------------
 
-mapAccumL : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c)
-mapAccumL f z bs = flip runState z $ for bs (state <<< flip f)
+mapAccumL : {{Traversable t}} -> (s -> a -> Pair s b) -> s -> t a -> Pair s (t b)
+mapAccumL f s bs = flip runState s $ for bs (state <<< flip f)
 
-mapAccumR : {{Traversable t}} -> (a -> b -> Pair a c) -> a -> t b -> Pair a (t c)
-mapAccumR f z = map getReverse <<< mapAccumL f z <<< aReverse
+mapAccumR : {{Traversable t}} -> (s -> a -> Pair s b) -> s -> t a -> Pair s (t b)
+mapAccumR f s = map getReverse <<< mapAccumL f s <<< aReverse
+
+mapAccumM : {{Traversable t}} -> {{Monad m}} 
+  -> (s -> a -> m (Pair s b)) -> s -> t a -> m (Pair s (t b))
+mapAccumM f s t = runStateT (traverse (aStateT <<< flip f) t) s
