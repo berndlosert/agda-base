@@ -66,5 +66,4 @@ postulate
 {-# COMPILE GHC pureST = \ _ _ -> pure #-}
 {-# COMPILE GHC apST = \ _ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindST = \ _ _ _ -> (>>=) #-}
-{-# COMPILE GHC ST' = data ST' (ST') #-}
 {-# COMPILE GHC runST = runST' #-}
