@@ -13,7 +13,7 @@ RUN brew install agda; \
   cabal update; cabal install --lib ieee754; cabal install --lib network; \
   mkdir ~/.agda; \
   echo /workspace/agda-base/base-library.agda-lib >> ~/.agda/libraries; \
-  echo base-library >> ~/.agda/defaults \
-  echo "set hidden" >> ~/.vimrc \
-  echo "set noswapfile" >> ~/.vimrc \
-  echo "syntax off" >> ~/.vimrc
+  echo base-library >> ~/.agda/defaults; \
+  echo -n "set hidden" >> ~/.vimrc; \
+  echo -n "set noswapfile" >> ~/.vimrc; \
+  echo -n "syntax off" >> ~/.vimrc
