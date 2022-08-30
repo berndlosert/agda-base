@@ -34,50 +34,50 @@ private
 -------------------------------------------------------------------------------
 
 record IdentityT (m : Set -> Set) (a : Set) : Set where
-  constructor anIdentityT
+  constructor asIdentityT
   field runIdentityT : m a
 
 open IdentityT public
 
 instance
   Functor-IdentityT : {{Functor m}} -> Functor (IdentityT m)
-  Functor-IdentityT .map f (anIdentityT m) = anIdentityT (map f m)
+  Functor-IdentityT .map f (asIdentityT m) = asIdentityT (map f m)
 
   Foldable-IdentityT : {{Foldable f}} -> Foldable (IdentityT f)
-  Foldable-IdentityT .foldr step init (anIdentityT x) = foldr step init x
+  Foldable-IdentityT .foldr step init (asIdentityT x) = foldr step init x
 
   Traversable-IdentityT : {{Traversable f}} -> Traversable (IdentityT f)
-  Traversable-IdentityT .traverse f (anIdentityT x) =
-    (| anIdentityT (traverse f x) |)
+  Traversable-IdentityT .traverse f (asIdentityT x) =
+    (| asIdentityT (traverse f x) |)
 
   Applicative-IdentityT : {{Applicative m}} -> Applicative (IdentityT m)
-  Applicative-IdentityT .pure x = anIdentityT (pure x)
-  Applicative-IdentityT ._<*>_ (anIdentityT f) (anIdentityT x) =
-    anIdentityT (f <*> x)
+  Applicative-IdentityT .pure x = asIdentityT (pure x)
+  Applicative-IdentityT ._<*>_ (asIdentityT f) (asIdentityT x) =
+    asIdentityT (f <*> x)
 
   Monad-IdentityT : {{Monad m}} -> Monad (IdentityT m)
-  Monad-IdentityT ._>>=_ (anIdentityT m) k = anIdentityT do
+  Monad-IdentityT ._>>=_ (asIdentityT m) k = asIdentityT do
     a <- m
     runIdentityT (k a)
 
   MonadTrans-IdentityT : MonadTrans IdentityT
-  MonadTrans-IdentityT .lift = anIdentityT
+  MonadTrans-IdentityT .lift = asIdentityT
 
   MonadIO-IdentityT : {{MonadIO m}} -> MonadIO (IdentityT m)
-  MonadIO-IdentityT .liftIO = anIdentityT <<< liftIO
+  MonadIO-IdentityT .liftIO = asIdentityT <<< liftIO
 
   MonadThrow-IdentityT : {{MonadThrow m}} -> MonadThrow (IdentityT m)
   MonadThrow-IdentityT .throw = lift <<< throw
 
   MonadCatch-IdentityT : {{MonadCatch m}} -> MonadCatch (IdentityT m)
-  MonadCatch-IdentityT ._catch_ m h = anIdentityT $
+  MonadCatch-IdentityT ._catch_ m h = asIdentityT $
     (runIdentityT m) catch (\ e -> runIdentityT (h e))
 
   MonadCont-IdentityT : {{MonadCont m}} -> MonadCont (IdentityT m)
-  MonadCont-IdentityT .callCC f = anIdentityT $
-    callCC \ c -> runIdentityT (f (anIdentityT <<< c))
+  MonadCont-IdentityT .callCC f = asIdentityT $
+    callCC \ c -> runIdentityT (f (asIdentityT <<< c))
 
   MonadError-IdentityT : {{MonadError e m}} -> MonadError e (IdentityT m)
   MonadError-IdentityT .throwError = lift <<< throwError
-  MonadError-IdentityT ._catchError_ m h = anIdentityT $
+  MonadError-IdentityT ._catchError_ m h = asIdentityT $
     (runIdentityT m) catchError (runIdentityT <<< h)

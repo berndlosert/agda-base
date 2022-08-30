@@ -27,7 +27,7 @@ private
 
 private
   record Parser' (a : Set) : Set where
-    constructor aParser
+    constructor asParser
     field
       unParser : forall {b}
         -> String
@@ -60,14 +60,14 @@ data Reply (a : Set) : Set where
 
 instance
   KleisliTriple-Parser : KleisliTriple Parser
-  KleisliTriple-Parser .flatMap k m = aParser \ where
+  KleisliTriple-Parser .flatMap k m = asParser \ where
     s cok cerr eok eerr ->
       let
         mcok x s' = unParser (k x) s' cok cerr cok cerr
         meok x s' = unParser (k x) s' cok cerr eok eerr
       in
         unParser m s mcok cerr meok eerr
-  KleisliTriple-Parser .return x = aParser \ where
+  KleisliTriple-Parser .return x = asParser \ where
     s _ _ eok _ -> eok x s
 
   Functor-Parser : Functor Parser
@@ -81,9 +81,9 @@ instance
   Monad-Parser ._>>=_ = bind
 
   Alternative-Parser : Alternative Parser
-  Alternative-Parser .azero = aParser \ where
+  Alternative-Parser .azero = asParser \ where
     s _ _ _ eerr -> eerr
-  Alternative-Parser ._<|>_ m n = aParser \ where
+  Alternative-Parser ._<|>_ m n = asParser \ where
     s cok cerr eok eerr ->
       let
         meerr =
@@ -124,19 +124,19 @@ instance
 -------------------------------------------------------------------------------
 
 try : Parser a -> Parser a
-try p = aParser \ where
+try p = asParser \ where
   s cok _ eok eerr ->
     let eerr' = eerr
     in unParser p s cok eerr' eok eerr'
 
 lookAhead : Parser a -> Parser a
-lookAhead p = aParser \ where
+lookAhead p = asParser \ where
   s cok cerr eok eerr ->
     let eok' a _ = eok a s
     in unParser p s eok' cerr eok' eerr
 
 notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = aParser \ where
+notFollowedBy p = asParser \ where
   s _ _ eok eerr ->
     let
       cok' _ _ = eerr
@@ -226,7 +226,7 @@ chainr p op x = option x (chainr1 p op)
 -------------------------------------------------------------------------------
 
 satisfy : (Char -> Bool) -> Parser Char
-satisfy test = aParser \ where
+satisfy test = asParser \ where
   s cok _ _ eerr ->
     if s == ""
       then eerr
@@ -308,7 +308,7 @@ word1 : Parser String
 word1 = (| String.cons alpha word |)
 
 takeWhile : (Char -> Bool) -> Parser String
-takeWhile p = aParser \ where
+takeWhile p = asParser \ where
   s cok _ _ _ -> uncurry cok (String.break p s)
 
 takeAll : Parser String

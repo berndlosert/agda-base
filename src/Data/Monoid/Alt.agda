@@ -20,14 +20,14 @@ private
 -------------------------------------------------------------------------------
 
 record Alt (f : Set -> Set) (a : Set) : Set where
-  constructor anAlt
+  constructor asAlt
   field getAlt : f a
 
 open Alt public
 
 instance
   Semigroup-Alt : {{Alternative f}} -> Semigroup (Alt f a)
-  Semigroup-Alt ._<>_ x y = anAlt (getAlt x <|> getAlt y)
+  Semigroup-Alt ._<>_ x y = asAlt (getAlt x <|> getAlt y)
 
   Monoid-Alt : {{Alternative f}} -> Monoid (Alt f a)
-  Monoid-Alt .mempty = anAlt azero
+  Monoid-Alt .mempty = asAlt azero

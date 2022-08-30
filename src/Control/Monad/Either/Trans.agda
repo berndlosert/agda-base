@@ -34,30 +34,30 @@ private
 -------------------------------------------------------------------------------
 
 record EitherT (e : Set) (m : Set -> Set) (a : Set) : Set where
-  constructor anEitherT
+  constructor asEitherT
   field runEitherT : m (Either e a)
 
 open EitherT public
 
 mapEitherT : (m (Either e a) -> n (Either e' b)) -> EitherT e m a -> EitherT e' n b
-mapEitherT f m = anEitherT (f (runEitherT m))
+mapEitherT f m = asEitherT (f (runEitherT m))
 
 withEitherT : {{Functor m}} -> (e -> e') -> EitherT e m a -> EitherT e' m a
-withEitherT f t = anEitherT $ map (lmap f) (runEitherT t)
+withEitherT f t = asEitherT $ map (lmap f) (runEitherT t)
 
 instance
   Functor-EitherT : {{Functor m}} -> Functor (EitherT e m)
-  Functor-EitherT .map f = anEitherT <<< map (map f) <<< runEitherT
+  Functor-EitherT .map f = asEitherT <<< map (map f) <<< runEitherT
 
   Applicative-EitherT : {{Monad m}} -> Applicative (EitherT e m)
-  Applicative-EitherT .pure = anEitherT <<< pure <<< pure
+  Applicative-EitherT .pure = asEitherT <<< pure <<< pure
   Applicative-EitherT ._<*>_ f x =
-    anEitherT (| runEitherT f <*> runEitherT x |)
+    asEitherT (| runEitherT f <*> runEitherT x |)
 
   Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
     -> Alternative (EitherT e m)
-  Alternative-EitherT .azero = anEitherT $ pure (left mempty)
-  Alternative-EitherT ._<|>_ l r = anEitherT do
+  Alternative-EitherT .azero = asEitherT $ pure (left mempty)
+  Alternative-EitherT ._<|>_ l r = asEitherT do
     resl <- runEitherT l
     case resl of \ where
       (left el) -> do
@@ -69,20 +69,20 @@ instance
 
   Monad-EitherT : {{Monad m}} -> Monad (EitherT e m)
   Monad-EitherT ._>>=_ m k =
-    anEitherT (runEitherT m >>= either (pure <<< left) (runEitherT <<< k))
+    asEitherT (runEitherT m >>= either (pure <<< left) (runEitherT <<< k))
 
   MonadTrans-EitherT : MonadTrans (EitherT e)
-  MonadTrans-EitherT .lift = anEitherT <<< map right
+  MonadTrans-EitherT .lift = asEitherT <<< map right
 
   MonadThrow-EitherT : {{MonadThrow m}} -> MonadThrow (EitherT e m)
   MonadThrow-EitherT .throw = lift <<< throw
 
   MonadCatch-EitherT : {{MonadCatch m}} -> MonadCatch (EitherT e m)
-  MonadCatch-EitherT ._catch_ m k = anEitherT $
+  MonadCatch-EitherT ._catch_ m k = asEitherT $
     (runEitherT m) catch (runEitherT <<< k)
 
   MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
-  MonadBracket-EitherT .generalBracket acquire release use = anEitherT do
+  MonadBracket-EitherT .generalBracket acquire release use = asEitherT do
     (eb , ec) <- generalBracket
       (runEitherT acquire)
       (\ where
@@ -115,12 +115,12 @@ instance
   MonadState-EitherT .state = lift <<< state
 
   MonadCont-EitherT : {{MonadCont m}} -> MonadCont (EitherT e m)
-  MonadCont-EitherT .callCC f = anEitherT $
-    callCC \ c -> runEitherT (f $ anEitherT <<< c <<< right)
+  MonadCont-EitherT .callCC f = asEitherT $
+    callCC \ c -> runEitherT (f $ asEitherT <<< c <<< right)
 
   MonadError-EitherT : {{Monad m}} -> MonadError e (EitherT e m)
-  MonadError-EitherT .throwError = anEitherT <<< pure <<< left
-  MonadError-EitherT ._catchError_ m h = anEitherT do
+  MonadError-EitherT .throwError = asEitherT <<< pure <<< left
+  MonadError-EitherT ._catchError_ m h = asEitherT do
     res <- runEitherT m
     case res of \ where
       (left e) -> runEitherT (h e)

@@ -7,7 +7,7 @@ open import Data.Monoid.Any
 open import System.IO
 
 record Settings : Set where
-  constructor aSettings
+  constructor asSettings
   field
     hasLibrary : Any
     github : Any
@@ -16,7 +16,7 @@ record Settings : Set where
 open Settings
 
 record Project : Set where
-  constructor aProject
+  constructor asProject
   field
     name : String
     hasLibrary : Bool
@@ -27,7 +27,7 @@ open Project
 
 instance
   Show-Settings : Show Settings
-  Show-Settings .showsPrec prec (aSettings x y z) =
+  Show-Settings .showsPrec prec (asSettings x y z) =
     showString "record { "
     <> showString "hasLibrary = "
     <> showsPrec prec x
@@ -45,12 +45,12 @@ instance
 
   Monoid-Settings : Monoid Settings
   Monoid-Settings .mempty = \ where
-    .hasLibrary -> anAny false
-    .github -> anAny false
-    .travis -> anAny false
+    .hasLibrary -> asAny false
+    .github -> asAny false
+    .travis -> asAny false
 
   Show-Project : Show Project
-  Show-Project .showsPrec prec (aProject w x y z) =
+  Show-Project .showsPrec prec (asProject w x y z) =
     showString "record { "
     <> showString "name = "
     <> showsPrec prec w
@@ -73,10 +73,10 @@ build projectName settings = \ where
   .travis -> getAny (settings .travis)
 
 hasLibraryBuilder : Builder -> Project
-hasLibraryBuilder builder = builder $ record mempty { hasLibrary = anAny true }
+hasLibraryBuilder builder = builder $ record mempty { hasLibrary = asAny true }
 
 githubBuilder : Builder -> Project
-githubBuilder builder = builder $ record mempty { github = anAny true }
+githubBuilder builder = builder $ record mempty { github = asAny true }
 
 travisBuilder : Builder -> Project
 travisBuilder builder =

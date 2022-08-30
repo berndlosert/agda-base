@@ -181,25 +181,25 @@ concurrently* l r = ignore (concurrently l r)
 -------------------------------------------------------------------------------
 
 record Concurrently (a : Set) : Set where
-  constructor aConcurrently
+  constructor asConcurrently
   field runConcurrently : IO a
 
 open Concurrently public
 
 instance
   Functor-Concurrently : Functor Concurrently
-  Functor-Concurrently .map f (aConcurrently a) = aConcurrently (map f a)
+  Functor-Concurrently .map f (asConcurrently a) = asConcurrently (map f a)
 
   Applicative-Concurrently : Applicative Concurrently
-  Applicative-Concurrently .pure = aConcurrently <<< pure
-  Applicative-Concurrently ._<*>_ (aConcurrently f) (aConcurrently x) =
-    aConcurrently $ apply <$> concurrently f x
+  Applicative-Concurrently .pure = asConcurrently <<< pure
+  Applicative-Concurrently ._<*>_ (asConcurrently f) (asConcurrently x) =
+    asConcurrently $ apply <$> concurrently f x
 
   Alternative-Concurrently : Alternative Concurrently
   Alternative-Concurrently .azero = let 2^32 = 4294967296 in
-    aConcurrently $ forever $ threadDelay 2^32
-  Alternative-Concurrently ._<|>_ (aConcurrently as) (aConcurrently bs) =
-    aConcurrently $ fromEither <$> race as bs
+    asConcurrently $ forever $ threadDelay 2^32
+  Alternative-Concurrently ._<|>_ (asConcurrently as) (asConcurrently bs) =
+    asConcurrently $ fromEither <$> race as bs
 
   Semigroup-Concurrently : {{Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| x <> y |)
@@ -208,15 +208,15 @@ instance
   Monoid-Concurrently .mempty = pure mempty
 
 mapConcurrently : {{Traversable t}} -> (a -> IO b) -> t a -> IO (t b)
-mapConcurrently f = runConcurrently <<< traverse (aConcurrently <<< f)
+mapConcurrently f = runConcurrently <<< traverse (asConcurrently <<< f)
 
 mapConcurrently* : {{Foldable f}} -> (a -> IO b) -> f a -> IO Unit
-mapConcurrently* f = runConcurrently <<< foldMap (aConcurrently <<< ignore <<< f)
+mapConcurrently* f = runConcurrently <<< foldMap (asConcurrently <<< ignore <<< f)
 
 replicateConcurrently : Nat -> IO a -> IO (List a)
 replicateConcurrently cnt =
-  runConcurrently <<< sequence <<< List.replicate cnt <<< aConcurrently
+  runConcurrently <<< sequence <<< List.replicate cnt <<< asConcurrently
 
 replicateConcurrently* : Nat -> IO a -> IO Unit
 replicateConcurrently* cnt =
-  runConcurrently <<< fold <<< List.replicate cnt <<< aConcurrently <<< ignore
+  runConcurrently <<< fold <<< List.replicate cnt <<< asConcurrently <<< ignore

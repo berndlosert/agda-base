@@ -175,7 +175,7 @@ instance
 private
   -- This guy is needed to avoid impredicativity issues when compiling.
   record RestoreIO : Set where
-    constructor aRestoreIO
+    constructor asRestoreIO
     field runRestoreIO : forall {a} -> IO a -> IO a
 
   open RestoreIO

@@ -12,18 +12,18 @@ open import Prelude
 
 -- Bool monoid where x <> y = x || y.
 record Any : Set where
-  constructor anAny
+  constructor asAny
   field getAny : Bool
 
 open Any public
 
 instance
   Semigroup-Any : Semigroup Any
-  Semigroup-Any ._<>_ x y = anAny (getAny x || getAny y)
+  Semigroup-Any ._<>_ x y = asAny (getAny x || getAny y)
 
   Monoid-Any : Monoid Any
-  Monoid-Any .mempty = anAny false
+  Monoid-Any .mempty = asAny false
 
   Show-Any : Show Any
   Show-Any .showsPrec prec x = showParen (prec > appPrec) $
-    showString "anAny " <<< showsPrec appPrec+1 (getAny x)
+    showString "asAny " <<< showsPrec appPrec+1 (getAny x)

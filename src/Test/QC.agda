@@ -37,56 +37,56 @@ private
 -------------------------------------------------------------------------------
 
 record Gen (a : Set) : Set where
-  constructor aGen
+  constructor asGen
   field unGen : StdGen -> Nat -> a
 
 open Gen public
 
 instance
   Functor-Gen : Functor Gen
-  Functor-Gen .map f (aGen x) = aGen \ r n -> f (x r n)
+  Functor-Gen .map f (asGen x) = asGen \ r n -> f (x r n)
 
   Applicative-Gen : Applicative Gen
-  Applicative-Gen .pure x = aGen \ _ _ -> x
-  Applicative-Gen ._<*>_ (aGen f) (aGen x) = aGen \ r n ->
+  Applicative-Gen .pure x = asGen \ _ _ -> x
+  Applicative-Gen ._<*>_ (asGen f) (asGen x) = asGen \ r n ->
     let (r1 , r2) = splitGen r in f r1 n (x r2 n)
 
   Monad-Gen : Monad Gen
-  Monad-Gen ._>>=_ (aGen m) k = aGen \ r n ->
-    let (r1 , r2) = splitGen r; aGen m' = k (m r1 n) in m' r2 n
+  Monad-Gen ._>>=_ (asGen m) k = asGen \ r n ->
+    let (r1 , r2) = splitGen r; asGen m' = k (m r1 n) in m' r2 n
 
 -------------------------------------------------------------------------------
 -- Gen combinators
 -------------------------------------------------------------------------------
 
 variant : Nat -> Gen a -> Gen a
-variant v (aGen m) =
-  aGen \ g n -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) n
+variant v (asGen m) =
+  asGen \ g n -> m (fst $ applyN (suc v) (splitGen <<< snd) (dup g)) n
 
 generate' : Nat -> StdGen -> Gen a -> a
-generate' n rnd (aGen m) =
+generate' n rnd (asGen m) =
   let (size , rnd') = randomR (0 , n) rnd in m rnd' size
 
 sized : (Nat -> Gen a) -> Gen a
-sized f = aGen \ r n -> let aGen m = f n in m r n
+sized f = asGen \ r n -> let asGen m = f n in m r n
 
 getSize : Gen Nat
 getSize = sized pure
 
 resize : Nat -> Gen a -> Gen a
-resize n (aGen g) = aGen \ r _ -> g r n
+resize n (asGen g) = asGen \ r _ -> g r n
 
 scale : (Nat -> Nat) -> Gen a -> Gen a
 scale f g = sized (\ n -> resize (f n) g)
 
 choose : {{RandomR a}} -> Pair a a -> Gen a
-choose rng = aGen \ r _ -> let (x , _) = randomR rng r in x
+choose rng = asGen \ r _ -> let (x , _) = randomR rng r in x
 
 chooseAny : {{Random a}} -> Gen a
-chooseAny = aGen \ r _ -> let (x , _) = random r in x
+chooseAny = asGen \ r _ -> let (x , _) = random r in x
 
 generate : Gen a -> IO a
-generate (aGen g) = do
+generate (asGen g) = do
   r <- newStdGen
   pure (g r 30)
 
@@ -150,7 +150,7 @@ shuffle xs = do
     2^32 = 4294967296
 
 delay : Gen (Gen a -> a)
-delay = aGen \ r n g -> unGen g r n
+delay = asGen \ r n g -> unGen g r n
 
 promote : {{Monad m}} -> m (Gen a) -> Gen (m a)
 promote m = do
@@ -232,7 +232,7 @@ record Result : Set where
     reason : String
 
 record Property : Set where
-  constructor aProperty
+  constructor asProperty
   field unProperty : Gen (IO Result)
 
 open Property public
@@ -262,7 +262,7 @@ rejected = record {
   }
 
 result : Result -> Property
-result = aProperty <<< pure <<< pure
+result = asProperty <<< pure <<< pure
 
 -------------------------------------------------------------------------------
 -- Testable
@@ -274,7 +274,7 @@ record Testable (a : Set) : Set where
 open Testable {{...}} public
 
 forAll : {{Show a}} -> {{Testable b}} -> Gen a -> (a -> b) -> Property
-forAll gen body = aProperty do
+forAll gen body = asProperty do
   x <- gen
   res <- unProperty $ property (body x)
   let updateRes res = record res { arguments = show x :: Result.arguments res }
@@ -286,7 +286,7 @@ true ==> a = property a
 false ==> a = result rejected
 
 label : {{Testable a}} -> String -> a -> Property
-label s a = aProperty $ map (map add) (unProperty $ property a)
+label s a = asProperty $ map (map add) (unProperty $ property a)
   where
     add : Result -> Result
     add res = record res { stamp = s :: Result.stamp res }
@@ -299,7 +299,7 @@ collect : {{Show a}} -> {{Testable b}} -> a -> b -> Property
 collect v = label (show v)
 
 ioProperty : IO Property -> Property
-ioProperty = map unProperty >>> promote >>> map join >>> aProperty
+ioProperty = map unProperty >>> promote >>> map join >>> asProperty
 
 instance
   Testable-Unit : Testable Unit
@@ -315,7 +315,7 @@ instance
   Testable-Property .property = id
 
   Testable-Gen : {{Testable a}} -> Testable (Gen a)
-  Testable-Gen .property gen = aProperty (gen >>= property >>> unProperty)
+  Testable-Gen .property gen = asProperty (gen >>= property >>> unProperty)
 
   Testable-Function : {{Arbitrary a}} -> {{Show a}} -> {{Testable b}}
     -> Testable (a -> b)
@@ -390,7 +390,7 @@ private
   tests : Config -> Property -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
   tests = fix \ where
-    go config prop@(aProperty gen) rnd0 ntest nfail stamps ->
+    go config prop@(asProperty gen) rnd0 ntest nfail stamps ->
       if ntest == Config.maxTest config
         then finish "OK, passed" ntest stamps
         else if nfail == Config.maxFail config

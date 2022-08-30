@@ -89,7 +89,7 @@ data AddrInfoFlag : Set where
 -------------------------------------------------------------------------------
 
 record AddrInfo : Set where
-  constructor anAddrInfo
+  constructor asAddrInfo
   field
     addrFlags : List AddrInfoFlag
     addrFamily : AddrFamily

@@ -22,7 +22,7 @@ private
 -------------------------------------------------------------------------------
 
 record Identity (a : Set) : Set where
-  constructor anIdentity
+  constructor asIdentity
   field runIdentity : a
 
 open Identity public
@@ -35,19 +35,19 @@ instance
   Ord-Identity ._<_ = _<_ on runIdentity
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity ._<>_ x y = anIdentity (runIdentity x <> runIdentity y)
+  Semigroup-Identity ._<>_ x y = asIdentity (runIdentity x <> runIdentity y)
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
-  Monoid-Identity .mempty = anIdentity mempty
+  Monoid-Identity .mempty = asIdentity mempty
 
   Foldable-Identity : Foldable Identity
   Foldable-Identity .foldr step init x = step (runIdentity x) init
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map f = anIdentity <<< f <<< runIdentity
+  Functor-Identity .map f = asIdentity <<< f <<< runIdentity
 
   Applicative-Identity : Applicative Identity
-  Applicative-Identity .pure = anIdentity
+  Applicative-Identity .pure = asIdentity
   Applicative-Identity ._<*>_ = map <<< runIdentity
 
   Monad-Identity : Monad Identity
@@ -55,8 +55,8 @@ instance
 
   Comonad-Identity : Comonad Identity
   Comonad-Identity .extract = runIdentity
-  Comonad-Identity .extend f x = anIdentity (f x)
+  Comonad-Identity .extend f x = asIdentity (f x)
 
   Show-Identity : {{Show a}} -> Show (Identity a)
   Show-Identity .showsPrec prec x = showParen (prec > appPrec)
-    (showString "anIdentity " <<< showsPrec appPrec+1 (runIdentity x))
+    (showString "asIdentity " <<< showsPrec appPrec+1 (runIdentity x))

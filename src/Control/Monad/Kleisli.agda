@@ -43,14 +43,14 @@ open KleisliTriple {{...}} public
 -------------------------------------------------------------------------------
 
 record Kleisli (m : Set -> Set) (a b : Set) : Set where
-  constructor aKleisli
+  constructor asKleisli
   field runKleisli : a -> m b
 
 open Kleisli public
 
 instance
   Semigroupoid-Kleisli : {{Monad m}} -> Semigroupoid (Kleisli m)
-  Semigroupoid-Kleisli ._<<<_ g f = aKleisli (runKleisli g <=< runKleisli f)
+  Semigroupoid-Kleisli ._<<<_ g f = asKleisli (runKleisli g <=< runKleisli f)
 
   Category-Kleisli : {{Monad m}} -> Category (Kleisli m)
-  Category-Kleisli .id = aKleisli \ x -> pure x
+  Category-Kleisli .id = asKleisli \ x -> pure x

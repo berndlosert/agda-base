@@ -41,7 +41,7 @@ instance
 -------------------------------------------------------------------------------
 
 record Positive (a : Set) {{_ : Positiveness a}} : Set where
-  constructor aPositive
+  constructor asPositive
   field
     fromPositive : a
     {{Assert-positive}} : Assert (positive fromPositive)

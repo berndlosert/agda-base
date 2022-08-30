@@ -19,7 +19,7 @@ private
 -------------------------------------------------------------------------------
 
 record Down (a : Set) : Set where
-  constructor aDown
+  constructor asDown
   field getDown : a
 
 open Down public

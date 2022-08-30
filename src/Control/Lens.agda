@@ -52,20 +52,20 @@ instance
   Copointed-Identity .extract = runIdentity
 
 record Tagged (s b : Set) : Set where
-  constructor aTagged
+  constructor asTagged
   field unTagged : b
 
 open Tagged public
 
 instance
   Functor-Tagged : Functor (Tagged s)
-  Functor-Tagged .map f (aTagged x) = aTagged (f x)
+  Functor-Tagged .map f (asTagged x) = asTagged (f x)
 
   Profunctor-Tagged : Profunctor Tagged
-  Profunctor-Tagged .lcmap _ (aTagged x) = aTagged x
+  Profunctor-Tagged .lcmap _ (asTagged x) = asTagged x
 
   Choice-Tagged : Choice Tagged
-  Choice-Tagged .choicel (aTagged x) = aTagged (left x)
+  Choice-Tagged .choicel (asTagged x) = asTagged (left x)
 
 data Exchange (a b s t : Set) : Set where
   anExchange : (s -> a) -> (b -> t) -> Exchange a b s t
@@ -153,25 +153,25 @@ AGetter : (r s a : Set) -> Set
 AGetter r s a = (a -> Const r a) -> s -> Const r s
 
 to : (s -> a) -> AGetter r s a
-to f k = aConst <<< getConst <<< k <<< f
+to f k = asConst <<< getConst <<< k <<< f
 
 view : AGetter a s a -> s -> a
-view g = getConst <<< g aConst
+view g = getConst <<< g asConst
 
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
-foldMapOf l step = getConst <<< l (aConst <<< step)
+foldMapOf l step = getConst <<< l (asConst <<< step)
 
 foldOf : AGetter a s a -> s -> a
-foldOf l = getConst <<< l aConst
+foldOf l = getConst <<< l asConst
 
 foldrOf : AGetter (Endo r) s a -> (a -> r -> r) -> r -> s -> r
-foldrOf l step init = flip appEndo init <<< foldMapOf l (anEndo <<< step)
+foldrOf l step init = flip appEndo init <<< foldMapOf l (asEndo <<< step)
 
 foldlOf : AGetter (Dual (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
 foldlOf l step init =
   map
     (flip appEndo init <<< getDual)
-    (foldMapOf l (aDual <<< anEndo <<< flip step))
+    (foldMapOf l (asDual <<< asEndo <<< flip step))
 
 foldlMOf : {{Monad m}} -> AGetter (Endo (r -> m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
@@ -181,22 +181,22 @@ toListOf : AGetter (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
 
 has : AGetter Any s a -> s -> Bool
-has l = getAny <<< foldMapOf l (\ _ -> anAny true)
+has l = getAny <<< foldMapOf l (\ _ -> asAny true)
 
 hasn't : AGetter All s a -> s -> Bool
-hasn't l = getAll <<< foldMapOf l (\ _ -> anAll false)
+hasn't l = getAll <<< foldMapOf l (\ _ -> asAll false)
 
 lengthOf : AGetter (Dual (Endo Nat)) s a -> s -> Nat
 lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
 preview : AGetter (Maybe (First a)) s a -> s -> Maybe a
-preview l = map getFirst <<< foldMapOf l (just <<< aFirst)
+preview l = map getFirst <<< foldMapOf l (just <<< asFirst)
 
 firstOf : AGetter (First a) s a -> s -> a
-firstOf l = getFirst <<< foldMapOf l aFirst
+firstOf l = getFirst <<< foldMapOf l asFirst
 
 lastOf : AGetter (Last a) s a -> s -> a
-lastOf l = getLast <<< foldMapOf l aLast
+lastOf l = getLast <<< foldMapOf l asLast
 
 findOf : AGetter (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
 findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing
@@ -217,13 +217,13 @@ ASetter : (s t a b : Set) -> Set
 ASetter s t a b = (a -> Identity b) -> s -> Identity t
 
 over : ASetter s t a b -> (a -> b) -> s -> t
-over g k = runIdentity <<< g (anIdentity <<< k)
+over g k = runIdentity <<< g (asIdentity <<< k)
 
 set : ASetter s t a b -> b -> s -> t
-set f b = runIdentity <<< f (\ _ -> anIdentity b)
+set f b = runIdentity <<< f (\ _ -> asIdentity b)
 
 sets : ((a -> b) -> s -> t) -> ASetter s t a b
-sets f k = anIdentity <<< f (runIdentity <<< k)
+sets f k = asIdentity <<< f (runIdentity <<< k)
 
 -------------------------------------------------------------------------------
 -- AReview
@@ -233,7 +233,7 @@ AReview : (t b : Set) -> Set
 AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
 
 review : AReview t b -> b -> t
-review p = runIdentity <<< unTagged <<< p <<< aTagged <<< anIdentity
+review p = runIdentity <<< unTagged <<< p <<< asTagged <<< asIdentity
 
 -------------------------------------------------------------------------------
 -- AnIso
@@ -244,7 +244,7 @@ AnIso s t a b = Exchange a b a (Identity b) -> Exchange a b s (Identity t)
 
 withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
 withIso ai k =
-  case ai (anExchange id anIdentity) of \ where
+  case ai (anExchange id asIdentity) of \ where
     (anExchange sa bt) -> k sa (runIdentity <<< bt)
 
 under : AnIso s t a b -> (t -> s) -> b -> a
@@ -263,7 +263,7 @@ APrism s t a b = Market a b a (Identity b) -> Market a b s (Identity t)
 
 withPrism : APrism s t a b -> ((b -> t) -> (s -> Either t a) -> r) -> r
 withPrism ap f =
-  case ap (aMarket anIdentity right) of \ where
+  case ap (aMarket asIdentity right) of \ where
     (aMarket bt seta) ->
       f (runIdentity <<< bt) (either (left <<< runIdentity) right <<< seta)
 
@@ -291,7 +291,7 @@ open Folded {{...}} public
 instance
   Folded-List : Folded (List a) a
   Folded-List .folded f [] = mempty
-  Folded-List .folded f (x :: xs) = aConst (getConst $ f x) <> folded f xs
+  Folded-List .folded f (x :: xs) = asConst (getConst $ f x) <> folded f xs
 
 record Each (s t a b : Set) : Set where
   field each : Traversal s t a b

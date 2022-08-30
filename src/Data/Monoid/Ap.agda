@@ -20,23 +20,23 @@ private
 -------------------------------------------------------------------------------
 
 record Ap (f : Set -> Set) (a : Set) : Set where
-  constructor anAp
+  constructor asAp
   field getAp : f a
 
 open Ap public
 
 instance
   HasAdd-Ap : {{Applicative f}} -> {{HasAdd a}} -> HasAdd (Ap f a)
-  HasAdd-Ap ._+_ x y = anAp (| getAp x + getAp y |)
+  HasAdd-Ap ._+_ x y = asAp (| getAp x + getAp y |)
 
   HasMul-Ap : {{Applicative f}} -> {{HasMul a}} -> HasMul (Ap f a)
-  HasMul-Ap ._*_ x y = anAp (| getAp x * getAp y |)
+  HasMul-Ap ._*_ x y = asAp (| getAp x * getAp y |)
 
   HasNeg-Ap : {{Applicative f}} -> {{HasNeg a}} -> HasNeg (Ap f a)
-  HasNeg-Ap .-_ x = anAp (| - getAp x |)
+  HasNeg-Ap .-_ x = asAp (| - getAp x |)
 
   Semigroup-Ap : {{Applicative f}} -> {{Semigroup a}} -> Semigroup (Ap f a)
-  Semigroup-Ap ._<>_ x y = anAp (| getAp x <> getAp y |)
+  Semigroup-Ap ._<>_ x y = asAp (| getAp x <> getAp y |)
 
   Monoid-Ap : {{Applicative f}} -> {{Monoid a}} -> Monoid (Ap f a)
-  Monoid-Ap .mempty = anAp (pure mempty)
+  Monoid-Ap .mempty = asAp (pure mempty)

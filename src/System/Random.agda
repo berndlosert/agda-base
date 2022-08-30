@@ -97,7 +97,7 @@ genFloat g = let (w , g') = genWord64 g in
 -------------------------------------------------------------------------------
 
 record StdGen : Set where
-  constructor aStdGen
+  constructor asStdGen
   field
     seed : Word64
     gamma : Word64 -- must be odd
@@ -147,18 +147,18 @@ private
 
 instance
   RandomGen-StdGen : RandomGen StdGen
-  RandomGen-StdGen .genWord64 (aStdGen seed gamma) =
-      (mix64 seed' , aStdGen seed' gamma)
+  RandomGen-StdGen .genWord64 (asStdGen seed gamma) =
+      (mix64 seed' , asStdGen seed' gamma)
     where
       seed' = seed + gamma
-  RandomGen-StdGen .splitGen (aStdGen seed gamma) =
-      (aStdGen seed'' gamma , aStdGen (mix64 seed') (mixgamma seed''))
+  RandomGen-StdGen .splitGen (asStdGen seed gamma) =
+      (asStdGen seed'' gamma , asStdGen (mix64 seed') (mixgamma seed''))
     where
       seed' = seed + gamma
       seed'' = seed' + gamma
 
 mkStdGen : Word64 -> StdGen
-mkStdGen s = aStdGen (mix64 s) (mixgamma (s + goldengamma))
+mkStdGen s = asStdGen (mix64 s) (mixgamma (s + goldengamma))
 
 theStdGen : IO (IORef StdGen)
 theStdGen = do

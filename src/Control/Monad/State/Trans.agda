@@ -36,7 +36,7 @@ private
 -------------------------------------------------------------------------------
 
 record StateT (s : Set) (m : Set -> Set) (a : Set) : Set where
-  constructor aStateT
+  constructor asStateT
   field runStateT : s -> m (Pair s a)
 
 open StateT public
@@ -48,40 +48,40 @@ execStateT : {{Monad m}} -> StateT s m a -> s -> m s
 execStateT m s = runStateT m s >>= fst >>> pure
 
 mapStateT : (m (Pair s a) -> n (Pair s b)) -> StateT s m a -> StateT s n b
-mapStateT f m = aStateT (f <<< runStateT m)
+mapStateT f m = asStateT (f <<< runStateT m)
 
 withStateT : (s -> s) -> StateT s m a -> StateT s m a
-withStateT f m = aStateT (runStateT m <<< f)
+withStateT f m = asStateT (runStateT m <<< f)
 
 instance
   Functor-StateT : {{Functor m}} -> Functor (StateT s m)
-  Functor-StateT .map f m = aStateT (map (map f) <<< runStateT m)
+  Functor-StateT .map f m = asStateT (map (map f) <<< runStateT m)
 
   Applicative-StateT : {{Monad m}} -> Applicative (StateT s m)
-  Applicative-StateT .pure x = aStateT (pure <<< (_, x))
-  Applicative-StateT ._<*>_ f x = aStateT \ s0 -> do
+  Applicative-StateT .pure x = asStateT (pure <<< (_, x))
+  Applicative-StateT ._<*>_ f x = asStateT \ s0 -> do
       (s1 , g) <- runStateT f s0
       (s2 , y) <- runStateT x s1
       pure (s2 , g y)
 
   Alternative-StateT : {{Alternative m}} -> {{Monad m}} ->
     Alternative (StateT s m)
-  Alternative-StateT .azero = aStateT (const azero)
-  Alternative-StateT ._<|>_ l r = aStateT \ s ->
+  Alternative-StateT .azero = asStateT (const azero)
+  Alternative-StateT ._<|>_ l r = asStateT \ s ->
     runStateT l s <|> runStateT r s
 
   Monad-StateT : {{Monad m}} -> Monad (StateT s m)
-  Monad-StateT ._>>=_ m k = aStateT \ s0 -> do
+  Monad-StateT ._>>=_ m k = asStateT \ s0 -> do
     (s1 , x) <- runStateT m s0
     runStateT (k x) s1
 
   MonadTrans-StateT : MonadTrans (StateT s)
-  MonadTrans-StateT .lift m = aStateT \ s -> do
+  MonadTrans-StateT .lift m = asStateT \ s -> do
     x <- m
     pure (s , x)
 
   MonadState-StateT : {{Monad m}} -> MonadState s (StateT s m)
-  MonadState-StateT .state f = aStateT (pure <<< f)
+  MonadState-StateT .state f = asStateT (pure <<< f)
 
   MonadReader-StateT : {{MonadReader r m}} -> MonadReader r (StateT s m)
   MonadReader-StateT .ask = lift ask
@@ -89,10 +89,10 @@ instance
 
   MonadWriter-StateT : {{MonadWriter w m}} -> MonadWriter w (StateT s m)
   MonadWriter-StateT .tell = lift <<< tell
-  MonadWriter-StateT .listen m = aStateT \ s -> do
+  MonadWriter-StateT .listen m = asStateT \ s -> do
     (w , (s' , x)) <- listen (runStateT m s)
     pure $ (s' , (w , x))
-  MonadWriter-StateT .pass m = aStateT \ s -> pass do
+  MonadWriter-StateT .pass m = asStateT \ s -> pass do
      (s' , (f , x)) <- runStateT m s
      pure $ (f , (s' , x))
 
@@ -103,14 +103,14 @@ instance
   MonadThrow-StateT .throw = lift <<< throw
 
   MonadCatch-StateT : {{MonadCatch m}} -> MonadCatch (StateT s m)
-  MonadCatch-StateT ._catch_ m h = aStateT \ s ->
+  MonadCatch-StateT ._catch_ m h = asStateT \ s ->
     (runStateT m s) catch (\ e -> runStateT (h e) s)
 
   MonadCont-StateT : {{MonadCont m}} -> MonadCont (StateT s m)
-  MonadCont-StateT .callCC f = aStateT \ s ->
-    callCC \ c -> runStateT (f (\ x -> aStateT \ _ -> c (s , x))) s
+  MonadCont-StateT .callCC f = asStateT \ s ->
+    callCC \ c -> runStateT (f (\ x -> asStateT \ _ -> c (s , x))) s
 
   MonadError-StateT : {{MonadError e m}} -> MonadError e (StateT s m)
   MonadError-StateT .throwError = lift <<< throwError
-  MonadError-StateT ._catchError_ m h = aStateT \ s ->
+  MonadError-StateT ._catchError_ m h = asStateT \ s ->
     (runStateT m s) catchError (\ e -> runStateT (h e) s)

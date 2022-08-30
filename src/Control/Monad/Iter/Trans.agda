@@ -35,7 +35,7 @@ private
 -------------------------------------------------------------------------------
 
 record IterT (m : Set -> Set) (a : Set) : Set where
-  constructor anIterT
+  constructor asIterT
   field runIterT : m (Either a (IterT m a))
 
 open IterT public
@@ -45,7 +45,7 @@ delay iter .runIterT = pure (right iter)
 
 never : {{Monad m}} -> IterT m a
 never = fix \ where
-  go -> anIterT $ pure (right go)
+  go -> asIterT $ pure (right go)
 
 -- N.B. This should only be called if you're sure that the IterT m a value
 -- terminates. If it doesn't terminate, this will loop forever.
@@ -58,18 +58,18 @@ hoistIterT : {{Monad n}}
   -> IterT m a
   -> IterT n a
 hoistIterT = fix \ where
-  go t iter -> anIterT ((map $ go t) <$> (t $ runIterT iter))
+  go t iter -> asIterT ((map $ go t) <$> (t $ runIterT iter))
 
 instance
   Functor-IterT : {{Monad m}} -> Functor (IterT m)
   Functor-IterT .map = fix \ where
     go f iter ->
-      anIterT $ map (either (left <<< f) (right <<< go f)) (runIterT iter)
+      asIterT $ map (either (left <<< f) (right <<< go f)) (runIterT iter)
 
   Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
-  Applicative-IterT .pure x = anIterT $ pure (left x)
+  Applicative-IterT .pure x = asIterT $ pure (left x)
   Applicative-IterT ._<*>_ = fix \ where
-    go iter x -> anIterT do
+    go iter x -> asIterT do
       res <- runIterT iter
       case res of \ where
         (left f) -> runIterT (map f x)
@@ -77,7 +77,7 @@ instance
 
   Monad-IterT : {{Monad m}} -> Monad (IterT m)
   Monad-IterT ._>>=_ = fix \ where
-    go iter k -> anIterT do
+    go iter k -> asIterT do
       res <- runIterT iter
       case res of \ where
         (left m) -> runIterT (k m)
@@ -86,7 +86,7 @@ instance
   Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
   Alternative-IterT .azero = never
   Alternative-IterT ._<|>_ = fix \ where
-    go l r -> anIterT do
+    go l r -> asIterT do
       resl <- runIterT l
       case resl of \ where
         (left _) -> pure resl
@@ -97,7 +97,7 @@ instance
             (right r') -> pure $ right (go l' r')
 
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
-  MonadFree-IterT .wrap (anIdentity iter) = delay iter
+  MonadFree-IterT .wrap (asIdentity iter) = delay iter
 
   MonadTrans-IterT : MonadTrans IterT
   MonadTrans-IterT .lift m .runIterT = map left m
@@ -109,7 +109,7 @@ instance
   MonadWriter-IterT : {{MonadWriter w m}} -> MonadWriter w (IterT m)
   MonadWriter-IterT .tell = lift <<< tell
   MonadWriter-IterT {w = w} {m = m} .listen {a = a} = fix \ where
-      go iter -> anIterT $ map concat' $ listen (map go <$> runIterT iter)
+      go iter -> asIterT $ map concat' $ listen (map go <$> runIterT iter)
     where
       c : Set
       c = Pair w a
@@ -131,7 +131,7 @@ instance
       g = fix \ where
         go (left (w , (f , x))) -> tell (f w) >> pure (left x)
         go (right iter') ->
-          pure (right (anIterT $ (join <<< map go) (runIterT iter')))
+          pure (right (asIterT $ (join <<< map go) (runIterT iter')))
 
       pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))
       pass' = join <<< map g
@@ -147,5 +147,5 @@ instance
 
   MonadCatch-IterT : {{MonadCatch m}} -> MonadCatch (IterT m)
   MonadCatch-IterT ._catch_ = fix \ where
-    go iter f -> anIterT $
+    go iter f -> asIterT $
       (map (flip go f) <$> runIterT iter) catch (runIterT <<< f)

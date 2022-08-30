@@ -40,7 +40,7 @@ instance
 -------------------------------------------------------------------------------
 
 record NonEmpty (a : Set) {{_ : NonEmptyness a}} : Set where
-  constructor anNonEmpty
+  constructor asNonEmpty
   field
     fromNonEmpty : a
     {{Assert-nonempty}} : Assert (nonempty fromNonEmpty)
