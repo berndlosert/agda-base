@@ -29,96 +29,68 @@ private
 -------------------------------------------------------------------------------
 
 record ListT (m : Set -> Set) (a : Set) : Set where
-  field runListT : m (Maybe (Pair a (ListT m a)))
+  constructor asListT
+  field runListT : m r -> (a -> m r -> m r) -> m r
 
-open ListT public
+open ListT
 
 module _ {{_ : Monad m}} where
 
-  nilT : ListT m a
-  nilT .runListT = pure nothing
+  nilListT : ListT m a
+  nilListT = asListT \ n _ -> n
 
-  consT : a -> ListT m a -> ListT m a
-  consT x xs .runListT = pure $ just (x , xs)
+  consListT : a -> ListT m a -> ListT m a
+  consListT x xs = asListT \ n c -> c x (runListT xs n c)
 
-  singletonT : a -> ListT m a
-  singletonT x = consT x nilT
+  singletonListT : a -> ListT m a
+  singletonListT x = consListT x nilListT
 
   toListT : {{_ : Foldable f}} -> f a -> ListT m a
-  toListT = foldr consT nilT
+  toListT = foldr consListT nilListT
 
-  foldListT : (b -> a -> m b) -> b -> ListT m a -> m b
-  foldListT = fix \ where
-    go f b m -> do
-      res <- runListT m
-      case res of \ where
-        nothing -> pure b
-        (just (x , xs)) -> do
-          b' <- f b x
-          go f b' xs
-
-  hoistListT : (forall {a} -> m a -> n a) -> ListT m b -> ListT n b
-  hoistListT = fix \ where
-    go f m .runListT ->
-     (f <<< (map <<< map) (bimap id (go f)) <<< runListT) m
+  foldListT : (a -> m b -> m b) -> m b -> ListT m a -> m b
+  foldListT c n xs = runListT xs n c
 
 instance
   Semigroup-ListT : {{Monad m}} -> Semigroup (ListT m a)
-  Semigroup-ListT ._<>_ = fix \ where
-    go l r .runListT -> do
-      res <- runListT l
-      case res of \ where
-        nothing -> runListT r
-        (just (x , xs)) -> pure $ just (x , go xs r)
+  Semigroup-ListT ._<>_ xs ys = asListT \ n c -> runListT xs (runListT ys n c) c
 
   Monoid-ListT : {{Monad m}} -> Monoid (ListT m a)
-  Monoid-ListT .mempty = nilT
+  Monoid-ListT .mempty = nilListT
 
   Functor-ListT : {{Monad m}} -> Functor (ListT m)
-  Functor-ListT .map = fix \ where
-    go f m .runListT -> do
-      res <- runListT m
-      case res of \ where
-        nothing -> pure nothing
-        (just (x , xs)) -> pure $ just (f x , go f xs)
-
+  Functor-ListT .map f xs = asListT \ n c -> runListT xs n \ h t -> c (f h) t
+ 
   Applicative-ListT : {{Monad m}} -> Applicative (ListT m)
-  Applicative-ListT .pure x .runListT = pure (just (x , mempty))
-  Applicative-ListT ._<*>_ = fix \ where
-    go fs xs .runListT -> do
-      res <- runListT fs
-      case res of \ where
-        nothing -> pure nothing
-        (just (f , fs')) -> runListT $ (map f xs) <> (go fs' xs)
+  Applicative-ListT .pure = singletonListT 
+  Applicative-ListT ._<*>_ fs xs = asListT \ where
+    n c -> runListT fs n \ h t -> runListT (map h xs) n c
 
   Monad-ListT : {{Monad m}} -> Monad (ListT m)
-  Monad-ListT ._>>=_ = fix \ where
-    go m k .runListT -> do
-      res <- runListT m
-      case res of \ where
-        nothing -> pure nothing
-        (just (x , xs)) -> runListT $ k x <> (go xs k)
+  Monad-ListT ._>>=_ xs k = asListT \ where
+    n c -> runListT xs n \ h t -> runListT (k h) n c
 
   Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
   Alternative-ListT .azero = mempty
   Alternative-ListT ._<|>_ = _<>_
 
   MonadTrans-ListT : MonadTrans ListT
-  MonadTrans-ListT .lift m .runListT = map (just <<< (_, mempty)) m
+  MonadTrans-ListT .lift m = asListT \ n c -> m >>= flip c n
 
   MonadIO-ListT : {{MonadIO m}} -> MonadIO (ListT m)
   MonadIO-ListT .liftIO = lift <<< liftIO
 
   MonadThrow-ListT : {{MonadThrow m}} -> MonadThrow (ListT m)
-  MonadThrow-ListT .throw e .runListT = throw e
+  MonadThrow-ListT .throw e = asListT \ n c -> throw e 
 
   MonadCatch-ListT : {{MonadCatch m}} -> MonadCatch (ListT m)
-  MonadCatch-ListT ._catch_ m handler .runListT =
-    (runListT m) catch (runListT <<< handler)
+  MonadCatch-ListT ._catch_ xs handler = asListT \ where
+    n c -> (runListT xs n c) catch (\ e -> runListT (handler e) n c)
 
   MonadReader-ListT : {{MonadReader r m}} -> MonadReader r (ListT m)
   MonadReader-ListT .ask = lift ask
-  MonadReader-ListT .local f = hoistListT (local f)
+  MonadReader-ListT .local f xs = asListT \ where
+    n c -> local f (runListT xs n c)
 
   MonadState-ListT : {{MonadState s m}} -> MonadState s (ListT m)
   MonadState-ListT .state = lift <<< state
@@ -126,24 +98,15 @@ instance
   MonadWriter-ListT : {{MonadWriter w m}}
     -> MonadWriter w (ListT m)
   MonadWriter-ListT .tell = lift <<< tell
-  MonadWriter-ListT .listen = fix \ where
-    go m .runListT -> do
-      res <- runListT m
-      case res of \ where
-        nothing -> pure nothing
-        (just (x , xs)) -> do
-          (a , w) <- listen (pure x)
-          pure $ just ((a , w) , go xs)
-  MonadWriter-ListT .pass = fix \ where
-    go m .runListT -> do
-      res <- runListT m
-      case res of \ where
-        nothing -> pure nothing
-        (just ((x , f) , rest)) -> do
-          a <- pass $ pure (x , f)
-          pure $ just (a , go rest)
+  MonadWriter-ListT .listen xs = asListT \ where
+    n c -> runListT xs n \ h t -> do
+      (w , _) <- listen n
+      c (w , h) t
+  MonadWriter-ListT .pass xs = asListT \ where
+    n c -> runListT xs n \ where
+      h t -> pass (pure h) >>= \ x -> c x t
 
   MonadError-ListT : {{MonadError e m}} -> MonadError e (ListT m)
   MonadError-ListT .throwError = lift <<< throwError
-  MonadError-ListT ._catchError_ m h .runListT =
-    (runListT m) catchError (runListT <<< h)
+  MonadError-ListT ._catchError_ xs h = asListT \ where
+    n c -> (runListT xs n c) catchError (\ e -> runListT (h e) n c)
