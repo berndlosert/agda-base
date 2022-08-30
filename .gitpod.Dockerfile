@@ -14,3 +14,6 @@ RUN brew install agda; \
   mkdir ~/.agda; \
   echo /workspace/agda-base/base-library.agda-lib >> ~/.agda/libraries; \
   echo base-library >> ~/.agda/defaults \
+  echo "set hidden" >> ~/.vimrc
+  echo "set noswapfile" >> ~/.vimrc
+  echo "syntax off" >> ~/.vimrc
