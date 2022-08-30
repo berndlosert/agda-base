@@ -4,3 +4,4 @@ flags:
   --type-in-type
   --guardedness
   --no-positivity-check
+  --no-termination-check
