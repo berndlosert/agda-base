@@ -54,7 +54,7 @@ append = _<>_
 uncons : (s : String) -> {{Assert $ nonempty s}} -> Pair Char String
 uncons "" = panic "Data.String.uncons: bad argument"
 uncons s = case primStringUncons s of \ where
-  (just p) -> fst p , snd p
+  (just p) -> (fst p , snd p)
   nothing -> panic "Data.String.uncons: bad argument"
 
 unsnoc : (s : String) -> {{Assert $ nonempty s}} -> Pair String Char
