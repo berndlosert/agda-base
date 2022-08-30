@@ -81,24 +81,6 @@ instance
   MonadCatch-EitherT ._catch_ m k = asEitherT $
     (runEitherT m) catch (runEitherT <<< k)
 
-  MonadBracket-EitherT : {{MonadBracket m}} -> MonadBracket (EitherT e m)
-  MonadBracket-EitherT .generalBracket acquire release use = asEitherT do
-    (eb , ec) <- generalBracket
-      (runEitherT acquire)
-      (\ where
-        (left e) _ -> pure (left e)
-        (right resource) (exitCaseSuccess (right b)) ->
-          runEitherT (release resource (exitCaseSuccess b))
-        (right resource) (exitCaseException e) ->
-          runEitherT (release resource (exitCaseException e))
-        (right resource) _ ->
-          runEitherT (release resource exitCaseAbort))
-      (either (pure <<< left) (runEitherT <<< use))
-    pure do
-      c <- ec
-      b <- eb
-      pure (b , c)
-
   MonadReader-EitherT : {{MonadReader r m}} -> MonadReader r (EitherT e m)
   MonadReader-EitherT .ask = lift ask
   MonadReader-EitherT .local f = mapEitherT (local f)
