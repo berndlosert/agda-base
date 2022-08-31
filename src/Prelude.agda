@@ -960,8 +960,7 @@ record Applicative (f : Set -> Set) : Set where
   unless p x = if p then pure tt else x
 
   forever : f a -> f b
-  forever = fix \ where
-    go x -> x *> go x
+  forever x = x *> forever x
 
 open Applicative {{...}} public
 

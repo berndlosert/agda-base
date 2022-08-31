@@ -298,11 +298,10 @@ dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy eq = fix \ where
-  go [] -> []
-  go (x :: xs) ->
-    let (ys , zs) = span (eq x) xs
-    in (x :: ys) :: go zs
+groupBy eq [] = []
+groupBy eq (x :: xs) = 
+  let (ys , zs) = span (eq x) xs
+  in (x :: ys) :: groupBy eq zs
 
 group : {{Eq a}} -> List a -> List (List a)
 group = groupBy _==_
@@ -311,25 +310,22 @@ groupOn : {{Ord b}} -> (a -> b) -> List a -> List (List a)
 groupOn f = groupBy (_==_ on f) <<< sortBy (compare on f)
 
 chunksOf : Nat -> List a -> List (List a)
-chunksOf n = fix \ where
-  go [] -> []
-  go xs -> take n xs :: go (drop n xs)
+chunksOf n [] = []
+chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
-breakOn needle = fix \ where
-  go haystack ->
-    if isPrefixOf needle haystack
-      then ([] , haystack)
-      else case haystack of \ where
-        [] -> ([] , [])
-        (x :: xs) -> lmap (x ::_) (go xs)
+breakOn needle haystack = 
+  if isPrefixOf needle haystack
+    then ([] , haystack)
+    else case haystack of \ where
+      [] -> ([] , [])
+      (x :: xs) -> lmap (x ::_) (breakOn needle xs)
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
-splitOn needle = fix \ where
-  go [] -> singleton []
-  go haystack ->
-    let (l , r) = breakOn needle haystack
-    in l :: (if null r then [] else go (drop (length needle) r))
+splitOn needle [] = singleton []
+splitOn needle haystack = 
+  let (l , r) = breakOn needle haystack
+  in l :: (if null r then [] else splitOn needle (drop (length needle) r))
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []
@@ -405,11 +401,10 @@ leaveOutOne (x :: xs) = (x , xs) :: do
   pure (y , x :: ys)
 
 permutations : List a -> List (List a)
-permutations = fix \ where
-  go [] -> singleton []
-  go xs -> do
-    (y , ys) <- leaveOutOne xs
-    map (y ::_) (go ys)
+permutations [] = singleton []
+permutations xs = do
+  (y , ys) <- leaveOutOne xs
+  map (y ::_) (permutations ys)
 
 -------------------------------------------------------------------------------
 -- Searching

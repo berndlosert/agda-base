@@ -150,15 +150,13 @@ option : a -> Parser a -> Parser a
 option x p = p <|> pure x
 
 many : Parser a -> Parser (List a)
-many p = fix \ where
-  go -> option [] (| p :: go |)
+many p = option [] (| p :: many p |)
 
 many1 : Parser a -> Parser (List a)
 many1 p = (| p :: many p |)
 
 manyTill : Parser a -> Parser b -> Parser (List a)
-manyTill p q = fix \ where
-  go -> ([] <$ q) <|> (| p :: go |)
+manyTill p q = ([] <$ q) <|> (| p :: manyTill p q |)
 
 optional : Parser a -> Parser (Maybe a)
 optional p = (| just p | nothing |)
@@ -192,22 +190,19 @@ endBy1 : Parser a -> Parser b -> Parser (List a)
 endBy1 p sep = many1 (p <* sep)
 
 prefix : (a -> b) -> Parser (b -> b) -> Parser a -> Parser b
-prefix = fix \ where
-  go wrap op p -> op <*> go wrap op p <|> wrap <$> p
+prefix wrap op p = op <*> prefix wrap op p <|> wrap <$> p
 
 postfix : (a -> b) -> Parser a -> Parser (b -> b) -> Parser b
 postfix {a} {b} wrap p op = (| (wrap <$> p) # p' |)
   where
     p' : Parser (b -> b)
-    p' = fix \ where
-      go -> option id (| op >>> go |)
+    p' = option id (| op >>> p' |)
 
 infixl1 : (a -> b) -> Parser a -> Parser (b -> a -> b) -> Parser b
 infixl1 wrap p op = postfix wrap p (| flip op p |)
 
 infixr1 : (a -> b) -> Parser a -> Parser (a -> b -> b) -> Parser b
-infixr1 = fix \ where
-  go wrap p op -> (| p # (| flip op (go wrap p op) |) <|> pure wrap |)
+infixr1 wrap p op = (| p # (| flip op (infixr1 wrap p op) |) <|> pure wrap |)
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 = infixl1 id
@@ -301,8 +296,7 @@ string : String -> Parser String
 string = map String.pack <<< traverse char <<< String.unpack
 
 word : Parser String
-word = fix \ where
-  go -> option "" (| String.cons alpha go |)
+word = option "" (| String.cons alpha word |)
 
 word1 : Parser String
 word1 = (| String.cons alpha word |)

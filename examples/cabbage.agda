@@ -80,11 +80,10 @@ solution2 : Iter Situation
 solution2 = solutions' initial
   where
     solutions' : Situation -> Iter Situation
-    solutions' = fix \ where
-      go a ->
-        if success a
-          then pure a
-          else delay $ asum $ map go (move a)
+    solutions' a = 
+      if success a
+        then pure a
+        else delay $ asum $ map solutions' (move a)
 
 testSolution2 :
   execIter solution2

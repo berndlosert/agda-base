@@ -389,25 +389,22 @@ private
 
   tests : Config -> Property -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
-  tests = fix \ where
-    go config prop@(asProperty gen) rnd0 ntest nfail stamps ->
-      if ntest == Config.maxTest config
-        then finish "OK, passed" ntest stamps
-        else if nfail == Config.maxFail config
-          then finish "Arguments exhausted after" ntest stamps
-          else do
-            let (rnd1 , rnd2) = splitGen rnd0
-            res <- generate' (Config.size config ntest) rnd2 gen
-            putStr $ Config.every config ntest (Result.arguments res)
-            case Result.ok res of \ where
-              nothing -> go
-                config prop rnd1 ntest (nfail + 1) stamps
-              (just true) -> go
-                config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
-              (just false) -> putStr $ "Falsifiable, after "
-                <> show ntest
-                <> " tests:\n"
-                <> String.unlines (Result.arguments res)
+  tests config prop@(asProperty gen) rnd0 ntest nfail stamps = 
+    if ntest == Config.maxTest config
+      then finish "OK, passed" ntest stamps
+      else if nfail == Config.maxFail config
+        then finish "Arguments exhausted after" ntest stamps
+        else do
+          let (rnd1 , rnd2) = splitGen rnd0
+          res <- generate' (Config.size config ntest) rnd2 gen
+          putStr $ Config.every config ntest (Result.arguments res)
+          case Result.ok res of \ where
+            nothing -> tests config prop rnd1 ntest (nfail + 1) stamps
+            (just true) -> tests config prop rnd1 (ntest + 1) nfail (Result.stamp res :: stamps)
+            (just false) -> putStr $ "Falsifiable, after "
+              <> show ntest
+              <> " tests:\n"
+              <> String.unlines (Result.arguments res)
 
 check : {{Testable a}} -> Config -> a -> IO Unit
 check cfg a = do

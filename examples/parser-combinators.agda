@@ -35,6 +35,7 @@ test = lexeme (char '(') *> lexeme nat <* lexeme (char ')')
 
 main : IO Unit
 main = do
+  --print $ runParser (many $ string "") "abc"
   print $ runParser expr "( x + 7 ) "
   print $ runParser expr "x + 7"
   print $ runParser (expr <* eof) "x + 7"
