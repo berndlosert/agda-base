@@ -170,7 +170,6 @@ case_of_ x f = f x
 _on_ : (b -> b -> c) -> (a -> b) -> a -> a -> c
 f on g = \ x y -> f (g x) (g y)
 
-{-# TERMINATING #-}
 fix : (a -> a) -> a
 fix f = f (fix f)
 

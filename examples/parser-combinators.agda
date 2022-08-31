@@ -24,7 +24,6 @@ instance
 
 ident = pack <$> (| alpha :: many alphaNum |)
 
-{-# TERMINATING #-}
 expr term negate atom : Parser Expr
 expr = chainl1 term (Add <$ token (char '+') <|> Sub <$ token (char '-'))
 term = chainl1 negate (Mul <$ token (char '*'))
