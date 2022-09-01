@@ -137,8 +137,8 @@ postulate
 undefined : {{Partial}} -> a
 undefined = panic "Prelude.undefined"
 
-unsafePerform : ({{Partial}} -> a) -> a
-unsafePerform x = x {{trustMe}}
+unsafe : ({{Partial}} -> a) -> a
+unsafe x = x {{trustMe}}
 
 {-# FOREIGN GHC import qualified Data.Text #-}
 {-# COMPILE GHC panic = \ _ s -> error (Data.Text.unpack s) #-}
@@ -296,9 +296,8 @@ isNothing : Maybe a -> Bool
 isNothing (just _) = false
 isNothing _ = true
 
-fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
+fromJust : {{Partial}} -> Maybe a -> a 
 fromJust (just x) = x
-fromJust nothing = panic "Prelude.fromJust: bad argument"
 
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe x f nothing = x

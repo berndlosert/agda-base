@@ -100,15 +100,14 @@ sample g = do
   cases <- sample' g
   traverse* print cases
 
-oneof : (gs : List (Gen a)) -> {{Assert $ nonempty gs}} -> Gen a
-oneof [] = panic "Test.QC.oneof: bad argument"
-oneof gs = do
-  n <- choose (0 , length gs - 1)
-  List.at n gs {{trustMe}}
+oneof : Gen a -> List (Gen a) -> Gen a
+oneof g [] = g
+oneof g gs = do
+  n <- choose (0 , length gs)
+  withDefault g (List.at? n gs)
 
-elements : (xs : List a) -> {{Assert $ nonempty xs}} -> Gen a
-elements [] = panic "Test.QC.elements: bad argument"
-elements xs = oneof (map pure xs) {{trustMe}}
+elements : a -> List a -> Gen a
+elements x xs = oneof (pure x) (map pure xs)
 
 frequency : (freqs : List (Pair Nat (Gen a)))
   -> {{Assert $ all (_> 0) (map fst freqs)}}
@@ -176,7 +175,7 @@ open Coarbitrary {{...}} public
 
 instance
   Arbitrary-Bool : Arbitrary Bool
-  Arbitrary-Bool .arbitrary = elements (true :: false :: [])
+  Arbitrary-Bool .arbitrary = elements true (false :: [])
 
   Arbitrary-Nat : Arbitrary Nat
   Arbitrary-Nat .arbitrary = sized \ n -> choose (0 , n)

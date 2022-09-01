@@ -51,30 +51,40 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons : (s : String) -> {{Assert $ nonempty s}} -> Pair Char String
-uncons "" = panic "Data.String.uncons: bad argument"
-uncons s = case primStringUncons s of \ where
-  (just p) -> (fst p , snd p)
-  nothing -> panic "Data.String.uncons: bad argument"
+uncons? : String -> Maybe (Pair Char String)
+uncons? s = case primStringUncons s of \ where
+  (just p) -> just (fst p , snd p)
+  nothing -> nothing 
+ 
+uncons : {{Partial}} -> String -> Pair Char String
+uncons = fromJust <<< uncons?
+ 
+unsnoc? : String -> Maybe (Pair String Char)
+unsnoc? s = lmap pack <$> List.unsnoc? (unpack s)
 
-unsnoc : (s : String) -> {{Assert $ nonempty s}} -> Pair String Char
-unsnoc "" = panic "Data.String.unsnoc: bad argument"
-unsnoc s = lmap pack $ List.unsnoc (unpack s) {{trustMe}}
+unsnoc : {{Partial}} -> String -> Pair String Char
+unsnoc = fromJust <<< unsnoc? 
 
-head : (s : String) -> {{Assert $ nonempty s}} -> Char
-head "" = panic "Data.String.head: bad argument"
-head s = fst (uncons s)
+head? : String -> Maybe Char
+head? s = fst <$> uncons? s
 
-tail : (s : String) -> {{Assert $ nonempty s}} -> String
-tail "" = panic "Data.String.tail: bad argument"
-tail s = snd (uncons s)
+head : {{Partial}} -> String -> Char 
+head = fromJust <<< head?
+
+tail? : String -> Maybe String
+tail? s = snd <$> uncons? s 
+
+tail : {{Partial}} -> String -> String 
+tail = fromJust <<< tail? 
 
 length : String -> Nat
 length = List.length <<< unpack
 
-init : (s : String) -> {{Assert $ nonempty s}} -> String
-init "" = panic "Data.String.init: bad argument"
-init s = pack $ List.init (unpack s) {{trustMe}}
+init? : String -> Maybe String
+init? s = pack <$> List.init? (unpack s)
+
+init : {{Partial}} -> String -> String 
+init = fromJust <<< init?
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
@@ -216,11 +226,13 @@ data AsList : String -> Set where
   [] : AsList ""
   _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
 
-cons-uncons : (s : String) {{_ : Assert $ nonempty s}}
-  -> (uncurry cons) (uncons s) === s
-cons-uncons = trustMe
+prop-uncons? : (s : String) ->
+  case uncons? s of \ where
+    nothing -> s === ""
+    (just (c , s')) -> s === cons c s' 
+prop-uncons? = trustMe
 
 asList : (s : String) -> AsList s
-asList "" = []
-asList s with uncons s {{trustMe}} | cons-uncons s {{trustMe}}
-... | c , s' | refl = c :: asList s'
+asList s with uncons? s | prop-uncons? s
+... | nothing | refl = [] 
+... | just (c , s') | refl = c :: asList s'

@@ -222,12 +222,9 @@ chainr p op x = option x (chainr1 p op)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy test = asParser \ where
-  s cok _ _ eerr ->
-    if s == ""
-      then eerr
-      else
-        let (c , s') = String.uncons s {{trustMe}}
-        in if test c then cok c s' else eerr
+  s cok _ _ eerr -> case String.uncons? s of \ where
+    nothing -> eerr
+    (just (c , s')) -> if test c then cok c s' else eerr
 
 anyChar : Parser Char
 anyChar = satisfy (const true)

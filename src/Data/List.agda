@@ -68,34 +68,45 @@ fromMaybe (just x) = x :: []
 -- Destructors
 -------------------------------------------------------------------------------
 
-head : (xs : List a) -> {{Assert $ nonempty xs}} -> a
-head [] = panic "Data.List.head: bad argument"
-head (x :: _) = x
+head? : List a -> Maybe a
+head? [] = nothing
+head? (x :: _) = just x
 
-tail : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
-tail [] = panic "Data.List.tail: bad argument"
-tail (_ :: xs) = xs
+head : {{Partial}} -> List a -> a
+head = fromJust <<< head?
 
-uncons : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair a (List a)
-uncons [] = panic "Data.List.uncons: bad argument"
-uncons (x :: xs) = (x , xs)
+tail? : List a -> Maybe (List a)
+tail? [] = nothing
+tail? (_ :: xs) = just xs
 
-unsnoc : (xs : List a) -> {{Assert $ nonempty xs}} -> Pair (List a) a
-unsnoc [] = panic "Data.List.unsnoc: bad argument"
-unsnoc xs = fromJust (foldr go nothing xs) {{trustMe}}
+tail : {{Partial}} -> List a -> List a 
+tail = fromJust <<< tail? 
+
+uncons? : List a -> Maybe (Pair a (List a))
+uncons? [] = nothing
+uncons? (x :: xs) = just (x , xs)
+
+uncons : {{Partial}} -> List a -> Pair a (List a)
+uncons = fromJust <<< uncons?
+
+unsnoc? : List a -> Maybe (Pair (List a) a)
+unsnoc? [] = nothing
+unsnoc? xs = foldr go nothing xs 
   where
     go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
     go x nothing = just ([] , x)
     go x (just (xs , e)) = just (x :: xs , e)
 
-init : (xs : List a) -> {{Assert $ nonempty xs}} -> List a
-init [] = panic "Data.List.init: bad argument"
-init (x :: []) = []
-init (x :: xs@(_ :: _)) = x :: init xs
+unsnoc : {{Partial}} -> List a -> Pair (List a) a
+unsnoc = fromJust <<< unsnoc? 
 
-toMaybe : List a -> Maybe a
-toMaybe [] = nothing
-toMaybe (x :: _) = just x
+init? : List a -> Maybe (List a)
+init? [] = nothing 
+init? (x :: []) = just []
+init? (x :: xs@(_ :: _)) = (| pure x :: init? xs |)
+
+init : {{Partial}} -> List a -> List a
+init = fromJust <<< init? 
 
 -------------------------------------------------------------------------------
 -- Transformations
@@ -154,10 +165,13 @@ indexed xs = go 0 xs
 splitAt : Nat -> List a -> Pair (List a) (List a)
 splitAt n xs = (take n xs , drop n xs)
 
-at : (n : Nat) -> (xs : List a) -> {{Assert $ n < length xs}} -> a
-at _ [] = panic "Data.List.at: bad argument"
-at 0 (x :: _) = x
-at (suc n) (_ :: xs) = at n xs {{trustMe}}
+at? : Nat -> List a -> Maybe a
+at? _ [] = nothing
+at? 0 (x :: _) = just x
+at? (suc n) (_ :: xs) = at? n xs
+
+at : {{Partial}} -> Nat -> List a -> a 
+at n xs = fromJust (at? n xs)
 
 updateAt : Nat -> (a -> Maybe a) -> List a -> List a
 updateAt 0 f (x :: xs) = maybe xs (_:: xs) (f x)
