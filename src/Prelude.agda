@@ -305,8 +305,8 @@ maybe x f nothing = x
 maybe x f (just y) = f y
 
 withDefault : a -> Maybe a -> a
-withDefault x nothing = x 
-withDefault _ (just x) = x 
+withDefault x nothing = x
+withDefault _ (just x) = x
 
 -------------------------------------------------------------------------------
 -- IO primitives
