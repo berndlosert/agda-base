@@ -80,7 +80,7 @@ data Either (a b : Set) : Set where
 
 open Sigma public
   renaming (Σ to DPair)
-  hiding (_,_)
+  renaming (_,_ to asDPair)
 
 infixl 1 _,_
 record Pair (a b : Set) : Set where
@@ -297,12 +297,16 @@ isNothing (just _) = false
 isNothing _ = true
 
 fromJust : (val : Maybe a) -> {{Assert $ isJust val}} -> a
-fromJust (just a) = a
+fromJust (just x) = x
 fromJust nothing = panic "Prelude.fromJust: bad argument"
 
 maybe : b -> (a -> b) -> Maybe a -> b
-maybe b f nothing = b
-maybe b f (just a) = f a
+maybe x f nothing = x
+maybe x f (just y) = f y
+
+withDefault : a -> Maybe a -> a
+withDefault x nothing = x 
+withDefault _ (just x) = x 
 
 -------------------------------------------------------------------------------
 -- IO primitives
