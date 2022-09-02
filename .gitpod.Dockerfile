@@ -16,4 +16,5 @@ RUN brew install agda; \
   echo base-library >> ~/.agda/defaults; \
   echo "set hidden" >> ~/.vimrc; \
   echo "set noswapfile" >> ~/.vimrc; \
-  echo "syntax off" >> ~/.vimrc
+  echo "syntax off" >> ~/.vimrc; \
+  echo "stty -ixon" >> ~/.bashrc
