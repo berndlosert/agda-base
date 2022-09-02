@@ -12,4 +12,4 @@ fizzbuzz n = fizz n <> buzz n <|> num n
 main : IO Unit
 main =
   for* (enumFromTo 1 100) \ n ->
-    putStrLn (fromJust (fizzbuzz n) {{trustMe}})
+    putStrLn (unsafe fromJust (fizzbuzz n))
