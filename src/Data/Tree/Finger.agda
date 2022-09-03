@@ -146,14 +146,14 @@ instance
 -- uncons & unsnoc
 -------------------------------------------------------------------------------
 
-uncons : {{Measured v a}}
+uncons : {{Partial}}
+  -> {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assert $ nonempty t}}
   -> Pair a (FingerTree v a)
 
-unsnoc : {{Measured v a}}
+unsnoc : {{Partial}}
+  -> {{Measured v a}}
   -> (t : FingerTree v a)
-  -> {{Assert $ nonempty t}}
   -> Pair (FingerTree v a) a
 
 private
@@ -167,14 +167,12 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons empty = panic "Data.Tree.Finger.uncons: bad argument"
 uncons (singleton x) = (x , empty)
 uncons (deep _ (one x) m sf) = (x , rotL m sf)
 uncons (deep _ (two a b) m sf) = (a , mkDeep (one b) m sf)
 uncons (deep _ (three a b c) m sf) = (a , mkDeep (two b c) m sf)
 uncons (deep _ (four a b c d) m sf) = (a , mkDeep (three b c d) m sf)
 
-unsnoc empty = panic "Data.Tree.Finger.unsnoc: bad argument"
 unsnoc (singleton x) = (empty , x)
 unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
 unsnoc (deep _ pr m (two a b)) = (mkDeep pr m (one a) , b)
@@ -182,11 +180,11 @@ unsnoc (deep _ pr m (three a b c)) = (mkDeep pr m (two a b) , c)
 unsnoc (deep _ pr m (four a b c d)) = (mkDeep pr m (three a b c) , d)
 
 rotL empty sf = digitToTree sf
-rotL m sf = let (a , m') = uncons m {{trustMe}} in
+rotL m sf = let (a , m') = unsafe uncons m in
   deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
 rotR pr empty = digitToTree pr
-rotR pr m = let (m' , a) = unsnoc m {{trustMe}} in
+rotR pr m = let (m' , a) = unsafe unsnoc m in
   deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
@@ -302,7 +300,7 @@ inits _ empty = empty
 inits f (singleton x) = singleton (f (singleton x))
 inits f (deep n pr m sf) =
   let
-    f' ms = case unsnoc ms {{trustMe}} of \ where
+    f' ms = case unsafe unsnoc ms of \ where
       (m' , node) -> map (\ sf' -> f (mkDeep pr m' sf')) (initsNode node)
   in
     deep n (map (f <<< digitToTree) (initsDigit pr))
@@ -315,7 +313,7 @@ tails _ empty = empty
 tails f (singleton x) = singleton (f (singleton x))
 tails f (deep n pr m sf) =
   let
-    f' ms = case uncons ms {{trustMe}} of \ where
+    f' ms = case unsafe uncons ms of \ where
       (node , m') -> map (\ pr' -> f (mkDeep pr' m' sf)) (tailsNode node)
   in
     deep n (map (\ pr' -> f (mkDeep pr' m sf)) (tailsDigit pr))
