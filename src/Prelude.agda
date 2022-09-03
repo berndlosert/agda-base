@@ -255,21 +255,19 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-maybeLeft : Either a b -> Maybe a
-maybeLeft (left x) = just x
-maybeLeft _ = nothing
+fromLeft? : Either a b -> Maybe a
+fromLeft? (left x) = just x
+fromLeft? _ = nothing
 
-maybeRight : Either a b -> Maybe b
-maybeRight (right x) = just x
-maybeRight _ = nothing
-
-fromLeft : (val : Either a b) -> {{Assert $ isLeft val}} -> a
+fromLeft : {{Partial}} -> Either a b -> a
 fromLeft (left x) = x
-fromLeft _ = panic "Prelude.fromLeft: bad argument"
 
-fromRight : (val : Either a b) -> {{Assert $ isRight val}} -> b
+fromRight? : Either a b -> Maybe b
+fromRight? (right x) = just x
+fromRight? _ = nothing
+
+fromRight : {{Partial}} -> Either a b -> b
 fromRight (right x) = x
-fromRight  _ = panic "Prelude.fromRight: bad argument"
 
 -------------------------------------------------------------------------------
 -- Pair primitives

@@ -130,14 +130,7 @@ postulate
   sendAll : Socket -> Bytes -> IO Unit
   recv : Socket -> Nat -> IO Bytes
   gracefulClose : Socket -> (milliseconds : Nat) -> IO Unit
-
-private
-  postulate
-    listen' : Socket -> Nat -> IO Unit
-
-listen : Socket -> (n : Nat) -> {{Assert $ 1 <= n && n <= 5}} -> IO Unit
-listen _ 0 = panic "Network.Socket.listen: bad argument"
-listen s n = listen' s n
+  listen : Socket -> Nat -> IO Unit
 
 -------------------------------------------------------------------------------
 -- SocketOption
@@ -173,7 +166,7 @@ postulate
 {-# COMPILE GHC openSocket = openSocket #-}
 {-# COMPILE GHC connect = connect #-}
 {-# COMPILE GHC bind = bind #-}
-{-# COMPILE GHC listen' = \ s n -> listen s (fromInteger n) #-}
+{-# COMPILE GHC listen = \ s n -> listen s (fromInteger n) #-}
 {-# COMPILE GHC accept = accept #-}
 {-# COMPILE GHC close = close #-}
 {-# COMPILE GHC gracefulClose = \ s n -> gracefulClose s (fromInteger n) #-}

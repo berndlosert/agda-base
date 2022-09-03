@@ -15,34 +15,36 @@ private
     a : Set
 
 -------------------------------------------------------------------------------
--- NonEmptyness
+-- HasNonEmpty
 -------------------------------------------------------------------------------
 
-record NonEmptyness (a : Set) : Set where
-  field nonempty : a -> Bool
+record HasNonEmpty (a : Set) : Set where
+  field isNonEmpty : a -> Bool
 
-open NonEmptyness {{...}} public
+open HasNonEmpty {{...}} public
 
 instance
-  NonEmptyness-String : NonEmptyness String
-  NonEmptyness-String .nonempty "" = false
-  NonEmptyness-String .nonempty _ = true
+  HasNonEmpty-String : HasNonEmpty String
+  HasNonEmpty-String .isNonEmpty "" = false
+  HasNonEmpty-String .isNonEmpty _ = true
 
-  NonEmptyness-Maybe : NonEmptyness (Maybe a)
-  NonEmptyness-Maybe .nonempty = isJust
+  HasNonEmpty-Maybe : HasNonEmpty (Maybe a)
+  HasNonEmpty-Maybe .isNonEmpty = isJust
 
-  NonEmptyness-List : NonEmptyness (List a)
-  NonEmptyness-List .nonempty [] = false
-  NonEmptyness-List .nonempty _ = true
+  HasNonEmpty-List : HasNonEmpty (List a)
+  HasNonEmpty-List .isNonEmpty [] = false
+  HasNonEmpty-List .isNonEmpty _ = true
 
 -------------------------------------------------------------------------------
 -- NonEmpty
 -------------------------------------------------------------------------------
 
-record NonEmpty (a : Set) {{_ : NonEmptyness a}} : Set where
-  constructor asNonEmpty
-  field
-    fromNonEmpty : a
-    {{Assert-nonempty}} : Assert (nonempty fromNonEmpty)
+data NonEmpty (a : Set) : Set where
+  unsafeNonEmpty : a -> NonEmpty a
 
-open NonEmpty
+toNonEmpty : {{HasNonEmpty a}} -> a -> Maybe (NonEmpty a)
+toNonEmpty x = if isNonEmpty x then just (unsafeNonEmpty x) else nothing
+
+fromNonEmpty : {{HasNonEmpty a}} -> NonEmpty a -> a
+fromNonEmpty (unsafeNonEmpty x) = x
+
