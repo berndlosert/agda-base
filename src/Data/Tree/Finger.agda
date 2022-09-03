@@ -262,11 +262,11 @@ private
   searchTree : {{Measured v a}}
     -> (v -> v -> Bool)
     -> v
-    -> (t : FingerTree v a)
-    -> {{Assert $ nonempty t}}
+    -> FingerTree v a
     -> v
-    -> Split (FingerTree v) a
-  searchTree _ _ (singleton x) _ = toSplit empty x empty
+    -> Maybe (Split (FingerTree v) a)
+  searchTree _ _ empty _ = nothing 
+  searchTree _ _ (singleton x) _ = just (toSplit empty x empty)
   searchTree p vl (deep _ pr m sf) vr =
     let
       vm =  measure m
@@ -276,13 +276,13 @@ private
       vmsr =  vm <> vsr
     in
       if p vlp vmsr then (case searchDigit p vl pr vmsr of \ where
-        (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
-      else if p vlpm vsr then (case searchTree p vlp m {{trustMe}} vsr of \ where
-        (toSplit ml xs mr) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
-          (toSplit l x r) -> toSplit (mkDeepR pr  ml l) x (mkDeepL r mr sf))
+        (toSplit l x r) -> just $ toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
+      else if p vlpm vsr then (case searchTree p vlp m vsr of \ where
+        nothing -> nothing
+        (just (toSplit ml xs mr)) -> case searchNode p (vlp <> measure ml) xs (measure mr <> vsr) of \ where
+          (toSplit l x r) -> just $ toSplit (mkDeepR pr  ml l) x (mkDeepL r mr sf))
       else (case searchDigit p vlpm sf vr of \ where
-        (toSplit l x r) -> toSplit (mkDeepR pr m l) x (maybe empty digitToTree r))
-  searchTree _ _ _ _ = panic "Data.Tree.Finger.searchTree: bad argument"
+        (toSplit l x r) -> just $ toSplit (mkDeepR pr m l) x (maybe empty digitToTree r))
 
 search : {{Measured v a}}
   -> (v -> v -> Bool)
@@ -296,8 +296,9 @@ search p t =
   in
     if pleft && pright then OnLeft
     else if not pleft && pright then
-      (case searchTree p mempty t {{trustMe}} mempty of \ where
-        (toSplit l x r) -> position l x r)
+      (case searchTree p mempty t mempty of \ where
+        nothing -> Nowhere
+        (just (toSplit l x r)) -> position l x r)
     else if not pleft && not pright then OnRight
     else Nowhere
 
