@@ -222,32 +222,31 @@ mkDeepR pr m (just sf) = mkDeep pr m sf
 splitTree : {{Measured v a}}
   -> (v -> Bool)
   -> v
-  -> (t : FingerTree v a)
-  -> {{Assert $ nonempty t}}
-  -> Split (FingerTree v) a
-splitTree _ _ (singleton x) = toSplit empty x empty
+  -> FingerTree v a
+  -> Maybe (Split (FingerTree v) a)
+splitTree _ _ empty = nothing
+splitTree _ _ (singleton x) = just (toSplit empty x empty)
 splitTree p i (deep _ pr m sf) =
   let
     vpr = i <> measure pr
     vm = vpr <> measure m
   in
     if p vpr then (case splitDigit p i pr of \ where
-      (toSplit l x r) -> toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
-    else if p vm then (case splitTree p vpr m {{trustMe}} of \ where
-      (toSplit ml xs mr) -> case splitNode p (vpr <> measure ml) xs of \ where
-        (toSplit l x r) -> toSplit (mkDeepR pr ml l) x (mkDeepL r mr sf))
+      (toSplit l x r) -> just $ toSplit (maybe empty digitToTree l) x (mkDeepL r m sf))
+    else if p vm then (case splitTree p vpr m of \ where
+      nothing -> nothing
+      (just (toSplit ml xs mr)) -> case splitNode p (vpr <> measure ml) xs of \ where
+        (toSplit l x r) -> just $ toSplit (mkDeepR pr ml l) x (mkDeepL r mr sf))
     else (case splitDigit p vm sf of \ where
-      (toSplit l x r) -> toSplit (mkDeepR pr  m  l) x (maybe empty digitToTree r))
-splitTree _ _ _ = panic "Data.Tree.Fingered.splitTree: bad argument"
+      (toSplit l x r) -> just $ toSplit (mkDeepR pr  m  l) x (maybe empty digitToTree r))
 
 split : {{Measured v a}}
   -> (v -> Bool)
   -> FingerTree v a
   -> Pair (FingerTree v a) (FingerTree v a)
-split _ empty  =  (empty , empty)
-split p xs =
-  case splitTree p mempty xs {{trustMe}} of \ where
-    (toSplit l x r) -> if p (measure xs) then (l , cons x r) else (xs , empty)
+split p xs with splitTree p mempty xs
+... | nothing = (empty , empty)
+... | just (toSplit l x r) = if p (measure xs) then (l , cons x r) else (xs , empty)
 
 -------------------------------------------------------------------------------
 -- Searching
