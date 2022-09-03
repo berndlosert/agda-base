@@ -50,8 +50,8 @@ instance
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = asSeq Tree.empty
 
-  NonEmptyness-Seq : NonEmptyness (Seq a)
-  NonEmptyness-Seq .nonempty xs = nonempty (unSeq xs)
+  HasNonEmpty-Seq : HasNonEmpty (Seq a)
+  HasNonEmpty-Seq .isNonEmpty xs = isNonEmpty (unSeq xs)
 
   Foldable-Seq : Foldable Seq
   Foldable-Seq .foldr step init xs = foldr (step <<< getElem) init (unSeq xs)

@@ -109,25 +109,14 @@ oneof g gs = do
 elements : a -> List a -> Gen a
 elements x xs = oneof (pure x) (map pure xs)
 
-frequency : (freqs : List (Pair Nat (Gen a)))
-  -> {{Assert $ all (_> 0) (map fst freqs)}}
-  -> Gen a
-frequency {a} freqs =
-    if all (_> 0) (map fst freqs)
-      then ok
-      else panic "Test.QC.frequency: bad argument"
+frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
+frequency {a} freqs = pickFrom freqs =<< choose (1 , sumFreqs)
   where
     sumFreqs : Nat
     sumFreqs = sum (map fst freqs)
 
-    pick : Nat -> List (Pair Nat (Gen a)) -> Gen a
-    pick _ [] = panic "Test.QC.frequency: bad argument"
-    pick n ((m , g) :: rest) = if n <= m then g else pick (n - m) rest
-
-    ok : Gen a
-    ok = do
-      n <- choose (1 , sumFreqs)
-      pick n freqs
+    pickFrom : List (Pair Nat (Gen a)) -> Nat -> Gen a
+    pickFrom ((m , g) :: rest) n = if n <= m then g else pickFrom rest (n - m)
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA

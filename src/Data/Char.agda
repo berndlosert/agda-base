@@ -22,7 +22,7 @@ isLower = primIsLower
 isDigit : Char -> Bool
 isDigit = primIsDigit
 
-toDigit : (c : Char) -> {{Assert $ isDigit c}} -> Nat
+toDigit : {{Partial}} -> Char -> Nat
 toDigit '0' = 0
 toDigit '1' = 1
 toDigit '2' = 2
@@ -33,7 +33,6 @@ toDigit '6' = 6
 toDigit '7' = 7
 toDigit '8' = 8
 toDigit '9' = 9
-toDigit _ = panic "Data.Char.toDigit: bad argument"
 
 isAlpha : Char -> Bool
 isAlpha = primIsAlpha
@@ -65,5 +64,5 @@ toLower = primToLower
 ord : Char -> Nat
 ord = primCharToNat
 
-chr : Nat -> Char
-chr n = primNatToChar $ min n (ord maxChar)
+chr : {{Partial}} -> Nat -> Char
+chr n = primNatToChar n

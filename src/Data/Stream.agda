@@ -59,8 +59,7 @@ at : Nat -> Stream a -> a
 at 0 (x :: _) = x
 at (suc n) (x :: xs) = at n (flat xs)
 
-cycle : (xs : List a) -> {{Assert $ not (null xs)}} -> Stream a
-cycle [] = panic "Data.Stream.cycle: bad argument"
+cycle : {{Partial}} -> List a -> Stream a
 cycle {a} (x :: xs) = x :: sharp (cycle' xs)
   where
     cycle' : List a -> Stream a

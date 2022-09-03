@@ -42,5 +42,5 @@ instance
   Enum-Int .prev (negsuc n) = negsuc (suc n)
 
   Enum-Char : Enum Char
-  Enum-Char .next c = if c == maxChar then c else chr $ next (ord c)
-  Enum-Char .prev c = if c == minChar then c else chr $ prev (ord c)
+  Enum-Char .next c = if c == maxChar then c else unsafe chr $ next (ord c)
+  Enum-Char .prev c = if c == minChar then c else unsafe chr $ prev (ord c)

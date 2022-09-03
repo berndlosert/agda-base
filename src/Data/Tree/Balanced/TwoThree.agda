@@ -198,15 +198,12 @@ pop {a} v = down []
           fromZipper ctx (three a w (two b x c) y (two d z e))
         (_ , _) -> t
 
-    maxNode : (t : Tree a) -> {{Assert $ not (isLeaf t)}} -> a
+    maxNode : {{Partial}} -> Tree a -> a
     maxNode = \ where
       (two _ x leaf) -> x
-      (two _ _ r@(two _ _ _)) -> maxNode r
-      (two _ _ r@(three _ _ _ _ _)) -> maxNode r
+      (two _ _ r) -> maxNode r
       (three _ _ _ x leaf) -> x
-      (three _ _ _ _ r@(two _ _ _)) -> maxNode r
-      (three _ _ _ _ r@(three _ _ _ _ _)) -> maxNode r
-      _ -> panic "Data.Tree.Balanced.TwoThree.maxNode: bad argument"
+      (three _ _ _ _ r) -> maxNode r
 
     removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
     removeMaxNode ctx = \ where
@@ -231,9 +228,9 @@ pop {a} v = down []
         (_ , leaf , EQ) ->
           just (x , up ctx leaf)
         (l'@(two _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (twoLeft (maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (twoLeft (unsafe maxNode l') r :: ctx) l')
         (l'@(three _ _ _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (twoLeft (maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (twoLeft (unsafe maxNode l') r :: ctx) l')
         (_ , _ , LT) ->
           down (twoLeft x r :: ctx) l
         (_ , _ , _ ) ->
@@ -245,13 +242,13 @@ pop {a} v = down []
         (leaf , leaf , leaf , _ , EQ) ->
           just (y , fromZipper ctx (two leaf x leaf))
         (l'@(two _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (threeLeft (maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (threeLeft (unsafe maxNode l') m y r :: ctx) l')
         (l'@(three _ _ _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (threeLeft (maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (threeLeft (unsafe maxNode l') m y r :: ctx) l')
         (_ , m'@(two _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (threeMiddle l x (maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (threeMiddle l x (unsafe maxNode m') r :: ctx) m')
         (_ , m'@(three _ _ _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (threeMiddle l x (maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (threeMiddle l x (unsafe maxNode m') r :: ctx) m')
         (_ , _ , _ ,  LT , _) ->
           down (threeLeft x m y r :: ctx) l
         (_ , _ , _ ,  GT , LT) ->

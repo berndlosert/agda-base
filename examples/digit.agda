@@ -41,4 +41,4 @@ toDigit' c with unsafe asDigit c
 ... | as9 refl = 9
 
 main : IO Unit
-main = print (toDigit '5')
+main = print (toDigit' '5')

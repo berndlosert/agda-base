@@ -31,9 +31,9 @@ data Tree (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
-  NonEmptyness-Tree : NonEmptyness (Tree a)
-  NonEmptyness-Tree .nonempty leaf = false
-  NonEmptyness-Tree .nonempty _ = true
+  HasNonEmpty-Tree : HasNonEmpty (Tree a)
+  HasNonEmpty-Tree .isNonEmpty leaf = false
+  HasNonEmpty-Tree .isNonEmpty _ = true
 
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr step init = \ where
@@ -85,12 +85,11 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : (t : Tree a) -> {{Assert $ nonempty t}} -> Pair a (Tree a)
+  delMin : {{Partial}} -> Tree a -> Pair a (Tree a)
   delMin (node leaf x r) = (x , r)
-  delMin (node l@(node _ _ _) x r) =
+  delMin (node l x r) =
     let (y , l') = delMin l
     in (y , node l' x r)
-  delMin _ = panic "Data.Tree.Unbalanced.delMin: bad argument"
 
   delete : a -> Tree a -> Tree a
   delete _ leaf = leaf
@@ -100,7 +99,7 @@ module _ {{_ : Ord a}} where
       (GT , _ , _) -> node l y (delete x r)
       (EQ , leaf ,  _) -> r
       (EQ , _ , leaf) -> l
-      (EQ , _ , t@(node _ _ _)) -> let (z , r') = delMin t in node l z r'
+      (EQ , _ , t) -> let (z , r') = unsafe delMin t in node l z r'
 
   member : a -> Tree a -> Bool
   member x leaf = false

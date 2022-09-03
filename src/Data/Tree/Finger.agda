@@ -40,9 +40,9 @@ instance
     (singleton x) -> measure x
     (deep v _ _ _) -> v
 
-  NonEmptyness-FingerTree : NonEmptyness (FingerTree v a)
-  NonEmptyness-FingerTree .nonempty empty = false
-  NonEmptyness-FingerTree .nonempty _ = true
+  HasNonEmpty-FingerTree : HasNonEmpty (FingerTree v a)
+  HasNonEmpty-FingerTree .isNonEmpty empty = false
+  HasNonEmpty-FingerTree .isNonEmpty _ = true
 
   Foldable-FingerTree : Foldable (FingerTree v)
   Foldable-FingerTree .foldr _ init empty = init

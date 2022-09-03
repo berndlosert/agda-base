@@ -310,12 +310,7 @@ takeAll = takeWhile (const true)
 -------------------------------------------------------------------------------
 
 nat : Parser Nat
-nat = chainl1 digit' (pure \ m n -> 10 * m + n)
-  where
-    digit' : Parser Nat
-    digit' = do
-      n <- digit
-      pure (Char.toDigit n {{trustMe}})
+nat = chainl1 (| (unsafe Char.toDigit) digit |) (pure \ m n -> 10 * m + n)
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)
