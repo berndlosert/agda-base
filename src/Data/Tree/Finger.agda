@@ -146,15 +146,25 @@ instance
 -- uncons & unsnoc
 -------------------------------------------------------------------------------
 
+uncons? : {{Measured v a}}
+  -> (FingerTree v a)
+  -> Maybe (Pair a (FingerTree v a))
+
 uncons : {{Partial}}
   -> {{Measured v a}}
-  -> (t : FingerTree v a)
+  -> (FingerTree v a)
   -> Pair a (FingerTree v a)
+uncons = fromJust <<< uncons?
+
+unsnoc? : {{Measured v a}}
+  -> (FingerTree v a)
+  -> Maybe (Pair (FingerTree v a) a)
 
 unsnoc : {{Partial}}
   -> {{Measured v a}}
-  -> (t : FingerTree v a)
+  -> (FingerTree v a)
   -> Pair (FingerTree v a) a
+unsnoc = fromJust <<< unsnoc?
 
 private
   rotL : {{Measured v a}}
@@ -167,25 +177,27 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons (singleton x) = (x , empty)
-uncons (deep _ (one x) m sf) = (x , rotL m sf)
-uncons (deep _ (two a b) m sf) = (a , mkDeep (one b) m sf)
-uncons (deep _ (three a b c) m sf) = (a , mkDeep (two b c) m sf)
-uncons (deep _ (four a b c d) m sf) = (a , mkDeep (three b c d) m sf)
+uncons? empty = nothing
+uncons? (singleton x) = just (x , empty)
+uncons? (deep _ (one x) m sf) = just (x , rotL m sf)
+uncons? (deep _ (two a b) m sf) = just (a , mkDeep (one b) m sf)
+uncons? (deep _ (three a b c) m sf) = just (a , mkDeep (two b c) m sf)
+uncons? (deep _ (four a b c d) m sf) = just (a , mkDeep (three b c d) m sf)
 
-unsnoc (singleton x) = (empty , x)
-unsnoc (deep _ pr m (one x)) = (rotR pr m , x)
-unsnoc (deep _ pr m (two a b)) = (mkDeep pr m (one a) , b)
-unsnoc (deep _ pr m (three a b c)) = (mkDeep pr m (two a b) , c)
-unsnoc (deep _ pr m (four a b c d)) = (mkDeep pr m (three a b c) , d)
+unsnoc? empty = nothing
+unsnoc? (singleton x) = just (empty , x)
+unsnoc? (deep _ pr m (one x)) = just (rotR pr m , x)
+unsnoc? (deep _ pr m (two a b)) = just (mkDeep pr m (one a) , b)
+unsnoc? (deep _ pr m (three a b c)) = just (mkDeep pr m (two a b) , c)
+unsnoc? (deep _ pr m (four a b c d)) = just (mkDeep pr m (three a b c) , d)
 
-rotL empty sf = digitToTree sf
-rotL m sf = let (a , m') = unsafe uncons m in
-  deep (measure m <> measure sf) (nodeToDigit a) m' sf
+rotL m sf with uncons? m
+... | nothing = digitToTree sf 
+... | just (a , m')  = deep (measure m <> measure sf) (nodeToDigit a) m' sf 
 
-rotR pr empty = digitToTree pr
-rotR pr m = let (m' , a) = unsafe unsnoc m in
-  deep (measure pr <> measure m) pr m' (nodeToDigit a)
+rotR pr m with unsnoc? m
+... | nothing = digitToTree pr
+... | just (m' , a) = deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
 -------------------------------------------------------------------------------
 -- Splitting
