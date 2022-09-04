@@ -574,15 +574,12 @@ open HasExp {{...}} public
 
 record HasDiv (a : Set) : Set where
   infixl 7 _/_
-  -- Division is defined as a total function. When dividing by 0,
-  -- we return 0.
   field _/_ : a -> a -> a
 
 open HasDiv {{...}} public
 
 record HasMod (a : Set) : Set where
   infixl 7 _%_
-  -- Like with division, when we mod by 0, we return 0.
   field _%_ : a -> a -> a
 
 open HasMod {{...}} public
