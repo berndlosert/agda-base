@@ -8,7 +8,7 @@ record Predicate (a : Set) : Set where
   constructor asPredicate
   field getPredicate : a -> Bool
 
-open Predicate
+open Predicate public
 
 instance
   Semigroup-Predicate : Semigroup (Predicate a)
