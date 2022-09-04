@@ -76,7 +76,7 @@ record Foldable (t : Set -> Set) : Set where
   any p xs = maybe false (const true) (find p xs)
 
   all : (a -> Bool) -> t a -> Bool
-  all p = not <<< any (not <<< p)
+  all p = not (any (not p))
 
   or : t Bool -> Bool
   or = any id
