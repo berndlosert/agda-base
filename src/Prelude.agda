@@ -214,23 +214,29 @@ if_then_else_ : Bool -> a -> a -> a
 if true then x else _ = x
 if false then _ else x = x
 
-not : Bool -> Bool
-not false = true
-not true = false
+record Boolean (a : Set) : Set where
+  infixr 2 _||_
+  infixr 3 _&&_
+  field
+    not : a -> a
+    _||_ : a -> a -> a
+    _&&_ : a -> a -> a
 
-infixr 2 _||_
-_||_ : Bool -> Bool -> Bool
-false || x = x
-true || _ = true
+open Boolean {{...}} public
 
-infixr 3 _&&_
-_&&_ : Bool -> Bool -> Bool
-false && _ = false
-true && x = x
+instance
+  Boolean-Bool : Boolean Bool
+  Boolean-Bool .not false = true
+  Boolean-Bool .not true = false
+  Boolean-Bool ._||_ false x = x
+  Boolean-Bool ._||_ true _ = true
+  Boolean-Bool ._&&_ false _ = false
+  Boolean-Bool ._&&_ true x = x
 
-infixr 0 _implies_
-_implies_ : Bool -> Bool -> Bool
-x implies y = not x || y
+  Boolean-Function : Boolean (a -> Bool)
+  Boolean-Function .not f x = not (f x)
+  Boolean-Function ._||_ f g x = f x || g x
+  Boolean-Function ._&&_ f g x = f x && g x
 
 ------------------------------------------------------------------------------
 -- Either primitives
