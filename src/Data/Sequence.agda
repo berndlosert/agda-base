@@ -126,30 +126,21 @@ iterateN (suc n) f x = cons (f x) (iterateN n f x)
 -- Destruction
 -------------------------------------------------------------------------------
 
-uncons? : Seq a -> Maybe (Pair a (Seq a))
-uncons? xs with Tree.uncons? (unSeq xs)
+uncons : Seq a -> Maybe (Pair a (Seq a))
+uncons xs with Tree.uncons (unSeq xs)
 ... | nothing = nothing
 ... | just (asElem x , xs) = just (x , asSeq xs)
-
-uncons : {{Partial}} -> Seq a -> Pair a (Seq a)
-uncons = fromJust <<< uncons?
  
-unsnoc? : Seq a -> Maybe (Pair (Seq a) a)
-unsnoc? xs with Tree.unsnoc? (unSeq xs)
+unsnoc : Seq a -> Maybe (Pair (Seq a) a)
+unsnoc xs with Tree.unsnoc (unSeq xs)
 ... | nothing = nothing
 ... | just (xs , asElem x) = just (asSeq xs , x)
 
-head? : Seq a -> Maybe a
-head? xs = fst <$> uncons? xs
+head : Seq a -> Maybe a
+head xs = fst <$> uncons xs
 
-head : {{Partial}} -> Seq a -> a
-head = fromJust <<< head? 
-
-tail? : Seq a -> Maybe (Seq a)
-tail? xs = snd <$> uncons? xs
-
-tail : {{Partial}} -> Seq a -> Seq a 
-tail = fromJust <<< tail? 
+tail : Seq a -> Maybe (Seq a)
+tail xs = snd <$> uncons xs
 
 -------------------------------------------------------------------------------
 -- Deconstruction: Views
@@ -159,14 +150,14 @@ data AsList (a : Set) : Seq a -> Set where
   [] : AsList a nil
   _::_ : (x : a) (xs : Seq a) -> AsList a (cons x xs)
 
-prop-uncons? : (xs : Seq a) -> 
-  case uncons? xs of \ where
+prop-uncons : (xs : Seq a) -> 
+  case uncons xs of \ where
     nothing -> xs === nil 
     (just (y , ys)) -> xs === cons y ys 
-prop-uncons? _ = trustMe
+prop-uncons _ = trustMe
 
 asList : (xs : Seq a) -> AsList a xs
-asList xs with uncons? xs | prop-uncons? xs
+asList xs with uncons xs | prop-uncons xs
 ... | nothing | refl = []
 ... | just (y , ys) | refl = y :: ys
 
@@ -228,7 +219,7 @@ updateAt n f xs =
   let
     (l , r) = splitAt n xs
   in
-    case (uncons? r) of \ where
+    case uncons r of \ where
       nothing -> xs 
       (just (x , r')) -> l <> maybe r' (flip cons r') (f x)
 
@@ -324,7 +315,7 @@ reverse : Seq a -> Seq a
 reverse = foldl (flip cons) azero
 
 intersperse : a -> Seq a -> Seq a
-intersperse sep xs with uncons? xs
+intersperse sep xs with uncons xs
 ... | nothing = nil
 ... | just (y , ys) = cons y (| ys # cons (const sep) (singleton id) |)
 
@@ -335,7 +326,7 @@ intersperse sep xs with uncons? xs
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
 zipWith f nil _ = nil
 zipWith f _ nil = nil
-zipWith f as bs with uncons? as | uncons? bs 
+zipWith f as bs with uncons as | uncons bs 
 ... | nothing | _ = nil
 ... | _ | nothing = nil
 ... | just (x , xs) | just (y , ys) = cons (f x y) (zipWith f xs ys)

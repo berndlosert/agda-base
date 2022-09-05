@@ -222,7 +222,7 @@ chainr p op x = option x (chainr1 p op)
 
 satisfy : (Char -> Bool) -> Parser Char
 satisfy test = asParser \ where
-  s cok _ _ eerr -> case String.uncons? s of \ where
+  s cok _ _ eerr -> case String.uncons s of \ where
     nothing -> eerr
     (just (c , s')) -> if test c then cok c s' else eerr
 
@@ -310,7 +310,7 @@ takeAll = takeWhile (const true)
 -------------------------------------------------------------------------------
 
 nat : Parser Nat
-nat = chainl1 (| (unsafe Char.toDigit) digit |) (pure \ m n -> 10 * m + n)
+nat = chainl1 (| (fromJust <<< Char.toDigit) digit |) (pure \ m n -> 10 * m + n)
 
 int : Parser Int
 int = (| neg (char '-' *> nat) | pos (char '+' *> nat) | pos nat |)

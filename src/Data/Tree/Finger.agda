@@ -146,25 +146,13 @@ instance
 -- uncons & unsnoc
 -------------------------------------------------------------------------------
 
-uncons? : {{Measured v a}}
+uncons : {{Measured v a}}
   -> (FingerTree v a)
   -> Maybe (Pair a (FingerTree v a))
 
-uncons : {{Partial}}
-  -> {{Measured v a}}
-  -> (FingerTree v a)
-  -> Pair a (FingerTree v a)
-uncons = fromJust <<< uncons?
-
-unsnoc? : {{Measured v a}}
+unsnoc : {{Measured v a}}
   -> (FingerTree v a)
   -> Maybe (Pair (FingerTree v a) a)
-
-unsnoc : {{Partial}}
-  -> {{Measured v a}}
-  -> (FingerTree v a)
-  -> Pair (FingerTree v a) a
-unsnoc = fromJust <<< unsnoc?
 
 private
   rotL : {{Measured v a}}
@@ -177,25 +165,25 @@ private
     -> FingerTree v (Node v a)
     -> FingerTree v a
 
-uncons? empty = nothing
-uncons? (singleton x) = just (x , empty)
-uncons? (deep _ (one x) m sf) = just (x , rotL m sf)
-uncons? (deep _ (two a b) m sf) = just (a , mkDeep (one b) m sf)
-uncons? (deep _ (three a b c) m sf) = just (a , mkDeep (two b c) m sf)
-uncons? (deep _ (four a b c d) m sf) = just (a , mkDeep (three b c d) m sf)
+uncons empty = nothing
+uncons (singleton x) = just (x , empty)
+uncons (deep _ (one x) m sf) = just (x , rotL m sf)
+uncons (deep _ (two a b) m sf) = just (a , mkDeep (one b) m sf)
+uncons (deep _ (three a b c) m sf) = just (a , mkDeep (two b c) m sf)
+uncons (deep _ (four a b c d) m sf) = just (a , mkDeep (three b c d) m sf)
 
-unsnoc? empty = nothing
-unsnoc? (singleton x) = just (empty , x)
-unsnoc? (deep _ pr m (one x)) = just (rotR pr m , x)
-unsnoc? (deep _ pr m (two a b)) = just (mkDeep pr m (one a) , b)
-unsnoc? (deep _ pr m (three a b c)) = just (mkDeep pr m (two a b) , c)
-unsnoc? (deep _ pr m (four a b c d)) = just (mkDeep pr m (three a b c) , d)
+unsnoc empty = nothing
+unsnoc (singleton x) = just (empty , x)
+unsnoc (deep _ pr m (one x)) = just (rotR pr m , x)
+unsnoc (deep _ pr m (two a b)) = just (mkDeep pr m (one a) , b)
+unsnoc (deep _ pr m (three a b c)) = just (mkDeep pr m (two a b) , c)
+unsnoc (deep _ pr m (four a b c d)) = just (mkDeep pr m (three a b c) , d)
 
-rotL m sf with uncons? m
+rotL m sf with uncons m
 ... | nothing = digitToTree sf 
 ... | just (a , m')  = deep (measure m <> measure sf) (nodeToDigit a) m' sf 
 
-rotR pr m with unsnoc? m
+rotR pr m with unsnoc m
 ... | nothing = digitToTree pr
 ... | just (m' , a) = deep (measure pr <> measure m) pr m' (nodeToDigit a)
 
@@ -312,7 +300,7 @@ inits _ empty = empty
 inits f (singleton x) = singleton (f (singleton x))
 inits f (deep n pr m sf) =
   let
-    f' ms = case unsafe unsnoc ms of \ where
+    f' ms = case fromJust (unsnoc ms) of \ where
       (m' , node) -> map (\ sf' -> f (mkDeep pr m' sf')) (initsNode node)
   in
     deep n (map (f <<< digitToTree) (initsDigit pr))
@@ -325,7 +313,7 @@ tails _ empty = empty
 tails f (singleton x) = singleton (f (singleton x))
 tails f (deep n pr m sf) =
   let
-    f' ms = case unsafe uncons ms of \ where
+    f' ms = case fromJust (uncons ms) of \ where
       (node , m') -> map (\ pr' -> f (mkDeep pr' m' sf)) (tailsNode node)
   in
     deep n (map (\ pr' -> f (mkDeep pr' m sf)) (tailsDigit pr))

@@ -104,19 +104,26 @@ oneof : Gen a -> List (Gen a) -> Gen a
 oneof g [] = g
 oneof g gs = do
   n <- choose (0 , length gs)
-  withDefault g (List.at? n gs)
+  fromMaybe g (List.at n gs)
 
 elements : a -> List a -> Gen a
 elements x xs = oneof (pure x) (map pure xs)
 
-frequency : {{Partial}} -> List (Pair Nat (Gen a)) -> Gen a
-frequency {a} freqs = pickFrom freqs =<< choose (1 , sumFreqs)
+frequency : List (Pair Nat (Gen a)) -> Maybe (Gen a)
+frequency freqs = 
+  if sumFreqs > 0
+    then just (choose (1 , sumFreqs) >>= pickFrom freqs >>> fromJust)
+    else nothing
   where
     sumFreqs : Nat
     sumFreqs = sum (map fst freqs)
 
-    pickFrom : List (Pair Nat (Gen a)) -> Nat -> Gen a
-    pickFrom ((m , g) :: rest) n = if n <= m then g else pickFrom rest (n - m)
+    pickFrom : List (Pair Nat (Gen a)) -> Nat -> Maybe (Gen a)
+    pickFrom [] _ = nothing
+    pickFrom ((m , g) :: rest) n = 
+      if n <= m 
+        then just g 
+        else pickFrom rest (n - m)
 
 vectorOf : Nat -> Gen a -> Gen (List a)
 vectorOf = List.replicateA
@@ -404,3 +411,4 @@ quickCheck = check quick
 
 verboseCheck : {{Testable a}} -> a -> IO Unit
 verboseCheck = check verbose
+ 

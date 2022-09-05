@@ -47,10 +47,10 @@ record Filterable (t : Set -> Set) : Set where
   partitionEithers = mapEither id
 
   lefts : t (Either a b) -> t a
-  lefts = mapMaybe fromLeft? 
+  lefts = mapMaybe (either just (const nothing))
 
   rights : t (Either a b) -> t b
-  rights = mapMaybe fromRight? 
+  rights = mapMaybe (either (const nothing) just)
 
   module _ {{_ : Traversable t}} {{_ : Applicative f}} where
 

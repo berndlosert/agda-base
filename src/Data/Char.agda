@@ -12,9 +12,8 @@ open import Agda.Builtin.Char
 -- Char primitives
 -------------------------------------------------------------------------------
 
-minChar maxChar : Char
-minChar = '\NUL'
-maxChar = '\1114111'
+pattern minChar = '\NUL'
+pattern maxChar = '\1114111'
 
 isLower : Char -> Bool
 isLower = primIsLower
@@ -22,17 +21,18 @@ isLower = primIsLower
 isDigit : Char -> Bool
 isDigit = primIsDigit
 
-toDigit : {{Partial}} -> Char -> Nat
-toDigit '0' = 0
-toDigit '1' = 1
-toDigit '2' = 2
-toDigit '3' = 3
-toDigit '4' = 4
-toDigit '5' = 5
-toDigit '6' = 6
-toDigit '7' = 7
-toDigit '8' = 8
-toDigit '9' = 9
+toDigit : Char -> Maybe Nat
+toDigit '0' = just 0
+toDigit '1' = just 1
+toDigit '2' = just 2
+toDigit '3' = just 3
+toDigit '4' = just 4
+toDigit '5' = just 5
+toDigit '6' = just 6
+toDigit '7' = just 7
+toDigit '8' = just 8
+toDigit '9' = just 9
+toDigit _ = nothing
 
 isAlpha : Char -> Bool
 isAlpha = primIsAlpha
@@ -64,5 +64,8 @@ toLower = primToLower
 ord : Char -> Nat
 ord = primCharToNat
 
-chr : {{Partial}} -> Nat -> Char
-chr n = primNatToChar n
+chr : Nat -> Maybe Char
+chr n = 
+  if (n > ord maxChar) 
+    then nothing 
+    else just (primNatToChar n)

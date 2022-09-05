@@ -125,20 +125,16 @@ private
 -- Dangerous primitives
 -------------------------------------------------------------------------------
 
-record Partial : Set where
-  field oops : Void
-
-open Partial {{...}} public
-
 postulate
   trustMe : a
   panic : String -> a
 
-undefined : {{Partial}} -> a
+undefined : a
 undefined = panic "Prelude.undefined"
 
-unsafe : ({{Partial}} -> a) -> a
-unsafe x = x {{trustMe}}
+fromJust : Maybe a -> a
+fromJust (just x) = x
+fromJust nothing = panic "Prelude.fromJust: nothing"
 
 {-# FOREIGN GHC import qualified Data.Text #-}
 {-# COMPILE GHC panic = \ _ s -> error (Data.Text.unpack s) #-}
@@ -261,19 +257,13 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-fromLeft? : Either a b -> Maybe a
-fromLeft? (left x) = just x
-fromLeft? _ = nothing
+fromLeft : a -> Either a b -> a
+fromLeft _ (left x) = x
+fromLeft x _ = x
 
-fromLeft : {{Partial}} -> Either a b -> a
-fromLeft (left x) = x
-
-fromRight? : Either a b -> Maybe b
-fromRight? (right x) = just x
-fromRight? _ = nothing
-
-fromRight : {{Partial}} -> Either a b -> b
-fromRight (right x) = x
+fromRight : b -> Either a b -> b
+fromRight _ (right x) = x
+fromRight x _ = x
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -300,16 +290,13 @@ isNothing : Maybe a -> Bool
 isNothing (just _) = false
 isNothing _ = true
 
-fromJust : {{Partial}} -> Maybe a -> a
-fromJust (just x) = x
-
 maybe : b -> (a -> b) -> Maybe a -> b
 maybe x f nothing = x
 maybe x f (just y) = f y
 
-withDefault : a -> Maybe a -> a
-withDefault x nothing = x
-withDefault _ (just x) = x
+fromMaybe : a -> Maybe a -> a
+fromMaybe x nothing = x
+fromMaybe _ (just x) = x
 
 -------------------------------------------------------------------------------
 -- IO primitives

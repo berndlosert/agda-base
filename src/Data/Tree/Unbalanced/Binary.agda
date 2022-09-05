@@ -85,11 +85,12 @@ module _ {{_ : Ord a}} where
       then foldr insert s t
       else foldr insert t s
 
-  delMin : {{Partial}} -> Tree a -> Pair a (Tree a)
-  delMin (node leaf x r) = (x , r)
-  delMin (node l x r) =
-    let (y , l') = delMin l
-    in (y , node l' x r)
+  delMin : Tree a -> Maybe (Pair a (Tree a))
+  delMin (node leaf x r) = just (x , r)
+  delMin (node l x r) = do
+    (y , l') <- delMin l
+    pure (y , node l' x r)
+  delMin _ = nothing
 
   delete : a -> Tree a -> Tree a
   delete _ leaf = leaf
@@ -99,7 +100,7 @@ module _ {{_ : Ord a}} where
       (GT , _ , _) -> node l y (delete x r)
       (EQ , leaf ,  _) -> r
       (EQ , _ , leaf) -> l
-      (EQ , _ , t) -> let (z , r') = unsafe delMin t in node l z r'
+      (EQ , _ , t) -> let (z , r') = fromJust (delMin t) in node l z r'
 
   member : a -> Tree a -> Bool
   member x leaf = false

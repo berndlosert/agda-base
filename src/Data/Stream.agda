@@ -59,8 +59,9 @@ at : Nat -> Stream a -> a
 at 0 (x :: _) = x
 at (suc n) (x :: xs) = at n (flat xs)
 
-cycle : {{Partial}} -> List a -> Stream a
-cycle {a} (x :: xs) = x :: sharp (cycle' xs)
+cycle : List a -> Maybe (Stream a)
+cycle [] = nothing
+cycle {a} (x :: xs) = just (x :: sharp (cycle' xs))
   where
     cycle' : List a -> Stream a
     cycle' [] = x :: sharp (cycle' xs)

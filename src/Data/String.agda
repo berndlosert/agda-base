@@ -51,40 +51,25 @@ snoc s c = s <> singleton c
 append : String -> String -> String
 append = _<>_
 
-uncons? : String -> Maybe (Pair Char String)
-uncons? s = case primStringUncons s of \ where
+uncons : String -> Maybe (Pair Char String)
+uncons s = case primStringUncons s of \ where
   (just p) -> just (fst p , snd p)
   nothing -> nothing 
  
-uncons : {{Partial}} -> String -> Pair Char String
-uncons = fromJust <<< uncons?
- 
-unsnoc? : String -> Maybe (Pair String Char)
-unsnoc? s = lmap pack <$> List.unsnoc? (unpack s)
+unsnoc : String -> Maybe (Pair String Char)
+unsnoc s = lmap pack <$> List.unsnoc (unpack s)
 
-unsnoc : {{Partial}} -> String -> Pair String Char
-unsnoc = fromJust <<< unsnoc? 
+head : String -> Maybe Char
+head s = fst <$> uncons s
 
-head? : String -> Maybe Char
-head? s = fst <$> uncons? s
-
-head : {{Partial}} -> String -> Char 
-head = fromJust <<< head?
-
-tail? : String -> Maybe String
-tail? s = snd <$> uncons? s 
-
-tail : {{Partial}} -> String -> String 
-tail = fromJust <<< tail? 
+tail : String -> Maybe String
+tail s = snd <$> uncons s 
 
 length : String -> Nat
 length = List.length <<< unpack
 
-init? : String -> Maybe String
-init? s = pack <$> List.init? (unpack s)
-
-init : {{Partial}} -> String -> String 
-init = fromJust <<< init?
+init : String -> Maybe String
+init s = pack <$> List.init (unpack s)
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC cons = Text.cons #-}
@@ -226,13 +211,13 @@ data AsList : String -> Set where
   [] : AsList ""
   _::_ : (c : Char) {s : String} -> AsList s -> AsList (cons c s)
 
-prop-uncons? : (s : String) ->
-  case uncons? s of \ where
+prop-uncons : (s : String) ->
+  case uncons s of \ where
     nothing -> s === ""
     (just (c , s')) -> s === cons c s' 
-prop-uncons? = trustMe
+prop-uncons = trustMe
 
 asList : (s : String) -> AsList s
-asList s with uncons? s | prop-uncons? s
+asList s with uncons s | prop-uncons s
 ... | nothing | refl = [] 
 ... | just (c , s') | refl = c :: asList s'

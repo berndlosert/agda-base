@@ -198,11 +198,12 @@ pop {a} v = down []
           fromZipper ctx (three a w (two b x c) y (two d z e))
         (_ , _) -> t
 
-    maxNode : {{Partial}} -> Tree a -> a
+    maxNode : Tree a -> Maybe a
     maxNode = \ where
-      (two _ x leaf) -> x
+      leaf -> nothing
+      (two _ x leaf) -> just x
       (two _ _ r) -> maxNode r
-      (three _ _ _ x leaf) -> x
+      (three _ _ _ x leaf) -> just x
       (three _ _ _ _ r) -> maxNode r
 
     removeMaxNode : List (TreeContext a) -> Tree a -> Tree a
@@ -228,9 +229,9 @@ pop {a} v = down []
         (_ , leaf , EQ) ->
           just (x , up ctx leaf)
         (l'@(two _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (twoLeft (unsafe maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (twoLeft (fromJust (maxNode l')) r :: ctx) l')
         (l'@(three _ _ _ _ _) , _ , EQ) ->
-          just (x , removeMaxNode (twoLeft (unsafe maxNode l') r :: ctx) l')
+          just (x , removeMaxNode (twoLeft (fromJust (maxNode l')) r :: ctx) l')
         (_ , _ , LT) ->
           down (twoLeft x r :: ctx) l
         (_ , _ , _ ) ->
@@ -242,13 +243,13 @@ pop {a} v = down []
         (leaf , leaf , leaf , _ , EQ) ->
           just (y , fromZipper ctx (two leaf x leaf))
         (l'@(two _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (threeLeft (unsafe maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (threeLeft (fromJust (maxNode l')) m y r :: ctx) l')
         (l'@(three _ _ _ _ _) , _ , _ , EQ , _) ->
-          just (x , removeMaxNode (threeLeft (unsafe maxNode l') m y r :: ctx) l')
+          just (x , removeMaxNode (threeLeft (fromJust (maxNode l')) m y r :: ctx) l')
         (_ , m'@(two _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (threeMiddle l x (unsafe maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (threeMiddle l x (fromJust (maxNode m')) r :: ctx) m')
         (_ , m'@(three _ _ _ _ _) , _ , _ , EQ) ->
-          just (x , removeMaxNode (threeMiddle l x (unsafe maxNode m') r :: ctx) m')
+          just (x , removeMaxNode (threeMiddle l x (fromJust (maxNode m')) r :: ctx) m')
         (_ , _ , _ ,  LT , _) ->
           down (threeLeft x m y r :: ctx) l
         (_ , _ , _ ,  GT , LT) ->
