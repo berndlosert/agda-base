@@ -158,6 +158,10 @@ to f k = asConst <<< getConst <<< k <<< f
 view : AGetter a s a -> s -> a
 view g = getConst <<< g asConst
 
+infixl 8 _^#_
+_^#_ : s -> AGetter a s a -> a
+_^#_ = flip view
+
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
 foldMapOf l step = getConst <<< l (asConst <<< step)
 
@@ -192,6 +196,10 @@ lengthOf l = foldlOf l (\ n _ -> suc n) zero
 preview : AGetter (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (just <<< asFirst)
 
+infixl 8 _^?_
+_^?_ : s -> AGetter (Maybe (First a)) s a -> Maybe a
+_^?_ = flip preview
+
 firstOf : AGetter (First a) s a -> s -> a
 firstOf l = getFirst <<< foldMapOf l asFirst
 
@@ -221,6 +229,10 @@ over g k = runIdentity <<< g (asIdentity <<< k)
 
 set : ASetter s t a b -> b -> s -> t
 set f b = runIdentity <<< f (\ _ -> asIdentity b)
+
+infixr 4 _#~_
+_#~_ : ASetter s t a b -> b -> s -> t
+_#~_ = set
 
 sets : ((a -> b) -> s -> t) -> ASetter s t a b
 sets f k = asIdentity <<< f (runIdentity <<< k)
@@ -318,24 +330,24 @@ instance
 -- Some specific optics
 -------------------------------------------------------------------------------
 
-#fst : Lens (Pair a c) (Pair b c) a b
-#fst k (a , c) = map (_, c) (k a)
+$fst : Lens (Pair a c) (Pair b c) a b
+$fst k (a , c) = map (_, c) (k a)
 
-#snd : Lens (Pair a b) (Pair a c) b c
-#snd k (x , y) = map (x ,_) (k y)
+$snd : Lens (Pair a b) (Pair a c) b c
+$snd k (x , y) = map (x ,_) (k y)
 
-#left : Traversal (Either a c) (Either b c) a b
-#left f (left x) = map left (f x)
-#left _ (right y) = pure (right y)
+$left : Traversal (Either a c) (Either b c) a b
+$left f (left x) = map left (f x)
+$left _ (right y) = pure (right y)
 
-#right : Traversal (Either a b) (Either a c) b c
-#right f (right y) = map right (f y)
-#right _ (left x) = pure (left x)
+$right : Traversal (Either a b) (Either a c) b c
+$right f (right y) = map right (f y)
+$right _ (left x) = pure (left x)
 
-#just : Traversal (Maybe a) (Maybe b) a b
-#just f (just x) = map just (f x)
-#just _ nothing = pure nothing
+$just : Traversal (Maybe a) (Maybe b) a b
+$just f (just x) = map just (f x)
+$just _ nothing = pure nothing
 
-#nothing : Simple Traversal (Maybe a) Unit
-#nothing f nothing = map (const nothing) (f tt)
-#nothing _ j = pure j
+$nothing : Simple Traversal (Maybe a) Unit
+$nothing f nothing = map (const nothing) (f tt)
+$nothing _ j = pure j

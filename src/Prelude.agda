@@ -925,12 +925,9 @@ record Applicative (f : Set -> Set) : Set where
   _<*_ : f a -> f b -> f a
   a <* b = (| const a b |)
 
-  replicateA! : Nat -> f a -> f Unit
-  replicateA! n x = loop n
-    where
-      loop : Nat -> f Unit
-      loop 0 = pure tt
-      loop (suc m) = x *> loop m
+  replicateA* : Nat -> f a -> f Unit
+  replicateA* 0 _ = pure tt
+  replicateA* (suc n) = x *> replicateA* n x
 
   when : Bool -> f Unit -> f Unit
   when p x = if p then x else pure tt
