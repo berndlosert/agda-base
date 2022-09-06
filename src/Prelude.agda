@@ -927,7 +927,7 @@ record Applicative (f : Set -> Set) : Set where
 
   replicateA* : Nat -> f a -> f Unit
   replicateA* 0 _ = pure tt
-  replicateA* (suc n) = x *> replicateA* n x
+  replicateA* (suc n) x = x *> replicateA* n x
 
   when : Bool -> f Unit -> f Unit
   when p x = if p then x else pure tt
