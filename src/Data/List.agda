@@ -129,7 +129,7 @@ span : (a -> Bool) -> List a -> Pair (List a) (List a)
 span p xs = (takeWhile p xs , dropWhile p xs)
 
 break : (a -> Bool) -> List a -> Pair (List a) (List a)
-break p = span (not <<< p)
+break p = span (not p)
 
 -------------------------------------------------------------------------------
 -- Indexed functions
@@ -186,7 +186,7 @@ tails xs@(_ :: xs') = xs :: tails xs'
 
 segments : List a -> List (List a)
 segments xs = singleton [] <>
-  (filter (not <<< null) $ foldr _<>_ [] (tails <$> inits xs))
+  (filter (not null) $ foldr _<>_ [] (tails <$> inits xs))
 
 segmentsOfSize : Nat -> List a -> List (List a)
 segmentsOfSize 0 _ = singleton []

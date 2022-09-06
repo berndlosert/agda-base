@@ -379,7 +379,7 @@ private
         <<< map pairLength
         <<< List.group
         <<< List.sort
-        <<< List.filter (not <<< null)
+        <<< List.filter (not null)
         ) stamps
 
   tests : Config -> Property -> StdGen -> Nat -> Nat
