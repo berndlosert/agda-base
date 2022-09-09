@@ -326,6 +326,52 @@ instance
   Each-List .each f [] = pure []
   Each-List .each f (x :: xs) = (| f x :: each f xs |)
 
+record HasIndex (s : Set) : Set where
+  field Index : Set
+
+Index : (s : Set) -> {{HasIndex s}} -> Set
+Index s {{prf}} = HasIndex.Index prf
+
+instance
+  HasIndex-Function : HasIndex (a -> b)
+  HasIndex-Function {a} = record { Index = a }
+
+  HasIndex-Pair : HasIndex (Pair a b)
+  HasIndex-Pair = record { Index = Nat }
+
+  HasIndex-List : HasIndex (List a)
+  HasIndex-List = record { Index = Nat }
+
+record HasIxValue (m : Set) : Set where
+  field IxValue : Set
+
+IxValue : (m : Set) -> {{HasIxValue m}} -> Set
+IxValue m {{prf}} = HasIxValue.IxValue prf
+
+instance
+  HasIxValue-Function : HasIxValue (a -> b)
+  HasIxValue-Function {a} {b} = record { IxValue = b }
+
+  HasIxValue-List : HasIxValue (List a)
+  HasIxValue-List {a}  = record { IxValue = a }
+
+record Ixed (m : Set) {{_ : HasIndex m}} {{_ : HasIxValue m}} : Set where
+  field ix : Index m -> Simple Traversal m (IxValue m)
+
+open Ixed {{...}} public
+
+instance
+  Ixed-Function : {{Eq a}} -> Ixed (a -> b)
+  Ixed-Function .ix x p f = p (f x) <#> \ y x' -> if x == x' then y else f x'
+
+  Ixed-List : Ixed (List a)
+  Ixed-List {a} .ix k f xs0 = go xs0 k 
+    where
+      go : List a -> Nat -> _
+      go [] _ = pure []
+      go (x :: xs) 0 = f x <#> (_:: xs)
+      go (x :: xs) (suc n) = (x ::_) <$> (go xs $! n)
+  
 -------------------------------------------------------------------------------
 -- Some specific optics
 -------------------------------------------------------------------------------
