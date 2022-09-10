@@ -11,16 +11,16 @@ open import Prelude
 -------------------------------------------------------------------------------
 
 record Bits (a : Set) : Set where
-  infixl 5 _:|:_
-  infixl 6 _xor_
-  infixl 7 _:&:_
+  infixl 5 _bitOr_
+  infixl 6 _bitXor_
+  infixl 7 _bitAnd_
   field
     bitSize : a -> Nat
     zeroBits : a
     oneBits : a
-    _:|:_ : a -> a -> a
-    _xor_ : a -> a -> a
-    _:&:_ : a -> a -> a
+    _bitOr_ : a -> a -> a
+    _bitXor_ : a -> a -> a
+    _bitAnd_ : a -> a -> a
     shift : a -> Int -> a
     rotate : a -> Int -> a
     bit : Nat -> a
@@ -29,20 +29,20 @@ record Bits (a : Set) : Set where
     popCount : a -> Nat
 
   complement : a -> a
-  complement x = x xor oneBits
+  complement x = x bitXor oneBits
 
   clearBit : a -> Nat -> a
-  clearBit x i = x :&: complement (bit i)
+  clearBit x i = x bitAnd complement (bit i)
 
   setBit : a -> Nat -> a
-  setBit x i = x :|: bit i
+  setBit x i = x bitOr bit i
 
   assignBit : a -> Nat -> Bool -> a
   assignBit b n true = setBit b n
   assignBit b n false = clearBit b n
 
   notBit : a -> Nat -> a
-  notBit x i = x xor (bit i)
+  notBit x i = x bitXor (bit i)
 
   shiftL : a -> Nat -> a
   shiftL x i = shift x (pos i)
