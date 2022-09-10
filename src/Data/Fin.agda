@@ -11,7 +11,11 @@ open import Prelude
 -------------------------------------------------------------------------------
 
 data Fin (n : Nat) : Set where
-  asFin : (m : Nat) -> Fin n
+  -- m is assumed to be < n.
+  unsafeFin : (m : Nat) -> Fin n
+
+asFin : (n m : Nat) -> Fin n
+asFin n m = unsafeFin (m % n)
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -19,27 +23,27 @@ data Fin (n : Nat) : Set where
 
 module _ {n : Nat} where
   instance
-    Eq-Fin : Eq (Fin (suc n))
-    Eq-Fin ._==_ (asFin k) (asFin m) = k % suc n == m % suc n
+    ToNat-Fin : ToNat (Fin n)
+    ToNat-Fin .toNat (unsafeFin m) = m
 
-    Ord-Fin : Ord (Fin (suc n))
-    Ord-Fin ._<_ (asFin k) (asFin m) = k % suc n < m % suc n
+    FromNat-Fin : FromNat (Fin n)
+    FromNat-Fin .fromNat m = asFin n m
 
-    FromNat-Fin : FromNat (Fin (suc n))
-    FromNat-Fin .fromNat m = asFin m
+    Eq-Fin : Eq (Fin n)
+    Eq-Fin ._==_ k m = toNat k == toNat m
 
-    ToNat-Fin : ToNat (Fin (suc n))
-    ToNat-Fin .toNat (asFin m) = m % suc n
+    Ord-Fin : Ord (Fin n)
+    Ord-Fin ._<_ k m = toNat k < toNat m
 
-    HasAdd-Fin : HasAdd (Fin (suc n))
-    HasAdd-Fin ._+_ (asFin k) (asFin m) = asFin $ (k + m) % suc n
+    HasAdd-Fin : HasAdd (Fin n)
+    HasAdd-Fin ._+_ k m = asFin n (toNat k + toNat m)
 
-    HasSub-Fin : HasSub (Fin (suc n))
-    HasSub-Fin ._-_ (asFin k) (asFin m) =
-      asFin $ if k >= m then (k - m) % suc n else n - ((m - k) % suc n)
+    HasSub-Fin : HasSub (Fin n)
+    HasSub-Fin ._-_ k m = asFin n $
+      if k >= m then (toNat k - toNat m) else n - ((toNat m - toNat k))
 
-    HasMul-Fin : HasMul (Fin (suc n))
-    HasMul-Fin ._*_ (asFin k) (asFin m) = asFin $ (k * m) % suc n
+    HasMul-Fin : HasMul (Fin n)
+    HasMul-Fin ._*_ k m = asFin n $ (toNat k * toNat m)
 
-    Show-Fin : Show (Fin (suc n))
+    Show-Fin : Show (Fin n)
     Show-Fin .showsPrec _ m = showString $ show $ toNat m
