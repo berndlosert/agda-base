@@ -67,6 +67,20 @@ hylo : {{Functor f}} -> (f b -> b) -> (a -> f a) -> a -> b
 hylo coalg alg x = coalg $ hylo coalg alg <$> alg x
 
 -------------------------------------------------------------------------------
+-- Fix
+-------------------------------------------------------------------------------
+
+data Fix (f : Set -> Set) : Set where
+  asFix : f (Fix f) -> Fix f
+
+instance
+  HasBase-Fix : HasBase (Fix f)
+  HasBase-Fix {f} = record { Base = f}
+
+  Recursive-Fix : {{Functor f}} -> Recursive (Fix f)
+  Recursive-Fix .project (asFix x) = x
+
+-------------------------------------------------------------------------------
 -- NatF
 -------------------------------------------------------------------------------
 
@@ -115,7 +129,7 @@ instance
     [] -> showString "[]"
     (x :: xs) -> showParen (prec > appPrec)
       (showsPrec appPrec+1 x <<< showString " :: " <<< showsPrec 0 xs)
-    
+
   Recursive-List : Recursive (List a)
   Recursive-List .project [] = []
   Recursive-List .project (x :: xs) = x :: xs

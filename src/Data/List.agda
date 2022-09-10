@@ -78,14 +78,14 @@ uncons (x :: xs) = just (x , xs)
 
 unsnoc : List a -> Maybe (Pair (List a) a)
 unsnoc [] = nothing
-unsnoc xs = foldr go nothing xs 
+unsnoc xs = foldr go nothing xs
   where
     go : a -> Maybe (Pair (List a) a) -> Maybe (Pair (List a) a)
     go x nothing = just ([] , x)
     go x (just (xs , e)) = just (x :: xs , e)
 
 init : List a -> Maybe (List a)
-init [] = nothing 
+init [] = nothing
 init (x :: []) = just []
 init (x :: xs@(_ :: _)) = (| pure x :: init xs |)
 
@@ -227,6 +227,10 @@ zipCons heads tails =
     -- head in heads.
     excess = snd (splitAt (length heads) tails)
 
+unzip : List (Pair a b) -> Pair (List a) (List b)
+unzip [] = ([] , [])
+unzip ((x , y) :: ps) = bimap (x ::_) (y ::_) (unzip ps)
+
 -------------------------------------------------------------------------------
 -- Predicates
 -------------------------------------------------------------------------------
@@ -291,7 +295,7 @@ dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy eq [] = []
-groupBy eq (x :: xs) = 
+groupBy eq (x :: xs) =
   let (ys , zs) = span (eq x) xs
   in (x :: ys) :: groupBy eq zs
 
@@ -306,7 +310,7 @@ chunksOf n [] = []
 chunksOf n xs = take n xs :: chunksOf n (drop n xs)
 
 breakOn : {{Eq a}} -> (needle haystack : List a) -> Pair (List a) (List a)
-breakOn needle haystack = 
+breakOn needle haystack =
   if isPrefixOf needle haystack
     then ([] , haystack)
     else case haystack of \ where
@@ -315,7 +319,7 @@ breakOn needle haystack =
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
 splitOn needle [] = singleton []
-splitOn needle haystack = 
+splitOn needle haystack =
   let (l , r) = breakOn needle haystack
   in l :: (if null r then [] else splitOn needle (drop (length needle) r))
 
