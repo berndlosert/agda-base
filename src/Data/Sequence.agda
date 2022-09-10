@@ -11,7 +11,7 @@ open import Data.Monoid.Endo
 open import Data.Monoid.Sum
 open import Data.NonEmpty
 open import Data.Traversable
-open import Data.Tree.Finger as Tree using (FingerTree)
+open import Data.Tree.Finger as Tree using (Tree)
 open import Data.Sequence.Elem
 
 -------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ private
 private
   record Seq' (a : Set) : Set where
     constructor asSeq
-    field unSeq : FingerTree (Sum Nat) (Elem a)
+    field unSeq : Tree (Sum Nat) (Elem a)
 
   open Seq'
 
