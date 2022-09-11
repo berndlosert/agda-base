@@ -334,13 +334,13 @@ Index s {{prf}} = HasIndex.Index prf
 
 instance
   HasIndex-Function : HasIndex (a -> b)
-  HasIndex-Function {a} = record { Index = a }
+  HasIndex-Function {a} .HasIndex.Index = a 
 
   HasIndex-Pair : HasIndex (Pair a b)
-  HasIndex-Pair = record { Index = Nat }
+  HasIndex-Pair .HasIndex.Index = Nat 
 
   HasIndex-List : HasIndex (List a)
-  HasIndex-List = record { Index = Nat }
+  HasIndex-List .HasIndex.Index = Nat 
 
 record HasIxValue (m : Set) : Set where
   field IxValue : Set
@@ -350,10 +350,10 @@ IxValue m {{prf}} = HasIxValue.IxValue prf
 
 instance
   HasIxValue-Function : HasIxValue (a -> b)
-  HasIxValue-Function {a} {b} = record { IxValue = b }
+  HasIxValue-Function {a} {b} .HasIxValue.IxValue = b 
 
   HasIxValue-List : HasIxValue (List a)
-  HasIxValue-List {a}  = record { IxValue = a }
+  HasIxValue-List {a} .HasIxValue.IxValue = a
 
 record Ixed (m : Set) {{_ : HasIndex m}} {{_ : HasIxValue m}} : Set where
   field ix : Index m -> Simple Traversal m (IxValue m)
