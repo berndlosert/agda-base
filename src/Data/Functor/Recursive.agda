@@ -52,10 +52,10 @@ record Corecursive (t : Set) {{_ : HasBase t}} : Set where
     embed : Base t t -> t
 
   ana : (a -> Base t a) -> a -> t
-  ana coalg x = embed $ ana coalg <$> coalg x
+  ana coalg = embed <<< map (ana coalg) <<< coalg
 
   apo : (a -> Base t (Either t a)) -> a -> t
-  apo coalg x = embed $ either id (apo coalg) <$> coalg x
+  apo coalg = embed <<< map (either id (apo coalg)) <<< coalg
 
 open Corecursive {{...}} public
 
