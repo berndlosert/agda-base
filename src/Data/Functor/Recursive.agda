@@ -35,10 +35,10 @@ record Recursive (t : Set) {{_ : HasBase t}} : Set where
     project : t -> Base t t
 
   cata : (Base t a -> a) -> t -> a
-  cata alg x = alg $ cata alg <$> project x
+  cata alg = alg <<< map (cata alg) <<< project
 
   para : (Base t (Pair t a) -> a) -> t -> a
-  para alg x = alg $ (_, para alg x) <$> project x
+  para alg = alg <<< map (_,_ <*> para alg) <<< project
 
 open Recursive {{...}} public
 
