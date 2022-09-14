@@ -6,6 +6,8 @@ module Data.Functor.Recursive where
 
 open import Prelude
 
+open import Control.Comonad
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -13,7 +15,7 @@ open import Prelude
 private
   variable
     a b r t : Set
-    f : Set -> Set
+    f m w : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Base functors
@@ -40,6 +42,14 @@ record Recursive (t : Set) {{_ : HasBase t}} : Set where
   para : (Base t (Pair t a) -> a) -> t -> a
   para alg = alg <<< map (_,_ <*> para alg) <<< project
 
+  gcata : {{Comonad w}}
+    -> (forall {b} -> Base t (w b) -> w (Base t b))
+    -> (Base t (w a) -> a)
+    -> t
+    -> a
+  gcata dist alg = alg <<< extract <<< c
+    where c = dist <<< map (duplicate <<< map alg <<< c) <<< project
+
 open Recursive {{...}} public
 
 -------------------------------------------------------------------------------
@@ -56,6 +66,14 @@ record Corecursive (t : Set) {{_ : HasBase t}} : Set where
 
   apo : (a -> Base t (Either t a)) -> a -> t
   apo coalg = embed <<< map (either id (apo coalg)) <<< coalg
+
+  gana : {{Monad m}}
+    -> (forall {b} -> m (Base t b) -> Base t (m b))
+    -> (a -> Base t (m a))
+    -> a
+    -> t
+  gana dist coalg = c <<< pure <<< coalg
+    where c = embed <<< map (c <<< map coalg <<< join) <<< dist
 
 open Corecursive {{...}} public
 
