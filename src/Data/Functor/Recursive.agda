@@ -7,6 +7,7 @@ module Data.Functor.Recursive where
 open import Prelude
 
 open import Control.Comonad
+open import Control.Comonad.Cofree
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -44,11 +45,17 @@ record Recursive (t : Set) {{_ : HasBase t}} : Set where
 
   gcata : {{Comonad w}}
     -> (forall {b} -> Base t (w b) -> w (Base t b))
-    -> (Base t (w a) -> a)
-    -> t
-    -> a
+    -> (Base t (w a) -> a) -> t -> a
   gcata dist alg = alg <<< extract <<< c
     where c = dist <<< map (duplicate <<< map alg <<< c) <<< project
+
+  histo : (Base t (Cofree (Base t) a) -> a) -> t -> a
+  histo = gcata distHisto
+    where
+      distHisto : {{Functor f}} -> f (Cofree f a) -> Cofree f (f a)
+      distHisto fc = \ where
+        .Cofree.value -> map extract fc
+        .Cofree.unwrap -> map (distHisto <<< Cofree.unwrap) fc
 
 open Recursive {{...}} public
 
@@ -69,9 +76,7 @@ record Corecursive (t : Set) {{_ : HasBase t}} : Set where
 
   gana : {{Monad m}}
     -> (forall {b} -> m (Base t b) -> Base t (m b))
-    -> (a -> Base t (m a))
-    -> a
-    -> t
+    -> (a -> Base t (m a)) -> a -> t
   gana dist coalg = c <<< pure <<< coalg
     where c = embed <<< map (c <<< map coalg <<< join) <<< dist
 
