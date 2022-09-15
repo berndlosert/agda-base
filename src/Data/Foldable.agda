@@ -55,6 +55,20 @@ record Foldable (t : Set -> Set) : Set where
     let step' k x acc = step x acc >>= k
     in flip $ foldl step' pure
 
+  foldr1 : (a -> a -> a) -> t a -> Maybe a
+  foldr1 {a} step = foldr step' nothing
+    where
+      step' : a -> Maybe a -> Maybe a
+      step' _ nothing = nothing
+      step' x (just y) = just (step x y)
+
+  foldl1 : (a -> a -> a) -> t a -> Maybe a
+  foldl1 {a} step = foldl step' nothing
+    where
+      step' : Maybe a -> a -> Maybe a
+      step' nothing _ = nothing
+      step' (just x) y = just (step x y)
+
   toList : t a -> List a
   toList = foldMap (_:: [])
 
@@ -113,18 +127,18 @@ record Foldable (t : Set -> Set) : Set where
     x notElem xs = not (x elem xs)
 
   minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  minimumBy {a} cmp = foldl min' nothing
+  minimumBy {a} cmp = foldl step nothing
     where
-      min' : Maybe a -> a -> Maybe a
-      min' nothing x = just x
-      min' (just acc) x = just (if cmp acc x == LT then acc else x)
+      step : Maybe a -> a -> Maybe a
+      step nothing x = just x
+      step (just acc) x = just (if cmp acc x == LT then acc else x)
 
   maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  maximumBy {a} cmp = foldl max' nothing
+  maximumBy {a} cmp = foldl step nothing
     where
-      max' : Maybe a -> a -> Maybe a
-      max' nothing x = just x
-      max' (just acc) x = just (if cmp acc x == GT then acc else x)
+      step : Maybe a -> a -> Maybe a
+      step nothing x = just x
+      step (just acc) x = just (if cmp acc x == GT then acc else x)
 
   module _ {{_ : Ord a}} where
 
