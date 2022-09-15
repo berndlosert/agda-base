@@ -6,6 +6,7 @@ module Data.Functor.Const where
 
 open import Prelude
 
+open import Data.Bifunctor
 open import Data.Foldable
 
 -------------------------------------------------------------------------------

@@ -7,6 +7,7 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String
+open import Data.Bifunctor
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.NonEmpty
@@ -54,8 +55,8 @@ append = _<>_
 uncons : String -> Maybe (Pair Char String)
 uncons s = case primStringUncons s of \ where
   (just p) -> just (fst p , snd p)
-  nothing -> nothing 
- 
+  nothing -> nothing
+
 unsnoc : String -> Maybe (Pair String Char)
 unsnoc s = lmap pack <$> List.unsnoc (unpack s)
 
@@ -63,7 +64,7 @@ head : String -> Maybe Char
 head s = fst <$> uncons s
 
 tail : String -> Maybe String
-tail s = snd <$> uncons s 
+tail s = snd <$> uncons s
 
 length : String -> Nat
 length = List.length <<< unpack
@@ -214,10 +215,10 @@ data AsList : String -> Set where
 prop-uncons : (s : String) ->
   case uncons s of \ where
     nothing -> s === ""
-    (just (c , s')) -> s === cons c s' 
+    (just (c , s')) -> s === cons c s'
 prop-uncons = trustMe
 
 asList : (s : String) -> AsList s
 asList s with uncons s | prop-uncons s
-... | nothing | refl = [] 
+... | nothing | refl = []
 ... | just (c , s') | refl = c :: asList s'

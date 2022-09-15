@@ -6,6 +6,7 @@ module Data.List where
 
 open import Prelude
 
+open import Data.Bifunctor
 open import Data.Filterable
 open import Data.Foldable
 open import Data.Monoid.Endo

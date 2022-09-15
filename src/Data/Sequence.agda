@@ -6,6 +6,7 @@ module Data.Sequence where
 
 open import Prelude
 
+open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
@@ -130,7 +131,7 @@ uncons : Seq a -> Maybe (Pair a (Seq a))
 uncons xs with Tree.uncons (unSeq xs)
 ... | nothing = nothing
 ... | just (asElem x , xs) = just (x , asSeq xs)
- 
+
 unsnoc : Seq a -> Maybe (Pair (Seq a) a)
 unsnoc xs with Tree.unsnoc (unSeq xs)
 ... | nothing = nothing
@@ -150,10 +151,10 @@ data AsList (a : Set) : Seq a -> Set where
   [] : AsList a nil
   _::_ : (x : a) (xs : Seq a) -> AsList a (cons x xs)
 
-prop-uncons : (xs : Seq a) -> 
+prop-uncons : (xs : Seq a) ->
   case uncons xs of \ where
-    nothing -> xs === nil 
-    (just (y , ys)) -> xs === cons y ys 
+    nothing -> xs === nil
+    (just (y , ys)) -> xs === cons y ys
 prop-uncons _ = trustMe
 
 asList : (xs : Seq a) -> AsList a xs
@@ -220,7 +221,7 @@ updateAt n f xs =
     (l , r) = splitAt n xs
   in
     case uncons r of \ where
-      nothing -> xs 
+      nothing -> xs
       (just (x , r')) -> l <> maybe r' (flip cons r') (f x)
 
 deleteAt : Nat -> Seq a -> Seq a
@@ -326,7 +327,7 @@ intersperse sep xs with uncons xs
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
 zipWith f nil _ = nil
 zipWith f _ nil = nil
-zipWith f as bs with uncons as | uncons bs 
+zipWith f as bs with uncons as | uncons bs
 ... | nothing | _ = nil
 ... | _ | nothing = nil
 ... | just (x , xs) | just (y , ys) = cons (f x y) (zipWith f xs ys)

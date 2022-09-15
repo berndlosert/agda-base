@@ -13,6 +13,7 @@ open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
+open import Data.Bifunctor
 open import Data.Functor.Identity
 
 -------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ hoistIterT t iter = asIterT ((map $ hoistIterT t) <$> (t $ runIterT iter))
 
 instance
   Functor-IterT : {{Monad m}} -> Functor (IterT m)
-  Functor-IterT .map f iter = 
+  Functor-IterT .map f iter =
     asIterT $ map (either (left <<< f) (right <<< map f)) (runIterT iter)
 
   Applicative-IterT : {{Monad m}} -> Applicative (IterT m)
@@ -122,7 +123,7 @@ instance
 
       g : (Either c (IterT m c)) -> m (Either a (IterT m a))
       g (left (w , (f , x))) = tell (f w) >> pure (left x)
-      g (right iter') = 
+      g (right iter') =
           pure (right (asIterT $ (join <<< map g) (runIterT iter')))
 
       pass' : m (Either c (IterT m c)) -> m (Either a (IterT m a))

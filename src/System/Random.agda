@@ -6,6 +6,7 @@ module System.Random where
 
 open import Prelude
 
+open import Data.Bifunctor
 open import Data.Bits
 open import Data.Float as Float using ()
 open import Data.IORef
@@ -70,13 +71,13 @@ genNat' : {{RandomGen g}} -> Nat -> g -> Pair Nat g
 genNat' {g} n g0 = loop g0
   where
     log2 : Nat -> Nat
-    log2 0 = 1 
+    log2 0 = 1
     log2 m = 1 + log2 (m / 2)
 
     k = log2 n
 
     loop : g -> Pair Nat g
-    loop g = 
+    loop g =
       let (m , g') = genNat k g in
       if m > n then loop g' else (m , g')
 

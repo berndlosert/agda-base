@@ -7,6 +7,7 @@ module Data.Validation where
 open import Prelude
 
 open import Control.Selective
+open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Traversable
 
