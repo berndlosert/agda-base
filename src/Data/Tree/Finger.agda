@@ -8,7 +8,6 @@ open import Prelude
 
 open import Data.Foldable
 open import Data.Monoid.Sum
-open import Data.NonEmpty
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured
@@ -39,10 +38,6 @@ instance
     empty -> mempty
     (singleton x) -> measure x
     (deep v _ _ _) -> v
-
-  HasNonEmpty-Tree : HasNonEmpty (Tree v a)
-  HasNonEmpty-Tree .isNonEmpty empty = false
-  HasNonEmpty-Tree .isNonEmpty _ = true
 
   Foldable-Tree : Foldable (Tree v)
   Foldable-Tree .foldr _ init empty = init
@@ -180,8 +175,8 @@ unsnoc (deep _ pr m (three a b c)) = just (mkDeep pr m (two a b) , c)
 unsnoc (deep _ pr m (four a b c d)) = just (mkDeep pr m (three a b c) , d)
 
 rotL m sf with uncons m
-... | nothing = digitToTree sf 
-... | just (a , m')  = deep (measure m <> measure sf) (nodeToDigit a) m' sf 
+... | nothing = digitToTree sf
+... | just (a , m')  = deep (measure m <> measure sf) (nodeToDigit a) m' sf
 
 rotR pr m with unsnoc m
 ... | nothing = digitToTree pr
@@ -253,7 +248,7 @@ private
     -> Tree v a
     -> v
     -> Maybe (Split (Tree v) a)
-  searchTree _ _ empty _ = nothing 
+  searchTree _ _ empty _ = nothing
   searchTree _ _ (singleton x) _ = just (toSplit empty x empty)
   searchTree p vl (deep _ pr m sf) vr =
     let

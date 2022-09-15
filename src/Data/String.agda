@@ -10,7 +10,6 @@ open import Agda.Builtin.String
 open import Data.Bifunctor
 open import Data.Char as Char using ()
 open import Data.List as List using ()
-open import Data.NonEmpty
 
 -------------------------------------------------------------------------------
 -- Variables

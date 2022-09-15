@@ -10,7 +10,6 @@ open import Data.Bifunctor
 open import Data.Filterable
 open import Data.Foldable
 open import Data.Monoid.Endo
-open import Data.NonEmpty
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

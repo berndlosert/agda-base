@@ -7,7 +7,6 @@ module Data.Tree.Unbalanced.Binary where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.NonEmpty
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -31,10 +30,6 @@ data Tree (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
-  HasNonEmpty-Tree : HasNonEmpty (Tree a)
-  HasNonEmpty-Tree .isNonEmpty leaf = false
-  HasNonEmpty-Tree .isNonEmpty _ = true
-
   Foldable-Tree : Foldable Tree
   Foldable-Tree .foldr step init = \ where
     leaf -> init

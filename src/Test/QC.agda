@@ -11,7 +11,6 @@ open import Data.Float as Float using ()
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Foldable
-open import Data.NonEmpty
 open import Data.Traversable
 open import System.IO
 open import System.IO.Unsafe
@@ -110,7 +109,7 @@ elements : a -> List a -> Gen a
 elements x xs = oneof (pure x) (map pure xs)
 
 frequency : List (Pair Nat (Gen a)) -> Maybe (Gen a)
-frequency freqs = 
+frequency freqs =
   if sumFreqs > 0
     then just (choose (1 , sumFreqs) >>= pickFrom freqs >>> fromJust)
     else nothing
@@ -120,9 +119,9 @@ frequency freqs =
 
     pickFrom : List (Pair Nat (Gen a)) -> Nat -> Maybe (Gen a)
     pickFrom [] _ = nothing
-    pickFrom ((m , g) :: rest) n = 
-      if n <= m 
-        then just g 
+    pickFrom ((m , g) :: rest) n =
+      if n <= m
+        then just g
         else pickFrom rest (n - m)
 
 vectorOf : Nat -> Gen a -> Gen (List a)
@@ -384,7 +383,7 @@ private
 
   tests : Config -> Property -> StdGen -> Nat -> Nat
     -> List (List String) -> IO Unit
-  tests config prop@(asProperty gen) rnd0 ntest nfail stamps = 
+  tests config prop@(asProperty gen) rnd0 ntest nfail stamps =
     if ntest == Config.maxTest config
       then finish "OK, passed" ntest stamps
       else if nfail == Config.maxFail config
@@ -411,4 +410,3 @@ quickCheck = check quick
 
 verboseCheck : {{Testable a}} -> a -> IO Unit
 verboseCheck = check verbose
- 

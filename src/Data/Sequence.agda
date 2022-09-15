@@ -10,7 +10,6 @@ open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
-open import Data.NonEmpty
 open import Data.Traversable
 open import Data.Tree.Finger as Tree using (Tree)
 open import Data.Sequence.Elem
@@ -50,9 +49,6 @@ instance
 
   Monoid-Seq : Monoid (Seq a)
   Monoid-Seq .mempty = asSeq Tree.empty
-
-  HasNonEmpty-Seq : HasNonEmpty (Seq a)
-  HasNonEmpty-Seq .isNonEmpty xs = isNonEmpty (unSeq xs)
 
   Foldable-Seq : Foldable Seq
   Foldable-Seq .foldr step init xs = foldr (step <<< getElem) init (unSeq xs)
