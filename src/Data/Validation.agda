@@ -33,6 +33,11 @@ instance
     (failure e) -> failure e
     (success x) -> success (f x)
 
+  Bifunctor-Validation : Bifunctor Validation
+  Bifunctor-Validation .lmap f = \ where
+    (failure e) -> failure (f e)
+    (success x) -> success x
+
   Applicative-Validation : {{Semigroup e}} -> Applicative (Validation e)
   Applicative-Validation ._<*>_ = \ where
     (failure e1) (failure e2) -> failure (e1 <> e2)
