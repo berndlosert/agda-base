@@ -8,6 +8,7 @@ open import Prelude
 
 open import Control.Comonad
 open import Data.Foldable
+open import Data.Profunctor
 
 -------------------------------------------------------------------------------
 -- Variables

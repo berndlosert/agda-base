@@ -6,6 +6,8 @@ module Data.Profunctor.Strong where
 
 open import Prelude
 
+open import Data.Profunctor
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
