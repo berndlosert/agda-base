@@ -12,6 +12,7 @@ open import Data.Monoid.All
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
+open import Data.Profunctor
 open import Data.Profunctor.Choice
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
@@ -334,13 +335,13 @@ Index s {{prf}} = HasIndex.Index prf
 
 instance
   HasIndex-Function : HasIndex (a -> b)
-  HasIndex-Function {a} .HasIndex.Index = a 
+  HasIndex-Function {a} .HasIndex.Index = a
 
   HasIndex-Pair : HasIndex (Pair a b)
-  HasIndex-Pair .HasIndex.Index = Nat 
+  HasIndex-Pair .HasIndex.Index = Nat
 
   HasIndex-List : HasIndex (List a)
-  HasIndex-List .HasIndex.Index = Nat 
+  HasIndex-List .HasIndex.Index = Nat
 
 record HasIxValue (m : Set) : Set where
   field IxValue : Set
@@ -350,7 +351,7 @@ IxValue m {{prf}} = HasIxValue.IxValue prf
 
 instance
   HasIxValue-Function : HasIxValue (a -> b)
-  HasIxValue-Function {a} {b} .HasIxValue.IxValue = b 
+  HasIxValue-Function {a} {b} .HasIxValue.IxValue = b
 
   HasIxValue-List : HasIxValue (List a)
   HasIxValue-List {a} .HasIxValue.IxValue = a
@@ -365,7 +366,7 @@ instance
   Ixed-Function .ix x p f = p (f x) <#> \ y x' -> if x == x' then y else f x'
 
   Ixed-List : Ixed (List a)
-  Ixed-List {a} .ix k f xs0 = go xs0 k 
+  Ixed-List {a} .ix k f xs0 = go xs0 k
     where
       go : List a -> Nat -> _
       go [] _ = pure []
