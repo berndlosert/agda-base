@@ -6,7 +6,6 @@ module String.Parser where
 
 open import Prelude
 
-open import Control.Monad.Kleisli
 open import Data.Char as Char using ()
 open import Data.Foldable
 open import Data.List as List using ()
@@ -36,7 +35,7 @@ private
         -> b
 
   open Parser'
-  
+
 Parser = Parser'
 
 -------------------------------------------------------------------------------
@@ -59,26 +58,21 @@ data Reply (a : Set) : Set where
 -------------------------------------------------------------------------------
 
 instance
-  KleisliTriple-Parser : KleisliTriple Parser
-  KleisliTriple-Parser .flatMap k m = asParser \ where
+  Functor-Parser : Functor Parser
+  Applicative-Parser : Applicative Parser
+  Monad-Parser : Monad Parser
+
+  Functor-Parser .map = liftM
+  Applicative-Parser ._<*>_ = ap
+  Applicative-Parser .pure x = asParser \ where
+    s _ _ eok _ -> eok x s
+  Monad-Parser ._>>=_ m k = asParser \ where
     s cok cerr eok eerr ->
       let
         mcok x s' = unParser (k x) s' cok cerr cok cerr
         meok x s' = unParser (k x) s' cok cerr eok eerr
       in
         unParser m s mcok cerr meok eerr
-  KleisliTriple-Parser .return x = asParser \ where
-    s _ _ eok _ -> eok x s
-
-  Functor-Parser : Functor Parser
-  Functor-Parser .map = liftM
-
-  Applicative-Parser : Applicative Parser
-  Applicative-Parser .pure = return
-  Applicative-Parser ._<*>_ = ap
-
-  Monad-Parser : Monad Parser
-  Monad-Parser ._>>=_ = bind
 
   Alternative-Parser : Alternative Parser
   Alternative-Parser .azero = asParser \ where

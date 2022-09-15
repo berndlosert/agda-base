@@ -907,11 +907,11 @@ record Applicative (f : Set -> Set) : Set where
 
   infixl 4 _*>_
   _*>_ : f a -> f b -> f b
-  a *> b = (| (flip const) a b |)
+  x *> y = (| (flip const) x y |)
 
   infixl 4 _<*_
   _<*_ : f a -> f b -> f a
-  a <* b = (| const a b |)
+  x <* y = (| const x y |)
 
   replicateA* : Nat -> f a -> f Unit
   replicateA* 0 _ = pure tt
@@ -1017,6 +1017,17 @@ record Monad (m : Set -> Set) : Set where
 
   join : m (m a) -> m a
   join = _>>= id
+
+  liftM : (a -> b) -> m a -> m b
+  liftM f x = do
+    x' <- x
+    pure (f x')
+
+  ap : m (a -> b) -> m a -> m b
+  ap f x = do
+    f' <- f
+    x' <- x
+    pure (f' x')
 
 open Monad {{...}} public
 
