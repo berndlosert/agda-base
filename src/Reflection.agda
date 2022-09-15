@@ -7,7 +7,6 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
-open import Control.Monad.Kleisli
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -29,16 +28,11 @@ instance
   Show-Name : Show Name
   Show-Name .showsPrec d n = showString (primShowQName n)
 
-  KleisliTriple-TC : KleisliTriple TC
-  KleisliTriple-TC .flatMap = flip bindTC
-  KleisliTriple-TC .return = returnTC
-
   Functor-TC : Functor TC
-  Functor-TC .map = liftM
-
   Applicative-TC : Applicative TC
-  Applicative-TC .pure = return
-  Applicative-TC ._<*>_ = ap
-
   Monad-TC : Monad TC
-  Monad-TC ._>>=_ = bind
+
+  Functor-TC .map = liftM
+  Applicative-TC ._<*>_ = ap
+  Applicative-TC .pure = returnTC
+  Monad-TC ._>>=_ = bindTC
