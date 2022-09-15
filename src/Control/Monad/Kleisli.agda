@@ -49,8 +49,6 @@ record Kleisli (m : Set -> Set) (a b : Set) : Set where
 open Kleisli public
 
 instance
-  Semigroupoid-Kleisli : {{Monad m}} -> Semigroupoid (Kleisli m)
-  Semigroupoid-Kleisli ._<<<_ g f = asKleisli (runKleisli g <=< runKleisli f)
-
   Category-Kleisli : {{Monad m}} -> Category (Kleisli m)
+  Category-Kleisli ._<<<_ g f = asKleisli (runKleisli g <=< runKleisli f)
   Category-Kleisli .id = asKleisli \ x -> pure x
