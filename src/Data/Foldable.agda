@@ -23,9 +23,10 @@ record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap f =
-    let step x acc = f x <> acc
-    in foldr step mempty
+  foldMap {b} {a} f = foldr step mempty
+    where
+      step : a -> b -> b
+      step x acc = f x <> acc
 
   foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
   foldMapBy {b} step init = foldMap {{monoid}}
@@ -41,19 +42,22 @@ record Foldable (t : Set -> Set) : Set where
   foldBy step init = foldMapBy step init id
 
   foldl : (b -> a -> b) -> b -> t a -> b
-  foldl step =
-    let step' x k acc = k $! step acc x
-    in flip $ foldr step' id
+  foldl {b} {a} step init xs = foldr step' id xs init
+    where
+      step' : a -> (b -> b) -> b -> b
+      step' x k acc = k $! step acc x
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
-  foldlM step =
-    let step' x k acc = step acc x >>= k
-    in flip $ foldr step' pure
+  foldlM {m} {b} {a} step init xs = foldr step' pure xs init
+    where
+      step' : a -> (b -> m b) -> b -> m b
+      step' x k acc = step acc x >>= k
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM step =
-    let step' k x acc = step x acc >>= k
-    in flip $ foldl step' pure
+  foldrM {m} {a} {b} step init xs = foldl step' pure xs init
+    where
+      step' : (b -> m b) -> a -> b -> m b
+      step' k x acc = step x acc >>= k
 
   foldr1 : (a -> a -> a) -> t a -> Maybe a
   foldr1 {a} step = foldr step' nothing
