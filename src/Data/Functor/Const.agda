@@ -8,6 +8,7 @@ open import Prelude
 
 open import Data.Bifunctor
 open import Data.Foldable
+open import Data.Functor.Contravariant
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -841,18 +841,6 @@ instance
   Functor-IO .map = mapIO
 
 -------------------------------------------------------------------------------
--- Contravariant
--------------------------------------------------------------------------------
-
-record Contravariant (f : Set -> Set) : Set where
-  field cmap : (a -> b) -> f b -> f a
-
-  phantom : {{Functor f}} -> f a -> f b
-  phantom x = cmap (const tt) (map (const tt) x)
-
-open Contravariant {{...}} public
-
--------------------------------------------------------------------------------
 -- Applicative
 -------------------------------------------------------------------------------
 

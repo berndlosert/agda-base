@@ -8,6 +8,7 @@ open import Prelude
 
 open import Data.Functor.Identity
 open import Data.Functor.Const
+open import Data.Functor.Contravariant
 open import Data.Monoid.All
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
