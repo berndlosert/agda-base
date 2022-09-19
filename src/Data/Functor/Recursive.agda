@@ -98,6 +98,9 @@ distFutu = distFutu <<< interpretFree liftFree
 -- Other recursion schemes
 -------------------------------------------------------------------------------
 
+fix : (a -> a) -> a
+fix f = f (fix f)
+
 loeb : {{Functor f}} -> f (f a -> a) -> f a
 loeb x = go where go = map (_$ go) x
 
