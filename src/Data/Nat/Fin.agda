@@ -1,4 +1,4 @@
-module Data.Fin where
+module Data.Nat.Fin where
 
 -------------------------------------------------------------------------------
 -- Imports
