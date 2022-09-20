@@ -7,6 +7,8 @@ module Data.Subset where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.String.Builder hiding (singleton)
+open import Data.String.Show
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
 
@@ -91,5 +93,6 @@ abstract
     Monoid-Subset .mempty = empty
 
     Show-Subset : {{Show a}} -> Show (Subset a)
+    Show-Subset .show = showDefault {{Show-Subset}}
     Show-Subset .showsPrec prec xs = showParen (prec > appPrec)
-      (showString "fromList " <<< shows (toList xs))
+      ("fromList " <> showsPrec prec (toList xs))

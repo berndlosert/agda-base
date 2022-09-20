@@ -6,6 +6,9 @@ module Data.Monoid.All where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- All
 -------------------------------------------------------------------------------
@@ -25,5 +28,6 @@ instance
   Monoid-All .mempty = asAll true
 
   Show-All : Show All
-  Show-All .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asAll " <<< showsPrec appPrec+1 (getAll x)
+  Show-All .show = showDefault
+  Show-All .showsPrec prec x = showParen (prec > appPrec)
+    ("asAll " <> showsPrec appPrec+1 (getAll x))

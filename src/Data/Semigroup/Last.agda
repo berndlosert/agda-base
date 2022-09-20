@@ -6,6 +6,9 @@ module Data.Semigroup.Last where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -43,5 +46,6 @@ instance
   Monad-Last ._>>=_ m k = k (getLast m)
 
   Show-Last : {{Show a}} -> Show (Last a)
-  Show-Last .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asLast " <<< showsPrec appPrec+1 (getLast x)
+  Show-Last .show = showDefault
+  Show-Last .showsPrec prec x = showParen (prec > appPrec)
+    ("asLast " <> showsPrec appPrec+1 (getLast x))

@@ -7,6 +7,7 @@ module Control.Concurrent where
 open import Prelude
 
 open import Control.Exception
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -37,7 +38,8 @@ instance
   Ord-ThreadId ._<_ = threadIdLess
 
   Show-ThreadId : Show ThreadId
-  Show-ThreadId .showsPrec _ = showString <<< threadIdShow
+  Show-ThreadId .show = threadIdShow
+  Show-ThreadId .showsPrec = showsPrecDefault
 
 postulate
   myThreadId : IO ThreadId

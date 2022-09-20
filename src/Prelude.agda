@@ -668,6 +668,21 @@ instance
   HasDiv-Float ._/_ x y = Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
+-- FromString
+-------------------------------------------------------------------------------
+
+record FromString (a : Set) : Set where
+  field fromString : String -> a
+
+open FromString {{...}} public
+
+{-# BUILTIN FROMSTRING fromString #-}
+
+instance
+  FromString-String : FromString String
+  FromString-String .fromString s = s
+
+-------------------------------------------------------------------------------
 -- Semigroup
 -------------------------------------------------------------------------------
 
@@ -998,88 +1013,3 @@ instance
 
   Monad-IO : Monad IO
   Monad-IO ._>>=_ = bindIO
-
--------------------------------------------------------------------------------
--- Show
--------------------------------------------------------------------------------
-
-ShowS : Set
-ShowS = String -> String
-
-record Show (a : Set) : Set where
-  field showsPrec : Nat -> a -> ShowS
-
-  shows : a -> ShowS
-  shows = showsPrec 0
-
-  show : a -> String
-  show x = shows x ""
-
-open Show {{...}} public
-
-showString : String -> ShowS
-showString = _<>_
-
-showParen : Bool -> ShowS -> ShowS
-showParen b p = if b then showString "(" <<< p <<< showString ")" else p
-
-appPrec appPrec+1 : Nat
-appPrec = 10
-appPrec+1 = 11
-
-instance
-  Show-Void : Show Void
-  Show-Void .showsPrec _ ()
-
-  Show-Unit : Show Unit
-  Show-Unit .showsPrec _ tt = showString "tt"
-
-  Show-Bool : Show Bool
-  Show-Bool .showsPrec _ b = showString (if b then "true" else "false")
-
-  Show-Ordering : Show Ordering
-  Show-Ordering .showsPrec _ = \ where
-    LT -> showString "LT"
-    EQ -> showString "EQ"
-    GT -> showString "GT"
-
-  Show-Nat : Show Nat
-  Show-Nat .showsPrec _ = showString <<< String.primShowNat
-
-  Show-Int : Show Int
-  Show-Int .showsPrec _ = showString <<< Int.primShowInteger
-
-  Show-Float : Show Float
-  Show-Float .showsPrec _ = showString <<< Float.primShowFloat
-
-  Show-Char : Show Char
-  Show-Char .showsPrec _ = showString <<< String.primShowChar
-
-  Show-String : Show String
-  Show-String .showsPrec _ = showString <<< String.primShowString
-
-  Show-Function : Show (Function a b)
-  Show-Function .showsPrec _ _ = showString "<function>"
-
-  Show-Pair : {{Show a}} -> {{Show b}} -> Show (Pair a b)
-  Show-Pair .showsPrec prec (x , y) = showString "(" <<< showsPrec prec x
-    <<< showString " , " <<< showsPrec prec y <<< showString ")"
-
-  Show-Either : {{Show a}} -> {{Show b}} -> Show (Either a b)
-  Show-Either .showsPrec prec = \ where
-    (left x) -> showParen (prec > appPrec)
-      (showString "left " <<< showsPrec appPrec+1 x)
-    (right x) -> showParen (prec > appPrec)
-      (showString "right " <<< showsPrec appPrec+1 x)
-
-  Show-Maybe : {{Show a}} -> Show (Maybe a)
-  Show-Maybe .showsPrec prec = \ where
-    (just x) -> showParen (prec > appPrec)
-      (showString "just " <<< showsPrec appPrec+1 x)
-    nothing -> showString "nothing"
-
-  Show-List : {{Show a}} -> Show (List a)
-  Show-List .showsPrec prec = \ where
-    [] -> showString "[]"
-    (x :: xs) -> showParen (prec > appPrec)
-      (showsPrec appPrec+1 x <<< showString " :: " <<< showsPrec 0 xs)

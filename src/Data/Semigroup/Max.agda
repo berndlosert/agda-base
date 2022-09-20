@@ -6,6 +6,9 @@ module Data.Semigroup.Max where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -40,5 +43,6 @@ instance
   Monad-Max ._>>=_ m k = k (getMax m)
 
   Show-Max : {{Show a}} -> Show (Max a)
-  Show-Max .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asMax " <<< showsPrec appPrec+1 (getMax x)
+  Show-Max .show = showDefault
+  Show-Max .showsPrec prec x = showParen (prec > appPrec)
+    ("asMax " <> showsPrec appPrec+1 (getMax x))

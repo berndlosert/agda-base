@@ -6,6 +6,9 @@ module Data.Semigroup.First where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -43,5 +46,6 @@ instance
   Monad-First ._>>=_ m k = k (getFirst m)
 
   Show-First : {{Show a}} -> Show (First a)
-  Show-First .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asFirst " <<< showsPrec appPrec+1 (getFirst x)
+  Show-First .show = showDefault
+  Show-First .showsPrec prec x = showParen (prec > appPrec)
+    ("asFirst " <> showsPrec appPrec+1 (getFirst x))

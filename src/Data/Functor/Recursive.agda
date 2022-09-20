@@ -10,6 +10,8 @@ open import Control.Comonad
 open import Control.Comonad.Cofree
 open import Control.Monad.Free
 open import Data.Functor.Identity
+open import Data.String.Builder
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -149,10 +151,11 @@ instance
     (suc n) -> suc (f n)
 
   Show-NatF : {{Show r}} -> Show (NatF r)
+  Show-NatF .show = showDefault
   Show-NatF .showsPrec prec = \ where
-    zero -> showString "zero"
+    zero -> "zero"
     (suc n) -> showParen (prec > appPrec)
-      (showString "suc " <<< showsPrec appPrec+1 n)
+      ("suc " <> showsPrec appPrec+1 n)
 
   Recursive-Nat : Recursive Nat
   Recursive-Nat .project 0 = zero
@@ -176,10 +179,11 @@ instance
     (x :: xs) -> x :: f xs
 
   Show-ListF : {{Show a}} -> {{Show r}} -> Show (ListF a r)
+  Show-ListF .show = showDefault
   Show-ListF .showsPrec prec = \ where
-    [] -> showString "[]"
+    [] -> "[]"
     (x :: xs) -> showParen (prec > appPrec)
-      (showsPrec appPrec+1 x <<< showString " :: " <<< showsPrec 0 xs)
+      (showsPrec appPrec+1 x <> " :: " <> showsPrec 0 xs)
 
   Recursive-List : Recursive (List a)
   Recursive-List .project [] = []

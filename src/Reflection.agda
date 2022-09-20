@@ -7,6 +7,7 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -26,7 +27,8 @@ instance
   Ord-Name ._<_ = primQNameLess
 
   Show-Name : Show Name
-  Show-Name .showsPrec d n = showString (primShowQName n)
+  Show-Name .show = primShowQName
+  Show-Name .showsPrec = showsPrecDefault
 
   Functor-TC : Functor TC
   Applicative-TC : Applicative TC

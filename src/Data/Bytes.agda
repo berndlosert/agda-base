@@ -6,6 +6,7 @@ module Data.Bytes where
 
 open import Prelude
 
+open import Data.String.Show
 open import Data.Word
 
 -------------------------------------------------------------------------------
@@ -40,7 +41,8 @@ instance
   Monoid-Bytes .mempty = empty
 
   Show-Bytes : Show Bytes
-  Show-Bytes .showsPrec p ps r = showsPrec p (unpackChars ps) r
+  Show-Bytes .show = showDefault
+  Show-Bytes .showsPrec prec bs = showsPrec prec (unpackChars bs)
 
 -------------------------------------------------------------------------------
 -- FFI

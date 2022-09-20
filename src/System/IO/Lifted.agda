@@ -8,6 +8,7 @@ open import Prelude
 
 open import Control.Monad.IO.Class
 open import Control.Monad.IO.Unlift
+open import Data.String.Show
 open import System.IO as Base using ()
 
 -------------------------------------------------------------------------------

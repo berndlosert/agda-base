@@ -7,6 +7,8 @@ module Data.Tree.Balanced.TwoThree where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.String.Builder hiding (singleton)
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -43,25 +45,22 @@ instance
   Eq-Tree ._==_ t t' = toList t == toList t'
 
   Show-Tree : {{Show a}} -> Show (Tree a)
-  Show-Tree .showsPrec _ leaf = showString "leaf"
-  Show-Tree .showsPrec prec (two l x r) = showParen (prec > appPrec)
-    (showString "two "
-    <<< showsPrec appPrec+1 l
-    <<< showString " "
-    <<< showsPrec appPrec+1 x
-    <<< showString " "
-    <<< showsPrec appPrec+1 r)
-  Show-Tree .showsPrec prec (three l x m y r) = showParen (prec > appPrec)
-    (showString "three "
-    <<< showsPrec appPrec+1 l
-    <<< showString " "
-    <<< showsPrec appPrec+1 x
-    <<< showString " "
-    <<< showsPrec appPrec+1 m
-    <<< showString " "
-    <<< showsPrec appPrec+1 y
-    <<< showString " "
-    <<< showsPrec appPrec+1 r)
+  Show-Tree .show = showDefault
+  Show-Tree .showsPrec prec leaf = "leaf"
+  Show-Tree .showsPrec prec (two l x r) =
+    let
+      showTree = showsPrec appPrec+1
+      showVal = showsPrec appPrec+1
+    in
+      showParen (prec > appPrec)
+        ("two " <> showTree l <> " " <> showVal x <> " " <> showTree r)
+  Show-Tree .showsPrec prec (three l x m y r) =
+    let
+      showTree = showsPrec appPrec+1
+      showVal = showsPrec appPrec+1
+    in
+      showParen (prec > appPrec)
+        ("three " <> showTree l <> " " <> showVal x <> " " <> showTree m <> " " <> showVal y <> " " <> showTree r)
 
 -------------------------------------------------------------------------------
 -- Constructor predicates

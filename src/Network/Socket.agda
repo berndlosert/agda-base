@@ -7,6 +7,7 @@ module Network.Socket where
 open import Prelude
 
 open import Data.Bytes
+open import Data.String.Show
 open import Data.Word
 
 -------------------------------------------------------------------------------
@@ -47,11 +48,12 @@ postulate
 
 private
   postulate
-    sockedAddrShow : SocketAddr -> String
+    socketAddrShow : SocketAddr -> String
 
 instance
   Show-SocketAddr : Show SocketAddr
-  Show-SocketAddr .showsPrec _ = showString <<< sockedAddrShow
+  Show-SocketAddr .show = socketAddrShow
+  Show-SocketAddr .showsPrec = showsPrecDefault
 
 -------------------------------------------------------------------------------
 -- SocketType
@@ -179,7 +181,7 @@ postulate
 {-# COMPILE GHC setSocketOption = \ s o i -> setSocketOption s o (fromInteger i) #-}
 
 {-# COMPILE GHC SocketAddr = type SockAddr #-}
-{-# COMPILE GHC sockedAddrShow = pack . show #-}
+{-# COMPILE GHC socketAddrShow = pack . show #-}
 
 {-# COMPILE GHC AddrInfo = data AddrInfo (AddrInfo) #-}
 {-# COMPILE GHC AddrInfoFlag = data AddrInfoFlag (AI_ADDRCONFIG | AI_ALL | AI_CANONNAME | AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE | AI_V4MAPPED) #-}

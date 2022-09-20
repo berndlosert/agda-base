@@ -1,4 +1,4 @@
-module String.Parser where
+module Data.String.Parser where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -11,6 +11,8 @@ open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
+open import Data.String.Builder
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -97,21 +99,21 @@ instance
   Monoid-Parser .mempty = pure mempty
 
   Show-Consumption : Show Consumption
+  Show-Consumption .show = showDefault
   Show-Consumption .showsPrec _ = \ where
-    consumed -> showString "consumed"
-    empty -> showString "empty"
+    consumed -> "consumed"
+    empty -> "empty"
 
   Show-Result : {{Show a}} -> Show (Result a)
-  Show-Result .showsPrec _ err = showString "err"
-  Show-Result .showsPrec prec (ok x) = showParen (prec > appPrec) $
-    showString "ok " <<< showsPrec appPrec+1 x
+  Show-Result .show = showDefault
+  Show-Result .showsPrec prec = \ where
+    err -> "err"
+    (ok x) -> showParen (prec > appPrec) $ "ok " <> showsPrec appPrec+1 x
 
   Show-Reply : {{Show a}} -> Show (Reply a)
+  Show-Reply .show = showDefault
   Show-Reply .showsPrec prec (reply consumption result) =
-    showString "reply "
-      <<< showsPrec prec consumption
-      <<< showString " "
-      <<< showsPrec prec result
+    "reply " <> showsPrec prec consumption <> " " <> showsPrec prec result
 
 -------------------------------------------------------------------------------
 -- Combinators

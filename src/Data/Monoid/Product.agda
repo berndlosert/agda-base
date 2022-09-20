@@ -6,6 +6,9 @@ module Data.Monoid.Product where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -49,5 +52,6 @@ instance
   Monad-Product ._>>=_ (asProduct x) k = k x
 
   Show-Product : {{Show a}} -> Show (Product a)
-  Show-Product .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asProduct " <<< showsPrec appPrec+1 (getProduct x)
+  Show-Product .show = showDefault
+  Show-Product .showsPrec prec x = showParen (prec > appPrec)
+    ("asProduct " <> showsPrec appPrec+1 (getProduct x))

@@ -8,6 +8,8 @@ open import Prelude
 
 open import Control.Comonad
 open import Data.Foldable
+open import Data.String.Builder
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -58,5 +60,6 @@ instance
   Comonad-Identity .extend f x = asIdentity (f x)
 
   Show-Identity : {{Show a}} -> Show (Identity a)
+  Show-Identity .show = showDefault
   Show-Identity .showsPrec prec x = showParen (prec > appPrec)
-    (showString "asIdentity " <<< showsPrec appPrec+1 (runIdentity x))
+    ("asIdentity " <> showsPrec appPrec+1 (runIdentity x))

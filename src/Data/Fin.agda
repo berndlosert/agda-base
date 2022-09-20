@@ -6,6 +6,8 @@ module Data.Fin where
 
 open import Prelude
 
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Fin
 -------------------------------------------------------------------------------
@@ -46,4 +48,5 @@ module _ {n : Nat} where
     HasMul-Fin ._*_ k m = asFin n $ (toNat k * toNat m)
 
     Show-Fin : Show (Fin n)
-    Show-Fin .showsPrec _ m = showString $ show $ toNat m
+    Show-Fin .show m = show (toNat m)
+    Show-Fin .showsPrec = showsPrecDefault

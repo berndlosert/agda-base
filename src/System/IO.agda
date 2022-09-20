@@ -7,6 +7,7 @@ module System.IO where
 open import Prelude
 
 open import Data.Int64
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -118,7 +119,8 @@ instance
   Eq-Handle ._==_ = hEq
 
   Show-Handle : Show Handle
-  Show-Handle .showsPrec _ h = showString $ hShow h
+  Show-Handle .show = hShow
+  Show-Handle .showsPrec = showsPrecDefault
 
 -------------------------------------------------------------------------------
 -- File IO FFI

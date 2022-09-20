@@ -8,6 +8,8 @@ open import Prelude hiding (map)
 
 open import Data.Foldable hiding (toList)
 open import Data.List as List using ()
+open import Data.String.Builder hiding (singleton)
+open import Data.String.Show
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 -------------------------------------------------------------------------------
@@ -117,5 +119,6 @@ instance
     foldr (\ where (asKeyVal _ x) acc -> step x acc) init (unMap kvs)
 
   Show-Map : {{Show k}} -> {{Show v}} -> Show (Map k v)
-  Show-Map .showsPrec d kvs = showParen (d > 10) $
-    showString "fromList " <<< shows (toList kvs)
+  Show-Map .show = showDefault
+  Show-Map .showsPrec prec kvs = showParen (prec > 10)
+    ("fromList " <> showsPrec prec (toList kvs))

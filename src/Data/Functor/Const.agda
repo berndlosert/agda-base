@@ -9,6 +9,8 @@ open import Prelude
 open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Functor.Contravariant
+open import Data.String.Builder
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -58,5 +60,6 @@ instance
   Applicative-Const ._<*>_ f x = asConst (getConst f <> getConst x)
 
   Show-Const : {{Show a}} -> Show (Const a b)
+  Show-Const .show = showDefault
   Show-Const .showsPrec prec x = showParen (prec > appPrec)
-    (showString "asConst " <<< showsPrec appPrec+1 (getConst x))
+    ("asConst " <> showsPrec appPrec+1 (getConst x))

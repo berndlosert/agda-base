@@ -7,6 +7,8 @@ module Data.Tree.Unbalanced.Binary where
 open import Prelude hiding (map)
 
 open import Data.Foldable
+open import Data.String.Builder hiding (singleton)
+open import Data.String.Show
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -43,14 +45,13 @@ instance
     (node l x r) (node l' x' r') -> x == x' && l == l' && r == r'
 
   Show-Tree : {{Show a}} -> Show (Tree a)
-  Show-Tree .showsPrec _ leaf = showString "leaf"
-  Show-Tree .showsPrec prec (node l x r) = showParen (prec > appPrec) $
-    showString "node "
-      <<< showsPrec appPrec+1 l
-      <<< showString " "
-      <<< showsPrec appPrec+1 x
-      <<< showString " "
-      <<< showsPrec appPrec+1 r
+  Show-Tree .show = showDefault
+  Show-Tree .showsPrec prec leaf = "leaf"
+  Show-Tree .showsPrec prec (node l x r) = showParen (prec > appPrec)
+    "node "
+      <> showsPrec appPrec+1 l <> " "
+      <> showsPrec appPrec+1 x <> " "
+      <> showsPrec appPrec+1 r
 
 -------------------------------------------------------------------------------
 -- Basic operations

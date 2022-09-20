@@ -6,6 +6,7 @@ module Debug where
 
 open import Prelude
 
+open import Data.String.Show
 open import System.IO.Unsafe
 
 -------------------------------------------------------------------------------

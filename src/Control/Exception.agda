@@ -6,6 +6,8 @@ module Control.Exception where
 
 open import Prelude
 
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -31,8 +33,9 @@ postulate
 
 instance
   Show-SomeException : Show SomeException
-  Show-SomeException .showsPrec _ = showString <<< displayException
-  
+  Show-SomeException .show = displayException
+  Show-SomeException .showsPrec = showsPrecDefault
+
 -------------------------------------------------------------------------------
 -- MonadThrow
 -------------------------------------------------------------------------------
@@ -166,7 +169,8 @@ postulate
 
 instance
   Show-IOException : Show IOException
-  Show-IOException .showsPrec _ = showString <<< displayException
+  Show-IOException .show = displayException
+  Show-IOException .showsPrec = showsPrecDefault
 
 -------------------------------------------------------------------------------
 -- IO instances
@@ -195,8 +199,8 @@ instance
 
   MonadMask-IO : MonadMask IO
   MonadMask-IO .mask io = maskIO \ restore -> io (runRestoreIO restore)
-  MonadMask-IO .uninterruptibleMask io = 
-    uninterruptibleMaskIO \ restore -> io (runRestoreIO restore) 
+  MonadMask-IO .uninterruptibleMask io =
+    uninterruptibleMaskIO \ restore -> io (runRestoreIO restore)
 
   MonadBracket-IO : MonadBracket IO
   MonadBracket-IO  = record {}
@@ -230,7 +234,7 @@ instance
   maskIO _ io = mask $ \ restore -> io $ RestoreIO (const restore)
 
   uninterruptibleMaskIO :: () -> (RestoreIO -> IO b) -> IO b
-  uninterruptibleMaskIO _ io = uninterruptibleMask $ 
+  uninterruptibleMaskIO _ io = uninterruptibleMask $
     \ restore -> io $ RestoreIO (const restore)
 #-}
 

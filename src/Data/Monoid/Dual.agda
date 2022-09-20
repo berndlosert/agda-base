@@ -6,6 +6,9 @@ module Data.Monoid.Dual where
 
 open import Prelude
 
+open import Data.String.Builder
+open import Data.String.Show
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -43,5 +46,6 @@ instance
   Monad-Dual ._>>=_ (asDual x) k = k x
 
   Show-Dual : {{Show a}} -> Show (Dual a)
-  Show-Dual .showsPrec prec x = showParen (prec > appPrec) $
-    showString "asDual " <<< showsPrec appPrec+1 (getDual x)
+  Show-Dual .show = showDefault
+  Show-Dual .showsPrec prec x = showParen (prec > appPrec)
+    ("asDual " <> showsPrec appPrec+1 (getDual x))
