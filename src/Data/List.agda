@@ -6,7 +6,6 @@ module Data.List where
 
 open import Prelude
 
-open import Data.Bifunctor
 open import Data.Filterable
 open import Data.Foldable
 open import Data.Monoid.Endo
@@ -229,7 +228,8 @@ zipCons heads tails =
 
 unzip : List (Pair a b) -> Pair (List a) (List b)
 unzip [] = ([] , [])
-unzip ((x , y) :: ps) = bimap (x ::_) (y ::_) (unzip ps)
+unzip ((x , y) :: ps) = case (unzip ps) of \ where
+  (xs , ys) -> (x :: xs , y :: ys)
 
 -------------------------------------------------------------------------------
 -- Predicates
@@ -315,7 +315,8 @@ breakOn needle haystack =
     then ([] , haystack)
     else case haystack of \ where
       [] -> ([] , [])
-      (x :: xs) -> lmap (x ::_) (breakOn needle xs)
+      (x :: xs) -> case (breakOn needle xs) of \ where
+        (ys , zs) -> (x :: ys , zs)
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
 splitOn needle [] = singleton []
