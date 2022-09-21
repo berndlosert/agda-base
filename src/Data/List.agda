@@ -280,7 +280,9 @@ module _ {{_ : Ord a}} where
   sort = sortBy compare
 
   sortOn : (b -> a) -> List b -> List b
-  sortOn f = map snd <<< sortBy (compare on fst) <<< map (pair f id)
+  sortOn f = map snd
+    <<< sortBy (compare on fst)
+    <<< map (\ x -> let y = f x in y seq (y , x))
 
 -------------------------------------------------------------------------------
 -- Sublists

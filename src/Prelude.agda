@@ -266,9 +266,6 @@ fromRight x _ = x
 -- Pair primitives
 -------------------------------------------------------------------------------
 
-pair : (a -> b) -> (a -> c) -> a -> Pair b c
-pair f g x = (f x , g x)
-
 swap : Pair a b -> Pair b a
 swap = pair snd fst
 
