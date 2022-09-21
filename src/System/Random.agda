@@ -6,7 +6,6 @@ module System.Random where
 
 open import Prelude
 
-open import Data.Bifunctor
 open import Data.Bits
 open import Data.Float as Float using ()
 open import Data.IORef
@@ -219,9 +218,9 @@ instance
   RandomR-Bool : RandomR Bool
   RandomR-Bool .randomR (false , false) g = (false , g)
   RandomR-Bool .randomR (true , true) g = (true , g)
-  RandomR-Bool .randomR _ g = flip lmap (genNat' 1 g) \ where
-    0 -> false
-    _ -> true
+  RandomR-Bool .randomR _ g = case genNat' 1 g of \ where
+    (0 , g') -> (false , g')
+    (_ , g') -> (true , g')
 
   RandomR-Nat : RandomR Nat
   RandomR-Nat .randomR (m , n) g =
@@ -231,7 +230,8 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else lmap (_+ lo) (genNat' (hi - lo) g)
+        else case genNat' (hi - lo) g of \ where
+          (n , g') -> (n + lo , g')
 
   RandomR-Int : RandomR Int
   RandomR-Int .randomR (i , j) g =
@@ -241,8 +241,8 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else lmap (\ n -> fromNat n + lo)
-          (genNat' (toNat (hi - lo)) g)
+        else case genNat' (toNat (hi - lo)) g of \ where
+          (n , g') -> (fromNat n + lo , g')
 
   RandomR-Float : RandomR Float
   RandomR-Float .randomR (x , y) g =
@@ -252,4 +252,5 @@ instance
     in
       if lo == hi
         then (lo , g)
-        else lmap (\ x -> x * lo + (1.0 - x) * hi) (genFloat g)
+        else case genFloat g of \ where
+          (x , g') -> (x * lo + (1.0 - x) * hi , g')

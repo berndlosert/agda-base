@@ -13,6 +13,7 @@ open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
+open import Data.Bifunctor
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -43,7 +44,7 @@ mapEitherT : (m (Either e a) -> n (Either e' b)) -> EitherT e m a -> EitherT e' 
 mapEitherT f m = asEitherT (f (runEitherT m))
 
 withEitherT : {{Functor m}} -> (e -> e') -> EitherT e m a -> EitherT e' m a
-withEitherT f t = asEitherT $ map (lmap f) (runEitherT t)
+withEitherT f t = asEitherT $ lmap f <$> runEitherT t
 
 instance
   Functor-EitherT : {{Functor m}} -> Functor (EitherT e m)
