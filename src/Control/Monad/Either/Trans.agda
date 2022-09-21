@@ -13,7 +13,6 @@ open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
-open import Data.Bifunctor
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -92,7 +91,7 @@ instance
     (w , x) <- listen m
     pure $ (w ,_) <$> x
   MonadWriter-EitherT .pass = mapEitherT \ m ->
-    pass $ m >>= pure <<< either (pair (const id) left) (bimap id right)
+    pass $ m >>= pure <<< either (pair (const id) left) (map right)
 
   MonadState-EitherT : {{MonadState s m}} -> MonadState s (EitherT e m)
   MonadState-EitherT .state = lift <<< state
