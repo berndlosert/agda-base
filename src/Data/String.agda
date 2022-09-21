@@ -7,7 +7,6 @@ module Data.String where
 open import Prelude
 
 open import Agda.Builtin.String
-open import Data.Bifunctor
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.String.Show
@@ -58,7 +57,9 @@ uncons s = case primStringUncons s of \ where
   nothing -> nothing
 
 unsnoc : String -> Maybe (Pair String Char)
-unsnoc s = lmap pack <$> List.unsnoc (unpack s)
+unsnoc s = case List.unsnoc (unpack s) of \ where
+  nothing -> nothing
+  (just (cs , c)) -> just (pack cs , c)
 
 head : String -> Maybe Char
 head s = fst <$> uncons s
@@ -135,13 +136,16 @@ dropWhile : (Char -> Bool) -> String -> String
 dropWhile p s = pack $ List.dropWhile p $ unpack s
 
 span : (Char -> Bool) -> String -> Pair String String
-span p s = bimap pack pack $ List.span p $ unpack s
+span p s = case List.span p (unpack s) of \ where
+  (cs , cs') -> (pack cs , pack cs')
 
 break : (Char -> Bool) -> String -> Pair String String
-break p s = bimap pack pack $ List.break p $ unpack s
+break p s = case List.break p (unpack s) of \ where
+  (cs , cs') -> (pack cs , pack cs')
 
 breakOn : String -> String -> Pair String String
-breakOn delim s = bimap pack pack $ List.breakOn (unpack delim) (unpack s)
+breakOn delim s = case List.breakOn (unpack delim) (unpack s) of \ where
+  (cs , cs') -> (pack cs , pack cs')
 
 {-# FOREIGN GHC import qualified Data.Text as Text #-}
 {-# COMPILE GHC take = Text.take . fromInteger #-}

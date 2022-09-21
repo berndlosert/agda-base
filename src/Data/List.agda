@@ -228,7 +228,7 @@ zipCons heads tails =
 
 unzip : List (Pair a b) -> Pair (List a) (List b)
 unzip [] = ([] , [])
-unzip ((x , y) :: ps) = case (unzip ps) of \ where
+unzip ((x , y) :: ps) = case unzip ps of \ where
   (xs , ys) -> (x :: xs , y :: ys)
 
 -------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ breakOn needle haystack =
     then ([] , haystack)
     else case haystack of \ where
       [] -> ([] , [])
-      (x :: xs) -> case (breakOn needle xs) of \ where
+      (x :: xs) -> case breakOn needle xs of \ where
         (ys , zs) -> (x :: ys , zs)
 
 splitOn : {{Eq a}} -> List a -> List a -> List (List a)
