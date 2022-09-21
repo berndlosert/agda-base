@@ -6,7 +6,6 @@ module Data.Sequence where
 
 open import Prelude
 
-open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
@@ -197,7 +196,8 @@ inits xs = cons azero (asSeq (Tree.inits (asElem <<< asSeq) (unSeq xs)))
 -------------------------------------------------------------------------------
 
 splitAt : Nat -> Seq a -> Pair (Seq a) (Seq a)
-splitAt n xs = bimap asSeq asSeq $ Tree.split (\ m -> n < getSum m) (unSeq xs)
+splitAt n xs = case Tree.split (\ m -> n < getSum m) (unSeq xs) of \ where
+  (ys , zs) -> (asSeq ys , asSeq zs)
 
 take : Nat -> Seq a -> Seq a
 take n = fst <<< splitAt n
