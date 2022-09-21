@@ -252,7 +252,7 @@ lower : Parser Char
 lower = satisfy Char.isLower
 
 upper : Parser Char
-upper = satisfy (Char.isAlpha && (not Char.isLower))
+upper = satisfy (| Char.isAlpha && (not <<< Char.isLower) |)
 
 digit : Parser Char
 digit = satisfy Char.isDigit
