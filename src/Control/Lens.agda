@@ -288,7 +288,7 @@ isn't : APrism s t a b -> s -> Bool
 isn't ap s = either (const true) (const false) (matching ap s)
 
 is : APrism s t a b -> s -> Bool
-is ap = not (isn't ap)
+is ap = not <<< isn't ap
 
 -------------------------------------------------------------------------------
 -- Some general optics

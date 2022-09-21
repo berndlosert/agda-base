@@ -91,8 +91,11 @@ instance
   MonadWriter-EitherT .listen = mapEitherT \ m -> do
     (w , x) <- listen m
     pure $ (w ,_) <$> x
-  MonadWriter-EitherT .pass = mapEitherT \ m ->
-    pass $ m >>= pure <<< either (pair (const id) left) (map right)
+  MonadWriter-EitherT .pass = mapEitherT \ m -> pass do
+    a <- m
+    case a of \ where
+      (left l) -> pure (id , left l)
+      (right (f , r)) -> pure (f , right r)
 
   MonadState-EitherT : {{MonadState s m}} -> MonadState s (EitherT e m)
   MonadState-EitherT .state = lift <<< state

@@ -207,29 +207,19 @@ if_then_else_ : Bool -> a -> a -> a
 if true then x else _ = x
 if false then _ else x = x
 
-record Boolean (a : Set) : Set where
-  infixr 2 _||_
-  infixr 3 _&&_
-  field
-    not : a -> a
-    _||_ : a -> a -> a
-    _&&_ : a -> a -> a
+not : Bool -> Bool
+not false = true
+not true = false
 
-open Boolean {{...}} public
+infixr 2 _||_
+_||_ : Bool -> Bool -> Bool
+false || x = x
+true || _ = true
 
-instance
-  Boolean-Bool : Boolean Bool
-  Boolean-Bool .not false = true
-  Boolean-Bool .not true = false
-  Boolean-Bool ._||_ false x = x
-  Boolean-Bool ._||_ true _ = true
-  Boolean-Bool ._&&_ false _ = false
-  Boolean-Bool ._&&_ true x = x
-
-  Boolean-Function : Boolean (a -> Bool)
-  Boolean-Function .not f x = not (f x)
-  Boolean-Function ._||_ f g x = f x || g x
-  Boolean-Function ._&&_ f g x = f x && g x
+infixr 3 _&&_
+_&&_ : Bool -> Bool -> Bool
+false && _ = false
+true && x = x
 
 ------------------------------------------------------------------------------
 -- Either primitives
@@ -267,7 +257,7 @@ fromRight x _ = x
 -------------------------------------------------------------------------------
 
 swap : Pair a b -> Pair b a
-swap = pair snd fst
+swap (x , y) = (y , x)
 
 dup : a -> Pair a a
 dup x = (x , x)
