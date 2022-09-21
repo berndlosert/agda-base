@@ -275,10 +275,10 @@ breakr p xs =
   foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , azero) (indicesr p xs)
 
 spanl : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-spanl p = breakl (not p)
+spanl p = breakl (not <<< p)
 
 spanr : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-spanr p = breakr (not p)
+spanr p = breakr (not <<< p)
 
 takeWhileL : (a -> Bool) -> Seq a -> Seq a
 takeWhileL p = fst <<< spanl p
