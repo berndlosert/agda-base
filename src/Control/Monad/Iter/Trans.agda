@@ -52,6 +52,15 @@ never = asIterT $ pure (right never)
 execIterT : {{Monad m}} -> IterT m a -> m a
 execIterT iter = runIterT iter >>= either pure execIterT
 
+-- Safer version of execIterT' that stops after n steps.
+execIterT' : {{Monad m}} -> Nat -> IterT m a -> m (Maybe a)
+execIterT' 0 _ = pure nothing
+execIterT' (suc n) iter = do
+  res <- runIterT iter
+  case res of \ where
+    (left x) -> pure (just x)
+    (right iter') -> execIterT' n iter'
+
 hoistIterT : {{Monad n}}
   -> (forall {a} -> m a -> n a)
   -> IterT m a

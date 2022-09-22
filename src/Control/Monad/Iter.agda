@@ -33,3 +33,6 @@ Iter = IterT Identity
 
 execIter : Iter a -> a
 execIter = runIdentity <<< execIterT
+
+execIter' : Nat -> Iter a -> Maybe a
+execIter' n = runIdentity <<< execIterT' n
