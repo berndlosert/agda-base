@@ -4,8 +4,9 @@ module Data.Profunctor.Choice where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude as Prelude
 
+open import Control.Category
 open import Data.Profunctor
 
 -------------------------------------------------------------------------------
@@ -23,14 +24,14 @@ private
 record Choice (p : Set -> Set -> Set) : Set where
   field
     overlap {{super}} : Profunctor p
-    choicel : p a b -> p (Either a c) (Either b c)
+    mapLeft : p a b -> p (Either a c) (Either b c)
 
-  choicer : p a b -> p (Either c a) (Either c b)
-  choicer = dimap (either right left) (either right left) <<< choicel
+  mapRight : p a b -> p (Either c a) (Either c b)
+  mapRight = dimap mirror mirror <<< mapLeft
 
   infixr 2 _+++_
   _+++_ : {{Category p}} -> p a b -> p c d -> p (Either a c) (Either b d)
-  f +++ g = choicel f >>> choicer g
+  f +++ g = mapLeft f andThen mapRight g
 
   infixr 2 _|||_
   _|||_ : {{Category p}} -> p a c -> p b c -> p (Either a b) c
@@ -44,5 +45,5 @@ open Choice {{...}} public
 
 instance
   Choice-Function : Choice Function
-  Choice-Function .choicel ab (left a) = left (ab a)
-  Choice-Function .choicel _ (right c) = right c
+  Choice-Function .mapLeft ab (left a) = left (ab a)
+  Choice-Function .mapLeft _ (right c) = right c

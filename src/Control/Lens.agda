@@ -67,7 +67,7 @@ instance
   Profunctor-Tagged .lcmap _ (asTagged x) = asTagged x
 
   Choice-Tagged : Choice Tagged
-  Choice-Tagged .choicel (asTagged x) = asTagged (left x)
+  Choice-Tagged .mapLeft (asTagged x) = asTagged (left x)
 
 data Exchange (a b s t : Set) : Set where
   anExchange : (s -> a) -> (b -> t) -> Exchange a b s t
@@ -91,7 +91,7 @@ instance
   Profunctor-Market .lcmap f (aMarket bt seta) = aMarket bt (seta <<< f)
 
   Choice-Market : Choice (Market a b)
-  Choice-Market .choicel (aMarket bt seta) =
+  Choice-Market .mapLeft (aMarket bt seta) =
     aMarket (left <<< bt) \ where
       (left s) -> either (left <<< left) right (seta s)
       (right c) -> left (right c)
@@ -139,7 +139,7 @@ lens : (s -> a) -> (s -> b -> t) -> Lens s t a b
 lens v u f s = map (u s) (f (v s))
 
 prism : (b -> t)  -> (s -> Either t a) -> Prism s t a b
-prism bt seta = dimap seta (either pure (map bt)) <<< choicer
+prism bt seta = dimap seta (either pure (map bt)) <<< mapRight
 
 prism' : (b -> s)  -> (s -> Maybe a) -> Prism s s a b
 prism' bs sma = prism bs (\ s -> maybe (left s) right (sma s))

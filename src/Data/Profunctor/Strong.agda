@@ -6,6 +6,7 @@ module Data.Profunctor.Strong where
 
 open import Prelude
 
+open import Control.Category
 open import Data.Profunctor
 
 -------------------------------------------------------------------------------
@@ -23,18 +24,18 @@ private
 record Strong (p : Set -> Set -> Set) : Set where
   field
     overlap {{Profunctor-super}} : Profunctor p
-    strongl : p a b -> p (Pair a c) (Pair b c)
+    mapFst : p a b -> p (Pair a c) (Pair b c)
 
-  strongr : p a b -> p (Pair c a) (Pair c b)
-  strongr c = dimap swap swap (strongl c)
+  mapSnd : p a b -> p (Pair c a) (Pair c b)
+  mapSnd = dimap swap swap <<< mapFst
 
   infixr 3 _***_
   _***_ : {{Category p}} -> p a b -> p c d -> p (Pair a c) (Pair b d)
-  f *** g = strongl f >>> strongr g
+  f *** g = mapFst f andThen mapSnd g
 
   infixr 3 _&&&_
   _&&&_ : {{Category p}} -> p a b -> p a c -> p a (Pair b c)
-  f &&& g = arr dup >>> strongr g >>> strongl f
+  f &&& g = arr dup andThen mapSnd g andThen mapFst f
 
 open Strong {{...}} public
 
@@ -44,4 +45,4 @@ open Strong {{...}} public
 
 instance
   Strong-Function : Strong Function
-  Strong-Function .strongl f (a , c) = (f a , c)
+  Strong-Function .mapFst f (a , c) = (f a , c)

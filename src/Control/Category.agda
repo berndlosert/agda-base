@@ -1,4 +1,4 @@
-module Data.Profunctor where
+module Control.Category where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -6,34 +6,30 @@ module Data.Profunctor where
 
 open import Prelude
 
-open import Control.Category
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
 private
   variable
-    a b c d : Set
-
+    a b c : Set
 
 -------------------------------------------------------------------------------
--- Profunctor
+-- Category
 -------------------------------------------------------------------------------
 
-record Profunctor (p : Set -> Set -> Set) : Set where
+record Category {k : Set} (p : k -> k -> Set) : Set where
   field
-    overlap {{Functor-super}} : Functor (p a)
-    lcmap : (b -> a) -> p a c -> p b c
+    compose : {a b c : k} -> p b c -> p a b -> p a c
+    identity : {a : k} -> p a a
 
-  dimap : (a -> b) -> (c -> d) -> p b c -> p a d
-  dimap f g = lcmap f <<< map g
+  infixr 9 _andThen_
+  _andThen_ : {a b c : k} -> p a b -> p b c -> p a c
+  _andThen_ = flip compose
 
-  arr : {{Category p}} -> (a -> b) -> p a b
-  arr f = map f identity
-
-open Profunctor {{...}} public
+open Category {{...}} public
 
 instance
-  Profunctor-Function : Profunctor Function
-  Profunctor-Function .lcmap = _>>>_
+  Category-Function : Category Function
+  Category-Function .compose = _<<<_
+  Category-Function .identity = id

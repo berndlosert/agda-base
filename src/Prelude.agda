@@ -146,8 +146,19 @@ fromJust nothing = panic "Prelude.fromJust: nothing"
 the : (a : Set) -> a -> a
 the _ x = x
 
+id : a -> a
+id x = x
+
 const : a -> b -> a
 const x _ = x
+
+infixr 9 _<<<_
+_<<<_ : (b -> c) -> (a -> b) -> a -> c
+g <<< f = \ x -> g (f x)
+
+infixr 9 _>>>_
+_>>>_ : (a -> b) -> (b -> c) -> a -> c
+f >>> g = \ x -> g (f x)
 
 flip : (a -> b -> c) -> b -> a -> c
 flip f x y = f y x
@@ -765,27 +776,6 @@ instance
 
   Monoid-IO : {{Monoid a}} -> Monoid (IO a)
   Monoid-IO .mempty = pureIO mempty
-
--------------------------------------------------------------------------------
--- Category
--------------------------------------------------------------------------------
-
-record Category {k : Set} (p : k -> k -> Set) : Set where
-  infixr 9 _<<<_
-  field
-    _<<<_ : {a b c : k} -> p b c -> p a b -> p a c
-    id : {a : k} -> p a a
-
-  infixr 9 _>>>_
-  _>>>_ : {a b c : k} -> p a b -> p b c -> p a c
-  _>>>_ = flip _<<<_
-
-open Category {{...}} public
-
-instance
-  Category-Function : Category Function
-  Category-Function ._<<<_ g f x = g (f x)
-  Category-Function .id x = x
 
 -------------------------------------------------------------------------------
 -- Functor
