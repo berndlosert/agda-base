@@ -31,7 +31,7 @@ record Choice (p : Set -> Set -> Set) : Set where
 
   infixr 2 _+++_
   _+++_ : {{Category p}} -> p a b -> p c d -> p (Either a c) (Either b d)
-  f +++ g = mapLeft f andThen mapRight g
+  f +++ g = (mapLeft f) andThen (mapRight g)
 
   infixr 2 _|||_
   _|||_ : {{Category p}} -> p a c -> p b c -> p (Either a b) c
