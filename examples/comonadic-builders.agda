@@ -4,6 +4,8 @@ open import Prelude
 
 open import Control.Comonad
 open import Data.Monoid.Any
+open import Data.String.Builder hiding (Builder)
+open import Data.String.Show
 open import System.IO
 
 record Settings : Set where
@@ -27,15 +29,16 @@ open Project
 
 instance
   Show-Settings : Show Settings
+  Show-Settings .show = showDefault
   Show-Settings .showsPrec prec (asSettings x y z) =
-    showString "record { "
-    <> showString "hasLibrary = "
+    "record { "
+    <> "hasLibrary = "
     <> showsPrec prec x
-    <> showString "; github = "
+    <> "; github = "
     <> showsPrec prec y
-    <> showString "; travis = "
+    <> "; travis = "
     <> showsPrec prec z
-    <> showString " }"
+    <> " }"
 
   Semigroup-Settings : Semigroup Settings
   Semigroup-Settings ._<>_ s s' = \ where
@@ -50,17 +53,18 @@ instance
     .travis -> asAny false
 
   Show-Project : Show Project
+  Show-Project .show = showDefault
   Show-Project .showsPrec prec (asProject w x y z) =
-    showString "record { "
-    <> showString "name = "
+    "record { "
+    <> "name = "
     <> showsPrec prec w
-    <> showString "; hasLibrary = "
+    <> "; hasLibrary = "
     <> showsPrec prec x
-    <> showString "; github = "
+    <> "; github = "
     <> showsPrec prec y
-    <> showString "; travis = "
+    <> "; travis = "
     <> showsPrec prec z
-    <> showString " }"
+    <> " }"
 
 Builder : Set
 Builder = Settings -> Project

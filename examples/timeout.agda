@@ -2,6 +2,7 @@ open import Prelude
 
 open import Control.Concurrent
 open import Control.Exception
+open import Data.String.Show
 open import System.IO
 open import System.Time
 

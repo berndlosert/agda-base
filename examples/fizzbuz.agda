@@ -1,6 +1,7 @@
 open import Prelude
 open import Data.Enum
 open import Data.Foldable
+open import Data.String.Show
 open import System.IO
 
 fizz buzz num fizzbuzz : Nat -> Maybe String

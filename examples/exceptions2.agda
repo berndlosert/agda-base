@@ -1,6 +1,7 @@
 open import Prelude
 
 open import Control.Exception
+open import Data.String.Show
 open import System.IO
 
 data Dummy : Set where
@@ -8,7 +9,8 @@ data Dummy : Set where
 
 instance
   Show-Dummy : Show Dummy
-  Show-Dummy .showsPrec _ aDummy = showString "aDummy"
+  Show-Dummy .show _ = "aDummy"
+  Show-Dummy .showsPrec = showsPrecDefault
 
 postulate
   instance
@@ -37,4 +39,3 @@ main = do
   --printer $ try $ evaluate $ throw Dummy
   printer $ try $ join $ pure $! throw aDummy
   printer $ try $ join $ pure $ throw aDummy
- 

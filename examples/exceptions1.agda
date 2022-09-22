@@ -9,7 +9,7 @@ data MyException : Set where
 postulate
   instance
     Exception-MyException : Exception MyException
-    
+
   unsafeFun : Bool -> IO Bool
 
 {-# FOREIGN GHC

@@ -6,6 +6,7 @@ open import Data.List
 open import Data.String using (pack)
 open import Data.Tree.Rose
 open import Debug
+open import Data.String.Show
 open import System.IO
 
 variable
@@ -55,11 +56,11 @@ suff {a} = para go
 sum' : List Nat -> Nat
 sum' xs = flip runReader nothing (cata go xs)
   where
-    go : ListF Nat (Reader (Maybe Nat) Nat) -> Reader (Maybe Nat) Nat 
+    go : ListF Nat (Reader (Maybe Nat) Nat) -> Reader (Maybe Nat) Nat
     go [] = pure 0
     go (x :: r) = do
       prev <- ask
-      r' <- local (const (just x)) r 
+      r' <- local (const (just x)) r
       trace ("prev: " <> show prev) $ pure (x + r')
 
 main : IO Unit

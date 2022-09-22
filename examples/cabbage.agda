@@ -3,6 +3,7 @@ open import Prelude
 open import Control.Monad.Iter
 open import Data.Foldable
 open import Data.List as List using ()
+open import Data.String.Show
 open import System.IO
 
 variable
@@ -23,11 +24,12 @@ instance
     _ _ -> false
 
   Show-Item : Show Item
-  Show-Item .showsPrec d = \ where
-    wolf -> showString "wolf"
-    sheep -> showString "sheep"
-    cabbage -> showString "cabbage"
-    farmer -> showString "farmer"
+  Show-Item .show = \ where
+    wolf -> "wolf"
+    sheep -> "sheep"
+    cabbage -> "cabbage"
+    farmer -> "farmer"
+  Show-Item .showsPrec = showsPrecDefault
 
 _eats_ : Item -> Item -> Bool
 sheep eats cabbage = true
@@ -80,7 +82,7 @@ solution2 : Iter Situation
 solution2 = solutions' initial
   where
     solutions' : Situation -> Iter Situation
-    solutions' a = 
+    solutions' a =
       if success a
         then pure a
         else delay $ asum $ map solutions' (move a)

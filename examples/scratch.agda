@@ -16,7 +16,7 @@ foo4 : List Int
 foo4 = enumFromTo 8 29
 
 main : IO Unit
-main = do 
+main = do
   print foo1
   print foo2
   print foo3
