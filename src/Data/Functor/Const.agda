@@ -9,7 +9,6 @@ open import Prelude
 open import Data.Bifunctor
 open import Data.Foldable
 open import Data.Functor.Contravariant
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -61,5 +60,4 @@ instance
 
   Show-Const : {{Show a}} -> Show (Const a b)
   Show-Const .show = showDefault
-  Show-Const .showsPrec prec x = showParen (prec > appPrec)
-    ("asConst " <> showsPrec appPrec+1 (getConst x))
+  Show-Const .showsPrec prec x = showsUnaryWith showsPrec "Const" prec x

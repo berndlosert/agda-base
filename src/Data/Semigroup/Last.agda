@@ -6,7 +6,6 @@ module Data.Semigroup.Last where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -47,5 +46,5 @@ instance
 
   Show-Last : {{Show a}} -> Show (Last a)
   Show-Last .show = showDefault
-  Show-Last .showsPrec prec x = showParen (prec > appPrec)
-    ("asLast " <> showsPrec appPrec+1 (getLast x))
+  Show-Last .showsPrec prec (asLast x) =
+    showsUnaryWith showsPrec "asLast" prec x

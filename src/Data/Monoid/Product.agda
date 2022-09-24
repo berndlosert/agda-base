@@ -6,7 +6,6 @@ module Data.Monoid.Product where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -53,5 +52,5 @@ instance
 
   Show-Product : {{Show a}} -> Show (Product a)
   Show-Product .show = showDefault
-  Show-Product .showsPrec prec x = showParen (prec > appPrec)
-    ("asProduct " <> showsPrec appPrec+1 (getProduct x))
+  Show-Product .showsPrec prec (asProduct x) =
+    showsUnaryWith showsPrec "asProduct" prec x

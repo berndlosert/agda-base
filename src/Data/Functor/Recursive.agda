@@ -10,7 +10,6 @@ open import Control.Comonad
 open import Control.Comonad.Cofree
 open import Control.Monad.Free
 open import Data.Functor.Identity
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -154,8 +153,7 @@ instance
   Show-NatF .show = showDefault
   Show-NatF .showsPrec prec = \ where
     zero -> "zero"
-    (suc n) -> showParen (prec > appPrec)
-      ("suc " <> showsPrec appPrec+1 n)
+    (suc n) -> showsUnaryWith showsPrec "suc" prec n
 
   Recursive-Nat : Recursive Nat
   Recursive-Nat .project 0 = zero

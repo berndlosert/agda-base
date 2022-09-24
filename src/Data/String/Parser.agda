@@ -11,7 +11,6 @@ open import Data.Foldable
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -108,12 +107,12 @@ instance
   Show-Result .show = showDefault
   Show-Result .showsPrec prec = \ where
     err -> "err"
-    (ok x) -> showParen (prec > appPrec) $ "ok " <> showsPrec appPrec+1 x
+    (ok x) -> showsUnaryWith showsPrec "ok" prec x
 
   Show-Reply : {{Show a}} -> Show (Reply a)
   Show-Reply .show = showDefault
   Show-Reply .showsPrec prec (reply consumption result) =
-    "reply " <> showsPrec prec consumption <> " " <> showsPrec prec result
+    showsBinaryWith showsPrec showsPrec "reply" prec consumption result
 
 -------------------------------------------------------------------------------
 -- Combinators

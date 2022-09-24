@@ -6,7 +6,6 @@ module Data.Semigroup.First where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -47,5 +46,5 @@ instance
 
   Show-First : {{Show a}} -> Show (First a)
   Show-First .show = showDefault
-  Show-First .showsPrec prec x = showParen (prec > appPrec)
-    ("asFirst " <> showsPrec appPrec+1 (getFirst x))
+  Show-First .showsPrec prec (asFirst x) =
+    showsUnaryWith showsPrec "asFirst" prec x

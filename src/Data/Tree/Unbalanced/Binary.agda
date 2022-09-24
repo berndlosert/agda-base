@@ -7,7 +7,6 @@ module Data.Tree.Unbalanced.Binary where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.String.Builder hiding (singleton)
 open import Data.String.Show
 open import Data.Traversable
 

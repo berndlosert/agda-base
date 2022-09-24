@@ -6,7 +6,6 @@ module Data.Monoid.Dual where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -47,5 +46,5 @@ instance
 
   Show-Dual : {{Show a}} -> Show (Dual a)
   Show-Dual .show = showDefault
-  Show-Dual .showsPrec prec x = showParen (prec > appPrec)
-    ("asDual " <> showsPrec appPrec+1 (getDual x))
+  Show-Dual .showsPrec prec (asDual x) =
+    showsUnaryWith showsPrec "asDual" prec x

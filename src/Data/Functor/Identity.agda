@@ -8,7 +8,6 @@ open import Prelude
 
 open import Control.Comonad
 open import Data.Foldable
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -61,5 +60,5 @@ instance
 
   Show-Identity : {{Show a}} -> Show (Identity a)
   Show-Identity .show = showDefault
-  Show-Identity .showsPrec prec x = showParen (prec > appPrec)
-    ("asIdentity " <> showsPrec appPrec+1 (runIdentity x))
+  Show-Identity .showsPrec prec (asIdentity x) =
+    showsUnaryWith showsPrec "asIdentity" prec x

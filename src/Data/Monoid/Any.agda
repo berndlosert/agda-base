@@ -6,7 +6,6 @@ module Data.Monoid.Any where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -29,5 +28,4 @@ instance
 
   Show-Any : Show Any
   Show-Any .show = showDefault
-  Show-Any .showsPrec prec x = showParen (prec > appPrec) $
-    "asAny " <> showsPrec appPrec+1 (getAny x)
+  Show-Any .showsPrec prec (asAny x) = showsUnaryWith showsPrec "asAny" prec x

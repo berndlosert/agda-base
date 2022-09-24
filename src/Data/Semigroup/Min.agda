@@ -6,7 +6,6 @@ module Data.Semigroup.Min where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -44,5 +43,4 @@ instance
 
   Show-Min : {{Show a}} -> Show (Min a)
   Show-Min .show = showDefault
-  Show-Min .showsPrec prec x = showParen (prec > appPrec)
-    ("asMin " <> showsPrec appPrec+1 (getMin x))
+  Show-Min .showsPrec prec (asMin x) = showsUnaryWith showsPrec "asMin" prec x

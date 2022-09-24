@@ -6,7 +6,6 @@ module Data.Monoid.Sum where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -53,5 +52,5 @@ instance
 
   Show-Sum : {{Show a}} -> Show (Sum a)
   Show-Sum .show = showDefault
-  Show-Sum .showsPrec prec x = showParen (prec > appPrec)
-    ("asSum " <> showsPrec appPrec+1 (getSum x))
+  Show-Sum .showsPrec prec (asSum x) =
+    showsUnaryWith showsPrec "asSum" prec x

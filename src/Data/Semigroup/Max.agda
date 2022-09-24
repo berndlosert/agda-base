@@ -6,7 +6,6 @@ module Data.Semigroup.Max where
 
 open import Prelude
 
-open import Data.String.Builder
 open import Data.String.Show
 
 -------------------------------------------------------------------------------
@@ -44,5 +43,4 @@ instance
 
   Show-Max : {{Show a}} -> Show (Max a)
   Show-Max .show = showDefault
-  Show-Max .showsPrec prec x = showParen (prec > appPrec)
-    ("asMax " <> showsPrec appPrec+1 (getMax x))
+  Show-Max .showsPrec prec (asMax x) = showsUnaryWith showsPrec "asMax" prec x

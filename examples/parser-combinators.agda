@@ -1,7 +1,6 @@
 open import Prelude
 
 open import Data.String
-open import Data.String.Builder
 open import Data.String.Parser
 open import Data.String.Show
 open import System.IO
@@ -18,12 +17,12 @@ instance
   Show-Expr : Show Expr
   Show-Expr .show = showDefault
   Show-Expr .showsPrec prec = \ where
-    (Num n) -> showParen (prec > appPrec) $ "Num " <> showsPrec appPrec+1 n
-    (Neg e) -> showParen (prec > appPrec) $ "Neg " <> showsPrec appPrec+1 e
-    (Var s) -> showParen (prec > appPrec) $ "Var " <> toBuilder s
-    (Add l r) -> showParen (prec > appPrec) $ "Add " <> showsPrec appPrec+1 l <> " " <> showsPrec appPrec+1 r
-    (Mul l r) -> showParen (prec > appPrec) $ "Mul " <> showsPrec appPrec+1 l <> " " <> showsPrec appPrec+1 r
-    (Sub l r) -> showParen (prec > appPrec) $ "Sub " <> showsPrec appPrec+1 l <> " " <> showsPrec appPrec+1 r
+    (Num n) -> showsUnaryWith showsPrec "Num" prec n
+    (Neg e) -> showsUnaryWith showsPrec "Neg" prec e
+    (Var s) -> showsUnaryWith showsPrec "Neg" prec s
+    (Add l r) -> showsBinaryWith showsPrec showsPrec "Add" prec l r
+    (Mul l r) -> showsBinaryWith showsPrec showsPrec "Mul" prec l r
+    (Sub l r) -> showsBinaryWith showsPrec showsPrec "Sub" prec l r
 
 ident = pack <$> (| alpha :: many alphaNum |)
 

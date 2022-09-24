@@ -7,7 +7,6 @@ module Data.Tree.Balanced.TwoThree where
 open import Prelude hiding (map)
 
 open import Data.Foldable
-open import Data.String.Builder hiding (singleton)
 open import Data.String.Show
 
 -------------------------------------------------------------------------------

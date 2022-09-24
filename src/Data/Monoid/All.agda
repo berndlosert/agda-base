@@ -29,5 +29,5 @@ instance
 
   Show-All : Show All
   Show-All .show = showDefault
-  Show-All .showsPrec prec x = showParen (prec > appPrec)
-    ("asAll " <> showsPrec appPrec+1 (getAll x))
+  Show-All .showsPrec prec (asAll x) =
+    showsUnaryWith showsPrec "asAll" prec x

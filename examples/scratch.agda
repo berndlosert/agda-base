@@ -3,6 +3,7 @@ open import Prelude
 open import Control.Monad.Either.Trans
 open import Data.Enum
 open import Data.Functor.Identity
+open import Data.Map
 open import System.IO
 
 foo1 : List Nat
@@ -17,8 +18,8 @@ foo3 = enumFromTo -13 7
 foo4 : List Int
 foo4 = enumFromTo 8 29
 
-foo5 : EitherT String Identity Nat
-foo5 = asEitherT (asIdentity (left "foo5"))
+foo5 : EitherT String Identity (Map Nat Bool)
+foo5 = asEitherT $ asIdentity $ right $ fromList $ (1 , false) :: (2 , true) :: []
 
 main : IO Unit
 main = do
