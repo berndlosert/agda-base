@@ -14,6 +14,8 @@ open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
 open import Data.Bifunctor
+open import Data.String.Builder
+open import Data.String.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -47,6 +49,11 @@ withEitherT : {{Functor m}} -> (e -> e') -> EitherT e m a -> EitherT e' m a
 withEitherT f t = asEitherT $ lmap f <$> runEitherT t
 
 instance
+  Show-EitherT : {{_ : Show (m (Either e a))}} -> Show (EitherT e m a)
+  Show-EitherT .show = showDefault
+  Show-EitherT .showsPrec prec (asEitherT m) = showParen (prec > appPrec)
+    ("asEitherT " <> showsPrec appPrec+1 m)
+
   Functor-EitherT : {{Functor m}} -> Functor (EitherT e m)
   Functor-EitherT .map f = asEitherT <<< map (map f) <<< runEitherT
 

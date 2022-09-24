@@ -120,5 +120,5 @@ instance
 
   Show-Map : {{Show k}} -> {{Show v}} -> Show (Map k v)
   Show-Map .show = showDefault
-  Show-Map .showsPrec prec kvs = showParen (prec > 10)
+  Show-Map .showsPrec prec kvs = showParen (prec > appPrec)
     ("fromList " <> showsPrec prec (toList kvs))
