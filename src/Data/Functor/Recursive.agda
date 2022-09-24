@@ -132,6 +132,10 @@ instance
   Recursive-Fix : {{Functor f}} -> Recursive (Fix f)
   Recursive-Fix .project (asFix x) = x
 
+  Show-Fix : {{forall {a} -> {{Show a}} -> Show (f a)}} -> Show (Fix f)
+  Show-Fix .show = showDefault
+  Show-Fix .showsPrec prec (asFix fx) = showsUnaryWith showsPrec "asFix" prec fx
+
 -------------------------------------------------------------------------------
 -- NatF
 -------------------------------------------------------------------------------

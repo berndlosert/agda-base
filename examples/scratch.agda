@@ -4,6 +4,7 @@ open import Control.Monad.Either.Trans
 open import Data.Enum
 open import Data.Functor.Identity
 open import Data.Map
+open import Data.Functor.Recursive
 open import System.IO
 
 foo1 : List Nat
@@ -21,6 +22,9 @@ foo4 = enumFromTo 8 29
 foo5 : EitherT String Identity (Map Nat Bool)
 foo5 = asEitherT $ asIdentity $ right $ fromList $ (1 , false) :: (2 , true) :: []
 
+foo6 : Fix (NatF)
+foo6 = asFix (suc (asFix zero))
+
 main : IO Unit
 main = do
   print foo1
@@ -28,3 +32,4 @@ main = do
   print foo3
   print foo4
   print foo5
+  print foo6
