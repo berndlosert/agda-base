@@ -25,6 +25,28 @@ foo5 = asEitherT $ asIdentity $ right $ fromList $ (1 , false) :: (2 , true) :: 
 foo6 : Fix (NatF)
 foo6 = asFix (suc (asFix zero))
 
+record CounterF (r : Set) : Set where
+  field
+    get : Nat
+    inc : r
+
+Counter : Set
+Counter = Fix CounterF
+
+newCounter : Nat -> Counter
+newCounter n = asFix \ where
+  .CounterF.get -> n
+  .CounterF.inc -> newCounter (suc n)
+
+get : Counter -> Nat
+get (asFix c) = CounterF.get c
+
+inc : Counter -> Counter
+inc (asFix c) = CounterF.inc c
+
+foo7 : Counter
+foo7 = newCounter 10
+
 main : IO Unit
 main = do
   print foo1
@@ -33,3 +55,4 @@ main = do
   print foo4
   print foo5
   print foo6
+  print (get (inc foo7))
