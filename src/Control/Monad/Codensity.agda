@@ -25,6 +25,12 @@ record Codensity (f : Set -> Set) (a : Set) : Set where
 
 open Codensity
 
+lowerCodensity : {{Applicative f}} -> Codensity f a -> f a
+lowerCodensity x = runCodensity x pure
+
+liftCodensity : {{Monad f}} -> f a -> Codensity f a
+liftCodensity x = asCodensity (x >>=_)
+
 instance
   Functor-Codensity : Functor (Codensity f)
   Functor-Codensity .map f x = asCodensity \ k -> runCodensity x (k <<< f)
@@ -37,6 +43,3 @@ instance
   Monad-Codensity : Monad (Codensity f)
   Monad-Codensity ._>>=_ m f = asCodensity \ where
     k1 -> runCodensity m (\ k2 -> runCodensity (f k2) k1)
-
-lowerCodensity : {{Applicative f}} -> Codensity f a -> f a
-lowerCodensity x = runCodensity x pure
