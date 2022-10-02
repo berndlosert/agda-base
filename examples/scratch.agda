@@ -7,6 +7,9 @@ open import Data.Map
 open import Data.Functor.Recursive
 open import System.IO
 
+variable
+  a : Set
+
 foo1 : List Nat
 foo1 = enumFromTo 3 14
 
@@ -47,6 +50,16 @@ inc (asFix c) = CounterF.inc c
 foo7 : Counter
 foo7 = newCounter 10
 
+data Stream (a : Set) : Set where
+  cons : a -> Stream a -> Stream a
+
+ones : Stream Nat
+ones = cons 1 ones
+
+take : Nat -> Stream a -> List a
+take 0 _ = []
+take (suc n) (cons a s) = a :: take n s
+
 main : IO Unit
 main = do
   print foo1
@@ -56,3 +69,4 @@ main = do
   print foo5
   print foo6
   print (get (inc foo7))
+  print (take 7 ones)
