@@ -19,7 +19,7 @@ ones : LazyList Nat
 ones = cons 1 (ones)
 
 ones' : List Nat
-ones' = 1 :: ones'
+ones' = (1 ::_) $! ones'
 
 main : IO Unit
 main = do
