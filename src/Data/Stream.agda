@@ -23,46 +23,46 @@ private
 -------------------------------------------------------------------------------
 
 data Stream (a : Set) : Set where
-  _::_ : a -> Inf (Stream a) -> Stream a
+  _::_ : a -> Stream a -> Stream a
 
 instance
   Functor-Stream : Functor Stream
-  Functor-Stream .map f (x :: xs) = f x :: sharp (map f (flat xs))
+  Functor-Stream .map f (x :: xs) = f x :: map f xs
 
   Applicative-Stream : Applicative Stream
-  Applicative-Stream .pure x = x :: sharp (pure x)
+  Applicative-Stream .pure x = x :: pure x
   Applicative-Stream ._<*>_ (f :: fs) (x :: xs) =
-    f x :: sharp (flat fs <*> flat xs)
+    f x :: (fs <*> xs)
 
   Comonad-Stream : Comonad Stream
   Comonad-Stream .extend f xs = pure (f xs)
   Comonad-Stream .extract (x :: xs) = x
 
 iterate : (a -> a) -> a -> Stream a
-iterate f x = x :: sharp (iterate f (f x))
+iterate f x = x :: iterate f (f x)
 
 unfold : (b -> Pair a b) -> b -> Stream a
-unfold f z = let (x , z') = f z in x :: sharp (unfold f z')
+unfold f z = let (x , z') = f z in x :: unfold f z'
 
 repeat : a -> Stream a
 repeat = pure
 
 prepend : List a -> Stream a -> Stream a
 prepend [] ys = ys
-prepend (x :: xs) ys = x :: sharp (prepend xs ys)
+prepend (x :: xs) ys = x :: prepend xs ys
 
 take : Nat -> Stream a -> List a
 take 0 _ = []
-take (suc n) (x :: xs) = x :: take n (flat xs)
+take (suc n) (x :: xs) = x :: take n xs
 
 at : Nat -> Stream a -> a
 at 0 (x :: _) = x
-at (suc n) (x :: xs) = at n (flat xs)
+at (suc n) (x :: xs) = at n xs
 
 cycle : List a -> Maybe (Stream a)
 cycle [] = nothing
-cycle {a} (x :: xs) = just (x :: sharp (cycle' xs))
+cycle {a} (x :: xs) = just (x :: cycle' xs)
   where
     cycle' : List a -> Stream a
-    cycle' [] = x :: sharp (cycle' xs)
-    cycle' (y :: ys) = y :: sharp (cycle' ys)
+    cycle' [] = x :: cycle' xs
+    cycle' (y :: ys) = y :: cycle' ys

@@ -106,11 +106,6 @@ open List public
 open IO public
   using (IO)
 
-open Coinduction public
-  renaming (∞ to Inf) -- Lazy
-  renaming (♯_ to sharp) -- delay
-  renaming (♭ to flat) -- force
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
