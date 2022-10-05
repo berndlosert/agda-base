@@ -1,6 +1,7 @@
 open import Prelude
 
 open import Data.List as List using ()
+open import Data.Stream as Stream using ()
 open import System.IO
 
 variable
@@ -23,4 +24,4 @@ ones' = (1 ::_) $! ones'
 
 main : IO Unit
 main = do
-  print $ List.take 5 ones'
+  print $ Stream.take 5 (pure (the Nat 9))
