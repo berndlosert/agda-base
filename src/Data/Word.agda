@@ -53,9 +53,9 @@ instance
   Bits-Word8 .bitSize _ = 8
   Bits-Word8 .zeroBits = 0x0
   Bits-Word8 .oneBits = 0xFFFFFFFF
-  Bits-Word8 ._bitOr_ = word8Or
-  Bits-Word8 ._bitXor_ = word8Xor
-  Bits-Word8 ._bitAnd_ = word8And
+  Bits-Word8 ._`|`_ = word8Or
+  Bits-Word8 ._`^`_ = word8Xor
+  Bits-Word8 ._`&`_ = word8And
   Bits-Word8 .shift = word8Shift
   Bits-Word8 .rotate = word8Rotate
   Bits-Word8 .bit = word8Bit
@@ -114,9 +114,9 @@ instance
   Bits-Word16 .bitSize _ = 16
   Bits-Word16 .zeroBits = 0x0
   Bits-Word16 .oneBits = 0xFFFFFFFF
-  Bits-Word16 ._bitOr_ = word16Or
-  Bits-Word16 ._bitXor_ = word16Xor
-  Bits-Word16 ._bitAnd_ = word16And
+  Bits-Word16 ._`|`_ = word16Or
+  Bits-Word16 ._`^`_ = word16Xor
+  Bits-Word16 ._`&`_ = word16And
   Bits-Word16 .shift = word16Shift
   Bits-Word16 .rotate = word16Rotate
   Bits-Word16 .bit = word16Bit
@@ -175,9 +175,9 @@ instance
   Bits-Word32 .bitSize _ = 32
   Bits-Word32 .zeroBits = 0x0
   Bits-Word32 .oneBits = 0xFFFFFFFF
-  Bits-Word32 ._bitOr_ = word32Or
-  Bits-Word32 ._bitXor_ = word32Xor
-  Bits-Word32 ._bitAnd_ = word32And
+  Bits-Word32 ._`|`_ = word32Or
+  Bits-Word32 ._`^`_ = word32Xor
+  Bits-Word32 ._`&`_ = word32And
   Bits-Word32 .shift = word32Shift
   Bits-Word32 .rotate = word32Rotate
   Bits-Word32 .bit = word32Bit
@@ -240,9 +240,9 @@ instance
   Bits-Word64 .bitSize _ = 64
   Bits-Word64 .zeroBits = 0x0
   Bits-Word64 .oneBits = 0xFFFFFFFFFFFFFFFF
-  Bits-Word64 ._bitOr_ = word64Or
-  Bits-Word64 ._bitXor_ = word64Xor
-  Bits-Word64 ._bitAnd_ = word64And
+  Bits-Word64 ._`|`_ = word64Or
+  Bits-Word64 ._`^`_ = word64Xor
+  Bits-Word64 ._`&`_ = word64And
   Bits-Word64 .shift = word64Shift
   Bits-Word64 .rotate = word64Rotate
   Bits-Word64 .bit = word64Bit
@@ -269,7 +269,7 @@ instance
 {-# COMPILE GHC word8Eq = (==) #-}
 {-# COMPILE GHC word8Less = (<) #-}
 {-# COMPILE GHC word8Or = (.|.) #-}
-{-# COMPILE GHC word8Xor = bitXor #-}
+{-# COMPILE GHC word8Xor = `^` #-}
 {-# COMPILE GHC word8And = (.&.) #-}
 {-# COMPILE GHC word8Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word8Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -286,7 +286,7 @@ instance
 {-# COMPILE GHC word16Eq = (==) #-}
 {-# COMPILE GHC word16Less = (<) #-}
 {-# COMPILE GHC word16Or = (.|.) #-}
-{-# COMPILE GHC word16Xor = bitXor #-}
+{-# COMPILE GHC word16Xor = `^` #-}
 {-# COMPILE GHC word16And = (.&.) #-}
 {-# COMPILE GHC word16Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word16Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -303,7 +303,7 @@ instance
 {-# COMPILE GHC word32Eq = (==) #-}
 {-# COMPILE GHC word32Less = (<) #-}
 {-# COMPILE GHC word32Or = (.|.) #-}
-{-# COMPILE GHC word32Xor = bitXor #-}
+{-# COMPILE GHC word32Xor = `^` #-}
 {-# COMPILE GHC word32And = (.&.) #-}
 {-# COMPILE GHC word32Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word32Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -317,7 +317,7 @@ instance
 {-# COMPILE GHC word64Eq = (==) #-}
 {-# COMPILE GHC word64Less = (<) #-}
 {-# COMPILE GHC word64Or = (.|.) #-}
-{-# COMPILE GHC word64Xor = bitXor #-}
+{-# COMPILE GHC word64Xor = `^` #-}
 {-# COMPILE GHC word64And = (.&.) #-}
 {-# COMPILE GHC word64Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word64Rotate = \ x i -> rotate x (fromIntegral i) #-}

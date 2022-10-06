@@ -62,7 +62,7 @@ genNat n g0 =
     (ws , g) = genWord64s (q + 1) g0
   in
     case ws of \ where
-      (h :: t) -> (w64sToNat ((h bitAnd mask) :: t) , g)
+      (h :: t) -> (w64sToNat ((h `&` mask) :: t) , g)
       [] -> (0 , g)
 
 -- genNat' n generates a Nat in the range [0 , n].
@@ -107,24 +107,24 @@ private
   mix64 : Word64 -> Word64
   mix64 z0 = z3
     where
-      z1 = (z0 bitXor (shiftR z0 33)) * 0xff51afd7ed558ccd
-      z2 = (z1 bitXor (shiftR z1 33)) * 0xc4ceb9fe1a85ec53
-      z3 = z2 bitXor (shiftR z2 33)
+      z1 = (z0 `^` (shiftR z0 33)) * 0xff51afd7ed558ccd
+      z2 = (z1 `^` (shiftR z1 33)) * 0xc4ceb9fe1a85ec53
+      z3 = z2 `^` (shiftR z2 33)
 
   mix64variant13 : Word64 -> Word64
   mix64variant13 z0 = z3
     where
-      z1 = (z0 bitXor (shiftR z0 30)) * 0xbf58476d1ce4e5b9
-      z2 = (z1 bitXor (shiftR z1 27)) * 0x94d049bb133111eb
-      z3 = z2 bitXor (shiftR z2 31)
+      z1 = (z0 `^` (shiftR z0 30)) * 0xbf58476d1ce4e5b9
+      z2 = (z1 `^` (shiftR z1 27)) * 0x94d049bb133111eb
+      z3 = z2 `^` (shiftR z2 31)
 
   mixgamma : Word64 -> Word64
   mixgamma z0 =
     let
-      z1 = mix64variant13 z0 bitOr 1
-      n = popCount (z1 bitXor (shiftR z1 1))
+      z1 = mix64variant13 z0 `|` 1
+      n = popCount (z1 `^` (shiftR z1 1))
     in
-      if n >= 24 then z1 else z1 bitXor 0xaaaaaaaaaaaaaaaa
+      if n >= 24 then z1 else z1 `^` 0xaaaaaaaaaaaaaaaa
 
   -- Squares: a Fast Counter-Based RNG
   -- https://arxiv.org/pdf/2004.06278v2.pdf
@@ -136,10 +136,10 @@ private
       z = y + key
       -- Round 1
       x1 = x0 * x0 + y
-      x2 = (shiftR x1 32) bitOr (shiftL x1 32)
+      x2 = (shiftR x1 32) `|` (shiftL x1 32)
       -- Round 2
       x3 = x2 * x2 + z
-      x4 = (shiftR x3 32) bitOr (shiftL x3 32)
+      x4 = (shiftR x3 32) `|` (shiftL x3 32)
     in
       shiftR (x4 * x4 + y) 32
 
