@@ -116,10 +116,10 @@ record Foldable (t : Set -> Set) : Set where
     let step x = maybe (just x) just
     in foldr step nothing
 
-  sum : {{HasAdd a}} -> {{FromNat a}} -> t a -> a
+  sum : {{Num a}} -> t a -> a
   sum = foldl _+_ 0
 
-  product : {{HasMul a}} -> {{FromNat a}} -> t a -> a
+  product : {{Num a}} -> t a -> a
   product = foldl _*_ 1
 
   module _ {{_ : Eq a}} where

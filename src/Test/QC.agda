@@ -332,7 +332,7 @@ quick =
   record {
     maxTest = 100;
     maxFail = 1000;
-    size = \ n -> n / 2 + 3;
+    size = \ n -> div n 2 + 3;
     every = \ n args ->
       let s = show n in
       s <> String.replicate (String.length s) "\b"
@@ -363,7 +363,7 @@ private
 
       percentage : Nat -> Nat -> Maybe String
       percentage n 0 = nothing
-      percentage n (suc m) = just $ show ((100 * n) / suc m) <> "%"
+      percentage n (suc m) = just $ show (div (100 * n) (suc m)) <> "%"
 
       entry : Pair Nat (List String) -> String
       entry (n , s) = case percentage n ntest of \ where

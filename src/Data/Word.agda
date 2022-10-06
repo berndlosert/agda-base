@@ -34,7 +34,10 @@ private
     word8IsSigned : Word8 -> Bool
     word8PopCount : Word8 -> Nat
     word8Plus : Word8 -> Word8 -> Word8
+    word8Minus : Word8 -> Word8 -> Word8
+    word8Negate : Word8 -> Word8
     word8Times : Word8 -> Word8 -> Word8
+    word8Power : Word8 -> Nat -> Word8
 
 instance
   FromNat-Word8 : FromNat Word8
@@ -63,11 +66,12 @@ instance
   Bits-Word8 .isSigned = word8IsSigned
   Bits-Word8 .popCount = word8PopCount
 
-  HasAdd-Word8 : HasAdd Word8
-  HasAdd-Word8 ._+_ = word8Plus
-
-  HasMul-Word8 : HasMul Word8
-  HasMul-Word8 ._*_ = word8Times
+  Num-Word8 : Num Word8
+  Num-Word8 ._+_ = word8Plus
+  Num-Word8 ._-_ = word8Minus
+  Num-Word8 .-_ = word8Negate
+  Num-Word8 ._*_ = word8Times
+  Num-Word8 ._^_ = word8Power
 
 -------------------------------------------------------------------------------
 -- Word16
@@ -95,7 +99,10 @@ private
     word16IsSigned : Word16 -> Bool
     word16PopCount : Word16 -> Nat
     word16Plus : Word16 -> Word16 -> Word16
+    word16Minus : Word16 -> Word16 -> Word16
+    word16Negate : Word16 -> Word16
     word16Times : Word16 -> Word16 -> Word16
+    word16Power : Word16 -> Nat -> Word16
 
 instance
   FromNat-Word16 : FromNat Word16
@@ -124,11 +131,12 @@ instance
   Bits-Word16 .isSigned = word16IsSigned
   Bits-Word16 .popCount = word16PopCount
 
-  HasAdd-Word16 : HasAdd Word16
-  HasAdd-Word16 ._+_ = word16Plus
-
-  HasMul-Word16 : HasMul Word16
-  HasMul-Word16 ._*_ = word16Times
+  Num-Word16 : Num Word16
+  Num-Word16 ._+_ = word16Plus
+  Num-Word16 ._-_ = word16Minus
+  Num-Word16 .-_ = word16Negate
+  Num-Word16 ._*_ = word16Times
+  Num-Word16 ._^_ = word16Power
 
 -------------------------------------------------------------------------------
 -- Word32
@@ -156,7 +164,10 @@ private
     word32IsSigned : Word32 -> Bool
     word32PopCount : Word32 -> Nat
     word32Plus : Word32 -> Word32 -> Word32
+    word32Minus : Word32 -> Word32 -> Word32
+    word32Negate : Word32 -> Word32
     word32Times : Word32 -> Word32 -> Word32
+    word32Power : Word32 -> Nat -> Word32
 
 instance
   FromNat-Word32 : FromNat Word32
@@ -185,11 +196,12 @@ instance
   Bits-Word32 .isSigned = word32IsSigned
   Bits-Word32 .popCount = word32PopCount
 
-  HasAdd-Word32 : HasAdd Word32
-  HasAdd-Word32 ._+_ = word32Plus
-
-  HasMul-Word32 : HasMul Word32
-  HasMul-Word32 ._*_ = word32Times
+  Num-Word32 : Num Word32
+  Num-Word32 ._+_ = word32Plus
+  Num-Word32 ._-_ = word32Minus
+  Num-Word32 .-_ = word32Negate
+  Num-Word32 ._*_ = word32Times
+  Num-Word32 ._^_ = word32Power
 
 -------------------------------------------------------------------------------
 -- Word64
@@ -221,7 +233,10 @@ private
     word64IsSigned : Word64 -> Bool
     word64PopCount : Word64 -> Nat
     word64Plus : Word64 -> Word64 -> Word64
+    word64Minus : Word64 -> Word64 -> Word64
+    word64Negate : Word64 -> Word64
     word64Times : Word64 -> Word64 -> Word64
+    word64Power : Word64 -> Nat -> Word64
 
 instance
   FromNat-Word64 : FromNat Word64
@@ -250,11 +265,12 @@ instance
   Bits-Word64 .isSigned = word64IsSigned
   Bits-Word64 .popCount = word64PopCount
 
-  HasAdd-Word64 : HasAdd Word64
-  HasAdd-Word64 ._+_ = word64Plus
-
-  HasMul-Word64 : HasMul Word64
-  HasMul-Word64 ._*_ = word64Times
+  Num-Word64 : Num Word64
+  Num-Word64 ._+_ = word64Plus
+  Num-Word64 ._-_ = word64Minus
+  Num-Word64 .-_ = word64Negate
+  Num-Word64 ._*_ = word64Times
+  Num-Word64 ._^_ = word64Power
 
 -------------------------------------------------------------------------------
 -- FFI
@@ -269,7 +285,7 @@ instance
 {-# COMPILE GHC word8Eq = (==) #-}
 {-# COMPILE GHC word8Less = (<) #-}
 {-# COMPILE GHC word8Or = (.|.) #-}
-{-# COMPILE GHC word8Xor = `^` #-}
+{-# COMPILE GHC word8Xor = xor #-}
 {-# COMPILE GHC word8And = (.&.) #-}
 {-# COMPILE GHC word8Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word8Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -278,7 +294,10 @@ instance
 {-# COMPILE GHC word8IsSigned = isSigned #-}
 {-# COMPILE GHC word8PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word8Plus = (+) #-}
+{-# COMPILE GHC word8Minus = (+) #-}
+{-# COMPILE GHC word8Negate = negate #-}
 {-# COMPILE GHC word8Times = (*) #-}
+{-# COMPILE GHC word8Power = (^) #-}
 
 {-# COMPILE GHC Word16 = type Word16 #-}
 {-# COMPILE GHC natToWord16 = fromInteger #-}
@@ -286,7 +305,7 @@ instance
 {-# COMPILE GHC word16Eq = (==) #-}
 {-# COMPILE GHC word16Less = (<) #-}
 {-# COMPILE GHC word16Or = (.|.) #-}
-{-# COMPILE GHC word16Xor = `^` #-}
+{-# COMPILE GHC word16Xor = xor #-}
 {-# COMPILE GHC word16And = (.&.) #-}
 {-# COMPILE GHC word16Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word16Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -295,7 +314,10 @@ instance
 {-# COMPILE GHC word16IsSigned = isSigned #-}
 {-# COMPILE GHC word16PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word16Plus = (+) #-}
+{-# COMPILE GHC word16Minus = (+) #-}
+{-# COMPILE GHC word16Negate = negate #-}
 {-# COMPILE GHC word16Times = (*) #-}
+{-# COMPILE GHC word16Power = (^) #-}
 
 {-# COMPILE GHC Word32 = type Word32 #-}
 {-# COMPILE GHC natToWord32 = fromInteger #-}
@@ -303,7 +325,7 @@ instance
 {-# COMPILE GHC word32Eq = (==) #-}
 {-# COMPILE GHC word32Less = (<) #-}
 {-# COMPILE GHC word32Or = (.|.) #-}
-{-# COMPILE GHC word32Xor = `^` #-}
+{-# COMPILE GHC word32Xor = xor #-}
 {-# COMPILE GHC word32And = (.&.) #-}
 {-# COMPILE GHC word32Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word32Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -312,12 +334,15 @@ instance
 {-# COMPILE GHC word32IsSigned = isSigned #-}
 {-# COMPILE GHC word32PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word32Plus = (+) #-}
+{-# COMPILE GHC word32Minus = (+) #-}
+{-# COMPILE GHC word32Negate = negate #-}
 {-# COMPILE GHC word32Times = (*) #-}
+{-# COMPILE GHC word32Power = (^) #-}
 
 {-# COMPILE GHC word64Eq = (==) #-}
 {-# COMPILE GHC word64Less = (<) #-}
 {-# COMPILE GHC word64Or = (.|.) #-}
-{-# COMPILE GHC word64Xor = `^` #-}
+{-# COMPILE GHC word64Xor = xor #-}
 {-# COMPILE GHC word64And = (.&.) #-}
 {-# COMPILE GHC word64Shift = \ x i -> shift x (fromIntegral i) #-}
 {-# COMPILE GHC word64Rotate = \ x i -> rotate x (fromIntegral i) #-}
@@ -326,4 +351,7 @@ instance
 {-# COMPILE GHC word64IsSigned = isSigned #-}
 {-# COMPILE GHC word64PopCount = toInteger . popCount #-}
 {-# COMPILE GHC word64Plus = (+) #-}
+{-# COMPILE GHC word64Minus = (+) #-}
+{-# COMPILE GHC word64Negate = negate #-}
 {-# COMPILE GHC word64Times = (*) #-}
+{-# COMPILE GHC word64Power = (^) #-}

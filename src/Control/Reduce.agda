@@ -215,10 +215,10 @@ intoAll p = mapping p intoAnd
 intoAny : (a -> Bool) -> Reducer a Bool
 intoAny p = mapping p intoOr
 
-intoSum : {{HasAdd a}} -> {{FromNat a}} -> Reducer a a
+intoSum : {{Num a}} -> Reducer a a
 intoSum = intoFold _+_ 0
 
-intoProduct : {{HasMul a}} -> {{FromNat a}} -> Reducer a a
+intoProduct : {{Num a}} -> Reducer a a
 intoProduct = intoFold _*_ 1
 
 intoFirst : Reducer a (Maybe a)

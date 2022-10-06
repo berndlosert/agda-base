@@ -521,146 +521,6 @@ instance
     Float.primFloatNegate (Float.primNatToFloat n)
 
 -------------------------------------------------------------------------------
--- Arithmetic operations
--------------------------------------------------------------------------------
-
-record HasAdd (a : Set) : Set where
-  infixl 6 _+_
-  field _+_ : a -> a -> a
-
-open HasAdd {{...}} public
-
-record HasSub (a : Set) : Set where
-  infixl 6 _-_
-  field _-_ : a -> a -> a
-
-open HasSub {{...}} public
-
-record HasNeg (a : Set) : Set where
-  field -_ : a -> a
-
-open HasNeg {{...}} public
-
-record HasMul (a : Set) : Set where
-  infixl 7 _*_
-  field _*_ : a -> a -> a
-
-open HasMul {{...}} public
-
-record HasExp (a : Set) : Set where
-  infixr 8 _^_
-  field
-    Power : Set
-    _^_ : a -> Power -> a
-
-open HasExp {{...}} public
-
-record HasDiv (a : Set) : Set where
-  infixl 7 _/_
-  field _/_ : a -> a -> a
-
-open HasDiv {{...}} public
-
-record HasMod (a : Set) : Set where
-  infixl 7 _%_
-  field _%_ : a -> a -> a
-
-open HasMod {{...}} public
-
-instance
-  HasAdd-Nat : HasAdd Nat
-  HasAdd-Nat ._+_ = Nat._+_
-
-  HasSub-Nat : HasSub Nat
-  HasSub-Nat ._-_ = Nat._-_
-
-  HasMul-Nat : HasMul Nat
-  HasMul-Nat ._*_ = Nat._*_
-
-  HasExp-Nat : HasExp Nat
-  HasExp-Nat .Power = Nat
-  HasExp-Nat ._^_ m 0 = 1
-  HasExp-Nat ._^_ m (suc n) = m * m ^ n
-
-  HasDiv-Nat : HasDiv Nat
-  HasDiv-Nat ._/_ m 0 = 0
-  HasDiv-Nat ._/_ m (suc n) = Nat.div-helper 0 n m n
-
-  HasMod-Nat : HasMod Nat
-  HasMod-Nat ._%_ m 0 = 0
-  HasMod-Nat ._%_ m (suc n) = Nat.mod-helper 0 n m n
-
-  HasAdd-Int : HasAdd Int
-  HasAdd-Int ._+_ = \ where
-      (negsuc m) (negsuc n) -> negsuc (suc (m + n))
-      (negsuc m) (pos n) -> diff n (suc m)
-      (pos m) (negsuc n) -> diff m (suc n)
-      (pos m) (pos n) -> pos (m + n)
-    where
-      diff : Nat -> Nat -> Int
-      diff m 0 = pos m
-      diff zero (suc n) = negsuc n
-      diff (suc m) (suc n) = diff m n
-
-  HasSub-Int : HasSub Int
-  HasSub-Int ._-_ = \ where
-    m (pos n) -> m + (neg n)
-    m (negsuc n) -> m + pos (suc n)
-
-  HasNeg-Int : HasNeg Int
-  HasNeg-Int .-_ = \ where
-    (pos 0) -> pos 0
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
-
-  HasMul-Int : HasMul Int
-  HasMul-Int ._*_ = \ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> neg (n * suc m)
-    (negsuc n) (pos m) -> neg (suc n * m)
-
-  HasExp-Int : HasExp Int
-  HasExp-Int .Power = Nat
-  HasExp-Int ._^_ m 0 = pos 0
-  HasExp-Int ._^_ m (suc n) = m * m ^ n
-
-  HasDiv-Int : HasDiv Int
-  HasDiv-Int ._/_ = \ where
-    (pos m) (pos n@(suc _)) -> pos (m / n)
-    (pos m) (negsuc n) -> neg (m / suc n)
-    (negsuc m) (pos n@(suc _)) -> neg (suc m / n)
-    (negsuc m) (negsuc n) -> pos (suc m / suc n)
-    _ (pos zero) -> pos zero
-
-  HasMod-Int : HasMod Int
-  HasMod-Int ._%_ = \ where
-    (pos m) (pos n@(suc _)) -> pos (m % n)
-    (pos m) (negsuc n) -> pos (m % suc n)
-    (negsuc m) (pos n@(suc _)) -> neg (suc m % n)
-    (negsuc m) (negsuc n) -> neg (suc m % suc n)
-    _ (pos zero) -> pos zero
-
-  HasAdd-Float : HasAdd Float
-  HasAdd-Float ._+_ = Float.primFloatPlus
-
-  HasSub-Float : HasSub Float
-  HasSub-Float ._-_ = Float.primFloatMinus
-
-  HasNeg-Float : HasNeg Float
-  HasNeg-Float .-_ = Float.primFloatNegate
-
-  HasMul-Float : HasMul Float
-  HasMul-Float ._*_ = Float.primFloatTimes
-
-  HasExp-Float : HasExp Float
-  HasExp-Float .Power = Float
-  HasExp-Float ._^_ = Float.primFloatPow
-
-  HasDiv-Float : HasDiv Float
-  HasDiv-Float ._/_ x y = Float.primFloatDiv x y
-
--------------------------------------------------------------------------------
 -- FromString
 -------------------------------------------------------------------------------
 
@@ -674,6 +534,116 @@ open FromString {{...}} public
 instance
   FromString-String : FromString String
   FromString-String .fromString s = s
+
+-------------------------------------------------------------------------------
+-- Num
+-------------------------------------------------------------------------------
+
+record Num (a : Set) : Set where
+  infixl 6 _+_
+  infixl 6 _-_
+  infixl 7 _*_
+  infixr 8 _^_
+  field
+    overlap {{FromNat-super}} : FromNat a
+    _+_ : a -> a -> a
+    _-_ : a -> a -> a
+    -_ : a -> a
+    _*_ : a -> a -> a
+    _^_ : a -> Nat -> a
+
+open Num {{...}} public
+
+instance
+  Num-Nat : Num Nat
+  Num-Nat ._+_ = Nat._+_
+  Num-Nat ._-_ = Nat._-_
+  Num-Nat .-_ _ = 0
+  Num-Nat ._*_ = Nat._*_
+  Num-Nat ._^_ m 0 = 1
+  Num-Nat ._^_ m (suc n) = m * m ^ n
+
+  Num-Int : Num Int
+  Num-Int ._+_ = \ where
+      (negsuc m) (negsuc n) -> negsuc (suc (m + n))
+      (negsuc m) (pos n) -> diff n (suc m)
+      (pos m) (negsuc n) -> diff m (suc n)
+      (pos m) (pos n) -> pos (m + n)
+    where
+      diff : Nat -> Nat -> Int
+      diff m 0 = pos m
+      diff zero (suc n) = negsuc n
+      diff (suc m) (suc n) = diff m n
+  Num-Int ._-_ = \ where
+    m (pos n) -> m + (neg n)
+    m (negsuc n) -> m + pos (suc n)
+  Num-Int .-_ = \ where
+    (pos 0) -> pos 0
+    (pos (suc n)) -> negsuc n
+    (negsuc n) -> pos (suc n)
+  Num-Int ._*_ = \ where
+    (pos n) (pos m) -> pos (n * m)
+    (negsuc n) (negsuc m) -> pos (suc n * suc m)
+    (pos n) (negsuc m) -> neg (n * suc m)
+    (negsuc n) (pos m) -> neg (suc n * m)
+  Num-Int ._^_ m 0 = pos 0
+  Num-Int ._^_ m (suc n) = m * m ^ n
+
+  Num-Float : Num Float
+  Num-Float ._+_ = Float.primFloatPlus
+  Num-Float ._-_ = Float.primFloatMinus
+  Num-Float .-_ = Float.primFloatNegate
+  Num-Float ._*_ = Float.primFloatTimes
+  Num-Float ._^_ x n = Float.primFloatPow x (Float.primNatToFloat n)
+
+-------------------------------------------------------------------------------
+-- Integral
+-------------------------------------------------------------------------------
+
+record Integral (a : Set) : Set where
+  field
+    overlap {{Num-super}} : Num a
+    div : a -> a -> a
+    mod : a -> a -> a
+
+open Integral {{...}} public
+
+instance
+  Integral-Nat : Integral Nat
+  Integral-Nat .div m 0 = 0
+  Integral-Nat .div m (suc n) = Nat.div-helper 0 n m n
+  Integral-Nat .mod m 0 = 0
+  Integral-Nat .mod m (suc n) = Nat.mod-helper 0 n m n
+
+  Integral-Int : Integral Int
+  Integral-Int .div = \ where
+    (pos m) (pos n@(suc _)) -> pos (div m n)
+    (pos m) (negsuc n) -> neg (div m (suc n))
+    (negsuc m) (pos n@(suc _)) -> neg (div (suc m) n)
+    (negsuc m) (negsuc n) -> pos (div (suc m) (suc n))
+    _ (pos zero) -> pos zero
+  Integral-Int .mod = \ where
+    (pos m) (pos n@(suc _)) -> pos (mod m n)
+    (pos m) (negsuc n) -> pos (mod m (suc n))
+    (negsuc m) (pos n@(suc _)) -> neg (mod (suc m) n)
+    (negsuc m) (negsuc n) -> neg (mod (suc m) (suc n))
+    _ (pos zero) -> pos zero
+
+-------------------------------------------------------------------------------
+-- Fractional
+-------------------------------------------------------------------------------
+
+record Fractional (a : Set) : Set where
+  infixl 7 _/_
+  field
+    overlap {{Num-super}} : Num a
+    _/_ : a -> a -> a
+
+open Fractional {{...}} public
+
+instance
+  Fractional-Float : Fractional Float
+  Fractional-Float ._/_ x y = Float.primFloatDiv x y
 
 -------------------------------------------------------------------------------
 -- Semigroup

@@ -32,7 +32,7 @@ record Bits (a : Set) : Set where
   complement x = x `^` oneBits
 
   clearBit : a -> Nat -> a
-  clearBit x i = x `&` ~ (bit i)
+  clearBit x i = x `&` complement (bit i)
 
   setBit : a -> Nat -> a
   setBit x i = x `|` bit i

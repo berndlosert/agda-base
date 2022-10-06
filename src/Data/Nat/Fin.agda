@@ -17,7 +17,7 @@ data Fin (n : Nat) : Set where
   unsafeFin : (m : Nat) -> Fin n
 
 asFin : (n m : Nat) -> Fin n
-asFin n m = unsafeFin (m % n)
+asFin n m = unsafeFin (mod m n)
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -37,15 +37,13 @@ module _ {n : Nat} where
     Ord-Fin : Ord (Fin n)
     Ord-Fin ._<_ k m = toNat k < toNat m
 
-    HasAdd-Fin : HasAdd (Fin n)
-    HasAdd-Fin ._+_ k m = asFin n (toNat k + toNat m)
-
-    HasSub-Fin : HasSub (Fin n)
-    HasSub-Fin ._-_ k m = asFin n $
+    Num-Fin : Num (Fin n)
+    Num-Fin ._+_ k m = asFin n (toNat k + toNat m)
+    Num-Fin ._-_ k m = asFin n $
       if k >= m then (toNat k - toNat m) else n - ((toNat m - toNat k))
-
-    HasMul-Fin : HasMul (Fin n)
-    HasMul-Fin ._*_ k m = asFin n $ (toNat k * toNat m)
+    Num-Fin .-_ k = 0 - k
+    Num-Fin ._*_ k m = asFin n $ (toNat k * toNat m)
+    Num-Fin ._^_ k m = asFin n $ (toNat k) ^ m
 
     Show-Fin : Show (Fin n)
     Show-Fin .show m = show (toNat m)

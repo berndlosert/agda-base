@@ -26,14 +26,15 @@ record Ap (f : Set -> Set) (a : Set) : Set where
 open Ap public
 
 instance
-  HasAdd-Ap : {{Applicative f}} -> {{HasAdd a}} -> HasAdd (Ap f a)
-  HasAdd-Ap ._+_ x y = asAp (| getAp x + getAp y |)
+  FromNat-Ap : {{Applicative f}} -> {{FromNat a}} -> FromNat (Ap f a)
+  FromNat-Ap .fromNat n = asAp (pure (fromNat n))
 
-  HasMul-Ap : {{Applicative f}} -> {{HasMul a}} -> HasMul (Ap f a)
-  HasMul-Ap ._*_ x y = asAp (| getAp x * getAp y |)
-
-  HasNeg-Ap : {{Applicative f}} -> {{HasNeg a}} -> HasNeg (Ap f a)
-  HasNeg-Ap .-_ x = asAp (| - getAp x |)
+  Num-Ap : {{Applicative f}} -> {{Num a}} -> Num (Ap f a)
+  Num-Ap ._+_ x y = asAp (| getAp x + getAp y |)
+  Num-Ap ._-_ x y = asAp (| getAp x - getAp y |)
+  Num-Ap .-_ x = asAp (| - getAp x |)
+  Num-Ap ._*_ x y = asAp (| getAp x * getAp y |)
+  Num-Ap ._^_ x n = asAp (| getAp x ^ (pure n) |)
 
   Semigroup-Ap : {{Applicative f}} -> {{Semigroup a}} -> Semigroup (Ap f a)
   Semigroup-Ap ._<>_ x y = asAp (| getAp x <> getAp y |)
