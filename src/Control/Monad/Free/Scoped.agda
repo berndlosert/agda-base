@@ -51,9 +51,9 @@ record EndoAlg (f g c : Set -> Set) : Set where
 open EndoAlg public
 
 hcata : {{Functor f}} -> {{Functor g}} -> EndoAlg f g c -> Free f g a -> c a
-hcata alg (return x) = returnE alg x
-hcata alg (call op) = (callE alg <<< map (hcata alg)) op
-hcata alg (enter sc) = (enterE alg <<< map (hcata alg <<< map (hcata alg))) sc
+hcata ealg (return x) = returnE ealg x
+hcata ealg (call op) = (callE ealg <<< map (hcata ealg)) op
+hcata ealg (enter sc) = (enterE ealg <<< map (hcata ealg <<< map (hcata ealg))) sc
 
 -------------------------------------------------------------------------------
 -- BaseAlg
@@ -69,7 +69,7 @@ open BaseAlg public
 
 handle : {{Functor f}} -> {{Functor g}}
   -> EndoAlg f g c -> BaseAlg f g c b -> (a -> b) -> Free f g a -> b
-handle alg ealg gen (return x) = gen x
-handle alg ealg gen (call op) = (callB ealg <<< map (handle alg ealg gen)) op
-handle alg ealg gen (enter sc) =
-  (enterB ealg <<< map (hcata alg <<< map (handle alg ealg gen))) sc
+handle ealg balg gen (return x) = gen x
+handle ealg balg gen (call op) = (callB balg <<< map (handle ealg balg gen)) op
+handle ealg balg gen (enter sc) =
+  (enterB balg <<< map (hcata ealg <<< map (handle ealg balg gen))) sc
