@@ -60,6 +60,19 @@ take : Nat -> Stream a -> List a
 take 0 _ = []
 take (suc n) (cons a s) = a :: take n s
 
+Foo : Set -> Set
+Foo = \ a -> Maybe a
+
+foo : Foo Int
+foo = just 10
+
+Bar : Set
+Bar = forall (a : Set) -> Maybe a
+
+-- bar : Bar Int -- oops
+bar : Bar
+bar = \ _ -> just undefined
+
 main : IO Unit
 main = do
   print foo1
