@@ -32,16 +32,17 @@ record Selective (f : Set -> Set) : Set where
   branch x l r = map (map left) x <*? map (map right) l <*? r
 
   ifS : f Bool -> f a -> f a -> f a
-  ifS b t f = branch 
-    (| if b then pure $ right tt else pure $ left tt |) 
-    (| const f |) 
+  ifS b t f = branch
+    (| if b then pure $ right tt else pure $ left tt |)
+    (| const f |)
     (| const t |)
 
   whenS : f Bool -> f Unit -> f Unit
   whenS b t = ifS b t (pure tt)
 
-  orElse : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
-  orElse x y = branch x (flip appendLeft <$> y) (pure right)
+  infixl 9 _orElse_
+  _orElse_ : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
+  x orElse y = branch x (flip appendLeft <$> y) (pure right)
     where
       appendLeft : {{Semigroup a}} -> a -> Either a b -> Either a b
       appendLeft x (left y) = left (x <> y)
