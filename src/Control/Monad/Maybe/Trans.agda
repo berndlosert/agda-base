@@ -40,8 +40,8 @@ open MaybeT public
 mapMaybeT : (m (Maybe a) -> n (Maybe b)) -> MaybeT m a -> MaybeT n b
 mapMaybeT f = asMaybeT <<< f <<< runMaybeT
 
-hoistMaybeT : {{Applicative m}} -> Maybe b -> MaybeT m b
-hoistMaybeT = asMaybeT <<< pure
+hoistMaybe : {{Applicative m}} -> Maybe b -> MaybeT m b
+hoistMaybe = asMaybeT <<< pure
 
 instance
   Functor-MaybeT : {{Functor m}} -> Functor (MaybeT m)

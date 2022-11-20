@@ -30,7 +30,7 @@ open import System.IO
 -- main = prog' >>= putStrLn
 
 prog1 prog2 prog3 prog : MaybeT IO String
-prog1 = hoistMaybeT nothing
+prog1 = hoistMaybe nothing
 prog2 = pure "prog2"
 prog3 = undefined
 prog = prog1 <|> prog2 <|> prog3
