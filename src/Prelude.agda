@@ -250,13 +250,13 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-fromLeft : a -> Either a b -> a
-fromLeft _ (left x) = x
-fromLeft x _ = x
+maybeLeft : Either a b -> Maybe a
+maybeLeft (left x) = just x
+maybeLeft _ = nothing
 
-fromRight : b -> Either a b -> b
-fromRight _ (right x) = x
-fromRight x _ = x
+maybeRight : Either a b -> Maybe b
+maybeRight (right x) = just x
+maybeRight _ = nothing
 
 -------------------------------------------------------------------------------
 -- Pair primitives
