@@ -23,8 +23,7 @@ private
 -------------------------------------------------------------------------------
 
 record Filterable (t : Set -> Set) : Set where
-  field
-    mapMaybe : (a -> Maybe b) -> t a -> t b
+  field mapMaybe : (a -> Maybe b) -> t a -> t b
 
   mapEither : (a -> Either b c) -> t a -> Pair (t b) (t c)
   mapEither t =

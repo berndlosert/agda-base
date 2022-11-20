@@ -31,22 +31,33 @@ record Selective (f : Set -> Set) : Set where
   branch : f (Either a b) -> f (a -> c) -> f (b -> c) -> f c
   branch x l r = map (map left) x <*? map (map right) l <*? r
 
-  ifS : f Bool -> f a -> f a -> f a
-  ifS b t f = branch
+  eitherS : f (a -> c) -> f (b -> c) -> f (Either a b) -> f c
+  eitherS l r x = branch x l r
+
+  infixr 0 ifS_then_else_
+  ifS_then_else_ : f Bool -> f a -> f a -> f a
+  ifS b then t else f = branch
     (| if b then pure $ right tt else pure $ left tt |)
     (| const f |)
     (| const t |)
 
   whenS : f Bool -> f Unit -> f Unit
-  whenS b t = ifS b t (pure tt)
+  whenS b t = ifS b then t else (pure tt)
 
-  infixl 9 _orElse_
+  fromMaybeS : f a -> f (Maybe a) -> f a
+  fromMaybeS x y = select (maybe (left tt) right <$> y) (const <$> x)
+
+  infixr 9 _orElse_
   _orElse_ : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
   x orElse y = branch x (flip appendLeft <$> y) (pure right)
     where
       appendLeft : {{Semigroup a}} -> a -> Either a b -> Either a b
       appendLeft x (left y) = left (x <> y)
       appendLeft _ r = r
+
+  infixr 9 _andAlso_
+  _andAlso_ : {{Semigroup b}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
+  x andAlso y = mirror <$> (mirror <$> x) orElse (mirror <$> y)
 
 open Selective {{...}} public
 
@@ -81,3 +92,6 @@ instance
 
   Selective-List : Selective List
   Selective-List .select = selectM
+
+  Selective-IO : Selective IO
+  Selective-IO .select = selectM

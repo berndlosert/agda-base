@@ -258,6 +258,10 @@ maybeRight : Either a b -> Maybe b
 maybeRight (right x) = just x
 maybeRight _ = nothing
 
+maybeToEither : a -> Maybe b -> Either a b
+maybeToEither x nothing = left x
+maybeToEither _ (just x) = right x
+
 -------------------------------------------------------------------------------
 -- Pair primitives
 -------------------------------------------------------------------------------
@@ -287,6 +291,10 @@ maybe x f (just y) = f y
 fromMaybe : a -> Maybe a -> a
 fromMaybe x nothing = x
 fromMaybe _ (just x) = x
+
+infixr 9 _?:_
+_?:_ : Maybe a -> a -> a
+_?:_ = flip fromMaybe
 
 -------------------------------------------------------------------------------
 -- IO primitives
