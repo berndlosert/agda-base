@@ -45,7 +45,7 @@ record Selective (f : Set -> Set) : Set where
   whenS b t = ifS b then t else (pure tt)
 
   fromMaybeS : f a -> f (Maybe a) -> f a
-  fromMaybeS x y = select (maybe (left tt) right <$> y) (const <$> x)
+  fromMaybeS x y = (maybe (left tt) right <$> y) <*? (const <$> x)
 
   infixr 9 _orElse_
   _orElse_ : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
