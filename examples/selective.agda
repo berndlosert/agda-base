@@ -18,23 +18,22 @@ open import System.IO
 --     (left tt) -> putStrLn "oops"
 --     (right s) -> putStrLn s
 
-_fromMaybeS'_ = fromMaybeS
-
-prog1 prog2 : IO (Maybe String)
-prog3 prog : IO String
-prog1 = putStrLn "1" >> (pure $ nothing)
-prog2 = putStrLn "2" >> (pure $ just "prog2")
-prog3 = putStrLn "3" >> (pure $ "prog3")
-prog = fromMaybeS prog1 (fromMaybeS prog2 prog3)
-
-main : IO Unit
-main = prog >>= putStrLn
-
--- prog1 prog2 prog3 prog : MaybeT IO String
--- prog1 = hoistMaybe nothing
--- prog2 = pure "prog2"
--- prog3 = undefined
--- prog = prog1 <|> prog2 <|> prog3
+-- prog1 prog2 : IO (Maybe String)
+-- prog3 prog : IO String
+-- prog1 = putStrLn "1" >> (pure $ nothing)
+-- prog2 = putStrLn "2" >> (pure $ just "prog2")
+-- prog3 = putStrLn "3" >> (pure $ "prog3")
+-- prog = fromMaybeS prog1 (fromMaybeS prog2 prog3)
 
 -- main : IO Unit
--- main = runMaybeT prog >>= print
+-- main = prog >>= putStrLn
+
+prog1 prog2 : MaybeT IO String
+prog3 prog : IO String
+prog1 = hoistMaybe nothing
+prog2 = pure "prog2"
+prog3 = undefined
+prog = fromMaybeS (runMaybeT (prog1 <|> prog2)) $ prog3
+
+main : IO Unit
+main = prog >>= print
