@@ -235,12 +235,9 @@ either : (a -> c) -> (b -> c) -> Either a b -> c
 either f g (left x) = f x
 either f g (right x) = g x
 
-mirror : Either a b -> Either b a
-mirror = either right left
-
-fromEither : Either a a -> a
-fromEither (left x) = x
-fromEither (right x) = x
+fromEither : Either a b -> (a -> b) -> b
+fromEither (left x) f = f x
+fromEither (right x) _ = x
 
 isLeft : Either a b -> Bool
 isLeft (left _) = true
@@ -250,17 +247,8 @@ isRight : Either a b -> Bool
 isRight (left _) = false
 isRight _ = true
 
-maybeLeft : Either a b -> Maybe a
-maybeLeft (left x) = just x
-maybeLeft _ = nothing
-
-maybeRight : Either a b -> Maybe b
-maybeRight (right x) = just x
-maybeRight _ = nothing
-
-maybeToEither : a -> Maybe b -> Either a b
-maybeToEither x nothing = left x
-maybeToEither _ (just x) = right x
+mirror : Either a b -> Either b a
+mirror = either right left
 
 -------------------------------------------------------------------------------
 -- Pair primitives
@@ -276,6 +264,14 @@ dup x = (x , x)
 -- Maybe primitives
 -------------------------------------------------------------------------------
 
+maybe : b -> (a -> b) -> Maybe a -> b
+maybe x f nothing = x
+maybe x f (just y) = f y
+
+fromMaybe : Maybe a -> a -> a
+fromMaybe nothing x = x
+fromMaybe (just x) _ = x
+
 isJust : Maybe a -> Bool
 isJust (just _) = true
 isJust _ = false
@@ -283,18 +279,6 @@ isJust _ = false
 isNothing : Maybe a -> Bool
 isNothing (just _) = false
 isNothing _ = true
-
-maybe : b -> (a -> b) -> Maybe a -> b
-maybe x f nothing = x
-maybe x f (just y) = f y
-
-fromMaybe : a -> Maybe a -> a
-fromMaybe x nothing = x
-fromMaybe _ (just x) = x
-
-infixr 9 _?:_
-_?:_ : Maybe a -> a -> a
-_?:_ = flip fromMaybe
 
 -------------------------------------------------------------------------------
 -- IO primitives

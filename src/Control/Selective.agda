@@ -22,56 +22,51 @@ private
 record Selective (f : Set -> Set) : Set where
   field
     overlap {{Applicative-super}} : Applicative f
-    select : f (Either a b) -> f (a -> b) -> f b
+    eitherS : f (a -> c) -> f (b -> c) -> f (Either a b) -> f c
 
-  infixl 4 _<*?_
-  _<*?_ : f (Either a b) -> f (a -> b) -> f b
-  _<*?_ = select
-
-  branch : f (Either a b) -> f (a -> c) -> f (b -> c) -> f c
-  branch x l r = map (map left) x <*? map (map right) l <*? r
-
-  eitherS : f (a -> c) -> f (b -> c) -> f (Either a b) -> f c
-  eitherS l r x = branch x l r
+  fromEitherS : f (Either a b) -> f (a -> b) -> f b
+  fromEitherS x f = eitherS f (pure id) x
 
   infixr 0 ifS_then_else_
   ifS_then_else_ : f Bool -> f a -> f a -> f a
-  ifS b then t else f = branch
-    (| if b then pure $ right tt else pure $ left tt |)
+  ifS b then t else f = eitherS
     (| const f |)
     (| const t |)
+    (| if b then pure $ right tt else pure $ left tt |)
 
   whenS : f Bool -> f Unit -> f Unit
   whenS b t = ifS b then t else (pure tt)
 
-  fromMaybeS : f a -> f (Maybe a) -> f a
-  fromMaybeS x y = (maybe (left tt) right <$> y) <*? (const <$> x)
+  fromMaybeS : f (Maybe a) -> f a -> f a
+  fromMaybeS x y = fromEitherS (maybe (left tt) right <$> x) (const <$> y)
 
-  infixr 9 _orElse_
+  infixr 0 _orElse_
   _orElse_ : {{Semigroup a}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
-  x orElse y = branch x (flip appendLeft <$> y) (pure right)
+  x orElse y = eitherS (flip appendLeft <$> y) (pure right) x
     where
       appendLeft : {{Semigroup a}} -> a -> Either a b -> Either a b
       appendLeft x (left y) = left (x <> y)
       appendLeft _ r = r
 
-  infixr 9 _andAlso_
+  infixr 0 _andAlso_
   _andAlso_ : {{Semigroup b}} -> f (Either a b) -> f (Either a b) -> f (Either a b)
-  x andAlso y = mirror <$> (mirror <$> x) orElse (mirror <$> y)
+  x andAlso y = mirror <$> ((mirror <$> x) orElse (mirror <$> y))
 
 open Selective {{...}} public
 
 whileS : {{Selective f}} -> f Bool -> f Unit
 whileS act = whenS act (whileS act)
 
-selectM : {{Monad m}} -> m (Either a b) -> m (a -> b) -> m b
-selectM m k = do
+eitherM : {{Monad m}} -> m (a -> c) -> m (b -> c) -> m (Either a b) -> m c
+eitherM l r m = do
   res <- m
   case res of \ where
     (left x) -> do
-      f <- k
+      f <- l
       pure (f x)
-    (right x) -> pure x
+    (right x) -> do
+      f <- r
+      pure (f x)
 
 --------------------------------------------------------------------------------
 -- Instances
@@ -79,19 +74,19 @@ selectM m k = do
 
 instance
   Selective-Function : Selective (Function a)
-  Selective-Function .select = selectM
+  Selective-Function .eitherS = eitherM
 
   Selective-Either : Selective (Either a)
-  Selective-Either .select = selectM
+  Selective-Either .eitherS = eitherM
 
   Selective-Pair : {{Monoid a}} -> Selective (Pair a)
-  Selective-Pair .select = selectM
+  Selective-Pair .eitherS = eitherM
 
   Selective-Maybe : Selective Maybe
-  Selective-Maybe .select = selectM
+  Selective-Maybe .eitherS = eitherM
 
   Selective-List : Selective List
-  Selective-List .select = selectM
+  Selective-List .eitherS = eitherM
 
   Selective-IO : Selective IO
-  Selective-IO .select = selectM
+  Selective-IO .eitherS = eitherM
