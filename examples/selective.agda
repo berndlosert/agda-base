@@ -30,10 +30,11 @@ open import System.IO
 
 prog1 prog2 : MaybeT IO String
 prog3 prog : IO String
-prog1 = hoistMaybe nothing
-prog2 = pure "prog2"
+prog1 = lift (putStrLn "1") >> hoistMaybe nothing
+prog2 = lift (putStrLn "2") >> pure "prog2"
 prog3 = undefined
 prog = fromMaybeS (runMaybeT (prog1 <|> prog2)) $ prog3
+prog' = fromMaybeT (prog1 <|> prog2) prog3
 
 main : IO Unit
-main = prog >>= print
+main = prog' >>= print

@@ -43,6 +43,9 @@ mapMaybeT f = asMaybeT <<< f <<< runMaybeT
 hoistMaybe : {{Applicative m}} -> Maybe b -> MaybeT m b
 hoistMaybe = asMaybeT <<< pure
 
+fromMaybeT : {{Monad m}} -> MaybeT m a -> m a -> m a
+fromMaybeT x y = runMaybeT x >>= maybe y pure
+
 instance
   Functor-MaybeT : {{Functor m}} -> Functor (MaybeT m)
   Functor-MaybeT .map f = asMaybeT <<< map (map f) <<< runMaybeT
