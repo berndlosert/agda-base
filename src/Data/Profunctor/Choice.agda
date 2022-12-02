@@ -35,7 +35,7 @@ record Choice (p : Set -> Set -> Set) : Set where
 
   infixr 2 _|||_
   _|||_ : {{Category p}} -> p a c -> p b c -> p (Either a b) c
-  f ||| g = map fromEither (f +++ g)
+  f ||| g = map (either id id) (f +++ g)
 
 open Choice {{...}} public
 
