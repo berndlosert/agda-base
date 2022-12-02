@@ -384,18 +384,14 @@ $fst k (a , c) = map (_, c) (k a)
 $snd : Lens (Pair a b) (Pair a c) b c
 $snd k (x , y) = map (x ,_) (k y)
 
-$left : Traversal (Either a c) (Either b c) a b
-$left f (left x) = map left (f x)
-$left _ (right y) = pure (right y)
+$left : Prism (Either a c) (Either b c) a b
+$left = prism left $ either right (left <<< right)
 
-$right : Traversal (Either a b) (Either a c) b c
-$right f (right y) = map right (f y)
-$right _ (left x) = pure (left x)
+$right : Prism (Either a b) (Either a c) b c
+$right = prism right $ either (left <<< left) right
 
-$just : Traversal (Maybe a) (Maybe b) a b
-$just f (just x) = map just (f x)
-$just _ nothing = pure nothing
+$just : Prism (Maybe a) (Maybe b) a b
+$just = prism just $ maybe (left nothing) right
 
-$nothing : Simple Traversal (Maybe a) Unit
-$nothing f nothing = map (const nothing) (f tt)
-$nothing _ j = pure j
+$nothing : Simple Prism (Maybe a) Unit
+$nothing = prism' (const nothing) $ maybe (just tt) (const nothing)
