@@ -22,14 +22,33 @@ private
 record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
+  foldl : (b -> a -> b) -> b -> t a -> b
+  foldl {b} {a} step init xs = foldr step' id xs init
+    where
+      step' : a -> (b -> b) -> b -> b
+      step' x k acc = k $! step acc x
+
   foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
   foldMap {b} {a} f = foldr step mempty
     where
       step : a -> b -> b
       step x acc = f x <> acc
 
-  foldMapBy : (b -> b -> b) -> b -> (a -> b) -> t a -> b
-  foldMapBy {b} step init = foldMap {{monoid}}
+  mapReduce : {{Monoid b}} -> (a -> b) -> t a -> b
+  mapReduce {b} {a} f = foldl step mempty
+    where
+      step : b -> a -> b
+      step acc x = acc <> f x
+
+  foldMapWith : (b -> b -> b) -> b -> (a -> b) -> t a -> b
+  foldMapWith {b} step init = foldMap {{monoid}}
+    where
+      monoid : Monoid b
+      monoid .mempty = init
+      monoid .Semigroup-super ._<>_ = step
+
+  mapReduceWith : (b -> b -> b) -> b -> (a -> b) -> t a -> b
+  mapReduceWith {b} step init = mapReduce {{monoid}}
     where
       monoid : Monoid b
       monoid .mempty = init
@@ -38,14 +57,14 @@ record Foldable (t : Set -> Set) : Set where
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
-  foldBy : (a -> a -> a) -> a -> t a -> a
-  foldBy step init = foldMapBy step init id
+  reduce : {{Monoid a}} -> t a -> a
+  reduce = mapReduce id
 
-  foldl : (b -> a -> b) -> b -> t a -> b
-  foldl {b} {a} step init xs = foldr step' id xs init
-    where
-      step' : a -> (b -> b) -> b -> b
-      step' x k acc = k $! step acc x
+  foldWith : (a -> a -> a) -> a -> t a -> a
+  foldWith step init = foldMapWith step init id
+
+  reduceWith : (a -> a -> a) -> a -> t a -> a
+  reduceWith step init = mapReduceWith step init id
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} step init xs = foldr step' pure xs init
