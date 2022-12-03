@@ -58,19 +58,19 @@ record Foldable (t : Set -> Set) : Set where
       step' : (b -> m b) -> a -> b -> m b
       step' k x acc = step x acc >>= k
 
-  foldr1 : (a -> a -> a) -> t a -> Maybe a
-  foldr1 {a} step = foldr step' nothing
+  fold1 : {{Semigroup a}} -> t a -> Maybe a
+  fold1 {a} = foldr step' nothing
     where
       step' : a -> Maybe a -> Maybe a
       step' _ nothing = nothing
-      step' x (just y) = just (step x y)
+      step' x (just y) = just (x <> y)
 
-  foldl1 : (a -> a -> a) -> t a -> Maybe a
-  foldl1 {a} step = foldl step' nothing
+  fold1! : {{Semigroup a}} -> t a -> Maybe a
+  fold1! {a} = foldl step' nothing
     where
       step' : Maybe a -> a -> Maybe a
       step' nothing _ = nothing
-      step' (just x) y = just (step x y)
+      step' (just x) y = just (x <> y)
 
   toList : t a -> List a
   toList = foldMap (_:: [])
