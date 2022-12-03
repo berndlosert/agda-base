@@ -36,10 +36,10 @@ instance
   Coercible-to-Identity = coercible
 
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity ._==_ = _==_ on runIdentity
+  Eq-Identity {a} ._==_ = coerce (id {a -> a -> Bool} _==_)
 
   Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity ._<_ = _<_ on runIdentity
+  Ord-Identity {a} ._<_ = coerce (id {a -> a -> Bool} _<_)
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
   Semigroup-Identity {a} ._<>_ = coerce (id {a -> a -> a} _<>_)
