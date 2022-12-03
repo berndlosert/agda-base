@@ -64,7 +64,7 @@ main = do
   --print (runWriter largerSample) -- 3.7GB 6.5s
   --print (runWriter $ lowerCodensity $ largerSample1) -- 3.3GB 6.5s
   --print (fst' $ largerSample') -- 2.5GB 5.8s
-  --print (sum $ replicate 10_000_000 (the Nat 1)) -- 5MB 0.4s
-  --print (foldMap asSum $ replicate 10_000_000 (the Nat 1)) -- 1GB 2.3s
-  --print (foldMap' asSum $ replicate 10_000_000 (the Nat 1)) -- 5MB 0.4s
+  --print (sum $ replicate 10_000_000 (id {Nat}} 1)) -- 5MB 0.4s
+  --print (foldMap asSum $ replicate 10_000_000 (id {Nat} 1)) -- 1GB 2.3s
+  --print (foldMap' asSum $ replicate 10_000_000 (id {Nat} 1)) -- 5MB 0.4s
   print (runWriter largerSample2) -- 2.5GB 5.8s

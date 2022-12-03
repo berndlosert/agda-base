@@ -12,7 +12,7 @@ module Sum-test where
   f : Nat -> Sum (Nat :: String :: Bool :: [])
   f 0 = inj true
   f 1 = inj ""
-  f 2 = inj (the Nat 0)
+  f 2 = inj (id {Nat} 0)
   f _ = inj false
 
   g : Sum (Nat :: String :: Bool :: []) -> Nat
@@ -90,6 +90,5 @@ module data-types-a-la-carte-test where
   -- f' : Nat -> Nat + (String + Bool)
   -- f' 0 = into true
   -- f' 1 = into ""
-  -- f' 2 = into (the Nat 0)
+  -- f' 2 = into (id {Nat} 0)
   -- f' _ = into false
-

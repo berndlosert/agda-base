@@ -43,7 +43,7 @@ pprint4 = flip runReader 0 <<< para go
       indent <- ask
       let s = pack (replicate indent ' ')
            <> "* " <> show i
-           <> " (" <> show (the Nat count) <> ")"
+           <> " (" <> show (id {Nat} count) <> ")"
       pure $ intercalate "\n" (s :: ss)
 
 suff : {{Show a}} -> List a -> List (List a)
@@ -65,9 +65,9 @@ sum' xs = flip runReader nothing (cata go xs)
 
 main : IO Unit
 main = do
-  --print $ project (the Nat 1 :: 2 :: 3 :: [])
+  --print $ project (id {Nat} 1 :: 2 :: 3 :: [])
   --print $ mySum (10 :: 11 :: 12 :: [])
   --putStr $ drawTree $ show <$> myTree
   --putStrLn $ pprint4 myTree
-  --print $ suff (the Nat 1 :: 2 :: 3 :: [])
-  print $ sum' (the Nat 1 :: 2 :: 3 :: 4 :: [])
+  --print $ suff (id {Nat} 1 :: 2 :: 3 :: [])
+  print $ sum' (id {Nat} 1 :: 2 :: 3 :: 4 :: [])

@@ -138,9 +138,6 @@ fromJust nothing = panic "Prelude.fromJust: nothing"
 -- Function primitives
 -------------------------------------------------------------------------------
 
-the : (a : Set) -> a -> a
-the _ x = x
-
 id : a -> a
 id x = x
 

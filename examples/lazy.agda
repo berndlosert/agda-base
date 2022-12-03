@@ -24,4 +24,4 @@ ones' = (1 ::_) $! ones'
 
 main : IO Unit
 main = do
-  print $ Stream.take 5 (pure (the Nat 9))
+  print $ Stream.take 5 (pure (id {Nat} 9))
