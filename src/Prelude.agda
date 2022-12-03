@@ -310,6 +310,9 @@ instance
   Coercible-Nat-Int : Coercible Nat Int
   Coercible-Nat-Int = coercible
 
+  Coercible-Function : {{Coercible a b}} -> {{Coercible c d}} -> Coercible (a -> c) (b -> d)
+  Coercible-Function = coercible
+
   Coercible-Either : {{Coercible a b}} -> {{Coercible c d}} -> Coercible (Either a c) (Either b d)
   Coercible-Either = coercible
 
@@ -327,6 +330,9 @@ instance
 
   Coercible-refl : Coercible a a
   Coercible-refl = coercible
+
+  Coercible-trans : {{Coercible a b}} -> {{Coercible b c}} -> Coercible a c
+  Coercible-trans = coercible
 
 {-# FOREIGN GHC import Unsafe.Coerce #-}
 {-# FOREIGN GHC data AgdaCoercible a b = AgdaCoercible #-}
