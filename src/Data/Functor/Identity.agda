@@ -29,6 +29,12 @@ record Identity (a : Set) : Set where
 open Identity public
 
 instance
+  Coercible-from-Identity : Coercible (Identity a) a
+  Coercible-from-Identity = coercible
+
+  Coercible-to-Identity : Coercible a (Identity a)
+  Coercible-to-Identity = coercible
+
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
   Eq-Identity ._==_ = _==_ on runIdentity
 

@@ -17,7 +17,7 @@ foo2 : List Nat
 foo2 = enumFromTo 17 5
 
 foo3 : List Int
-foo3 = enumFromTo -13 7
+foo3 = coerce foo2
 
 foo4 : List Int
 foo4 = enumFromTo 8 29
@@ -66,6 +66,17 @@ Foo = \ a -> Maybe a
 foo : Foo Int
 foo = just 10
 
+x y z : Identity Nat
+x = asIdentity 1
+y = asIdentity 2
+z = asIdentity 3
+
+foo8 : List Nat
+foo8 = coerce (x :: y :: z :: [])
+
+foo9 : List (Identity Nat)
+foo9 = coerce foo8
+
 Bar : Set
 Bar = forall (a : Set) -> Maybe a
 
@@ -83,3 +94,5 @@ main = do
   print foo6
   print (get (inc foo7))
   print (take 7 ones)
+  print foo8
+  print foo9

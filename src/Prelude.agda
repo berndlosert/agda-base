@@ -297,6 +297,44 @@ private
 {-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
 
 -------------------------------------------------------------------------------
+-- Coercible
+-------------------------------------------------------------------------------
+
+data Coercible (a b : Set) : Set where
+  coercible : Coercible a b
+
+{-# FOREIGN GHC data AgdaCoercible a b = AgdaCoercible #-}
+{-# COMPILE GHC Coercible = data AgdaCoercible (AgdaCoercible) #-}
+
+postulate
+  coerce : {{_ : Coercible a b}} -> a -> b
+
+{-# FOREIGN GHC import Unsafe.Coerce #-}
+{-# COMPILE GHC coerce = \ _ _ _ -> unsafeCoerce #-}
+
+instance
+  Coercible-Nat-Int : Coercible Nat Int
+  Coercible-Nat-Int = coercible
+
+  Coercible-Either : {{Coercible a b}} -> {{Coercible c d}} -> Coercible (Either a c) (Either b d)
+  Coercible-Either = coercible
+
+  Coercible-Pair : {{Coercible a b}} -> {{Coercible c d}} -> Coercible (Pair a c) (Pair b d)
+  Coercible-Pair = coercible
+
+  Coercible-Maybe : {{Coercible a b}} -> Coercible (Maybe a) (Maybe b)
+  Coercible-Maybe = coercible
+
+  Coercible-List : {{Coercible a b}} -> Coercible (List a) (List b)
+  Coercible-List = coercible
+
+  Coercible-IO : {{Coercible a b}} -> Coercible (IO a) (IO b)
+  Coercible-IO = coercible
+
+  Coercible-refl : Coercible a a
+  Coercible-refl = coercible
+
+-------------------------------------------------------------------------------
 -- Eq
 -------------------------------------------------------------------------------
 
