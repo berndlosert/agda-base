@@ -34,17 +34,11 @@ instance
   Coercible-to-Sum : Coercible a (Sum a)
   Coercible-to-Sum = coercible
 
-  Semigroup-Sum-Nat : Semigroup (Sum Nat)
-  Semigroup-Sum-Nat ._<>_ = coerce {Nat -> Nat -> Nat} _+_
+  Semigroup-Sum-Num : {{Num a}} -> Semigroup (Sum a)
+  Semigroup-Sum-Num {a} ._<>_ = coerce {a -> a -> a} _+_
 
-  Semigroup-Sum-Int : Semigroup (Sum Int)
-  Semigroup-Sum-Int ._<>_ = coerce {Int -> Int -> Int} _+_
-
-  Monoid-Sum-Nat : Monoid (Sum Nat)
-  Monoid-Sum-Nat .mempty = asSum 0
-
-  Monoid-Sum-Int : Monoid (Sum Int)
-  Monoid-Sum-Int .mempty = asSum 0
+  Monoid-Sum-Num : {{Num a}} -> Monoid (Sum a)
+  Monoid-Sum-Num .mempty = asSum 0
 
   Functor-Sum : Functor Sum
   Functor-Sum .map = coerce
