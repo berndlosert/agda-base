@@ -199,7 +199,7 @@ instance
   Alternative-Concurrently .azero = let 2^32 = 4294967296 in
     asConcurrently $ forever $ threadDelay 2^32
   Alternative-Concurrently ._<|>_ (asConcurrently as) (asConcurrently bs) =
-    asConcurrently $ fromEither <$> race as bs
+    asConcurrently $ either id id <$> race as bs
 
   Semigroup-Concurrently : {{Semigroup a}} -> Semigroup (Concurrently a)
   Semigroup-Concurrently ._<>_ x y = (| x <> y |)

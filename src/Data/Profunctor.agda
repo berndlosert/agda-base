@@ -4,7 +4,7 @@ module Data.Profunctor where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (_>>>_; _<<<_; id)
 
 open import Control.Category
 
@@ -30,7 +30,7 @@ record Profunctor (p : Set -> Set -> Set) : Set where
   dimap f g = lcmap f <<< map g
 
   arr : {{Category p}} -> (a -> b) -> p a b
-  arr f = map f identity
+  arr f = map f id
 
 open Profunctor {{...}} public
 

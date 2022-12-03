@@ -4,7 +4,7 @@ module Data.Profunctor.Strong where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Prelude hiding (_>>>_; _<<<_; id)
 
 open import Control.Category
 open import Data.Profunctor
@@ -31,11 +31,11 @@ record Strong (p : Set -> Set -> Set) : Set where
 
   infixr 3 _***_
   _***_ : {{Category p}} -> p a b -> p c d -> p (Pair a c) (Pair b d)
-  f *** g = (mapFst f) andThen (mapSnd g)
+  f *** g = mapFst f >>> mapSnd g
 
   infixr 3 _&&&_
   _&&&_ : {{Category p}} -> p a b -> p a c -> p a (Pair b c)
-  f &&& g = (arr dup) andThen (mapSnd g) andThen (mapFst f)
+  f &&& g = arr dup >>> mapSnd g >>> mapFst f
 
 open Strong {{...}} public
 

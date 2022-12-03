@@ -53,10 +53,10 @@ instance
   Alternative-Validation .azero = failure mempty
 
   Selective-Validation : {{Semigroup e}} -> Selective (Validation e)
-  Selective-Validation .select = \ where
-    (failure e) _ -> failure e
-    (success (left x)) f -> (_$ x) <$> f
-    (success (right x)) _ -> success x
+  Selective-Validation .eitherS l r = \ where
+    (failure e) -> failure e
+    (success (left x)) -> l <*> (success x)
+    (success (right x)) -> r <*> (success x)
 
   Foldable-Validation : Foldable (Validation e)
   Foldable-Validation .foldr f z = \ where

@@ -104,7 +104,7 @@ oneof : Gen a -> List (Gen a) -> Gen a
 oneof g [] = g
 oneof g gs = do
   n <- choose (0 , length gs)
-  fromMaybe g (List.at n gs)
+  fromMaybe (List.at n gs) g
 
 elements : a -> List a -> Gen a
 elements x xs = oneof (pure x) (map pure xs)

@@ -4,7 +4,7 @@ module Data.Profunctor.Choice where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude as Prelude
+open import Prelude hiding (_>>>_; _<<<_; id)
 
 open import Control.Category
 open import Data.Profunctor
@@ -31,11 +31,11 @@ record Choice (p : Set -> Set -> Set) : Set where
 
   infixr 2 _+++_
   _+++_ : {{Category p}} -> p a b -> p c d -> p (Either a c) (Either b d)
-  f +++ g = (mapLeft f) andThen (mapRight g)
+  f +++ g = mapLeft f >>> mapRight g
 
   infixr 2 _|||_
   _|||_ : {{Category p}} -> p a c -> p b c -> p (Either a b) c
-  f ||| g = map (either id id) (f +++ g)
+  f ||| g = either id id <$> (f +++ g)
 
 open Choice {{...}} public
 
