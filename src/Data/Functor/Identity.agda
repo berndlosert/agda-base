@@ -42,7 +42,7 @@ instance
   Ord-Identity ._<_ = _<_ on runIdentity
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity ._<>_ x y = asIdentity (runIdentity x <> runIdentity y)
+  Semigroup-Identity {a} ._<>_ = coerce (id {a -> a -> a} _<>_)
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .mempty = asIdentity mempty
@@ -51,11 +51,11 @@ instance
   Foldable-Identity .foldr step init x = step (runIdentity x) init
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map f = asIdentity <<< f <<< runIdentity
+  Functor-Identity .map = coerce
 
   Applicative-Identity : Applicative Identity
   Applicative-Identity .pure = asIdentity
-  Applicative-Identity ._<*>_ = map <<< runIdentity
+  Applicative-Identity ._<*>_ = coerce
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ x k = k (runIdentity x)
