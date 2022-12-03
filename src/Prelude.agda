@@ -303,14 +303,8 @@ private
 data Coercible (a b : Set) : Set where
   coercible : Coercible a b
 
-{-# FOREIGN GHC data AgdaCoercible a b = AgdaCoercible #-}
-{-# COMPILE GHC Coercible = data AgdaCoercible (AgdaCoercible) #-}
-
 postulate
   coerce : {{_ : Coercible a b}} -> a -> b
-
-{-# FOREIGN GHC import Unsafe.Coerce #-}
-{-# COMPILE GHC coerce = \ _ _ _ -> unsafeCoerce #-}
 
 instance
   Coercible-Nat-Int : Coercible Nat Int
@@ -333,6 +327,11 @@ instance
 
   Coercible-refl : Coercible a a
   Coercible-refl = coercible
+
+{-# FOREIGN GHC import Unsafe.Coerce #-}
+{-# FOREIGN GHC data AgdaCoercible a b = AgdaCoercible #-}
+{-# COMPILE GHC Coercible = data AgdaCoercible (AgdaCoercible) #-}
+{-# COMPILE GHC coerce = \ _ _ _ -> unsafeCoerce #-}
 
 -------------------------------------------------------------------------------
 -- Eq
