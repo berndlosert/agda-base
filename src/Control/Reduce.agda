@@ -187,7 +187,7 @@ droppingWhile p (aReducer init step done) = aReducer init' step' done'
     done' (_ , acc) = done acc
 
 -------------------------------------------------------------------------------
--- Some aReducers
+-- Some reducers
 -------------------------------------------------------------------------------
 
 intoLength : Reducer a Nat
