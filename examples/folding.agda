@@ -20,5 +20,15 @@ test2 = foldMap asSum (enumFromTo 1 100000000)
 test3 : Sum Nat
 test3 = mapReduce asSum (enumFromTo 1 100000000)
 
+-- Elapsed (wall clock) time (h:mm:ss or m:ss): 0:10.38
+-- Maximum resident set size (kbytes): 5268
+test4 : Sum Int
+test4 = mapReduce asSum (enumFromTo 1 100000000)
+
+-- Elapsed (wall clock) time (h:mm:ss or m:ss): 0:10.58
+-- Maximum resident set size (kbytes): 5100
+test5 : Int
+test5 = sum (enumFromTo 1 100000000)
+
 main : IO Unit
 main = print test3
