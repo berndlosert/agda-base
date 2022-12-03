@@ -35,10 +35,10 @@ instance
   Coercible-to-Sum = coercible
 
   Semigroup-Sum-Nat : Semigroup (Sum Nat)
-  Semigroup-Sum-Nat ._<>_ = coerce (id {Nat -> Nat -> Nat} _+_)
+  Semigroup-Sum-Nat ._<>_ = coerce {Nat -> Nat -> Nat} _+_
 
   Semigroup-Sum-Int : Semigroup (Sum Int)
-  Semigroup-Sum-Int ._<>_ = coerce (id {Int -> Int -> Int} _+_)
+  Semigroup-Sum-Int ._<>_ = coerce {Int -> Int -> Int} _+_
 
   Monoid-Sum-Nat : Monoid (Sum Nat)
   Monoid-Sum-Nat .mempty = asSum 0

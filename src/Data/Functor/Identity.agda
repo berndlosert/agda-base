@@ -36,13 +36,13 @@ instance
   Coercible-to-Identity = coercible
 
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity {a} ._==_ = coerce (id {a -> a -> Bool} _==_)
+  Eq-Identity {a} ._==_ = coerce {a -> a -> Bool} _==_
 
   Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity {a} ._<_ = coerce (id {a -> a -> Bool} _<_)
+  Ord-Identity {a} ._<_ = coerce {a -> a -> Bool} _<_
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity {a} ._<>_ = coerce (id {a -> a -> a} _<>_)
+  Semigroup-Identity {a} ._<>_ = coerce {a -> a -> a} _<>_
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .mempty = asIdentity mempty
