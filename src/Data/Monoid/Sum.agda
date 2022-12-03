@@ -35,10 +35,10 @@ instance
   Coercible-to-Sum = coercible
 
   Semigroup-Sum-Nat : Semigroup (Sum Nat)
-  Semigroup-Sum-Nat ._<>_ m n = asSum (getSum m + getSum n)
+  Semigroup-Sum-Nat ._<>_ = coerce (id {Nat -> Nat -> Nat} _+_)
 
   Semigroup-Sum-Int : Semigroup (Sum Int)
-  Semigroup-Sum-Int ._<>_ m n = asSum (getSum m + getSum n)
+  Semigroup-Sum-Int ._<>_ = coerce (id {Int -> Int -> Int} _+_)
 
   Monoid-Sum-Nat : Monoid (Sum Nat)
   Monoid-Sum-Nat .mempty = asSum 0
@@ -47,11 +47,11 @@ instance
   Monoid-Sum-Int .mempty = asSum 0
 
   Functor-Sum : Functor Sum
-  Functor-Sum .map f = asSum <<< f <<< getSum
+  Functor-Sum .map = coerce
 
   Applicative-Sum : Applicative Sum
   Applicative-Sum .pure = asSum
-  Applicative-Sum ._<*>_ f x = asSum $ (getSum f) (getSum x)
+  Applicative-Sum ._<*>_ = coerce
 
   Monad-Sum : Monad Sum
   Monad-Sum ._>>=_ (asSum x) k = k x

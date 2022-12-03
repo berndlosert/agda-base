@@ -34,37 +34,17 @@ record Foldable (t : Set -> Set) : Set where
       step : a -> b -> b
       step x acc = f x <> acc
 
-  mapReduce : {{Monoid b}} -> (a -> b) -> t a -> b
-  mapReduce {b} {a} f = foldl step mempty
+  foldMap! : {{Monoid b}} -> (a -> b) -> t a -> b
+  foldMap! {b} {a} f = foldl step mempty
     where
       step : b -> a -> b
       step acc x = acc <> f x
 
-  foldMapWith : (b -> b -> b) -> b -> (a -> b) -> t a -> b
-  foldMapWith {b} step init = foldMap {{monoid}}
-    where
-      monoid : Monoid b
-      monoid .mempty = init
-      monoid .Semigroup-super ._<>_ = step
-
-  mapReduceWith : (b -> b -> b) -> b -> (a -> b) -> t a -> b
-  mapReduceWith {b} step init = mapReduce {{monoid}}
-    where
-      monoid : Monoid b
-      monoid .mempty = init
-      monoid .Semigroup-super ._<>_ = step
-
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
-  reduce : {{Monoid a}} -> t a -> a
-  reduce = mapReduce id
-
-  foldWith : (a -> a -> a) -> a -> t a -> a
-  foldWith step init = foldMapWith step init id
-
-  reduceWith : (a -> a -> a) -> a -> t a -> a
-  reduceWith step init = mapReduceWith step init id
+  fold! : {{Monoid a}} -> t a -> a
+  fold! = foldMap! id
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} step init xs = foldr step' pure xs init
