@@ -7,6 +7,7 @@ module Data.Functor.Compose where
 open import Prelude
 
 open import Data.Foldable
+open import Data.Functor.Contravariant
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -32,6 +33,10 @@ instance
   Functor-Compose : {{Functor f}} -> {{Functor g}}
     -> Functor (Compose f g)
   Functor-Compose .map f x = asCompose (map (map f) (getCompose x))
+
+  Contravariant-Compose : {{Functor f}} -> {{Contravariant g}}
+    -> Contravariant (Compose f g)
+  Contravariant-Compose .cmap f x = asCompose (map (cmap f) (getCompose x))
 
   Applicative-Compose : {{Applicative f}} -> {{Applicative g}}
     -> Applicative (Compose f g)
