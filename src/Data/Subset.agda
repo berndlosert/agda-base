@@ -4,7 +4,7 @@ module Data.Subset where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (map)
+open import Prelude hiding (map; _>>=_; _>>_)
 
 open import Data.Foldable
 open import Data.String.Show
@@ -71,8 +71,11 @@ abstract
   filter : {{Ord a}} -> (a -> Bool) -> Subset a -> Subset a
   filter = Tree.filter
 
-  bind : {{Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
-  bind m k = unions (Prelude.map k (toList m))
+  _>>=_ : {{Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
+  _>>=_ m k = unions (Prelude.map k (toList m))
+
+  _>>_ : {{Ord b}} -> Subset a -> Subset b -> Subset b
+  x >> y = x >>= const y
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -93,5 +96,4 @@ abstract
 
     Show-Subset : {{Show a}} -> Show (Subset a)
     Show-Subset .show = showDefault {{Show-Subset}}
-    Show-Subset .showsPrec prec xs = showParen (prec > appPrec)
-      ("fromList " <> showsPrec prec (toList xs))
+    Show-Subset .showsPrec prec xs = showsUnaryWith showsPrec "fromList" prec (toList xs)
