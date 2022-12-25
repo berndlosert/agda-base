@@ -6,6 +6,7 @@ module Data.Subset where
 
 open import Prelude hiding (map; _>>=_; _>>_)
 
+open import Control.Monad.Constrained
 open import Data.Foldable
 open import Data.String.Show
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
@@ -71,12 +72,6 @@ abstract
   filter : {{Ord a}} -> (a -> Bool) -> Subset a -> Subset a
   filter = Tree.filter
 
-  _>>=_ : {{Ord b}} -> Subset a -> (a -> Subset b) -> Subset b
-  _>>=_ m k = unions (Prelude.map k (toList m))
-
-  _>>_ : {{Ord b}} -> Subset a -> Subset b -> Subset b
-  x >> y = x >>= const y
-
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
@@ -97,3 +92,10 @@ abstract
     Show-Subset : {{Show a}} -> Show (Subset a)
     Show-Subset .show = showDefault {{Show-Subset}}
     Show-Subset .showsPrec prec xs = showsUnaryWith showsPrec "fromList" prec (toList xs)
+
+    ConstrainedFunctor-Subset : ConstrainedFunctor Ord Subset
+    ConstrainedFunctor-Subset .mapCF = map
+
+    ConstrainedMonad-Subset : ConstrainedMonad Ord Subset
+    ConstrainedMonad-Subset .bindCM m k = unions (Prelude.map k (toList m))
+    ConstrainedMonad-Subset .returnCM = singleton

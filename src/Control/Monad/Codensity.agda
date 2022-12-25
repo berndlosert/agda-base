@@ -6,6 +6,8 @@ module Control.Monad.Codensity where
 
 open import Prelude
 
+open import Control.Monad.Constrained
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -13,33 +15,34 @@ open import Prelude
 private
   variable
     a : Set
-    f m : Set -> Set
+    c m : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Codensity
 -------------------------------------------------------------------------------
 
-record Codensity (f : Set -> Set) (a : Set) : Set where
+-- Constrained version of Codensity. Taken from "The Constrained-Monad Problem".
+record Codensity (c m : Set -> Set) (a : Set) : Set where
   constructor asCodensity
-  field runCodensity : forall {b} -> (a -> f b) -> f b
+  field runCodensity : forall {b} -> {{c b}} -> (a -> m b) -> m b
 
 open Codensity
 
-lowerCodensity : {{Applicative f}} -> Codensity f a -> f a
-lowerCodensity x = runCodensity x pure
+lowerCodensity : {{c a}} -> {{ConstrainedMonad c m}} -> Codensity c m a -> m a
+lowerCodensity x = runCodensity x returnCM
 
-liftCodensity : {{Monad f}} -> f a -> Codensity f a
-liftCodensity x = asCodensity (x >>=_)
+liftCodensity : {{ConstrainedMonad c m}} -> m a -> Codensity c m a
+liftCodensity x = asCodensity (bindCM x)
 
 instance
-  Functor-Codensity : Functor (Codensity f)
+  Functor-Codensity : Functor (Codensity c m)
   Functor-Codensity .map f x = asCodensity \ k -> runCodensity x (k <<< f)
 
-  Applicative-Codensity : Applicative (Codensity f)
+  Applicative-Codensity : Applicative (Codensity c m)
   Applicative-Codensity ._<*>_ f x = asCodensity \ where
     k -> runCodensity f (\ g -> runCodensity x (k <<< g))
   Applicative-Codensity .pure x = asCodensity \ k -> k x
 
-  Monad-Codensity : Monad (Codensity f)
+  Monad-Codensity : Monad (Codensity c m)
   Monad-Codensity ._>>=_ m f = asCodensity \ where
     k1 -> runCodensity m (\ k2 -> runCodensity (f k2) k1)
