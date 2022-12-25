@@ -20,7 +20,7 @@ private
 -------------------------------------------------------------------------------
 
 record ConstrainedFunctor (c f : Set -> Set) : Set where
-  field mapCF : {{c b}} -> (a -> b) -> f a -> f b
+  field conmap : {{c b}} -> (a -> b) -> f a -> f b
 
 open ConstrainedFunctor {{...}} public
 
@@ -31,8 +31,8 @@ open ConstrainedFunctor {{...}} public
 record ConstrainedMonad (c m : Set -> Set) : Set where
   field
     overlap {{super}} : ConstrainedFunctor c m
-    bindCM : {{c b}} -> m a -> (a -> m b) -> m b
-    returnCM : a -> m a
+    conbind : {{c b}} -> m a -> (a -> m b) -> m b
+    conreturn : a -> m a
 
 open ConstrainedMonad {{...}} public
 

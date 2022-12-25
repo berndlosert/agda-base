@@ -94,8 +94,8 @@ abstract
     Show-Subset .showsPrec prec xs = showsUnaryWith showsPrec "fromList" prec (toList xs)
 
     ConstrainedFunctor-Subset : ConstrainedFunctor Ord Subset
-    ConstrainedFunctor-Subset .mapCF = map
+    ConstrainedFunctor-Subset .conmap = map
 
     ConstrainedMonad-Subset : ConstrainedMonad Ord Subset
-    ConstrainedMonad-Subset .bindCM m k = unions (Prelude.map k (toList m))
-    ConstrainedMonad-Subset .returnCM = singleton
+    ConstrainedMonad-Subset .conbind m k = unions (Prelude.map k (toList m))
+    ConstrainedMonad-Subset .conreturn = singleton
