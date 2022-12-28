@@ -93,9 +93,9 @@ abstract
     Show-Subset .show = showDefault {{Show-Subset}}
     Show-Subset .showsPrec prec xs = showsUnaryWith showsPrec "fromList" prec (toList xs)
 
-    ConstrainedFunctor-Subset : ConstrainedFunctor Ord Subset
-    ConstrainedFunctor-Subset .conmap = map
+    CFunctor-Subset : CFunctor Ord Subset
+    CFunctor-Subset .cfmap = map
 
-    ConstrainedMonad-Subset : ConstrainedMonad Ord Subset
-    ConstrainedMonad-Subset .conbind m k = unions (Prelude.map k (toList m))
-    ConstrainedMonad-Subset .conreturn = singleton
+    CMonad-Subset : CMonad Ord Subset
+    CMonad-Subset .cmbind m k = unions (Prelude.map k (toList m))
+    CMonad-Subset .cmreturn = singleton

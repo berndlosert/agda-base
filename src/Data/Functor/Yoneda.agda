@@ -28,8 +28,8 @@ record Yoneda (c f : Set -> Set) (a : Set) : Set where
 
 open Yoneda public
 
-liftYoneda : {{ConstrainedFunctor c f}} -> f a -> Yoneda c f a
-liftYoneda x = asYoneda \ f -> mapCF f x
+liftYoneda : {{CFunctor c f}} -> f a -> Yoneda c f a
+liftYoneda x = asYoneda \ f -> cfmap f x
 
 lowerYoneda : {{c a}} -> Yoneda c f a -> f a
 lowerYoneda y = runYoneda y id

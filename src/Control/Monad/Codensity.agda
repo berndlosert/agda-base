@@ -28,11 +28,11 @@ record Codensity (c m : Set -> Set) (a : Set) : Set where
 
 open Codensity
 
-lowerCodensity : {{c a}} -> {{ConstrainedMonad c m}} -> Codensity c m a -> m a
-lowerCodensity x = runCodensity x conreturn
+lowerCodensity : {{c a}} -> {{CMonad c m}} -> Codensity c m a -> m a
+lowerCodensity x = runCodensity x cmreturn
 
-liftCodensity : {{ConstrainedMonad c m}} -> m a -> Codensity c m a
-liftCodensity x = asCodensity (conbind x)
+liftCodensity : {{CMonad c m}} -> m a -> Codensity c m a
+liftCodensity x = asCodensity (cmbind x)
 
 instance
   Functor-Codensity : Functor (Codensity c m)

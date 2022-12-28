@@ -16,25 +16,25 @@ private
     a b : Set
 
 -------------------------------------------------------------------------------
--- ConstrainedFunctor
+-- CFunctor
 -------------------------------------------------------------------------------
 
-record ConstrainedFunctor (c f : Set -> Set) : Set where
-  field conmap : {{c b}} -> (a -> b) -> f a -> f b
+record CFunctor (c f : Set -> Set) : Set where
+  field cfmap : {{c b}} -> (a -> b) -> f a -> f b
 
-open ConstrainedFunctor {{...}} public
+open CFunctor {{...}} public
 
 -------------------------------------------------------------------------------
--- ConstrainedManad
+-- CManad
 -------------------------------------------------------------------------------
 
-record ConstrainedMonad (c m : Set -> Set) : Set where
+record CMonad (c m : Set -> Set) : Set where
   field
-    overlap {{super}} : ConstrainedFunctor c m
-    conbind : {{c b}} -> m a -> (a -> m b) -> m b
-    conreturn : a -> m a
+    overlap {{super}} : CFunctor c m
+    cmbind : {{c b}} -> m a -> (a -> m b) -> m b
+    cmreturn : a -> m a
 
-open ConstrainedMonad {{...}} public
+open CMonad {{...}} public
 
 -------------------------------------------------------------------------------
 -- Unconstrained
