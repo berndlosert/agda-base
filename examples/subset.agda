@@ -10,12 +10,12 @@ foo1 = Subset.fromList (1 :: 1 :: 2 :: 2 :: [])
 foo2 : Subset Nat
 foo2 = Subset.fromList (3 :: 3 :: 4 :: 4 :: [])
 
-bar2 : Codensity Ord Subset Nat
-bar2 = do
+bar2 : Subset Nat
+bar2 = lowerCodensity do
   x <- liftCodensity foo1
   y <- liftCodensity foo2
   pure (x + y)
 
 main : IO Unit
 main = do
-  print (lowerCodensity bar2)
+  print bar2
