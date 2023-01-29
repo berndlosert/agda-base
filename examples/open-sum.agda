@@ -57,10 +57,6 @@ module Sum1-test where
   add : {{Member Add fs}} -> Expr (Sum1 fs) -> Expr (Sum1 fs) -> Expr (Sum1 fs)
   add l r = inject (anAdd l r)
 
-  instance
-    HasAdd-Expr-Add : {{Member Add fs}} -> HasAdd (Expr (Sum1 fs))
-    HasAdd-Expr-Add ._+_ = add
-
 -------------------------------------------------------------------------------
 
 module data-types-a-la-carte-test where
@@ -82,9 +78,6 @@ module data-types-a-la-carte-test where
 
     :<:-right : {{a :<: c}} -> a :<: Either b c
     :<:-right .into = right <<< into
-
-    HasAdd-Set : HasAdd Set
-    HasAdd-Set ._+_ = Either
 
   -- Does not work.
   -- f' : Nat -> Nat + (String + Bool)
