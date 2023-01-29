@@ -303,6 +303,9 @@ data Coercible (a b : Set) : Set where
 postulate
   coerce : {{_ : Coercible a b}} -> a -> b
 
+unsafeCoerce : a -> b
+unsafeCoerce = coerce {{trustMe}}
+
 instance
   Coercible-Nat-Int : Coercible Nat Int
   Coercible-Nat-Int = coercible
