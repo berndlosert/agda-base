@@ -169,8 +169,11 @@ case_of_ x f = f x
 _on_ : (b -> b -> c) -> (a -> b) -> a -> a -> c
 f on g = \ x y -> f (g x) (g y)
 
-absurd : Void -> a
-absurd = \ ()
+void : Void -> a
+void = \ ()
+
+ignore : a -> Unit
+ignore _ = tt
 
 applyN : Nat -> (a -> a) -> a -> a
 applyN 0 _ x = x
@@ -292,6 +295,22 @@ private
 {-# COMPILE GHC pureIO = \ _ -> pure #-}
 {-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
 {-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
+
+-------------------------------------------------------------------------------
+-- Uninhabited
+-------------------------------------------------------------------------------
+
+record Uninhabited (a : Set) : Set where
+  field uninhabited : a -> Void
+
+  absurd : a -> b
+  absurd x = void (uninhabited x)
+
+open Uninhabited {{...}} public
+
+instance
+  Uninhabited-Void : Uninhabited Void
+  Uninhabited-Void .uninhabited = void
 
 -------------------------------------------------------------------------------
 -- Coercible
@@ -799,12 +818,6 @@ record Functor (f : Set -> Set) : Set where
   infixl 4 _$>_
   _$>_ : f a -> b -> f b
   _$>_ = flip _<$_
-
-  ignore : f a -> f Unit
-  ignore = tt <$_
-
-  vacuous : f Void -> f a
-  vacuous = map \ ()
 
 open Functor {{...}} public
 
