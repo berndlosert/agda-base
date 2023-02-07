@@ -12,14 +12,15 @@ open import Prelude hiding (pos)
 
 private
   variable
-    a a1 a2 a3 : Set
-    as bs cs : List Set
+    k : Set
+    a a1 a2 a3 : k
+    as bs cs : List k
 
 -------------------------------------------------------------------------------
 -- Elem
 -------------------------------------------------------------------------------
 
-record Elem (a : Set) (as : List Set) : Set where
+record Elem (a : k) (as : List k) : Set where
   constructor elemPos
   field pos : Nat
 
