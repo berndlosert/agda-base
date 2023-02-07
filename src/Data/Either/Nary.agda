@@ -30,22 +30,21 @@ instance
 
 project : Elem a as -> EitherN as -> Maybe a
 project elem (inject elem' x) =
-  if elem .Elem.pos == elem' .Elem.pos then just (unsafeCoerce x) else nothing
+  if Elem.pos elem == Elem.pos elem'
+    then just (unsafeCoerce x)
+    else nothing
 
 decompose : EitherN (a :: as) -> Either a (EitherN as)
 decompose (inject elem x) =
-  let
-    pos = elem .Elem.pos
-  in
-    if pos == 0
-      then left (unsafeCoerce x)
-      else right $ inject (elemPos $ pos - 1) x
+  if Elem.pos elem == 0
+    then left (unsafeCoerce x)
+    else right $ inject (elemPos $ Elem.pos elem - 1) x
 
 relax : Sub as bs -> EitherN as -> EitherN bs
 relax nilSub x = absurd x
 relax (consSub h t) x with decompose x
-... | left x = inject h x
-... | right x = relax t x
+... | left y = inject h y
+... | right z = relax t z
 
 eitherN : (a -> b) -> (EitherN as -> b) -> EitherN (a :: as) -> b
 eitherN f g x with decompose x
