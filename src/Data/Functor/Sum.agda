@@ -40,9 +40,9 @@ instance
     (inr y) -> inr (cmap f y)
 
   Foldable-Sum : {{Foldable f}} -> {{Foldable g}} -> Foldable (Sum f g)
-  Foldable-Sum .foldr f z = \ where
-    (inl x) -> foldr f z x
-    (inr y) -> foldr f z y
+  Foldable-Sum .foldr step init = \ where
+    (inl x) -> foldr step init x
+    (inr y) -> foldr step init y
 
   Traversable-Sum : {{Traversable f}} -> {{Traversable g}} -> Traversable (Sum f g)
   Traversable-Sum .traverse f = \ where
