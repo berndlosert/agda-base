@@ -48,7 +48,7 @@ withEitherT : {{Functor m}} -> (e -> e') -> EitherT e m a -> EitherT e' m a
 withEitherT f t = asEitherT $ lmap f <$> runEitherT t
 
 instance
-  Show-EitherT : {{_ : Show (m (Either e a))}} -> Show (EitherT e m a)
+  Show-EitherT : {{Show (m (Either e a))}} -> Show (EitherT e m a)
   Show-EitherT .show = showDefault
   Show-EitherT .showsPrec prec (asEitherT m) = showsUnaryWith showsPrec "asEitherT" prec m
 
