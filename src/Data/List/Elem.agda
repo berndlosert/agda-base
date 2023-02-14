@@ -46,6 +46,6 @@ instance
 -- Sub
 -------------------------------------------------------------------------------
 
-data Sub : List Set -> List Set -> Set where
+data Sub : List k -> List k -> Set where
   nilSub : Sub [] bs
   consSub : Elem a bs -> Sub as bs -> Sub (a :: as) bs
