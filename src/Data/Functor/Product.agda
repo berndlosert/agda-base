@@ -24,7 +24,7 @@ private
 -- Product
 -------------------------------------------------------------------------------
 
-record Product (f g : Set -> Set) (a : Set) : Set where
+record Product {k : Set} (f g : k -> Set) (a : k) : Set where
   constructor pair
   field
     fstP : f a

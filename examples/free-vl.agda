@@ -7,10 +7,11 @@
 open import Prelude
 
 open import Data.Bytes
+open import Data.Functor.Product.Nary
+open import Data.List.Elem
 open import Control.Concurrent
 open import Control.Exception
 open import Control.Monad.Free.VL
-open import Data.Open.Product1
 open import System.IO
 open import System.Random as R using ()
 
@@ -67,22 +68,22 @@ open Suspend
 -- Smart constructors
 -------------------------------------------------------------------------------
 
-getHttp : {{Member Http fs}}
-  -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
-getHttp url = liftFree \ prod -> getHttpEff (prj prod) url
+getHttp : {{Elem Http fs}}
+  -> Url -> Free (ProductN fs) (Either Nat (Response Bytes))
+getHttp {{elem}} url = liftFree \ prod -> getHttpEff (project elem prod) url
 
-postHttp : {{Member Http fs}}
-  -> Url -> RequestBody -> Free (Product1 fs) (Either Nat (Response Bytes))
-postHttp url body = liftFree \ prod -> postHttpEff (prj prod) url body
+postHttp : {{Elem Http fs}}
+  -> Url -> RequestBody -> Free (ProductN fs) (Either Nat (Response Bytes))
+postHttp {{elem}} url body = liftFree \ prod -> postHttpEff (project elem prod) url body
 
-logMsg : {{Member Logging fs}} -> String -> Free (Product1 fs) Unit
-logMsg msg = liftFree \ prod -> logEff (prj prod) msg
+logMsg : {{Elem Logging fs}} -> String -> Free (ProductN fs) Unit
+logMsg {{elem}} msg = liftFree \ prod -> logEff (project elem prod) msg
 
-getRand : {{Member Random fs}} -> Free (Product1 fs) Nat
-getRand = liftFree \ prod -> getRandEff (prj prod)
+getRand : {{Elem Random fs}} -> Free (ProductN fs) Nat
+getRand {{elem}} = liftFree \ prod -> getRandEff (project elem prod)
 
-suspend : {{Member Suspend fs}} -> Nat -> Free (Product1 fs) Unit
-suspend n = liftFree \ prod -> suspendEff (prj prod) n
+suspend : {{Elem Suspend fs}} -> Nat -> Free (ProductN fs) Unit
+suspend {{elem}} n = liftFree \ prod -> suspendEff (project elem prod) n
 
 -------------------------------------------------------------------------------
 -- Effect handlers
@@ -104,15 +105,15 @@ randIO .getRandEff = R.randomRIO (0 , 10)
 suspendIO : Suspend IO
 suspendIO .suspendEff = threadDelay
 
-ioHandler : Product1 (Http :: Logging :: Random :: Suspend :: []) IO
-ioHandler = httpIO :' logIO :' randIO :' suspendIO :' []
+ioHandler : ProductN (Http :: Logging :: Random :: Suspend :: []) IO
+ioHandler = cons httpIO $ cons logIO $ cons randIO $ cons suspendIO $ nil 
 
 -------------------------------------------------------------------------------
 -- Some programs
 -------------------------------------------------------------------------------
 
-repeatReq : {{Member Http fs}} -> {{Member Random fs}} -> {{Member Suspend fs}}
-  -> Url -> Free (Product1 fs) (Either Nat (Response Bytes))
+repeatReq : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}}
+  -> Url -> Free (ProductN fs) (Either Nat (Response Bytes))
 repeatReq url = do
     numRetries <- getRand
     eResponse <- getHttp url
@@ -126,16 +127,16 @@ repeatReq url = do
             r@(right _) -> pure r
             l@(left _) -> suspend 100 >> go n eResponse
 
-withLog : {{Member Logging fs}}
-  -> String -> String -> Free (Product1 fs) a -> Free (Product1 fs) a
+withLog : {{Elem Logging fs}}
+  -> String -> String -> Free (ProductN fs) a -> Free (ProductN fs) a
 withLog preMsg postMsg program = do
   logMsg preMsg
   a <- program
   logMsg postMsg
   pure a
 
-program : {{Member Http fs}} -> {{Member Random fs}} -> {{Member Suspend fs}} -> {{Member Logging fs}}
-  -> Free (Product1 fs) (Either Nat (Response Bytes))
+program : {{Elem Http fs}} -> {{Elem Random fs}} -> {{Elem Suspend fs}} -> {{Elem Logging fs}}
+  -> Free (ProductN fs) (Either Nat (Response Bytes))
 program = withLog "running request!" "done!" (repeatReq "http://aaronlevin.ca")
 
 -------------------------------------------------------------------------------
