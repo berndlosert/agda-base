@@ -15,7 +15,7 @@ open import Data.List.Elem
 private
   variable
     a b : Set
-    f g : Set -> Set
+    f : Set -> Set
     fs gs : List (Set -> Set)
 
 -------------------------------------------------------------------------------
