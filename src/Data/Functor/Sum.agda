@@ -24,7 +24,7 @@ private
 -- Sum
 -------------------------------------------------------------------------------
 
-data Sum (f g : Set -> Set) (a : Set) : Set where
+data Sum {k : Set} (f g : k -> Set) (a : k) : Set where
   inl : f a -> Sum f g a
   inr : g a -> Sum f g a
 

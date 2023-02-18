@@ -14,9 +14,10 @@ open import Data.List.Elem
 
 private
   variable
-    a b : Set
-    f : Set -> Set
-    fs gs : List (Set -> Set)
+    k : Set
+    a b : k 
+    f : k -> Set
+    fs gs : List (k -> Set)
 
 -------------------------------------------------------------------------------
 -- SumN
