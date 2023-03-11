@@ -17,13 +17,14 @@ open import Data.String.Show
 
 private
   variable
-    a b : Set
+    a k : Set
+    b : k
 
 -------------------------------------------------------------------------------
 -- Const
 -------------------------------------------------------------------------------
 
-record Const (a b : Set) : Set where
+record Const (a : Set) (b : k) : Set where
   constructor asConst
   field getConst : a
 

@@ -6,9 +6,11 @@ module Control.Lens where
 
 open import Prelude
 
+open import Control.Monad.Reader
 open import Data.Functor.Identity
 open import Data.Functor.Const
 open import Data.Functor.Contravariant
+open import Data.Functor.Representable
 open import Data.Monoid.All
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
@@ -296,6 +298,9 @@ is ap = not <<< isn't ap
 
 mapped : {{Functor f}} -> ASetter (f a) (f b) a b
 mapped = sets map
+
+represented : {{r : Representable f}} -> Simple Iso (f a) (Reader (Rep f) a)
+represented = iso (asks <<< index) (tabulate <<< runReader)
 
 record Folded (s a : Set) : Set where
   field folded : {{Monoid r}} -> AGetter r s a
