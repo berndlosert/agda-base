@@ -6,8 +6,6 @@ module Data.Functor.Yoneda where
 
 open import Prelude
 
-open import Control.Monad.Constrained
-
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
@@ -15,25 +13,24 @@ open import Control.Monad.Constrained
 private
   variable
     a b : Set
-    c f : Set -> Set
+    f : Set -> Set
 
 -------------------------------------------------------------------------------
 -- Yoneda
 -------------------------------------------------------------------------------
 
--- Constrained version of Yoneda. Taken from "The Constrained-Monad Problem".
-record Yoneda (c f : Set -> Set) (a : Set) : Set where
+record Yoneda (f : Set -> Set) (a : Set) : Set where
   constructor asYoneda
-  field runYoneda : forall {b} -> {{c b}} -> (a -> b) -> f b
+  field runYoneda : (a -> b) -> f b
 
 open Yoneda public
 
-liftYoneda : {{CFunctor c f}} -> f a -> Yoneda c f a
-liftYoneda x = asYoneda \ f -> cfmap f x
+liftYoneda : {{Functor f}} -> f a -> Yoneda f a
+liftYoneda x = asYoneda \ f -> map f x
 
-lowerYoneda : {{c a}} -> Yoneda c f a -> f a
+lowerYoneda : Yoneda f a -> f a
 lowerYoneda y = runYoneda y id
 
 instance
-  Functor-Yoneda : Functor (Yoneda c f)
+  Functor-Yoneda : Functor (Yoneda f)
   Functor-Yoneda .map f y = asYoneda \ g -> runYoneda y (g <<< f)
