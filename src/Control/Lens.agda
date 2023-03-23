@@ -7,6 +7,7 @@ module Control.Lens where
 open import Prelude
 
 open import Control.Monad.Reader
+open import Control.Monad.State as State
 open import Data.Functor.Identity
 open import Data.Functor.Const
 open import Data.Functor.Contravariant
@@ -162,10 +163,6 @@ to f k = asConst <<< getConst <<< k <<< f
 view : AGetter a s a -> s -> a
 view g = getConst <<< g asConst
 
-infixl 8 _^#_
-_^#_ : s -> AGetter a s a -> a
-_^#_ = flip view
-
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
 foldMapOf l step = getConst <<< l (asConst <<< step)
 
@@ -199,10 +196,6 @@ lengthOf l = foldlOf l (\ n _ -> suc n) zero
 
 preview : AGetter (Maybe (First a)) s a -> s -> Maybe a
 preview l = map getFirst <<< foldMapOf l (just <<< asFirst)
-
-infixl 8 _^?_
-_^?_ : s -> AGetter (Maybe (First a)) s a -> Maybe a
-_^?_ = flip preview
 
 firstOf : AGetter (First a) s a -> s -> a
 firstOf l = getFirst <<< foldMapOf l asFirst
@@ -380,23 +373,51 @@ instance
       go (x :: xs) (suc n) = (x ::_) <$> (go xs $! n)
 
 -------------------------------------------------------------------------------
+-- Operators
+-------------------------------------------------------------------------------
+
+infixl 8 _^:_
+_^:_ : s -> AGetter a s a -> a
+_^:_ = flip view
+
+infixl 8 _^?_
+_^?_ : s -> AGetter (Maybe (First a)) s a -> Maybe a
+_^?_ = flip preview
+
+infixr 4 _:~_
+_:~_ : ASetter s t a b -> b -> s -> t
+_:~_ = set
+
+infix 4 _:=_
+_:=_ : {{MonadState s m}} -> ASetter s s a b -> b -> m Unit
+l := b = State.modify (l :~ b)
+
+infixr 4 _%~_
+_%~_ : ASetter s t a b -> (a -> b) -> s -> t
+_%~_ = over
+
+infix 4 _%=_
+_%=_ : {{MonadState s m}} -> ASetter s s a b -> (a -> b) -> m Unit
+l %= f = State.modify (l %~ f)
+
+-------------------------------------------------------------------------------
 -- Some specific optics
 -------------------------------------------------------------------------------
 
-$fst : Lens (Pair a c) (Pair b c) a b
-$fst k (a , c) = map (_, c) (k a)
+fst' : Lens (Pair a c) (Pair b c) a b
+fst' k (a , c) = map (_, c) (k a)
 
-$snd : Lens (Pair a b) (Pair a c) b c
-$snd k (x , y) = map (x ,_) (k y)
+snd' : Lens (Pair a b) (Pair a c) b c
+snd' k (x , y) = map (x ,_) (k y)
 
-$left : Prism (Either a c) (Either b c) a b
-$left = prism left $ either right (left <<< right)
+left' : Prism (Either a c) (Either b c) a b
+left' = prism left $ either right (left <<< right)
 
-$right : Prism (Either a b) (Either a c) b c
-$right = prism right $ either (left <<< left) right
+right' : Prism (Either a b) (Either a c) b c
+right' = prism right $ either (left <<< left) right
 
-$just : Prism (Maybe a) (Maybe b) a b
-$just = prism just $ maybe (left nothing) right
+just' : Prism (Maybe a) (Maybe b) a b
+just' = prism just $ maybe (left nothing) right
 
-$nothing : Simple Prism (Maybe a) Unit
-$nothing = prism' (const nothing) $ maybe (just tt) (const nothing)
+nothing' : Simple Prism (Maybe a) Unit
+nothing' = prism' (const nothing) $ maybe (just tt) (const nothing)

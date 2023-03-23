@@ -36,13 +36,13 @@ instance
   Coercible-to-Identity = coercible
 
   Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity {a} ._==_ = coerce {a -> a -> Bool} _==_
+  Eq-Identity {a} ._==_ x y = runIdentity x == runIdentity y
 
   Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity {a} ._<_ = coerce {a -> a -> Bool} _<_
+  Ord-Identity {a} ._<_ x y = runIdentity x < runIdentity y
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
-  Semigroup-Identity {a} ._<>_ = coerce {a -> a -> a} _<>_
+  Semigroup-Identity {a} ._<>_ x y = asIdentity (runIdentity x <> runIdentity y)
 
   Monoid-Identity : {{Monoid a}} -> Monoid (Identity a)
   Monoid-Identity .mempty = asIdentity mempty
@@ -51,11 +51,11 @@ instance
   Foldable-Identity .foldr step init x = step (runIdentity x) init
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map = coerce
+  Functor-Identity .map f = asIdentity <<< f <<< runIdentity
 
   Applicative-Identity : Applicative Identity
   Applicative-Identity .pure = asIdentity
-  Applicative-Identity ._<*>_ = coerce
+  Applicative-Identity ._<*>_ f x = asIdentity (runIdentity f (runIdentity x))
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ x k = k (runIdentity x)

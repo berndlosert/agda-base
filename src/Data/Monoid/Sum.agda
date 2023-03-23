@@ -35,17 +35,17 @@ instance
   Coercible-to-Sum = coercible
 
   Semigroup-Sum-Num : {{Num a}} -> Semigroup (Sum a)
-  Semigroup-Sum-Num {a} ._<>_ = coerce {a -> a -> a} _+_
+  Semigroup-Sum-Num {a} ._<>_ x y = asSum (getSum x + getSum y)
 
   Monoid-Sum-Num : {{Num a}} -> Monoid (Sum a)
   Monoid-Sum-Num .mempty = asSum 0
 
   Functor-Sum : Functor Sum
-  Functor-Sum .map = coerce
+  Functor-Sum .map f x = asSum (f (getSum x))
 
   Applicative-Sum : Applicative Sum
   Applicative-Sum .pure = asSum
-  Applicative-Sum ._<*>_ = coerce
+  Applicative-Sum ._<*>_ f x = asSum (getSum f (getSum x))
 
   Monad-Sum : Monad Sum
   Monad-Sum ._>>=_ (asSum x) k = k x
