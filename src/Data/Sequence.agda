@@ -6,6 +6,7 @@ module Data.Sequence where
 
 open import Prelude
 
+open import Data.Filterable
 open import Data.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
@@ -17,6 +18,7 @@ open import Data.Sequence.Elem
 -- Re-exports
 -------------------------------------------------------------------------------
 
+open Data.Filterable public
 open Data.Foldable public
 open Data.Traversable public
 
@@ -41,6 +43,25 @@ private
   open Seq'
 
 Seq = Seq'
+
+-------------------------------------------------------------------------------
+-- Constructors
+-------------------------------------------------------------------------------
+
+pattern nil = asSeq Tree.empty
+
+cons : a -> Seq a -> Seq a
+cons x xs = asSeq (Tree.cons (asElem x) (unSeq xs))
+
+snoc : Seq a -> a -> Seq a
+snoc xs x = asSeq (Tree.snoc (unSeq xs) (asElem x))
+
+singleton : a -> Seq a
+singleton x = asSeq (Tree.singleton (asElem x))
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
@@ -73,30 +94,23 @@ instance
   Traversable-Seq : Traversable Seq
   Traversable-Seq .traverse f xs = asSeq <$> traverse (traverse f) (unSeq xs)
 
+  Filterable-Seq : Filterable Seq
+  Filterable-Seq .mapMaybe f = foldr (go f) nil
+    where
+      go : (a -> Maybe b) -> a -> Seq b -> Seq b
+      go f x ys = case f x of \ where
+        nothing -> ys
+        (just y) -> cons y ys
+
   Eq-Seq : {{Eq a}} -> Eq (Seq a)
   Eq-Seq ._==_ l r = toList l == toList r
 
 -------------------------------------------------------------------------------
--- Construction
+-- Constructors: Other
 -------------------------------------------------------------------------------
-
-pattern nil = asSeq Tree.empty
-
-cons : a -> Seq a -> Seq a
-cons x xs = asSeq (Tree.cons (asElem x) (unSeq xs))
-
-snoc : Seq a -> a -> Seq a
-snoc xs x = asSeq (Tree.snoc (unSeq xs) (asElem x))
-
-singleton : a -> Seq a
-singleton x = asSeq (Tree.singleton (asElem x))
 
 fromFoldable : {{Foldable t}} -> t a -> Seq a
 fromFoldable = foldr cons azero
-
--------------------------------------------------------------------------------
--- Construction: Repetition
--------------------------------------------------------------------------------
 
 replicate : Nat -> a -> Seq a
 replicate 0 _ = nil
@@ -109,17 +123,13 @@ replicateA {f} {a} n0 fa = loop n0
     loop 0 = pure azero
     loop (suc n) = (| cons fa (loop n) |)
 
--------------------------------------------------------------------------------
--- Construction: Iterative construction
--------------------------------------------------------------------------------
-
 iterateN : Nat -> (a -> a) -> a -> Seq a
 iterateN 0 f x = azero
 iterateN 1 f x = singleton x
 iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
 -------------------------------------------------------------------------------
--- Destruction
+-- Destructors
 -------------------------------------------------------------------------------
 
 uncons : Seq a -> Maybe (Pair a (Seq a))
@@ -139,7 +149,7 @@ tail : Seq a -> Maybe (Seq a)
 tail xs = snd <$> uncons xs
 
 -------------------------------------------------------------------------------
--- Deconstruction: Views
+-- Views
 -------------------------------------------------------------------------------
 
 data AsList (a : Set) : Seq a -> Set where
@@ -252,12 +262,6 @@ indicesr {a} p = ifoldl' go []
     go : List Nat -> Nat -> a -> List Nat
     go ns n x = if p x then n :: ns else ns
 
-filterA : {{Applicative f}} -> (a -> f Bool) -> Seq a -> f (Seq a)
-filterA {f} {a} p = foldr go (pure azero)
-  where
-    go : a -> f (Seq a) -> f (Seq a)
-    go x xs = (| if p x then (| (cons x) xs |) else xs |)
-
 -------------------------------------------------------------------------------
 -- Sublists: Sequential searches
 -------------------------------------------------------------------------------
@@ -286,18 +290,6 @@ dropWhileL p = snd <<< spanl p
 
 dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
-
-partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-partition {a} p = foldl' go (nil , nil)
-  where
-    go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
-    go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
-
-filter : (a -> Bool) -> Seq a -> Seq a
-filter {a} p = foldl' go azero
-  where
-    go : Seq a -> a -> Seq a
-    go xs x = if p x then snoc xs x else xs
 
 -------------------------------------------------------------------------------
 -- Transformations
