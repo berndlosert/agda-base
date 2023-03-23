@@ -111,7 +111,7 @@ snoc (deep s pr m (four a b c d)) e =
 
 snocAll : {{Measured v a}} -> {{Foldable f}}
   -> Tree v a -> f a -> Tree v a
-snocAll = foldl snoc
+snocAll = foldl' snoc
 
 -------------------------------------------------------------------------------
 -- Semigroup & Monoid instances

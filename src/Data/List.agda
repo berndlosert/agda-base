@@ -93,7 +93,7 @@ init (x :: xs@(_ :: _)) = (| pure x :: init xs |)
 -------------------------------------------------------------------------------
 
 reverse : List a -> List a
-reverse = foldl (flip cons) []
+reverse = foldl' (flip cons) []
 
 intersperse : a -> List a -> List a
 intersperse {a} sep = foldr go []
@@ -196,8 +196,8 @@ segmentsOfSize n xs =
 -- Scans
 -------------------------------------------------------------------------------
 
-scanl : (b -> a -> b) -> b -> List a -> List b
-scanl f b xs = foldl f b <$> inits xs
+scanl' : (b -> a -> b) -> b -> List a -> List b
+scanl' f b xs = foldl' f b <$> inits xs
 
 scanr : (a -> b -> b) -> b -> List a -> List b
 scanr f b xs = foldr f b <$> tails xs
@@ -358,7 +358,7 @@ nubBy {a} eq l = nubBy' l []
       else (y :: nubBy' ys (y :: xs))
 
 unionBy : (a -> a -> Bool) -> List a -> List a -> List a
-unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
+unionBy eq xs ys = xs <> foldl' (flip (deleteBy eq)) (nubBy eq ys) ys
 
 module _ {{_ : Eq a}} where
 

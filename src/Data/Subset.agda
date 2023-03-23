@@ -54,7 +54,7 @@ abstract
   union = Tree.merge
 
   unions : {{Foldable f}} -> {{Ord a}} -> f (Subset a) -> Subset a
-  unions = foldl union empty
+  unions = foldl' union empty
 
   difference : {{Ord a}} -> Subset a -> Subset a -> Subset a
   difference xs ys = foldr Tree.delete xs ys

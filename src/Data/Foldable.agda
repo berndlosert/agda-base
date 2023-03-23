@@ -22,8 +22,8 @@ private
 record Foldable (t : Set -> Set) : Set where
   field foldr : (a -> b -> b) -> b -> t a -> b
 
-  foldl : (b -> a -> b) -> b -> t a -> b
-  foldl {b} {a} step init xs = foldr step' id xs init
+  foldl' : (b -> a -> b) -> b -> t a -> b
+  foldl' {b} {a} step init xs = foldr step' id xs init
     where
       step' : a -> (b -> b) -> b -> b
       step' x k acc = k $! step acc x
@@ -34,8 +34,8 @@ record Foldable (t : Set -> Set) : Set where
       step : a -> b -> b
       step x acc = f x <> acc
 
-  foldMap! : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap! {b} {a} f = foldl step mempty
+  foldMap' : {{Monoid b}} -> (a -> b) -> t a -> b
+  foldMap' {b} {a} f = foldl' step mempty
     where
       step : b -> a -> b
       step acc x = acc <> f x
@@ -43,8 +43,8 @@ record Foldable (t : Set -> Set) : Set where
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
-  fold! : {{Monoid a}} -> t a -> a
-  fold! = foldMap! id
+  fold' : {{Monoid a}} -> t a -> a
+  fold' = foldMap' id
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} step init xs = foldr step' pure xs init
@@ -53,7 +53,7 @@ record Foldable (t : Set -> Set) : Set where
       step' x k acc = step acc x >>= k
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM {m} {a} {b} step init xs = foldl step' pure xs init
+  foldrM {m} {a} {b} step init xs = foldl' step' pure xs init
     where
       step' : (b -> m b) -> a -> b -> m b
       step' k x acc = step x acc >>= k
@@ -65,8 +65,8 @@ record Foldable (t : Set -> Set) : Set where
       step' _ nothing = nothing
       step' x (just y) = just (x <> y)
 
-  fold1! : {{Semigroup a}} -> t a -> Maybe a
-  fold1! {a} = foldl step' nothing
+  fold1' : {{Semigroup a}} -> t a -> Maybe a
+  fold1' {a} = foldl' step' nothing
     where
       step' : Maybe a -> a -> Maybe a
       step' nothing _ = nothing
@@ -116,10 +116,10 @@ record Foldable (t : Set -> Set) : Set where
     in foldr step nothing
 
   sum : {{Num a}} -> t a -> a
-  sum = foldl _+_ 0
+  sum = foldl' _+_ 0
 
   product : {{Num a}} -> t a -> a
-  product = foldl _*_ 1
+  product = foldl' _*_ 1
 
   module _ {{_ : Eq a}} where
 
@@ -130,14 +130,14 @@ record Foldable (t : Set -> Set) : Set where
     x notElem xs = not (x elem xs)
 
   minimumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  minimumBy {a} cmp = foldl step nothing
+  minimumBy {a} cmp = foldl' step nothing
     where
       step : Maybe a -> a -> Maybe a
       step nothing x = just x
       step (just acc) x = just (if cmp acc x == LT then acc else x)
 
   maximumBy : (a -> a -> Ordering) -> t a -> Maybe a
-  maximumBy {a} cmp = foldl step nothing
+  maximumBy {a} cmp = foldl' step nothing
     where
       step : Maybe a -> a -> Maybe a
       step nothing x = just x

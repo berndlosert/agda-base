@@ -116,8 +116,8 @@ justifyRight l c s = replicate (l - length s) (singleton c) <> s
 -- Folds
 -------------------------------------------------------------------------------
 
-foldl : (a -> Char -> a) -> a -> String -> a
-foldl f z s = List.foldl f z (unpack s)
+foldl' : (a -> Char -> a) -> a -> String -> a
+foldl' f z s = List.foldl' f z (unpack s)
 
 -------------------------------------------------------------------------------
 -- Breaking strings
@@ -192,7 +192,7 @@ unwords (w :: ws) = w <> go ws
 
 lines : String -> List String
 lines s =
-    let (l , ls) = foldl go ("" , []) s
+    let (l , ls) = foldl' go ("" , []) s
     in List.reverse (if l == "" then ls else (l :: ls))
   where
     go : Pair String (List String) -> Char -> Pair String (List String)

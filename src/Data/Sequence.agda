@@ -229,9 +229,9 @@ ifoldr {a} {b} f z xs =
     go : a -> (Nat -> b) -> Nat -> b
     go x g n = f n x (g (n + 1))
 
-ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
-ifoldl {b} {a} f z xs =
-    foldl go (const z) xs (length xs - 1)
+ifoldl' : (b -> Nat -> a -> b) -> b -> Seq a -> b
+ifoldl' {b} {a} f z xs =
+    foldl' go (const z) xs (length xs - 1)
   where
     go : (Nat -> b) -> a -> Nat -> b
     go g x n = f (g (n - 1)) n x
@@ -247,7 +247,7 @@ indicesl {a} p = ifoldr go []
     go n x ns = if p x then n :: ns else ns
 
 indicesr : (a -> Bool) -> Seq a -> List Nat
-indicesr {a} p = ifoldl go []
+indicesr {a} p = ifoldl' go []
   where
     go : List Nat -> Nat -> a -> List Nat
     go ns n x = if p x then n :: ns else ns
@@ -288,13 +288,13 @@ dropWhileR : (a -> Bool) -> Seq a -> Seq a
 dropWhileR p = snd <<< spanr p
 
 partition : (a -> Bool) -> Seq a -> Pair (Seq a) (Seq a)
-partition {a} p = foldl go (nil , nil)
+partition {a} p = foldl' go (nil , nil)
   where
     go : Pair (Seq a) (Seq a) -> a -> Pair (Seq a) (Seq a)
     go (xs , ys) x = if p x then (snoc xs x , ys) else (xs , snoc ys x)
 
 filter : (a -> Bool) -> Seq a -> Seq a
-filter {a} p = foldl go azero
+filter {a} p = foldl' go azero
   where
     go : Seq a -> a -> Seq a
     go xs x = if p x then snoc xs x else xs
@@ -304,7 +304,7 @@ filter {a} p = foldl go azero
 -------------------------------------------------------------------------------
 
 reverse : Seq a -> Seq a
-reverse = foldl (flip cons) azero
+reverse = foldl' (flip cons) azero
 
 intersperse : a -> Seq a -> Seq a
 intersperse sep xs with uncons xs
