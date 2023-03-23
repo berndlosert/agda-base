@@ -326,45 +326,23 @@ instance
   Each-List .each f [] = pure []
   Each-List .each f (x :: xs) = (| f x :: each f xs |)
 
-record HasIndex (s : Set) : Set where
-  field Index : Set
-
-Index : (s : Set) -> {{HasIndex s}} -> Set
-Index s {{prf}} = HasIndex.Index prf
-
-instance
-  HasIndex-Function : HasIndex (a -> b)
-  HasIndex-Function {a} .HasIndex.Index = a
-
-  HasIndex-Pair : HasIndex (Pair a b)
-  HasIndex-Pair .HasIndex.Index = Nat
-
-  HasIndex-List : HasIndex (List a)
-  HasIndex-List .HasIndex.Index = Nat
-
-record HasIxValue (m : Set) : Set where
-  field IxValue : Set
-
-IxValue : (m : Set) -> {{HasIxValue m}} -> Set
-IxValue m {{prf}} = HasIxValue.IxValue prf
-
-instance
-  HasIxValue-Function : HasIxValue (a -> b)
-  HasIxValue-Function {a} {b} .HasIxValue.IxValue = b
-
-  HasIxValue-List : HasIxValue (List a)
-  HasIxValue-List {a} .HasIxValue.IxValue = a
-
-record Ixed (m : Set) {{_ : HasIndex m}} {{_ : HasIxValue m}} : Set where
-  field ix : Index m -> Simple Traversal m (IxValue m)
+record Ixed (m : Set) : Set where
+  field
+    Index : Set
+    IxValue : Set
+    ix : Index -> Simple Traversal m IxValue
 
 open Ixed {{...}} public
 
 instance
   Ixed-Function : {{Eq a}} -> Ixed (a -> b)
+  Ixed-Function {a} .Index = a
+  Ixed-Function {a} {b} .IxValue = b
   Ixed-Function .ix x p f = p (f x) <#> \ y x' -> if x == x' then y else f x'
 
   Ixed-List : Ixed (List a)
+  Ixed-List .Index = Nat
+  Ixed-List {a} .IxValue = a
   Ixed-List {a} .ix k f xs0 = go xs0 k
     where
       go : List a -> Nat -> _
