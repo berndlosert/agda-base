@@ -10,17 +10,16 @@ The design is mostly based on GHC's base library, but a lot of ideas were
 "stolen" from libraries and packages from hackage, pursuit, agda-stdlib,
 agda-prelude, Idris and other sources.
 
-## How to install with `brew` (macOS Mojave)
+## How to install (Linux, macOS and other Unices)
+
+This assumes that Agda is already installed. See the next sections otherwise:
 
 ```sh
-# Install agda
-brew install agda
-
 # Clone the project somewhere (or download the code and unzip it somewhere)
 git clone https://github.com/berndlosert/agda-base.git
 
 # Set up the base library
-mkdir ~/.agda
+mkdir -p ~/.agda
 echo <path to base library>/base-library.agda-lib >> ~/.agda/libraries
 echo base-library >> ~/.agda/defaults
 
@@ -28,6 +27,18 @@ echo base-library >> ~/.agda/defaults
 cabal update
 cabal install --lib ieee754
 cabal install --lib network # Needed by Network.Socket code
+```
+
+### Install Agda via Cabal
+
+```sh
+cabal install Agda
+```
+
+### Install Agda with `brew` (macOS Mojave)
+
+```sh
+brew install agda
 ```
 
 N.B. `brew install agda` will install a couple of "unnecessary" things:
