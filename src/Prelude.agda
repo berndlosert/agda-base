@@ -925,6 +925,9 @@ record Alternative (f : Set -> Set) : Set where
   guarded : (a -> Bool) -> a -> f a
   guarded p x = if p x then pure x else azero
 
+  if_then_ : Bool -> a -> f a
+  if b then x = guarded (const b) x
+
 open Alternative {{...}} public
 
 instance

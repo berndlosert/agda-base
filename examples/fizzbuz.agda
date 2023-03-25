@@ -5,8 +5,8 @@ open import Data.String.Show
 open import System.IO
 
 fizz buzz num fizzbuzz : Nat -> Maybe String
-fizz n = if n % 3 == 0 then just "Fizz" else nothing
-buzz n = if n % 5 == 0 then just "Buzz" else nothing
+fizz n = if mod n 3 == 0 then "Fizz"
+buzz n = if mod n 5 == 0 then "Buzz"
 num n = just (show n)
 fizzbuzz n = fizz n <> buzz n <|> num n
 
