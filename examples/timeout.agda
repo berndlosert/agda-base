@@ -15,4 +15,4 @@ main = do
     pure x
   end <- getPOSIXTime
   putStrLn $ "Duration: " <> show (end - start)
-  putStrLn $ "Result: " <> show (the (Maybe (Either SomeException Unit)) res)
+  putStrLn $ "Result: " <> show (id {Maybe (Either SomeException Unit)} res)
