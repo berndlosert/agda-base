@@ -1,4 +1,4 @@
-open import Prelude
+open import Prelude hiding (Num)
 
 open import Data.String
 open import Data.String.Parser
