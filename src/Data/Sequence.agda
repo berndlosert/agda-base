@@ -4,7 +4,7 @@ module Data.Sequence where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (seq)
+open import Prelude
 
 open import Data.Filterable
 open import Data.Monoid.Foldable
@@ -37,7 +37,7 @@ private
 
 private
   record Seq' (a : Type) : Type where
-    constructor seq
+    constructor asSeq
     field unSeq : Tree (Sum Nat) (Elem a)
 
   open Seq'
@@ -48,16 +48,16 @@ Seq = Seq'
 -- Constructors
 -------------------------------------------------------------------------------
 
-pattern nil = seq Tree.empty
+pattern nil = asSeq Tree.empty
 
 cons : a -> Seq a -> Seq a
-cons x xs = seq (Tree.cons (elem x) (unSeq xs))
+cons x xs = asSeq (Tree.cons (elem x) (unSeq xs))
 
 snoc : Seq a -> a -> Seq a
-snoc xs x = seq (Tree.snoc (unSeq xs) (elem x))
+snoc xs x = asSeq (Tree.snoc (unSeq xs) (elem x))
 
 singleton : a -> Seq a
-singleton x = seq (Tree.singleton (elem x))
+singleton x = asSeq (Tree.singleton (elem x))
 
 -------------------------------------------------------------------------------
 -- Instances
@@ -65,19 +65,19 @@ singleton x = seq (Tree.singleton (elem x))
 
 instance
   Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ l r = seq (unSeq l <> unSeq r)
+  Semigroup-Seq ._<>_ l r = asSeq (unSeq l <> unSeq r)
 
   Monoid-Seq : Monoid (Seq a)
-  Monoid-Seq .mempty = seq Tree.empty
+  Monoid-Seq .mempty = asSeq Tree.empty
 
   Foldable-Seq : Foldable Seq
   Foldable-Seq .foldMap f xs = foldMap (f <<< getElem) (unSeq xs)
 
   Functor-Seq : Functor Seq
-  Functor-Seq .map f xs = seq (map f <$> unSeq xs)
+  Functor-Seq .map f xs = asSeq (map f <$> unSeq xs)
 
   Applicative-Seq : Applicative Seq
-  Applicative-Seq .pure = seq <<< Tree.singleton <<< elem
+  Applicative-Seq .pure = asSeq <<< Tree.singleton <<< elem
   Applicative-Seq ._<*>_ fs xs =
       bind fs \ f -> bind xs \ x -> pure (f x)
     where
@@ -92,7 +92,7 @@ instance
   Monad-Seq ._>>=_ = flip foldMap
 
   Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f xs = seq <$> traverse (traverse f) (unSeq xs)
+  Traversable-Seq .traverse f xs = asSeq <$> traverse (traverse f) (unSeq xs)
 
   Filterable-Seq : Filterable Seq
   Filterable-Seq .mapMaybe f = foldr (go f) nil
@@ -135,12 +135,12 @@ iterateN (suc n) f x = cons (f x) (iterateN n f x)
 uncons : Seq a -> Maybe (Tuple a (Seq a))
 uncons xs with Tree.uncons (unSeq xs)
 ... | nothing = nothing
-... | just (elem x , xs) = just (x , seq xs)
+... | just (elem x , xs) = just (x , asSeq xs)
 
 unsnoc : Seq a -> Maybe (Tuple (Seq a) a)
 unsnoc xs with Tree.unsnoc (unSeq xs)
 ... | nothing = nothing
-... | just (xs , elem x) = just (seq xs , x)
+... | just (xs , elem x) = just (asSeq xs , x)
 
 head : Seq a -> Maybe a
 head xs = fst <$> uncons xs
@@ -191,10 +191,10 @@ scanr f b xs = snoc (snd (mapAccumR (\ z x -> dup (f x z)) b xs)) b
 -------------------------------------------------------------------------------
 
 tails : Seq a -> Seq (Seq a)
-tails xs = snoc (seq (Tree.tails (elem <<< seq) (unSeq xs))) azero
+tails xs = snoc (asSeq (Tree.tails (elem <<< asSeq) (unSeq xs))) azero
 
 inits : Seq a -> Seq (Seq a)
-inits xs = cons azero (seq (Tree.inits (elem <<< seq) (unSeq xs)))
+inits xs = cons azero (asSeq (Tree.inits (elem <<< asSeq) (unSeq xs)))
 
 -------------------------------------------------------------------------------
 -- Indexing
@@ -202,7 +202,7 @@ inits xs = cons azero (seq (Tree.inits (elem <<< seq) (unSeq xs)))
 
 splitAt : Nat -> Seq a -> Tuple (Seq a) (Seq a)
 splitAt n xs = case (Tree.split (\ m -> n < getSum m) (unSeq xs)) \ where
-  (ys , zs) -> (seq ys , seq zs)
+  (ys , zs) -> (asSeq ys , asSeq zs)
 
 take : Nat -> Seq a -> Seq a
 take n = fst <<< splitAt n

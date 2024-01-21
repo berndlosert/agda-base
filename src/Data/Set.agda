@@ -4,7 +4,7 @@ module Data.Set where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (map; _>>=_; _>>_)
+open import Prelude hiding (map)
 
 open import Data.Monoid.Foldable
 open import Data.String.Show
