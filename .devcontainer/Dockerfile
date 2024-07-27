@@ -1,22 +1,30 @@
-FROM gitpod/workspace-full
+FROM haskell:9.2.6
 
-# Install custom tools, runtime, etc.
-RUN brew install agda; \
-  brew install haskell-language-server; \ 
-  brew uninstall --ignore-dependencies emacs; brew deps emacs | xargs -n 1 brew uninstall --ignore-dependencies; \
-  rm -rf /home/linuxbrew/.linuxbrew/etc/unbound; \
-  rm -rf /home/linuxbrew/.linuxbrew/etc/gnutls; \
-  rm -rf /home/linuxbrew/.linuxbrew/etc/openssl@1.1; \
-  rm -rf /home/linuxbrew/.linuxbrew/etc/ca-certificates; \
-  rm -rf /home/linuxbrew/.linuxbrew/share/emacs/site-lisp/agda; \
-  sed -i -e 's/gcc-5/gcc-9/g' /home/linuxbrew/.linuxbrew/Cellar/ghc/8.10.7_1/lib/ghc-8.10.7/settings; \
-  cabal update; cabal install --lib ieee754; cabal install --lib network; cabal install --lib async; \
-  mkdir ~/.agda; \
-  echo /workspaces/agda-base/base-library.agda-lib >> ~/.agda/libraries; \
-  echo base-library >> ~/.agda/defaults; \
-  echo "set ttimeoutlen=25" >> ~/.vimrc; \
-  echo "set hidden" >> ~/.vimrc; \
-  echo "set noswapfile" >> ~/.vimrc; \
-  echo "syntax off" >> ~/.vimrc; \
-  echo "stty -ixon" >> ~/.bashrc; \
-  echo "export EDITOR=vim" >> ~/.bashrc
+USER root
+RUN apt-get update
+
+RUN apt-get install -y cabal-install
+RUN cabal update
+RUN cabal install alex
+RUN cabal install happy
+RUN cabal install Agda-2.6.4.3
+RUN cabal install --lib ieee754
+RUN cabal install --lib network
+RUN cabal install --lib async
+
+WORKDIR /root/
+RUN mkdir /root/.agda
+RUN echo "/workspaces/agda-base/base-library.agda-lib" >> /root/.agda/libraries
+RUN echo "base-library" >> ~/.agda/defaults
+
+RUN echo "stty -ixon" >> ~/.bashrc
+
+RUN apt-get install -y vim
+RUN echo "set ttimeoutlen=25" >> ~/.vimrc
+RUN echo "set hidden" >> ~/.vimrc
+RUN echo "set noswapfile" >> ~/.vimrc
+RUN echo "syntax off" >> ~/.vimrc
+RUN echo "export EDITOR=vim" >> ~/.bashrc
+
+#may need to update the agda path in the general extensions settings in VS Code
+ENTRYPOINT ["tail", "-f", "/dev/null"]
