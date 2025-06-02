@@ -1,0 +1,8 @@
+name: base-library
+include: src
+flags:
+  --no-import-sorts
+  --type-in-type
+  --guardedness
+  --no-positivity-check
+  --no-termination-check
