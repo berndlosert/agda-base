@@ -163,16 +163,13 @@ abstract
     Traversable-Seq .traverse = traverse <<< traverse {Elem}
 
 instance
-  Applicative-Seq : Applicative Seq
-  Monad-Seq : Monad Seq
+  mutual
+    Applicative-Seq : Applicative Seq
+    Applicative-Seq .pure = singleton
+    Applicative-Seq ._<*>_ = ap
 
-  Monad-Seq ._>>=_ x f = foldMap f x
-
-  Applicative-Seq .pure = singleton
-  Applicative-Seq ._<*>_ fs xs = do
-      f <- fs
-      x <- xs
-      pure (f x)
+    Monad-Seq : Monad Seq
+    Monad-Seq ._>>=_ x f = foldMap f x
 
   Alternative-Seq : Alternative Seq
   Alternative-Seq .azero = mempty

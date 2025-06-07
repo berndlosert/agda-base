@@ -22,24 +22,6 @@ private
     a b c : Type
 
 -------------------------------------------------------------------------------
--- Parser
--------------------------------------------------------------------------------
-
-private
-  record Parser' (a : Type) : Type where
-    constructor parser
-    field
-      unParser : forall {b}
-        -> String
-        -> (cok : a -> String -> b) (cerr : b)
-        -> (eok : a -> String -> b) (eerr : b)
-        -> b
-
-  open Parser'
-
-Parser = Parser'
-
--------------------------------------------------------------------------------
 -- Auxiliary types
 -------------------------------------------------------------------------------
 
@@ -55,49 +37,123 @@ data Reply (a : Type) : Type where
   reply : Consumption -> Result a -> Reply a
 
 -------------------------------------------------------------------------------
+-- Parser
+-------------------------------------------------------------------------------
+
+abstract
+  Parser : Type -> Type
+  Parser a = forall {b} -> String 
+    -> (cok : a -> String -> b) (cerr : b)
+    -> (eok : a -> String -> b) (eerr : b)
+    -> b
+
+-------------------------------------------------------------------------------
+-- Primitive parsers
+-------------------------------------------------------------------------------
+
+  convert : (Char -> Maybe a) -> Parser a
+  convert f = \ where
+      s cok _ _ eerr -> case (String.uncons s) \ where
+        nothing -> eerr
+        (just (c , s1)) -> case (f c) \ where
+          nothing -> eerr
+          (just x) -> cok x s1
+
+  -- Rewinds failure.
+  try : Parser a -> Parser a
+  try p = \ where
+    s cok _ eok eerr ->
+      let eerr1 = eerr
+      in p s cok eerr1 eok eerr1
+
+  -- Rewinds success.
+  lookAhead : Parser a -> Parser a
+  lookAhead p = \ where
+    s cok cerr eok eerr ->
+      let eok1 a _ = eok a s
+      in p s eok1 cerr eok1 eerr
+
+  -- Rewinds always.
+  notFollowedBy : Parser a -> Parser Unit
+  notFollowedBy p = \ where
+    s _ _ eok eerr ->
+      let
+        cok1 _ _ = eerr
+        cerr1 = eok tt s
+        eok1 _ _ = eerr
+        eerr1 = eok tt s
+      in
+        p s cok1 cerr1 eok1 eerr1
+
+-------------------------------------------------------------------------------
+-- Running parsers
+-------------------------------------------------------------------------------
+
+  runParser : Parser a -> String -> Maybe a
+  runParser p s =
+    let
+      cok x _ = just x
+      cerr = nothing
+      eok x _ = just x
+      eerr = nothing
+    in
+      p s cok cerr eok eerr
+
+  runParser' : Parser a -> String -> Reply a
+  runParser' p s =
+    let
+      cok x _ = reply consumed (ok x)
+      cerr = reply consumed err
+      eok x _ = reply empty (ok x)
+      eerr = reply empty err
+    in
+      p s cok cerr eok eerr
+
+-------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
-instance
-  mutual
-    Functor-Parser : Functor Parser
-    Functor-Parser .map = liftM
+  instance
+    mutual
+      Functor-Parser : Functor Parser
+      Functor-Parser .map = liftM
 
-    Applicative-Parser : Applicative Parser
-    Applicative-Parser ._<*>_ = ap
-    Applicative-Parser .pure x = parser \ where
-      s _ _ eok _ -> eok x s
+      Applicative-Parser : Applicative Parser
+      Applicative-Parser ._<*>_ = ap
+      Applicative-Parser .pure x = \ where
+        s _ _ eok _ -> eok x s
 
-    Monad-Parser : Monad Parser
-    Monad-Parser ._>>=_ m k = parser \ where
+      Monad-Parser : Monad Parser
+      Monad-Parser ._>>=_ m k = \ where
+        s cok cerr eok eerr ->
+          let
+            mcok x s1 = (k x) s1 cok cerr cok cerr
+            meok x s1 = (k x) s1 cok cerr eok eerr
+          in
+            m s mcok cerr meok eerr
+
+    Alternative-Parser : Alternative Parser
+    Alternative-Parser .azero = \ where
+      s _ _ _ eerr -> eerr
+    Alternative-Parser ._<|>_ m n = \ where
       s cok cerr eok eerr ->
         let
-          mcok x s1 = unParser (k x) s1 cok cerr cok cerr
-          meok x s1 = unParser (k x) s1 cok cerr eok eerr
+          meerr =
+            let
+              ncerr = cerr
+              neok x s1 = eok x s1
+              neerr = eerr
+            in
+              n s cok ncerr neok neerr
         in
-          unParser m s mcok cerr meok eerr
+          m s cok cerr eok meerr
 
-  Alternative-Parser : Alternative Parser
-  Alternative-Parser .azero = parser \ where
-    s _ _ _ eerr -> eerr
-  Alternative-Parser ._<|>_ m n = parser \ where
-    s cok cerr eok eerr ->
-      let
-        meerr =
-          let
-            ncerr = cerr
-            neok x s1 = eok x s1
-            neerr = eerr
-          in
-            unParser n s cok ncerr neok neerr
-      in
-        unParser m s cok cerr eok meerr
-
+instance
   Semigroup-Parser : {{Semigroup a}} -> Semigroup (Parser a)
   Semigroup-Parser ._<>_ p q = (| p <> q |)
 
   Monoid-Parser : {{Monoid a}} -> Monoid (Parser a)
-  Monoid-Parser .mempty = pure mempty
+  Monoid-Parser .mempty = pure mempty 
 
   Show-Consumption : Show Consumption
   Show-Consumption .show = showDefault
@@ -114,45 +170,7 @@ instance
   Show-Reply : {{Show a}} -> Show (Reply a)
   Show-Reply .show = showDefault
   Show-Reply .showsPrec prec (reply consumption result) =
-    showsBinaryWith showsPrec showsPrec "reply" prec consumption result
-
--------------------------------------------------------------------------------
--- Primitive parsers
--------------------------------------------------------------------------------
-
-convert : (Char -> Maybe a) -> Parser a
-convert f = parser \ where
-    s cok _ _ eerr -> case (String.uncons s) \ where
-      nothing -> eerr
-      (just (c , s1)) -> case (f c) \ where
-        nothing -> eerr
-        (just x) -> cok x s1
-
--- Rewinds failure.
-try : Parser a -> Parser a
-try p = parser \ where
-  s cok _ eok eerr ->
-    let eerr1 = eerr
-    in unParser p s cok eerr1 eok eerr1
-
--- Rewinds success.
-lookAhead : Parser a -> Parser a
-lookAhead p = parser \ where
-  s cok cerr eok eerr ->
-    let eok1 a _ = eok a s
-    in unParser p s eok1 cerr eok1 eerr
-
--- Rewinds always.
-notFollowedBy : Parser a -> Parser Unit
-notFollowedBy p = parser \ where
-  s _ _ eok eerr ->
-    let
-      cok1 _ _ = eerr
-      cerr1 = eok tt s
-      eok1 _ _ = eerr
-      eerr1 = eok tt s
-    in
-      unParser p s cok1 cerr1 eok1 eerr1
+    showsBinaryWith showsPrec showsPrec "reply" prec consumption result  
 
 -------------------------------------------------------------------------------
 -- Alternative combinators
@@ -343,27 +361,3 @@ token = lexeme <<< try
 
 keyword : String -> Parser Unit
 keyword s = token (string s *> notFollowedBy alphaNum)
-
--------------------------------------------------------------------------------
--- Running parsers
--------------------------------------------------------------------------------
-
-runParser : Parser a -> String -> Maybe a
-runParser p s =
-  let
-    cok x _ = just x
-    cerr = nothing
-    eok x _ = just x
-    eerr = nothing
-  in
-    unParser p s cok cerr eok eerr
-
-runParser' : Parser a -> String -> Reply a
-runParser' p s =
-  let
-    cok x _ = reply consumed (ok x)
-    cerr = reply consumed err
-    eok x _ = reply empty (ok x)
-    eerr = reply empty err
-  in
-    unParser p s cok cerr eok eerr
