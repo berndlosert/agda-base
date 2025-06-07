@@ -27,7 +27,7 @@ private
 -------------------------------------------------------------------------------
 
 record Elem (a : Type) : Type where
-  constructor elem
+  constructor asElem
   field getElem : a
 
 open Elem public
@@ -37,10 +37,10 @@ instance
   Measured-Elem .measure _ = asSum 1
 
   Functor-Elem : Functor Elem
-  Functor-Elem .map f (elem x) = elem (f x)
+  Functor-Elem .map f (asElem x) = asElem (f x)
 
   Foldable-Elem : Foldable Elem
-  Foldable-Elem .foldMap f (elem x) = f x
+  Foldable-Elem .foldMap f (asElem x) = f x
 
   Traversable-Elem : Traversable Elem
-  Traversable-Elem .traverse f (elem x) = (| elem (f x) |)
+  Traversable-Elem .traverse f (asElem x) = (| asElem (f x) |)

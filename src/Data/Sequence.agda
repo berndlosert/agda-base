@@ -10,9 +10,10 @@ open import Data.Filterable
 open import Data.Monoid.Foldable
 open import Data.Monoid.Endo
 open import Data.Monoid.Sum
+open import Data.Profunctor.Strong
+open import Data.Sequence.Elem
 open import Data.Traversable
 open import Data.Tree.Finger as Tree using (Tree)
-open import Data.Sequence.Elem
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -35,64 +36,147 @@ private
 -- Seq
 -------------------------------------------------------------------------------
 
-private
-  record Seq' (a : Type) : Type where
-    constructor asSeq
-    field unSeq : Tree (Sum Nat) (Elem a)
-
-  open Seq'
-
-Seq = Seq'
+abstract 
+  Seq : Type -> Type
+  Seq a = Tree (Sum Nat) (Elem a)
 
 -------------------------------------------------------------------------------
 -- Constructors
 -------------------------------------------------------------------------------
 
-pattern nil = asSeq Tree.empty
+  nil : Seq a
+  nil = Tree.empty
 
-cons : a -> Seq a -> Seq a
-cons x xs = asSeq (Tree.cons (elem x) (unSeq xs))
+  cons : a -> Seq a -> Seq a
+  cons x xs = Tree.cons (asElem x) xs
 
-snoc : Seq a -> a -> Seq a
-snoc xs x = asSeq (Tree.snoc (unSeq xs) (elem x))
+  snoc : Seq a -> a -> Seq a
+  snoc xs x = Tree.snoc xs (asElem x)
 
-singleton : a -> Seq a
-singleton x = asSeq (Tree.singleton (elem x))
+  singleton : a -> Seq a
+  singleton x = Tree.singleton (asElem x)
+
+-------------------------------------------------------------------------------
+-- Destructors
+-------------------------------------------------------------------------------
+
+  uncons : Seq a -> Maybe (Tuple a (Seq a))
+  uncons = map (mapFst getElem) <<< Tree.uncons
+
+  unsnoc : Seq a -> Maybe (Tuple (Seq a) a)
+  unsnoc = map (mapSnd getElem) <<< Tree.unsnoc
+
+  head : Seq a -> Maybe a
+  head xs = fst <$> uncons xs
+
+  tail : Seq a -> Maybe (Seq a)
+  tail xs = snd <$> uncons xs
+
+-------------------------------------------------------------------------------
+-- Views
+-------------------------------------------------------------------------------
+
+  data AsList (a : Type) : Seq a -> Type where
+    [] : AsList a nil
+    _::_ : (x : a) (xs : Seq a) -> AsList a (cons x xs)
+
+  prop-uncons : (xs : Seq a) ->
+    case (uncons xs) \ where
+      nothing -> xs === nil
+      (just (y , ys)) -> xs === cons y ys
+  prop-uncons _ = trustMe
+
+  asList : (xs : Seq a) -> AsList a xs
+  asList xs with uncons xs | prop-uncons xs
+  ... | nothing | refl = []
+  ... | just (y , ys) | refl = y :: ys
+
+  data ViewL (a : Type) : Seq a -> Type where
+    [] : ViewL a nil
+    _::_ : (x : a) {xs : Seq a} -> ViewL a xs -> ViewL a (cons x xs)
+
+  viewl : (xs : Seq a) -> ViewL a xs
+  viewl xs with asList xs
+  ... | [] = []
+  ... | y :: ys = y :: viewl ys
+
+-------------------------------------------------------------------------------
+-- Sublists
+-------------------------------------------------------------------------------
+
+  tails : Seq a -> Seq (Seq a)
+  tails xs = snoc (Tree.tails asElem xs) nil
+
+  inits : Seq a -> Seq (Seq a)
+  inits xs = cons nil (Tree.inits asElem xs)
+
+-------------------------------------------------------------------------------
+-- Indexing
+-------------------------------------------------------------------------------
+
+  splitAt : Nat -> Seq a -> Tuple (Seq a) (Seq a)
+  splitAt n xs = Tree.split (\ m -> n < getSum m) xs
+
+  take : Nat -> Seq a -> Seq a
+  take n = fst <<< splitAt n
+
+  drop : Nat -> Seq a -> Seq a
+  drop n = snd <<< splitAt n
+
+  insertAt : Nat -> a -> Seq a -> Seq a
+  insertAt n x xs =
+    let (l , r) = splitAt n xs
+    in l <> singleton x <> r
+
+  updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
+  updateAt n f xs with uncons xs
+  ... | nothing = nil
+  ... | just (x , xs) = 
+    let
+      (l , r) = splitAt n xs
+    in
+      case (uncons r) \ where
+        nothing -> xs
+        (just (x , r')) -> l <> maybe r' (flip cons r') (f x)
+
+  deleteAt : Nat -> Seq a -> Seq a
+  deleteAt n = updateAt n (const nothing)
 
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
 
+  instance
+    Semigroup-Seq : Semigroup (Seq a)
+    Semigroup-Seq = Tree.Semigroup-Tree
+   
+    Monoid-Seq : Monoid (Seq a)
+    Monoid-Seq = Tree.Monoid-Tree
+
+    Foldable-Seq : Foldable Seq
+    Foldable-Seq .foldMap f xs = foldMap (f <<< getElem) xs
+
+    Functor-Seq : Functor Seq
+    Functor-Seq .map = map <<< map {Elem}
+
+    Traversable-Seq : Traversable Seq
+    Traversable-Seq .traverse = traverse <<< traverse {Elem}
+
 instance
-  Semigroup-Seq : Semigroup (Seq a)
-  Semigroup-Seq ._<>_ l r = asSeq (unSeq l <> unSeq r)
-
-  Monoid-Seq : Monoid (Seq a)
-  Monoid-Seq .mempty = asSeq Tree.empty
-
-  Foldable-Seq : Foldable Seq
-  Foldable-Seq .foldMap f xs = foldMap (f <<< getElem) (unSeq xs)
-
-  Functor-Seq : Functor Seq
-  Functor-Seq .map f xs = asSeq (map f <$> unSeq xs)
-
   Applicative-Seq : Applicative Seq
-  Applicative-Seq .pure = asSeq <<< Tree.singleton <<< elem
-  Applicative-Seq ._<*>_ fs xs =
-      bind fs \ f -> bind xs \ x -> pure (f x)
-    where
-      bind : Seq a -> (a -> Seq b) -> Seq b
-      bind = flip foldMap
+  Monad-Seq : Monad Seq
+
+  Monad-Seq ._>>=_ x f = foldMap f x
+
+  Applicative-Seq .pure = singleton
+  Applicative-Seq ._<*>_ fs xs = do
+      f <- fs
+      x <- xs
+      pure (f x)
 
   Alternative-Seq : Alternative Seq
   Alternative-Seq .azero = mempty
   Alternative-Seq ._<|>_ = _<>_
-
-  Monad-Seq : Monad Seq
-  Monad-Seq ._>>=_ = flip foldMap
-
-  Traversable-Seq : Traversable Seq
-  Traversable-Seq .traverse f xs = asSeq <$> traverse (traverse f) (unSeq xs)
 
   Filterable-Seq : Filterable Seq
   Filterable-Seq .mapMaybe f = foldr (go f) nil
@@ -100,7 +184,7 @@ instance
       go : (a -> Maybe b) -> a -> Seq b -> Seq b
       go f x ys = case (f x) \ where
         nothing -> ys
-        (just y) -> cons y ys
+        (just y) -> cons y ys  
 
   Eq-Seq : {{Eq a}} -> Eq (Seq a)
   Eq-Seq ._==_ l r = toList l == toList r
@@ -129,54 +213,6 @@ iterateN 1 f x = singleton x
 iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
 -------------------------------------------------------------------------------
--- Destructors
--------------------------------------------------------------------------------
-
-uncons : Seq a -> Maybe (Tuple a (Seq a))
-uncons xs with Tree.uncons (unSeq xs)
-... | nothing = nothing
-... | just (elem x , xs) = just (x , asSeq xs)
-
-unsnoc : Seq a -> Maybe (Tuple (Seq a) a)
-unsnoc xs with Tree.unsnoc (unSeq xs)
-... | nothing = nothing
-... | just (xs , elem x) = just (asSeq xs , x)
-
-head : Seq a -> Maybe a
-head xs = fst <$> uncons xs
-
-tail : Seq a -> Maybe (Seq a)
-tail xs = snd <$> uncons xs
-
--------------------------------------------------------------------------------
--- Views
--------------------------------------------------------------------------------
-
-data AsList (a : Type) : Seq a -> Type where
-  [] : AsList a nil
-  _::_ : (x : a) (xs : Seq a) -> AsList a (cons x xs)
-
-prop-uncons : (xs : Seq a) ->
-  case (uncons xs) \ where
-    nothing -> xs === nil
-    (just (y , ys)) -> xs === cons y ys
-prop-uncons _ = trustMe
-
-aList : (xs : Seq a) -> AsList a xs
-aList xs with uncons xs | prop-uncons xs
-... | nothing | refl = []
-... | just (y , ys) | refl = y :: ys
-
-data ViewL (a : Type) : Seq a -> Type where
-  [] : ViewL a nil
-  _::_ : (x : a) {xs : Seq a} -> ViewL a xs -> ViewL a (cons x xs)
-
-viewl : (xs : Seq a) -> ViewL a xs
-viewl xs with aList xs
-... | [] = []
-... | y :: ys = y :: viewl ys
-
--------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
 
@@ -185,48 +221,6 @@ scanl f b xs = cons b (snd (mapAccumL (\ x z -> dup (f x z)) b xs))
 
 scanr : (a -> b -> b) -> b -> Seq a -> Seq b
 scanr f b xs = snoc (snd (mapAccumR (\ z x -> dup (f x z)) b xs)) b
-
--------------------------------------------------------------------------------
--- Sublists
--------------------------------------------------------------------------------
-
-tails : Seq a -> Seq (Seq a)
-tails xs = snoc (asSeq (Tree.tails (elem <<< asSeq) (unSeq xs))) azero
-
-inits : Seq a -> Seq (Seq a)
-inits xs = cons azero (asSeq (Tree.inits (elem <<< asSeq) (unSeq xs)))
-
--------------------------------------------------------------------------------
--- Indexing
--------------------------------------------------------------------------------
-
-splitAt : Nat -> Seq a -> Tuple (Seq a) (Seq a)
-splitAt n xs = case (Tree.split (\ m -> n < getSum m) (unSeq xs)) \ where
-  (ys , zs) -> (asSeq ys , asSeq zs)
-
-take : Nat -> Seq a -> Seq a
-take n = fst <<< splitAt n
-
-drop : Nat -> Seq a -> Seq a
-drop n = snd <<< splitAt n
-
-insertAt : Nat -> a -> Seq a -> Seq a
-insertAt n x xs =
-  let (l , r) = splitAt n xs
-  in l <> singleton x <> r
-
-updateAt : Nat -> (a -> Maybe a) -> Seq a -> Seq a
-updateAt _ _ nil = nil
-updateAt n f xs =
-  let
-    (l , r) = splitAt n xs
-  in
-    case (uncons r) \ where
-      nothing -> xs
-      (just (x , r')) -> l <> maybe r' (flip cons r') (f x)
-
-deleteAt : Nat -> Seq a -> Seq a
-deleteAt n = updateAt n (const nothing)
 
 -------------------------------------------------------------------------------
 -- Folds
@@ -308,8 +302,6 @@ intersperse sep xs with uncons xs
 -------------------------------------------------------------------------------
 
 zipWith : (a -> b -> c) -> Seq a -> Seq b -> Seq c
-zipWith f nil _ = nil
-zipWith f _ nil = nil
 zipWith f as bs with uncons as | uncons bs
 ... | nothing | _ = nil
 ... | _ | nothing = nil
