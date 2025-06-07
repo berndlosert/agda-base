@@ -42,7 +42,8 @@ data Reply (a : Type) : Type where
 
 abstract
   Parser : Type -> Type
-  Parser a = forall {b} -> String 
+  Parser a = forall {b} 
+    -> String 
     -> (cok : a -> String -> b) (cerr : b)
     -> (eok : a -> String -> b) (eerr : b)
     -> b
