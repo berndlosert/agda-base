@@ -64,8 +64,11 @@ toLower = primToLower
 ord : Char -> Nat
 ord = primCharToNat
 
-chr : Nat -> Char
+chr : Nat -> Maybe Char
 chr n =
   if (n > ord maxChar)
-    then maxChar
-    else primNatToChar n
+    then nothing
+    else just (primNatToChar n)
+
+prop-chr : (c : Char) -> chr (ord c) === just c
+prop-chr = trustMe

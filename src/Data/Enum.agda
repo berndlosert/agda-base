@@ -7,7 +7,6 @@ module Data.Enum where
 open import Prelude
 
 open import Data.Nat.Fin
-open import Data.Char
 
 -------------------------------------------------------------------------------
 -- Literals
@@ -52,7 +51,3 @@ instance
       equal -> i :: []
       less -> i :: enumFromTo (i + 1) j
       greater -> i :: enumFromTo (i - 1) j
-
-  Enum-Char : Enum Char
-  Enum-Char .enumFromTo c1 c2 =
-    chr <$> (enumFromTo on ord) c1 c2
