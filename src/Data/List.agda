@@ -307,7 +307,7 @@ stripPrefix xs ys =
   if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
 
 dropPrefix : {{Eq a}} -> List a -> List a -> List a
-dropPrefix xs ys = maybe ys id (stripPrefix xs ys)
+dropPrefix xs ys = fromMaybe (stripPrefix xs ys) ys
 
 groupBy : (a -> a -> Bool) -> List a -> List (List a)
 groupBy eq [] = []
