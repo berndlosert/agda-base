@@ -1,4 +1,4 @@
-FROM haskell:9.2.6
+FROM haskell:latest
 
 USER root
 RUN apt-get update
