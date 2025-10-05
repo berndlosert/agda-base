@@ -8,6 +8,7 @@ RUN cabal update
 RUN cabal install alex
 RUN cabal install happy
 RUN cabal install Agda
+RUN cabal install --lib text
 RUN cabal install --lib ieee754
 RUN cabal install --lib network
 RUN cabal install --lib async
