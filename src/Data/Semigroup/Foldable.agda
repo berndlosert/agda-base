@@ -49,8 +49,8 @@ record Foldable1 (t : Type -> Type) : Type where
     x nothing -> f x
     x (just y) -> step x y
 
-  foldl1' : (Maybe b -> a -> b) -> t a -> b
-  foldl1' {b} {a} step xs = foldr1 g xs nothing
+  foldl1 : (Maybe b -> a -> b) -> t a -> b
+  foldl1 {b} {a} step xs = foldr1 g xs nothing
     where
       g : a -> Maybe (Maybe b -> b) -> Maybe b -> b
       g x (just k) nothing = k (just $! step nothing x)
@@ -58,14 +58,8 @@ record Foldable1 (t : Type -> Type) : Type where
       g x nothing nothing = id $! step nothing x
       g x nothing (just y) = id $! step (just $! y) x
 
-  foldMap1' : {{Semigroup b}} -> (a -> b) -> t a -> b
-  foldMap1' f = foldl1' (\ y x -> let z = f x in maybe z (_<> z) y)
-
   fold1 : {{Semigroup a}} -> t a -> a
   fold1 = foldMap1 id
-
-  fold1' : {{Semigroup a}} -> t a -> a
-  fold1' = foldMap1' id
 
   foldlMapM1 : {{Monad m}} -> (b -> a -> m b) -> (a -> m b) -> t a -> m b
   foldlMapM1 step f xs =

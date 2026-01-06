@@ -45,20 +45,14 @@ record Foldable (t : Type -> Type) : Type where
   foldr : (a -> b -> b) -> b -> t a -> b
   foldr step init xs = appEndo (foldMap (asEndo <<< step) xs) init
 
-  foldl' : (b -> a -> b) -> b -> t a -> b
-  foldl' {b} {a} step init xs = appEndo (foldMap g xs) id init
+  foldl : (b -> a -> b) -> b -> t a -> b
+  foldl {b} {a} step init xs = appEndo (foldMap g xs) id init
     where
       g : a -> Endo (b -> b)
       g x = asEndo \ k y -> k $! step y x
 
-  foldMap' : {{Monoid b}} -> (a -> b) -> t a -> b
-  foldMap' f = foldl' (\ y x -> y <> f x) mempty
-
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
-
-  fold' : {{Monoid a}} -> t a -> a
-  fold' = foldMap' id
 
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} step init xs = foldr step1 pure xs init
@@ -67,7 +61,7 @@ record Foldable (t : Type -> Type) : Type where
       step1 x k acc = k =<< step acc x
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM {m} {a} {b} step init xs = foldl' step1 pure xs init
+  foldrM {m} {a} {b} step init xs = foldl step1 pure xs init
     where
       step1 : (b -> m b) -> a -> b -> m b
       step1 k x acc = k =<< step x acc
@@ -115,10 +109,16 @@ record Foldable (t : Type -> Type) : Type where
   defaulting d f xs = if null xs then d else f xs
 
   sum : {{Monoid (Sum a)}} -> t a -> a
-  sum = getSum <<< foldMap' asSum
+  sum {a} = getSum <<< foldl step mempty
+    where
+      step : Sum a -> a -> Sum a
+      step x y = x <> asSum y
 
   product : {{Monoid (Product a)}} -> t a -> a
-  product = getProduct <<< foldMap' asProduct
+  product {a} = getProduct <<< foldl step mempty
+    where
+      step : Product a -> a -> Product a
+      step x y = x <> asProduct y
 
   _elem_ : {{Eq a}} -> a -> t a -> Bool
   _elem_ x = any (_== x)

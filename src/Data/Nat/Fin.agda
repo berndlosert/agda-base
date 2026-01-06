@@ -48,8 +48,8 @@ module _ {n : Nat} {{_ : Assert (n > 0)}} where
     Addable-Fin : Addable (Fin n)
     Addable-Fin ._+_ k m = fin n (toNat k + toNat m)
 
-    Multipliable-Fin : Multipliable (Fin n)
-    Multipliable-Fin ._*_ k m = fin n (toNat k * toNat m)
+    Multiplicative-Fin : Multiplicative (Fin n)
+    Multiplicative-Fin ._*_ k m = fin n (toNat k * toNat m)
 
     Subtractable-Fin : Subtractable (Fin n)
     Subtractable-Fin ._-_ k m = fin n $

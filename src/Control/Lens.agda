@@ -79,8 +79,8 @@ foldOf l = getConst <<< l asConst
 foldrOf : AGetter (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf l step init xs = appEndo (foldMapOf l (asEndo <<< step) xs) init
 
-foldlOf' : AGetter (Endo (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
-foldlOf' {r} {s} {a} l step init xs = appEndo (foldrOf l step1 (asEndo id) xs) init
+foldlOf : AGetter (Endo (Endo r)) s a -> (r -> a -> r) -> r -> s -> r
+foldlOf {r} {s} {a} l step init xs = appEndo (foldrOf l step1 (asEndo id) xs) init
   where
     step1 : a -> Endo r -> Endo r
     step1 x (asEndo k) = asEndo \ acc -> k $! step acc x
@@ -99,7 +99,7 @@ concatMapOf : AGetter (List r) s a -> (a -> List r) -> s -> List r
 concatMapOf = foldMapOf
 
 lengthOf : AGetter (Endo (Endo Nat)) s a -> s -> Nat
-lengthOf l = foldlOf' l (\ n _ -> suc n) 0
+lengthOf l = foldlOf l (\ n _ -> suc n) 0
 
 findOf : AGetter (Endo (Maybe a)) s a -> (a -> Bool) -> s -> Maybe a
 findOf l p = foldrOf l (\ x y -> if p x then just x else y) nothing
@@ -141,10 +141,10 @@ lastOf : AGetter (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l asLast
 
 sumOf : {{Addable a}} -> {{FromN 0 a}} -> AGetter (Endo (Endo a)) s a -> s -> a
-sumOf l = foldlOf' l _+_ 0
+sumOf l = foldlOf l _+_ 0
 
-productOf : {{Multipliable a}} -> {{FromN 1 a}} -> AGetter (Endo (Endo a)) s a -> s -> a
-productOf l = foldlOf' l _*_ 1
+productOf : {{Multiplicative a}} -> {{FromN 1 a}} -> AGetter (Endo (Endo a)) s a -> s -> a
+productOf l = foldlOf l _*_ 1
 
 elemOf : {{Eq a}} -> AGetter Any s a -> a -> s -> Bool
 elemOf l = anyOf l <<< _==_
@@ -153,14 +153,14 @@ notElemOf : {{Eq a}} -> AGetter All s a -> a -> s -> Bool
 notElemOf l = allOf l <<< _/=_
 
 minimumOf : {{Ord a}} -> AGetter (Endo (Endo (Maybe a))) s a -> s -> Maybe a
-minimumOf {a} l = foldlOf' l mini nothing
+minimumOf {a} l = foldlOf l mini nothing
   where
     mini : Maybe a -> a -> Maybe a
     mini nothing y = just $! y
     mini (just x) y = just $! min x y
 
 maximumOf : {{Ord a}} -> AGetter (Endo (Endo (Maybe a))) s a -> s -> Maybe a
-maximumOf {a} l = foldlOf' l maxi nothing
+maximumOf {a} l = foldlOf l maxi nothing
   where
     maxi : Maybe a -> a -> Maybe a
     maxi nothing y = just $! y

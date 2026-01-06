@@ -70,8 +70,8 @@ instance
   Addable-Word8 : Addable Word8
   Addable-Word8 ._+_ = word8Plus
 
-  Multipliable-Word8 : Multipliable Word8
-  Multipliable-Word8 ._*_ = word8Times
+  Multiplicative-Word8 : Multiplicative Word8
+  Multiplicative-Word8 ._*_ = word8Times
 
   Negatable-Word8 : Negatable Word8
   Negatable-Word8 .-_ = word8Negate
@@ -145,8 +145,8 @@ instance
   Addable-Word16 : Addable Word16
   Addable-Word16 ._+_ = word16Plus
 
-  Multipliable-Word16 : Multipliable Word16
-  Multipliable-Word16 ._*_ = word16Times
+  Multiplicative-Word16 : Multiplicative Word16
+  Multiplicative-Word16 ._*_ = word16Times
 
   Negatable-Word16 : Negatable Word16
   Negatable-Word16 .-_ = word16Negate
@@ -220,8 +220,8 @@ instance
   Addable-Word32 : Addable Word32
   Addable-Word32 ._+_ = word32Plus
 
-  Multipliable-Word32 : Multipliable Word32
-  Multipliable-Word32 ._*_ = word32Times
+  Multiplicative-Word32 : Multiplicative Word32
+  Multiplicative-Word32 ._*_ = word32Times
 
   Negatable-Word32 : Negatable Word32
   Negatable-Word32 .-_ = word32Negate
@@ -299,8 +299,8 @@ instance
   Addable-Word64 : Addable Word64
   Addable-Word64 ._+_ = word64Plus
 
-  Multipliable-Word64 : Multipliable Word64
-  Multipliable-Word64 ._*_ = word64Times
+  Multiplicative-Word64 : Multiplicative Word64
+  Multiplicative-Word64 ._*_ = word64Times
 
   Negatable-Word64 : Negatable Word64
   Negatable-Word64 .-_ = word64Negate
