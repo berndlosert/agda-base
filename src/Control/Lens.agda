@@ -12,28 +12,29 @@ open import Data.Distributive
 open import Data.Functor.Contravariant
 open import Data.Functor.Representable
 open import Data.List as List using ()
-open import Data.Monoid.Sum
 open import Data.Monoid.All
+open import Data.Monoid.Any
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
-open import Data.Monoid.Any
+open import Data.Monoid.Product
+open import Data.Monoid.Sum
 open import Data.Profunctor
 open import Data.Profunctor.Choice
-open import Data.Semigroup.Last
 open import Data.Semigroup.First
+open import Data.Semigroup.Last
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
 -- Re-exports
 -------------------------------------------------------------------------------
 
-open Data.Monoid.Sum public
 open Data.Monoid.All public
+open Data.Monoid.Any public
 open Data.Monoid.Dual public
 open Data.Monoid.Endo public
-open Data.Monoid.Any public
-open Data.Semigroup.Last public
+open Data.Monoid.Sum public
 open Data.Semigroup.First public
+open Data.Semigroup.Last public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -140,11 +141,23 @@ firstOf l = getFirst <<< foldMapOf l asFirst
 lastOf : AGetter (Last a) s a -> s -> a
 lastOf l = getLast <<< foldMapOf l asLast
 
-sumOf : {{Addable a}} -> {{FromN 0 a}} -> AGetter (Endo (Endo a)) s a -> s -> a
-sumOf l = foldlOf l _+_ 0
+sumOf : {{Monoid (Sum a)}} -> AGetter (Endo (Endo a)) s a -> s -> a
+sumOf {a} l = foldlOf l plus zero
+  where
+    plus : a -> a -> a
+    plus x y = getSum (asSum x <> asSum y)
 
-productOf : {{Multiplicative a}} -> {{FromN 1 a}} -> AGetter (Endo (Endo a)) s a -> s -> a
-productOf l = foldlOf l _*_ 1
+    zero : a
+    zero = getSum mempty
+
+productOf : {{Monoid (Product a)}} -> AGetter (Endo (Endo a)) s a -> s -> a
+productOf {a} l = foldlOf l times one
+  where
+    times : a -> a -> a
+    times x y = getProduct (asProduct x <> asProduct y)
+
+    one : a
+    one = getProduct mempty
 
 elemOf : {{Eq a}} -> AGetter Any s a -> a -> s -> Bool
 elemOf l = anyOf l <<< _==_

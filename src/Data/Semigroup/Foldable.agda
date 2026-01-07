@@ -95,16 +95,16 @@ record Foldable1 (t : Type -> Type) : Type where
   last = getLast <<< foldMap1 asLast
 
   sum1 : {{Semigroup (Sum a)}} -> t a -> a
-  sum1 = getSum <<< foldMap1' asSum
+  sum1 = getSum <<< foldMap1 asSum
 
   product1 : {{Semigroup (Product a)}} -> t a -> a
-  product1 = getProduct <<< foldMap1' asProduct
+  product1 = getProduct <<< foldMap1 asProduct
 
   minimum : {{Ord a}} -> t a -> a
-  minimum = getMin <<< foldMap1' asMin
+  minimum = getMin <<< foldMap1 asMin
 
   maximum : {{Ord a}} -> t a -> a
-  maximum = getMax <<< foldMap1' asMax
+  maximum = getMax <<< foldMap1 asMax
 
   minimumBy : (a -> a -> Ordering) -> t a -> a
   minimumBy cmp = let instance _ = order cmp in minimum
