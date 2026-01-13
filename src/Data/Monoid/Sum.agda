@@ -29,16 +29,28 @@ instance
 -------------------------------------------------------------------------------
 
 -- For additive semigroups, monoids, etc.
-record Sum (a : Type) : Type where
+abstract
+  Sum : Type -> Type
+  Sum a = a
+
+  getSum : Sum a -> a
+  getSum x = x
+
+asSum : {{Addable a}} -> a -> Sum a
+asSum x = x
+
+record Sum (a : Type) {{Addable a}} : Type where
   constructor asSum
   field getSum : a
 
 open Sum public
 
-instance
-  Semigroup-Eq : {{Eq a}} -> Eq (Sum a)
-  Semigroup-Eq ._==_ x y = getSum x == getSum y
+module _ {a : Type} {{Addable a}} where
+  instance
+    Semigroup-Eq : {{Eq a}} -> Eq (Sum a)
+    Semigroup-Eq ._==_ x y = getSum x == getSum y
 
+instance
   Semigroup-Sum-Nat : Semigroup (Sum Nat)
   Semigroup-Sum-Nat ._<>_ x y = asSum (getSum x + getSum y)
 
@@ -74,3 +86,10 @@ instance
   Show-Sum .show = showDefault
   Show-Sum .showsPrec prec (asSum x) =
     showsUnaryWith showsPrec "asSum" prec x
+
+-------------------------------------------------------------------------------
+-- Rewrite rules
+-------------------------------------------------------------------------------
+
+sumNatRewrite : (m n : Nat) -> getSum (asSum m <> asSum n) === m + n
+sumNatRewrite m n = refl

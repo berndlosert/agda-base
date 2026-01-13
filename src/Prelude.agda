@@ -667,46 +667,46 @@ instance
   Addable-Float ._+_ = Float.primFloatPlus
 
 -------------------------------------------------------------------------------
--- Multiplicative
+-- Multiplicable
 -------------------------------------------------------------------------------
 
-record Multiplicative (a : Type) : Type where
+record Multiplicable (a : Type) : Type where
   infixl 7 _*_
   field _*_ : a -> a -> a
 
-open Multiplicative {{...}} public
+open Multiplicable {{...}} public
 
 instance
-  Multiplicative-Type : Multiplicative Type
-  Multiplicative-Type ._*_ = Tuple
+  Multiplicable-Type : Multiplicable Type
+  Multiplicable-Type ._*_ = Tuple
 
-  Multiplicative-Function : {{Multiplicative b}} -> Multiplicative (a -> b)
-  Multiplicative-Function ._*_ f g x = f x * g x
+  Multiplicable-Function : {{Multiplicable b}} -> Multiplicable (a -> b)
+  Multiplicable-Function ._*_ f g x = f x * g x
 
-  Multiplicative-Void : Multiplicative Void
-  Multiplicative-Void ._*_ = \ ()
+  Multiplicable-Void : Multiplicable Void
+  Multiplicable-Void ._*_ = \ ()
 
-  Multiplicative-Unit : Multiplicative Unit
-  Multiplicative-Unit ._*_ _ _ = tt
+  Multiplicable-Unit : Multiplicable Unit
+  Multiplicable-Unit ._*_ _ _ = tt
 
-  Multiplicative-Bool : Multiplicative Bool
-  Multiplicative-Bool ._*_ = _&&_
+  Multiplicable-Bool : Multiplicable Bool
+  Multiplicable-Bool ._*_ = _&&_
 
-  Multiplicative-Nat : Multiplicative Nat
-  Multiplicative-Nat ._*_ = Nat._*_
+  Multiplicable-Nat : Multiplicable Nat
+  Multiplicable-Nat ._*_ = Nat._*_
 
-  Multiplicative-Nat1 : Multiplicative Nat1
-  Multiplicative-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
+  Multiplicable-Nat1 : Multiplicable Nat1
+  Multiplicable-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
 
-  Multiplicative-Int : Multiplicative Int
-  Multiplicative-Int ._*_ = \ where
+  Multiplicable-Int : Multiplicable Int
+  Multiplicable-Int ._*_ = \ where
     (pos n) (pos m) -> pos (n * m)
     (negsuc n) (negsuc m) -> pos (suc n * suc m)
     (pos n) (negsuc m) -> neg (n * suc m)
     (negsuc n) (pos m) -> neg (suc n * m)
 
-  Multiplicative-Float : Multiplicative Float
-  Multiplicative-Float ._*_ = Float.primFloatTimes
+  Multiplicable-Float : Multiplicable Float
+  Multiplicable-Float ._*_ = Float.primFloatTimes
 
 -------------------------------------------------------------------------------
 -- Negatable

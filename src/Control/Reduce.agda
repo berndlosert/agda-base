@@ -218,7 +218,7 @@ intoAny p = mapping p intoOr
 intoSum : {{Addable a}} -> {{FromN 0 a}} -> Reducer a a
 intoSum = intoFold _+_ 0
 
-intoProduct : {{Multiplicative a}} -> {{FromN 1 a}} -> Reducer a a
+intoProduct : {{Multiplicable a}} -> {{FromN 1 a}} -> Reducer a a
 intoProduct = intoFold _*_ 1
 
 intoFirst : Reducer a (Maybe a)

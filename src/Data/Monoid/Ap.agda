@@ -29,8 +29,8 @@ instance
   Addable-Ap : {{Applicative f}} -> {{Addable a}} -> Addable (Ap f a)
   Addable-Ap ._+_ x y = asAp (| getAp x + getAp y |)
 
-  Multiplicative-Ap : {{Applicative f}} -> {{Multiplicative a}} -> Multiplicative (Ap f a)
-  Multiplicative-Ap ._*_ x y = asAp (| getAp x * getAp y |)
+  Multiplicable-Ap : {{Applicative f}} -> {{Multiplicable a}} -> Multiplicable (Ap f a)
+  Multiplicable-Ap ._*_ x y = asAp (| getAp x * getAp y |)
 
   Negatable-Ap : {{Applicative f}} -> {{Negatable a}} -> Negatable (Ap f a)
   Negatable-Ap .-_ x = asAp (| - getAp x |)
