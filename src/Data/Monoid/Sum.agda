@@ -29,26 +29,11 @@ instance
 -------------------------------------------------------------------------------
 
 -- For additive semigroups, monoids, etc.
-abstract
-  Sum : Type -> Type
-  Sum a = a
-
-  getSum : Sum a -> a
-  getSum x = x
-
-asSum : {{Addable a}} -> a -> Sum a
-asSum x = x
-
-record Sum (a : Type) {{Addable a}} : Type where
+record Sum (a : Type) : Type where
   constructor asSum
   field getSum : a
 
 open Sum public
-
-module _ {a : Type} {{Addable a}} where
-  instance
-    Semigroup-Eq : {{Eq a}} -> Eq (Sum a)
-    Semigroup-Eq ._==_ x y = getSum x == getSum y
 
 instance
   Semigroup-Sum-Nat : Semigroup (Sum Nat)
