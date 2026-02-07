@@ -19,6 +19,15 @@ open import Data.Semigroup.Max
 open import Data.Semigroup.Min
 
 -------------------------------------------------------------------------------
+-- Re-exports
+-------------------------------------------------------------------------------
+
+open Data.Monoid.Dual public
+open Data.Monoid.Product public
+open Data.Monoid.Sum public
+open Data.Semigroup.FromMaybe public
+
+-------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------
 
@@ -98,10 +107,10 @@ record Foldable1 (t : Type -> Type) : Type where
   last = getLast <<< foldMap1 asLast
 
   sum1 : {{Semigroup (Sum a)}} -> t a -> a
-  sum1 = getSum <<< foldMap1 asSum
+  sum1 {a} = getSum <<< foldl1 (\ x y -> x <> asSum y) asSum
 
   product1 : {{Semigroup (Product a)}} -> t a -> a
-  product1 = getProduct <<< foldMap1 asProduct
+  product1 = getProduct <<< foldl1 (\ x y -> x <> asProduct y) asProduct
 
   minimum : {{Ord a}} -> t a -> a
   minimum = getMin <<< foldMap1 asMin
