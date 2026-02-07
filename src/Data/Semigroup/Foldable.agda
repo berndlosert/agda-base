@@ -95,10 +95,10 @@ record Foldable1 (t : Type -> Type) : Type where
   concatMap1 = foldMap1
 
   length1 : t a -> Nat1
-  length1 = foldr1 inc (const 1)
+  length1 = foldl1 inc (const 1)
     where
-      inc : a -> Nat1 -> Nat1
-      inc _ n = suc (toNat n)
+      inc : Nat1 -> a -> Nat1
+      inc n _ = suc (toNat n)
 
   first : t a -> a
   first = getFirst <<< foldMap1 asFirst
@@ -113,10 +113,10 @@ record Foldable1 (t : Type -> Type) : Type where
   product1 = getProduct <<< foldl1 (\ x y -> x <> asProduct y) asProduct
 
   minimum : {{Ord a}} -> t a -> a
-  minimum = getMin <<< foldMap1 asMin
+  minimum = getMin <<< foldl1 (\ x y -> x <> asMin y) asMin
 
   maximum : {{Ord a}} -> t a -> a
-  maximum = getMax <<< foldMap1 asMax
+  maximum = getMax <<< foldl1 (\ x y -> x <> asMax y) asMax
 
   minimumBy : (a -> a -> Ordering) -> t a -> a
   minimumBy cmp = let instance _ = order cmp in minimum
