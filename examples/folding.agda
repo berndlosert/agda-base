@@ -42,8 +42,8 @@ test9 = sumOf each (enumFromTo 1 100_000_000)
 test10 : Int
 test10 = foldl1 _+_ id (1 :: enumFromTo 2 100_000_000)
 
-test11 : Nat1
-test11 = length1 {List1} {Int} (1 :: enumFromTo 2 100_000_000)
+test11 : Nat
+test11 = length {List} {Int} (1 :: enumFromTo 2 100_000_000)
 
 main : IO Unit
 main = print test11

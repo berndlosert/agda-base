@@ -82,7 +82,7 @@ record Foldable (t : Type -> Type) : Type where
   concatMap = foldMap
 
   length : t a -> Nat
-  length = foldr (const suc) 0
+  length = foldl (\ x _ -> suc x) 0
 
   find : (a -> Bool) -> t a -> Maybe a
   find {a} p = either just (const nothing) <<< foldlM step tt
