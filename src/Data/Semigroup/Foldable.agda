@@ -10,13 +10,13 @@ open import Data.List.Nonempty
 open import Data.Monoid.Dual
 open import Data.Monoid.Foldable
 open import Data.Monoid.Product
-open import Data.Monoid.Strict
 open import Data.Monoid.Sum
 open import Data.Semigroup.First
 open import Data.Semigroup.FromMaybe
 open import Data.Semigroup.Last
 open import Data.Semigroup.Max
 open import Data.Semigroup.Min
+open import Data.Semigroup.Strict
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -53,22 +53,22 @@ record Foldable1 (t : Type -> Type) : Type where
     foldMap1 : {{Semigroup b}} -> (a -> b) -> t a -> b
 
   foldr1 : (a -> b -> b) -> (a -> b) -> t a -> b
-  foldr1 {a} {b} step gen xs = 
+  foldr1 {a} {b} step init xs = 
       appFromMaybe (foldMap1 step' xs) nothing
     where
       step' : a -> FromMaybe b
       step' x = asFromMaybe \ where
         (just y) -> step x y
-        nothing -> gen x
+        nothing -> init x
 
   foldl1 : (b -> a -> b) -> (a -> b) -> t a -> b
-  foldl1 {b} {a} step gen xs =
+  foldl1 {b} {a} step init xs =
       appFromMaybe (getStrict $ getDual $ foldMap1 step' xs) nothing
     where
       step' : a -> Dual (Strict FromMaybe b)
       step' x = asDual $ asStrict $ asFromMaybe \ where
         (just y) -> step y x
-        nothing -> gen x
+        nothing -> init x
 
   fold1 : {{Semigroup a}} -> t a -> a
   fold1 = foldMap1 id

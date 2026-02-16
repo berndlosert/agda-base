@@ -1,4 +1,4 @@
-module Data.Monoid.Strict where
+module Data.Semigroup.Strict where
 
 -------------------------------------------------------------------------------
 -- Imports
@@ -18,7 +18,7 @@ private
     a : Type
 
 -------------------------------------------------------------------------------
--- Wrapper for Endo and FromMaybe needed for foldl and foldl1
+-- Strict
 -------------------------------------------------------------------------------
 
 record Strict (f : Type -> Type) (a : Type) : Type where
