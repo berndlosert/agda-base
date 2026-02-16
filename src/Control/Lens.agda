@@ -478,7 +478,7 @@ instance
       fwd : Eq a -> Eq b
       fwd anEq ._==_ x y =
         let open Eq anEq renaming (_==_ to eq) 
-        in eq (view (from wrapped) x) (view (from wrapped) y)
+        in eq (review wrapped x) (review wrapped y)
       bwd : Eq b -> Eq a
       bwd anEq ._==_ x y =
         let open Eq anEq renaming (_==_ to eq) 
