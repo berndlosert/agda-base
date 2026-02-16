@@ -375,6 +375,32 @@ instance
       go (x :: xs) (suc n) = (x ::_) <$> (go xs $! n)
 
 -------------------------------------------------------------------------------
+-- Review
+-------------------------------------------------------------------------------
+
+record Tagged (s b : Type) : Type where
+  constructor tagged
+  field unTagged : b
+
+open Tagged public
+
+instance
+  Functor-Tagged : Functor (Tagged s)
+  Functor-Tagged .map f (tagged x) = tagged (f x)
+
+  Profunctor-Tagged : Profunctor Tagged
+  Profunctor-Tagged .lcmap _ (tagged x) = tagged x
+
+  Choice-Tagged : Choice Tagged
+  Choice-Tagged .mapLeft (tagged x) = tagged (left x)
+
+AReview : (t b : Type) -> Type
+AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
+
+review : AReview t b -> b -> t
+review p = runIdentity <<< unTagged <<< p <<< tagged <<< asIdentity
+
+-------------------------------------------------------------------------------
 -- Iso
 -------------------------------------------------------------------------------
 
@@ -405,6 +431,9 @@ withIso : AnIso s t a b -> ((s -> a) -> (b -> t) -> r) -> r
 withIso ai k =
   case (ai (exchange id asIdentity)) \ where
     (exchange sa bt) -> k sa (runIdentity <<< bt)
+
+from : AnIso s t a b -> Iso b a t s
+from l = withIso l $ \sa bt -> iso bt sa
 
 under : AnIso s t a b -> (t -> s) -> b -> a
 under ai = withIso ai \ sa bt ts -> sa <<< ts <<< bt
@@ -443,31 +472,17 @@ instance
   Wrapped-Last : Wrapped (Last a) a
   Wrapped-Last .wrapped = iso getLast asLast
 
--------------------------------------------------------------------------------
--- Review
--------------------------------------------------------------------------------
-
-record Tagged (s b : Type) : Type where
-  constructor tagged
-  field unTagged : b
-
-open Tagged public
-
-instance
-  Functor-Tagged : Functor (Tagged s)
-  Functor-Tagged .map f (tagged x) = tagged (f x)
-
-  Profunctor-Tagged : Profunctor Tagged
-  Profunctor-Tagged .lcmap _ (tagged x) = tagged x
-
-  Choice-Tagged : Choice Tagged
-  Choice-Tagged .mapLeft (tagged x) = tagged (left x)
-
-AReview : (t b : Type) -> Type
-AReview t b = Tagged b (Identity b) -> Tagged t (Identity t)
-
-review : AReview t b -> b -> t
-review p = runIdentity <<< unTagged <<< p <<< tagged <<< asIdentity
+  Wrapped-Eq : {{Wrapped a b}} -> Wrapped (Eq a) (Eq b)
+  Wrapped-Eq {a} {b} .wrapped = iso fwd bwd
+    where
+      fwd : Eq a -> Eq b
+      fwd anEq ._==_ x y =
+        let open Eq anEq renaming (_==_ to eq) 
+        in eq (view (from wrapped) x) (view (from wrapped) y)
+      bwd : Eq b -> Eq a
+      bwd anEq ._==_ x y =
+        let open Eq anEq renaming (_==_ to eq) 
+        in eq (view wrapped x) (view wrapped y)
 
 -------------------------------------------------------------------------------
 -- Prism
