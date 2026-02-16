@@ -90,7 +90,7 @@ cons a (deep s (four b c d e) m sf) =
 
 consAll : {{Measured v a}} -> {{Foldable f}}
   -> f a -> Tree v a -> Tree v a
-consAll = foldr cons
+consAll xs = flip (foldr cons) xs
 
 -------------------------------------------------------------------------------
 -- Snoc operator

@@ -13,8 +13,8 @@ open import Data.Monoid.Dual
 open import Data.Monoid.Endo
 open import Data.Monoid.EndoM
 open import Data.Monoid.Product
-open import Data.Monoid.Strict
 open import Data.Monoid.Sum
+open import Data.Semigroup.Strict
 
 -------------------------------------------------------------------------------
 -- Re-exports
@@ -45,8 +45,8 @@ private
 record Foldable (t : Type -> Type) : Type where
   field foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
 
-  foldr : (a -> b -> b) -> t a -> b -> b
-  foldr {a} {b} step xs init = 
+  foldr : (a -> b -> b) -> b -> t a -> b
+  foldr {a} {b} step init xs = 
       appEndo (foldMap step' xs) init
     where
       step' : a -> Endo b
@@ -62,8 +62,8 @@ record Foldable (t : Type -> Type) : Type where
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
-  foldrM : {{Monad m}} -> (a -> b -> m b) -> t a -> b -> m b
-  foldrM {m} {a} {b} step xs init =
+  foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
+  foldrM {m} {a} {b} step init xs =
       appEndoM (foldMap step' xs) init
     where
       step' : a -> EndoM m b
@@ -137,7 +137,7 @@ record Foldable (t : Type -> Type) : Type where
       step x y = x <> asProduct y
 
   traverse! : {{Applicative f}} -> (a -> f b) -> t a -> f Unit
-  traverse! f xs = foldr (\ x y -> f x *> y) xs (pure tt)
+  traverse! f xs = foldr (\ x y -> f x *> y) (pure tt) xs
 
   for! : {{Applicative f}} -> t a -> (a -> f b) -> f Unit
   for! = flip traverse!

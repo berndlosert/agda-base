@@ -81,7 +81,7 @@ unconsWithDefault _ (y :: ys) = (y , ys)
 
 unsnoc : List a -> Maybe (Tuple (List a) a)
 unsnoc [] = nothing
-unsnoc xs = foldr go xs nothing
+unsnoc xs = foldr go nothing xs
   where
     go : a -> Maybe (Tuple (List a) a) -> Maybe (Tuple (List a) a)
     go x nothing = just ([] , x)
@@ -178,7 +178,7 @@ insertAt _ _ [] = []
 -------------------------------------------------------------------------------
 
 inits : List a -> List (List a)
-inits {a} xs = foldr go xs (singleton [])
+inits {a} xs = foldr go (singleton []) xs
   where
     go : a -> List (List a) -> List (List a)
     go x xss = [] :: map (x ::_) xss
@@ -189,12 +189,12 @@ tails xs@(_ :: ys) = xs :: tails ys
 
 segments : List a -> List (List a)
 segments xs = singleton [] <>
-  filter notNull (foldr _<>_ (tails <$> inits xs) [])
+  filter notNull (foldr _<>_ [] (tails <$> inits xs))
 
 segmentsOfSize : Nat -> List a -> List (List a)
 segmentsOfSize 0 _ = singleton []
 segmentsOfSize n xs =
-  filter (\ ys -> length ys == n) (foldr _<>_ (tails <$> inits xs) [])
+  filter (\ ys -> length ys == n) (foldr _<>_ [] (tails <$> inits xs))
 
 -------------------------------------------------------------------------------
 -- Scans
@@ -204,7 +204,7 @@ scanl : (b -> a -> b) -> b -> List a -> List b
 scanl f b xs = foldl f b <$> inits xs
 
 scanr : (a -> b -> b) -> List a -> b -> List b
-scanr f xs b = flip (foldr f) b <$> tails xs
+scanr f xs b = foldr f b <$> tails xs
 
 -------------------------------------------------------------------------------
 -- Zipping functions

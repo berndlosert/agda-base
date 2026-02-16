@@ -108,7 +108,7 @@ module _ {{_ : Ord a}} where
       greater -> member x r
 
   fromList : List a -> Tree a
-  fromList xs = foldr insert xs leaf
+  fromList xs = foldr insert leaf xs
 
 map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
 map f = fromList <<< Prelude.map f <<< toList

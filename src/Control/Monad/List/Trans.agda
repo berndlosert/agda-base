@@ -45,7 +45,7 @@ module _ {{_ : Monad m}} where
   singletonListT x = consListT x nilListT
 
   toListT : {{_ : Foldable f}} -> f a -> ListT m a
-  toListT xs = foldr consListT xs nilListT
+  toListT xs = foldr consListT nilListT xs
 
   fromListT : ListT m a -> m (List a)
   fromListT m = runListT m (pure []) \ where

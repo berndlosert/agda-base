@@ -176,7 +176,7 @@ instance
   Alternative-Seq ._<|>_ = _<>_
 
   Filterable-Seq : Filterable Seq
-  Filterable-Seq .mapMaybe f xs = foldr (go f) xs nil
+  Filterable-Seq .mapMaybe f xs = foldr (go f) nil xs
     where
       go : (a -> Maybe b) -> a -> Seq b -> Seq b
       go f x ys = case (f x) \ where
@@ -191,7 +191,7 @@ instance
 -------------------------------------------------------------------------------
 
 fromFoldable : {{Foldable t}} -> t a -> Seq a
-fromFoldable xs = foldr cons xs azero
+fromFoldable xs = foldr cons azero xs
 
 replicate : Nat -> a -> Seq a
 replicate 0 _ = nil
@@ -223,12 +223,12 @@ scanr f b xs = snoc (snd (mapAccumR (\ z x -> dup (f x z)) b xs)) b
 -- Folds
 -------------------------------------------------------------------------------
 
-ifoldr : (Nat -> a -> b -> b) -> Seq a -> b -> b
-ifoldr {a} {b} f xs z =
-    foldr go xs (const z) 0
+ifoldr : (Nat -> a -> b -> b) -> b -> Seq a -> b
+ifoldr {a} {b} step init xs =
+    foldr go (const init) xs 0
   where
     go : a -> (Nat -> b) -> Nat -> b
-    go x g n = f n x (g (n + 1))
+    go x g n = step n x (g (n + 1))
 
 ifoldl : (b -> Nat -> a -> b) -> b -> Seq a -> b
 ifoldl {b} {a} f z xs =
@@ -242,7 +242,7 @@ ifoldl {b} {a} f z xs =
 -------------------------------------------------------------------------------
 
 indicesl : (a -> Bool) -> Seq a -> List Nat
-indicesl {a} p xs = ifoldr go xs []
+indicesl {a} p xs = ifoldr go [] xs
   where
     go : Nat -> a -> List Nat -> List Nat
     go n x ns = if p x then n :: ns else ns
@@ -258,11 +258,11 @@ indicesr {a} p = ifoldl go []
 -------------------------------------------------------------------------------
 
 breakl : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
-breakl p xs = foldr (\ n _ -> splitAt n xs) (indicesl p xs) (xs , azero)
+breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , azero) (indicesl p xs)
 
 breakr : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
 breakr p xs =
-  foldr (\ n _ -> swap (splitAt (suc n) xs)) (indicesr p xs) (xs , azero)
+  foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , azero) (indicesr p xs)
 
 spanl : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
 spanl p = breakl (not <<< p)

@@ -19,11 +19,11 @@ open import Data.Monoid.Endo
 open import Data.Monoid.EndoM
 open import Data.Monoid.Product
 open import Data.Monoid.Sum
-open import Data.Monoid.Strict
 open import Data.Profunctor
 open import Data.Profunctor.Choice
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
+open import Data.Semigroup.Strict
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -36,9 +36,9 @@ open Data.Monoid.Dual public
 open Data.Monoid.Endo public
 open Data.Monoid.EndoM public
 open Data.Monoid.Sum public
-open Data.Monoid.Strict public
 open Data.Semigroup.First public
 open Data.Semigroup.Last public
+open Data.Semigroup.Strict public
 
 -------------------------------------------------------------------------------
 -- Variables

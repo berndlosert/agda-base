@@ -97,4 +97,4 @@ instance
     (right x) -> maybe (left mempty) right (f x)
 
   Filterable-List : Filterable List
-  Filterable-List .mapMaybe f xs = foldr (maybe id (_::_) <<< f) xs []
+  Filterable-List .mapMaybe f xs = foldr (maybe id (_::_) <<< f) [] xs

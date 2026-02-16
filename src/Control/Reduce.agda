@@ -97,7 +97,7 @@ Transducer a b = forall {c} -> Reducer b c -> Reducer a c
 
 reduce : {{Foldable t}} -> Reducer a b -> t a -> b
 reduce {t} {a} {b} (reducer {c} init step done) xs =
-    foldr step' xs done init
+    foldr step' done xs init
   where
     step' : a -> (c -> b) -> c -> b
     step' x k acc = case (step acc x) \ where
