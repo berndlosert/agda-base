@@ -47,34 +47,34 @@ record Foldable (t : Type -> Type) : Type where
 
   foldr : (a -> b -> b) -> b -> t a -> b
   foldr {a} {b} step init xs = 
-      appEndo (foldMap step' xs) init
+      appEndo (foldMap h xs) init
     where
-      step' : a -> Endo b
-      step' x = asEndo \ y -> step x y
+      h : a -> Endo b
+      h x = asEndo \ y -> step x y
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl {b} {a} step init xs = 
-      appEndo (getStrict $ getDual $ foldMap step' xs) init
+      appEndo (getStrict $ getDual $ foldMap h xs) init
     where
-      step' : a -> Dual (Strict Endo b)
-      step' x = asDual $ asStrict $ asEndo \ y -> step y x
+      h : a -> Dual (Strict Endo b)
+      h x = asDual $ asStrict $ asEndo \ y -> step y x
 
   fold : {{Monoid a}} -> t a -> a
   fold = foldMap id
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
-  foldrM {m} {a} {b} step init xs =
-      appEndoM (foldMap step' xs) init
+  foldrM {m} {a} {b} step init xs = 
+      appEndoM (foldMap h xs) init
     where
-      step' : a -> EndoM m b
-      step' x = asEndoM \ y -> step x y
+      h : a -> EndoM m b
+      h x = asEndoM \ y -> step x y
       
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
-  foldlM {m} {b} {a} step init xs =
-      appEndoM (getDual $ foldMap step' xs) init
+  foldlM {m} {b} {a} step init xs = 
+      appEndoM (getDual $ foldMap h xs) init
     where
-      step' : a -> Dual (EndoM m b)
-      step' x = asDual $ asEndoM \ y -> step y x
+      h : a -> Dual (EndoM m b)
+      h x = asDual $ asEndoM \ y -> step y x
 
   toList : t a -> List a
   toList = foldMap (_:: [])
@@ -137,7 +137,10 @@ record Foldable (t : Type -> Type) : Type where
       step x y = x <> asProduct y
 
   traverse! : {{Applicative f}} -> (a -> f b) -> t a -> f Unit
-  traverse! f xs = foldr (\ x y -> f x *> y) (pure tt) xs
+  traverse! {f} {a} {b} h xs = foldr step (pure tt) xs
+    where
+      step : a -> f Unit -> f Unit
+      step x y = h x *> y
 
   for! : {{Applicative f}} -> t a -> (a -> f b) -> f Unit
   for! = flip traverse!

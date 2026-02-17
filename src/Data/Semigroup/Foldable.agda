@@ -13,6 +13,7 @@ open import Data.Monoid.Product
 open import Data.Monoid.Sum
 open import Data.Semigroup.First
 open import Data.Semigroup.FromMaybe
+open import Data.Semigroup.FromMaybeM
 open import Data.Semigroup.Last
 open import Data.Semigroup.Max
 open import Data.Semigroup.Min
@@ -53,20 +54,19 @@ record Foldable1 (t : Type -> Type) : Type where
     foldMap1 : {{Semigroup b}} -> (a -> b) -> t a -> b
 
   foldr1 : (a -> b -> b) -> (a -> b) -> t a -> b
-  foldr1 {a} {b} step init xs = 
-      appFromMaybe (foldMap1 step' xs) nothing
+  foldr1 {a} {b} step init xs = appFromMaybe (foldMap1 h xs) nothing
     where
-      step' : a -> FromMaybe b
-      step' x = asFromMaybe \ where
+      h : a -> FromMaybe b
+      h x = asFromMaybe \ where
         (just y) -> step x y
         nothing -> init x
 
   foldl1 : (b -> a -> b) -> (a -> b) -> t a -> b
   foldl1 {b} {a} step init xs =
-      appFromMaybe (getStrict $ getDual $ foldMap1 step' xs) nothing
+      appFromMaybe (getStrict $ getDual $ foldMap1 h xs) nothing
     where
-      step' : a -> Dual (Strict FromMaybe b)
-      step' x = asDual $ asStrict $ asFromMaybe \ where
+      h : a -> Dual (Strict FromMaybe b)
+      h x = asDual $ asStrict $ asFromMaybe \ where
         (just y) -> step y x
         nothing -> init x
 
@@ -74,24 +74,22 @@ record Foldable1 (t : Type -> Type) : Type where
   fold1 = foldMap1 id
 
   foldrM1 : {{Monad m}} -> (a -> b -> m b) -> (a -> m b) -> t a -> m b
-  foldrM1 {m} {a} {b} step init xs = foldMap1 {{semigroup}} step' xs nothing
+  foldrM1 {m} {a} {b} step init xs = 
+      appFromMaybeM (foldMap1 h xs) nothing
     where
-      semigroup : Semigroup (Maybe b -> m b)
-      semigroup ._<>_ g f x = g =<< just <$> f x
-
-      step' : a -> Maybe b -> m b
-      step' x nothing = init x
-      step' x (just y) = step x y
+      h : a -> FromMaybeM m b
+      h x = asFromMaybeM \ where
+        nothing -> init x
+        (just y) -> step x y
 
   foldlM1 : {{Monad m}} -> (b -> a -> m b) -> (a -> m b) -> t a -> m b
-  foldlM1 {m} {b} {a} step init xs = foldMap1 {{semigroup}} step' xs nothing
+  foldlM1 {m} {b} {a} step init xs = 
+      appFromMaybeM (getDual $ foldMap1 h xs) nothing
     where
-      semigroup : Semigroup (Maybe b -> m b)
-      semigroup ._<>_ g f x = f =<< just <$> g x
-
-      step' : a -> Maybe b -> m b
-      step' x nothing = init x
-      step' x (just y) = step y x
+      h : a -> Dual (FromMaybeM m b)
+      h x = asDual $ asFromMaybeM \ where
+        nothing -> init x
+        (just y) -> step y x
 
   toList1 : t a -> List1 a
   toList1 = foldMap1 (_:: [])
@@ -115,16 +113,28 @@ record Foldable1 (t : Type -> Type) : Type where
   last = getLast <<< foldMap1 asLast
 
   sum1 : {{Semigroup (Sum a)}} -> t a -> a
-  sum1 {a} = getSum <<< foldl1 (\ x y -> x <> asSum y) asSum
+  sum1 {a} = getSum <<< foldl1 step asSum
+    where
+      step : Sum a -> a -> Sum a
+      step x y = x <> asSum y
 
   product1 : {{Semigroup (Product a)}} -> t a -> a
-  product1 = getProduct <<< foldl1 (\ x y -> x <> asProduct y) asProduct
+  product1 {a} = getProduct <<< foldl1 step asProduct
+    where
+      step : Product a -> a -> Product a
+      step x y = x <> asProduct y
 
   minimum : {{Ord a}} -> t a -> a
-  minimum = getMin <<< foldl1 (\ x y -> x <> asMin y) asMin
+  minimum {a} = getMin <<< foldl1 step asMin
+    where
+      step : Min a -> a -> Min a
+      step x y = x <> asMin y
 
   maximum : {{Ord a}} -> t a -> a
-  maximum = getMax <<< foldl1 (\ x y -> x <> asMax y) asMax
+  maximum {a} = getMax <<< foldl1 step asMax
+    where
+      step : Max a -> a -> Max a
+      step x y = x <> asMax y
 
   minimumBy : (a -> a -> Ordering) -> t a -> a
   minimumBy cmp = let instance _ = order cmp in minimum

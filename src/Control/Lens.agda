@@ -75,33 +75,44 @@ to f k = asConst <<< getConst <<< k <<< f
 view : AGetter a s a -> s -> a
 view g = getConst <<< g asConst
 
+-------------------------------------------------------------------------------
+-- Fold
+-------------------------------------------------------------------------------
+
+Fold : (s t a b : Type) -> Type
+Fold s t a b = forall {f} -> {{Applicative f}} -> {{Contravariant f}}
+  -> (a -> f b) -> s -> f t
+
+Fold' : (s a : Type) -> Type
+Fold' s a = Fold s s a a
+
 foldMapOf : AGetter r s a -> (a -> r) -> s -> r
 foldMapOf l step = getConst <<< l (asConst <<< step)
 
 foldOf : AGetter a s a -> s -> a
-foldOf l = getConst <<< l asConst
+foldOf = view
 
 foldrOf : AGetter (Endo r) s a -> (a -> r -> r) -> r -> s -> r
 foldrOf {r} {s} {a} l step init xs =
-    appEndo (foldMapOf l step' xs) init
+    appEndo (foldMapOf l h xs) init
   where
-    step' : a -> Endo r
-    step' x = asEndo \ y -> step x y
+    h : a -> Endo r
+    h x = asEndo \ y -> step x y
 
 foldlOf : AGetter (Dual (Strict Endo r)) s a -> (r -> a -> r) -> r -> s -> r
 foldlOf {r} {s} {a} l step init xs =
-    appEndo (getStrict $ getDual $ foldMapOf l step' xs) init
+    appEndo (getStrict $ getDual $ foldMapOf l h xs) init
   where
-    step' : a -> Dual (Strict Endo r)
-    step' x = asDual $ asStrict $ asEndo \ y -> step y x
+    h : a -> Dual (Strict Endo r)
+    h x = asDual $ asStrict $ asEndo \ y -> step y x
 
 foldlMOf : {{Monad m}} -> AGetter (Dual (EndoM m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
 foldlMOf {m} {r} {s} {a} l step init xs = 
-    appEndoM (getDual $ foldMapOf l step' xs) init
+    appEndoM (getDual $ foldMapOf l h xs) init
   where
-    step' : a -> Dual (EndoM m r)
-    step' x = asDual $ asEndoM \ y -> step y x  
+    h : a -> Dual (EndoM m r)
+    h x = asDual $ asEndoM \ y -> step y x  
 
 toListOf : AGetter (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
@@ -200,24 +211,13 @@ maximumByOf : AGetter (Dual (Strict Endo (Maybe a))) s a
   -> (a -> a -> Ordering) -> s -> Maybe a
 maximumByOf l cmp = let instance _ = order cmp in maximumOf l
 
-traverseOf' : {{Functor f}}
+traverseOf! : {{Functor f}}
   -> AGetter (f r) s a -> (a -> f r) -> s -> f Unit
-traverseOf' l f = map (const tt) <<< foldMapOf l f
+traverseOf! l f = map (const tt) <<< foldMapOf l f
 
-forOf' : {{Functor f}}
+forOf! : {{Functor f}}
   -> AGetter (f r) s a -> s -> (a -> f r) -> f Unit
-forOf' = flip <<< traverseOf'
-
--------------------------------------------------------------------------------
--- Fold
--------------------------------------------------------------------------------
-
-Fold : (s t a b : Type) -> Type
-Fold s t a b = forall {f} -> {{Applicative f}} -> {{Contravariant f}}
-  -> (a -> f b) -> s -> f t
-
-Fold' : (s a : Type) -> Type
-Fold' s a = Fold s s a a
+forOf! = flip <<< traverseOf!
 
 record Folded (s a : Type) : Type where
   field folded : {{Monoid r}} -> AGetter r s a
