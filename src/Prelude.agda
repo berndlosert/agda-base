@@ -330,17 +330,15 @@ instance
   Eq-Unit ._==_ tt tt = true
 
   Eq-Bool : Eq Bool
-  Eq-Bool ._==_ = \ where
-    true true -> true
-    false false -> true
-    _ _ -> false
+  Eq-Bool ._==_ true true = true
+  Eq-Bool ._==_ false false = true
+  Eq-Bool ._==_ _ _ = false
 
   Eq-Ordering : Eq Ordering
-  Eq-Ordering ._==_ = \ where
-    less less -> true
-    equal equal -> true
-    greater greater -> true
-    _ _ -> false
+  Eq-Ordering ._==_ less less = true
+  Eq-Ordering ._==_ equal equal = true
+  Eq-Ordering ._==_ greater greater = true
+  Eq-Ordering ._==_ _ _ = false
 
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
@@ -349,10 +347,9 @@ instance
   Eq-Nat1 ._==_ (suc k) (suc m) = k == m
 
   Eq-Int : Eq Int
-  Eq-Int ._==_ = \ where
-    (pos m) (pos n) -> m == n
-    (negsuc m) (negsuc n) -> m == n
-    _ _ -> false
+  Eq-Int ._==_ (pos m) (pos n) = m == n
+  Eq-Int ._==_  (negsuc m) (negsuc n) = m == n
+  Eq-Int ._==_  _ _ = false
 
   Eq-Float : Eq Float
   Eq-Float ._==_ = Agda.Builtin.Float.primFloatEquality
@@ -370,25 +367,22 @@ instance
   Eq-Const ._==_ x y = getConst x == getConst y
 
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
-  Eq-Either ._==_ = \ where
-    (left x) (left y) -> x == y
-    (right x) (right y) -> x == y
-    _ _ -> false
+  Eq-Either ._==_ (left x) (left y) = x == y
+  Eq-Either ._==_ (right x) (right y) = x == y
+  Eq-Either ._==_  _ _ = false
 
   Eq-Tuple : {{Eq a}} -> {{Eq b}} -> Eq (Tuple a b)
   Eq-Tuple ._==_ (x , y) (w , z) = (x == w) && (y == z)
 
   Eq-Maybe : {{Eq a}} -> Eq (Maybe a)
-  Eq-Maybe ._==_ = \ where
-    nothing nothing -> true
-    (just x) (just y) -> x == y
-    _ _ -> false
+  Eq-Maybe ._==_ nothing nothing = true
+  Eq-Maybe ._==_ (just x) (just y) = x == y
+  Eq-Maybe ._==_ _ _ = false
 
   Eq-List : {{Eq a}} -> Eq (List a)
-  Eq-List ._==_ = \ where
-    [] [] -> true
-    (x :: xs) (y :: ys) -> x == y && xs == ys
-    _ _ -> false
+  Eq-List ._==_ [] [] = true
+  Eq-List ._==_ (x :: xs) (y :: ys) = x == y && xs == ys
+  Eq-List ._==_ _ _ = false
 
 -------------------------------------------------------------------------------
 -- Ord
@@ -451,11 +445,10 @@ instance
   Ord-Nat1 ._<_ (suc k) (suc m) = k < m
 
   Ord-Int : Ord Int
-  Ord-Int ._<_ = \ where
-    (pos m) (pos n) -> m < n
-    (negsuc m) (negsuc n) -> n < m
-    (negsuc _) (pos _) -> true
-    _ _ -> false
+  Ord-Int ._<_ (pos m) (pos n) = m < n
+  Ord-Int ._<_ (negsuc m) (negsuc n) = n < m
+  Ord-Int ._<_ (negsuc _) (pos _) = true
+  Ord-Int ._<_  _ _ = false
 
   Ord-Float : Ord Float
   Ord-Float ._<_ = Agda.Builtin.Float.primFloatLess
@@ -657,11 +650,10 @@ instance
   Multiplicable-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
 
   Multiplicable-Int : Multiplicable Int
-  Multiplicable-Int ._*_ = \ where
-    (pos n) (pos m) -> pos (n * m)
-    (negsuc n) (negsuc m) -> pos (suc n * suc m)
-    (pos n) (negsuc m) -> neg (n * suc m)
-    (negsuc n) (pos m) -> neg (suc n * m)
+  Multiplicable-Int ._*_ (pos n) (pos m) = pos (n * m)
+  Multiplicable-Int ._*_ (negsuc n) (negsuc m) = pos (suc n * suc m)
+  Multiplicable-Int ._*_ (pos n) (negsuc m) = neg (n * suc m)
+  Multiplicable-Int ._*_ (negsuc n) (pos m) = neg (suc n * m)
 
   Multiplicable-Float : Multiplicable Float
   Multiplicable-Float ._*_ = Agda.Builtin.Float.primFloatTimes
@@ -677,10 +669,9 @@ open Negatable {{...}} public
 
 instance
   Negatable-Int : Negatable Int
-  Negatable-Int .-_ = \ where
-    (pos 0) -> pos 0
-    (pos (suc n)) -> negsuc n
-    (negsuc n) -> pos (suc n)
+  Negatable-Int .-_ (pos 0) = pos 0
+  Negatable-Int .-_ (pos (suc n)) = negsuc n
+  Negatable-Int .-_ (negsuc n) = pos (suc n)
 
   Negatable-Float : Negatable Float
   Negatable-Float .-_ = Agda.Builtin.Float.primFloatNegate
@@ -703,10 +694,9 @@ instance
   Subtractable-Nat ._-_ (suc m) (suc n) = m - n
 
   Subtractable-Nat1 : Subtractable Nat1
-  Subtractable-Nat1 ._-_ (suc m) (suc n) =
-    case (m - n) \ where
-      0 -> suc 0
-      (suc k) -> suc k
+  Subtractable-Nat1 ._-_ (suc m) (suc n) with m - n
+  ... | 0 = suc 0
+  ... | suc k = suc k
 
   Subtractable-Int : Subtractable Int
   Subtractable-Int ._-_ m n = m + (- n)
@@ -766,18 +756,16 @@ instance
   Integral-Nat .mod m (suc n) = Agda.Builtin.Nat.mod-helper 0 n m n
 
   Integral-Int : Integral Int
-  Integral-Int .div = \ where
-    (pos m) (pos n@(suc _)) -> pos (div m n)
-    (pos m) (negsuc n) -> neg (div m (suc n))
-    (negsuc m) (pos n@(suc _)) -> neg (div (suc m) n)
-    (negsuc m) (negsuc n) -> pos (div (suc m) (suc n))
-    _ (pos 0) -> pos 0
-  Integral-Int .mod = \ where
-    (pos m) (pos n@(suc _)) -> pos (mod m n)
-    (pos m) (negsuc n) -> pos (mod m (suc n))
-    (negsuc m) (pos n@(suc _)) -> neg (mod (suc m) n)
-    (negsuc m) (negsuc n) -> neg (mod (suc m) (suc n))
-    m (pos 0) -> m
+  Integral-Int .div (pos m) (pos n@(suc _)) = pos (div m n)
+  Integral-Int .div (pos m) (negsuc n) = neg (div m (suc n))
+  Integral-Int .div (negsuc m) (pos n@(suc _)) = neg (div (suc m) n)
+  Integral-Int .div (negsuc m) (negsuc n) = pos (div (suc m) (suc n))
+  Integral-Int .div _ (pos 0) = pos 0
+  Integral-Int .mod (pos m) (pos n@(suc _)) = pos (mod m n)
+  Integral-Int .mod (pos m) (negsuc n) = pos (mod m (suc n))
+  Integral-Int .mod (negsuc m) (pos n@(suc _)) = neg (mod (suc m) n)
+  Integral-Int .mod (negsuc m) (negsuc n) = neg (mod (suc m) (suc n))
+  Integral-Int .mod m (pos 0) = m
 
 -------------------------------------------------------------------------------
 -- Fractional
@@ -847,16 +835,15 @@ instance
   Semigroup-Unit ._<>_ tt tt = tt
 
   Semigroup-Ordering : Semigroup Ordering
-  Semigroup-Ordering ._<>_ = \ where
-    less _ -> less
-    equal y -> y
-    greater _ -> greater
+  Semigroup-Ordering ._<>_ less _ = less
+  Semigroup-Ordering ._<>_ equal y = y
+  Semigroup-Ordering ._<>_ greater _ = greater
 
   Semigroup-String : Semigroup String
   Semigroup-String ._<>_ = Agda.Builtin.String.primStringAppend
 
   Semigroup-Function : {{Semigroup b}} -> Semigroup (a -> b)
-  Semigroup-Function ._<>_ f g = \ x -> f x <> g x
+  Semigroup-Function ._<>_ f g x = f x <> g x
 
   Semigroup-Identity : {{Semigroup a}} -> Semigroup (Identity a)
   Semigroup-Identity {a} ._<>_ x y = asIdentity (runIdentity x <> runIdentity y)
@@ -865,15 +852,13 @@ instance
   Semigroup-Const ._<>_ x y = asConst (getConst x <> getConst y)
 
   Semigroup-Maybe : {{Semigroup a}} -> Semigroup (Maybe a)
-  Semigroup-Maybe ._<>_ = \ where
-    nothing x -> x
-    x nothing -> x
-    (just x) (just y) -> just (x <> y)
+  Semigroup-Maybe ._<>_ nothing x = x
+  Semigroup-Maybe ._<>_ x nothing = x
+  Semigroup-Maybe ._<>_ (just x) (just y) = just (x <> y)
 
   Semigroup-List : Semigroup (List a)
-  Semigroup-List ._<>_ = \ where
-    [] ys -> ys
-    (x :: xs) ys -> x :: (xs <> ys)
+  Semigroup-List ._<>_ [] ys = ys
+  Semigroup-List ._<>_ (x :: xs) ys = x :: (xs <> ys)
 
   Semigroup-Either : {{Semigroup a}} -> {{Semigroup b}}
     -> Semigroup (Either a b)
@@ -963,18 +948,17 @@ instance
   Functor-Function .map = _<<<_
 
   Functor-Identity : Functor Identity
-  Functor-Identity .map f x = asIdentity (f (runIdentity x))
+  Functor-Identity .map f = asIdentity <<< f <<< runIdentity
 
   Functor-Const : Functor (Const a)
-  Functor-Const .map _ x = asConst (getConst x)
+  Functor-Const .map _ = asConst <<< getConst
 
   Functor-Maybe : Functor Maybe
   Functor-Maybe .map f = maybe nothing (just <<< f)
 
   Functor-List : Functor List
-  Functor-List .map f = \ where
-    [] -> []
-    (x :: xs) -> f x :: map f xs
+  Functor-List .map f [] = []
+  Functor-List .map f (x :: xs) = f x :: map f xs
 
   Functor-Either : Functor (Either a)
   Functor-Either .map f = either left (right <<< f)
@@ -1022,11 +1006,11 @@ open Applicative {{...}} public
 instance
   Applicative-Function : Applicative (Function a)
   Applicative-Function .pure = const
-  Applicative-Function ._<*>_ f g = \ x -> f x (g x)
+  Applicative-Function ._<*>_ f g x = f x (g x)
 
   Applicative-Identity : Applicative Identity
   Applicative-Identity .pure = asIdentity
-  Applicative-Identity ._<*>_ f x = asIdentity (runIdentity f (runIdentity x))
+  Applicative-Identity ._<*>_ f = asIdentity <<< runIdentity f <<< runIdentity
 
   Applicative-Const : {{Monoid a}} -> Applicative (Const a)
   Applicative-Const .pure _ = asConst mempty
@@ -1034,21 +1018,18 @@ instance
 
   Applicative-Maybe : Applicative Maybe
   Applicative-Maybe .pure = just
-  Applicative-Maybe ._<*>_ = \ where
-    (just f) -> map f
-    nothing _ -> nothing
+  Applicative-Maybe ._<*>_ (just f) = map f
+  Applicative-Maybe ._<*>_ nothing _ = nothing
 
   Applicative-List : Applicative List
   Applicative-List .pure = _:: []
-  Applicative-List ._<*>_ = \ where
-    [] _ -> []
-    (f :: fs) xs -> (f <$> xs) <> (fs <*> xs)
+  Applicative-List ._<*>_ [] _ = []
+  Applicative-List ._<*>_ (f :: fs) xs  = (f <$> xs) <> (fs <*> xs)
 
   Applicative-Either : Applicative (Either a)
   Applicative-Either .pure = right
-  Applicative-Either ._<*>_ = \ where
-    (left x) _ -> left x
-    (right f) -> map f
+  Applicative-Either ._<*>_ (left x) _ = left x
+  Applicative-Either ._<*>_ (right f) = map f
 
   Applicative-Tuple : {{Monoid a}} -> Applicative (Tuple a)
   Applicative-Tuple .pure = (mempty ,_)
@@ -1134,25 +1115,22 @@ open Monad {{...}} public
 
 instance
   Monad-Function : Monad (Function a)
-  Monad-Function ._>>=_ f g = \ x -> g (f x) x
+  Monad-Function ._>>=_ f g x = g (f x) x
 
   Monad-Identity : Monad Identity
   Monad-Identity ._>>=_ x k = k (runIdentity x)
 
   Monad-Maybe : Monad Maybe
-  Monad-Maybe ._>>=_ = \ where
-    nothing _ -> nothing
-    (just x) k -> k x
+  Monad-Maybe ._>>=_ nothing _ = nothing
+  Monad-Maybe ._>>=_ (just x) k = k x
 
   Monad-List : Monad List
-  Monad-List ._>>=_ = \ where
-    [] k -> []
-    (x :: xs) k -> k x <> (xs >>= k)
-
+  Monad-List ._>>=_ [] k = []
+  Monad-List ._>>=_ (x :: xs) k = k x <> (xs >>= k)    
+    
   Monad-Either : Monad (Either a)
-  Monad-Either ._>>=_ = \ where
-    (left x) _ -> left x
-    (right x) k -> k x
+  Monad-Either ._>>=_ (left x) _ = left x
+  Monad-Either ._>>=_ (right x) k = k x
 
   Monad-Tuple : {{Monoid a}} -> Monad (Tuple a)
   Monad-Tuple ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
