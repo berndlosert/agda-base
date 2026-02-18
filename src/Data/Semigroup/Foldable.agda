@@ -54,7 +54,8 @@ record Foldable1 (t : Type -> Type) : Type where
     foldMap1 : {{Semigroup b}} -> (a -> b) -> t a -> b
 
   foldr1 : (a -> b -> b) -> (a -> b) -> t a -> b
-  foldr1 {a} {b} step init xs = appFromMaybe (foldMap1 h xs) nothing
+  foldr1 {a} {b} step init xs = 
+      foldMap1 h xs .appFromMaybe nothing
     where
       h : a -> FromMaybe b
       h x = asFromMaybe \ where
@@ -63,7 +64,7 @@ record Foldable1 (t : Type -> Type) : Type where
 
   foldl1 : (b -> a -> b) -> (a -> b) -> t a -> b
   foldl1 {b} {a} step init xs =
-      appFromMaybe (getStrict $ getDual $ foldMap1 h xs) nothing
+      foldMap1 h xs .getDual .getStrict .appFromMaybe nothing
     where
       h : a -> Dual (Strict FromMaybe b)
       h x = asDual $ asStrict $ asFromMaybe \ where
@@ -75,7 +76,7 @@ record Foldable1 (t : Type -> Type) : Type where
 
   foldrM1 : {{Monad m}} -> (a -> b -> m b) -> (a -> m b) -> t a -> m b
   foldrM1 {m} {a} {b} step init xs = 
-      appFromMaybeM (foldMap1 h xs) nothing
+       foldMap1 h xs .appFromMaybeM nothing
     where
       h : a -> FromMaybeM m b
       h x = asFromMaybeM \ where
@@ -84,7 +85,7 @@ record Foldable1 (t : Type -> Type) : Type where
 
   foldlM1 : {{Monad m}} -> (b -> a -> m b) -> (a -> m b) -> t a -> m b
   foldlM1 {m} {b} {a} step init xs = 
-      appFromMaybeM (getDual $ foldMap1 h xs) nothing
+      foldMap1 h xs .getDual .appFromMaybeM nothing
     where
       h : a -> Dual (FromMaybeM m b)
       h x = asDual $ asFromMaybeM \ where
@@ -107,31 +108,31 @@ record Foldable1 (t : Type -> Type) : Type where
       inc n _ = suc (toNat n)
 
   first : t a -> a
-  first = getFirst <<< foldMap1 asFirst
+  first xs = foldMap1 asFirst xs .getFirst
 
   last : t a -> a
-  last = getLast <<< foldMap1 asLast
+  last xs = foldMap1 asLast xs .getLast
 
   sum1 : {{Semigroup (Sum a)}} -> t a -> a
-  sum1 {a} = getSum <<< foldl1 step asSum
+  sum1 {a} xs = foldl1 step asSum xs .getSum
     where
       step : Sum a -> a -> Sum a
       step x y = x <> asSum y
 
   product1 : {{Semigroup (Product a)}} -> t a -> a
-  product1 {a} = getProduct <<< foldl1 step asProduct
+  product1 {a} xs = foldl1 step asProduct xs .getProduct
     where
       step : Product a -> a -> Product a
       step x y = x <> asProduct y
 
   minimum : {{Ord a}} -> t a -> a
-  minimum {a} = getMin <<< foldl1 step asMin
+  minimum {a} xs = foldl1 step asMin xs .getMin
     where
       step : Min a -> a -> Min a
       step x y = x <> asMin y
 
   maximum : {{Ord a}} -> t a -> a
-  maximum {a} = getMax <<< foldl1 step asMax
+  maximum {a} xs = foldl1 step asMax xs .getMax
     where
       step : Max a -> a -> Max a
       step x y = x <> asMax y
@@ -153,6 +154,6 @@ instance
   Foldable1-Identity .foldMap1 f x = f (runIdentity x)
 
   Foldable1-List1 : Foldable1 List1
-  Foldable1-List1 .foldMap1 f = \ where
-    (x :: []) -> f x
-    (x :: (y :: ys)) -> f x <> foldMap1 f (y :: ys)
+  Foldable1-List1 .foldMap1 f (x :: []) = f x
+  Foldable1-List1 .foldMap1 f (x :: (y :: ys)) = f x <> foldMap1 f (y :: ys)
+    
