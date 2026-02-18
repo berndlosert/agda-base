@@ -47,14 +47,14 @@ record Foldable (t : Type -> Type) : Type where
 
   foldr : (a -> b -> b) -> b -> t a -> b
   foldr {a} {b} step init xs = 
-      appEndo (foldMap h xs) init
+      foldMap h xs .appEndo init
     where
       h : a -> Endo b
       h x = asEndo \ y -> step x y
 
   foldl : (b -> a -> b) -> b -> t a -> b
   foldl {b} {a} step init xs = 
-      appEndo (getStrict $ getDual $ foldMap h xs) init
+      foldMap h xs .getDual .getStrict .appEndo init
     where
       h : a -> Dual (Strict Endo b)
       h x = asDual $ asStrict $ asEndo \ y -> step y x
@@ -64,14 +64,14 @@ record Foldable (t : Type -> Type) : Type where
 
   foldrM : {{Monad m}} -> (a -> b -> m b) -> b -> t a -> m b
   foldrM {m} {a} {b} step init xs = 
-      appEndoM (foldMap h xs) init
+      foldMap h xs .appEndoM init
     where
       h : a -> EndoM m b
       h x = asEndoM \ y -> step x y
       
   foldlM : {{Monad m}} -> (b -> a -> m b) -> b -> t a -> m b
   foldlM {m} {b} {a} step init xs = 
-      appEndoM (getDual $ foldMap h xs) init
+      foldMap h xs .getDual .appEndoM init
     where
       h : a -> Dual (EndoM m b)
       h x = asDual $ asEndoM \ y -> step y x
@@ -95,10 +95,10 @@ record Foldable (t : Type -> Type) : Type where
       step _ x = if p x then left x else right tt
 
   any : (a -> Bool) -> t a -> Bool
-  any p = getAny <<< foldMap (asAny <<< p)
+  any p xs = foldMap (asAny <<< p) xs .getAny
 
   all : (a -> Bool) -> t a -> Bool
-  all p = getAll <<< foldMap (asAll <<< p)
+  all p xs = foldMap (asAll <<< p) xs .getAll
 
   or : t Bool -> Bool
   or = any id
@@ -125,13 +125,13 @@ record Foldable (t : Type -> Type) : Type where
   defaulting d f xs = if null xs then d else f xs
 
   sum : {{Monoid (Sum a)}} -> t a -> a
-  sum {a} = getSum <<< foldl step mempty
+  sum {a} xs = foldl step mempty xs .getSum
     where
       step : Sum a -> a -> Sum a
       step x y = x <> asSum y
 
   product : {{Monoid (Product a)}} -> t a -> a
-  product {a} = getProduct <<< foldl step mempty
+  product {a} xs = foldl step mempty xs .getProduct
     where
       step : Product a -> a -> Product a
       step x y = x <> asProduct y
@@ -149,7 +149,7 @@ record Foldable (t : Type -> Type) : Type where
   sequence! = traverse! id
 
   asum : {{Alternative f}} -> t (f a) -> f a
-  asum = getAlt <<< foldMap asAlt
+  asum xs = foldMap asAlt xs .getAlt
 
 open Foldable {{...}} public
 
