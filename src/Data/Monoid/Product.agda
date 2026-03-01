@@ -28,7 +28,7 @@ instance
 -- Product
 -------------------------------------------------------------------------------
 
--- For Multiplicable semigroups, monoids, etc.
+-- For Multiplicative semigroups, monoids, etc.
 record Product (a : Type) : Type where
   constructor asProduct
   field getProduct : a

@@ -618,45 +618,45 @@ instance
   Addable-Float ._+_ = Agda.Builtin.Float.primFloatPlus
 
 -------------------------------------------------------------------------------
--- Multiplicable
+-- Multiplicative
 -------------------------------------------------------------------------------
 
-record Multiplicable (a : Type) : Type where
+record Multiplicative (a : Type) : Type where
   infixl 7 _*_
   field _*_ : a -> a -> a
 
-open Multiplicable {{...}} public
+open Multiplicative {{...}} public
 
 instance
-  Multiplicable-Type : Multiplicable Type
-  Multiplicable-Type ._*_ = Tuple
+  Multiplicative-Type : Multiplicative Type
+  Multiplicative-Type ._*_ = Tuple
 
-  Multiplicable-Function : {{Multiplicable b}} -> Multiplicable (a -> b)
-  Multiplicable-Function ._*_ f g x = f x * g x
+  Multiplicative-Function : {{Multiplicative b}} -> Multiplicative (a -> b)
+  Multiplicative-Function ._*_ f g x = f x * g x
 
-  Multiplicable-Void : Multiplicable Void
-  Multiplicable-Void ._*_ = \ ()
+  Multiplicative-Void : Multiplicative Void
+  Multiplicative-Void ._*_ = \ ()
 
-  Multiplicable-Unit : Multiplicable Unit
-  Multiplicable-Unit ._*_ _ _ = tt
+  Multiplicative-Unit : Multiplicative Unit
+  Multiplicative-Unit ._*_ _ _ = tt
 
-  Multiplicable-Bool : Multiplicable Bool
-  Multiplicable-Bool ._*_ = _&&_
+  Multiplicative-Bool : Multiplicative Bool
+  Multiplicative-Bool ._*_ = _&&_
 
-  Multiplicable-Nat : Multiplicable Nat
-  Multiplicable-Nat ._*_ = Agda.Builtin.Nat._*_
+  Multiplicative-Nat : Multiplicative Nat
+  Multiplicative-Nat ._*_ = Agda.Builtin.Nat._*_
 
-  Multiplicable-Nat1 : Multiplicable Nat1
-  Multiplicable-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
+  Multiplicative-Nat1 : Multiplicative Nat1
+  Multiplicative-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
 
-  Multiplicable-Int : Multiplicable Int
-  Multiplicable-Int ._*_ (pos n) (pos m) = pos (n * m)
-  Multiplicable-Int ._*_ (negsuc n) (negsuc m) = pos (suc n * suc m)
-  Multiplicable-Int ._*_ (pos n) (negsuc m) = neg (n * suc m)
-  Multiplicable-Int ._*_ (negsuc n) (pos m) = neg (suc n * m)
+  Multiplicative-Int : Multiplicative Int
+  Multiplicative-Int ._*_ (pos n) (pos m) = pos (n * m)
+  Multiplicative-Int ._*_ (negsuc n) (negsuc m) = pos (suc n * suc m)
+  Multiplicative-Int ._*_ (pos n) (negsuc m) = neg (n * suc m)
+  Multiplicative-Int ._*_ (negsuc n) (pos m) = neg (suc n * m)
 
-  Multiplicable-Float : Multiplicable Float
-  Multiplicable-Float ._*_ = Agda.Builtin.Float.primFloatTimes
+  Multiplicative-Float : Multiplicative Float
+  Multiplicative-Float ._*_ = Agda.Builtin.Float.primFloatTimes
 
 -------------------------------------------------------------------------------
 -- Negatable
