@@ -64,14 +64,6 @@ instance
     x <- runMaybeT xs
     pure (f <*> x)
 
-  Alternative-MaybeT : {{Monad m}} -> Alternative (MaybeT m)
-  Alternative-MaybeT .azero = asMaybeT (pure nothing)
-  Alternative-MaybeT ._<|>_ l r = asMaybeT do
-    res <- runMaybeT l
-    case res \ where
-      nothing -> runMaybeT r
-      (just _) -> pure res
-
   Monad-MaybeT : {{Monad m}} -> Monad (MaybeT m)
   Monad-MaybeT ._>>=_ m k = asMaybeT $
     caseM (runMaybeT m) \ where

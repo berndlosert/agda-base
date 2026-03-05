@@ -75,10 +75,6 @@ instance
   Monad-ListT ._>>=_ xs k = asListT \ where
     n c -> runListT xs n \ h t -> runListT (k h) n c
 
-  Alternative-ListT : {{Monad m}} -> Alternative (ListT m)
-  Alternative-ListT .azero = mempty
-  Alternative-ListT ._<|>_ = _<>_
-
   MonadTrans-ListT : MonadTrans ListT
   MonadTrans-ListT .lift m = asListT \ n c -> m >>= flip c n
 

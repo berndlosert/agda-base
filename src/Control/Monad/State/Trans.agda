@@ -63,12 +63,6 @@ instance
       (s2 , y) <- runStateT x s1
       pure (s2 , g y)
 
-  Alternative-StateT : {{Alternative m}} -> {{Monad m}} ->
-    Alternative (StateT s m)
-  Alternative-StateT .azero = asStateT (const azero)
-  Alternative-StateT ._<|>_ l r = asStateT \ s ->
-    runStateT l s <|> runStateT r s
-
   Monad-StateT : {{Monad m}} -> Monad (StateT s m)
   Monad-StateT ._>>=_ m k = asStateT \ s0 -> do
     (s1 , x) <- runStateT m s0

@@ -62,11 +62,6 @@ instance
   Traversable-Coyoneda .traverse f (coyoneda g x) =
     coyoneda id <$> traverse (f <<< g) x
 
-  Alternative-Coyoneda : {{Alternative f}} -> Alternative (Coyoneda f)
-  Alternative-Coyoneda .azero = liftCoyoneda azero
-  Alternative-Coyoneda ._<|>_ l r =
-    liftCoyoneda (lowerCoyoneda l <|> lowerCoyoneda r)
-
   Monad-Coyoneda : {{Monad f}} -> Monad (Coyoneda f)
   Monad-Coyoneda ._>>=_ (coyoneda f v) k =
     liftCoyoneda (v >>= f >>> k >>> lowerCoyoneda)

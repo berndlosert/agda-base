@@ -171,10 +171,6 @@ instance
     Monad-Seq : Monad Seq
     Monad-Seq ._>>=_ x f = foldMap f x
 
-  Alternative-Seq : Alternative Seq
-  Alternative-Seq .azero = mempty
-  Alternative-Seq ._<|>_ = _<>_
-
   Filterable-Seq : Filterable Seq
   Filterable-Seq .mapMaybe f xs = foldr (go f) nil xs
     where
@@ -191,7 +187,7 @@ instance
 -------------------------------------------------------------------------------
 
 fromFoldable : {{Foldable t}} -> t a -> Seq a
-fromFoldable xs = foldr cons azero xs
+fromFoldable xs = foldr cons nil xs
 
 replicate : Nat -> a -> Seq a
 replicate 0 _ = nil
@@ -201,11 +197,11 @@ replicateA : {{Applicative f}} -> Nat -> f a -> f (Seq a)
 replicateA {f} {a} n0 fa = loop n0
   where
     loop : Nat -> f (Seq a)
-    loop 0 = pure azero
+    loop 0 = pure nil
     loop (suc n) = (| cons fa (loop n) |)
 
 iterateN : Nat -> (a -> a) -> a -> Seq a
-iterateN 0 f x = azero
+iterateN 0 f x = nil
 iterateN 1 f x = singleton x
 iterateN (suc n) f x = cons (f x) (iterateN n f x)
 
@@ -258,11 +254,11 @@ indicesr {a} p = ifoldl go []
 -------------------------------------------------------------------------------
 
 breakl : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
-breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , azero) (indicesl p xs)
+breakl p xs = foldr (\ n _ -> splitAt n xs) (xs , nil) (indicesl p xs)
 
 breakr : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
 breakr p xs =
-  foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , azero) (indicesr p xs)
+  foldr (\ n _ -> swap (splitAt (suc n) xs)) (xs , nil) (indicesr p xs)
 
 spanl : (a -> Bool) -> Seq a -> Tuple (Seq a) (Seq a)
 spanl p = breakl (not <<< p)
@@ -287,7 +283,7 @@ dropWhileR p = snd <<< spanr p
 -------------------------------------------------------------------------------
 
 reverse : Seq a -> Seq a
-reverse = foldl (flip cons) azero
+reverse = foldl (flip cons) nil
 
 intersperse : a -> Seq a -> Seq a
 intersperse sep xs with uncons xs
@@ -315,7 +311,7 @@ zipCons {a} heads tails =
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
     padding : Seq (Seq a)
-    padding = replicate (length heads - length tails) azero
+    padding = replicate (length heads - length tails) nil
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
     excess : Seq (Seq a)

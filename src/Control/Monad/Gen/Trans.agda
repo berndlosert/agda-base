@@ -57,10 +57,6 @@ instance
   Applicative-GenT ._<*>_ f x = asGenT (unGenT f <*> unGenT x)
   Applicative-GenT .pure x = asGenT (pure x)
 
-  Alternative-GenT : {{Alternative m}} -> {{Monad m}} -> Alternative (GenT m)
-  Alternative-GenT ._<|>_ l r = asGenT (unGenT l <|> unGenT r)
-  Alternative-GenT .azero = asGenT azero
-
   Monad-GenT : {{Monad m}} -> Monad (GenT m)
   Monad-GenT ._>>=_ m k = asGenT do
     s <- unGenT m

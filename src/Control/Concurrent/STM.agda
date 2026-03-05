@@ -22,7 +22,7 @@ postulate
   STM : Type -> Type
   atomically : STM a -> IO a
   retry : STM a
-  orElse : STM a -> STM a -> STM a
+  _orElse_ : STM a -> STM a -> STM a
   check : Bool -> STM Unit
 
 private
@@ -40,10 +40,6 @@ instance
   Applicative-STM .pure = pureSTM
   Applicative-STM ._<*>_ = apSTM
 
-  Alternative-STM : Alternative STM
-  Alternative-STM .azero = retry
-  Alternative-STM ._<|>_ = orElse
-
   Monad-STM : Monad STM
   Monad-STM ._>>=_ = bindSTM
 
@@ -51,7 +47,7 @@ instance
 {-# COMPILE GHC STM = type STM #-}
 {-# COMPILE GHC atomically = \ _ stm -> atomically stm #-}
 {-# COMPILE GHC retry = \ _ -> retry #-}
-{-# COMPILE GHC orElse = \ _ stm1 stm2 -> stm1 `orElse` stm2 #-}
+{-# COMPILE GHC _orElse_ = \ _ stm1 stm2 -> stm1 `orElse` stm2 #-}
 {-# COMPILE GHC mapSTM = \ _ _ f x -> fmap f x #-}
 {-# COMPILE GHC pureSTM = \ _ x -> pure x #-}
 {-# COMPILE GHC apSTM = \ _ _ f x -> f <*> x #-}

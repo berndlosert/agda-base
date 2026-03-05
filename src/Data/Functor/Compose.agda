@@ -53,9 +53,3 @@ instance
     -> Traversable (Compose f g)
   Traversable-Compose .traverse f x =
     (| asCompose (traverse (traverse f) (getCompose x)) |)
-
-  Alternative-Compose : {{Alternative f}} -> {{Applicative g}}
-    -> Alternative (Compose f g)
-  Alternative-Compose .azero = asCompose azero
-  Alternative-Compose ._<|>_ l r =
-    asCompose (getCompose l <|> getCompose r)

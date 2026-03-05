@@ -82,16 +82,6 @@ instance
       (left m) -> runIterT (k m)
       (right iter1) -> pure (right (iter1 >>= k))
 
-  Alternative-IterT : {{Monad m}} -> Alternative (IterT m)
-  Alternative-IterT .azero = never
-  Alternative-IterT ._<|>_ l r = asIterT $
-    caseM (runIterT l) \ where
-      resl@(left _) -> pure resl
-      (right l1) ->
-        caseM (runIterT r) \ where
-          resr@(left _) -> pure resr
-          (right r1) -> pure (right (l1 <|> r1))
-
   MonadFree-IterT : {{Monad m}} -> MonadFree Identity (IterT m)
   MonadFree-IterT .wrap (asIdentity iter) = delay iter
 

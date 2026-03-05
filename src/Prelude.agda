@@ -1039,34 +1039,6 @@ instance
   Applicative-IO .pure = pureIO
   Applicative-IO ._<*>_ = apIO
 
--------------------------------------------------------------------------------
--- Alternative
--------------------------------------------------------------------------------
-
-record Alternative (f : Type -> Type) : Type where
-  infixl 3 _<|>_
-  field
-    overlap {{Applicative-super}} : Applicative f
-    _<|>_ : f a -> f a -> f a
-    azero : f a
-
-  guarded : (a -> Bool) -> a -> f a
-  guarded p x = if p x then pure x else azero
-
-  guard : Bool -> f Unit
-  guard b = guarded (const b) tt
-
-open Alternative {{...}} public
-
-instance
-  Alternative-Maybe : Alternative Maybe
-  Alternative-Maybe .azero = nothing
-  Alternative-Maybe ._<|>_ nothing r = r
-  Alternative-Maybe ._<|>_ l _ = l
-
-  Alternative-List : Alternative List
-  Alternative-List .azero = mempty
-  Alternative-List ._<|>_ = _<>_
 
 -------------------------------------------------------------------------------
 -- Monad

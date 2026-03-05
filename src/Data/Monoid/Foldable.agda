@@ -7,7 +7,6 @@ module Data.Monoid.Foldable where
 open import Prelude
 
 open import Data.Monoid.All
-open import Data.Monoid.Alt
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
 open import Data.Monoid.Endo
@@ -21,7 +20,6 @@ open import Data.Semigroup.Strict
 -------------------------------------------------------------------------------
 
 open Data.Monoid.All public
-open Data.Monoid.Alt public
 open Data.Monoid.Any public
 open Data.Monoid.Dual public
 open Data.Monoid.Endo public
@@ -147,9 +145,6 @@ record Foldable (t : Type -> Type) : Type where
 
   sequence! : {{Applicative f}} ->  t (f a) -> f Unit
   sequence! = traverse! id
-
-  asum : {{Alternative f}} -> t (f a) -> f a
-  asum xs = foldMap asAlt xs .getAlt
 
 open Foldable {{...}} public
 

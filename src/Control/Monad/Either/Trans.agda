@@ -65,17 +65,6 @@ instance
   Applicative-EitherT ._<*>_ f x =
     asEitherT (| runEitherT f <*> runEitherT x |)
 
-  Alternative-EitherT : {{Monoid e}} -> {{Monad m}}
-    -> Alternative (EitherT e m)
-  Alternative-EitherT .azero = asEitherT (pure (left mempty))
-  Alternative-EitherT ._<|>_ l r = asEitherT $
-    caseM (runEitherT l) \ where
-      (left el) ->
-        caseM (runEitherT r) \ where
-          (left er) -> pure (left (el <> er))
-          (right x) -> pure (right x)
-      (right x) -> pure (right x)
-
   Monad-EitherT : {{Monad m}} -> Monad (EitherT e m)
   Monad-EitherT ._>>=_ m k =
     asEitherT (runEitherT m >>= either (pure <<< left) (runEitherT <<< k))

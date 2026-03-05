@@ -61,11 +61,6 @@ instance
   Applicative-ReaderT ._<*>_ f x = asReaderT \ r ->
     runReaderT f r <*> runReaderT x r
 
-  Alternative-ReaderT : {{Alternative m}} -> Alternative (ReaderT r m)
-  Alternative-ReaderT .azero = liftReaderT azero
-  Alternative-ReaderT ._<|>_ m n = asReaderT \ r ->
-    runReaderT m r <|> runReaderT n r
-
   Monad-ReaderT : {{Monad m}} -> Monad (ReaderT r m)
   Monad-ReaderT ._>>=_ m k = asReaderT \ r -> do
     a <- runReaderT m r

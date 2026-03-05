@@ -64,10 +64,6 @@ instance
     (valid f) x -> map f x
   Applicative-Validated .pure = valid
 
-  Alternative-Validated : {{Monoid e}} -> Alternative (Validated e)
-  Alternative-Validated ._<|>_ = _<>_
-  Alternative-Validated .azero = mempty
-
   Selective-Validated : {{Semigroup e}} -> Selective (Validated e)
   Selective-Validated .eitherS l r = \ where
     (invalid e) -> invalid e

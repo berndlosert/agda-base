@@ -60,11 +60,6 @@ instance
       k : _
       k (v , f) (w , x) = (v <> w , f x)
 
-  Alternative-WriterT : {{Monoid w}} -> {{Alternative m}}
-    -> Alternative (WriterT w m)
-  Alternative-WriterT .azero = asWriterT azero
-  Alternative-WriterT ._<|>_ l r = asWriterT (runWriterT l <|> runWriterT r)
-
   Monad-WriterT : {{Monoid w}} -> {{Monad m}} -> Monad (WriterT w m)
   Monad-WriterT ._>>=_ m k = asWriterT do
     (v , x) <- runWriterT m

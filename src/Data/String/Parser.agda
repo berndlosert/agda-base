@@ -86,6 +86,26 @@ abstract
       in
         p s cok1 cerr1 eok1 eerr1
 
+  fail : Parser a
+  fail = \ where
+      s _ _ _ eerr -> eerr
+
+  infixl 3 _<|>_
+  _<|>_ : Parser a -> Parser a -> Parser a
+  m <|> n = \ where
+    s cok cerr eok eerr ->
+      let
+        meerr =
+          let
+            ncerr = cerr
+            neok x s1 = eok x s1
+            neerr = eerr
+          in
+            n s cok ncerr neok neerr
+      in
+        m s cok cerr eok meerr
+
+
 -------------------------------------------------------------------------------
 -- Running parsers
 -------------------------------------------------------------------------------
@@ -132,22 +152,6 @@ abstract
             meok x s1 = (k x) s1 cok cerr eok eerr
           in
             m s mcok cerr meok eerr
-
-    Alternative-Parser : Alternative Parser
-    Alternative-Parser .azero = \ where
-      s _ _ _ eerr -> eerr
-    Alternative-Parser ._<|>_ m n = \ where
-      s cok cerr eok eerr ->
-        let
-          meerr =
-            let
-              ncerr = cerr
-              neok x s1 = eok x s1
-              neerr = eerr
-            in
-              n s cok ncerr neok neerr
-        in
-          m s cok cerr eok meerr
 
 instance
   Semigroup-Parser : {{Semigroup a}} -> Semigroup (Parser a)
@@ -196,7 +200,7 @@ choose : Parser a -> Parser b -> Parser (Either a b)
 choose l r = (| left l | right r |)
 
 choice : List (Parser a) -> Parser a
-choice = asum
+choice = foldr _<|>_ fail
 
 exactly : Nat -> Parser a -> Parser (List a)
 exactly 0 p = pure []
