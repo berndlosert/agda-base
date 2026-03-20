@@ -9,7 +9,6 @@ import Agda.Builtin.Char
 import Agda.Builtin.Equality
 import Agda.Builtin.Float
 import Agda.Builtin.Int
-import Agda.Builtin.IO
 import Agda.Builtin.List
 import Agda.Builtin.Maybe
 import Agda.Builtin.Nat
@@ -113,9 +112,6 @@ record Tuple (a b : Type) : Type where
 open Tuple public
 
 {-# COMPILE GHC Tuple = data (,) ((,)) #-}
-
-open Agda.Builtin.IO public
-  using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -275,22 +271,6 @@ isNothing = maybe true (const false)
 
 fromJust : (m : Maybe a) -> {{Assert (isJust m)}} -> a
 fromJust (just x) = x
-
--------------------------------------------------------------------------------
--- IO functions
--------------------------------------------------------------------------------
-
-private
-  postulate
-    mapIO : (a -> b) -> IO a -> IO b
-    pureIO : a -> IO a
-    apIO : IO (a -> b) -> IO a -> IO b
-    bindIO : IO a -> (a -> IO b) -> IO b
-
-{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
-{-# COMPILE GHC pureIO = \ _ -> pure #-}
-{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
-{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
 
 -------------------------------------------------------------------------------
 -- Uninhabited
@@ -869,10 +849,6 @@ instance
     -> Semigroup (Tuple a b)
   Semigroup-Tuple ._<>_ (x , y) (w , z) = (x <> w , y <> z)
 
-  Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
-  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
-    (| x <> y |)
-
 -------------------------------------------------------------------------------
 -- Monoid
 -------------------------------------------------------------------------------
@@ -914,9 +890,6 @@ instance
 
   Monoid-Tuple : {{Monoid a}} -> {{Monoid b}} -> Monoid (Tuple a b)
   Monoid-Tuple .mempty = (mempty , mempty)
-
-  Monoid-IO : {{Monoid a}} -> Monoid (IO a)
-  Monoid-IO .mempty = pureIO mempty
 
 -------------------------------------------------------------------------------
 -- Functor
@@ -965,9 +938,6 @@ instance
 
   Functor-Tuple : Functor (Tuple a)
   Functor-Tuple .map f (x , y) = (x , f y)
-
-  Functor-IO : Functor IO
-  Functor-IO .map = mapIO
 
 -------------------------------------------------------------------------------
 -- Applicative
@@ -1035,10 +1005,6 @@ instance
   Applicative-Tuple .pure = (mempty ,_)
   Applicative-Tuple ._<*>_ (u , f) (v , x) = (u <> v , f x)
 
-  Applicative-IO : Applicative IO
-  Applicative-IO .pure = pureIO
-  Applicative-IO ._<*>_ = apIO
-
 -------------------------------------------------------------------------------
 -- Monad
 -------------------------------------------------------------------------------
@@ -1105,6 +1071,3 @@ instance
 
   Monad-Tuple : {{Monoid a}} -> Monad (Tuple a)
   Monad-Tuple ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)
-
-  Monad-IO : Monad IO
-  Monad-IO ._>>=_ = bindIO

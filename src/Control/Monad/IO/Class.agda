@@ -6,6 +6,8 @@ module Control.Monad.IO.Class where
 
 open import Prelude
 
+open import System.IO using (IO)
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

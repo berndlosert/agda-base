@@ -81,6 +81,3 @@ instance
 
   Selective-List : Selective List
   Selective-List .eitherS = eitherM
-
-  Selective-IO : Selective IO
-  Selective-IO .eitherS = eitherM

@@ -7,6 +7,7 @@ module System.Exit where
 open import Prelude
 
 open import Data.Int64
+open import System.IO using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables

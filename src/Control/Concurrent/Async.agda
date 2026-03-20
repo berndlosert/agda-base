@@ -10,6 +10,7 @@ open import Control.Concurrent
 open import Data.List as List using ()
 open import Data.Monoid.Foldable
 open import Data.Traversable
+open import System.IO using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -6,6 +6,8 @@ module System.IO where
 
 open import Prelude
 
+open import Agda.Builtin.IO
+open import Control.Selective
 open import Data.Int64
 open import Data.String.Show
 
@@ -13,6 +15,7 @@ open import Data.String.Show
 -- Re-exports
 -------------------------------------------------------------------------------
 
+open Agda.Builtin.IO public
 open import Data.String.Show as Show using ()
 open Show.Instances public
 
@@ -23,6 +26,43 @@ open Show.Instances public
 private
   variable
     a b r : Type
+
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
+
+private
+  postulate
+    mapIO : (a -> b) -> IO a -> IO b
+    pureIO : a -> IO a
+    apIO : IO (a -> b) -> IO a -> IO b
+    bindIO : IO a -> (a -> IO b) -> IO b
+
+{-# COMPILE GHC mapIO = \ _ _ -> fmap #-}
+{-# COMPILE GHC pureIO = \ _ -> pure #-}
+{-# COMPILE GHC apIO = \ _ _ -> (<*>) #-}
+{-# COMPILE GHC bindIO = \ _ _ -> (>>=) #-}
+
+instance
+  Semigroup-IO : {{Semigroup a}} -> Semigroup (IO a)
+  Semigroup-IO ._<>_ x y = let _<*>_ = apIO; pure = pureIO in
+    (| x <> y |)
+
+  Monoid-IO : {{Monoid a}} -> Monoid (IO a)
+  Monoid-IO .mempty = pureIO mempty
+
+  Functor-IO : Functor IO
+  Functor-IO .map = mapIO
+
+  Applicative-IO : Applicative IO
+  Applicative-IO .pure = pureIO
+  Applicative-IO ._<*>_ = apIO
+
+  Monad-IO : Monad IO
+  Monad-IO ._>>=_ = bindIO
+
+  Selective-IO : Selective IO
+  Selective-IO .eitherS = eitherM
 
 -------------------------------------------------------------------------------
 -- Console IO
