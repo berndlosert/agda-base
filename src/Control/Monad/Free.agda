@@ -6,6 +6,11 @@ module Control.Monad.Free where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  using (join)
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

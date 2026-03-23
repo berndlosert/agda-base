@@ -6,9 +6,11 @@ module Control.Reduce where
 
 open import Prelude
 
-open import Control.Comonad
-open import Data.Monoid.Foldable
-open import Data.Profunctor
+open import Control.Comonad using (Comonad; extract; extend)
+open import Data.Monoid.Foldable using (Foldable; foldr)
+open import Data.Monoid.Product using (Product; asProduct; getProduct)
+open import Data.Monoid.Sum using (Sum; asSum; getSum)
+open import Data.Profunctor using (Profunctor; lcmap)
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -6,11 +6,21 @@ module Control.Monad.Gen.Class where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 open import Data.Bits
-open import Data.List as List using ()
+
+open import Data.List as List
+  using ()
+
 open import Data.List.Nonempty
+
 open import Data.Monoid.Foldable
+
 open import Data.Semigroup.Foldable
+
 open import Data.Word
 
 -------------------------------------------------------------------------------

@@ -6,7 +6,12 @@ module Data.Filterable where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_=<<_)
+
 open import Data.Monoid.Foldable
+
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -89,7 +94,7 @@ instance
   Witherable-inst = record {}
 
   Filterable-Maybe : Filterable Maybe
-  Filterable-Maybe .mapMaybe = flip _>>=_
+  Filterable-Maybe .mapMaybe = _=<<_
 
   Filterable-Either : {{Monoid a}} -> Filterable (Either a)
   Filterable-Either .mapMaybe f = \where

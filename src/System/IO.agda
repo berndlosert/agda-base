@@ -6,18 +6,11 @@ module System.IO where
 
 open import Prelude
 
-open import Agda.Builtin.IO
-open import Control.Selective
-open import Data.Int64
-open import Data.String.Show
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Agda.Builtin.IO public
-open import Data.String.Show as Show using ()
-open Show.Instances public
+open import Agda.Builtin.IO public using (IO)
+open import Control.Selective using (Selective; eitherS; eitherM)
+open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Data.Int64 using (Int64)
+open import Data.String.Show public using (Show; show; showsPrec; showsPrecDefault; Show-Nat)
 
 -------------------------------------------------------------------------------
 -- Variables

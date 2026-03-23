@@ -6,6 +6,7 @@ module Data.Sequence where
 
 open import Prelude
 
+open import Control.Monad using (Monad)
 open import Data.Filterable
 open import Data.Monoid.Foldable
 open import Data.Monoid.Endo
@@ -166,7 +167,7 @@ instance
   mutual
     Applicative-Seq : Applicative Seq
     Applicative-Seq .pure = singleton
-    Applicative-Seq ._<*>_ = ap
+    Applicative-Seq ._<*>_ = Control.Monad.ap
 
     Monad-Seq : Monad Seq
     Monad-Seq ._>>=_ x f = foldMap f x

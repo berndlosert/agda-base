@@ -6,7 +6,12 @@ module Control.Monad.Error.Class where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+
 open import System.IO
+  using (IO)
+  
 open import System.IO.Error
 
 -------------------------------------------------------------------------------

@@ -6,6 +6,9 @@ module Control.Monad.Writer.Class where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

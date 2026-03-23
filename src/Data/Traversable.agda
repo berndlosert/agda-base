@@ -7,8 +7,14 @@ module Data.Traversable where
 open import Prelude
 
 open import Control.Applicative.Backwards
+
+open import Control.Monad
+  using (Monad)
+
 open import Control.Monad.State
+
 open import Data.Monoid.Foldable
+
 open import Data.Monoid.Reverse
 
 -------------------------------------------------------------------------------

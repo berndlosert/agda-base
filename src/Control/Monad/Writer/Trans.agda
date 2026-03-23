@@ -6,13 +6,13 @@ module Control.Monad.Writer.Trans where
 
 open import Prelude
 
-open import Control.Monad.Cont.Class
-open import Control.Monad.Error.Class
-open import Control.Monad.IO.Class
-open import Control.Monad.Reader.Class
-open import Control.Monad.State.Class
-open import Control.Monad.Trans.Class
-open import Control.Monad.Writer.Class
+open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Control.Monad.Cont.Class using (MonadCont; callCC)
+open import Control.Monad.Error.Class using (MonadError; throwError)
+open import Control.Monad.Reader.Class using (MonadReader; ask)
+open import Control.Monad.State.Class using (MonadState; state)
+open import Control.Monad.Trans.Class using (MonadTrans; lift)
+open import Control.Monad.Writer.Class using (MonadWriter; tell)
 
 -------------------------------------------------------------------------------
 -- Re-exports

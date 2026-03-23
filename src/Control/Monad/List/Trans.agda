@@ -6,12 +6,22 @@ module Control.Monad.List.Trans where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 open import Control.Monad.Error.Class
+
 open import Control.Monad.IO.Class
+
 open import Control.Monad.Reader.Class
+
 open import Control.Monad.State.Class
+
 open import Control.Monad.Trans.Class
+
 open import Control.Monad.Writer.Class
+
 open import Data.Monoid.Foldable
 
 -------------------------------------------------------------------------------

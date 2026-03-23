@@ -6,12 +6,22 @@ module Control.Monad.Gen.Trans where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 open import Control.Monad.Gen.Class
+
 open import Control.Monad.IO.Class
+
 open import Control.Monad.Reader.Class
+
 open import Control.Monad.State
+
 open import Control.Monad.Trans.Class
+
 open import Control.Monad.Writer.Class
+
 open import System.Random
 
 -------------------------------------------------------------------------------

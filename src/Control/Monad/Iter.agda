@@ -6,6 +6,9 @@ module Control.Monad.Iter where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad-Identity)
+
 open import Control.Monad.Iter.Trans
 
 -------------------------------------------------------------------------------

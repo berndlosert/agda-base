@@ -7,8 +7,16 @@ module Data.Stream where
 open import Prelude
 
 open import Control.Comonad
+
+open import Control.Monad
+  using (Monad)
+  using (join)
+  using (_>>=_)
+
 open import Data.Monoid.Foldable
-open import Data.List as List using ()
+
+open import Data.List as List 
+  using ()
 
 -------------------------------------------------------------------------------
 -- Variables

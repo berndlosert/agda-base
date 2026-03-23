@@ -6,6 +6,12 @@ module Control.Monad.Free.Scoped where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  using (liftM)
+  using (ap)
+
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

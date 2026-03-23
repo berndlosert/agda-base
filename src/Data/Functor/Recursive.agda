@@ -7,9 +7,17 @@ module Data.Functor.Recursive where
 open import Prelude
 
 open import Control.Comonad
+
 open import Control.Comonad.Cofree
+
+open import Control.Monad
+  using (Monad)
+  using (join)
+
 open import Control.Monad.Free
+
 open import Data.Functor.Compose
+
 open import Data.String.Show
 
 -------------------------------------------------------------------------------

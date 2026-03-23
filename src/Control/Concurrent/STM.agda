@@ -6,7 +6,12 @@ module Control.Concurrent.STM where
 
 open import Prelude
 
-open import System.IO using (IO)
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
+open import System.IO 
+  using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -6,9 +6,17 @@ module Control.Monad.Free.Trans where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  using (join)
+
 open import Control.Monad.Free.Class
+
 open import Control.Monad.Reader.Class
+
 open import Control.Monad.State.Class
+
 open import Control.Monad.Trans.Class
 
 --------------------------------------------------------------------------------

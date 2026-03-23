@@ -6,6 +6,10 @@ module Control.Monad.Codensity where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 -------------------------------------------------------------------------------
 -- Variables
 -------------------------------------------------------------------------------

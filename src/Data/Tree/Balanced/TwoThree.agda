@@ -6,8 +6,9 @@ module Data.Tree.Balanced.TwoThree where
 
 open import Prelude hiding (map)
 
-open import Data.Monoid.Foldable
-open import Data.String.Show
+open import Control.Monad using (_>>=_)
+open import Data.Monoid.Foldable using (Foldable; foldMap; toList; foldr)
+open import Data.String.Show as Show using (Show; show; showsPrec)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -44,21 +45,21 @@ instance
   Eq-Tree ._==_ t1 t2 = toList t1 == toList t2
 
   Show-Tree : {{Show a}} -> Show (Tree a)
-  Show-Tree .show = showDefault
+  Show-Tree .show = Show.showDefault
   Show-Tree .showsPrec prec leaf = "leaf"
   Show-Tree .showsPrec prec (two l x r) =
     let
-      showTree = showsPrec appPrec+1
-      showVal = showsPrec appPrec+1
+      showTree = showsPrec Show.appPrec+1
+      showVal = showsPrec Show.appPrec+1
     in
-      showParen (prec > appPrec)
+      Show.showParen (prec > Show.appPrec)
         ("two " <> showTree l <> " " <> showVal x <> " " <> showTree r)
   Show-Tree .showsPrec prec (three l x m y r) =
     let
-      showTree = showsPrec appPrec+1
-      showVal = showsPrec appPrec+1
+      showTree = showsPrec Show.appPrec+1
+      showVal = showsPrec Show.appPrec+1
     in
-      showParen (prec > appPrec)
+      Show.showParen (prec > Show.appPrec)
         ("three " <> showTree l <> " " <> showVal x <> " " <> showTree m <> " " <> showVal y <> " " <> showTree r)
 
 -------------------------------------------------------------------------------

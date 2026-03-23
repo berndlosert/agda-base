@@ -6,8 +6,14 @@ module Data.Functor.Coyoneda where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 open import Control.Monad.Trans.Class
+
 open import Data.Monoid.Foldable
+
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

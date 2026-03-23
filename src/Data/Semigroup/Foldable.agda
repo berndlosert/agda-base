@@ -6,27 +6,20 @@ module Data.Semigroup.Foldable where
 
 open import Prelude
 
-open import Data.List.Nonempty
-open import Data.Monoid.Dual
-open import Data.Monoid.Foldable
-open import Data.Monoid.Product
-open import Data.Monoid.Sum
-open import Data.Semigroup.First
-open import Data.Semigroup.FromMaybe
-open import Data.Semigroup.FromMaybeM
-open import Data.Semigroup.Last
-open import Data.Semigroup.Max
-open import Data.Semigroup.Min
-open import Data.Semigroup.Strict
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Monoid.Dual public
-open Data.Monoid.Product public
-open Data.Monoid.Sum public
-open Data.Semigroup.FromMaybe public
+open import Control.Monad using (Monad)
+open import Data.List.Nonempty using (List1; _::_)
+open import Data.Monoid.Dual using (Dual; asDual; getDual)
+open import Data.Monoid.Foldable using ()
+open import Data.Monoid.Product using (Product; asProduct; getProduct)
+open import Data.Monoid.Sum using (Sum; asSum; getSum)
+open import Data.Monoid.Foldable using (Foldable)
+open import Data.Semigroup.First using (asFirst; getFirst)
+open import Data.Semigroup.FromMaybe using (FromMaybe; asFromMaybe; appFromMaybe)
+open import Data.Semigroup.FromMaybeM using (FromMaybeM; asFromMaybeM; appFromMaybeM)
+open import Data.Semigroup.Last using (asLast; getLast)
+open import Data.Semigroup.Max using (Max; asMax; getMax)
+open import Data.Semigroup.Min using (Min; asMin; getMin)
+open import Data.Semigroup.Strict using (Strict; asStrict; getStrict)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -53,6 +46,9 @@ record Foldable1 (t : Type -> Type) : Type where
     overlap {{Foldable-super}} : Foldable t
     foldMap1 : {{Semigroup b}} -> (a -> b) -> t a -> b
 
+open Foldable1 {{...}} public
+
+module _ {{_ : Foldable1 t}} where
   foldr1 : (a -> b -> b) -> (a -> b) -> t a -> b
   foldr1 {a} {b} step init xs = 
       foldMap1 h xs .appFromMaybe nothing
@@ -142,8 +138,6 @@ record Foldable1 (t : Type -> Type) : Type where
 
   maximumBy : (a -> a -> Ordering) -> t a -> a
   maximumBy cmp = let instance _ = order cmp in maximum
-
-open Foldable1 {{...}} public
 
 -------------------------------------------------------------------------------
 -- Instances

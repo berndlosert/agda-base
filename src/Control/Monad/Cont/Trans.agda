@@ -6,18 +6,12 @@ module Control.Monad.Cont.Trans where
 
 open import Prelude
 
-open import Control.Monad.Cont.Class
-open import Control.Monad.IO.Class
-open import Control.Monad.Reader.Class
-open import Control.Monad.State.Class
-open import Control.Monad.Trans.Class
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Control.Monad.Cont.Class public
-open Control.Monad.Trans.Class public
+open import Control.Monad using (Monad; _>>=_)
+open import Control.Monad.Cont.Class public using (MonadCont; callCC)
+open import Control.Monad.IO.Class using (MonadIO; liftIO)
+open import Control.Monad.Reader.Class using (MonadReader; ask)
+open import Control.Monad.State.Class using (MonadState; state)
+open import Control.Monad.Trans.Class public using (MonadTrans; lift)
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -6,18 +6,10 @@ module Data.List where
 
 open import Prelude
 
-open import Data.Filterable
-open import Data.Monoid.Endo
-open import Data.Monoid.Foldable
-open import Data.Traversable
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Filterable public
-open Data.Monoid.Foldable public
-open Data.Traversable public
+open import Control.Monad using (Monad; _>>=_)
+open import Data.Filterable using (filter; filterA)
+open import Data.Monoid.Foldable as Foldable public using ()
+open import Data.Traversable public using ()
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -81,7 +73,7 @@ unconsWithDefault _ (y :: ys) = (y , ys)
 
 unsnoc : List a -> Maybe (Tuple (List a) a)
 unsnoc [] = nothing
-unsnoc xs = foldr go nothing xs
+unsnoc xs = Foldable.foldr go nothing xs
   where
     go : a -> Maybe (Tuple (List a) a) -> Maybe (Tuple (List a) a)
     go x nothing = just ([] , x)
@@ -97,10 +89,10 @@ init (x :: xs@(_ :: _)) = (| pure x :: init xs |)
 -------------------------------------------------------------------------------
 
 reverse : List a -> List a
-reverse = foldl (flip cons) []
+reverse = Foldable.foldl (flip cons) []
 
 intersperse : a -> List a -> List a
-intersperse {a} sep = foldr go []
+intersperse {a} sep = Foldable.foldr go []
   where
     go : a -> List a -> List a
     go x [] = singleton x
@@ -178,7 +170,7 @@ insertAt _ _ [] = []
 -------------------------------------------------------------------------------
 
 inits : List a -> List (List a)
-inits {a} xs = foldr go (singleton []) xs
+inits {a} xs = Foldable.foldr go (singleton []) xs
   where
     go : a -> List (List a) -> List (List a)
     go x xss = [] :: map (x ::_) xss
@@ -189,22 +181,22 @@ tails xs@(_ :: ys) = xs :: tails ys
 
 segments : List a -> List (List a)
 segments xs = singleton [] <>
-  filter notNull (foldr _<>_ [] (tails <$> inits xs))
+  filter Foldable.notNull (Foldable.foldr _<>_ [] (tails <$> inits xs))
 
 segmentsOfSize : Nat -> List a -> List (List a)
 segmentsOfSize 0 _ = singleton []
 segmentsOfSize n xs =
-  filter (\ ys -> length ys == n) (foldr _<>_ [] (tails <$> inits xs))
+  filter (\ ys -> Foldable.length ys == n) (Foldable.foldr _<>_ [] (tails <$> inits xs))
 
 -------------------------------------------------------------------------------
 -- Scans
 -------------------------------------------------------------------------------
 
 scanl : (b -> a -> b) -> b -> List a -> List b
-scanl f b xs = foldl f b <$> inits xs
+scanl f b xs = Foldable.foldl f b <$> inits xs
 
 scanr : (a -> b -> b) -> List a -> b -> List b
-scanr f xs b = foldr f b <$> tails xs
+scanr f xs b = Foldable.foldr f b <$> tails xs
 
 -------------------------------------------------------------------------------
 -- Zipping functions
@@ -226,11 +218,11 @@ zipCons heads tails =
 
     -- Extra tails that will be zipped with those heads that have no
     -- corresponding tail in tails.
-    paddingLength = length heads - length tails
+    paddingLength = Foldable.length heads - Foldable.length tails
     padding = replicate paddingLength []
     -- The tails that cannot be zipped because they have no corresponding
     -- head in heads.
-    excess = snd (splitAt (length heads) tails)
+    excess = snd (splitAt (Foldable.length heads) tails)
 
 unzip : List (Tuple a b) -> Tuple (List a) (List b)
 unzip [] = ([] , [])
@@ -245,25 +237,25 @@ module _ {{_ : Eq a}} where
 
   anySame : List a -> Bool
   anySame [] = false
-  anySame (x :: xs) = any (x ==_) xs || anySame xs
+  anySame (x :: xs) = Foldable.any (x ==_) xs || anySame xs
 
   allSame : List a -> Bool
   allSame [] = true
-  allSame (x :: xs) = all (x ==_) xs
+  allSame (x :: xs) = Foldable.all (x ==_) xs
 
   isPrefixOf : List a -> List a -> Bool
-  isPrefixOf xs ys = take (length xs) ys == xs
+  isPrefixOf xs ys = take (Foldable.length xs) ys == xs
 
   isSuffixOf : List a -> List a -> Bool
-  isSuffixOf xs ys = isPrefixOf xs (drop (length xs) ys)
+  isSuffixOf xs ys = isPrefixOf xs (drop (Foldable.length xs) ys)
 
   isInfixOf : List a -> List a -> Bool
   isInfixOf xs ys = maybe false (const true) $
-    find (_== xs) (segmentsOfSize (length xs) ys)
+    Foldable.find (_== xs) (segmentsOfSize (Foldable.length xs) ys)
 
   isSubsequenceOf : List a -> List a -> Bool
   isSubsequenceOf xs ys =
-      maybe false (const true) (foldlM g ys xs)
+      maybe false (const true) (Foldable.foldlM g ys xs)
     where
       g : List a -> a -> Maybe (List a)
       g s a = case (dropWhile (_/= a) s) \ where
@@ -303,7 +295,7 @@ module _ {{_ : Ord a}} where
 
 stripPrefix : {{Eq a}} -> List a -> List a -> Maybe (List a)
 stripPrefix xs ys =
-  if isPrefixOf xs ys then just (drop (length xs) ys) else nothing
+  if isPrefixOf xs ys then just (drop (Foldable.length xs) ys) else nothing
 
 dropPrefix : {{Eq a}} -> List a -> List a -> List a
 dropPrefix xs ys = fromMaybe (stripPrefix xs ys) ys
@@ -337,7 +329,7 @@ splitOn : {{Eq a}} -> List a -> List a -> List (List a)
 splitOn needle [] = singleton []
 splitOn needle haystack =
   let (l , r) = breakOn needle haystack
-  in l :: (if null r then [] else splitOn needle (drop (length needle) r))
+  in l :: (if Foldable.null r then [] else splitOn needle (drop (Foldable.length needle) r))
 
 split : (a -> Bool) -> List a -> List (List a)
 split f [] = singleton []
@@ -371,7 +363,7 @@ nubBy {a} eq l = nubBy' l []
         else (y :: nubBy' ys (y :: xs))
 
 unionBy : (a -> a -> Bool) -> List a -> List a -> List a
-unionBy eq xs ys = xs <> foldl (flip (deleteBy eq)) (nubBy eq ys) ys
+unionBy eq xs ys = xs <> Foldable.foldl (flip (deleteBy eq)) (nubBy eq ys) ys
 
 module _ {{_ : Eq a}} where
 
@@ -435,8 +427,8 @@ list nil cons [] = nil
 list nil cons (x :: xs) = cons x xs
 
 countElem : {{Eq a}} -> a -> List a -> Nat
-countElem x = length <<< filter (x ==_)
+countElem x = Foldable.length <<< filter (x ==_)
 
-length-cons : (x : a) -> (xs : List a) -> length (x :: xs) === suc (length xs)
+length-cons : (x : a) -> (xs : List a) -> Foldable.length (x :: xs) === suc (Foldable.length xs)
 length-cons _ [] = refl
 length-cons x xs = trustMe

@@ -6,24 +6,46 @@ module Control.Lens where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+
 open import Control.Monad.Reader
+
 open import Control.Monad.State as State
+
 open import Data.Distributive
+
 open import Data.Functor.Contravariant
+
 open import Data.Functor.Representable
-open import Data.List as List using ()
+
+open import Data.List as List 
+  using ()
+
 open import Data.Monoid.All
+
 open import Data.Monoid.Any
+
 open import Data.Monoid.Dual
+
 open import Data.Monoid.Endo
+
 open import Data.Monoid.EndoM
+
 open import Data.Monoid.Product
+
 open import Data.Monoid.Sum
+
 open import Data.Profunctor
+
 open import Data.Profunctor.Choice
+
 open import Data.Semigroup.First
+
 open import Data.Semigroup.Last
+
 open import Data.Semigroup.Strict
+
 open import Data.Traversable
 
 -------------------------------------------------------------------------------
@@ -31,13 +53,21 @@ open import Data.Traversable
 -------------------------------------------------------------------------------
 
 open Data.Monoid.All public
+
 open Data.Monoid.Any public
+
 open Data.Monoid.Dual public
+
 open Data.Monoid.Endo public
+
 open Data.Monoid.EndoM public
+
 open Data.Monoid.Sum public
+
 open Data.Semigroup.First public
+
 open Data.Semigroup.Last public
+
 open Data.Semigroup.Strict public
 
 -------------------------------------------------------------------------------

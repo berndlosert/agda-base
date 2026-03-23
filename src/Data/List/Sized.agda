@@ -6,8 +6,15 @@ module Data.List.Sized where
 
 open import Prelude hiding (map)
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+
 open import Data.Monoid.Foldable
-open import Data.List as List using ()
+
+open import Data.List as List 
+  using ()
+
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

@@ -6,7 +6,13 @@ module Data.Monoid.Reverse where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  using (_=<<_)
+
 open import Data.Monoid.Dual
+
 open import Data.Monoid.Foldable
 
 -------------------------------------------------------------------------------

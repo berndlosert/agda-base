@@ -6,10 +6,11 @@ module Data.Functor.Product where
 
 open import Prelude
 
+open import Control.Monad using (Monad; _>>=_)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
-open import Data.Functor.Contravariant
-open import Data.String.Show
-open import Data.Traversable
+open import Data.Functor.Contravariant using (Contravariant; cmap)
+open import Data.String.Show using (Show; show; showDefault; showsPrec; showsBinaryWith)
+open import Data.Traversable using (Traversable; traverse)
 
 -------------------------------------------------------------------------------
 -- Variables

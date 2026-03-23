@@ -6,10 +6,17 @@ module Data.String.Parser where
 
 open import Prelude
 
-open import Data.Char as Char using ()
+open import Control.Monad
+  using (Monad)
+  using (liftM)
+  using (ap)
+open import Data.Char as Char 
+  using ()
 open import Data.Monoid.Foldable
-open import Data.List as List using ()
-open import Data.String as String using ()
+open import Data.List as List 
+  using ()
+open import Data.String as String 
+  using ()
 open import Data.Sequence
 open import Data.String.Show
 
@@ -54,11 +61,11 @@ abstract
 
   convert : (Char -> Maybe a) -> Parser a
   convert f = \ where
-      s cok _ _ eerr -> case (String.uncons s) \ where
+    s cok _ _ eerr -> case (String.uncons s) \ where
+      nothing -> eerr
+      (just (c , s1)) -> case (f c) \ where
         nothing -> eerr
-        (just (c , s1)) -> case (f c) \ where
-          nothing -> eerr
-          (just x) -> cok x s1
+        (just x) -> cok x s1
 
   -- Rewinds failure.
   try : Parser a -> Parser a

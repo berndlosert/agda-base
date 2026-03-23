@@ -6,11 +6,21 @@ module Control.Concurrent.Async where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  
 open import Control.Concurrent
-open import Data.List as List using ()
+
+open import Data.List as List 
+  using ()
+  
 open import Data.Monoid.Foldable
+
 open import Data.Traversable
-open import System.IO using (IO)
+
+open import System.IO 
+  using (IO)
 
 -------------------------------------------------------------------------------
 -- Variables

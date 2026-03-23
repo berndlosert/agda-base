@@ -6,26 +6,15 @@ module Data.Monoid.Foldable where
 
 open import Prelude
 
-open import Data.Monoid.All
-open import Data.Monoid.Any
-open import Data.Monoid.Dual
-open import Data.Monoid.Endo
-open import Data.Monoid.EndoM
-open import Data.Monoid.Product
-open import Data.Monoid.Sum
-open import Data.Semigroup.Strict
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Monoid.All public
-open Data.Monoid.Any public
-open Data.Monoid.Dual public
-open Data.Monoid.Endo public
-open Data.Monoid.EndoM public
-open Data.Monoid.Product public
-open Data.Monoid.Sum public
+open import Control.Monad using (Monad)
+open import Data.Monoid.All using (asAll; getAll)
+open import Data.Monoid.Any using (asAny; getAny)
+open import Data.Monoid.Dual using (Dual; asDual; getDual)
+open import Data.Monoid.Endo using (Endo; asEndo; appEndo)
+open import Data.Monoid.EndoM using (EndoM; asEndoM; appEndoM)
+open import Data.Monoid.Product using (Product; asProduct; getProduct)
+open import Data.Monoid.Sum using (Sum; asSum; getSum)
+open import Data.Semigroup.Strict using (Strict; asStrict; getStrict)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -41,8 +30,12 @@ private
 -------------------------------------------------------------------------------
 
 record Foldable (t : Type -> Type) : Type where
-  field foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
+  field 
+    foldMap : {{Monoid b}} -> (a -> b) -> t a -> b
 
+open Foldable {{...}} public
+
+module _ {{_ : Foldable t}} where
   foldr : (a -> b -> b) -> b -> t a -> b
   foldr {a} {b} step init xs = 
       foldMap h xs .appEndo init
@@ -145,8 +138,6 @@ record Foldable (t : Type -> Type) : Type where
 
   sequence! : {{Applicative f}} ->  t (f a) -> f Unit
   sequence! = traverse! id
-
-open Foldable {{...}} public
 
 -------------------------------------------------------------------------------
 -- Instances

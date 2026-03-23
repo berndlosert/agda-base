@@ -6,11 +6,22 @@ module System.Random where
 
 open import Prelude
 
+open import Control.Monad
+  using (Monad)
+  using (_>>=_)
+  using (_=<<_)
+
 open import Control.Monad.Gen.Class
+
 open import Data.Bits
+
 open import Data.IORef
+
 open import Data.Word
-open import System.IO using (IO)
+
+open import System.IO 
+  using (IO)
+
 open import System.Time
 
 -------------------------------------------------------------------------------
