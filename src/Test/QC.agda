@@ -12,7 +12,7 @@ open import Control.Monad.Gen
 open import Control.Monad.IO.Class
 open import Data.List as List using ()
 open import Data.String as String using ()
-open import Data.String.Show
+open import Data.Show
 open import System.IO
 open import System.Random
 

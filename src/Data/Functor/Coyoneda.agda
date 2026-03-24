@@ -6,15 +6,10 @@ module Data.Functor.Coyoneda where
 
 open import Prelude
 
-open import Control.Monad
-  using (Monad)
-  using (_>>=_)
-  
-open import Control.Monad.Trans.Class
-
-open import Data.Monoid.Foldable
-
-open import Data.Traversable
+open import Control.Monad using (Monad; _>>=_)
+open import Control.Monad.Trans.Class using (MonadTrans; lift)
+open import Data.Monoid.Foldable using (Foldable; foldMap)
+open import Data.Traversable using (Traversable; traverse)
 
 -------------------------------------------------------------------------------
 -- Variables

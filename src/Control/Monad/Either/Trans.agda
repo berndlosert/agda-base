@@ -24,7 +24,7 @@ open import Control.Monad.Writer.Class
 
 open import Data.Bifunctor
 
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports

@@ -7,6 +7,7 @@ module Data.Monoid.Foldable where
 open import Prelude
 
 open import Control.Monad using (Monad)
+open import Control.Monad.Instances using (Monad-Either)
 open import Data.Monoid.All using (asAll; getAll)
 open import Data.Monoid.Any using (asAny; getAny)
 open import Data.Monoid.Dual using (Dual; asDual; getDual)

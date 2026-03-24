@@ -25,6 +25,9 @@ record Monad (m : Type -> Type) : Type where
     overlap {{Applicative-super}} : Applicative m
     _>>=_ : m a -> (a -> m b) -> m b
 
+open Monad {{...}} public
+
+module _ {{_ : Monad m}} where
   caseM : m a -> (a -> m b) -> m b
   caseM = _>>=_
 
@@ -57,27 +60,3 @@ record Monad (m : Type -> Type) : Type where
     g <- f
     y <- x
     pure (g y)
-
-open Monad {{...}} public
-
-instance
-  Monad-Function : Monad (Function a)
-  Monad-Function ._>>=_ f g x = g (f x) x
-
-  Monad-Identity : Monad Identity
-  Monad-Identity ._>>=_ x k = k (runIdentity x)
-
-  Monad-Maybe : Monad Maybe
-  Monad-Maybe ._>>=_ nothing _ = nothing
-  Monad-Maybe ._>>=_ (just x) k = k x
-
-  Monad-List : Monad List
-  Monad-List ._>>=_ [] k = []
-  Monad-List ._>>=_ (x :: xs) k = k x <> (xs >>= k)    
-    
-  Monad-Either : Monad (Either a)
-  Monad-Either ._>>=_ (left x) _ = left x
-  Monad-Either ._>>=_ (right x) k = k x
-
-  Monad-Tuple : {{Monoid a}} -> Monad (Tuple a)
-  Monad-Tuple ._>>=_ (u , x) k = let (v , y) = k x in (u <> v , y)

@@ -2,7 +2,7 @@ open import Prelude
 
 open import Data.Filterable
 open import Data.Monoid.Foldable
-open import Data.String.Show
+open import Data.Show
 
 variable
   n : Nat

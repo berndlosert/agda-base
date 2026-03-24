@@ -2,7 +2,7 @@ open import Prelude
 
 open import Data.String
 open import Data.String.Parser
-open import Data.String.Show
+open import Data.Show
 open import System.IO
 
 data Expr : Type where

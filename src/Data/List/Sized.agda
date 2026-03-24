@@ -6,16 +6,10 @@ module Data.List.Sized where
 
 open import Prelude hiding (map)
 
-open import Control.Monad
-  using (Monad)
-  using (_>>=_)
-
-open import Data.Monoid.Foldable
-
-open import Data.List as List 
-  using ()
-
-open import Data.Traversable
+open import Control.Monad using (Monad; _>>=_)
+open import Data.Monoid.Foldable as Foldable using (Foldable; foldMap)
+open import Data.List as List using ()
+open import Data.Traversable as Traversable using (Traversable; traverse)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -97,12 +91,12 @@ splitAt 0 xs = ([] , xs)
 splitAt (suc k) (x :: xs) = let (l , r) = splitAt k xs in (x :: l , r)
 
 transpose : ListN n (ListN m a) -> ListN m (ListN n a)
-transpose = sequence
+transpose = Traversable.sequence
 
 zip : ListN n a -> ListN n b -> ListN n (Tuple a b)
 zip = zipWith _,_
 
-fromList : (xs : List a) -> ListN (length xs) a
+fromList : (xs : List a) -> ListN (Foldable.length xs) a
 fromList [] = []
 fromList (x :: xs) rewrite List.length-cons x xs = x :: fromList xs
 

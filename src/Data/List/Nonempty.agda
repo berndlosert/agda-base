@@ -6,9 +6,10 @@ module Data.List.Nonempty where
 
 open import Prelude
 
-open import Data.Monoid.Foldable
-open import Data.Nonempty
-open import Data.String.Show
+open import Data.Monoid.Foldable using (Foldable; foldMap)
+open import Data.Nonempty using (Nonemptiness; Nonempty; nonempty)
+open import Data.Show as Show using (Show; show; showsPrec)
+open import Data.Show.Instances using (Show-List)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -49,6 +50,6 @@ instance
   Nonemptiness-List .nonempty [] = nothing
 
   Show-List1 : {{Show a}} -> Show (List1 a)
-  Show-List1 .show = showDefault
-  Show-List1 .showsPrec prec (x :: xs) = showParen (prec > appPrec)
-    (showsPrec appPrec+1 x <> " :: " <> showsPrec 0 xs)  
+  Show-List1 .show = Show.showDefault
+  Show-List1 .showsPrec prec (x :: xs) = Show.showParen (prec > Show.appPrec)
+    (showsPrec Show.appPrec+1 x <> " :: " <> showsPrec 0 xs)  

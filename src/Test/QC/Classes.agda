@@ -9,7 +9,7 @@ open import Prelude
 open import Control.Monad.Gen
 open import Control.Monad.IO.Class
 open import Data.Monoid.Foldable
-open import Data.String.Show
+open import Data.Show
 open import Properties.Eq
 open import Properties.Functor
 open import Properties.Monoid

@@ -10,7 +10,7 @@ open import Control.Monad
   using (Monad)
   using (_>>=_)
   
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -3,7 +3,7 @@ open import Prelude
 open import Control.Monad.State
 open import Data.Enum
 open import Data.Monoid.Foldable
-open import Data.String.Show
+open import Data.Show
 open import System.IO
 
 fizzbuzz : Nat -> String

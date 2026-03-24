@@ -9,7 +9,7 @@ open import Prelude
 open import Control.Monad using (Monad; _>>=_)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Functor.Contravariant using (Contravariant; cmap)
-open import Data.String.Show using (Show; show; showDefault; showsPrec; showsBinaryWith)
+open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Traversable using (Traversable; traverse)
 
 -------------------------------------------------------------------------------
@@ -59,5 +59,5 @@ instance
   Traversable-Product .traverse f (pair x y) = (| pair (traverse f x) (traverse f y) |)
 
   Show-Product : {{Show (f a)}} -> {{Show (g a)}} -> Show (Product f g a)
-  Show-Product .show = showDefault
-  Show-Product .showsPrec prec (pair x y) = showsBinaryWith showsPrec showsPrec "pair" prec x y
+  Show-Product .show = Show.showDefault
+  Show-Product .showsPrec prec (pair x y) = Show.showsBinaryWith showsPrec showsPrec "pair" prec x y

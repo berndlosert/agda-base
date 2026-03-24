@@ -6,13 +6,10 @@ module Data.Filterable where
 
 open import Prelude
 
-open import Control.Monad
-  using (Monad)
-  using (_=<<_)
-
-open import Data.Monoid.Foldable
-
-open import Data.Traversable
+open import Control.Monad using (Monad; _=<<_)
+open import Control.Monad.Instances using (Monad-Maybe)
+open import Data.Monoid.Foldable using (Foldable; foldr)
+open import Data.Traversable using (Traversable; traverse)
 
 -------------------------------------------------------------------------------
 -- Variables

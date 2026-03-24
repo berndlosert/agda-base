@@ -6,16 +6,12 @@ module Data.Traversable where
 
 open import Prelude
 
-open import Control.Applicative.Backwards
-
-open import Control.Monad
-  using (Monad)
-
-open import Control.Monad.State
-
-open import Data.Monoid.Foldable
-
-open import Data.Monoid.Reverse
+open import Control.Applicative.Backwards using (forwards; backwards)
+open import Control.Monad using (Monad)
+open import Control.Monad.Instances using (Monad-Identity)
+open import Control.Monad.State using (runState; state; runStateT; asStateT)
+open import Data.Monoid.Foldable using (Foldable)
+open import Data.Monoid.Reverse using (Reverse; reverse; getReverse)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -36,13 +32,14 @@ record Traversable (t : Type -> Type) : Type where
     overlap {{Foldable-super}} : Foldable t
     traverse : {{Applicative f}} -> (a -> f b) -> t a -> f (t b)
 
+open Traversable {{...}} public
+
+module _ {{_ : Traversable t}} where
   sequence : {{Applicative f}} -> t (f a) -> f (t a)
   sequence = traverse id
 
   for : {{Applicative f}} -> t a -> (a -> f b) -> f (t b)
   for = flip traverse
-
-open Traversable {{...}} public
 
 instance
   Traversable-Identity : Traversable Identity

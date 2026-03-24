@@ -7,7 +7,7 @@ module Data.String.Nonempty where
 open import Prelude
 
 open import Data.Nonempty
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- String1

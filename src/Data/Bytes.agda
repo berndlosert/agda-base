@@ -6,7 +6,7 @@ module Data.Bytes where
 
 open import Prelude
 
-open import Data.String.Show
+open import Data.Show
 open import Data.Word
 
 -------------------------------------------------------------------------------

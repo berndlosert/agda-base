@@ -8,7 +8,7 @@ open import Prelude
 
 open import Control.Monad.Gen.Class
 open import Data.List as List using ()
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Variables

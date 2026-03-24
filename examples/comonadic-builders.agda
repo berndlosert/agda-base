@@ -5,7 +5,7 @@ open import Prelude
 open import Control.Comonad
 open import Data.Monoid.Any
 open import Data.String.Builder hiding (Builder)
-open import Data.String.Show
+open import Data.Show
 open import System.IO
 
 record Settings : Type where

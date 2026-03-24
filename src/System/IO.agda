@@ -10,7 +10,8 @@ open import Agda.Builtin.IO public using (IO)
 open import Control.Selective using (Selective; eitherS; eitherM)
 open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Data.Int64 using (Int64)
-open import Data.String.Show public using (Show; show; showsPrec; showsPrecDefault; Show-Nat)
+open import Data.Show as Show using (Show; show; showsPrec)
+open import Data.Show.Instances public
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -158,7 +159,7 @@ instance
 
   Show-Handle : Show Handle
   Show-Handle .show = hShow
-  Show-Handle .showsPrec = showsPrecDefault
+  Show-Handle .showsPrec = Show.showsPrecDefault
 
 -------------------------------------------------------------------------------
 -- File IO FFI

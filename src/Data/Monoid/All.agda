@@ -6,8 +6,8 @@ module Data.Monoid.All where
 
 open import Prelude
 
-open import Data.String.Builder
-open import Data.String.Show
+open import Data.Show as Show using (Show; show; showsPrec)
+open import Data.Show.Instances using (Show-Bool)
 
 -------------------------------------------------------------------------------
 -- All
@@ -28,6 +28,6 @@ instance
   Monoid-All .mempty = asAll true
 
   Show-All : Show All
-  Show-All .show = showDefault
+  Show-All .show = Show.showDefault
   Show-All .showsPrec prec (asAll x) =
-    showsUnaryWith showsPrec "asAll" prec x
+    Show.showsUnaryWith showsPrec "asAll" prec x

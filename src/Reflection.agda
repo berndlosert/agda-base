@@ -7,7 +7,7 @@ module Reflection where
 open import Prelude
 
 open import Agda.Builtin.Reflection
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Re-exports

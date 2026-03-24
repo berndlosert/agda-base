@@ -18,7 +18,7 @@ open import Data.List as List
 open import Data.String as String 
   using ()
 open import Data.Sequence
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Variables

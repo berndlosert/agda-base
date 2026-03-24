@@ -8,7 +8,7 @@ open import Prelude hiding (map)
 
 open import Control.Monad using (_>>=_)
 open import Data.Monoid.Foldable using (Foldable; foldMap; toList; foldr)
-open import Data.String.Show as Show using (Show; show; showsPrec)
+open import Data.Show as Show using (Show; show; showsPrec)
 
 -------------------------------------------------------------------------------
 -- Variables

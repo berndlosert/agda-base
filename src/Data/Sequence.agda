@@ -6,23 +6,14 @@ module Data.Sequence where
 
 open import Prelude
 
-open import Control.Monad using (Monad)
-open import Data.Filterable
-open import Data.Monoid.Foldable
-open import Data.Monoid.Endo
-open import Data.Monoid.Sum
-open import Data.Profunctor.Strong
-open import Data.Sequence.Elem
-open import Data.Traversable
+open import Control.Monad using (Monad; _>>=_)
+open import Data.Filterable public
+open import Data.Monoid.Foldable public
+open import Data.Monoid.Sum using (Sum; getSum)
+open import Data.Profunctor.Strong using (mapFst; mapSnd)
+open import Data.Sequence.Elem using (Elem; asElem; getElem)
+open import Data.Traversable public
 open import Data.Tree.Finger as Tree using (Tree)
-
--------------------------------------------------------------------------------
--- Re-exports
--------------------------------------------------------------------------------
-
-open Data.Filterable public
-open Data.Monoid.Foldable public
-open Data.Traversable public
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -6,7 +6,7 @@ module Data.Maybe.Strict where
 
 open import Prelude hiding (Maybe; just; nothing; maybe)
 
-open import Data.String.Show
+open import Data.Show
 
 -------------------------------------------------------------------------------
 -- Variables

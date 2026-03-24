@@ -6,7 +6,8 @@ module Data.Monoid.Any where
 
 open import Prelude
 
-open import Data.String.Show
+open import Data.Show as Show using (Show; show; showsPrec)
+open import Data.Show.Instances using (Show-Bool)
 
 -------------------------------------------------------------------------------
 -- Any
@@ -27,5 +28,5 @@ instance
   Monoid-Any .mempty = asAny false
 
   Show-Any : Show Any
-  Show-Any .show = showDefault
-  Show-Any .showsPrec prec (asAny x) = showsUnaryWith showsPrec "asAny" prec x
+  Show-Any .show = Show.showDefault
+  Show-Any .showsPrec prec (asAny x) = Show.showsUnaryWith showsPrec "asAny" prec x

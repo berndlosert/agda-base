@@ -7,7 +7,7 @@ module Data.Set where
 open import Prelude hiding (map)
 
 open import Data.Monoid.Foldable
-open import Data.String.Show
+open import Data.Show
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 open import Data.Traversable
 

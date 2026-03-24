@@ -6,7 +6,8 @@ module Data.Nat.Fin where
 
 open import Prelude
 
-open import Data.String.Show
+open import Data.Show as Show using (Show; show; showsPrec)
+open import Data.Show.Instances using (Show-Nat)
 
 -------------------------------------------------------------------------------
 -- Fin
@@ -66,4 +67,4 @@ module _ {n : Nat} {{_ : Assert (n > 0)}} where
 
     Show-Fin : Show (Fin n)
     Show-Fin .show m = show (toNat m)
-    Show-Fin .showsPrec = showsPrecDefault
+    Show-Fin .showsPrec = Show.showsPrecDefault

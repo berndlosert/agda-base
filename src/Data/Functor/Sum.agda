@@ -8,7 +8,7 @@ open import Prelude
 
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Functor.Contravariant
-open import Data.String.Show
+open import Data.Show
 open import Data.Traversable
 
 -------------------------------------------------------------------------------

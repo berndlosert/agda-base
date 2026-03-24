@@ -6,19 +6,12 @@ module Data.Functor.Recursive where
 
 open import Prelude
 
-open import Control.Comonad
-
-open import Control.Comonad.Cofree
-
-open import Control.Monad
-  using (Monad)
-  using (join)
-
-open import Control.Monad.Free
-
-open import Data.Functor.Compose
-
-open import Data.String.Show
+open import Control.Comonad using (Comonad; duplicate; extract)
+open import Control.Comonad.Cofree using (Cofree)
+open import Control.Monad using (Monad; join)
+open import Control.Monad.Free using (Free; interpretFree; liftFree)
+open import Data.Functor.Compose using (Compose; asCompose)
+open import Data.Show as Show using (Show; show; showsPrec)
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -157,5 +150,5 @@ instance
   Recursive-Fix .project (aFix x) = x
 
   Show-Fix : {{forall {a} -> {{Show a}} -> Show (f a)}} -> Show (Fix f)
-  Show-Fix .show = showDefault
-  Show-Fix .showsPrec prec (aFix fx) = showsUnaryWith showsPrec "aFix" prec fx
+  Show-Fix .show = Show.showDefault
+  Show-Fix .showsPrec prec (aFix fx) = Show.showsUnaryWith showsPrec "aFix" prec fx

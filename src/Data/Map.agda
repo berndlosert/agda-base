@@ -8,7 +8,7 @@ open import Prelude hiding (map)
 
 open import Data.Monoid.Foldable hiding (toList)
 open import Data.List as List using ()
-open import Data.String.Show
+open import Data.Show
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
 
 -------------------------------------------------------------------------------

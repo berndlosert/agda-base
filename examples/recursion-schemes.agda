@@ -7,7 +7,7 @@ open import Data.List
 open import Data.String using (pack)
 open import Data.Tree.Rose
 open import Debug
-open import Data.String.Show
+open import Data.Show
 open import System.IO
 
 variable

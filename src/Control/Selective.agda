@@ -6,9 +6,8 @@ module Control.Selective where
 
 open import Prelude
 
-open import Control.Monad 
-  using (Monad)
-  using (caseM)
+open import Control.Monad using (Monad; caseM)
+open import Control.Monad.Instances using (Monad-Function)
 
 -------------------------------------------------------------------------------
 -- Variables

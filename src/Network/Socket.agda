@@ -7,7 +7,7 @@ module Network.Socket where
 open import Prelude
 
 open import Data.Bytes
-open import Data.String.Show
+open import Data.Show
 open import Data.Word
 open import System.IO using (IO)
 
