@@ -4,15 +4,14 @@ module Data.Either.Validated where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Lens
 open import Control.Selective
 open import Data.Bifunctor
 open import Data.Filterable
 open import Data.Monoid.Foldable
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

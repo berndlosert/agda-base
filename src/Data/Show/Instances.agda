@@ -4,12 +4,11 @@ module Data.Show.Instances where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
-open import Agda.Builtin.Int using ()
 open import Agda.Builtin.Float using ()
+open import Agda.Builtin.Int using ()
 open import Agda.Builtin.String using ()
 open import Data.Show as Show using (Show; show; showsPrec)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,9 +4,7 @@ module Control.Monad.Writer.Trans where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Control.Monad.Cont.Class using (MonadCont; callCC)
 open import Control.Monad.Error.Class using (MonadError; throwError)
@@ -14,6 +12,7 @@ open import Control.Monad.Reader.Class using (MonadReader; ask)
 open import Control.Monad.State.Class using (MonadState; state)
 open import Control.Monad.Trans.Class using (MonadTrans; lift)
 open import Control.Monad.Writer.Class using (MonadWriter; tell)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

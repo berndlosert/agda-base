@@ -1,11 +1,10 @@
 -- https://kodimensional.dev/posts/2019-03-25-comonadic-builders
 
-open import Prelude
-
 open import Control.Comonad
 open import Data.Monoid.Any
-open import Data.String.Builder hiding (Builder)
 open import Data.Show
+open import Data.String.Builder hiding (Builder)
+open import Prelude
 open import System.IO
 
 record Settings : Type where

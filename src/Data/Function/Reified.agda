@@ -4,12 +4,11 @@ module Data.Function.Reified where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Gen.Class
 open import Data.List as List using ()
-open import Data.Show
 open import Data.Map as Map using (Map)
+open import Data.Show
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

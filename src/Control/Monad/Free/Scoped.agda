@@ -4,14 +4,13 @@ module Control.Monad.Free.Scoped where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (liftM)
   using (ap)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

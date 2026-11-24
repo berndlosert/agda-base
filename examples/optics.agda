@@ -1,11 +1,10 @@
-open import Prelude
-open import Control.Monad using (Monad; _>>_)
-
 open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
+open import Control.Monad using (Monad; _>>_)
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable
+open import Prelude
 open import System.IO
 
 _ : view #snd ("hello" , "world") === "world"

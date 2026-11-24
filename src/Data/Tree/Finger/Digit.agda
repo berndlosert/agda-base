@@ -4,13 +4,12 @@ module Data.Tree.Finger.Digit where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Data.Monoid.Foldable
+open import Data.Traversable
 open import Data.Tree.Finger.Measured
 open import Data.Tree.Finger.Split
-open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

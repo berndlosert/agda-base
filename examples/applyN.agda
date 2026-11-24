@@ -1,7 +1,6 @@
-open import Prelude
 open import Control.Monad using (Monad; _>>_)
-
 open import Data.Monoid.Sum
+open import Prelude
 open import System.IO
 
 instance

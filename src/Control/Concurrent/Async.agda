@@ -4,22 +4,16 @@ module Control.Concurrent.Async where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
+open import Control.Concurrent
 open import Control.Monad
   using (Monad)
   using (_>>=_)
-  
-open import Control.Concurrent
-
 open import Data.List as List 
   using ()
-  
 open import Data.Monoid.Foldable
-
 open import Data.Traversable
-
+open import Prelude
 open import System.IO 
   using (IO)
 

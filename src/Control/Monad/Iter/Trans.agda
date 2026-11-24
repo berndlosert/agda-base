@@ -4,27 +4,19 @@ module Control.Monad.Iter.Trans where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (caseM)
-
 open import Control.Monad.Free.Class
-
 open import Control.Monad.IO.Class
-
 open import Control.Monad.Reader.Class
-
 open import Control.Monad.State.Class
-
 open import Control.Monad.Trans.Class
-
 open import Control.Monad.Writer.Class
-
 open import Data.Bifunctor
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

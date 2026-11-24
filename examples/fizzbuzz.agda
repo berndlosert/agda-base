@@ -1,12 +1,11 @@
-open import Prelude
-open import Control.Monad.Instances using (Monad-Identity)
-open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Control.Applicative using (when)
-
+open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.State
 open import Data.Enum
 open import Data.Monoid.Foldable
 open import Data.Show
+open import Prelude
 open import System.IO
 
 fizzbuzz : Nat -> String

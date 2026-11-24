@@ -1,10 +1,9 @@
-open import Prelude
-open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Control.Applicative using (pure)
-
-open import Control.Selective
+open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Control.Monad.Maybe.Trans
+open import Control.Selective
 open import Data.Monoid.Foldable
+open import Prelude
 open import System.IO
 
 -- prog1 prog2 prog3 prog : IO (Either Unit String)

@@ -4,15 +4,13 @@ module Control.Monad.Free.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (join)
-
 open import Control.Monad.Trans.Class
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

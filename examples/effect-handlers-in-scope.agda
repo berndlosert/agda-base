@@ -1,10 +1,9 @@
-open import Prelude
-open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad using (Monad; caseM)
-
-open import Control.Monad.Error.Class
 open import Control.Monad.Either.Trans
+open import Control.Monad.Error.Class
+open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.State.Trans
+open import Prelude
 
 variable
   m : Type -> Type

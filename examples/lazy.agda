@@ -1,8 +1,7 @@
-open import Prelude
 open import Control.Applicative using (pure)
-
 open import Data.List as List using ()
 open import Data.Stream as Stream using ()
+open import Prelude
 open import System.IO
 
 variable

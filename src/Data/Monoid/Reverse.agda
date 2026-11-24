@@ -4,17 +4,14 @@ module Data.Monoid.Reverse where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (_=<<_)
-
 open import Data.Monoid.Dual
-
 open import Data.Monoid.Foldable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

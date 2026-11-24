@@ -4,15 +4,14 @@ module System.IO where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Agda.Builtin.IO public using (IO)
-open import Control.Selective using (Selective; eitherS; eitherM)
+open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Control.Selective using (Selective; eitherS; eitherM)
 open import Data.Int64 using (Int64)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Show.Instances public
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

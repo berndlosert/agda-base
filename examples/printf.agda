@@ -1,9 +1,8 @@
-open import Prelude
-open import Data.Show.Instances
-
 open import Data.Filterable
 open import Data.Monoid.Foldable
 open import Data.Show
+open import Data.Show.Instances
+open import Prelude
 
 variable
   n : Nat

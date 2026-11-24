@@ -1,7 +1,6 @@
-open import Prelude
-
 open import Data.Monoid.Foldable
 open import Data.Show
+open import Prelude
 
 private
   variable

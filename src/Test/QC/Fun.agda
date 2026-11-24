@@ -4,15 +4,14 @@ module Test.QC.Fun where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Gen.Class
 open import Data.Filterable using (filter; Filterable-List)
 open import Data.List as List using ()
 open import Data.Show
 open import Data.Show.Instances
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,10 +4,9 @@ module Data.Semigroup.Strict where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Monoid.Endo
 open import Data.Semigroup.FromMaybe
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

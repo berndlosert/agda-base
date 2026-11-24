@@ -4,10 +4,9 @@ module Debug where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; pure; _*>_)
-
 open import Data.Show
+open import Prelude
 open import System.IO using (IO)
 open import System.IO.Unsafe
 

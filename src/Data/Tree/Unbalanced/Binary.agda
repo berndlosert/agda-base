@@ -4,14 +4,13 @@ module Data.Tree.Unbalanced.Binary where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (map)
 open import Control.Applicative using (pure)
 open import Control.Monad using (_>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
-
 open import Data.Monoid.Foldable
 open import Data.Show
 open import Data.Traversable
+open import Prelude hiding (map)
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,28 +4,19 @@ module Control.Monad.Either.Trans where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
-
 open import Control.Monad.Cont.Class
-
 open import Control.Monad.Error.Class
-
 open import Control.Monad.Reader.Class
-
 open import Control.Monad.State.Class
-
 open import Control.Monad.Trans.Class
-
 open import Control.Monad.Writer.Class
-
 open import Data.Bifunctor
-
 open import Data.Show
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

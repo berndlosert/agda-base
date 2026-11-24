@@ -4,9 +4,8 @@ module Data.Show where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.String.Builder as Builder using (Builder)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

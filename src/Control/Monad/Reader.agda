@@ -4,10 +4,9 @@ module Control.Monad.Reader where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Reader.Class
 open import Control.Monad.Reader.Trans
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

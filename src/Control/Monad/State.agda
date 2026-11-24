@@ -4,10 +4,9 @@ module Control.Monad.State where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.State.Class
 open import Control.Monad.State.Trans
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

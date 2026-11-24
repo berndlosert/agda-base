@@ -1,5 +1,4 @@
 open import Prelude
-
 open import System.IO
 
 data Bad : Type where

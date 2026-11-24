@@ -4,72 +4,42 @@ module Control.Lens where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
-open import Control.Monad.Instances using (Monad-Identity)
-  using (Monad)
-
+open import Control.Monad.Instances using (Monad, Monad-Identity)
 open import Control.Monad.Reader
-
 open import Control.Monad.State as State
-
 open import Data.Distributive
-
 open import Data.Functor.Contravariant
-
 open import Data.Functor.Representable
-
-open import Data.List as List 
-  using ()
-
+open import Data.List as List using ()
 open import Data.Monoid.All
-
 open import Data.Monoid.Any
-
 open import Data.Monoid.Dual
-
 open import Data.Monoid.Endo
-
 open import Data.Monoid.EndoM
-
 open import Data.Monoid.Product
-
 open import Data.Monoid.Sum
-
 open import Data.Profunctor
-
 open import Data.Profunctor.Choice
-
 open import Data.Semigroup.First
-
 open import Data.Semigroup.Last
-
 open import Data.Semigroup.Strict
-
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports
 -------------------------------------------------------------------------------
 
 open Data.Monoid.All public
-
 open Data.Monoid.Any public
-
 open Data.Monoid.Dual public
-
 open Data.Monoid.Endo public
-
 open Data.Monoid.EndoM public
-
 open Data.Monoid.Sum public
-
 open Data.Semigroup.First public
-
 open Data.Semigroup.Last public
-
 open Data.Semigroup.Strict public
 
 -------------------------------------------------------------------------------
@@ -140,11 +110,11 @@ foldlOf {r} {s} {a} l step init xs =
 
 foldlMOf : {{Monad m}} -> AGetter (Dual (EndoM m r)) s a
   -> (r -> a -> m r) -> r -> s -> m r
-foldlMOf {m} {r} {s} {a} l step init xs = 
+foldlMOf {m} {r} {s} {a} l step init xs =
     appEndoM (getDual $ foldMapOf l h xs) init
   where
     h : a -> Dual (EndoM m r)
-    h x = asDual $ asEndoM \ y -> step y x  
+    h x = asDual $ asEndoM \ y -> step y x
 
 toListOf : AGetter (Endo (List a)) s a -> s -> List a
 toListOf l = foldrOf l _::_ []
@@ -509,11 +479,11 @@ instance
     where
       fwd : Eq a -> Eq b
       fwd anEq ._==_ x y =
-        let open Eq anEq renaming (_==_ to eq) 
+        let open Eq anEq renaming (_==_ to eq)
         in eq (review wrapped x) (review wrapped y)
       bwd : Eq b -> Eq a
       bwd anEq ._==_ x y =
-        let open Eq anEq renaming (_==_ to eq) 
+        let open Eq anEq renaming (_==_ to eq)
         in eq (view wrapped x) (view wrapped y)
 
 -------------------------------------------------------------------------------

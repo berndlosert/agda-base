@@ -4,9 +4,8 @@ module Control.Comonad.Cofree where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Comonad
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

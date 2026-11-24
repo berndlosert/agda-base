@@ -4,11 +4,10 @@ module Control.Monad.Writer.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (pure; _*>_)
-
 open import Control.Monad
   using (Monad)
+open import Prelude
   
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,9 +4,8 @@ module Data.STRef where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.ST
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -1,10 +1,9 @@
-open import Prelude
-open import Control.Monad using (Monad; _>>_)
 open import Control.Applicative using (_<*>_; pure; _*>_; _<*_)
-
+open import Control.Monad using (Monad; _>>_)
+open import Data.Show
 open import Data.String
 open import Data.String.Parser
-open import Data.Show
+open import Prelude
 open import System.IO
 
 data Expr : Type where

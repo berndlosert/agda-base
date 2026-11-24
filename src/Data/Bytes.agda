@@ -4,11 +4,10 @@ module Data.Bytes where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Show
 open import Data.Show.Instances
 open import Data.Word
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

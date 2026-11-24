@@ -4,15 +4,14 @@ module Test.QC.Classes where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
-open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Gen
 open import Control.Monad.IO.Class
+open import Control.Monad.Instances using (Monad-Identity)
 open import Data.Monoid.Foldable
 open import Data.Show
 open import Data.Show.Instances
+open import Prelude
 open import Properties.Eq
 open import Properties.Functor
 open import Properties.Monoid

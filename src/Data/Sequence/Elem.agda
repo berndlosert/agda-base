@@ -4,15 +4,14 @@ module Data.Sequence.Elem where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
-open import Data.Tree.Finger.Digit
-open import Data.Tree.Finger.Measured
-open import Data.Tree.Finger.Node
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum
 open import Data.Traversable
+open import Data.Tree.Finger.Digit
+open import Data.Tree.Finger.Measured
+open import Data.Tree.Finger.Node
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

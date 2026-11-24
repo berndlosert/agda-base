@@ -4,15 +4,14 @@ module Data.Traversable where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Applicative.Backwards using (forwards; backwards)
 open import Control.Monad using (Monad)
 open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.State using (runState; state; runStateT; asStateT)
 open import Data.Monoid.Foldable using (Foldable)
 open import Data.Monoid.Reverse using (Reverse; reverse; getReverse)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -33,4 +33,4 @@ All `.agda-lib` files enable `--type-in-type` and `--guardedness`; the library a
 
 ## Conventions
 
-Follow the existing style: `import`s via `open import`, section banners (`-----` comment rules) in larger files, `->`/`<-` ASCII arrows, `do`-notation and idiom brackets (`(| f x y |)`) where appropriate.
+Follow the existing style: `import`s via `open import`, kept in a single group (no blank lines) sorted alphabetically by module name (`Prelude` is sorted like any other module, so it is not first); import only what is needed via `using (...)`, including typeclass instances such as `Monad-Maybe` or `Applicative-Const` (instances are only in scope if imported by name); section banners (`-----` comment rules) in larger files, `->`/`<-` ASCII arrows, `do`-notation and idiom brackets (`(| f x y |)`) where appropriate.

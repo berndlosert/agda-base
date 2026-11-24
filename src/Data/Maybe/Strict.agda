@@ -4,9 +4,8 @@ module Data.Maybe.Strict where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (Maybe; just; nothing; maybe)
-
 open import Data.Show
+open import Prelude hiding (Maybe; just; nothing; maybe)
 
 -------------------------------------------------------------------------------
 -- Variables

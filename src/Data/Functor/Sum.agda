@@ -4,13 +4,12 @@ module Data.Functor.Sum where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
-open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Functor.Contravariant
+open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Show
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

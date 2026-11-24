@@ -1,9 +1,8 @@
-open import Prelude
 open import Control.Monad using (Monad; _>>=_; _>>_)
-
 open import Control.Monad.ST
 open import Data.Monoid.Foldable
 open import Data.STRef
+open import Prelude
 open import System.IO
 
 sumST : List Nat -> Nat

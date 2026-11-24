@@ -4,9 +4,8 @@ module Data.Char where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Agda.Builtin.Char
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Char primitives

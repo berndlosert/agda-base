@@ -4,15 +4,14 @@ module Control.Monad.Cont.Trans where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Cont.Class public using (MonadCont; callCC)
 open import Control.Monad.IO.Class using (MonadIO; liftIO)
 open import Control.Monad.Reader.Class using (MonadReader; ask)
 open import Control.Monad.State.Class using (MonadState; state)
 open import Control.Monad.Trans.Class public using (MonadTrans; lift)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

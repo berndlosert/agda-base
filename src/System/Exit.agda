@@ -4,9 +4,8 @@ module System.Exit where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Int64
+open import Prelude
 open import System.IO using (IO)
 
 -------------------------------------------------------------------------------

@@ -4,12 +4,11 @@ module Data.Semigroup.FromMaybeM where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (pure)
-
 open import Control.Monad
   using (Monad)
   using (_<=<_)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -1,12 +1,11 @@
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Data.Enum
 open import Data.Float as Float using ()
+open import Data.List as List using ()
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum using (Monoid-Sum-Float)
-open import Data.List as List using ()
 open import Data.String as String using ()
+open import Prelude
 open import System.IO
 
 instance

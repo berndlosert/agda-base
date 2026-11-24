@@ -4,11 +4,10 @@ module Control.Selective where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; caseM)
 open import Control.Monad.Instances using (Monad-Function)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

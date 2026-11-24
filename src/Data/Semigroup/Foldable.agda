@@ -4,15 +4,13 @@ module Data.Semigroup.Foldable where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad using (Monad)
 open import Data.List.Nonempty using (List1; _::_)
 open import Data.Monoid.Dual using (Dual; asDual; getDual)
 open import Data.Monoid.Foldable using ()
+open import Data.Monoid.Foldable using (Foldable)
 open import Data.Monoid.Product using (Product; asProduct; getProduct)
 open import Data.Monoid.Sum using (Sum; asSum; getSum)
-open import Data.Monoid.Foldable using (Foldable)
 open import Data.Semigroup.First using (asFirst; getFirst)
 open import Data.Semigroup.FromMaybe using (FromMaybe; asFromMaybe; appFromMaybe)
 open import Data.Semigroup.FromMaybeM using (FromMaybeM; asFromMaybeM; appFromMaybeM)
@@ -20,6 +18,7 @@ open import Data.Semigroup.Last using (asLast; getLast)
 open import Data.Semigroup.Max using (Max; asMax; getMax)
 open import Data.Semigroup.Min using (Min; asMin; getMin)
 open import Data.Semigroup.Strict using (Strict; asStrict; getStrict)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

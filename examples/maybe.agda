@@ -1,6 +1,5 @@
-open import Prelude
-
 open import Data.Semigroup.First
+open import Prelude
 
 test1 : just "1" <> just "2" <> just "3" === just "123"
 test1 = refl

@@ -4,11 +4,10 @@ module Test.QC.Poly where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Gen.Class
 open import Data.List.Nonempty
 open import Data.Show
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

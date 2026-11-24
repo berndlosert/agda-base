@@ -4,9 +4,8 @@ module Data.Enum where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Nat.Fin
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Literals

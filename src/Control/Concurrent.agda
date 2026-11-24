@@ -4,9 +4,8 @@ module Control.Concurrent where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Show
+open import Prelude
 open import System.IO using (IO)
 
 -------------------------------------------------------------------------------

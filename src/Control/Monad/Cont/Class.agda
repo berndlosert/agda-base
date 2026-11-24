@@ -4,10 +4,9 @@ module Control.Monad.Cont.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad
   using (Monad)
+open import Prelude
   
 -------------------------------------------------------------------------------
 -- Variables

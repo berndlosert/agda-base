@@ -1,5 +1,3 @@
-open import Prelude
-
 open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
 open import Control.Reduce
@@ -11,6 +9,7 @@ open import Data.Monoid.Endo
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum
 open import Data.Semigroup.Foldable
+open import Prelude
 open import System.IO
 
 variable

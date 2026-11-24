@@ -4,14 +4,13 @@ module Data.List where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
 open import Data.Filterable using (filter; filterA)
 open import Data.Monoid.Foldable as Foldable public
 open import Data.Traversable public using ()
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

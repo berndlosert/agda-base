@@ -4,8 +4,8 @@ module Data.Monoid.Ap where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,11 +4,10 @@ module Control.Monad.Reader.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Control.Monad
   using (Monad)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

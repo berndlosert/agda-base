@@ -4,10 +4,9 @@ module Control.Monad.Cont where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
-open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Cont.Trans as ContT using (ContT)
+open import Control.Monad.Instances using (Monad-Identity)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

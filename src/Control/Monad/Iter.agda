@@ -4,12 +4,10 @@ module Control.Monad.Iter where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Instances
   using (Monad-Identity)
-
 open import Control.Monad.Iter.Trans
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

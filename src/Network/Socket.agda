@@ -4,11 +4,10 @@ module Network.Socket where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Bytes
 open import Data.Show
 open import Data.Word
+open import Prelude
 open import System.IO using (IO)
 
 -------------------------------------------------------------------------------

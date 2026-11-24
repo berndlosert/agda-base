@@ -4,13 +4,12 @@ module Data.String.Encoding where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Bifunctor
 open import Data.Bytes
-open import Data.String as String using ()
 open import Data.Show
+open import Data.String as String using ()
 open import Data.Word
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Functions

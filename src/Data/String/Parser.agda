@@ -4,9 +4,7 @@ module Data.String.Parser where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure; _*>_; _<*_)
-
 open import Control.Monad
   using (Monad)
   using (liftM)
@@ -14,13 +12,14 @@ open import Control.Monad
   using (_>>=_)
 open import Data.Char as Char 
   using ()
-open import Data.Monoid.Foldable
 open import Data.List as List 
   using ()
-open import Data.String as String 
-  using ()
+open import Data.Monoid.Foldable
 open import Data.Sequence
 open import Data.Show
+open import Data.String as String 
+  using ()
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,10 +4,9 @@ module Control.Monad.Instances where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative-Function)
-
 open import Control.Monad using (Monad; _>>=_)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

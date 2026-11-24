@@ -4,9 +4,8 @@ module Data.Float where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude as Prelude hiding (fromNat)
-
 open import Agda.Builtin.Float
+open import Prelude as Prelude hiding (fromNat)
 
 -------------------------------------------------------------------------------
 -- Literals

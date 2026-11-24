@@ -4,25 +4,18 @@ module System.Random where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (_=<<_)
-
 open import Control.Monad.Gen.Class
-
 open import Data.Bits
-
 open import Data.IORef
-
 open import Data.Word
-
+open import Prelude
 open import System.IO 
   using (IO)
-
 open import System.Time
 
 -------------------------------------------------------------------------------

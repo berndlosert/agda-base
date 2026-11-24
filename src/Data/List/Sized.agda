@@ -4,13 +4,12 @@ module Data.List.Sized where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude hiding (map)
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_)
-open import Data.Monoid.Foldable as Foldable using (Foldable; foldMap)
 open import Data.List as List using ()
+open import Data.Monoid.Foldable as Foldable using (Foldable; foldMap)
 open import Data.Traversable as Traversable using (Traversable; traverse)
+open import Prelude hiding (map)
 
 -------------------------------------------------------------------------------
 -- Variables

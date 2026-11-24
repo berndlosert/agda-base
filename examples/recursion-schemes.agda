@@ -1,18 +1,17 @@
-open import Prelude
-open import Control.Monad.Instances using (Monad-Identity)
-open import Data.Traversable using (Traversable; sequence)
-open import Control.Monad using (Monad; _>>=_)
 open import Control.Applicative using (pure)
-
+open import Control.Monad using (Monad; _>>=_)
+open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Reader
-open import Data.Monoid.Sum using (Monoid-Sum-Nat)
 open import Data.Functor.Compose
 open import Data.Functor.Recursive
 open import Data.List
+open import Data.Monoid.Sum using (Monoid-Sum-Nat)
+open import Data.Show
 open import Data.String using (pack)
+open import Data.Traversable using (Traversable; sequence)
 open import Data.Tree.Rose
 open import Debug
-open import Data.Show
+open import Prelude
 open import System.IO
 
 variable

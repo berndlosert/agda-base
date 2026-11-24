@@ -1,11 +1,10 @@
-open import Prelude
-open import Control.Monad.Instances using (Monad-Identity)
-open import Control.Monad using (Monad; _>>=_)
 open import Control.Applicative using (pure)
-
+open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Gen
+open import Control.Monad.Instances using (Monad-Identity)
 open import Data.Enum
 open import Data.Word
+open import Prelude
 open import System.IO
 open import System.Random
 open import System.Time

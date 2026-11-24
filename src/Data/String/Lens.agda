@@ -4,12 +4,11 @@ module Data.String.Lens where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Control.Lens
 open import Data.String as String using ()
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- String optics

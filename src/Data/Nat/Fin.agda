@@ -4,10 +4,9 @@ module Data.Nat.Fin where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Show.Instances using (Show-Nat)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Fin

@@ -4,10 +4,9 @@ module Data.Monoid.Any where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Show.Instances using (Show-Bool)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Any

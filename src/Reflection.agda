@@ -4,12 +4,11 @@ module Reflection where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
+open import Agda.Builtin.Reflection
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _>>=_; liftM; ap)
-
-open import Agda.Builtin.Reflection
 open import Data.Show
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

@@ -4,14 +4,13 @@ module Data.Functor.Product where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad using (Monad; _>>=_)
-open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Functor.Contravariant using (Contravariant; cmap)
+open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Traversable using (Traversable; traverse)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

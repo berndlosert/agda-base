@@ -4,9 +4,8 @@ module Data.Word where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Bits
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Word8

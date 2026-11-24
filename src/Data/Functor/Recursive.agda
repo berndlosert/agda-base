@@ -4,15 +4,14 @@ module Data.Functor.Recursive where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Control.Comonad using (Comonad; duplicate; extract)
 open import Control.Comonad.Cofree using (Cofree)
 open import Control.Monad using (Monad; join)
 open import Control.Monad.Free using (Free; interpretFree; liftFree)
 open import Data.Functor.Compose using (Compose; asCompose)
 open import Data.Show as Show using (Show; show; showsPrec)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

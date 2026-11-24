@@ -1,6 +1,5 @@
-open import Prelude
-
 open import Data.Set as Set using (Set)
+open import Prelude
 open import System.IO
 
 foo1 : Set Nat

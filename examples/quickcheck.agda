@@ -1,11 +1,10 @@
-open import Prelude
-open import Control.Monad.Instances using (Monad-Identity)
-open import Control.Monad using (Monad; _>>_)
 open import Control.Applicative using (_<*>_; pure)
-
+open import Control.Monad using (Monad; _>>_)
 open import Control.Monad.Gen
+open import Control.Monad.Instances using (Monad-Identity)
 open import Data.List as List using ()
 open import Data.Monoid.Sum
+open import Prelude
 open import System.IO
 open import Test.QC
 open import Test.QC.Classes

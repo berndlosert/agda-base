@@ -4,28 +4,21 @@ module Control.Monad.Gen.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (_<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
-  
 open import Data.Bits
-
 open import Data.Filterable using (filterA)
-open import Data.Traversable using (Traversable-List)
 open import Data.List as List
   using ()
-open import Data.Monoid.Sum using (Semigroup-Sum-Nat1)
-
 open import Data.List.Nonempty
-
 open import Data.Monoid.Foldable
-
+open import Data.Monoid.Sum using (Semigroup-Sum-Nat1)
 open import Data.Semigroup.Foldable
-
+open import Data.Traversable using (Traversable-List)
 open import Data.Word
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

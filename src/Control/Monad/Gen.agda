@@ -4,10 +4,9 @@ module Control.Monad.Gen where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Gen.Class
 open import Control.Monad.Gen.Trans
+open import Prelude
 open import System.Random
 
 -------------------------------------------------------------------------------

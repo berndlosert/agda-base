@@ -4,10 +4,9 @@ module Control.Monad.Writer where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Control.Monad.Writer.Class
 open import Control.Monad.Writer.Trans
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

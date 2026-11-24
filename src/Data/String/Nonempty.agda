@@ -4,11 +4,10 @@ module Data.String.Nonempty where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Nonempty
 open import Data.Show
 open import Data.Show.Instances
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- String1

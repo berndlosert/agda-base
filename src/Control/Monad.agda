@@ -4,8 +4,8 @@ module Control.Monad where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; pure; _*>_)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,23 +4,17 @@ module Control.Monad.Maybe.Trans where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (caseM)
-
 open import Control.Monad.Error.Class
-
 open import Control.Monad.IO.Class
-
 open import Control.Monad.Trans.Class
-
 open import Data.Monoid.Foldable
-
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Re-exports

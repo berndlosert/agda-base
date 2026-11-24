@@ -4,10 +4,9 @@ module Data.Ord.Bounded where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Char as Char using ()
 open import Data.Float as Float using ()
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Bounded

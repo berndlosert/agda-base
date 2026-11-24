@@ -4,9 +4,8 @@ module Data.Profunctor.Closed where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Data.Profunctor
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -4,12 +4,11 @@ module Data.Functor.Compose where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
 open import Control.Applicative using (Applicative; _<*>_; pure)
-
-open import Data.Monoid.Foldable
 open import Data.Functor.Contravariant
+open import Data.Monoid.Foldable
 open import Data.Traversable
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables

@@ -1,6 +1,5 @@
-open import Prelude
-
 open import Data.Maybe.Strict as Strict using ()
+open import Prelude
 open import System.IO
 
 x : Maybe String

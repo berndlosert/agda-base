@@ -4,12 +4,11 @@ module Data.String where
 -- Imports
 -------------------------------------------------------------------------------
 
-open import Prelude
-
 open import Agda.Builtin.String
 open import Data.Char as Char using ()
 open import Data.List as List using ()
 open import Data.Show
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables
