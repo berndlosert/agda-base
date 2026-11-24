@@ -5,6 +5,8 @@ module Data.Semigroup where
 -------------------------------------------------------------------------------
 
 open import Agda.Builtin.String using ()
+open import Data.Functor.Const using (Const; asConst; getConst)
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Prelude
 
 -------------------------------------------------------------------------------

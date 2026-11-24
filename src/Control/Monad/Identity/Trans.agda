@@ -15,6 +15,7 @@ open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
+open import Data.Functor.Identity using (Identity)
 open import Data.Monoid.Foldable
 open import Data.Traversable
 open import Prelude

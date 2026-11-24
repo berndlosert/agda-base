@@ -70,18 +70,6 @@ open Agda.Builtin.Equality public
 Function : Type -> Type -> Type
 Function a b = a -> b
 
-record Identity (a : Type) : Type where
-  constructor asIdentity
-  field runIdentity : a
-
-open Identity public
-
-record Const (a b : Type) : Type where
-  constructor asConst
-  field getConst : a
-
-open Const public
-
 open Agda.Builtin.Maybe public
   using (Maybe)
   using (nothing)
@@ -340,12 +328,6 @@ instance
   Eq-String : Eq String
   Eq-String ._==_ = Agda.Builtin.String.primStringEquality
 
-  Eq-Identity : {{Eq a}} -> Eq (Identity a)
-  Eq-Identity {a} ._==_ x y = runIdentity x == runIdentity y
-
-  Eq-Const : {{Eq a}} -> Eq (Const a b)
-  Eq-Const ._==_ x y = getConst x == getConst y
-
   Eq-Either : {{Eq a}} -> {{Eq b}} -> Eq (Either a b)
   Eq-Either ._==_ (left x) (left y) = x == y
   Eq-Either ._==_ (right x) (right y) = x == y
@@ -437,12 +419,6 @@ instance
   Ord-Char ._<_ c d =
     let toNat = Agda.Builtin.Char.primCharToNat
     in toNat c < toNat d
-
-  Ord-Identity : {{Ord a}} -> Ord (Identity a)
-  Ord-Identity {a} ._<_ x y = runIdentity x < runIdentity y
-
-  Ord-Const : {{Ord a}} -> Ord (Const a b)
-  Ord-Const ._<_ x y = getConst x < getConst y
 
   Ord-List : {{Ord a}} -> Ord (List a)
   Ord-List ._<_ [] [] = false

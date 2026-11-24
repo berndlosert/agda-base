@@ -5,6 +5,8 @@ module Data.Functor where
 -------------------------------------------------------------------------------
 
 open import Control.Semigroupoid using (_<<<_)
+open import Data.Functor.Const using (Const; asConst; getConst)
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Prelude
 
 -------------------------------------------------------------------------------

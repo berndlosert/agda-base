@@ -13,6 +13,7 @@ open import Control.Monad.Free using (Free; interpretFree; liftFree)
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Functor.Compose using (Compose; asCompose)
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Prelude
 

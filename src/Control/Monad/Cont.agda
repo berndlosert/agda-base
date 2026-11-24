@@ -8,6 +8,7 @@ open import Control.Monad.Cont.Trans as ContT using (ContT)
 open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (map)
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Prelude
 
 -------------------------------------------------------------------------------

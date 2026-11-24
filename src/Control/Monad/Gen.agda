@@ -6,6 +6,7 @@ module Control.Monad.Gen where
 
 open import Control.Monad.Gen.Class
 open import Control.Monad.Gen.Trans
+open import Data.Functor.Identity using (Identity; runIdentity)
 open import Prelude
 open import System.Random
 

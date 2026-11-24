@@ -8,6 +8,7 @@ open import Control.Monad.Instances
   using (Monad-Identity)
 open import Control.Monad.Iter.Trans
 open import Control.Semigroupoid using (_<<<_)
+open import Data.Functor.Identity using (Identity; runIdentity)
 open import Prelude
 
 -------------------------------------------------------------------------------

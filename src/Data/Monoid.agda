@@ -4,6 +4,8 @@ module Data.Monoid where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor.Const using (Const; asConst)
+open import Data.Functor.Identity using (Identity; asIdentity)
 open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude
 

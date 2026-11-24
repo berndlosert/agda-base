@@ -8,6 +8,7 @@ open import Control.Monad.Writer.Class
 open import Control.Monad.Writer.Trans
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (map)
+open import Data.Functor.Identity using (Identity; runIdentity)
 open import Prelude
 
 -------------------------------------------------------------------------------

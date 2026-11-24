@@ -6,6 +6,7 @@ module Data.Bifunctor where
 
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
+open import Data.Functor.Const using (Const; asConst; getConst)
 open import Prelude
 
 -------------------------------------------------------------------------------

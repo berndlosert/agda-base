@@ -7,6 +7,7 @@ module Control.Comonad where
 open import Control.Category using (id)
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor)
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Semigroup using (_<>_)
 open import Prelude

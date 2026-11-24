@@ -13,7 +13,9 @@ open import Control.Monad.State as State
 open import Control.Semigroupoid using (_<<<_)
 open import Data.Distributive
 open import Data.Functor using (Functor; map; _<$>_; _<&>_)
+open import Data.Functor.Const using (Const; asConst; getConst)
 open import Data.Functor.Contravariant
+open import Data.Functor.Identity using (Identity; asIdentity; runIdentity)
 open import Data.Functor.Representable
 open import Data.List as List using ()
 open import Data.Monoid using (Monoid; mempty)

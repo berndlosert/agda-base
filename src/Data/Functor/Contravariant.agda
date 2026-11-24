@@ -5,6 +5,7 @@ module Data.Functor.Contravariant where
 -------------------------------------------------------------------------------
 
 open import Data.Functor using (Functor; map)
+open import Data.Functor.Const using (Const; asConst; getConst)
 open import Prelude
 
 -------------------------------------------------------------------------------
