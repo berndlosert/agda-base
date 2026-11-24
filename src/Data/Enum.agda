@@ -6,6 +6,7 @@ module Data.Enum where
 
 open import Data.Functor using (map)
 open import Data.Nat.Fin
+open import Data.Nat.Positive using (Nat1; suc)
 open import Prelude
 
 -------------------------------------------------------------------------------

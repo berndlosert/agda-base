@@ -10,6 +10,7 @@ open import Control.Monad
   using (_>>=_)
 open import Data.Functor using (Functor; map)
 open import Data.Monoid using (Monoid; mempty)
+open import Data.Nat.Positive using (Nat1)
 open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show
 open import Prelude

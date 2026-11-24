@@ -9,6 +9,7 @@ open import Agda.Builtin.Int using ()
 open import Agda.Builtin.String using ()
 open import Data.Functor.Const using (Const)
 open import Data.Functor.Identity using (Identity; asIdentity)
+open import Data.Nat.Positive using (Nat1; suc)
 open import Data.Semigroup using (_<>_)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Prelude

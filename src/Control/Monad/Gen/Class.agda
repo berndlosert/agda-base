@@ -14,6 +14,7 @@ open import Data.List as List using ()
 open import Data.List.Nonempty
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum using (Semigroup-Sum-Nat1)
+open import Data.Nat.Positive using (Nat1; FromNat-Nat1; suc)
 open import Data.Semigroup.Foldable
 open import Data.Traversable using (Traversable-List)
 open import Data.Word

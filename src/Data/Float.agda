@@ -5,6 +5,7 @@ module Data.Float where
 -------------------------------------------------------------------------------
 
 open import Agda.Builtin.Float
+open import Data.Nat.Positive using (Nat1; suc)
 open import Prelude as Prelude hiding (fromNat)
 
 -------------------------------------------------------------------------------

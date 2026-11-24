@@ -46,9 +46,6 @@ open Agda.Builtin.Nat public
   using (Nat)
   using (suc)
 
-data Nat1 : Type where
-  suc : Nat -> Nat1
-
 open Agda.Builtin.Int public
   using (Int)
   using (pos)
@@ -311,9 +308,6 @@ instance
   Eq-Nat : Eq Nat
   Eq-Nat ._==_ = Agda.Builtin.Nat._==_
 
-  Eq-Nat1 : Eq Nat1
-  Eq-Nat1 ._==_ (suc k) (suc m) = k == m
-
   Eq-Int : Eq Int
   Eq-Int ._==_ (pos m) (pos n) = m == n
   Eq-Int ._==_  (negsuc m) (negsuc n) = m == n
@@ -403,9 +397,6 @@ instance
   Ord-Nat : Ord Nat
   Ord-Nat ._<_ = Agda.Builtin.Nat._<_
 
-  Ord-Nat1 : Ord Nat1
-  Ord-Nat1 ._<_ (suc k) (suc m) = k < m
-
   Ord-Int : Ord Int
   Ord-Int ._<_ (pos m) (pos n) = m < n
   Ord-Int ._<_ (negsuc m) (negsuc n) = n < m
@@ -458,11 +449,6 @@ instance
   FromNat-Nat .FromNat.Constraint _ = Unit
   FromNat-Nat .fromNat n = n
 
-FromNat-Nat1 : FromNat Nat1
-FromNat-Nat1 .FromNat.Constraint 0 = Void
-FromNat-Nat1 .FromNat.Constraint _ = Unit
-FromNat-Nat1 .fromNat (suc n) = suc n
-
 FromNat-Int : FromNat Int
 FromNat-Int .FromNat.Constraint _ = Unit
 FromNat-Int .fromNat n = pos n
@@ -484,9 +470,6 @@ instance
   ToNat-Int : ToNat Int
   ToNat-Int .toNat (pos n) = n
   ToNat-Int .toNat (negsuc n) = 0
-
-  ToNat-Nat1 : ToNat Nat1
-  ToNat-Nat1 .toNat (suc m) = suc m
 
 -------------------------------------------------------------------------------
 -- FromNeg
@@ -555,9 +538,6 @@ instance
   Addable-Nat : Addable Nat
   Addable-Nat ._+_ = Agda.Builtin.Nat._+_
 
-  Addable-Nat1 : Addable Nat1
-  Addable-Nat1 ._+_ (suc m) (suc n) = suc (suc (m + n))
-
   Addable-Int : Addable Int
   Addable-Int ._+_ = \ where
       (negsuc m) (negsuc n) -> negsuc (suc (m + n))
@@ -602,9 +582,6 @@ instance
   Multiplicative-Nat : Multiplicative Nat
   Multiplicative-Nat ._*_ = Agda.Builtin.Nat._*_
 
-  Multiplicative-Nat1 : Multiplicative Nat1
-  Multiplicative-Nat1 ._*_ (suc m) (suc n) = suc (m * n + m + n)
-
   Multiplicative-Int : Multiplicative Int
   Multiplicative-Int ._*_ (pos n) (pos m) = pos (n * m)
   Multiplicative-Int ._*_ (negsuc n) (negsuc m) = pos (suc n * suc m)
@@ -648,11 +625,6 @@ instance
   Subtractable-Nat ._-_ 0 _ = 0
   Subtractable-Nat ._-_ (suc m) 0 = suc m
   Subtractable-Nat ._-_ (suc m) (suc n) = m - n
-
-  Subtractable-Nat1 : Subtractable Nat1
-  Subtractable-Nat1 ._-_ (suc m) (suc n) with m - n
-  ... | 0 = suc 0
-  ... | suc k = suc k
 
   Subtractable-Int : Subtractable Int
   Subtractable-Int ._-_ m n = m + (- n)
