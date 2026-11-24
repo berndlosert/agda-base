@@ -5,6 +5,7 @@ module Control.Comonad.Store where
 -------------------------------------------------------------------------------
 
 open import Control.Comonad
+open import Data.Functor using (Functor; map)
 open import Prelude
 
 -------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 open import Control.Applicative using (_<*>_; pure; _*>_; _<*_)
 open import Control.Monad using (Monad; _>>_)
+open import Data.Functor using (_<$>_; _<$_)
 open import Data.Show
 open import Data.String
 open import Data.String.Parser

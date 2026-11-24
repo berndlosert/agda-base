@@ -9,6 +9,7 @@ open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (_=<<_)
+open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Monoid.Dual
 open import Data.Monoid.Foldable
 open import Prelude

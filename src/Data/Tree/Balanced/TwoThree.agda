@@ -6,9 +6,10 @@ module Data.Tree.Balanced.TwoThree where
 
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
+open import Data.Functor as Functor using ()
 open import Data.Monoid.Foldable using (Foldable; foldMap; toList; foldr)
 open import Data.Show as Show using (Show; show; showsPrec)
-open import Prelude hiding (map)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -289,7 +290,7 @@ fromList : {{Ord a}} -> List a -> Tree a
 fromList xs = foldr insert leaf xs
 
 map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
-map f = fromList <<< Prelude.map f <<< toList
+map f = fromList <<< Functor.map f <<< toList
 
 merge : {{Ord a}} -> Tree a -> Tree a -> Tree a
 merge t1 t2 = foldr insert t1 t2

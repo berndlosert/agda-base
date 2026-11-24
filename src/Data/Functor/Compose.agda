@@ -5,6 +5,7 @@ module Data.Functor.Compose where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Data.Functor using (Functor; map)
 open import Data.Functor.Contravariant
 open import Data.Monoid.Foldable
 open import Data.Traversable

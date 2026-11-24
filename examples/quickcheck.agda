@@ -2,6 +2,7 @@ open import Control.Applicative using (_<*>_; pure)
 open import Control.Monad using (Monad; _>>_)
 open import Control.Monad.Gen
 open import Control.Monad.Instances using (Monad-Identity)
+open import Data.Functor using (map)
 open import Data.List as List using ()
 open import Data.Monoid.Sum
 open import Prelude

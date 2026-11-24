@@ -6,6 +6,7 @@ module Control.Reduce where
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Comonad using (Comonad; extract; extend)
+open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable using (Foldable; foldr)
 open import Data.Monoid.Product using (Product; asProduct; getProduct)
 open import Data.Monoid.Sum using (Sum; asSum; getSum)

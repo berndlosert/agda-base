@@ -12,6 +12,7 @@ open import Control.Monad
   using (_>>=_)
 open import Data.Char as Char 
   using ()
+open import Data.Functor using (Functor; map; _<$>_; _<$_)
 open import Data.List as List 
   using ()
 open import Data.Monoid.Foldable

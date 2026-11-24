@@ -5,6 +5,7 @@ module Data.Tree.Finger where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (_<*>_; pure)
+open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum
 open import Data.Traversable

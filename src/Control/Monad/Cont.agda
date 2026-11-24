@@ -6,6 +6,7 @@ module Control.Monad.Cont where
 
 open import Control.Monad.Cont.Trans as ContT using (ContT)
 open import Control.Monad.Instances using (Monad-Identity)
+open import Data.Functor using (map)
 open import Prelude
 
 -------------------------------------------------------------------------------

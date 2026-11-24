@@ -7,10 +7,11 @@ module Data.Tree.Unbalanced.Binary where
 open import Control.Applicative using (pure)
 open import Control.Monad using (_>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
+open import Data.Functor as Functor using ()
 open import Data.Monoid.Foldable
 open import Data.Show
 open import Data.Traversable
-open import Prelude hiding (map)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -113,7 +114,7 @@ module _ {{_ : Ord a}} where
   fromList xs = foldr insert leaf xs
 
 map : {{Ord b}} -> (a -> b) -> Tree a -> Tree b
-map f = fromList <<< Prelude.map f <<< toList
+map f = fromList <<< Functor.map f <<< toList
 
 filter : {{Ord a}} -> (a -> Bool) -> Tree a -> Tree a
 filter _ leaf = leaf

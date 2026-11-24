@@ -4,6 +4,7 @@ module Data.Profunctor.Strong where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (map)
 open import Data.Profunctor
 open import Prelude
 

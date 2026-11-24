@@ -4,6 +4,7 @@ module Control.Applicative where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (Functor; map; _<$>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

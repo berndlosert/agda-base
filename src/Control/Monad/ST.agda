@@ -9,6 +9,7 @@ module Control.Monad.ST where
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _>>=_)
+open import Data.Functor using (Functor; map)
 open import Prelude
 
 -------------------------------------------------------------------------------

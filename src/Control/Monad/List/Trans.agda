@@ -14,6 +14,7 @@ open import Control.Monad.Reader.Class
 open import Control.Monad.State.Class
 open import Control.Monad.Trans.Class
 open import Control.Monad.Writer.Class
+open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable
 open import Prelude
 

@@ -1,6 +1,7 @@
 open import Control.Applicative using (_<*>_; pure)
 open import Data.Enum
 open import Data.Float as Float using ()
+open import Data.Functor using (map)
 open import Data.List as List using ()
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum using (Monoid-Sum-Float)

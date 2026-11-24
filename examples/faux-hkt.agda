@@ -1,4 +1,4 @@
-open import Prelude hiding (Functor; map)
+open import Prelude
 
 variable
   a b : Type

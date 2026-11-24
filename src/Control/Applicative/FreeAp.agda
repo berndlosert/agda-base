@@ -5,6 +5,7 @@ module Control.Applicative.FreeAp where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Data.Functor using (Functor; map)
 open import Prelude
 
 -------------------------------------------------------------------------------

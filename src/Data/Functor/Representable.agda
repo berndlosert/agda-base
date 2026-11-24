@@ -4,6 +4,7 @@ module Data.Functor.Representable where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (Functor)
 open import Prelude
 
 -------------------------------------------------------------------------------

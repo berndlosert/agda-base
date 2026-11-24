@@ -6,10 +6,11 @@ module Control.Lens where
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad
-open import Control.Monad.Instances using (Monad, Monad-Identity)
+open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Reader
 open import Control.Monad.State as State
 open import Data.Distributive
+open import Data.Functor using (Functor; map; _<$>_; _<&>_)
 open import Data.Functor.Contravariant
 open import Data.Functor.Representable
 open import Data.List as List using ()

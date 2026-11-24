@@ -4,6 +4,7 @@ module Control.Comonad where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (Functor)
 open import Prelude
 
 -------------------------------------------------------------------------------

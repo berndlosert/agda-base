@@ -6,6 +6,7 @@ module Data.Functor.Product where
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _>>=_)
+open import Data.Functor using (Functor; map)
 open import Data.Functor.Contravariant using (Contravariant; cmap)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Show as Show using (Show; show; showsPrec)

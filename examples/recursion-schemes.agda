@@ -2,6 +2,7 @@ open import Control.Applicative using (pure)
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Reader
+open import Data.Functor using (map)
 open import Data.Functor.Compose
 open import Data.Functor.Recursive
 open import Data.List

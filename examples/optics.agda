@@ -1,6 +1,7 @@
 open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
 open import Control.Monad using (Monad; _>>_)
+open import Data.Functor using (Functor-Const)
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Traversable

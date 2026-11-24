@@ -4,6 +4,7 @@ module Data.Profunctor.Choice where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (_<$>_)
 open import Data.Profunctor
 open import Prelude
 

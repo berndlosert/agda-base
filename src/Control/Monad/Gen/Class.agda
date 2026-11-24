@@ -5,13 +5,11 @@ module Control.Monad.Gen.Class where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (_<*>_; pure)
-open import Control.Monad
-  using (Monad)
-  using (_>>=_)
+open import Control.Monad using (Monad; _>>=_)
 open import Data.Bits
 open import Data.Filterable using (filterA)
-open import Data.List as List
-  using ()
+open import Data.Functor using (map; _<$>_)
+open import Data.List as List using ()
 open import Data.List.Nonempty
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum using (Semigroup-Sum-Nat1)

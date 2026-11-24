@@ -9,6 +9,7 @@ open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (join)
+open import Data.Functor using (Functor; map)
 open import Prelude
 
 -------------------------------------------------------------------------------

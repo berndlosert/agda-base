@@ -7,6 +7,7 @@ module Data.Stream where
 open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Comonad using (Comonad; extend; extract)
 open import Control.Monad using (Monad; join; _>>=_)
+open import Data.Functor using (Functor; map)
 open import Data.List as List using ()
 open import Prelude
 

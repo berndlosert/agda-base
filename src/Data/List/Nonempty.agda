@@ -4,6 +4,7 @@ module Data.List.Nonempty where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Nonempty using (Nonemptiness; Nonempty; nonempty)
 open import Data.Show as Show using (Show; show; showsPrec)

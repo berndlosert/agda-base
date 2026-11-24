@@ -4,6 +4,7 @@ module Data.Enum where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor using (map)
 open import Data.Nat.Fin
 open import Prelude
 

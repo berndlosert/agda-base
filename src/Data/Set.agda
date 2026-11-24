@@ -4,12 +4,13 @@ module Data.Set where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Functor as Functor using ()
 open import Data.Monoid.Foldable
 open import Data.Show
 open import Data.Show.Instances
 open import Data.Traversable
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)
-open import Prelude hiding (map)
+open import Prelude
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -72,7 +73,7 @@ abstract
   filter = Tree.filter
 
   bind : {{Ord b}} -> Set a -> (a -> Set b) -> Set b
-  bind m k = unions (Prelude.map k (toList m))
+  bind m k = unions (Functor.map k (toList m))
 
 -------------------------------------------------------------------------------
 -- Instances

@@ -2,6 +2,7 @@ open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
 open import Control.Reduce
 open import Data.Enum
+open import Data.Functor using (map)
 open import Data.List as List using ()
 open import Data.List.Nonempty
 open import Data.Monoid.Dual
