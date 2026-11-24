@@ -9,6 +9,7 @@ open import Data.Functor.Compose
 open import Data.Functor.Recursive
 open import Data.List as List using ()
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (_<>_)
 open import Data.String as String using ()
 open import Prelude
 

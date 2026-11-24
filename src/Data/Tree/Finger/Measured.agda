@@ -4,6 +4,7 @@ module Data.Tree.Finger.Measured where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid)
 open import Prelude
 
 -------------------------------------------------------------------------------

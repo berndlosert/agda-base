@@ -9,6 +9,7 @@ open import Control.Monad
   using (Monad)
   using (_>>=_)
 open import Data.Functor using (Functor; map)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show
 open import Prelude
 

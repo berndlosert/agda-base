@@ -8,6 +8,7 @@ open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _=<<_)
 open import Control.Monad.Instances using (Monad-Maybe)
 open import Data.Functor using (map)
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable using (Foldable; foldr)
 open import Data.Traversable using (Traversable; traverse)
 open import Prelude

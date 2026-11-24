@@ -8,6 +8,8 @@ open import Agda.Builtin.String
 open import Data.Char as Char using ()
 open import Data.Functor using (map; _<$>_)
 open import Data.List as List using ()
+open import Data.Monoid using (Monoid-String)
+open import Data.Semigroup using (_<>_)
 open import Data.Show
 open import Prelude
 

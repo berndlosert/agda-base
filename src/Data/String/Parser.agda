@@ -15,7 +15,9 @@ open import Data.Char as Char
 open import Data.Functor using (Functor; map; _<$>_; _<$_)
 open import Data.List as List 
   using ()
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Sequence
 open import Data.Show
 open import Data.String as String 

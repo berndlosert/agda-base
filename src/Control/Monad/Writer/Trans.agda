@@ -13,6 +13,8 @@ open import Control.Monad.State.Class using (MonadState; state)
 open import Control.Monad.Trans.Class using (MonadTrans; lift)
 open import Control.Monad.Writer.Class using (MonadWriter; tell)
 open import Data.Functor using (Functor; map)
+open import Data.Monoid using (Monoid; mempty)
+open import Data.Semigroup using (_<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

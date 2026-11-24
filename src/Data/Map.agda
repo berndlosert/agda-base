@@ -5,7 +5,9 @@ module Data.Map where
 -------------------------------------------------------------------------------
 
 open import Data.List as List using ()
+open import Data.Monoid using (Monoid-List)
 open import Data.Monoid.Foldable hiding (toList)
+open import Data.Semigroup using (_<>_)
 open import Data.Show
 open import Data.Show.Instances
 open import Data.Tree.Balanced.TwoThree as Tree using (Tree)

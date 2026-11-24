@@ -5,7 +5,9 @@ module Data.Set where
 -------------------------------------------------------------------------------
 
 open import Data.Functor as Functor using ()
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show
 open import Data.Show.Instances
 open import Data.Traversable

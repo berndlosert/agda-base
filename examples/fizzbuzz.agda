@@ -4,6 +4,7 @@ open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.State
 open import Data.Enum
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (_<>_)
 open import Data.Show
 open import Prelude
 open import System.IO

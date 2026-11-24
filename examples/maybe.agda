@@ -1,3 +1,4 @@
+open import Data.Semigroup using (_<>_)
 open import Data.Semigroup.First
 open import Prelude
 

@@ -4,6 +4,8 @@ module Data.Nonempty where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid)
+open import Data.Semigroup using (Semigroup)
 open import Prelude
 
 -------------------------------------------------------------------------------

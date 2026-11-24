@@ -4,7 +4,9 @@ module Data.String.Nonempty where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid-String)
 open import Data.Nonempty
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show
 open import Data.Show.Instances
 open import Prelude

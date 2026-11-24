@@ -1,5 +1,7 @@
 open import Control.Monad using (Monad; _>>_)
+open import Data.Monoid using (mtimes)
 open import Data.Monoid.Sum
+open import Data.Semigroup using (stimes)
 open import Prelude
 open import System.IO
 

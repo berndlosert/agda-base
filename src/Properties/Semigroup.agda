@@ -4,6 +4,7 @@ module Properties.Semigroup where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

@@ -10,6 +10,8 @@ open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Control.Selective using (Selective; eitherS; eitherM)
 open import Data.Functor using (Functor; map)
 open import Data.Int64 using (Int64)
+open import Data.Monoid using (Monoid; mempty)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Show.Instances public
 open import Prelude

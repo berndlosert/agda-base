@@ -4,7 +4,9 @@ module Data.Semigroup.Strict where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Endo
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Semigroup.FromMaybe
 open import Prelude
 

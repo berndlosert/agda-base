@@ -6,7 +6,9 @@ open import Data.Functor using (map)
 open import Data.Functor.Compose
 open import Data.Functor.Recursive
 open import Data.List
+open import Data.Monoid using (Monoid-String)
 open import Data.Monoid.Sum using (Monoid-Sum-Nat)
+open import Data.Semigroup using (_<>_)
 open import Data.Show
 open import Data.String using (pack)
 open import Data.Traversable using (Traversable; sequence)

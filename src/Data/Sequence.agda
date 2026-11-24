@@ -8,9 +8,11 @@ open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; _>>=_)
 open import Data.Filterable public
 open import Data.Functor using (Functor; map; _<$>_)
+open import Data.Monoid using (Monoid)
 open import Data.Monoid.Foldable public
 open import Data.Monoid.Sum using (Sum; getSum)
 open import Data.Profunctor.Strong using (mapFst; mapSnd)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Sequence.Elem using (Elem; asElem; getElem)
 open import Data.Traversable public
 open import Data.Tree.Finger as Tree using (Tree)

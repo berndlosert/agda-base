@@ -8,6 +8,8 @@ open import Control.Applicative using (Applicative; _<*>_; pure)
 open import Control.Monad using (Monad; caseM)
 open import Control.Monad.Instances using (Monad-Function)
 open import Data.Functor using (_<$>_)
+open import Data.Monoid using (Monoid)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

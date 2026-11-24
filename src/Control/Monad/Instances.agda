@@ -6,6 +6,8 @@ module Control.Monad.Instances where
 
 open import Control.Applicative using (Applicative-Function)
 open import Control.Monad using (Monad; _>>=_)
+open import Data.Monoid using (Monoid)
+open import Data.Semigroup using (_<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

@@ -7,6 +7,7 @@ module Data.Monoid.Foldable where
 open import Control.Applicative using (Applicative; pure; _*>_)
 open import Control.Monad using (Monad)
 open import Control.Monad.Instances using (Monad-Either)
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.All using (asAll; getAll)
 open import Data.Monoid.Any using (asAny; getAny)
 open import Data.Monoid.Dual using (Dual; asDual; getDual)
@@ -14,6 +15,7 @@ open import Data.Monoid.Endo using (Endo; asEndo; appEndo)
 open import Data.Monoid.EndoM using (EndoM; asEndoM; appEndoM)
 open import Data.Monoid.Product using (Product; asProduct; getProduct)
 open import Data.Monoid.Sum using (Sum; asSum; getSum)
+open import Data.Semigroup using (_<>_)
 open import Data.Semigroup.Strict using (Strict; asStrict; getStrict)
 open import Prelude
 

@@ -5,6 +5,7 @@ open import Control.Monad.Instances using (Monad-Identity)
 open import Data.Functor using (map)
 open import Data.List as List using ()
 open import Data.Monoid.Sum
+open import Data.Semigroup using (_<>_)
 open import Prelude
 open import System.IO
 open import Test.QC

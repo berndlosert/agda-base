@@ -4,6 +4,7 @@ module Data.Semigroup.FromMaybe where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

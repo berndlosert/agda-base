@@ -5,6 +5,8 @@ module Control.Applicative where
 -------------------------------------------------------------------------------
 
 open import Data.Functor using (Functor; map; _<$>_)
+open import Data.Monoid using (Monoid; mempty)
+open import Data.Semigroup using (_<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

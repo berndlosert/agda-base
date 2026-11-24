@@ -6,7 +6,9 @@ module Data.Tree.Finger.Node where
 
 open import Control.Applicative using (_<*>_; pure)
 open import Data.Functor using (Functor; map)
+open import Data.Monoid using (Monoid)
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (_<>_)
 open import Data.Traversable
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured

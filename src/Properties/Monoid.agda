@@ -4,6 +4,8 @@ module Properties.Monoid where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid; mempty)
+open import Data.Semigroup using (_<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

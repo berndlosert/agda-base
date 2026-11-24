@@ -10,6 +10,7 @@ open import Control.Monad.Error.Class
 open import Control.Monad.Gen
 open import Control.Monad.IO.Class
 open import Data.List as List using ()
+open import Data.Semigroup using (_<>_)
 open import Data.Show
 open import Data.Show.Instances
 open import Data.String as String using ()

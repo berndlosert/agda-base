@@ -4,6 +4,7 @@ open import Control.Applicative using (unless)
 open import Control.Monad using (Monad; _>>=_; _>>_)
 open import Data.Bytes as Bytes using ()
 open import Data.List as List using ()
+open import Data.Semigroup using (_<>_)
 open import Data.String.Encoding
 open import Network.Socket
 open import Prelude

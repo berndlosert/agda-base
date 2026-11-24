@@ -7,7 +7,9 @@ module Data.Tree.Balanced.TwoThree where
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
 open import Data.Functor as Functor using ()
+open import Data.Monoid using (mempty)
 open import Data.Monoid.Foldable using (Foldable; foldMap; toList; foldr)
+open import Data.Semigroup using (_<>_)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Prelude
 

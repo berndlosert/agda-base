@@ -4,6 +4,8 @@ module Data.Show where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Data.Monoid using (Monoid)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.String.Builder as Builder using (Builder)
 open import Prelude
 

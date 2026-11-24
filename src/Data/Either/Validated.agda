@@ -10,7 +10,9 @@ open import Control.Selective
 open import Data.Bifunctor
 open import Data.Filterable
 open import Data.Functor using (Functor; map; _<$>_)
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Traversable
 open import Prelude
 

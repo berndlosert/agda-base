@@ -8,6 +8,7 @@ open import Control.Applicative using (pure)
 open import Control.Monad
   using (Monad)
   using (_<=<_)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude
 
 -------------------------------------------------------------------------------

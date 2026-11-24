@@ -14,6 +14,7 @@ open import Data.Functor using (Functor; map; _<$>_; _<&>_)
 open import Data.Functor.Contravariant
 open import Data.Functor.Representable
 open import Data.List as List using ()
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.All
 open import Data.Monoid.Any
 open import Data.Monoid.Dual
@@ -23,6 +24,7 @@ open import Data.Monoid.Product
 open import Data.Monoid.Sum
 open import Data.Profunctor
 open import Data.Profunctor.Choice
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Semigroup.First
 open import Data.Semigroup.Last
 open import Data.Semigroup.Strict

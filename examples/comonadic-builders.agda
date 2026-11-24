@@ -1,7 +1,9 @@
 -- https://kodimensional.dev/posts/2019-03-25-comonadic-builders
 
 open import Control.Comonad
+open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Any
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show
 open import Data.String.Builder hiding (Builder)
 open import Prelude

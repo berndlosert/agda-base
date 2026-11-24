@@ -5,8 +5,10 @@ module Data.List.Nonempty where
 -------------------------------------------------------------------------------
 
 open import Data.Functor using (Functor; map)
+open import Data.Monoid using (Monoid-List)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Nonempty using (Nonemptiness; Nonempty; nonempty)
+open import Data.Semigroup using (Semigroup; _<>_)
 open import Data.Show as Show using (Show; show; showsPrec)
 open import Data.Show.Instances using (Show-List)
 open import Prelude
