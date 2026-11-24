@@ -5,6 +5,7 @@ module Control.Monad where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; pure; _*>_)
 
 -------------------------------------------------------------------------------
 -- Variables

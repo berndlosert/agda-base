@@ -5,6 +5,7 @@ module Data.String.Lens where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Control.Lens
 open import Data.String as String using ()

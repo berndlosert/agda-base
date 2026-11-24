@@ -5,6 +5,7 @@ module Data.Tree.Finger where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Data.Monoid.Foldable
 open import Data.Monoid.Sum

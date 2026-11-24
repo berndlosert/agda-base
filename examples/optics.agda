@@ -1,5 +1,7 @@
 open import Prelude
+open import Control.Monad using (Monad; _>>_)
 
+open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
 open import Data.List as List using ()
 open import Data.String as String using ()

@@ -5,10 +5,14 @@ module Test.QC.Fun where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
+open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Gen.Class
+open import Data.Filterable using (filter; Filterable-List)
 open import Data.List as List using ()
 open import Data.Show
+open import Data.Show.Instances
 
 -------------------------------------------------------------------------------
 -- Variables
@@ -43,7 +47,7 @@ fun {a = a} {b = b} graph = fun' (List.foldr insert [] graph)
 
 applyFun : {{Eq a}} -> Fun a b -> a -> b
 applyFun (fun' graph default) x =
-  case (List.head (List.filter ((_== x) <<< fst) graph)) \ where
+  case (List.head (filter ((_== x) <<< fst) graph)) \ where
     nothing -> default
     (just (_ , y)) -> y
 

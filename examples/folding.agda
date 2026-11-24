@@ -1,5 +1,6 @@
 open import Prelude
 
+open import Control.Applicative using (Applicative-Const)
 open import Control.Lens
 open import Control.Reduce
 open import Data.Enum

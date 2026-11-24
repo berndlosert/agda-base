@@ -5,6 +5,7 @@ module Control.Monad.State.Class where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Control.Monad
   using (Monad)

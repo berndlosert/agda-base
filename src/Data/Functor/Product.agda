@@ -5,6 +5,7 @@ module Data.Functor.Product where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Monad using (Monad; _>>=_)
 open import Data.Monoid.Foldable using (Foldable; foldMap)

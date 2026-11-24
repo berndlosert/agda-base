@@ -8,8 +8,9 @@ module Control.Monad.ST where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
-open import Control.Monad (Monad; _>>=_)
+open import Control.Monad using (Monad; _>>=_)
 
 -------------------------------------------------------------------------------
 -- Variables

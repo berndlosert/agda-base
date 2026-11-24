@@ -5,6 +5,7 @@ module Data.List.Sized where
 -------------------------------------------------------------------------------
 
 open import Prelude hiding (map)
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Monad using (Monad; _>>=_)
 open import Data.Monoid.Foldable as Foldable using (Foldable; foldMap)

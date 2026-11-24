@@ -1,4 +1,5 @@
 open import Prelude
+open import Control.Monad using (Monad; _>>=_; _>>_)
 
 open import Control.Monad.ST
 open import Data.Monoid.Foldable

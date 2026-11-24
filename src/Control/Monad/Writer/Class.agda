@@ -5,6 +5,7 @@ module Control.Monad.Writer.Class where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (pure; _*>_)
 
 open import Control.Monad
   using (Monad)

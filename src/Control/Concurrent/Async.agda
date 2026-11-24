@@ -5,6 +5,7 @@ module Control.Concurrent.Async where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Monad
   using (Monad)

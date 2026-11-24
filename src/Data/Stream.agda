@@ -5,6 +5,7 @@ module Data.Stream where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Comonad using (Comonad; extend; extract)
 open import Control.Monad using (Monad; join; _>>=_)

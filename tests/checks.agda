@@ -1,11 +1,19 @@
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Data.Enum
 open import Data.Float as Float using ()
 open import Data.Monoid.Foldable
+open import Data.Monoid.Sum using (Monoid-Sum-Float)
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import System.IO
+
+instance
+  _ = FromNat-Int
+
+the : (a : Type) -> a -> a
+the _ x = x
 
 avg : List Float -> Float
 avg = (| sum / (Float.fromNat <<< length) |)
@@ -61,13 +69,13 @@ testEnumFromTo :
 testEnumFromTo = refl
 
 testFirst :
-  List.first (enumFromTo {Nat} 1 100000000)
+  List.head (enumFromTo {Nat} 1 100000000)
   ===
   just 1
 testFirst = refl
 
 testLast :
-  List.last (enumFromTo {Int} 1 1000)
+  List.head (List.reverse (enumFromTo {Int} 1 1000))
   ===
   just 1000
 testLast = refl

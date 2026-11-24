@@ -5,6 +5,7 @@ module Data.Functor.Recursive where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Control.Comonad using (Comonad; duplicate; extract)
 open import Control.Comonad.Cofree using (Cofree)

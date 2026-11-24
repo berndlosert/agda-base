@@ -1,4 +1,6 @@
 open import Prelude
+open import Control.Monad using (Monad; _>>_)
+open import Control.Applicative using (_<*>_; pure; _*>_; _<*_)
 
 open import Data.String
 open import Data.String.Parser

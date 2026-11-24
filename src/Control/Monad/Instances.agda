@@ -5,6 +5,7 @@ module Control.Monad.Instances where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative-Function)
 
 open import Control.Monad using (Monad; _>>=_)
 

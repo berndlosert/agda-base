@@ -5,6 +5,7 @@ module Data.Traversable where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Applicative.Backwards using (forwards; backwards)
 open import Control.Monad using (Monad)

@@ -1,4 +1,6 @@
 open import Prelude
+open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Control.Applicative using (pure)
 
 open import Control.Selective
 open import Control.Monad.Maybe.Trans

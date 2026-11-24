@@ -5,6 +5,7 @@ module Control.Monad.Gen.Class where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Control.Monad
   using (Monad)
@@ -12,8 +13,11 @@ open import Control.Monad
   
 open import Data.Bits
 
+open import Data.Filterable using (filterA)
+open import Data.Traversable using (Traversable-List)
 open import Data.List as List
   using ()
+open import Data.Monoid.Sum using (Semigroup-Sum-Nat1)
 
 open import Data.List.Nonempty
 
@@ -187,7 +191,7 @@ record MonadGen (m : Type -> Type) : Type where
         maybe g snd $ find (fst >>> (n <=_)) rest
 
   genSubsequence : List a -> m (List a)
-  genSubsequence = List.filterA (const genBool)
+  genSubsequence = filterA (const genBool)
 
   shuffle : List a -> m (List a)
   shuffle xs = do

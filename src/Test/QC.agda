@@ -6,6 +6,7 @@ module Test.QC where
 
 open import Prelude
 
+open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Either.Trans
 open import Control.Monad.Error.Class
 open import Control.Monad.Gen
@@ -13,6 +14,7 @@ open import Control.Monad.IO.Class
 open import Data.List as List using ()
 open import Data.String as String using ()
 open import Data.Show
+open import Data.Show.Instances
 open import System.IO
 open import System.Random
 

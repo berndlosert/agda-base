@@ -1,4 +1,7 @@
 open import Prelude
+open import Control.Monad.Instances using (Monad-Identity)
+open import Control.Monad using (Monad; _>>_)
+open import Control.Applicative using (_<*>_; pure)
 
 open import Control.Monad.Gen
 open import Data.List as List using ()

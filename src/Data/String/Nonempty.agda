@@ -8,6 +8,7 @@ open import Prelude
 
 open import Data.Nonempty
 open import Data.Show
+open import Data.Show.Instances
 
 -------------------------------------------------------------------------------
 -- String1

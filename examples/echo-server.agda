@@ -1,6 +1,8 @@
 {-# OPTIONS --guardedness #-}
 
 open import Prelude
+open import Control.Monad using (Monad; _>>=_; _>>_)
+open import Control.Applicative using (unless)
 
 open import Data.Bytes as Bytes using ()
 open import Data.List as List using ()

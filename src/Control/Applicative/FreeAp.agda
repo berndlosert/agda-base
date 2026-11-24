@@ -5,6 +5,7 @@ module Control.Applicative.FreeAp where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 -------------------------------------------------------------------------------
 -- Variables

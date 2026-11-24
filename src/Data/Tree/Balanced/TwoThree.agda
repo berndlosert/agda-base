@@ -6,7 +6,8 @@ module Data.Tree.Balanced.TwoThree where
 
 open import Prelude hiding (map)
 
-open import Control.Monad using (_>>=_)
+open import Control.Monad using (Monad; _>>=_)
+open import Control.Monad.Instances using (Monad-Maybe)
 open import Data.Monoid.Foldable using (Foldable; foldMap; toList; foldr)
 open import Data.Show as Show using (Show; show; showsPrec)
 

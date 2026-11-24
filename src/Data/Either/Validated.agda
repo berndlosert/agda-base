@@ -5,6 +5,7 @@ module Data.Either.Validated where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Lens
 open import Control.Selective

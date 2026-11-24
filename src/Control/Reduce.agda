@@ -5,6 +5,7 @@ module Control.Reduce where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Comonad using (Comonad; extract; extend)
 open import Data.Monoid.Foldable using (Foldable; foldr)

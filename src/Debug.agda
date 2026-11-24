@@ -5,6 +5,7 @@ module Debug where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; pure; _*>_)
 
 open import Data.Show
 open import System.IO using (IO)

@@ -5,6 +5,7 @@ module Data.Sequence.Elem where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Data.Tree.Finger.Digit
 open import Data.Tree.Finger.Measured

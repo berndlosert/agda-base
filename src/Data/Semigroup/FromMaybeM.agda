@@ -5,6 +5,7 @@ module Data.Semigroup.FromMaybeM where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (pure)
 
 open import Control.Monad
   using (Monad)

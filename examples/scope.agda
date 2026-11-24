@@ -1,4 +1,6 @@
 open import Prelude
+open import Control.Monad using (Monad; _>>_; caseM)
+open import Control.Applicative using (pure)
 
 open import Control.Monad.Either.Trans
 open import Control.Monad.Error.Class

@@ -5,6 +5,7 @@ module Data.Monoid.Foldable where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; pure; _*>_)
 
 open import Control.Monad using (Monad)
 open import Control.Monad.Instances using (Monad-Either)

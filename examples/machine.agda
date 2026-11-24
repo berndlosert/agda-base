@@ -12,6 +12,8 @@ record Moore (s a b : Type) : Type where
 
 record Moore' (a b : Type) : Type where
   constructor moore'
+  inductive
+  no-eta-equality
   field
     output : b
     next : a -> Moore' a b

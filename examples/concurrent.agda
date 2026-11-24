@@ -1,4 +1,6 @@
 open import Prelude
+open import Control.Monad using (Monad; _=<<_; _>>=_)
+open import Control.Applicative using (pure; _*>_)
 
 open import Control.Concurrent
 open import Control.Concurrent.Async

@@ -5,6 +5,7 @@ module Data.Functor.Sum where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (_<*>_; pure)
 
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Functor.Contravariant

@@ -5,6 +5,7 @@ module Control.Monad.Iter.Trans where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Monad
   using (Monad)
@@ -46,6 +47,8 @@ private
 
 record IterT (m : Type -> Type) (a : Type) : Type where
   constructor asIterT
+  inductive
+  no-eta-equality
   field runIterT : m (Either a (IterT m a))
 
 open IterT public

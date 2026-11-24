@@ -5,8 +5,10 @@ module Control.Lens where
 -------------------------------------------------------------------------------
 
 open import Prelude
+open import Control.Applicative using (Applicative; _<*>_; pure)
 
 open import Control.Monad
+open import Control.Monad.Instances using (Monad-Identity)
   using (Monad)
 
 open import Control.Monad.Reader
