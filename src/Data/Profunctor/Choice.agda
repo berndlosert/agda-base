@@ -4,6 +4,8 @@ module Data.Profunctor.Choice where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (Category)
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.Functor using (_<$>_)
 open import Data.Profunctor
 open import Prelude

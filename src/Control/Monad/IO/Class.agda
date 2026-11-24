@@ -4,6 +4,7 @@ module Control.Monad.IO.Class where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
 open import Control.Monad
   using (Monad)
 open import Prelude

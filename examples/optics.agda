@@ -1,6 +1,8 @@
 open import Control.Applicative using (Applicative-Const)
+open import Control.Category using (id)
 open import Control.Lens
 open import Control.Monad using (Monad; _>>_)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor-Const)
 open import Data.List as List using ()
 open import Data.Monoid using (Monoid-Maybe)

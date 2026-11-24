@@ -5,10 +5,12 @@ module Control.Monad.Free where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (join)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Prelude
 

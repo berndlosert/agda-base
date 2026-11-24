@@ -10,6 +10,7 @@ open import Control.Monad
   using (_>>=_)
   using (join)
 open import Control.Monad.Trans.Class
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Prelude
 

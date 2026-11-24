@@ -5,6 +5,7 @@ module Data.String where
 -------------------------------------------------------------------------------
 
 open import Agda.Builtin.String
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Char as Char using ()
 open import Data.Functor using (map; _<$>_)
 open import Data.List as List using ()

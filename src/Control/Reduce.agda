@@ -5,7 +5,9 @@ module Control.Reduce where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Comonad using (Comonad; extract; extend)
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.Functor using (Functor; map)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable using (Foldable; foldr)

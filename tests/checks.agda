@@ -1,4 +1,5 @@
 open import Control.Applicative using (_<*>_; pure)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Enum
 open import Data.Float as Float using ()
 open import Data.Functor using (map)

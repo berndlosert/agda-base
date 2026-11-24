@@ -5,10 +5,12 @@ module Data.Functor.Recursive where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (_<*>_; pure)
+open import Control.Category using (id)
 open import Control.Comonad using (Comonad; duplicate; extract)
 open import Control.Comonad.Cofree using (Cofree)
 open import Control.Monad using (Monad; join)
 open import Control.Monad.Free using (Free; interpretFree; liftFree)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Functor.Compose using (Compose; asCompose)
 open import Data.Show as Show using (Show; show; showsPrec)

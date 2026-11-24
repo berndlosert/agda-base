@@ -4,6 +4,7 @@ module Control.Applicative where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Semigroup using (_<>_)

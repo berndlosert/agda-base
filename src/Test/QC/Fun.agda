@@ -7,6 +7,7 @@ module Test.QC.Fun where
 open import Control.Applicative using (_<*>_; pure)
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Gen.Class
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Filterable using (filter; Filterable-List)
 open import Data.List as List using ()
 open import Data.Semigroup using (_<>_)

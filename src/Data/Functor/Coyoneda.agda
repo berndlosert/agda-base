@@ -5,8 +5,10 @@ module Data.Functor.Coyoneda where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Trans.Class using (MonadTrans; lift)
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Monoid.Foldable using (Foldable; foldMap)
 open import Data.Traversable using (Traversable; traverse)

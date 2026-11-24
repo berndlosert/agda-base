@@ -4,6 +4,7 @@ module Data.Map where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.List as List using ()
 open import Data.Monoid using (Monoid-List)
 open import Data.Monoid.Foldable hiding (toList)

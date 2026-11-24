@@ -5,6 +5,7 @@ module Control.Comonad.Traced where
 -------------------------------------------------------------------------------
 
 open import Control.Comonad
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Semigroup using (_<>_)

@@ -5,11 +5,13 @@ module Data.String.Parser where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure; _*>_; _<*_)
+open import Control.Category using (id)
 open import Control.Monad
   using (Monad)
   using (liftM)
   using (ap)
   using (_>>=_)
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.Char as Char 
   using ()
 open import Data.Functor using (Functor; map; _<$>_; _<$_)

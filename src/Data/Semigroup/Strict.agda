@@ -4,6 +4,7 @@ module Data.Semigroup.Strict where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Endo
 open import Data.Semigroup using (Semigroup; _<>_)

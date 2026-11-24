@@ -4,6 +4,7 @@ module Data.Semigroup.Foldable where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
 open import Control.Monad using (Monad)
 open import Data.List.Nonempty using (List1; _::_)
 open import Data.Monoid.Dual using (Dual; asDual; getDual)

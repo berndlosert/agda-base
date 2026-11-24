@@ -1,3 +1,4 @@
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Filterable
 open import Data.Monoid.Foldable
 open import Data.Semigroup using (_<>_)

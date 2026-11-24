@@ -4,6 +4,7 @@ module Data.Tree.Rose where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Data.Functor.Compose
 open import Data.Functor.Recursive

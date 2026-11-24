@@ -5,8 +5,10 @@ module Data.Monoid.Foldable where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; pure; _*>_)
+open import Control.Category using (id)
 open import Control.Monad using (Monad)
 open import Control.Monad.Instances using (Monad-Either)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.All using (asAll; getAll)
 open import Data.Monoid.Any using (asAny; getAny)

@@ -3,6 +3,7 @@ open import Control.Monad.Either.Trans
 open import Control.Monad.Error.Class
 open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.State.Trans
+open import Control.Semigroupoid using (_<<<_)
 open import Prelude
 
 variable

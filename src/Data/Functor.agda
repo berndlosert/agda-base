@@ -4,6 +4,7 @@ module Data.Functor where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Semigroupoid using (_<<<_)
 open import Prelude
 
 -------------------------------------------------------------------------------

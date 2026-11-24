@@ -6,6 +6,7 @@ module Control.Monad.Reader where
 
 open import Control.Monad.Reader.Class
 open import Control.Monad.Reader.Trans
+open import Control.Semigroupoid using (_<<<_)
 open import Prelude
 
 -------------------------------------------------------------------------------

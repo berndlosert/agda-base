@@ -11,6 +11,7 @@ open import Control.Monad.IO.Class using (MonadIO; liftIO)
 open import Control.Monad.Reader.Class using (MonadReader; ask)
 open import Control.Monad.State.Class using (MonadState; state)
 open import Control.Monad.Trans.Class public using (MonadTrans; lift)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Prelude
 

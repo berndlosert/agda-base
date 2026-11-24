@@ -13,6 +13,7 @@ open import Control.Monad.Cont.Class
 open import Control.Monad.Error.Class
 open import Control.Monad.IO.Class
 open import Control.Monad.Trans.Class
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable
 open import Data.Traversable

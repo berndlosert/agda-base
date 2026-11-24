@@ -7,6 +7,7 @@ module Data.Tree.Unbalanced.Binary where
 open import Control.Applicative using (pure)
 open import Control.Monad using (_>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor as Functor using ()
 open import Data.Monoid using (mempty)
 open import Data.Monoid.Foldable

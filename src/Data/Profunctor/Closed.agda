@@ -4,6 +4,8 @@ module Data.Profunctor.Closed where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Profunctor
 open import Prelude
 

@@ -4,6 +4,8 @@ module Properties.Functor where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Prelude
 

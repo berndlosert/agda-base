@@ -5,6 +5,7 @@ module Control.Selective where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad using (Monad; caseM)
 open import Control.Monad.Instances using (Monad-Function)
 open import Data.Functor using (_<$>_)

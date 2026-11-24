@@ -4,6 +4,8 @@ module Data.Monoid.Endo where
 -- Imports
 -------------------------------------------------------------------------------
 
+open import Control.Category using (id)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Semigroup using (Semigroup; _<>_)
 open import Prelude

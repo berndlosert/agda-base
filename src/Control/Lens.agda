@@ -5,10 +5,12 @@ module Control.Lens where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad
 open import Control.Monad.Instances using (Monad-Identity)
 open import Control.Monad.Reader
 open import Control.Monad.State as State
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Distributive
 open import Data.Functor using (Functor; map; _<$>_; _<&>_)
 open import Data.Functor.Contravariant

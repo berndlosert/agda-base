@@ -5,6 +5,7 @@ module Data.Tree.Finger.Digit where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (_<*>_; pure)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map)
 open import Data.Monoid.Foldable
 open import Data.Semigroup using (_<>_)

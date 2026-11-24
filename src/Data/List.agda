@@ -5,8 +5,10 @@ module Data.List where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad using (Monad; _>>=_)
 open import Control.Monad.Instances using (Monad-Maybe)
+open import Control.Semigroupoid using (_<<<_; _>>>_)
 open import Data.Filterable using (filter; filterA)
 open import Data.Functor using (map; _<$>_)
 open import Data.Monoid using (Monoid; mempty)

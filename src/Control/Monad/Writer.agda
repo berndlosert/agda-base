@@ -6,6 +6,7 @@ module Control.Monad.Writer where
 
 open import Control.Monad.Writer.Class
 open import Control.Monad.Writer.Trans
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (map)
 open import Prelude
 

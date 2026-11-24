@@ -5,6 +5,7 @@ module Control.Monad where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; pure; _*>_)
+open import Control.Category using (id)
 open import Prelude
 
 -------------------------------------------------------------------------------

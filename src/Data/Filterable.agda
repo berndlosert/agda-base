@@ -5,8 +5,10 @@ module Data.Filterable where
 -------------------------------------------------------------------------------
 
 open import Control.Applicative using (Applicative; _<*>_; pure)
+open import Control.Category using (id)
 open import Control.Monad using (Monad; _=<<_)
 open import Control.Monad.Instances using (Monad-Maybe)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (map)
 open import Data.Monoid using (Monoid; mempty)
 open import Data.Monoid.Foldable using (Foldable; foldr)

@@ -6,6 +6,7 @@ module Control.Monad.Gen.Class where
 
 open import Control.Applicative using (_<*>_; pure)
 open import Control.Monad using (Monad; _>>=_)
+open import Control.Semigroupoid using (_>>>_)
 open import Data.Bits
 open import Data.Filterable using (filterA)
 open import Data.Functor using (map; _<$>_)

@@ -6,6 +6,7 @@ module Control.Monad.State where
 
 open import Control.Monad.State.Class
 open import Control.Monad.State.Trans
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (map)
 open import Prelude
 

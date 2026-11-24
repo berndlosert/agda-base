@@ -1,6 +1,8 @@
 open import Control.Applicative using (Applicative-Const)
+open import Control.Category using (id)
 open import Control.Lens
 open import Control.Reduce
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Enum
 open import Data.Functor using (map)
 open import Data.List as List using ()

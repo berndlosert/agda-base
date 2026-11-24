@@ -9,6 +9,7 @@ open import Control.Monad
   using (Monad)
   using (_>>=_)
   using (_=<<_)
+open import Control.Semigroupoid using (_<<<_)
 open import Data.Functor using (Functor; map; _<$>_)
 open import Data.Monoid using (Monoid)
 open import Data.Monoid.Dual
